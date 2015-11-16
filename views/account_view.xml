@@ -25,7 +25,11 @@
             <field name="arch" type="xml">
 
                 <field name="type" position="after">
-                    <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
+
+                        <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
+                        <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
+
+
                 </field>
 
             </field>

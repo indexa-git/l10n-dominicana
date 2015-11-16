@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import shop
-import account_invoice
 import account
+import account_invoice
 import dgii_purchase
 import dgii_sale
 import res_partner

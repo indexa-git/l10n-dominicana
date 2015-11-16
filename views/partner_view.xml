@@ -9,15 +9,17 @@
             <field name="arch" type="xml">
 
                 <field name="property_account_position_id" position="replace">
+                    <field name="property_account_position_id" attrs="{'domain': [('supplier','=',False)]}"
+                           string="Posición fiscal cliente"/>
+                    <field name="property_account_position_supplier_id" attrs="{'domain': [('supplier','=',True)]}"/>
                     <field name="journal_id"/>
                 </field>
 
-                <xpath expr="//div[@class='oe_title']" position="after">
-                    <group col="4">
-                        <field name="property_account_position_id" attrs="{'required':[('company_type','=','company')]}"/>
-                        <field name="vat" string="RNC/Cédula" attrs="{'required':[('company_type','=','company')]}"/>
-                    </group>
-                </xpath>
+                    <field name="parent_id" position="after">
+                        <field name="vat" string="RNC/Cédula" attrs="{'required':[('company_type','=','company')],
+                        'invisible':[('company_type','!=','company')]}"
+                        placeholder="RNC/Cédula"/>
+                    </field>
 
             </field>
         </record>

@@ -50,7 +50,6 @@ class DgiiSaleReport(models.Model):
         lines = []
         line_number = 1
         for inv in invoices:
-            line = []
 
             LINE = line_number
 
@@ -81,9 +80,9 @@ class DgiiSaleReport(models.Model):
             for line in inv.invoice_line_ids:
                 account_ids  = [l.account_id.id for l in line]
                 move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-                MONTO_FACTURADO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])
-                if inv.type == "in_refund":
-                    MONTO_FACTURADO = MONTO_FACTURADO * -1
+                MONTO_FACTURADO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])*-1
+                if inv.type == "out_refund":
+                    MONTO_FACTURADO = MONTO_FACTURADO
 
 
             MONTO_FACTURADO = MONTO_FACTURADO
@@ -93,9 +92,9 @@ class DgiiSaleReport(models.Model):
             for tax in inv.tax_line_ids:
                 account_ids  = [t.account_id.id for t in tax]
                 move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-                ITBIS_FACTURADO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])
-                if inv.type == "in_refund":
-                    ITBIS_FACTURADO = ITBIS_FACTURADO * -1
+                ITBIS_FACTURADO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])*-1
+                if inv.type == "out_refund":
+                    ITBIS_FACTURADO = ITBIS_FACTURADO
 
             lines.append((0,False,{"LINE":LINE,
                                    "RNC_CEDULA":RNC_CEDULA,
@@ -120,7 +119,6 @@ class DgiiSaleReport(models.Model):
                            "ITBIS_TOTAL": ITBIS_TOTAL,
                            "TOTAL_MONTO_FACTURADO": TOTAL_MONTO_FACTURADO,
                            "state": "done"})
-
         return res
 
     def generate_txt(self):
@@ -167,7 +165,6 @@ class DgiiSaleReport(models.Model):
                                                        ('date_invoice','<=',end_date),
                                                        ('state','in',('open','paid')),
                                                        ('type','in',('out_invoice','out_refund'))])
-        import pdb;pdb.set_trace()
         self.create_report_lines(invoices)
         self.generate_txt()
         return True

@@ -93,7 +93,7 @@ class DgiiCancelReport(models.Model):
             ln = ""
             ln += line.NUMERO_COMPROBANTE_FISCAL
             ln += line.FECHA_COMPROBANTE.replace("-","")
-            ln += "{}".format(line.TIPO_ANULACION).zfill(12)
+            ln += "{}".format(line.TIPO_ANULACION).zfill(2)
             lines.append(ln)
 
         for line in lines:

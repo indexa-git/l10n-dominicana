@@ -5,7 +5,7 @@ import requests
 from tools import is_ncf, _internet_on
 
 
-class AccountInvoice(models.Model):
+class InheritedAccountInvoice(models.Model):
     _inherit = "account.invoice"
 
 
@@ -21,12 +21,11 @@ class AccountInvoice(models.Model):
         ("09", "ERRORES EN SECUENCIA DE NCF")
     ], string=u"Tipo de anulación", copy=False)
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal", required=False,
-                              domain=lambda s: s.env["shop.ncf.config"].get_user_shop_domain(),
+                              # domain=lambda s: s.env["shop.ncf.config"].get_user_shop_domain(),
                               # default=lambda s: s.env["shop.ncf.config"].get_default_shop()
                               )
     ncf = fields.Char("NCF", size=19, copy=False)
     ncf_required = fields.Boolean()
-
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)', 'Invoice Number must be unique per Company!'),
@@ -42,7 +41,20 @@ class AccountInvoice(models.Model):
             else:
                 self.ncf_required = False
 
-        return super(AccountInvoice, self)._onchange_journal_id()
+        if self.journal_id.purchase_type == "minor":
+            self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
+            self.ncf_required = False
+        else:
+            self.partner_id = False
+
+
+        return super(InheritedAccountInvoice, self)._onchange_journal_id()
+
+    @api.onchange('partner_id', 'company_id')
+    def _onchange_partner_id(self):
+        super(InheritedAccountInvoice, self)._onchange_partner_id()
+        if self.type in ("in_invoice","in_refund"):
+            self.fiscal_position_id = self.partner_id.property_account_position_supplier_id.id
 
     @api.onchange("fiscal_position_id")
     def onchange_fiscal_position_id(self):
@@ -94,12 +106,13 @@ class AccountInvoice(models.Model):
                                           "de consumidor final codigo 02 o revise si lo ha "
                                           "digitado incorrectamente")
 
-                elif _internet_on():
+                elif _internet_on() and self.journal_id.ncf_remote_validation:
                     result = self._check_ncf(invoice.partner_id.vat, invoice.ncf)
                     if not result.get("valid", False):
                         raise exceptions.UserError("El numero de comprobante fiscal no es valido! "
                                               "no paso la validacion en DGII, Verifique que el NCF y el RNC del "
                                                    "proveedor esten correctamente digitados.")
+
 
             self.signal_workflow("invoice_open")
 
@@ -107,11 +120,28 @@ class AccountInvoice(models.Model):
     def create(self, vals):
         if self._context.get("type", False) in ('in_invoice', 'in_refund') and vals.get("ncf", False):
             vals.update({"move_name": vals["ncf"]})
-        return super(AccountInvoice, self).create(vals)
+        return super(InheritedAccountInvoice, self).create(vals)
 
 
     @api.multi
     def write(self, vals):
         if vals.get("ncf", False) and self._context.get("type", False) in ('in_invoice', 'in_refund'):
             vals.update({"move_name": vals["ncf"]})
-        return super(AccountInvoice, self).write(vals)
+        return super(InheritedAccountInvoice, self).write(vals)
+
+
+class InheritedAccountInvoiceRefund(models.TransientModel):
+    _inherit = 'account.invoice.refund'
+
+    refund_ncf = fields.Char(u"NCF nota de crédito", size=19)
+    invoice_type = fields.Char(default=lambda s: s._context.get("type", False))
+
+    @api.multi
+    def invoice_refund(self):
+        res = super(InheritedAccountInvoiceRefund, self).invoice_refund()
+        if self._context.get("type", False) == "in_invoice":
+            inv = self.env['account.invoice'].browse(self._context.get("active_id"))
+            refund_inv = self.env['account.invoice'].search([('origin','=',inv.number),('type','=',"in_refund")])
+            refund_inv.write({"ncf": self.refund_ncf, "ncf_required": True})
+
+        return res
