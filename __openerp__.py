@@ -39,5 +39,7 @@
     # only loaded in demonstration mode
     'demo': [
     ],
-    'images': 'static/description/main.png'
+    'images': 'static/description/main.png',
+    "price": 1000,
+    'currency': 'EUR'
 }
