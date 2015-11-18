@@ -40,6 +40,6 @@
     'demo': [
     ],
     'images': 'static/description/main.png',
-    "price": 1000,
+    "price": 1500,
     'currency': 'EUR'
 }

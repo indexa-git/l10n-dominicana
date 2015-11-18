@@ -44,8 +44,6 @@ class InheritedAccountInvoice(models.Model):
         if self.journal_id.purchase_type == "minor":
             self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
             self.ncf_required = False
-        else:
-            self.partner_id = False
 
 
         return super(InheritedAccountInvoice, self)._onchange_journal_id()
