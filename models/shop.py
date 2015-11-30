@@ -9,10 +9,7 @@ class ShopJournalConfig(models.Model):
 
 
     name = fields.Char("Nombre", size=40, required=True)
-    final = fields.Many2one("account.journal", "Consumidor final", required=False, domain="[('type','=','sale')]")
-    fiscal = fields.Many2one("account.journal", u"Para crédito fiscal", required=False, domain="[('type','=','sale')]")
-    special = fields.Many2one("account.journal", u"Regímes especiales", required=False, domain="[('type','=','sale')]")
-    gov = fields.Many2one("account.journal", "Gubernalmentales", required=False, domain="[('type','=','sale')]")
+    sale_journal_id = fields.Many2one("account.journal", "Diario de ventas", required=False, domain="[('type','=','sale')]")
     user_ids = fields.Many2many("res.users", string="Usuarios que pueden usar esta sucursal")
 
 

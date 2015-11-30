@@ -26,6 +26,8 @@ class InheritedAccountInvoice(models.Model):
                               )
     ncf = fields.Char("NCF", size=19, copy=False)
     ncf_required = fields.Boolean()
+    client_fiscal_type = fields.Selection(related="fiscal_position_id.client_fiscal_type")
+    supplier_fiscal_type = fields.Selection(related="fiscal_position_id.supplier_fiscal_type")
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)', 'Invoice Number must be unique per Company!'),
@@ -58,18 +60,10 @@ class InheritedAccountInvoice(models.Model):
     def onchange_fiscal_position_id(self):
 
         if self.type in ('out_invoice', 'out_refund'):
-            if self.fiscal_position_id.client_fiscal_type == "final":
-                self.journal_id = self.shop_id.final.id
-            elif self.fiscal_position_id.client_fiscal_type == "fiscal":
-                self.journal_id = self.shop_id.fiscal.id
-            elif self.fiscal_position_id.client_fiscal_type == "gov":
-                self.journal_id = self.shop_id.gov.id
-            elif self.fiscal_position_id.client_fiscal_type == "special":
-                self.journal_id = self.shop_id.special.id
-            else:
-                self.journal_id = self.shop_id.final.id
-
+            self.journal_id = self.shop_id.sale_journal_id.id
             self.shop_id = self.env["shop.ncf.config"].get_default_shop()
+            if self.partner_id and self.partner_id.property_account_position_id.id != self.fiscal_position_id.id:
+                self.partner_id.write({"property_account_position_id": self.fiscal_position_id.id})
 
         elif self.type in ('in_invoice', 'in_refund'):
             if self.partner_id.journal_id:
@@ -81,6 +75,9 @@ class InheritedAccountInvoice(models.Model):
                 self.ncf_required = True
             else:
                 self.ncf_required = False
+
+            if self.partner_id and self.partner_id.property_account_position_supplier_id.id != self.fiscal_position_id.id:
+                self.partner_id.write({"property_account_position_supplier_id": self.fiscal_position_id.id})
 
     def _check_ncf(self, rnc, ncf):
         if ncf and rnc:

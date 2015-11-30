@@ -14,6 +14,11 @@ class AccountJournal(models.Model):
                                       ],
                                      string="Tipo de compra", default="normal")
     ncf_remote_validation = fields.Boolean("Validar NCF con DGII", default=True)
+    final_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para consumidor final")
+    fiscal_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para credito fiscal")
+    gov_sequence_id = fields.Many2one("ir.sequence", string="Secuencia gubernamental")
+    special_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para regimenes especiales")
+    unique_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para unico ingreso")
 
 
 class AccountFiscalPosition(models.Model):
@@ -24,7 +29,9 @@ class AccountFiscalPosition(models.Model):
         ("final", "Consumidor final"),
         ("fiscal", "Para credito fiscal"),
         ("gov", "Gubernamental"),
-        ("special", "Regimenes especiales")], string="Tipo de comprobante")
+        ("special", "Regimenes especiales"),
+        ("unico", "Unico ingreso")
+    ], string="Tipo de comprobante")
     journal_id = fields.Many2one("account.journal", string="Diario de compra", domain="[('type','=','purchase')]")
     supplier_fiscal_type = fields.Selection([
         ('01', '01 - Gastos de personal'),

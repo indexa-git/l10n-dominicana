@@ -25,12 +25,26 @@
             <field name="arch" type="xml">
 
                 <field name="type" position="after">
-
-                        <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
-                        <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
-
-
+                    <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
+                    <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
                 </field>
+
+                <field name="refund_sequence" position="replace"/>
+                <field name="refund_sequence_id" position="replace"/>
+
+                <xpath expr="//page[@name='journal_entries']" position="inside">
+
+                        <group attrs="{'invisible':[('type','!=','sale')]}">
+                            <field name="final_sequence_id"/>
+                            <field name="fiscal_sequence_id"/>
+                            <field name="gov_sequence_id"/>
+                            <field name="special_sequence_id"/>
+                            <field name="unique_sequence_id"/>
+                            <field name="refund_sequence_id" string="Secuencia para notas de crédito"/>
+                            <field name="refund_sequence" invisible="1"/>
+                        </group>
+
+                </xpath>
 
             </field>
         </record>
@@ -42,7 +56,8 @@
             <field name="arch" type="xml">
 
                 <field name="type_tax_use" position="after">
-                    <field name="purchase_tax_type" widget="radio" attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
+                    <field name="purchase_tax_type" widget="radio"
+                           attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
                 </field>
 
             </field>
