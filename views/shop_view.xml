@@ -12,7 +12,7 @@
                             <field name="name"/>
                         </group>
                         <group col="2">
-                            <field name="sale_journal_id"/>
+                            <field name="sale_journal_id" widget="many2many_tags"/>
                             <field name="user_ids" widget="many2many_tags"/>
                         </group>
                     </sheet>

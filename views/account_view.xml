@@ -29,7 +29,7 @@
                     <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
                 </field>
 
-                <field name="refund_sequence" position="replace"/>
+                <!--<field name="refund_sequence" position="replace"/>-->
                 <field name="refund_sequence_id" position="replace"/>
 
                 <xpath expr="//page[@name='journal_entries']" position="inside">
@@ -40,8 +40,10 @@
                             <field name="gov_sequence_id"/>
                             <field name="special_sequence_id"/>
                             <field name="unique_sequence_id"/>
-                            <field name="refund_sequence_id" string="Secuencia para notas de crédito"/>
-                            <field name="refund_sequence" invisible="1"/>
+                            <field name="refund_sequence_id" string="Secuencia para nota de crédito" attrs="{'invisible': ['|',('type', 'not in', ['sale', 'purchase']), ('refund_sequence', '!=', True)]}" required="0" groups="base.group_no_one"/>
+                            <!--<field name="refund_sequence_id" string="Secuencia para notas de crédito"/>-->
+                            <!--<field name="refund_sequence" invisible="1"/>-->
+                            <!--<field name="refund_sequence" attrs="{'invisible': [('type', 'not in', ['sale', 'purchase'])]}"/>-->
                         </group>
 
                 </xpath>

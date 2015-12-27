@@ -21,7 +21,7 @@
     'version': '1.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','account'],
+    'depends': ['base','account', 'account_accountant', 'l10n_do'],
 
     # always loaded
     'data': [
@@ -34,7 +34,8 @@
         'views/dgii_sale_view.xml',
         'views/dgii_cancel_view.xml',
         'views/dgii_exterior_view.xml',
-        'views/account_invoice_state_view.xml'
+        'views/account_invoice_state_view.xml',
+        'data/setup_ncf.xml'
     ],
     # only loaded in demonstration mode
     'demo': [

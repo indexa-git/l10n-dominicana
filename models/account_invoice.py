@@ -60,8 +60,8 @@ class InheritedAccountInvoice(models.Model):
     def onchange_fiscal_position_id(self):
 
         if self.type in ('out_invoice', 'out_refund'):
-            self.journal_id = self.shop_id.sale_journal_id.id
             self.shop_id = self.env["shop.ncf.config"].get_default_shop()
+            self.journal_id = self.shop_id.sale_journal_id.id
             if self.partner_id and self.partner_id.property_account_position_id.id != self.fiscal_position_id.id:
                 self.partner_id.write({"property_account_position_id": self.fiscal_position_id.id})
 
