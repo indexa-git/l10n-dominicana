@@ -7,9 +7,9 @@ from openerp import models, fields, api, exceptions
 class ShopJournalConfig(models.Model):
     _name = "shop.ncf.config"
 
-
+    company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id, string=u"Compañia")
     name = fields.Char("Nombre", size=40, required=True)
-    sale_journal_id = fields.Many2many("account.journal", string="Diarios de ventas", required=False, domain="[('type','=','sale')]")
+    sale_journal_ids = fields.Many2many("account.journal", string="Diarios de ventas", required=False, domain="[('type','=','sale')]")
     user_ids = fields.Many2many("res.users", string="Usuarios que pueden usar esta sucursal")
 
 

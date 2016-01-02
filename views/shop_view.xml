@@ -9,10 +9,11 @@
                 <form string="Manual Invoice Taxes">
                     <sheet>
                         <group col="1">
+                            <field name="company_id"/>
                             <field name="name"/>
                         </group>
                         <group col="2">
-                            <field name="sale_journal_id" widget="many2many_tags"/>
+                            <field name="sale_journal_ids" widget="many2many_tags"/>
                             <field name="user_ids" widget="many2many_tags"/>
                         </group>
                     </sheet>
