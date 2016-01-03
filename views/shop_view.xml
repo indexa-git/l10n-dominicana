@@ -32,7 +32,7 @@
         </record>
 
         <record id="invoice_journal_config_action" model="ir.actions.act_window">
-            <field name="name">NCF por sucursales</field>
+            <field name="name">Sucursales</field>
             <field name="res_model">shop.ncf.config</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -40,9 +40,9 @@
         </record>
 
         <menuitem id="marcos_account_dgii_menu" name="DGII" parent="account.menu_finance" sequence="5"
-                  groups="account.group_account_user,account.group_account_manager,account.group_account_invoice"/>
+                  groups="account.group_account_manager"/>
         <menuitem action="invoice_journal_config_action" id="invoice_journal_config_menu"
-                  parent="marcos_account_dgii_menu"
+                  parent="account.account_management_menu"
                   groups="account.group_account_user,account.group_account_manager,account.group_account_invoice"/>
 
     </data>
