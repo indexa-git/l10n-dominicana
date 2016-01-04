@@ -541,11 +541,11 @@ def is_ncf(value, type):
 
     if len(value) == 19:
         try:
-            if type in ("in_refund","out_refund") and value[0] in ('A', 'P') and int(value[1:3]) and int(value[3:6]) and int(value[6:9])\
-                    and value[9:11] == '04' and int(value[11:20]):
+            if type in ("in_refund","out_refund") and value[0] in ('A', 'P') and int(value[1:3]) and int(value[3:6]) and int(value[6:9]) and value[9:11] == '04' and int(value[11:20]):
                 return True
-            elif type in ("in_invoice","out_invoice") and value[0] in ('A', 'P') and int(value[1:3]) and int(value[3:6]) and int(value[6:9])\
-                and value[9:11] in ('01','14','15','11','13') and int(value[11:20]):
+            elif type == ("in_invoice",) and value[0] in ('A', 'P') and int(value[1:3]) and int(value[3:6]) and int(value[6:9]) and value[9:11] in ('01','14','15','11','13') and int(value[11:20]):
+                return True
+            elif type == ("out_invoice") and value[0] in ('A', 'P') and int(value[1:3]) and int(value[3:6]) and int(value[6:9]) and value[9:11] in ('01','02','14','15','11','13') and int(value[11:20]):
                 return True
         except:
             pass

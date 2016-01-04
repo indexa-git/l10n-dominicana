@@ -17,24 +17,19 @@ class ShopJournalConfig(models.Model):
         ('shop_ncf_config_name_uniq', 'unique(name)', 'El nombre de la sucursal debe de ser unico!'),
     ]
 
-    def get_user_shop_domain(self):
+    @api.model
+    def get_user_shop_config(self):
         user_shops = self.search([('user_ids','=',self._uid)])
-        return [('id','=',[r.id for r in user_shops])]
+        if not user_shops:
+            raise exceptions.UserError("Su usuario no tiene una sucursal asignada.")
 
-    @api.v8
-    @api.multi
-    def get_default_shop(self):
-        try:
-            user_shops = self.search([('user_ids','=',self._uid)])
-            if user_shops:
-                if len(user_shops) > 1:
-                    return user_shops[0].id
-                else:
-                    return user_shops.id
-            else:
-                raise exceptions.Warning(u"Se debe realizar la configuración de los comprobantes fiscales antes de realizar una factura!")
-        except:
-            return False
+        shop_ids = [rec.id for rec in user_shops]
+        sale_journal_ids = list(set(sum([[sale_journal_id.id for sale_journal_id in rec.sale_journal_ids] for rec in user_shops], [])))
+
+        if not sale_journal_ids:
+            raise exceptions.UserError("Su sucursal no tiene diarios de facturas asignadas.")
+
+        return {"shop_ids": shop_ids, "sale_journal_ids": sale_journal_ids}
 
     @api.model
     def setup_ncf(self):

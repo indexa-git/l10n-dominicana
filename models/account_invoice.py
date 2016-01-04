@@ -8,6 +8,13 @@ from tools import is_ncf, _internet_on
 class InheritedAccountInvoice(models.Model):
     _inherit = "account.invoice"
 
+    def _default_user_shop(self):
+        shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+        return shop_user_config["shop_ids"][0]
+
+    def _default_user_journal(self):
+        shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+        return shop_user_config["sale_journal_ids"][0]
 
     anulation_type = fields.Selection([
         ("01", "DETERIORO DE FACTURA PRE-IMPRESA"),
@@ -21,18 +28,19 @@ class InheritedAccountInvoice(models.Model):
         ("09", "ERRORES EN SECUENCIA DE NCF")
     ], string=u"Tipo de anulación", copy=False)
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal", required=False,
-                              # domain=lambda s: s.env["shop.ncf.config"].get_user_shop_domain(),
-                              # default=lambda s: s.env["shop.ncf.config"].get_default_shop()
-                              )
+                              default=_default_user_shop)
     ncf = fields.Char("NCF", size=19, copy=False)
     ncf_required = fields.Boolean()
     client_fiscal_type = fields.Selection(related="fiscal_position_id.client_fiscal_type")
     supplier_fiscal_type = fields.Selection(related="fiscal_position_id.supplier_fiscal_type")
+    journal_id = fields.Many2one('account.journal', string='Journal',
+        required=True, readonly=True, states={'draft': [('readonly', False)]},
+        default=_default_user_journal,
+        domain="[('type', 'in', {'out_invoice': ['sale'], 'out_refund': ['sale'], 'in_refund': ['purchase'], 'in_invoice': ['purchase']}.get(type, [])), ('company_id', '=', company_id)]")
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)', 'Invoice Number must be unique per Company!'),
     ]
-
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
@@ -47,7 +55,6 @@ class InheritedAccountInvoice(models.Model):
             self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
             self.ncf_required = False
 
-
         return super(InheritedAccountInvoice, self)._onchange_journal_id()
 
     @api.onchange('partner_id', 'company_id')
@@ -56,14 +63,24 @@ class InheritedAccountInvoice(models.Model):
         if self.type in ("in_invoice","in_refund"):
             self.fiscal_position_id = self.partner_id.property_account_position_supplier_id.id
 
+    @api.onchange("payment_term_id")
+    def onchange_payment_term_id(self):
+        if self.payment_term_id and self.partner_id.property_payment_term_id.id != self.payment_term_id.id:
+            self.env["res.partner"].browse(self.partner_id.id).write({"property_payment_term_id": self.payment_term_id.id})
+
     @api.onchange("fiscal_position_id")
     def onchange_fiscal_position_id(self):
 
         if self.type in ('out_invoice', 'out_refund'):
-            self.shop_id = self.env["shop.ncf.config"].get_default_shop()
-            self.journal_id = self.shop_id.sale_journal_ids[0].id
             if self.partner_id and self.partner_id.property_account_position_id.id != self.fiscal_position_id.id:
                 self.partner_id.write({"property_account_position_id": self.fiscal_position_id.id})
+
+            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+
+            return {"domain": {
+                "shop_id": [('shop_id', 'in', shop_user_config["shop_ids"])],
+                "journal_id": [('id', 'in', shop_user_config["sale_journal_ids"])]
+            }}
 
         elif self.type in ('in_invoice', 'in_refund'):
             if self.partner_id.journal_id:
