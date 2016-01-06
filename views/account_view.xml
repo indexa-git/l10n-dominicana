@@ -30,20 +30,23 @@
                 </field>
 
                 <field name="code" position="replace">
-                    <field name="code" attrs="{'readonly': ['|',('type', 'in', ['bank','cash'])], 'required': [('type', 'not in', ['bank', 'cash'])]}"/>
+                    <field name="code"
+                           attrs="{'readonly': ['|',('type', 'in', ['bank','cash'])], 'required': [('type', 'not in', ['bank', 'cash'])]}"/>
                 </field>
                 <field name="refund_sequence_id" position="replace"/>
 
                 <xpath expr="//page[@name='journal_entries']" position="inside">
 
-                        <group attrs="{'invisible':[('type','!=','sale')]}">
-                            <field name="final_sequence_id"/>
-                            <field name="fiscal_sequence_id"/>
-                            <field name="gov_sequence_id"/>
-                            <field name="special_sequence_id"/>
-                            <field name="unique_sequence_id"/>
-                            <field name="refund_sequence_id" string="Secuencia para nota de crédito" attrs="{'invisible': ['|',('type', 'not in', ['sale', 'purchase']), ('refund_sequence', '!=', True)]}" required="0" groups="base.group_no_one"/>
-                        </group>
+                    <group attrs="{'invisible':[('type','!=','sale')]}">
+                        <field name="final_sequence_id"/>
+                        <field name="fiscal_sequence_id"/>
+                        <field name="gov_sequence_id"/>
+                        <field name="special_sequence_id"/>
+                        <field name="unique_sequence_id"/>
+                        <field name="refund_sequence_id" string="Secuencia para nota de crédito"
+                               attrs="{'invisible': ['|',('type', 'not in', ['sale', 'purchase']), ('refund_sequence', '!=', True)]}"
+                               required="0" groups="base.group_no_one"/>
+                    </group>
 
                 </xpath>
 
@@ -63,6 +66,9 @@
 
             </field>
         </record>
+
+        <menuitem action="account.action_account_moves_all_a" icon="STOCK_JUSTIFY_FILL" id="account.menu_action_account_moves_all"
+                  parent="account.menu_finance_entries" sequence="1" groups="account.group_account_manager"/>
 
     </data>
 </openerp>

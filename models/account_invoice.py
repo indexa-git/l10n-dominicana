@@ -113,7 +113,7 @@ class InheritedAccountInvoice(models.Model):
                     raise exceptions.Warning(u"Este número de comprobante ya fue registrado para este proveedor!")
 
                 if not is_ncf(invoice.ncf, invoice.type):
-                    raise exceptions.UserError("El numero de comprobante fiscal no es valido"
+                    raise exceptions.UserError("El numero de comprobante fiscal no es valido "
                                           "verifique de que no esta digitando un comprobante"
                                           "de consumidor final codigo 02 o revise si lo ha "
                                           "digitado incorrectamente")
