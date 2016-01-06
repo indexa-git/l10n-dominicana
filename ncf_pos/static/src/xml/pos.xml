@@ -50,6 +50,14 @@
         <t t-jquery="span.label:contains('Tax ID')" t-operation="replace">
             <span class='label'>RNC</span>
         </t>
+    </t>
 
+    <t t-extend="PosTicket">
+        <t t-jquery='.pos-center-align' t-operation='replace'>
+            <div class="pos-center-align">
+            <h1><t t-esc="widget.pos.company.name"/></h1>
+            <h5><t t-esc="widget.pos.company.stree"/></h5>
+        </div>
+        </t>
     </t>
 </templates>

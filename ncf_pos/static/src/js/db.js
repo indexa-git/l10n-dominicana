@@ -1,7 +1,5 @@
-/**
- * Created by eneldoserrata on 12/12/15.
- */
-odoo.define('ncf_pos', function (require) {
+
+odoo.define('ncf_pos.DB', function (require) {
     "use strict";
 
     var db = require('point_of_sale.DB');
