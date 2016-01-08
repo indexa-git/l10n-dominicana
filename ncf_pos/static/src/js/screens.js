@@ -12,11 +12,12 @@ odoo.define('ncf_pos.screens', function (require) {
         render_receipt: function () {
             var self = this;
             var order = this.pos.get_order();
+            var client = order.attributes.client;
 
             new Model('pos.order').call("get_ncf", [order.name]).then(function (result) {
 
                 var ncf = result.ncf;
-                var fiscal_type = ncf.slice(10,11);
+                var fiscal_type = ncf.slice(9,11);
                 var invoice_type;
                 switch (fiscal_type) {
                     case "01":
@@ -34,15 +35,13 @@ odoo.define('ncf_pos.screens', function (require) {
                     default:
                         invoice_type = "NOTA DE CREDITO";
                 };
-
-                var client = order.attributes.client;
-
+                console.log(fiscal_type);
                 self.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                     widget: self,
                     order: order,
+                    invoice_type: invoice_type,
                     ncf: ncf,
                     client: client,
-                    invoice_type: invoice_type,
                     receipt: order.export_for_printing(),
                     orderlines: order.get_orderlines(),
                     paymentlines: order.get_paymentlines()

@@ -57,7 +57,7 @@
         <t t-jquery='.pos-center-align' t-operation='replace'>
 
             <div class="pos-center-align">
-                <h2><t t-esc="widget.pos.company.name"/></h2>
+                <h2><t t-esc="order.pos.company.name"/></h2>
             </div>
 
             <div t-attf-style="padding-bottom:0px; padding-left:0px; padding-right:0px;"
@@ -114,21 +114,28 @@
 
 
          <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
+
+            <div>
+            <span t-esc="invoice_type"/>
+            <br/>
+             <span t-esc="ncf"/>
+             </div>
+
+             <br/>
+
              <t t-if="client">
                  Cliente:<t t-esc="client.name || ''"/>
-                 <br/>
-                 RNC:<t t-esc="client.vat || ''"/>
-                 <br/>
-                 Dirección:<t t-esc="client.street || ''"/>
+                 <br t-if="client.vat"/>
+                 <t t-if="client.vat">RNC:<t t-esc="client.vat"/></t>
+                 <br t-if="client.street"/>
+                 <t t-if="client.street">Dirección:<t t-esc="client.street || ''"/></t>
              </t>
         </t>
 
         <t t-jquery="t[t-esc*='widget.pos.company.phone']" t-operation="replace">
             <t t-if="client">
-                <t t-esc="widget.pos.company.phone || ''"/>
+                <t t-esc="client.phone || ''"/>
             </t>
         </t>
-
-
     </t>
 </templates>
