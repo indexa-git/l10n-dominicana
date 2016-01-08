@@ -14,7 +14,7 @@
             </field>
         </record>
 
-        ><!-- Inherit Form View to Modify it -->
+        <!-- Inherit Form View to Modify it -->
         <record id="ncf_pos.view_pos_pos_form" model="ir.ui.view">
             <field name="name">ncf_pos.view_pos_pos_form</field>
             <field name="model">pos.order</field>
@@ -32,13 +32,13 @@
                     <field name="session_id" readonly="1"/>
                     <field name="fiscal_position_id" options="{'no_create': True}"/>
                     <field name="invoice_id" readonly="1" attrs="{'invisible':[('state','&lt;&gt;','invoiced')]}"/>
-
                 </field>
 
 
 
             </field>
         </record>
+
 
     </data>
 </openerp>
