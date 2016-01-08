@@ -1,7 +1,8 @@
 Odoo Proprietary License v1.0
 
-This software and associated files (the "Software") may only be used (executed,
-modified, executed after modifications) if you have purchased a valid license
+This software and associated files (the "Software") may only be used
+(nobody can redistribute (or sell) your module once they have bought it, unless you gave them your consent)
+if you have purchased a valid license
 from the authors, typically via Odoo Apps, or if you have received a written
 agreement from the authors of the Software (see the COPYRIGHT file).
 
