@@ -40,7 +40,6 @@
                 <field name="payment_term_id" position="after">
                     <field name="user_id" groups="base.group_user"
                            context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'account.group_account_invoice']}"/>
-
                 </field>
 
                 <field name="move_name" position="replace"/>
@@ -60,13 +59,13 @@
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
 
-
                 <xpath expr="//button[@name='invoice_open']" position="replace">
                     <button name="invoice_ncf_validation" type="object" states="draft,proforma2" string="Validate"
                             class="oe_highlight" groups="account.group_account_invoice"/>
                 </xpath>
 
                 <field name="fiscal_position_id" position="replace"/>
+
                 <field name="partner_id" position="after">
                     <field name="fiscal_position_id"/>
                     <field name="ncf_required" invisible="1"/>
@@ -83,22 +82,6 @@
 
                 <field name="date_due" position="after">
                     <field name="journal_id"/>
-                </field>
-
-
-            </field>
-        </record>
-
-        <!-- Inherit Form View to Modify it -->
-        <record id="ncf_manager_view_account_invoice_refund" model="ir.ui.view">
-            <field name="name">ncf_manager_view_account_invoice_refund</field>
-            <field name="model">account.invoice.refund</field>
-            <field name="inherit_id" ref="account.view_account_invoice_refund"/>
-            <field name="arch" type="xml">
-                <field name="description" position="after">
-                    <field name="invoice_type" invisible="1"/>
-                    <field name="refund_ncf" attrs="{'invisible':[('invoice_type','!=','in_invoice')], 'required': [('invoice_type','=','in_invoice')]}"/>
-
                 </field>
 
             </field>

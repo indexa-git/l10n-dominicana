@@ -3,6 +3,11 @@
 from openerp import models, fields, api, exceptions
 import requests
 from tools import is_ncf, _internet_on
+import openerp.addons.decimal_precision as dp
+
+from datetime import date, datetime
+
+MAGIC_COLUMNS = ('id', 'create_uid', 'create_date', 'write_uid', 'write_date')
 
 
 class InheritedAccountInvoice(models.Model):
@@ -141,19 +146,74 @@ class InheritedAccountInvoice(models.Model):
             vals.update({"move_name": vals["ncf"]})
         return super(InheritedAccountInvoice, self).write(vals)
 
+    @api.model
+    def _refund_cleanup_lines(self, lines):
+        """ Convert records to dict of values suitable for one2many line creation
 
-class InheritedAccountInvoiceRefund(models.TransientModel):
-    _inherit = 'account.invoice.refund'
+            :param recordset lines: records to convert
+            :return: list of command tuple for one2many line creation [(0, 0, dict of valueis), ...]
+        """
+        days = 0
+        if lines:
+            days = self.get_days_between(lines[0].invoice_id.date_invoice)
 
-    refund_ncf = fields.Char(u"NCF nota de crédito", size=19)
-    invoice_type = fields.Char(default=lambda s: s._context.get("type", False))
+        result = []
+        for line in lines:
+            values = {}
+            for name, field in line._fields.iteritems():
+                if name in MAGIC_COLUMNS:
+                    continue
+                elif field.type == 'many2one':
+                    values[name] = line[name].id
+                elif field.type not in ['many2many', 'one2many']:
+                    values[name] = line[name]
+                elif name == 'invoice_line_tax_ids':
+                    if days > 30:
+                        continue
+                    values[name] = [(6, 0, line[name].ids)]
+            values["refund_line_id"] = line.id
+            values["quantity"] = line.refund_quantity
+            values["refund_quantity"] = line.refund_quantity
+            if values["quantity"] == 0.00:
+                continue
+            result.append((0, 0, values))
+        if not result:
+            raise exceptions.UserError("Todos los productos de esta factura ya fueron devueltos.")
+        return result
 
     @api.multi
-    def invoice_refund(self):
-        res = super(InheritedAccountInvoiceRefund, self).invoice_refund()
-        if self._context.get("type", False) == "in_invoice":
-            inv = self.env['account.invoice'].browse(self._context.get("active_id"))
-            refund_inv = self.env['account.invoice'].search([('origin','=',inv.number),('type','=',"in_refund")])
-            refund_inv.write({"ncf": self.refund_ncf, "ncf_required": True})
+    def invoice_validate(self):
+        res = super(InheritedAccountInvoice, self).invoice_validate()
 
+        if self.type in ["out_invoice", "in_invoice"]:
+            for line in self.invoice_line_ids:
+                line.refund_quantity = line.quantity
+        elif self.type in ["out_refund", "in_refund"]:
+            for line in self.invoice_line_ids:
+                if line.quantity > line.refund_quantity:
+                    raise exceptions.UserError("No puede devolver mas productos de que los facturados.")
+                origin = self.env["account.invoice.line"].browse(line.refund_line_id.id)
+                origin.write({"refund_quantity": origin.refund_quantity-line.quantity})
+
+            refund_inv = self.env['account.invoice'].search([('origin','=',self.number),('state','in',('open', 'paid'))])
+            total_refund = sum([rec.amount_untaxed for rec in refund_inv])+self.amount_untaxed
+            afected_inv = self.env['account.invoice'].search([('number','=',self.origin),('state','in',('open', 'paid'))])
+            if total_refund>afected_inv.amount_untaxed:
+                raise exceptions.UserError("No puede crear notas de credito por un valor mayor a la factura afectada.")
         return res
+
+    def get_days_between(self, joining_date):
+
+        date_format = '%Y-%m-%d'
+        current_date = datetime.strptime(datetime.today().strftime(date_format), date_format)
+        doc_date = datetime.strptime(joining_date, date_format)
+        delta = current_date - doc_date
+        return delta.days
+
+
+class AccountInvoiceLine(models.Model):
+    _inherit = "account.invoice.line"
+
+    refund_quantity = fields.Float(string='Cantidad devuelta', digits=dp.get_precision('Product Unit of Measure'), required=False)
+    refund_line_id = fields.Many2one("account.invoice.line", string="Nota de credito")
+
