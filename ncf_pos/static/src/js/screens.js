@@ -36,7 +36,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 };
 
                 var client = order.attributes.client;
-                console.log(order);
+
                 self.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                     widget: self,
                     order: order,
@@ -47,12 +47,6 @@ odoo.define('ncf_pos.screens', function (require) {
                     orderlines: order.get_orderlines(),
                     paymentlines: order.get_paymentlines()
                 }));
-
-                //if (!order.attributes.client){
-                //    $(".pos-sale-ticket br").slice(0,4)[1].nextSibling.nodeValue = "Cliente: "+client[0].name;
-                //    $(".pos-sale-ticket br").slice(0,4)[2].nextSibling.nodeValue = "Cliente: "+client[0].name;
-                //    $(".pos-sale-ticket br").slice(0,4)[3].nextSibling.nodeValue = "Cliente: "+client[0].name;
-                //}
 
             });
         },
