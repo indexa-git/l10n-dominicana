@@ -12,7 +12,7 @@ odoo.define('ncf_pos.screens', function (require) {
         render_receipt: function () {
             var self = this;
             var order = this.pos.get_order();
-            console.log(order);
+
             new Model('pos.order').call("get_ncf", [order.name]).then(function (result) {
 
                 var ncf = result.ncf;
@@ -33,19 +33,26 @@ odoo.define('ncf_pos.screens', function (require) {
                         break;
                     default:
                         invoice_type = "NOTA DE CREDITO";
-                        break;
                 };
 
-
+                var client = order.attributes.client;
+                console.log(order);
                 self.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                     widget: self,
                     order: order,
                     ncf: ncf,
+                    client: client,
                     invoice_type: invoice_type,
                     receipt: order.export_for_printing(),
                     orderlines: order.get_orderlines(),
                     paymentlines: order.get_paymentlines()
                 }));
+
+                //if (!order.attributes.client){
+                //    $(".pos-sale-ticket br").slice(0,4)[1].nextSibling.nodeValue = "Cliente: "+client[0].name;
+                //    $(".pos-sale-ticket br").slice(0,4)[2].nextSibling.nodeValue = "Cliente: "+client[0].name;
+                //    $(".pos-sale-ticket br").slice(0,4)[3].nextSibling.nodeValue = "Cliente: "+client[0].name;
+                //}
 
             });
         },

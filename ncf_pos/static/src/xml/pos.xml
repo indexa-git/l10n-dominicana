@@ -53,11 +53,82 @@
     </t>
 
     <t t-extend="PosTicket">
+
         <t t-jquery='.pos-center-align' t-operation='replace'>
+
             <div class="pos-center-align">
-            <h1><t t-esc="widget.pos.company.name"/></h1>
-            <h5><t t-esc="widget.pos.company.stree"/></h5>
-        </div>
+                <h2><t t-esc="widget.pos.company.name"/></h2>
+            </div>
+
+            <div t-attf-style="padding-bottom:0px; padding-left:0px; padding-right:0px;"
+                 class="header col-xs-12 company-info">
+                <div class="mb8" style="font-size:12px !important; padding-bottom:2px;">
+                    <div  t-if="widget.pos.company.street or  widget.pos.company.street2 or  widget.pos.company.zip">
+                        <span class="fa fa-map-marker fa-lg"/>
+                        &#160;
+                        <span  t-esc="widget.pos.company.street"/>
+                        <span  t-if="widget.pos.company.street and  widget.pos.company.street2">,</span>
+                        <span  t-esc="widget.pos.company.street2"/>
+                        <!--<span  t-if="widget.pos.company.zip and (widget.pos.company.street or  widget.pos.company.street2)">,</span>-->
+                        <!--<span  t-esc="widget.pos.company.zip"/>-->
+                    </div>
+                    <div  t-if="widget.pos.company.city or  widget.pos.company.country_id">
+                        <span class="fa fa-map-marker fa-lg"/>
+                        &#160;
+                        <span  t-esc="widget.pos.company.city"/>
+                        <!--<span  t-if="widget.pos.company.city and  widget.pos.company.country_id">,</span>-->
+                        <!--<span  t-esc="widget.pos.company.country_id"/>-->
+                    </div>
+                    <div  t-if="widget.pos.company.phone or  widget.pos.company.fax"><span class="fa fa-phone-square fa-lg"/>&#160;
+                        <span  t-esc="widget.pos.company.phone"/>
+                        <span  t-if="widget.pos.company.phone and  widget.pos.company.fax">,</span>
+                        <span  t-if="widget.pos.company.fax">Fax:</span>
+                        <span  t-esc="widget.pos.company.fax"/>
+                    </div>
+                    <div  t-if="widget.pos.company.email">
+                        <span class="fa fa-envelope-square fa-lg"/>&#160;
+                        <span  t-esc="widget.pos.company.email"/>
+                    </div>
+                    <div  t-if="widget.pos.company.website">
+                        <span class="fa fa-globe fa-lg"/>&#160;
+                        <span  t-esc="widget.pos.company.website"/>
+                    </div>
+                    <div  t-if="widget.pos.company.vat">
+                        <span class="fa fa-building fa-lg"/>&#160; RNC:
+                        <span  t-esc="widget.pos.company.vat"/>
+                    </div>
+                </div>
+                <div t-attf-style="width:auto; float:left; padding-left:15px;
+				   padding-right:15px; padding-top:2px; padding-bottom:2px;">
+                    <span  t-if="widget.pos.company.twitter" style="padding-left:0px;" class="fa fa-twitter-square fa-lg"/>&#160;
+                    <span  t-esc="widget.pos.company.twitter"/>
+                    <span  t-if="widget.pos.company.facebook" style="padding-left:13px;" class="fa fa-facebook-square fa-lg"/>&#160;
+                    <span  t-esc="widget.pos.company.facebook"/>
+                    <span  t-if="widget.pos.company.googleplus" style="padding-left:13px;" class="fa fa-google-plus-square fa-lg"/>
+                    &#160;
+                    <span  t-esc="widget.pos.company.googleplus"/>
+                </div>
+            </div>
+            <br/>
         </t>
+
+
+         <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
+             <t t-if="client">
+                 Cliente:<t t-esc="client.name || ''"/>
+                 <br/>
+                 RNC:<t t-esc="client.vat || ''"/>
+                 <br/>
+                 Dirección:<t t-esc="client.street || ''"/>
+             </t>
+        </t>
+
+        <t t-jquery="t[t-esc*='widget.pos.company.phone']" t-operation="replace">
+            <t t-if="client">
+                <t t-esc="widget.pos.company.phone || ''"/>
+            </t>
+        </t>
+
+
     </t>
 </templates>
