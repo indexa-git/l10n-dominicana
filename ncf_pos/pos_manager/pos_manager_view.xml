@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="pos_manager_form" model="ir.ui.view">
+            <field name="name">pos.manager.form</field>
+            <field name="model">pos.manager</field>
+            <field name="arch" type="xml">
+                <form string="Supervisores" version="7.0">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="refund"/>
+                            <field name="cash_refund"/>
+                            <field name="max_disc"/>
+                            <field name="change_price"/>
+                            <field name="can_cancel"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="users"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="pos_manager_tree" model="ir.ui.view">
+            <field name="name">pos.manager.tree</field>
+            <field name="model">pos.manager</field>
+            <field name="arch" type="xml">
+                <tree string="Supervisores" version="7.0">
+                    <field name="name"/>
+                    <field name="max_disc"/>
+                    <field name="change_price"/>
+                    <field name="refund"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="pos_manager_action" model="ir.actions.act_window">
+            <field name="name">Supervisores</field>
+            <field name="res_model">pos.manager</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem action="pos_manager_action"
+                  id="menu_action_pos_discount_form_open"
+                  parent="point_of_sale.menu_point_config_product"
+                  sequence="23"/>
+
+
+    </data>
+</openerp>

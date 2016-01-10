@@ -21,24 +21,80 @@
             <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
             <field name="arch" type="xml">
 
+                <xpath expr="//form" position="inside">
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </xpath>
+
+                <xpath expr="//form//header" position="replace">
+                    <header>
+                        <button name="%(point_of_sale.action_pos_payment)d" string="Pagar" class="oe_highlight"
+                                type="action" context="{'pos_session_id' : session_id}"
+                                attrs="{'invisible': ['|',('origin','!=',False),('state','in',('invoiced','cancel'))]}"/>
+                        <button name="action_invoice" string="Invoice" type="object" states="paid"
+                                attrs="{'readonly': [('partner_id','=',False)]}"/>
+                        <button name="%(pos_order_refund_action_wizard)d" string="Devolver Productos" type="action"
+                                attrs="{'invisible':[('state','in',('draft','cancel','refund','refund_money'))]}"/>
+                        <button name="%(pos_order_cancel_action)d" type="action" states="draft"
+                                string="Cancelar Order"/>
+                        <button name="%(point_of_sale.action_report_pos_receipt)d" string="Reprint" type="action"
+                                states="paid,done,invoiced"/>
+                        <button
+                        <field name="state" widget="statusbar" statusbar_visible="draft,invoiced"
+                               statusbar_colors='{"cancel":"red"}'/>
+                    </header>
+                </xpath>
+
                 <field name="session_id" position="replace"/>
                 <field name="partner_id" position="replace"/>
                 <field name="fiscal_position_id" position="replace"/>
                 <field name="invoice_id" position="replace"/>
 
+                <field name="name" position="before">
+                    <field name="why_cancel" attrs="{'invisible':[('why_cancel','=',False)]}"/>
+                </field>
 
                 <field name="date_order" position="after">
-                    <field name="partner_id" domain="[('customer', '=', True)]" context="{'search_default_customer':1}" attrs="{'readonly': [('state','=','invoiced')]}"/>
+                    <field name="partner_id" domain="[('customer', '=', True)]" context="{'search_default_customer':1}"
+                           attrs="{'readonly': [('state','=','invoiced')]}"/>
                     <field name="session_id" readonly="1"/>
                     <field name="fiscal_position_id" options="{'no_create': True}"/>
                     <field name="invoice_id" readonly="1" attrs="{'invisible':[('state','&lt;&gt;','invoiced')]}"/>
+                    <field name="origin" readonly="1" attrs="{'invisible':[('origin','=',False)]}"/>
                 </field>
+            </field>
+        </record>
 
 
+        <!-- Inherit Form View to Modify it -->
+        <record id="ncf_pos.res_users_form_preference_view" model="ir.ui.view">
+            <field name="name">ncf_pos.res_users_form_preference_view</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="point_of_sale.res_users_form_preference_view"/>
+            <field name="arch" type="xml">
+
+                <field name="pos_config" position="after">
+                    <field name="pos_security_pin" password="True"/>
+                </field>
 
             </field>
         </record>
 
+        <!-- Inherit Form View to Modify it -->
+        <record id="" model="ir.ui.view">
+            <field name="name"></field>
+            <field name="model"></field>
+            <field name="inherit_id" ref=""/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='name']" position="">
+                    <!-- Add your fields or attributes here -->
+                </xpath>
+
+            </field>
+        </record>
 
     </data>
 </openerp>
