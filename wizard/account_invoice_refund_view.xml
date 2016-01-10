@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="ncf_manager_view_account_invoice_refund" model="ir.ui.view">
+            <field name="name">ncf_manager_view_account_invoice_refund</field>
+            <field name="model">account.invoice.refund</field>
+            <field name="inherit_id" ref="account.view_account_invoice_refund"/>
+            <field name="arch" type="xml">
+                <field name="description" position="after">
+                    <field name="invoice_type" invisible="1"/>
+                    <field name="refund_ncf" attrs="{'invisible':[('invoice_type','!=','in_invoice')], 'required': [('invoice_type','=','in_invoice')]}"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>

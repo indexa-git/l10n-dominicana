@@ -38,9 +38,8 @@
         'data/setup_ncf.xml',
         'wizard/account_invoice_refund_view.xml'
     ],
-    # only loaded in demonstration mode
-    'demo': [
-    ],
+    "qweb": ['static/src/xml/base.xml'],
+    'demo': [],
     'images': 'static/description/main.png',
     "price": 1500,
     'currency': 'EUR'

@@ -153,6 +153,12 @@ class InheritedAccountInvoice(models.Model):
             :param recordset lines: records to convert
             :return: list of command tuple for one2many line creation [(0, 0, dict of valueis), ...]
         """
+
+        if not lines:
+            return []
+
+        refund_type = self._context.get("refund_type", False)
+
         days = 0
         if lines:
             days = self.get_days_between(lines[0].invoice_id.date_invoice)
@@ -166,19 +172,35 @@ class InheritedAccountInvoice(models.Model):
                 elif field.type == 'many2one':
                     values[name] = line[name].id
                 elif field.type not in ['many2many', 'one2many']:
-                    values[name] = line[name]
+                    if name == "quantity":
+                        if not refund_type:
+                            values[name] = line.qty_allow_refund
+                        else:
+                            values["quantity"] = line[name]
+                    elif name == "qty_allow_refund":
+                        if not refund_type:
+                            values[name] = line.qty_allow_refund
+                        else:
+                            values["qty_allow_refund"] = line["quantity"]
+                    else:
+                        values[name] = line[name]
                 elif name == 'invoice_line_tax_ids':
                     if days > 30:
                         continue
                     values[name] = [(6, 0, line[name].ids)]
-            values["refund_line_id"] = line.id
-            values["quantity"] = line.refund_quantity
-            values["refund_quantity"] = line.refund_quantity
-            if values["quantity"] == 0.00:
-                continue
+
+                values["refund_line_ref"] = line.id
+
+            if not values:
+                return []
+            if lines._model == "account.invoice.line":
+                if values.get("quantity", False) == 0.00:
+                    continue
             result.append((0, 0, values))
+
         if not result:
             raise exceptions.UserError("Todos los productos de esta factura ya fueron devueltos.")
+
         return result
 
     @api.multi
@@ -187,13 +209,13 @@ class InheritedAccountInvoice(models.Model):
 
         if self.type in ["out_invoice", "in_invoice"]:
             for line in self.invoice_line_ids:
-                line.refund_quantity = line.quantity
+                line.qty_allow_refund = line.quantity
         elif self.type in ["out_refund", "in_refund"]:
             for line in self.invoice_line_ids:
-                if line.quantity > line.refund_quantity:
+                if line.quantity > line.qty_allow_refund:
                     raise exceptions.UserError("No puede devolver mas productos de que los facturados.")
-                origin = self.env["account.invoice.line"].browse(line.refund_line_id.id)
-                origin.write({"refund_quantity": origin.refund_quantity-line.quantity})
+                origin = self.env["account.invoice.line"].browse(line.refund_line_ref.id)
+                origin.write({"qty_allow_refund": origin.qty_allow_refund-line.quantity})
 
             refund_inv = self.env['account.invoice'].search([('origin','=',self.number),('state','in',('open', 'paid'))])
             total_refund = sum([rec.amount_untaxed for rec in refund_inv])+self.amount_untaxed
@@ -214,6 +236,6 @@ class InheritedAccountInvoice(models.Model):
 class AccountInvoiceLine(models.Model):
     _inherit = "account.invoice.line"
 
-    refund_quantity = fields.Float(string='Cantidad devuelta', digits=dp.get_precision('Product Unit of Measure'), required=False)
-    refund_line_id = fields.Many2one("account.invoice.line", string="Nota de credito")
+    qty_allow_refund = fields.Float(string='qty allow refund', digits=dp.get_precision('Product Unit of Measure'), required=False,copy=False)
+    refund_line_ref = fields.Many2one("account.invoice.line", string="origin line refund", copy=False)
 
