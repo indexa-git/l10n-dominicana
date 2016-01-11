@@ -25,7 +25,7 @@ class pos_session(osv.osv):
             for order in session.order_ids:
                 if order.state == 'done':
                     continue
-                if order.state not in ('paid', 'invoiced', 'cancel'):
+                if order.state in ('draft'):
                     raise exceptions.UserError(_("You cannot confirm all orders of this session, because they have not the 'paid' status"))
                 else:
                     pos_order_obj.signal_workflow(cr, uid, [order.id], 'done')
@@ -47,8 +47,8 @@ class PosOrder(models.Model):
                                  domain="[('state', '=', 'opened')]",
                                  states={'draft': [('readonly', False)]},
                                  readonly=True)
-    reserve_ncf_seq = fields.Char(size=19)
-    origin = fields.Many2one("pos.order", string="Afecta")
+    reserve_ncf_seq = fields.Char(size=19, copy=False)
+    origin = fields.Many2one("pos.order", string="Afecta", copy=False)
     why_cancel = fields.Char("Concepto de cancelacion")
     state = fields.Selection([('draft', 'New'),
                               ('cancel', 'Cancelled'),
@@ -138,12 +138,13 @@ class PosOrder(models.Model):
                                                  'qty': line.qty*-1,
                                                  'discount': line.discount,
                                                  'order_id': clone_id.id,
-                                                 'tax_ids': [t.id for t in line.tax_ids],
+                                                 'tax_ids': [(6,False, [t.id for t in line.tax_ids])],
                                                  'qty_allow_refund': line.qty_allow_refund,
                                                  'refund_line_ref': line.id
                                                  })
 
                 new_lines.append(ln)
+
 
             if not new_lines:
                 raise exceptions.UserError("Todos los productos de esta orden ya fueron devueltas!")
@@ -198,6 +199,12 @@ class PosOrder(models.Model):
             ncf = self.search([('pos_reference', '=', name)]).reserve_ncf_seq
             self._cr.commit()
         return {"ncf": ncf}
+
+    @api.model
+    def create(self, values):
+        current_session_id = self.env['pos.session'].search([('state', '!=', 'closed'), ('user_id', '=', self._uid)])
+        values['name'] = current_session_id.config_id.sequence_id.next_by_id()
+        return super(models.Model, self).create(values)
 
 
 class PosOrderLine(models.Model):

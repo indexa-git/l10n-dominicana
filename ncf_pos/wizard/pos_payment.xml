@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="ncf_pos.view_pos_payment" model="ir.ui.view">
+            <field name="name">ncf_pos.view_pos_payment</field>
+            <field name="model">pos.make.payment</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
+            <field name="arch" type="xml">
+                <field name="journal_id" position="replace">
+                    <field name="journal_id" autofocus="True" options="{'no_open':True,'no_create':True}"
+                    widget="radio"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
+

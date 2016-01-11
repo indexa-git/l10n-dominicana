@@ -27,6 +27,7 @@
         'security/ir.model.access.csv',
         'wizard/pos_order_cancel_view.xml',
         'wizard/pos_order_refund_view.xml',
+        'wizard/pos_payment.xml',
         'views.xml',
         'templates.xml',
         'pos_manager/pos_manager_view.xml',

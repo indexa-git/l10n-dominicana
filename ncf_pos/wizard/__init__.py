@@ -2,3 +2,4 @@
 
 import pos_order_cancel
 import pos_order_refund
+import pos_payment

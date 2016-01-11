@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="pos_order_refund_form_wizard" model="ir.ui.view">
+            <field name="name">marcos_wizard_pos_refund_order</field>
+            <field name="model">pos.order.refund</field>
+            <field name="arch" type="xml">
+                <form string="Devolución">
+                    <group>
+                        <field name="manager" password="True" autofocus="autofocus"/>
+                    </group>
+                    <footer>
+                        <button name="can_refund" string="Hacer Devolución" type="object" class="oe_highlight"/>
+                        or
+                        <button special="cancel" string="Salir" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="pos_order_refund_action_wizard" model="ir.actions.act_window">
+            <field name="name">Devolución de productos</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos.order.refund</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="pos_order_refund_form_wizard"></field>
+            <field name="context">{'refund': True}</field>
+        </record>
+
+
+        <record id="pos_order_credito_note_form" model="ir.ui.view">
+            <field name="name">pos_order_credito_note_form</field>
+            <field name="model">pos.order.credit.note</field>
+            <field name="arch" type="xml">
+                <form string="Aplicar pagos">
+                    <group>
+                        <field name="refund_money"/>
+
+                        <field name="journal_id" widget="radio" autofocus="True"
+                               attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>
+
+                        <field name="amount"
+                               attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>
+
+                        <field name="payment_name"/>
+
+                        <field name="manager_pwd" password="1"
+                               attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>
+
+                    </group>
+                    <footer>
+                        <button name="apply_credit_note" type="object" string="Aceptar" class="oe_highlight"/>
+                        <button special="cancel" string="Cancelar" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="pos_order_credito_note_action" model="ir.actions.act_window">
+            <field name="name">Generar nota de crédito</field>
+            <field name="res_model">pos.order.credit.note</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="pos_order_credito_note_form"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</openerp>

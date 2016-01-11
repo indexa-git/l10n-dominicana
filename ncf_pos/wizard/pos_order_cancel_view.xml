@@ -9,7 +9,7 @@
                 <form string="Cancelar orden">
                     <group>
                         <field name="why" required="1"/>
-                        <field name="manager" password="True"/>
+                        <field name="manager" password="True" autofocus="True"/>
                     </group>
                     <footer>
                         <button name="cancel" string="Cancelar order" type="object" class="oe_highlight"/>
