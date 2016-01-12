@@ -66,6 +66,7 @@
                     <field name="invoice_id" readonly="1" attrs="{'invisible':[('invoice_id','=',False)]}"/>
                     <field name="origin" readonly="1" attrs="{'invisible':[('origin','=',False)]}"/>
                 </field>
+
             </field>
         </record>
 

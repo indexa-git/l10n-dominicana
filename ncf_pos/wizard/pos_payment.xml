@@ -8,9 +8,12 @@
             <field name="model">pos.make.payment</field>
             <field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
             <field name="arch" type="xml">
+                <field name="amount" position="replace"/>
                 <field name="journal_id" position="replace">
                     <field name="journal_id" autofocus="True" options="{'no_open':True,'no_create':True}"
-                    widget="radio"/>
+                    widget="radio" attrs="{'invisible': [('amount','&lt;=',0)]}"/>
+                    <field name="credit"/>
+                    <field name="amount" attrs="{'invisible': [('amount','&lt;=',0)]}"/>
                 </field>
             </field>
         </record>

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api, exceptions
+from openerp import models, fields, api, exceptions, tools
 
 import time
 import openerp.addons.decimal_precision as dp
 from openerp.tools.translate import _
 from openerp.osv import osv
+import datetime
 
 
 class pos_session(osv.osv):
@@ -37,6 +38,35 @@ class PosOrder(models.Model):
     _inherit = ["pos.order", 'mail.thread', 'ir.needaction_mixin']
     _name = 'pos.order'
 
+
+    @api.depends("amount_tax","amount_total", "amount_paid", "amount_return")
+    def _amount_all(self):
+        for order in self:
+
+            val1 = val2 = 0.0
+
+            cur = order.pricelist_id.currency_id
+
+            for payment in order.statement_ids:
+                order.amount_paid += payment.amount
+                order.amount_return += (payment.amount < 0 and payment.amount or 0)
+
+            order.amount_paid += order.credit
+
+            for line in order.lines:
+                val1 += order._amount_line_tax(line, order.fiscal_position_id)
+                val2 += line.price_subtotal
+
+            order.amount_tax = cur.round(val1)
+            amount_untaxed = cur.round(val2)
+            order.amount_total = order.amount_tax + amount_untaxed
+
+
+    amount_tax  = fields.Float(compute=_amount_all, string='Taxes', digits=0, multi='all')
+    amount_total = fields.Float(compute=_amount_all, string='Total', digits=0,  multi='all')
+    amount_paid = fields.Float(compute=_amount_all, string='Paid', states={'draft': [('readonly', False)]}, readonly=True, digits=0, multi='all')
+    amount_return = fields.Float(compute=_amount_all, string='Returned', digits=0, multi='all')
+
     partner_id = fields.Many2one('res.partner', 'Customer', select=1,
                                  states={'draft': [('readonly', False)], 'paid': [('readonly', False)]})
     fiscal_position_id = fields.Many2one('account.fiscal.position', 'Fiscal Position',
@@ -48,7 +78,7 @@ class PosOrder(models.Model):
                                  states={'draft': [('readonly', False)]},
                                  readonly=True)
     reserve_ncf_seq = fields.Char(size=19, copy=False)
-    origin = fields.Many2one("pos.order", string="Afecta", copy=False)
+    origin = fields.Many2one("pos.order", string="Afecta")
     why_cancel = fields.Char("Concepto de cancelacion")
     state = fields.Selection([('draft', 'New'),
                               ('cancel', 'Cancelled'),
@@ -58,6 +88,7 @@ class PosOrder(models.Model):
                               ('refund', u"Nota De Crédito"),
                               ('refund_money', u"Nota De Crédito Con Devolucion De Efectivo")],
                              'Status', readonly=True, copy=False)
+    credit = fields.Float(string=u"Créditos aplicados", readonly=True, digits=(16,2))
 
     @api.onchange("session_id")
     def onchange_session_id(self):
@@ -86,11 +117,62 @@ class PosOrder(models.Model):
 
     @api.model
     def action_paid(self):
-        if not self.pos_reference:
+        if self.origin:
+            self.state = "refund_money"
+            self.create_refund_invoice()
+            self.action_refund_reconcile()
+        elif not self.pos_reference:
             self.set_reserve_ncf_seq()
             self.generate_ncf_invoice()
 
-        return True
+    @api.model
+    def create_refund_invoice(self):
+        order = self
+        context = dict(self._context)
+        invoice_id = order.origin.invoice_id.id
+        context.update({'type': 'out_invoice',
+                        'active_id': invoice_id,
+                        'active_ids': [invoice_id],
+                        'search_disable_custom_filters': True,
+                        'journal_type': 'sale',
+                        'active_model': 'account.invoice',
+                        "default_description": order.origin.invoice_id.name
+                        })
+
+        refund_inovice = self.env["account.invoice.refund"].with_context(context).create({})
+        refund = refund_inovice.invoice_refund()
+        refund_invoice_id = self.env["account.invoice"].browse(max(refund["domain"][1][2]))
+        refund_invoice_id.write({"invoice_line_ids": [(5, False, False)]})
+        inv_line_ref = self.env['account.invoice.line']
+        for line in order.lines:
+            inv_line = {
+                'invoice_id': refund_invoice_id.id,
+                'product_id': line.product_id.id,
+                'quantity': line.qty * -1,
+                'qty_allow_refund': line.qty_allow_refund,
+                'account_analytic_id': order._prepare_analytic_account(line),
+            }
+
+            invoice_line = inv_line_ref.new(inv_line)
+            invoice_line._onchange_product_id()
+            invoice_line.invoice_line_tax_ids = [tax.id for tax in invoice_line.invoice_line_tax_ids if
+                                                 tax.company_id.id == self.env.user.company_id.id]
+            fiscal_position_id = line.order_id.fiscal_position_id
+            if fiscal_position_id:
+                invoice_line.invoice_line_tax_ids = fiscal_position_id.map_tax(invoice_line.invoice_line_tax_ids)
+            invoice_line.invoice_line_tax_ids = [tax.id for tax in invoice_line.invoice_line_tax_ids]
+            inv_line = invoice_line._convert_to_write(invoice_line._cache)
+            inv_line.update(price_unit=line.price_unit, discount=line.discount)
+            inv_line_ref.create(inv_line)
+
+        refund_invoice_id.compute_taxes()
+        refund_invoice_id.signal_workflow("invoice_open")
+
+        order.invoice_id = refund_invoice_id.id
+        order.create_picking()
+        for line in order.lines:
+            self.env["pos.order.line"].browse(line.refund_line_ref.id).write(
+                    {"qty_allow_refund": line.qty_allow_refund - (line.qty * -1)})
 
     def set_reserve_ncf_seq(self):
         if not self.partner_id:
@@ -182,10 +264,27 @@ class PosOrder(models.Model):
                 st.fast_counterpart_creation()
                 for move in st.journal_entry_ids:
                     for line in move.line_ids:
-                        if line.credit > 0:
+                        if line.credit > 0 and line.account_id.reconcile:
                             move_line_ids.append(line.id)
             for line in rec.invoice_id.move_id.line_ids:
-                if line.debit > 0:
+                if line.debit > 0 and line.account_id.reconcile:
+                    move_line_ids.append(line.id)
+
+            self.env["account.move.line.reconcile.writeoff"].with_context(
+                active_ids=move_line_ids).trans_rec_reconcile_partial()
+
+    @api.model
+    def action_refund_reconcile(self):
+        move_line_ids = []
+        for rec in self:
+            for st in rec.statement_ids:
+                st.fast_counterpart_creation()
+                for move in st.journal_entry_ids:
+                    for line in move.line_ids:
+                        if line.debit > 0 and line.account_id.reconcile:
+                            move_line_ids.append(line.id)
+            for line in rec.invoice_id.move_id.line_ids:
+                if line.credit > 0 and line.account_id.reconcile:
                     move_line_ids.append(line.id)
 
             self.env["account.move.line.reconcile.writeoff"].with_context(
@@ -205,6 +304,81 @@ class PosOrder(models.Model):
         current_session_id = self.env['pos.session'].search([('state', '!=', 'closed'), ('user_id', '=', self._uid)])
         values['name'] = current_session_id.config_id.sequence_id.next_by_id()
         return super(models.Model, self).create(values)
+
+    @api.model
+    def add_payment(self, data):
+        """Create a new payment for the order"""
+        context = dict(self._context or {})
+        statement_line_obj = self.env['account.bank.statement.line']
+        property_obj = self.env['ir.property']
+
+        order = self
+
+        date = data.get('payment_date', time.strftime('%Y-%m-%d'))
+
+        if len(date) > 10:
+            timestamp = datetime.strptime(date, tools.DEFAULT_SERVER_DATETIME_FORMAT)
+            ts = fields.Datetime.context_timestamp(timestamp)
+            date = ts.strftime(tools.DEFAULT_SERVER_DATE_FORMAT)
+        args = {
+            'amount': data['amount'],
+            'date': date,
+            'name': order.name + ': ' + (data.get('payment_name', '') or ''),
+            'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+        }
+
+        journal_id = data.get('journal', False)
+        statement_id = data.get('statement_id', False)
+        assert journal_id or statement_id, "No statement_id or journal_id passed to the method!"
+
+        journal = self.env['account.journal'].browse(journal_id)
+        # use the company of the journal and not of the current user
+        company_cxt = dict(context, force_company=journal.company_id.id)
+        account_def = property_obj.get('property_account_receivable_id', 'res.partner')
+        args['account_id'] = (order.partner_id and order.partner_id.property_account_receivable_id \
+                             and order.partner_id.property_account_receivable_id.id) or (account_def and account_def.id) or False
+
+        if not args['account_id']:
+            if not args['partner_id']:
+                msg = _('There is no receivable account defined to make payment.')
+            else:
+                msg = _('There is no receivable account defined to make payment for the partner: "%s" (id:%d).') % (order.partner_id.name, order.partner_id.id,)
+            raise exceptions.UserError(msg)
+
+        context.pop('pos_session_id', False)
+
+        for statement in order.session_id.statement_ids:
+            if statement.id == statement_id:
+                journal_id = statement.journal_id.id
+                break
+            elif statement.journal_id.id == journal_id:
+                statement_id = statement.id
+                break
+
+        if not statement_id:
+            raise exceptions.UserError(_('You have to open at least one cashbox.'))
+
+        args.update({
+            'statement_id': statement_id,
+            'pos_statement_id': order.id,
+            'journal_id': journal_id,
+            'ref': order.session_id.name,
+        })
+
+        statement_line_obj.create(args)
+
+        return statement_id
+
+    @api.model
+    def test_paid(self):
+        for order in self:
+            order.refresh()
+            if order.lines and not order.amount_total:
+                return True
+            if (not order.lines) or (not order.statement_ids) or (abs(order.amount_total-order.amount_paid-order.credit) > 0.00001):
+                return False
+        return True
+
 
 
 class PosOrderLine(models.Model):

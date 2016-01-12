@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <form string="Devolución">
                     <group>
-                        <field name="manager" password="True" autofocus="autofocus"/>
+                        <field name="pos_security_pin" password="True" autofocus="autofocus"/>
                     </group>
                     <footer>
                         <button name="can_refund" string="Hacer Devolución" type="object" class="oe_highlight"/>
@@ -39,15 +39,15 @@
                     <group>
                         <field name="refund_money"/>
 
-                        <field name="journal_id" widget="radio" autofocus="True"
-                               attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>
+                        <!--<field name="journal_id" widget="radio" autofocus="True"-->
+                               <!--attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>-->
 
-                        <field name="amount"
-                               attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>
+                        <!--<field name="amount"-->
+                               <!--attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>-->
 
-                        <field name="payment_name"/>
+                        <!--<field name="payment_name"/>-->
 
-                        <field name="manager_pwd" password="1"
+                        <field name="pos_security_pin" password="1"
                                attrs="{'invisible':[('refund_money','=',False)], 'required':[('refund_money','=',True)]}"/>
 
                     </group>
