@@ -35,8 +35,9 @@
         'views/dgii_cancel_view.xml',
         'views/dgii_exterior_view.xml',
         'views/account_invoice_state_view.xml',
+        'views/account_move_view.xml',
         'data/setup_ncf.xml',
-        'wizard/account_invoice_refund_view.xml'
+        'wizard/account_invoice_refund_view.xml',
     ],
     "qweb": ['static/src/xml/base.xml'],
     'demo': [],

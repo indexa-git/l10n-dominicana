@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from openerp import models, api, _
+from openerp import models, api, _, fields
 from openerp.exceptions import UserError
+import openerp.addons.decimal_precision as dp
 
 
 class AccountMove(models.Model):
@@ -49,4 +50,14 @@ class AccountMove(models.Model):
                     move.name = new_name
         return self.write({'state': 'posted'})
 
+
+class AccountMoveLine(models.Model):
+    _inherit = "account.move.line"
+
+    @api.one
+    @api.depends('debit','credit')
+    def _bal(self):
+        self.net = self.debit-self.credit
+
+    net = fields.Float("Balance", compute=_bal, digits=dp.get_precision('Account'), store=True)
 
