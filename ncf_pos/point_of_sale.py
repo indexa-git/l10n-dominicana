@@ -5,11 +5,13 @@ import time
 import openerp.addons.decimal_precision as dp
 from openerp.tools.translate import _
 from openerp.osv import osv
-import datetime
+from datetime import datetime
+import pytz
 
 
-class pos_session(osv.osv):
-    _inherit = ['pos.session','mail.thread', 'ir.needaction_mixin']
+
+class PosSession(osv.osv):
+    _inherit = ['pos.session', 'mail.thread', 'ir.needaction_mixin']
     _name = "pos.session"
 
     def _confirm_orders(self, cr, uid, ids, context=None):
@@ -19,7 +21,8 @@ class pos_session(osv.osv):
             local_context = dict(context or {}, force_company=company_id)
             order_ids = [order.id for order in session.order_ids if order.state == 'paid']
 
-            move_id = pos_order_obj._create_account_move(cr, uid, session.start_at, session.name, session.config_id.journal_id.id, company_id, context=context)
+            move_id = pos_order_obj._create_account_move(cr, uid, session.start_at, session.name,
+                                                         session.config_id.journal_id.id, company_id, context=context)
 
             pos_order_obj._create_account_move_line(cr, uid, order_ids, session, move_id, context=local_context)
 
@@ -27,7 +30,8 @@ class pos_session(osv.osv):
                 if order.state == 'done':
                     continue
                 if order.state in ('draft'):
-                    raise exceptions.UserError(_("You cannot confirm all orders of this session, because they have not the 'paid' status"))
+                    raise exceptions.UserError(
+                        _("You cannot confirm all orders of this session, because they have not the 'paid' status"))
                 else:
                     pos_order_obj.signal_workflow(cr, uid, [order.id], 'done')
 
@@ -38,8 +42,53 @@ class PosOrder(models.Model):
     _inherit = ["pos.order", 'mail.thread', 'ir.needaction_mixin']
     _name = 'pos.order'
 
+    def get_real_datetime(self):
+        date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        start = datetime.strptime(date_now, "%Y-%m-%d %H:%M:%S")
+        user_tz = self.env.user.tz
+        tz = pytz.timezone(user_tz) if user_tz else pytz.utc
+        start = pytz.utc.localize(start).astimezone(tz)
+        tz_date = start.strftime("%Y-%m-%d %H:%M:%S")
+        return tz_date
 
-    @api.depends("amount_tax","amount_total", "amount_paid", "amount_return")
+    def _get_partner_unreconcile(self, operator):
+        """
+        this method call all unreconcile
+        :param operator if operator == &lt; return payment elif oprator = &gt; return invoices:
+        :return:
+        """
+
+        sql = """
+        SELECT "account_move_line"."id", "account_move_line"."amount_residual"
+        FROM "account_move_line"
+        INNER JOIN "res_partner"  ON "account_move_line"."partner_id" = "res_partner"."id"
+        INNER JOIN "account_account"  ON "account_move_line"."account_id" = "account_account"."id"
+        WHERE "account_account"."reconcile" = TRUE AND
+        "account_move_line"."reconciled" = FALSE AND
+        "account_move_line"."amount_residual" {} 0 AND
+        "res_partner"."id" = {}
+        """.format(operator, self.partner_id.id)
+
+        self.env.cr.execute(sql)
+        return self.env.cr.fetchall()
+
+    def _get_partner_unreconcile_invoice(self, operator, invoice_id):
+
+        sql = """
+        SELECT "account_move_line"."id", "account_move_line"."amount_residual"
+        FROM "account_move_line"
+        INNER JOIN "res_partner"  ON "account_move_line"."partner_id" = "res_partner"."id"
+        INNER JOIN "account_account"  ON "account_move_line"."account_id" = "account_account"."id"
+        WHERE "account_account"."reconcile" = TRUE AND
+        "account_move_line"."reconciled" = FALSE AND
+        "account_move_line"."amount_residual" {} 0 AND
+         "account_move_line"."invoice_id" = {}
+        """.format(operator, invoice_id)
+
+        self.env.cr.execute(sql)
+        return self.env.cr.fetchall()
+
+    @api.depends("amount_tax", "amount_total", "amount_paid", "amount_return")
     def _amount_all(self):
         for order in self:
 
@@ -61,10 +110,10 @@ class PosOrder(models.Model):
             amount_untaxed = cur.round(val2)
             order.amount_total = order.amount_tax + amount_untaxed
 
-
-    amount_tax  = fields.Float(compute=_amount_all, string='Taxes', digits=0, multi='all')
-    amount_total = fields.Float(compute=_amount_all, string='Total', digits=0,  multi='all')
-    amount_paid = fields.Float(compute=_amount_all, string='Paid', states={'draft': [('readonly', False)]}, readonly=True, digits=0, multi='all')
+    amount_tax = fields.Float(compute=_amount_all, string='Taxes', digits=0, multi='all')
+    amount_total = fields.Float(compute=_amount_all, string='Total', digits=0, multi='all')
+    amount_paid = fields.Float(compute=_amount_all, string='Paid', states={'draft': [('readonly', False)]},
+                               readonly=True, digits=0, multi='all')
     amount_return = fields.Float(compute=_amount_all, string='Returned', digits=0, multi='all')
 
     partner_id = fields.Many2one('res.partner', 'Customer', select=1,
@@ -86,9 +135,17 @@ class PosOrder(models.Model):
                               ('done', 'Posted'),
                               ('invoiced', 'Invoiced'),
                               ('refund', u"Nota De Crédito"),
-                              ('refund_money', u"Nota De Crédito Con Devolucion De Efectivo")],
+                              ('refund_money', u"Nota De Crédito Con Devolucion De Efectivo"),
+                              ('wating_refund_money', u'Esperando devolución del pago'),
+                              ('draft_refund', u'Devolución en borrador'),
+                              ],
                              'Status', readonly=True, copy=False)
-    credit = fields.Float(string=u"Créditos aplicados", readonly=True, digits=(16,2))
+    credit = fields.Float(string=u"Créditos aplicados", readonly=True, digits=(16, 2), copy=False)
+    credit_type = fields.Selection([('none', 'none'), ('parcial', 'parcial'), ('full', 'full')],
+                                   string="Tipo de pago con credito", default="none")
+    lines = fields.One2many('pos.order.line', 'order_id', 'Order Lines',
+                            states={'draft': [('readonly', False)], 'draft_refund': [('readonly', False)]},
+                            readonly=True, copy=True)
 
     @api.onchange("session_id")
     def onchange_session_id(self):
@@ -117,6 +174,7 @@ class PosOrder(models.Model):
 
     @api.model
     def action_paid(self):
+
         if self.origin:
             self.state = "refund_money"
             self.create_refund_invoice()
@@ -191,6 +249,7 @@ class PosOrder(models.Model):
         else:
             sequence = self.sale_journal.final_sequence_id
 
+
         date_order = self.date_order.split(" ")[0]
         self.reserve_ncf_seq = sequence.with_context(ir_sequence_date=date_order).next_by_id()
 
@@ -204,29 +263,29 @@ class PosOrder(models.Model):
                     [('state', '!=', 'closed'), ('user_id', '=', self._uid)])
             if not current_session_ids:
                 raise exceptions.UserError(
-                    _('To return product(s), you need to open a session that will be used to register the refund.'))
+                        _('To return product(s), you need to open a session that will be used to register the refund.'))
 
             clone_id = self.copy({'name': order.name + ' REFUND', 'session_id': current_session_ids[0].id,
-                                  'date_order': time.strftime('%Y-%m-%d %H:%M:%S'), 'origin': order.id, "lines": False})
+                                  'date_order': fields.Date.context_today, 'origin': order.id, "lines": False,
+                                  "state": "draft_refund"})
 
             new_lines = []
             for line in order.lines:
                 if not line.qty_allow_refund == 0:
                     ln = (0, False, {'company_id': line.company_id.id,
-                                                 'name': line.name,
-                                                 'notice': line.notice,
-                                                 'product_id': line.product_id.id,
-                                                 'price_unit': line.price_unit,
-                                                 'qty': line.qty*-1,
-                                                 'discount': line.discount,
-                                                 'order_id': clone_id.id,
-                                                 'tax_ids': [(6,False, [t.id for t in line.tax_ids])],
-                                                 'qty_allow_refund': line.qty_allow_refund,
-                                                 'refund_line_ref': line.id
-                                                 })
+                                     'name': line.name,
+                                     'notice': line.notice,
+                                     'product_id': line.product_id.id,
+                                     'price_unit': line.price_unit,
+                                     'qty': line.qty * -1,
+                                     'discount': line.discount,
+                                     'order_id': clone_id.id,
+                                     'tax_ids': [(6, False, [t.id for t in line.tax_ids])],
+                                     'qty_allow_refund': line.qty_allow_refund,
+                                     'refund_line_ref': line.id
+                                     })
 
                 new_lines.append(ln)
-
 
             if not new_lines:
                 raise exceptions.UserError("Todos los productos de esta orden ya fueron devueltas!")
@@ -238,7 +297,7 @@ class PosOrder(models.Model):
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'pos.order',
-            'res_id':clone_list[0].id,
+            'res_id': clone_list[0].id,
             'view_id': False,
             'context': self._context,
             'type': 'ir.actions.act_window',
@@ -258,37 +317,35 @@ class PosOrder(models.Model):
 
     @api.model
     def action_paid_reconcile(self):
-        move_line_ids = []
         for rec in self:
+            move_line_ids = []
             for st in rec.statement_ids:
                 st.fast_counterpart_creation()
-                for move in st.journal_entry_ids:
-                    for line in move.line_ids:
-                        if line.credit > 0 and line.account_id.reconcile:
-                            move_line_ids.append(line.id)
-            for line in rec.invoice_id.move_id.line_ids:
-                if line.debit > 0 and line.account_id.reconcile:
-                    move_line_ids.append(line.id)
+
+            credit_docs = self._get_partner_unreconcile("<")
+            move_line_ids += [r[0] for r in credit_docs]
+
+            debit_docs = self._get_partner_unreconcile_invoice(">", self.invoice_id.id)
+            move_line_ids += [r[0] for r in debit_docs]
 
             self.env["account.move.line.reconcile.writeoff"].with_context(
-                active_ids=move_line_ids).trans_rec_reconcile_partial()
+                    active_ids=move_line_ids).trans_rec_reconcile_partial()
 
     @api.model
     def action_refund_reconcile(self):
-        move_line_ids = []
         for rec in self:
+            move_line_ids = []
             for st in rec.statement_ids:
                 st.fast_counterpart_creation()
-                for move in st.journal_entry_ids:
-                    for line in move.line_ids:
-                        if line.debit > 0 and line.account_id.reconcile:
-                            move_line_ids.append(line.id)
-            for line in rec.invoice_id.move_id.line_ids:
-                if line.credit > 0 and line.account_id.reconcile:
-                    move_line_ids.append(line.id)
+
+            credit_docs = self._get_partner_unreconcile(">")
+            move_line_ids += [r[0] for r in credit_docs]
+
+            debit_docs = self._get_partner_unreconcile_invoice("<", self.invoice_id.id)
+            move_line_ids += [r[0] for r in debit_docs]
 
             self.env["account.move.line.reconcile.writeoff"].with_context(
-                active_ids=move_line_ids).trans_rec_reconcile_partial()
+                    active_ids=move_line_ids).trans_rec_reconcile_partial()
 
     @api.model
     def get_ncf(self, name):
@@ -301,90 +358,107 @@ class PosOrder(models.Model):
 
     @api.model
     def create(self, values):
+        context = dict(self._context)
+        context["tz"] = self.env.user.tz
         current_session_id = self.env['pos.session'].search([('state', '!=', 'closed'), ('user_id', '=', self._uid)])
         values['name'] = current_session_id.config_id.sequence_id.next_by_id()
+        print context
         return super(models.Model, self).create(values)
 
-    @api.model
+    @api.multi
     def add_payment(self, data):
         """Create a new payment for the order"""
-        context = dict(self._context or {})
-        statement_line_obj = self.env['account.bank.statement.line']
-        property_obj = self.env['ir.property']
+        for order in self:
+            context = dict(self._context or {})
+            statement_line_obj = self.env['account.bank.statement.line']
+            property_obj = self.env['ir.property']
 
-        order = self
 
-        date = data.get('payment_date', time.strftime('%Y-%m-%d'))
+            date = data.get('payment_date', time.strftime('%Y-%m-%d'))
 
-        if len(date) > 10:
-            timestamp = datetime.strptime(date, tools.DEFAULT_SERVER_DATETIME_FORMAT)
-            ts = fields.Datetime.context_timestamp(timestamp)
-            date = ts.strftime(tools.DEFAULT_SERVER_DATE_FORMAT)
-        args = {
-            'amount': data['amount'],
-            'date': date,
-            'name': order.name + ': ' + (data.get('payment_name', '') or ''),
-            'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
-        }
+            if len(date) > 10:
+                timestamp = datetime.strptime(date, tools.DEFAULT_SERVER_DATETIME_FORMAT)
+                ts = fields.Datetime.context_timestamp(order, timestamp)
+                date = ts.strftime(tools.DEFAULT_SERVER_DATE_FORMAT)
+            args = {
+                'amount': data['amount'],
+                'date': date,
+                'name': order.name + ': ' + (data.get('payment_name', '') or ''),
+                'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+            }
 
-        journal_id = data.get('journal', False)
-        statement_id = data.get('statement_id', False)
-        assert journal_id or statement_id, "No statement_id or journal_id passed to the method!"
+            args = {
+                'amount': data['amount'],
+                'date': date,
+                'name': order.name + ': ' + (data.get('payment_name', '') or ''),
+                'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(
+                    order.partner_id).id or False,
+            }
 
-        journal = self.env['account.journal'].browse(journal_id)
-        # use the company of the journal and not of the current user
-        company_cxt = dict(context, force_company=journal.company_id.id)
-        account_def = property_obj.get('property_account_receivable_id', 'res.partner')
-        args['account_id'] = (order.partner_id and order.partner_id.property_account_receivable_id \
-                             and order.partner_id.property_account_receivable_id.id) or (account_def and account_def.id) or False
+            journal_id = data.get('journal', False)
+            statement_id = data.get('statement_id', False)
+            assert journal_id or statement_id, "No statement_id or journal_id passed to the method!"
 
-        if not args['account_id']:
-            if not args['partner_id']:
-                msg = _('There is no receivable account defined to make payment.')
-            else:
-                msg = _('There is no receivable account defined to make payment for the partner: "%s" (id:%d).') % (order.partner_id.name, order.partner_id.id,)
-            raise exceptions.UserError(msg)
+            journal = self.env['account.journal'].browse(journal_id)
+            # use the company of the journal and not of the current user
+            company_cxt = dict(context, force_company=journal.company_id.id)
+            account_def = property_obj.get('property_account_receivable_id', 'res.partner')
+            args['account_id'] = (order.partner_id and order.partner_id.property_account_receivable_id \
+                                  and order.partner_id.property_account_receivable_id.id) or (
+                                 account_def and account_def.id) or False
 
-        context.pop('pos_session_id', False)
+            if not args['account_id']:
+                if not args['partner_id']:
+                    msg = _('There is no receivable account defined to make payment.')
+                else:
+                    msg = _('There is no receivable account defined to make payment for the partner: "%s" (id:%d).') % (
+                    order.partner_id.name, order.partner_id.id,)
+                raise exceptions.UserError(msg)
 
-        for statement in order.session_id.statement_ids:
-            if statement.id == statement_id:
-                journal_id = statement.journal_id.id
-                break
-            elif statement.journal_id.id == journal_id:
-                statement_id = statement.id
-                break
+            context.pop('pos_session_id', False)
 
-        if not statement_id:
-            raise exceptions.UserError(_('You have to open at least one cashbox.'))
+            for statement in order.session_id.statement_ids:
+                if statement.id == statement_id:
+                    journal_id = statement.journal_id.id
+                    break
+                elif statement.journal_id.id == journal_id:
+                    statement_id = statement.id
+                    break
 
-        args.update({
-            'statement_id': statement_id,
-            'pos_statement_id': order.id,
-            'journal_id': journal_id,
-            'ref': order.session_id.name,
-        })
+            if not statement_id:
+                raise exceptions.UserError(_('You have to open at least one cashbox.'))
 
-        statement_line_obj.create(args)
+            args.update({
+                'statement_id': statement_id,
+                'pos_statement_id': order.id,
+                'journal_id': journal_id,
+                'ref': order.session_id.name,
+            })
 
-        return statement_id
+            statement_line_obj.create(args)
+            return statement_id
 
     @api.model
     def test_paid(self):
         for order in self:
             order.refresh()
+            if order.credit_type == "full":
+                return True
+
             if order.lines and not order.amount_total:
                 return True
-            if (not order.lines) or (not order.statement_ids) or (abs(order.amount_total-order.amount_paid-order.credit) > 0.00001):
+
+            if (not order.lines) or (not order.statement_ids) or (
+                abs(order.amount_total - order.amount_paid) > 0.00001):
                 return False
         return True
-
 
 
 class PosOrderLine(models.Model):
     _inherit = "pos.order.line"
 
-    qty_allow_refund = fields.Float(string='qty allow refund', digits=dp.get_precision('Product Unit of Measure'), copy=False, required=False)
+    qty_allow_refund = fields.Float(string='qty allow refund', digits=dp.get_precision('Product Unit of Measure'),
+                                    copy=False, required=False)
     refund_line_ref = fields.Many2one("pos.order.line", string="origin line refund", copy=False)
 
 

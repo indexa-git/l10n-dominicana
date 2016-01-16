@@ -10,10 +10,10 @@
             <field name="arch" type="xml">
                 <field name="amount" position="replace"/>
                 <field name="journal_id" position="replace">
-                    <field name="journal_id" autofocus="True" options="{'no_open':True,'no_create':True}"
-                    widget="radio" attrs="{'invisible': [('amount','&lt;=',0)]}"/>
+
+                    <field name="journal_id" autofocus="True" options="{'no_open':True,'no_create':True}" widget="radio" attrs="{'invisible': [('amount','=',0)]}"/>
                     <field name="credit"/>
-                    <field name="amount" attrs="{'invisible': [('amount','&lt;=',0)]}"/>
+                    <field name="amount" attrs="{'readonly': [('amount','=',0)]}"/>
                 </field>
             </field>
         </record>

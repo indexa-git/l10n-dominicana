@@ -15,8 +15,7 @@ class PosOrderRefund(models.TransientModel):
         current_session_id = self.env['pos.session'].search([('state', '!=', 'closed'), ('user_id', '=', self._uid)])
         if not current_session_id:
             raise exceptions.UserError(
-                _('To return product(s), you need to open a session that will be used to register the refund.'))
-
+                    _('To return product(s), you need to open a session that will be used to register the refund.'))
 
         order = self.env["pos.order"].browse(self._context["active_id"])
 
@@ -74,10 +73,10 @@ class PosOrderCreditNote(models.TransientModel):
         context = dict(self._context)
         context.update({"nc": "no_money"})
         order = self.env["pos.order"].browse(self._context["active_id"])
-        order.with_context(context).create_refund_invoice()
 
         if not self.refund_money:
             order.state = "refund"
+            order.with_context(context).create_refund_invoice()
             return {'type': 'ir.actions.act_window_close'}
         else:
             can_refund_cash = False
@@ -88,22 +87,21 @@ class PosOrderCreditNote(models.TransientModel):
                     can_refund_cash = True
                     break
 
+            order.state = "wating_refund_money"
+            context.update({"nc": "refund_money"})
             if can_refund_cash:
+                res = {
+                    'name': _('Payment'),
+                    'view_type': 'form',
+                    'view_mode': 'form',
+                    'res_model': 'pos.make.payment',
+                    'view_id': False,
+                    'target': 'new',
+                    'views': False,
+                    'type': 'ir.actions.act_window',
+                    'context': context,
+                }
 
-                res = {'view_mode': 'form',
-                       'name': u'Pagos',
-                       'view_type': 'form',
-                       'res_model': 'pos.make.payment',
-                       'view_id': False,
-                       'views': False,
-                       'type': 'ir.actions.act_window',
-                       'target': 'new',
-                 'context': {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1,
-                             u'active_model': u'pos.order',
-                             u'pos_session_id': 66, u'params': {u'action': 413}, u'search_disable_custom_filters': True,
-                             u'active_ids': [order.id], u'active_id': order.id,
-                             u'nc': "refund_money"}}
                 return res
-
             else:
                 raise exceptions.UserError("Usted no tiene permitido devolver dinero.")

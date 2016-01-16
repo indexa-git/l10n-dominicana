@@ -23,31 +23,23 @@ class PosMakePayment(models.TransientModel):
         return [('id', 'in', domain_ids)]
 
     def _get_credit(self):
-        credit = 0.0
+        order_obj = self.env['pos.order']
+        active_id = self._context and self._context.get('active_id', False)
+        if active_id:
+            order = order_obj.browse(active_id)
+            if order.credit:
+                return 0.00
 
-        sql = """
-        SELECT   "pos_order"."id",
-         "account_invoice"."date_invoice",
-         "account_invoice"."number",
-         "account_invoice"."residual",
-         "account_invoice"."type"
-        FROM     "account_invoice"
-                  INNER JOIN "pos_order"  ON "account_invoice"."partner_id" = "pos_order"."partner_id"
-        WHERE    ( "residual" > 0.00 ) AND ( "account_invoice"."type" = 'out_refund' ) AND ("pos_order"."id" = %(active_id)s)
-        """
-        self.env.cr.execute(sql, dict(active_id=self._context.get("active_id")))
-        res = self.env.cr.fetchall()
-
-        if res:
-            credit = sum([r[3] for r in res])
-        return credit
+        res = self.env["pos.order"].browse(self._context.get("active_id"))._get_partner_unreconcile("<")
+        return sum([r[1] for r in res])*-1 or 0.0
 
     def _default_amount(self):
         order_obj = self.env['pos.order']
         active_id = self._context and self._context.get('active_id', False)
         if active_id:
             order = order_obj.browse(active_id)
-            return order.amount_total - order.amount_paid - self._get_credit()
+            return order.amount_total - order.amount_paid
+
         return False
 
     journal_id = fields.Many2one("account.journal", string="Formas de pago", default=_default_journal,
@@ -58,23 +50,34 @@ class PosMakePayment(models.TransientModel):
     @api.multi
     def check(self):
 
-        context = self._context or {}
+        context = dict(self._context) or {}
         order_obj = self.env['pos.order']
         active_id = context and context.get('active_id', False)
 
         order = order_obj.browse(active_id)
 
-        if self.credit >= self.amount:
+        credit_amount = 0.0
+        if order.credit == 0:
+            credit_amount = self.credit
+
+        credit = 0.0
+        if order.amount_total < 0:
+            pass
+        elif credit_amount >= order.amount_total:
             credit = order.amount_total
-        else:
-            credit = self.credit
+            order.credit_type = "full"
+        elif credit_amount < order.amount_total:
+            credit = credit_amount
+            order.credit_type = "parcial"
+
 
         if credit:
             order.credit = credit
 
+        order.refresh()
         amount = order.amount_total - order.amount_paid
-        data = self.read()[0]
 
+        data = self.read()[0]
         data['journal'] = data['journal_id'][0]
 
         if amount != 0.0:
