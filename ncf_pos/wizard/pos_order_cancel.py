@@ -13,7 +13,7 @@ class pos_cancel_order(models.TransientModel):
         cancel = False
         managers_config = self.env["pos.manager"].search([('users','=',self._uid)])
         for rec in managers_config:
-            if rec.can_cancel and self.env.user.pos_security_pin == self.manager:
+            if rec.allow_cancel and self.env.user.pos_security_pin == self.manager:
                 cancel = True
                 break
 

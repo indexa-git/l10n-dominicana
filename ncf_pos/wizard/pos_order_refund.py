@@ -28,7 +28,7 @@ class PosOrderRefund(models.TransientModel):
 
         managers_config = self.env["pos.manager"].search([('users', '=', self._uid)])
         for rec in managers_config:
-            if rec.can_cancel and self.env.user.pos_security_pin == self.pos_security_pin:
+            if rec.allow_refund and self.env.user.pos_security_pin == self.pos_security_pin:
                 refund = True
                 break
 
@@ -83,7 +83,7 @@ class PosOrderCreditNote(models.TransientModel):
             managers_config = self.env["pos.manager"].search([('users', '=', self._uid)])
 
             for rec in managers_config:
-                if rec.cash_refund and self.env.user.pos_security_pin == self.pos_security_pin:
+                if rec.allow_cash_refund and self.env.user.pos_security_pin == self.pos_security_pin:
                     can_refund_cash = True
                     break
 

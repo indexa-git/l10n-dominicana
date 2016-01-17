@@ -364,7 +364,7 @@ class PosOrder(models.Model):
         context["tz"] = self.env.user.tz
         current_session_id = self.env['pos.session'].search([('state', '!=', 'closed'), ('user_id', '=', self._uid)])
         values['name'] = current_session_id.config_id.sequence_id.next_by_id()
-        print context
+        values["date_order"] = self.get_real_datetime()
         return super(models.Model, self).create(values)
 
     @api.multi
