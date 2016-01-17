@@ -29,7 +29,7 @@
 
             <div class='client-detail'>
                 <span class='label'>RNC/Céd</span>
-                <input class='detail client-ref' name='ref' t-att-value='partner.ref' placeholder='RNC/Cédula'/>
+                <input class='detail client-ref' name='vat' t-att-value='partner.vat' placeholder='RNC/Cédula'/>
             </div>
 
             <div class='client-detail'>
@@ -139,4 +139,31 @@
             </t>
         </t>
     </t>
+
+    <t t-name="QuotationActionWidget">
+        <div class="control-button">
+            Cotizar
+        </div>
+    </t>
+
+    <t t-name="QuotationPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-alert" style="height:200px">
+                <p class="title">Cotizar</p>
+                Como desea enviar la contización?
+                <div class="footer">
+                    <span class="button fa fa-print" id="print_pdf">
+                        Impresa
+                    </span>
+                    <span class="button send fa fa-envelope-o" id="send_mail">
+                        Por email
+                    </span>
+                    <span class="button cancel fa fa-no-o" id="quotation_cancel">
+                        Cancelar
+                    </span>
+                </div>
+            </div>
+        </div>
+    </t>
+
 </templates>

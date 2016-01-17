@@ -9,7 +9,6 @@ from datetime import datetime
 import pytz
 
 
-
 class PosSession(osv.osv):
     _inherit = ['pos.session', 'mail.thread', 'ir.needaction_mixin']
     _name = "pos.session"
@@ -31,7 +30,7 @@ class PosSession(osv.osv):
                     continue
                 if order.state in ('draft'):
                     raise exceptions.UserError(
-                        _("You cannot confirm all orders of this session, because they have not the 'paid' status"))
+                            _("You cannot confirm all orders of this session, because they have not the 'paid' status"))
                 else:
                     pos_order_obj.signal_workflow(cr, uid, [order.id], 'done')
 
@@ -165,7 +164,12 @@ class PosOrder(models.Model):
 
     @api.model
     def create_from_ui(self, orders):
+        for order in orders:
+            if order["data"].get("quotation_type", False):
+                return self.action_quotation(order["data"])
+
         res = super(PosOrder, self).create_from_ui(orders)
+
         for order_id in res:
             self.browse(order_id).set_reserve_ncf_seq()
             self.env.cr.commit()
@@ -174,7 +178,6 @@ class PosOrder(models.Model):
 
     @api.model
     def action_paid(self):
-
         if self.origin:
             self.state = "refund_money"
             self.create_refund_invoice()
@@ -248,7 +251,6 @@ class PosOrder(models.Model):
             sequence = self.sale_journal.special_sequence_id
         else:
             sequence = self.sale_journal.final_sequence_id
-
 
         date_order = self.date_order.split(" ")[0]
         self.reserve_ncf_seq = sequence.with_context(ir_sequence_date=date_order).next_by_id()
@@ -373,7 +375,6 @@ class PosOrder(models.Model):
             statement_line_obj = self.env['account.bank.statement.line']
             property_obj = self.env['ir.property']
 
-
             date = data.get('payment_date', time.strftime('%Y-%m-%d'))
 
             if len(date) > 10:
@@ -384,7 +385,8 @@ class PosOrder(models.Model):
                 'amount': data['amount'],
                 'date': date,
                 'name': order.name + ': ' + (data.get('payment_name', '') or ''),
-                'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+                'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(
+                    order.partner_id).id or False,
             }
 
             args = {
@@ -392,7 +394,7 @@ class PosOrder(models.Model):
                 'date': date,
                 'name': order.name + ': ' + (data.get('payment_name', '') or ''),
                 'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(
-                    order.partner_id).id or False,
+                        order.partner_id).id or False,
             }
 
             journal_id = data.get('journal', False)
@@ -405,14 +407,14 @@ class PosOrder(models.Model):
             account_def = property_obj.get('property_account_receivable_id', 'res.partner')
             args['account_id'] = (order.partner_id and order.partner_id.property_account_receivable_id \
                                   and order.partner_id.property_account_receivable_id.id) or (
-                                 account_def and account_def.id) or False
+                                     account_def and account_def.id) or False
 
             if not args['account_id']:
                 if not args['partner_id']:
                     msg = _('There is no receivable account defined to make payment.')
                 else:
                     msg = _('There is no receivable account defined to make payment for the partner: "%s" (id:%d).') % (
-                    order.partner_id.name, order.partner_id.id,)
+                        order.partner_id.name, order.partner_id.id,)
                 raise exceptions.UserError(msg)
 
             context.pop('pos_session_id', False)
@@ -449,9 +451,50 @@ class PosOrder(models.Model):
                 return True
 
             if (not order.lines) or (not order.statement_ids) or (
-                abs(order.amount_total - order.amount_paid) > 0.00001):
+                        abs(order.amount_total - order.amount_paid) > 0.00001):
                 return False
         return True
+
+    def action_quotation(self, order):
+        sale_ref = self.env['sale.order']
+        sale_line_ref = self.env['sale.order.line']
+        product_obj = self.env['product.product']
+
+        order_ids = []
+        session_id = self.env["pos.session"].browse(order["pos_session_id"])
+        partner_id = self.env["res.partner"].browse(order["partner_id"])
+
+        order_dict = {'company_id': session_id.config_id.company_id.id,
+                      'partner_id': partner_id.id
+                      }
+
+        new_sale_order = sale_ref.new(order_dict)
+        new_sale_order.onchange_partner_id()
+        sale_order_dict = new_sale_order._convert_to_write(new_sale_order._cache)
+        order_id = sale_ref.create(sale_order_dict)
+
+        order_ids.append(order_id)
+        order_lines = order_id.order_line.browse([])
+        for line in order["lines"]:
+
+            order_line = sale_line_ref.new({
+                # 'order_id': order_id.id,
+                'product_id': line[2]["product_id"],
+                'price_unit': line[2]["price_unit"],
+                'product_uom_qty': line[2]["qty"],
+                'discount': line[2]["discount"]
+            })
+            order_line.product_id_change()
+            order_line._compute_tax_id()
+            order_lines += order_line
+
+        order_id.order_line = order_lines
+        order_id.button_dummy()
+
+        if order.get("quotation_type", False) == "print":
+            return order_id.print_quotation()
+        else:
+            return order_id.action_quotation_send()
 
 
 class PosOrderLine(models.Model):
@@ -490,5 +533,6 @@ class ResPartner(models.Model):
             self.browse(partner_id).write(partner)
         else:
             partner_id = self.create(partner)
+            return partner_id.id
 
-        return partner_id.id
+        return partner_id

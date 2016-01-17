@@ -85,7 +85,7 @@
             <field name="arch" type="xml">
 
                 <field name="pos_config" position="after">
-                    <field name="pos_security_pin" password="True"/>
+                    <field name="pos_security_pin" password="True" readonly="0"/>
                 </field>
 
             </field>

@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'point_of_sale', 'ncf_manager'],
+    'depends': ['base', 'point_of_sale', 'ncf_manager', 'sale'],
 
     # always loaded
     'data': [
@@ -29,8 +29,7 @@
         'wizard/pos_order_refund_view.xml',
         'wizard/pos_payment.xml',
         'views.xml',
-        'templates.xml',
-        'pos_manager/pos_manager_view.xml',
+        'templates.xml'
     ],
     # only loaded in demonstration mode
     'demo': [],
