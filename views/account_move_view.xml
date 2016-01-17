@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_move_line_tree" model="ir.ui.view">
+            <field name="name">account.move.line.form</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_move_line_tree"/>
+            <field name="arch" type="xml">
+                <field name="credit" position="after">
+                    <field name="net" sum="Balance"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_account_move_line_filter" model="ir.ui.view">
+            <field name="name">account.move.line.filter</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+            <field name="arch" type="xml">
+                <filter name="posted" position="after">
+                    <separator/>
+                    <filter name="receivable" string="Receivable" domain="[('account_id.reconcile','=',True)]"
+                            help="Lines of Receivable Accounts"/>
+                    <filter name="payable" string="Payable" domain="[('account_id.reconcile','=',True)]"
+                            help="Lines of Payable Accounts"/>
+                </filter>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_move_line_pivot">
+            <field name="name">account.move.line.pivot</field>
+            <field name="model">account.move.line</field>
+            <field name="arch" type="xml">
+                <pivot string="Invoices" display_quantity="true">
+                    <field name="partner_id"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_move_line_graph">
+            <field name="name">account.move.line.graph</field>
+            <field name="model">account.move.line</field>
+            <field name="arch" type="xml">
+                <graph string="Invoices">
+                    <field name="partner_id"/>
+                </graph>
+            </field>
+        </record>
+
+
+    </data>
+</openerp>
