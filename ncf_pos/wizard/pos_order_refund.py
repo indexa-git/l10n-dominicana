@@ -26,11 +26,8 @@ class PosOrderRefund(models.TransientModel):
         if qty_allow_refund == 0:
             raise exceptions.UserError(_('Esta factura ya fue devuelta!'))
 
-        managers_config = self.env["pos.manager"].search([('users', '=', self._uid)])
-        for rec in managers_config:
-            if rec.allow_refund and self.env.user.pos_security_pin == self.pos_security_pin:
-                refund = True
-                break
+        if self.env.user.allow_refund and self.env.user.pos_security_pin == self.pos_security_pin:
+            refund = True
 
         if refund:
             return order.refund()
@@ -80,12 +77,9 @@ class PosOrderCreditNote(models.TransientModel):
             return {'type': 'ir.actions.act_window_close'}
         else:
             can_refund_cash = False
-            managers_config = self.env["pos.manager"].search([('users', '=', self._uid)])
 
-            for rec in managers_config:
-                if rec.allow_cash_refund and self.env.user.pos_security_pin == self.pos_security_pin:
-                    can_refund_cash = True
-                    break
+            if self.env.user.allow_cash_refund and self.env.user.pos_security_pin == self.pos_security_pin:
+                can_refund_cash = True
 
             order.state = "wating_refund_money"
             context.update({"nc": "refund_money"})

@@ -164,16 +164,17 @@ class PosOrder(models.Model):
 
     @api.model
     def create_from_ui(self, orders):
+        context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1}
         for order in orders:
             if order["data"].get("quotation_type", False):
-                return self.action_quotation(order["data"])
+                return self.with_context(context).action_quotation(order["data"])
 
         res = super(PosOrder, self).create_from_ui(orders)
 
         for order_id in res:
             self.browse(order_id).set_reserve_ncf_seq()
             self.env.cr.commit()
-            self.browse(order_id).generate_ncf_invoice()
+            self.browse(order_id).with_context(context).generate_ncf_invoice()
         return res
 
     @api.model
@@ -503,6 +504,7 @@ class PosOrderLine(models.Model):
     qty_allow_refund = fields.Float(string='qty allow refund', digits=dp.get_precision('Product Unit of Measure'),
                                     copy=False, required=False)
     refund_line_ref = fields.Many2one("pos.order.line", string="origin line refund", copy=False)
+    note = fields.Char("Nota")
 
 
 class PosConfig(models.Model):

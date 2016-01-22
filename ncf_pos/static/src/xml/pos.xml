@@ -146,6 +146,7 @@
         </div>
     </t>
 
+
     <t t-name="QuotationPopupWidget">
         <div class="modal-dialog">
             <div class="popup popup-alert" style="height:200px">

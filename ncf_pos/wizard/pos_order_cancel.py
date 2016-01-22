@@ -2,6 +2,7 @@
 
 from openerp import models, fields, api, exceptions
 
+
 class pos_cancel_order(models.TransientModel):
     _name = "pos.order.cancel"
 
@@ -11,11 +12,9 @@ class pos_cancel_order(models.TransientModel):
     @api.one
     def cancel(self):
         cancel = False
-        managers_config = self.env["pos.manager"].search([('users','=',self._uid)])
-        for rec in managers_config:
-            if rec.allow_cancel and self.env.user.pos_security_pin == self.manager:
-                cancel = True
-                break
+
+        if self.env.user.allow_cancel and self.env.user.pos_security_pin == self.manager:
+            cancel = True
 
         if cancel:
             order = self.env["pos.order"].browse(self._context["active_id"])
@@ -24,8 +23,3 @@ class pos_cancel_order(models.TransientModel):
             return {'type': 'ir.actions.act_window_close'}
         else:
             raise exceptions.UserError("Usted no tiene permitido cancelar ordenes abiertas")
-
-
-
-
-

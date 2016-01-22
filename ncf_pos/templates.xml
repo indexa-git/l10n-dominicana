@@ -8,6 +8,8 @@
                 <script type="text/javascript" src="/ncf_pos/static/src/js/models.js"></script>
                 <script type="text/javascript" src="/ncf_pos/static/src/js/screens.js"></script>
                 <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/chrome.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/transcoder.js"></script>
             </xpath>
         </template>
     </data>

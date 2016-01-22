@@ -1,6 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-acccess_pos_manager_user,access_pos_manager_all_users,model_pos_manager,point_of_sale.group_pos_user,1,0,0,0
-acccess_pos_manager_manager,access_pos_manager_all_manager,model_pos_manager,point_of_sale.group_pos_manager,1,1,1,1
 point_of_sale.access_pos_order,pos.order,model_pos_order,point_of_sale.group_pos_user,1,1,1,0
 point_of_sale.access_pos_order_line,pos.order.line,model_pos_order_line,point_of_sale.group_pos_user,1,1,1,0
 
