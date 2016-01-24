@@ -135,7 +135,6 @@ class DgiiExteriorReport(models.Model):
 
         line_count = 1
         for l in lines:
-            print "line count {} {}".format(line_count, l)
             line_count += 1
             file.write(l + "\n")
 
