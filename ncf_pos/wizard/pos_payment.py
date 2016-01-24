@@ -83,6 +83,10 @@ class PosMakePayment(models.TransientModel):
         if amount != 0.0:
             order.add_payment(data)
 
+        if self.credit == 0 and self.amount == 0:
+            order.generate_ncf_invoice()
+            return {'type': 'ir.actions.act_window_close'}
+
         if order.test_paid():
             order.signal_workflow('paid')
             return {'type': 'ir.actions.act_window_close'}

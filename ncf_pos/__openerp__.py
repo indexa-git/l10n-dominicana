@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'point_of_sale', 'ncf_manager', 'sale', 'web_editor', "sale_control"],
+    'depends': ['base', 'point_of_sale', 'ncf_manager', 'sale', 'web_editor', "sale_control", "pos_restaurant"],
 
     # always loaded
     'data': [
