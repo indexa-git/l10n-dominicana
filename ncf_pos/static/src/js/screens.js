@@ -10,6 +10,33 @@ odoo.define('ncf_pos.screens', function (require) {
     var _t = core._t;
 
 
+    screens.ProductScreenWidget.include({
+        start: function () {
+            this._super();
+            var self = this;
+
+            $(".refund-cancel-button").click(function () {
+                self.cancel_refund();
+            });
+
+            $(".refund-button").click(function () {
+                self.refund_order();
+            })
+
+        },
+        cancel_refund: function () {
+            var self = this;
+            var order = self.pos.get_order();
+            order.finalize();
+        },
+        refund_order: function () {
+            var self = this;
+            var order = self.pos.get_order();
+        }
+
+    });
+
+
     screens.ReceiptScreenWidget.include({
 
         render_receipt: function () {
@@ -37,7 +64,8 @@ odoo.define('ncf_pos.screens', function (require) {
                         break;
                     default:
                         invoice_type = "NOTA DE CREDITO";
-                };
+                }
+                ;
 
                 self.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                     widget: self,
@@ -55,6 +83,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
     });
 
+
     //Button for quotations
     var QuotationActionWidget = screens.ActionButtonWidget.extend({
         template: 'QuotationActionWidget',
@@ -68,7 +97,6 @@ odoo.define('ncf_pos.screens', function (require) {
         'name': 'qoutation',
         'widget': QuotationActionWidget,
         'condition': function () {
-            // return this.pos.loyalty && this.pos.loyalty.rewards.length;
             return true;
         }
 

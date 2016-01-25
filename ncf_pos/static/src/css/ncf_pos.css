@@ -1,3 +1,16 @@
+/*!*refund button*!*/
+
+
+/*stylesheet 5/8 | http://127.0.0.1:8000/point_of_sale/static/src/css/pos.css*/
+.pos .control-buttons-refund { display: flex; flex-flow: row wrap; padding: 8px 16px 8px 11px; margin-bottom: -6px; }
+.pos .control-button-refund { flex-grow: 1; border: 1px solid #bfbfbf; display: inline-block; line-height: 38px; min-width: 80px; text-align: center; border-radius: 3px; padding: 0px 10px; font-size: 18px; margin-left: 6px; margin-bottom: 6px; cursor: pointer; overflow: hidden; transition: all 150ms linear; background: #e2e2e2; }
+.pos .control-button-refund:hover { background: #efefef; }
+.pos .control-button-refund:active { color: white; border-color: black; background: black; }
+.pos .control-button-refund .fa { margin-right: 4px; }
+
+
+/*!**!*/
+
 div.modal.in {
     position: absolute;
     background: white;

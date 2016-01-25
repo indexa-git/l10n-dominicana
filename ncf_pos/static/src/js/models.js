@@ -27,66 +27,95 @@ odoo.define('ncf_pos.models', function (require) {
         });
 
     models.load_models({
-        model:  'res.users',
-        fields: ['name','company_id',
-        'allow_payments','allow_delete_order','allow_discount','allow_edit_price','allow_delete_order',
-            'allow_refund','allow_delete_order_line','allow_cancel','allow_cash_refund','allow_credit'],
-        ids:    function(self){ return [session.uid]; },
-        loaded: function(self,users){ self.user = users[0]; }
+        model: 'res.users',
+        fields: ['name', 'company_id',
+            'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order',
+            'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
+        ids: function (self) {
+            return [session.uid];
+        },
+        loaded: function (self, users) {
+            self.user = users[0];
+        }
     });
 
     models.load_models({
-            model: 'res.users',
-            fields: ['name', 'pos_security_pin', 'groups_id', 'barcode',
-            'allow_payments','allow_delete_order','allow_discount','allow_edit_price','allow_delete_order',
-            'allow_refund','allow_delete_order_line','allow_cancel','allow_cash_refund','allow_credit'],
-            domain: function (self) {
-                return [['company_id', '=', self.user.company_id[0]], '|', ['groups_id', '=', self.config.group_pos_manager_id[0]], ['groups_id', '=', self.config.group_pos_user_id[0]]];
-            },
-            loaded: function (self, users) {
-                // we attribute a role to the user, 'cashier' or 'manager', depending
-                // on the group the user belongs.
-                var pos_users = [];
-                for (var i = 0; i < users.length; i++) {
-                    var user = users[i];
-                    for (var j = 0; j < user.groups_id.length; j++) {
-                        var group_id = user.groups_id[j];
-                        if (group_id === self.config.group_pos_manager_id[0]) {
-                            user.role = 'manager';
-                            break;
-                        } else if (group_id === self.config.group_pos_user_id[0]) {
-                            user.role = 'cashier';
-                        }
-                    }
-                    if (user.role) {
-                        pos_users.push(user);
-                    }
-                    // replace the current user with its updated version
-                    if (user.id === self.user.id) {
-                        self.user = user;
+        model: 'res.users',
+        fields: ['name', 'pos_security_pin', 'groups_id', 'barcode',
+            'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order',
+            'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
+        domain: function (self) {
+            return [['company_id', '=', self.user.company_id[0]], '|', ['groups_id', '=', self.config.group_pos_manager_id[0]], ['groups_id', '=', self.config.group_pos_user_id[0]]];
+        },
+        loaded: function (self, users) {
+            // we attribute a role to the user, 'cashier' or 'manager', depending
+            // on the group the user belongs.
+            var pos_users = [];
+            for (var i = 0; i < users.length; i++) {
+                var user = users[i];
+                for (var j = 0; j < user.groups_id.length; j++) {
+                    var group_id = user.groups_id[j];
+                    if (group_id === self.config.group_pos_manager_id[0]) {
+                        user.role = 'manager';
+                        break;
+                    } else if (group_id === self.config.group_pos_user_id[0]) {
+                        user.role = 'cashier';
                     }
                 }
-                self.users = pos_users;
+                if (user.role) {
+                    pos_users.push(user);
+                }
+                // replace the current user with its updated version
+                if (user.id === self.user.id) {
+                    self.user = user;
+                }
             }
-        });
+            self.users = pos_users;
+        }
+    });
 
     var _super_order = models.Order.prototype;
-
     models.Order = models.Order.extend({
-        initialize: function (attr, options) {
-            _super_order.initialize.call(this, attr, options);
-            this.quotation_type = this.quotation_type || "";
+        initialize: function () {
+            _super_order.initialize.apply(this, arguments);
+            this.quotation_type = this.quotation_type || false;
+            this.order_type = this.order_type || "order";
+            this.refund_order_id = this.refund_order_id || false;
+
+            this.save_to_db();
+        },
+        init_from_JSON: function (json) {
+            _super_order.init_from_JSON.apply(this, arguments);
+            this.quotation_type = json.quotation_type;
+            this.order_type = json.order_type;
+            this.refund_order_id = json.refund_order_id;
         },
         set_quotation_type: function (quotation_type) {
             this.quotation_type = quotation_type;
             this.trigger('change', this);
         },
         get_quotation_type: function () {
-            return this.quotation_type;
+            return this.quotation_type || false;
+        },
+        set_order_type: function (order_type) {
+            this.order_type = order_type;
+            this.trigger('change', this);
+        },
+        get_order_type: function () {
+            return this.order_type || "order";
+        },
+        set_refund_order_id: function(refund_order_id){
+            this.refund_order_id = refund_order_id;
+            this.trigger('change', this);
+        },
+        get_refund_order_id: function(){
+            return this.refund_order_id || false
         },
         export_as_JSON: function () {
-            var json = _super_order.export_as_JSON.call(this);
-            json.quotation_type = this.quotation_type;
+            var json = _super_order.export_as_JSON.apply(this, arguments);
+            json.quotation_type = this.get_quotation_type();
+            json.order_type = this.get_order_type();
+            json.refund_order_id = this.get_refund_order_id();
             return json;
         }
     });

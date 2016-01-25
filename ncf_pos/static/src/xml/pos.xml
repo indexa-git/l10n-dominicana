@@ -171,31 +171,58 @@
 
     </t>
 
-<t t-name="QuotationPopupWidget">
-<div class="modal-dialog">
-    <div class="popup popup-alert" style="height:200px">
-        <p class="title">Cotizar</p>
-        Como desea enviar la contización?
-        <div class="footer">
-            <span class="button fa fa-print" id="print_pdf">
-                Impresa
-            </span>
-            <span class="button send fa fa-envelope-o" id="send_mail">
-                Por email
-            </span>
-            <span class="button cancel fa fa-no-o" id="quotation_cancel">
-                Cancelar
-            </span>
+    <t t-name="QuotationPopupWidget">
+    <div class="modal-dialog">
+        <div class="popup popup-alert" style="height:200px">
+            <p class="title">Cotizar</p>
+            Como desea enviar la contización?
+            <div class="footer">
+                <span class="button fa fa-print" id="print_pdf">
+                    Impresa
+                </span>
+                <span class="button send fa fa-envelope-o" id="send_mail">
+                    Por email
+                </span>
+                <span class="button cancel fa fa-no-o" id="quotation_cancel">
+                    Cancelar
+                </span>
+            </div>
         </div>
     </div>
-</div>
-</t>
+    </t>
 
-<t t-name="QuotationActionWidget">
-<div class="control-button">
-    Cotizar
-</div>
-</t>
+    <t t-name="QuotationActionWidget">
+        <div class="control-button">
+            Cotizar
+        </div>
+    </t>
+
+    <t t-extend="ProductScreenWidget">
+        <t t-jquery='.subwindow-container-fix.pads' t-operation='append'>
+            <div class="control-buttons-refund">
+
+                <div class='control-button-refund refund-cancel-button'>
+                    <i class='fa fa-ban' />
+                        Cancelar
+                </div>
 
 
-        </templates>
+                <div class='control-button-refund refund-button'>
+
+                        <i class='fa fa-pencil-square-o' />
+
+                    Crear Nota de crédito
+                </div>
+
+                <div class='control-button-refund refund-money-button'>
+                        <i class="fa fa-money"></i>
+                        <i class='fa fa-pencil-square-o' />
+
+                    Crear Nota de crédito y reversar pago
+                </div>
+
+            </div>
+        </t>
+    </t>
+
+</templates>
