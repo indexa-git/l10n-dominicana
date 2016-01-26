@@ -72,7 +72,6 @@ class PosOrderCreditNote(models.TransientModel):
         order = self.env["pos.order"].browse(self._context["active_id"])
 
         if not self.refund_money:
-            order.state = "refund"
             order.with_context(context).create_refund_invoice()
             return {'type': 'ir.actions.act_window_close'}
         else:

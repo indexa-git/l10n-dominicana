@@ -41,6 +41,7 @@ class PosOrder(models.Model):
     _inherit = ["pos.order", 'mail.thread', 'ir.needaction_mixin']
     _name = 'pos.order'
 
+
     def get_real_datetime(self):
         date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         start = datetime.strptime(date_now, "%Y-%m-%d %H:%M:%S")
@@ -163,8 +164,25 @@ class PosOrder(models.Model):
             self.partner_id.write({"property_account_position_id": self.fiscal_position_id.id})
 
     @api.model
+    def _order_fields(self, ui_order):
+        res = super(PosOrder, self)._order_fields(ui_order)
+
+        if ui_order.get("origin", False):
+            res.update({"origin": ui_order["origin"],
+                        "state": "refund"})
+
+        return res
+
+    @api.model
     def create_from_ui(self, orders):
-        context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1}
+
+        for order in orders:
+            if order["data"].get("order_type") == "refund":
+                order["data"]["origin"] = int(order["data"]["origin"])
+                for line in order["data"]["lines"]:
+                    line[2]["qty"] = line[2]["qty"]*-1
+
+        context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1, "from_ui": True}
         for order in orders:
             if order["data"].get("quotation_type", False):
                 return self.with_context(context).action_quotation(order["data"])
@@ -174,7 +192,11 @@ class PosOrder(models.Model):
         for order_id in res:
             self.browse(order_id).set_reserve_ncf_seq()
             self.env.cr.commit()
-            self.browse(order_id).with_context(context).generate_ncf_invoice()
+            order = self.browse(order_id)
+            if order.origin:
+                order.with_context(context).create_refund_invoice()
+            else:
+                order.with_context(context).generate_ncf_invoice()
         return res
 
     @api.model
@@ -190,6 +212,7 @@ class PosOrder(models.Model):
     @api.model
     def create_refund_invoice(self):
         order = self
+        order.state = "refund"
         context = dict(self._context)
         invoice_id = order.origin.invoice_id.id
         context.update({'type': 'out_invoice',
@@ -322,10 +345,9 @@ class PosOrder(models.Model):
     def action_paid_reconcile(self):
         for rec in self:
             move_line_ids = []
-            for st in rec.statement_ids:
-                st.fast_counterpart_creation()
+            rec.statement_ids.fast_counterpart_creation()
 
-            credit_docs = self._get_partner_unreconcile("<")
+            credit_docs = self._get_partner_unreconcile("<>")
             move_line_ids += [r[0] for r in credit_docs]
 
             debit_docs = self._get_partner_unreconcile_invoice(">", self.invoice_id.id)
@@ -341,7 +363,7 @@ class PosOrder(models.Model):
             for st in rec.statement_ids:
                 st.fast_counterpart_creation()
 
-            credit_docs = self._get_partner_unreconcile(">")
+            credit_docs = self._get_partner_unreconcile("<>")
             move_line_ids += [r[0] for r in credit_docs]
 
             debit_docs = self._get_partner_unreconcile_invoice("<", self.invoice_id.id)

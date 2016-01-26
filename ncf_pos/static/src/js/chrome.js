@@ -69,6 +69,7 @@ odoo.define('pos_manager.chrome', function (require) {
             $(".header-row").hide();
             $(".control-buttons-refund").show();
             $(".pos-rightheader").hide();
+            $(".price-tag").hide();
         },
         order_mode: function () {
             $(".control-buttons").show();
@@ -78,6 +79,7 @@ odoo.define('pos_manager.chrome', function (require) {
             $(".header-row").show();
             $(".control-buttons-refund").hide();
             $(".pos-rightheader").show();
+            $(".price-tag").show();
 
         }
     });

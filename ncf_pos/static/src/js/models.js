@@ -80,7 +80,7 @@ odoo.define('ncf_pos.models', function (require) {
             _super_order.initialize.apply(this, arguments);
             this.quotation_type = this.quotation_type || false;
             this.order_type = this.order_type || "order";
-            this.refund_order_id = this.refund_order_id || false;
+            this.origin = this.origin || false;
 
             this.save_to_db();
         },
@@ -88,7 +88,7 @@ odoo.define('ncf_pos.models', function (require) {
             _super_order.init_from_JSON.apply(this, arguments);
             this.quotation_type = json.quotation_type;
             this.order_type = json.order_type;
-            this.refund_order_id = json.refund_order_id;
+            this.origin = json.origin;
         },
         set_quotation_type: function (quotation_type) {
             this.quotation_type = quotation_type;
@@ -104,22 +104,70 @@ odoo.define('ncf_pos.models', function (require) {
         get_order_type: function () {
             return this.order_type || "order";
         },
-        set_refund_order_id: function(refund_order_id){
-            this.refund_order_id = refund_order_id;
+        set_origin: function (origin) {
+            this.origin = origin;
             this.trigger('change', this);
         },
-        get_refund_order_id: function(){
-            return this.refund_order_id || false
+        get_origin: function () {
+            return this.origin || false
         },
         export_as_JSON: function () {
             var json = _super_order.export_as_JSON.apply(this, arguments);
             json.quotation_type = this.get_quotation_type();
             json.order_type = this.get_order_type();
-            json.refund_order_id = this.get_refund_order_id();
+            json.origin = this.get_origin();
             return json;
+        },
+        add_product: function (product, options) {
+            if (product.qty_allow_refund == 0 && this.get_order_type() == "refund"){
+                return
+            }
+
+            if (this._printed) {
+                this.destroy();
+                return this.pos.get_order().add_product(product, options);
+            }
+            this.assert_editable();
+            options = options || {};
+            var attr = JSON.parse(JSON.stringify(product));
+            attr.pos = this.pos;
+            attr.order = this;
+
+
+            var line = new models.Orderline({}, {pos: this.pos, order: this, product: product});
+
+            if (this.get_order_type() == "refund"){
+                line.set_unit_price(product.refund_price);
+                line.set_discount(product.refund_discount);
+                line.set_note(product.refund_note);
+                product.qty_allow_refund--;
+            }
+
+            if (options.quantity !== undefined) {
+                line.set_quantity(options.quantity);
+            }
+            if (options.price !== undefined) {
+                line.set_unit_price(options.price);
+            }
+            if (options.discount !== undefined) {
+                line.set_discount(options.discount);
+            }
+
+            if (options.extras !== undefined) {
+                for (var prop in options.extras) {
+                    line[prop] = options.extras[prop];
+                }
+            }
+
+            var last_orderline = this.get_last_orderline();
+            if (last_orderline && last_orderline.can_be_merged_with(line) && options.merge !== false) {
+                last_orderline.merge(line);
+            } else {
+                this.orderlines.add(line);
+            }
+            this.select_orderline(this.get_last_orderline());
         }
     });
-
 
     var PosModelSuper = models.PosModel;
     models.PosModel = models.PosModel.extend({
