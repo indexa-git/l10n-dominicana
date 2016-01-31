@@ -9,6 +9,113 @@ odoo.define('ncf_pos.screens', function (require) {
     var QWeb = core.qweb;
     var _t = core._t;
 
+    screens.PaymentScreenWidget.include({
+        renderElement: function () {
+            var self = this;
+            this._super();
+            this.$(".js_credit_note").click(function () {
+                self.apply_credit();
+            });
+
+        },
+        payment_input: function (input) {
+            var order = this.pos.get_order();
+            if (order.selected_paymentline) {
+                if (order.selected_paymentline.get_type() == "credit") {
+                    return
+                }
+            }
+
+            this._super(input);
+
+        },
+        apply_credit: function () {
+            var self = this;
+            var order = self.pos.get_order();
+            var default_partner_id = self.pos.config.default_partner_id[0];
+            var partner_id = order.get_client();
+
+            if (order.get_total_with_tax() == 0) {
+                return
+            }
+
+            if (partner_id == undefined) {
+                self.gui.show_popup("alert", {title: "Alerta", body: "Debe de seleccionar un cliente!"});
+                return
+            }
+
+            if (partner_id.id == default_partner_id) {
+                var nc_ncf = prompt("Escribir el NCF de la nota de crédito.", "");
+                if (nc_ncf != null) {
+                    alert(nc_ncf);
+                }
+            } else {
+                var PosOrderModel = new Model("pos.order");
+                PosOrderModel.call("get_partner_credit", [order.get_client().id])
+                    .then(function (result) {
+
+                        if (!result || order.get_due() == 0) {
+                            return
+                        }
+
+                        var credit = result;
+                        if (result > order.get_due()) {
+                            credit = order.get_due()
+                        }
+                        ;
+
+                        var cashregisters = self.pos.cashregisters[0];
+                        self.pos.get_order().add_paymentline(cashregisters);
+                        order.selected_paymentline.set_amount(credit);
+                        order.selected_paymentline.set_type("credit");
+                        self.order_changes();
+                        self.render_paymentlines();
+                        self.$('.paymentline.selected .edit').text(self.format_currency_no_symbol(credit));
+                    }).fail(function () {
+                    self.gui.show_popup("alert", {
+                        title: "Alerta", body: "El PTV no pudo conectar al servidor!!"
+                    });
+                });
+            }
+        },
+        render_paymentlines: function () {
+            var self = this;
+            var order = this.pos.get_order();
+            if (!order) {
+                return;
+            }
+
+            var lines = order.get_paymentlines();
+            var due = order.get_due();
+            var extradue = 0;
+            if (due && lines.length && due !== order.get_due(lines[lines.length - 1])) {
+                extradue = due;
+            }
+            _.each(lines, function (line) {
+                if (line.get_type() == "credit") {
+                    line.name = "Nota de crédito";
+                }
+            });
+
+            this.$('.paymentlines-container').empty();
+            var lines = $(QWeb.render('PaymentScreen-Paymentlines', {
+                widget: this,
+                order: order,
+                paymentlines: lines,
+                extradue: extradue,
+            }));
+
+            lines.on('click', '.delete-button', function () {
+                self.click_delete_paymentline($(this).data('cid'));
+            });
+
+            lines.on('click', '.paymentline', function () {
+                self.click_paymentline($(this).data('cid'));
+            });
+
+            lines.appendTo(this.$('.paymentlines-container'));
+        }
+    });
 
     screens.ProductScreenWidget.include({
         start: function () {
@@ -21,17 +128,38 @@ odoo.define('ncf_pos.screens', function (require) {
 
             $(".refund-button").click(function () {
                 self.refund_order();
-            })
+            });
+
+            $(".refund-money-button").click(function () {
+                self.ask_refund_money();
+            });
 
         },
         cancel_refund: function () {
             var self = this;
+            self.pos.delete_current_order();
+        },
+        ask_refund_money: function () {
+            var self = this;
             var order = self.pos.get_order();
-            order.finalize();
+            if (order.is_empty()) {
+                self.gui.show_popup("alert", {title: "Alerta", body: "No hay ningun productos para devolver!!"});
+                return
+            }
+            order.set_order_type("draft_refund_money");
+            self.pos.push_order(order);
+            self.gui.show_screen('products');
+            self.pos.delete_current_order();
+
         },
         refund_order: function () {
             var self = this;
             var order = self.pos.get_order();
+            if (order.is_empty()) {
+                self.gui.show_popup("alert", {title: "Alerta", body: "No hay ningun productos para devolver!!"});
+                return
+            }
+
             self.pos.push_order(order);
             self.gui.show_screen('receipt');
         }

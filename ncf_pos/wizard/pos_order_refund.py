@@ -22,9 +22,12 @@ class PosOrderRefund(models.TransientModel):
         if order.amount_total < 0:
             raise exceptions.UserError("No devolver una orden negativa!")
 
-        qty_allow_refund = sum([l.qty_allow_refund for l in order.lines])
-        if qty_allow_refund == 0:
+        if not order.allow_refund():
             raise exceptions.UserError(_('Esta factura ya fue devuelta!'))
+
+        draft_refund = order.search([('origin','=',order.id), ('state','in',('draft_refund_money', 'draft_refund'))])
+        if draft_refund:
+            raise exceptions.UserError('Tiene una devolucion en borrador para esta orden.')
 
         if self.env.user.allow_refund and self.env.user.pos_security_pin == self.pos_security_pin:
             refund = True
@@ -72,6 +75,7 @@ class PosOrderCreditNote(models.TransientModel):
         order = self.env["pos.order"].browse(self._context["active_id"])
 
         if not self.refund_money:
+            order.state = "refund"
             order.with_context(context).create_refund_invoice()
             return {'type': 'ir.actions.act_window_close'}
         else:
@@ -80,7 +84,7 @@ class PosOrderCreditNote(models.TransientModel):
             if self.env.user.allow_cash_refund and self.env.user.pos_security_pin == self.pos_security_pin:
                 can_refund_cash = True
 
-            order.state = "wating_refund_money"
+            order.state = "draft_refund_money"
             context.update({"nc": "refund_money"})
             if can_refund_cash:
                 res = {

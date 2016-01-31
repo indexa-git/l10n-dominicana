@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from openerp import models, fields, api
-
-import time
+from openerp import models, fields, api, exceptions
 from openerp.tools.translate import _
 
 
@@ -22,29 +20,46 @@ class PosMakePayment(models.TransientModel):
         domain_ids = [r.id for r in current_session_id.journal_ids]
         return [('id', 'in', domain_ids)]
 
-    def _get_credit(self):
+    def get_credit(self, order):
+        res = order._get_partner_unreconcile("<")
+        credit = sum([r[1] for r in res]) * -1 or 0.0
+        amount_payment = order.amount_total - order.amount_paid
+        if amount_payment > 0 and amount_payment < credit:
+            credit = amount_payment
+        return credit
+
+    def _default_credit(self):
         order_obj = self.env['pos.order']
         active_id = self._context and self._context.get('active_id', False)
+        credit = 0.0
         if active_id:
             order = order_obj.browse(active_id)
-            if order.credit:
-                return 0.00
+            if not order.credit:
+                open_order = order_obj.search([("session_id", "=", order.session_id.id), ("state", "=", "draft"),
+                                               ("partner_id", "=", order.partner_id.id), ("credit", ">", 0)])
+                if open_order:
+                    raise exceptions.UserError(
+                        "Ya ha iniciado un proceso de pago con nota de crédito que aun esta sin terminar!")
 
-        res = self.env["pos.order"].browse(self._context.get("active_id"))._get_partner_unreconcile("<")
-        return sum([r[1] for r in res])*-1 or 0.0
+            credit = self.get_credit(order)
+
+        return credit
 
     def _default_amount(self):
         order_obj = self.env['pos.order']
         active_id = self._context and self._context.get('active_id', False)
         if active_id:
             order = order_obj.browse(active_id)
-            return order.amount_total - order.amount_paid
+            credit = self.get_credit(order)
 
+            return order.amount_total - order.amount_paid - credit + order.credit
         return False
 
     journal_id = fields.Many2one("account.journal", string="Formas de pago", default=_default_journal,
                                  domain=_get_payment_domain)
-    credit = fields.Float(string=u"Crédito disponible", readonly=True, digits=(16, 2), default=_get_credit)
+    journal_type = fields.Selection([('sale', 'Sale'), ('purchase', 'Purchase'), ('cash', 'Cash'), ('bank', 'Bank'),
+                                     ('general', 'Miscellaneous')], related="journal_id.type", store=False)
+    credit = fields.Float(string=u"Crédito", readonly=True, digits=(16, 2), default=_default_credit)
     amount = fields.Float('Amount', digits=(16, 2), required=True, default=_default_amount)
 
     @api.multi
@@ -70,7 +85,6 @@ class PosMakePayment(models.TransientModel):
             credit = credit_amount
             order.credit_type = "parcial"
 
-
         if credit:
             order.credit = credit
 
@@ -82,10 +96,6 @@ class PosMakePayment(models.TransientModel):
 
         if amount != 0.0:
             order.add_payment(data)
-
-        # if self.credit == 0 and self.amount == 0:
-        #     order.generate_ncf_invoice()
-        #     return {'type': 'ir.actions.act_window_close'}
 
         if order.test_paid():
             order.signal_workflow('paid')
@@ -106,3 +116,84 @@ class PosMakePayment(models.TransientModel):
             'context': self._context,
         }
 
+
+class PosMakePaymentRefund(models.TransientModel):
+    _name = "pos.make.payment.refund"
+
+    @api.model
+    def default_get(self, fields_list):
+        order_obj = self.env["pos.order"]
+        order = order_obj.browse(self._context.get("active_id"))
+        origin_order_id = order.origin
+
+        old_refund = order_obj.search([('origin', '=', origin_order_id.id), ('state', '=', 'refund_money')])
+
+        payment_in = {}
+
+        if old_refund:
+            for payment in old_refund.statement_ids:
+                if not payment_in.get(payment.journal_id.id, False):
+                    payment_in[payment.journal_id.id] = payment.amount
+                else:
+                    payment_in[payment.journal_id.id] += payment.amount
+
+        for payment in origin_order_id.statement_ids:
+            if not payment_in.get(payment.journal_id.id, False):
+                payment_in[payment.journal_id.id] = payment.amount
+            else:
+                payment_in[payment.journal_id.id] += payment.amount
+
+        lines = []
+        for k, v in payment_in.iteritems():
+            line = (0, 0, {"refund_id": self.id, "journal_id": k, "amount": v})
+            lines.append(line)
+
+        res = {}
+        res["refund_order_id"] = order.id
+        res["lines"] = lines
+        res["total_refund"] = order.amount_total * -1
+
+        return res
+
+    @api.depends("lines")
+    def _calc_refund(self):
+        amount = 0
+        for line in self.lines:
+            amount += line.refund
+
+        self.refunded = self.total_refund - amount
+
+    refund_order_id = fields.Many2one("pos.order", string="Orden")
+    lines = fields.One2many("pos.make.payment.refund.line", "refund_id", string="Pagos")
+    total_refund = fields.Float(u"Monto de la devolución", readonly=True)
+    refunded = fields.Float(u"Monto de la devolución", readonly=True, compute=_calc_refund)
+
+    @api.multi
+    def refund_payment(self):
+        if self.refunded > self.total_refund:
+            return False
+
+        for line in self.lines:
+            if line.refund == 0:
+                continue
+            data = {'amount': line.refund*-1,
+                    'payment_date': fields.Datetime.now(),
+                    'journal': line.journal_id.id}
+
+            self.refund_order_id.add_payment(data)
+        self.refund_order_id.signal_workflow('paid')
+        return {'type': 'ir.actions.act_window_close'}
+
+class PosMakePaymentRefundLine(models.TransientModel):
+    _name = "pos.make.payment.refund.line"
+
+    refund_id = fields.Many2one("pos.make.payment.refund")
+    check = fields.Boolean("Aplicar", default=False)
+    journal_id = fields.Many2one("account.journal", string="Forma de pago", readonly=True)
+    amount = fields.Float("Monto", readonly=True)
+    refund = fields.Float("Devolver")
+
+    @api.onchange("refund")
+    def onchange_refund(self):
+        if self.refund > self.amount:
+            self.refund = 0.0

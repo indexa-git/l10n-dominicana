@@ -41,15 +41,27 @@ class PosOrder(models.Model):
     _inherit = ["pos.order", 'mail.thread', 'ir.needaction_mixin']
     _name = 'pos.order'
 
+    @api.model
+    def get_partner_credit(self, partner_id):
+        credit = 0
 
-    def get_real_datetime(self):
-        date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        start = datetime.strptime(date_now, "%Y-%m-%d %H:%M:%S")
-        user_tz = self.env.user.tz
-        tz = pytz.timezone(user_tz) if user_tz else pytz.utc
-        start = pytz.utc.localize(start).astimezone(tz)
-        tz_date = start.strftime("%Y-%m-%d %H:%M:%S")
-        return tz_date
+        sql = """
+        SELECT "account_move_line"."id", "account_move_line"."amount_residual"
+        FROM "account_move_line"
+        INNER JOIN "res_partner"  ON "account_move_line"."partner_id" = "res_partner"."id"
+        INNER JOIN "account_account"  ON "account_move_line"."account_id" = "account_account"."id"
+        WHERE "account_account"."reconcile" = TRUE AND
+        "account_move_line"."reconciled" = FALSE AND
+        "account_move_line"."amount_residual" < 0 AND
+        "res_partner"."id" = {}
+        """.format(partner_id)
+
+        self.env.cr.execute(sql)
+        res = self.env.cr.fetchall()
+        if res:
+            credit = sum([r[1] for r in res])
+
+        return credit * -1
 
     def _get_partner_unreconcile(self, operator):
         """
@@ -136,16 +148,24 @@ class PosOrder(models.Model):
                               ('invoiced', 'Invoiced'),
                               ('refund', u"Nota De Crédito"),
                               ('refund_money', u"Nota De Crédito Con Devolucion De Efectivo"),
-                              ('wating_refund_money', u'Esperando devolución del pago'),
+                              ('draft_refund_money', u'Esperando devolución del pago'),
                               ('draft_refund', u'Devolución en borrador'),
                               ],
-                             'Status', readonly=True, copy=False)
+                             'Status', readonly=True, copy=False, default="draft")
     credit = fields.Float(string=u"Créditos aplicados", readonly=True, digits=(16, 2), copy=False)
     credit_type = fields.Selection([('none', 'none'), ('parcial', 'parcial'), ('full', 'full')],
                                    string="Tipo de pago con credito", default="none")
     lines = fields.One2many('pos.order.line', 'order_id', 'Order Lines',
                             states={'draft': [('readonly', False)], 'draft_refund': [('readonly', False)]},
                             readonly=True, copy=True)
+    date_order = fields.Datetime('Order Date', readonly=True, select=False, default=fields.datetime.now())
+
+    def allow_refund(self):
+        qty_allow_refund = sum([l.qty_allow_refund for l in self.lines])
+        if qty_allow_refund == 0:
+            return False
+
+        return True
 
     @api.onchange("session_id")
     def onchange_session_id(self):
@@ -169,20 +189,27 @@ class PosOrder(models.Model):
 
         if ui_order.get("origin", False):
             res.update({"origin": ui_order["origin"],
-                        "state": "refund"})
+                        "state": ui_order.get("order_type", False)})
+        return res
+
+    @api.model
+    def _payment_fields(self, ui_paymentline):
+        res = super(PosOrder, self)._payment_fields(ui_paymentline)
+        if ui_paymentline.get("type", False):
+            res.update({"type": ui_paymentline["type"]})
 
         return res
 
     @api.model
     def create_from_ui(self, orders):
-
         for order in orders:
-            if order["data"].get("order_type") == "refund":
+            if order["data"].get("order_type") in ["refund", "draft_refund_money"]:
                 order["data"]["origin"] = int(order["data"]["origin"])
                 for line in order["data"]["lines"]:
-                    line[2]["qty"] = line[2]["qty"]*-1
+                    line[2]["qty"] = line[2]["qty"] * -1
 
         context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1, "from_ui": True}
+
         for order in orders:
             if order["data"].get("quotation_type", False):
                 return self.with_context(context).action_quotation(order["data"])
@@ -212,7 +239,6 @@ class PosOrder(models.Model):
     @api.model
     def create_refund_invoice(self):
         order = self
-        order.state = "refund"
         context = dict(self._context)
         invoice_id = order.origin.invoice_id.id
         context.update({'type': 'out_invoice',
@@ -292,7 +318,7 @@ class PosOrder(models.Model):
                         _('To return product(s), you need to open a session that will be used to register the refund.'))
 
             clone_id = self.copy({'name': order.name + ' REFUND', 'session_id': current_session_ids[0].id,
-                                  'date_order': fields.Date.context_today, 'origin': order.id, "lines": False,
+                                  'date_order': fields.Datetime.now(), 'origin': order.id, "lines": False,
                                   "state": "draft_refund"})
 
             new_lines = []
@@ -387,30 +413,25 @@ class PosOrder(models.Model):
         context["tz"] = self.env.user.tz
         current_session_id = self.env['pos.session'].search([('state', '!=', 'closed'), ('user_id', '=', self._uid)])
         values['name'] = current_session_id.config_id.sequence_id.next_by_id()
-        values["date_order"] = self.get_real_datetime()
         return super(models.Model, self).create(values)
 
     @api.multi
     def add_payment(self, data):
         """Create a new payment for the order"""
         for order in self:
+            if data.get("type", False) == "credit":
+                order.credit = data["amount"]
+                continue
             context = dict(self._context or {})
             statement_line_obj = self.env['account.bank.statement.line']
             property_obj = self.env['ir.property']
 
-            date = data.get('payment_date', time.strftime('%Y-%m-%d'))
+            date = data.get('payment_date', tools.DEFAULT_SERVER_DATE_FORMAT)
 
             if len(date) > 10:
                 timestamp = datetime.strptime(date, tools.DEFAULT_SERVER_DATETIME_FORMAT)
                 ts = fields.Datetime.context_timestamp(order, timestamp)
                 date = ts.strftime(tools.DEFAULT_SERVER_DATE_FORMAT)
-            args = {
-                'amount': data['amount'],
-                'date': date,
-                'name': order.name + ': ' + (data.get('payment_name', '') or ''),
-                'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(
-                    order.partner_id).id or False,
-            }
 
             args = {
                 'amount': data['amount'],
@@ -499,7 +520,6 @@ class PosOrder(models.Model):
         order_ids.append(order_id)
         order_lines = order_id.order_line.browse([])
         for line in order["lines"]:
-
             order_line = sale_line_ref.new({
                 # 'order_id': order_id.id,
                 'product_id': line[2]["product_id"],
@@ -518,6 +538,36 @@ class PosOrder(models.Model):
             return order_id.print_quotation()
         else:
             return order_id.action_quotation_send()
+
+    @api.multi
+    def payment_wizard(self):
+        if self.state != "draft_refund_money":
+
+
+
+            return {
+                'name': _('Payment'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pos.make.payment',
+                'view_id': False,
+                'target': 'new',
+                'views': False,
+                'type': 'ir.actions.act_window',
+                'context': self._context,
+            }
+        else:
+            return {
+                'name': "Devolucion de el pago",
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pos.make.payment.refund',
+                'view_id': False,
+                'target': 'new',
+                'views': False,
+                'type': 'ir.actions.act_window',
+                'context': self._context,
+            }
 
 
 class PosOrderLine(models.Model):
