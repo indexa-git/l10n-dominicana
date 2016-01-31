@@ -21,13 +21,14 @@
     'version': '1.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','account', 'account_accountant', 'l10n_do'],
+    'depends': ['base','account', 'account_accountant', 'l10n_do','rnc_validation'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/partner_view.xml',
+        'data/setup_ncf.xml',
         'views/shop_view.xml',
+        'views/partner_view.xml',
         'views/account_view.xml',
         'views/account_invoice_view.xml',
         'views/dgii_purchase_view.xml',
@@ -36,7 +37,6 @@
         'views/dgii_exterior_view.xml',
         'views/account_invoice_state_view.xml',
         'views/account_move_view.xml',
-        'data/setup_ncf.xml',
         'wizard/account_invoice_refund_view.xml',
     ],
     "qweb": ['static/src/xml/base.xml'],

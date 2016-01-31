@@ -561,10 +561,3 @@ def _internet_on():
     except urllib2.URLError as err:
         pass
     return False
-
-
-class publisher_warranty_contract(models.AbstractModel):
-    _inherit = "publisher_warranty.contract"
-
-    def _get_sys_logs(self, cr, uid):
-        return

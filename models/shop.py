@@ -19,16 +19,22 @@ class ShopJournalConfig(models.Model):
 
     @api.model
     def get_user_shop_config(self):
+        if self._context.get("module", False) == "ncf_manager":
+            if not self.search([]):
+                self.create({"name": "Principal", "sale_journal_ids": [(4, 1, False)], "user_ids": [(4, 1, False)]})
+
         user_shops = self.search([('user_ids','=',self._uid)])
         if not user_shops:
             raise exceptions.UserError("Su usuario no tiene una sucursal asignada.")
 
-        shop_ids = [rec.id for rec in user_shops]
+        if self._context.get("module", False) == "ncf_manager":
+            shop_ids = [rec for rec in user_shops]
+        else:
+            shop_ids = [rec.id for rec in user_shops]
         sale_journal_ids = list(set(sum([[sale_journal_id.id for sale_journal_id in rec.sale_journal_ids] for rec in user_shops], [])))
 
         if not sale_journal_ids:
             raise exceptions.UserError("Su sucursal no tiene diarios de facturas asignadas.")
-
         return {"shop_ids": shop_ids, "sale_journal_ids": sale_journal_ids}
 
     @api.model
@@ -108,15 +114,8 @@ class ShopJournalConfig(models.Model):
             nc_id = self.env["ir.sequence"].create(seq_values)
             sale_journal.refund_sequence_id = nc_id.id
 
-        shop = self.search([])
-        if not shop:
-            self.create({"name": "Principal", "sale_journal_id": [(4, 1, False)], "user_ids": [(4, 1, False)]})
-
-
-
-
-
-
+        if not self.search([]):
+            self.create({"name": "Principal", "sale_journal_ids": [(4, 1, False)], "user_ids": [(4, 1, False)]})
 
 
 

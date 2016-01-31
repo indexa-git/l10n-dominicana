@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import ir_config_parameter
 import shop
 import account
 import account_invoice
