@@ -8,8 +8,8 @@
             <field name="arch" type="xml">
                 <form string="Cancelar orden">
                     <group>
-                        <field name="why" required="1"/>
-                        <field name="manager" password="True" autofocus="True"/>
+                        <field name="cancel_refund_info" required="1" widget="many2many_tags" autofocus="True"/>
+                        <field name="manager" password="True"/>
                     </group>
                     <footer>
                         <button name="cancel" string="Cancelar order" type="object" class="oe_highlight"/>

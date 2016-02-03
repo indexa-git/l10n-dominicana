@@ -161,11 +161,18 @@ odoo.define('ncf_pos.models', function (require) {
     models.Order = models.Order.extend({
         initialize: function () {
             _super_order.initialize.apply(this, arguments);
+            var self = this;
             this.quotation_type = this.quotation_type || false;
             this.order_type = this.order_type || "order";
             this.origin = this.origin || false;
             this.origin_ncf = this.origin_ncf || false;
             this.credit = this.credit || 0;
+            this.credit_ncf = this.credit_ncf || "";
+
+            if (!self.get_client()) {
+                var default_partner_id = self.pos.db.get_partner_by_id(self.pos.config.default_partner_id[0]);
+                self.set_client(default_partner_id);
+            }
 
             this.save_to_db();
         },
@@ -210,6 +217,13 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_credit: function () {
             return this.credit || 0;
+        },
+        set_credit_ncf: function (credit) {
+            this.credit_ncf = credit;
+            this.trigger('change', this)
+        },
+        get_credit_ncf: function () {
+            return this.credit_ncf || 0;
         },
         add_product: function (product, options) {
             if (product.qty_allow_refund == 0 && this.get_order_type() == "refund") {
@@ -269,6 +283,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.origin = this.get_origin();
             json.origin_ncf = this.get_origin_ncf();
             json.credit = this.get_credit();
+            json.credit_ncf = this.get_credit_ncf();
             return json;
         },
         export_for_printing: function () {
@@ -278,6 +293,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.origin = this.get_origin();
             json.origin_ncf = this.get_origin_ncf();
             json.credit = this.get_credit();
+            json.credit_ncf = this.get_credit_ncf();
             return json
         }
     });

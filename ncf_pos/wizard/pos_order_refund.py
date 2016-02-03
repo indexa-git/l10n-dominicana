@@ -7,6 +7,7 @@ from openerp.tools.translate import _
 class PosOrderRefund(models.TransientModel):
     _name = "pos.order.refund"
 
+    cancel_refund_info = fields.Many2many("order.info.tags")
     pos_security_pin = fields.Char("Clave", required=True)
 
     @api.multi
@@ -15,24 +16,27 @@ class PosOrderRefund(models.TransientModel):
         current_session_id = self.env['pos.session'].search([('state', '!=', 'closed'), ('user_id', '=', self._uid)])
         if not current_session_id:
             raise exceptions.UserError(
-                    _('To return product(s), you need to open a session that will be used to register the refund.'))
+                _('To return product(s), you need to open a session that will be used to register the refund.'))
 
         order = self.env["pos.order"].browse(self._context["active_id"])
 
         if order.amount_total < 0:
-            raise exceptions.UserError("No devolver una orden negativa!")
+            raise exceptions.UserError(u"No puede devolver una devolución!")
 
         if not order.allow_refund():
             raise exceptions.UserError(_('Esta factura ya fue devuelta!'))
 
-        draft_refund = order.search([('origin','=',order.id), ('state','in',('draft_refund_money', 'draft_refund'))])
+        draft_refund = order.search(
+            [('origin', '=', order.id), ('state', 'in', ('draft_refund_money', 'draft_refund'))])
         if draft_refund:
             raise exceptions.UserError('Tiene una devolucion en borrador para esta orden.')
 
         if self.env.user.allow_refund and self.env.user.pos_security_pin == self.pos_security_pin:
             refund = True
 
+
         if refund:
+            order.cancel_refund_info = [r.id for r in self.cancel_refund_info]
             return order.refund()
         else:
             raise exceptions.UserError("Usted no tiene permitido hacer devoluciones.")
@@ -87,16 +91,16 @@ class PosOrderCreditNote(models.TransientModel):
             order.state = "draft_refund_money"
             context.update({"nc": "refund_money"})
             if can_refund_cash:
-                res = {
-                    'name': _('Payment'),
+                return {
+                    'name': "Devolucion de el pago",
                     'view_type': 'form',
                     'view_mode': 'form',
-                    'res_model': 'pos.make.payment',
+                    'res_model': 'pos.make.payment.refund',
                     'view_id': False,
                     'target': 'new',
                     'views': False,
                     'type': 'ir.actions.act_window',
-                    'context': context,
+                    'context': self._context,
                 }
 
                 return res

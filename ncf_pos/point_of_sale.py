@@ -6,7 +6,6 @@ import openerp.addons.decimal_precision as dp
 from openerp.tools.translate import _
 from openerp.osv import osv
 from datetime import datetime
-import pytz
 
 
 class PosSession(osv.osv):
@@ -30,7 +29,7 @@ class PosSession(osv.osv):
                     continue
                 if order.state in ('draft'):
                     raise exceptions.UserError(
-                            _("You cannot confirm all orders of this session, because they have not the 'paid' status"))
+                        _("You cannot confirm all orders of this session, because they have not the 'paid' status"))
                 else:
                     pos_order_obj.signal_workflow(cr, uid, [order.id], 'done')
 
@@ -40,6 +39,12 @@ class PosSession(osv.osv):
 class PosOrder(models.Model):
     _inherit = ["pos.order", 'mail.thread', 'ir.needaction_mixin']
     _name = 'pos.order'
+
+    @api.model
+    def get_credit_by_ncf(self, ncf):
+        refund_invoice = self.env["account.invoice"].search([('number','=',ncf),('state','=','open')])
+        return refund_invoice.residual
+
 
     @api.model
     def get_partner_credit(self, partner_id):
@@ -140,7 +145,7 @@ class PosOrder(models.Model):
                                  readonly=True)
     reserve_ncf_seq = fields.Char(size=19, copy=False)
     origin = fields.Many2one("pos.order", string="Afecta")
-    why_cancel = fields.Char("Concepto de cancelacion")
+    cancel_refund_info = fields.Many2many("order.info.tags", string=u"Motivo de cancelación o devolución")
     state = fields.Selection([('draft', 'New'),
                               ('cancel', 'Cancelled'),
                               ('paid', 'Paid'),
@@ -159,6 +164,7 @@ class PosOrder(models.Model):
                             states={'draft': [('readonly', False)], 'draft_refund': [('readonly', False)]},
                             readonly=True, copy=True)
     date_order = fields.Datetime('Order Date', readonly=True, select=False, default=fields.datetime.now())
+    credit_ncf = fields.Char("NCF del credito aplicado")
 
     def allow_refund(self):
         qty_allow_refund = sum([l.qty_allow_refund for l in self.lines])
@@ -190,6 +196,7 @@ class PosOrder(models.Model):
         if ui_order.get("origin", False):
             res.update({"origin": ui_order["origin"],
                         "state": ui_order.get("order_type", False)})
+        res.update({"credit_ncf": ui_order.get("credit_ncf", False)})
         return res
 
     @api.model
@@ -197,7 +204,6 @@ class PosOrder(models.Model):
         res = super(PosOrder, self)._payment_fields(ui_paymentline)
         if ui_paymentline.get("type", False):
             res.update({"type": ui_paymentline["type"]})
-
         return res
 
     @api.model
@@ -283,7 +289,7 @@ class PosOrder(models.Model):
         order.create_picking()
         for line in order.lines:
             self.env["pos.order.line"].browse(line.refund_line_ref.id).write(
-                    {"qty_allow_refund": line.qty_allow_refund - (line.qty * -1)})
+                {"qty_allow_refund": line.qty_allow_refund - (line.qty * -1)})
 
     def set_reserve_ncf_seq(self):
         if not self.partner_id:
@@ -312,10 +318,10 @@ class PosOrder(models.Model):
 
         for order in self:
             current_session_ids = self.env['pos.session'].search(
-                    [('state', '!=', 'closed'), ('user_id', '=', self._uid)])
+                [('state', '!=', 'closed'), ('user_id', '=', self._uid)])
             if not current_session_ids:
                 raise exceptions.UserError(
-                        _('To return product(s), you need to open a session that will be used to register the refund.'))
+                    _('To return product(s), you need to open a session that will be used to register the refund.'))
 
             clone_id = self.copy({'name': order.name + ' REFUND', 'session_id': current_session_ids[0].id,
                                   'date_order': fields.Datetime.now(), 'origin': order.id, "lines": False,
@@ -369,6 +375,7 @@ class PosOrder(models.Model):
 
     @api.model
     def action_paid_reconcile(self):
+
         for rec in self:
             move_line_ids = []
             rec.statement_ids.fast_counterpart_creation()
@@ -380,7 +387,7 @@ class PosOrder(models.Model):
             move_line_ids += [r[0] for r in debit_docs]
 
             self.env["account.move.line.reconcile.writeoff"].with_context(
-                    active_ids=move_line_ids).trans_rec_reconcile_partial()
+                active_ids=move_line_ids).trans_rec_reconcile_partial()
 
     @api.model
     def action_refund_reconcile(self):
@@ -396,7 +403,7 @@ class PosOrder(models.Model):
             move_line_ids += [r[0] for r in debit_docs]
 
             self.env["account.move.line.reconcile.writeoff"].with_context(
-                    active_ids=move_line_ids).trans_rec_reconcile_partial()
+                active_ids=move_line_ids).trans_rec_reconcile_partial()
 
     @api.model
     def get_ncf(self, name):
@@ -438,7 +445,7 @@ class PosOrder(models.Model):
                 'date': date,
                 'name': order.name + ': ' + (data.get('payment_name', '') or ''),
                 'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(
-                        order.partner_id).id or False,
+                    order.partner_id).id or False,
             }
 
             journal_id = data.get('journal', False)
@@ -543,8 +550,6 @@ class PosOrder(models.Model):
     def payment_wizard(self):
         if self.state != "draft_refund_money":
 
-
-
             return {
                 'name': _('Payment'),
                 'view_type': 'form',
@@ -568,6 +573,13 @@ class PosOrder(models.Model):
                 'type': 'ir.actions.act_window',
                 'context': self._context,
             }
+
+    @api.returns('self', lambda value: value.id)
+    def copy(self, cr, uid, id, default=None, context=None):
+        order = self.browse(cr, uid, id, context=context)
+        if order.origin:
+            raise exceptions.UserError("No esta permitido duplicar devoluciones.")
+        return super(PosOrder, self).copy(cr, uid, id, default=default, context=context)
 
 
 class PosOrderLine(models.Model):
@@ -610,3 +622,9 @@ class ResPartner(models.Model):
             return partner_id.id
 
         return partner_id
+
+
+class OrderInfoTags(models.Model):
+    _name = "order.info.tags"
+
+    name = fields.Char("Info")

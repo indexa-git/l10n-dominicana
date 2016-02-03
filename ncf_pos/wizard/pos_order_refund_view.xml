@@ -8,7 +8,8 @@
             <field name="arch" type="xml">
                 <form string="Devolución">
                     <group>
-                        <field name="pos_security_pin" password="True" autofocus="autofocus"/>
+                        <field name="cancel_refund_info" required="1" widget="many2many_tags" autofocus="True"/>
+                        <field name="pos_security_pin" password="True"/>
                     </group>
                     <footer>
                         <button name="can_refund" string="Hacer Devolución" type="object" class="oe_highlight"/>

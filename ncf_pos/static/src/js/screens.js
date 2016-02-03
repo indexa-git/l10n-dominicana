@@ -32,52 +32,49 @@ odoo.define('ncf_pos.screens', function (require) {
         apply_credit: function () {
             var self = this;
             var order = self.pos.get_order();
-            var default_partner_id = self.pos.config.default_partner_id[0];
+            var default_partner_id = self.pos.config.default_partner_id;
             var partner_id = order.get_client();
+            var credit = 0;
+            var PosOrderModel = new Model("pos.order");
 
             if (order.get_total_with_tax() == 0) {
                 return
             }
 
-            if (partner_id == undefined) {
-                self.gui.show_popup("alert", {title: "Alerta", body: "Debe de seleccionar un cliente!"});
-                return
-            }
-
-            if (partner_id.id == default_partner_id) {
-                var nc_ncf = prompt("Escribir el NCF de la nota de crédito.", "");
-                if (nc_ncf != null) {
-                    alert(nc_ncf);
-                }
-            } else {
-                var PosOrderModel = new Model("pos.order");
-                PosOrderModel.call("get_partner_credit", [order.get_client().id])
-                    .then(function (result) {
-
-                        if (!result || order.get_due() == 0) {
-                            return
-                        }
-
-                        var credit = result;
-                        if (result > order.get_due()) {
-                            credit = order.get_due()
-                        }
-                        ;
-
-                        var cashregisters = self.pos.cashregisters[0];
-                        self.pos.get_order().add_paymentline(cashregisters);
-                        order.selected_paymentline.set_amount(credit);
-                        order.selected_paymentline.set_type("credit");
-                        self.order_changes();
-                        self.render_paymentlines();
-                        self.$('.paymentline.selected .edit').text(self.format_currency_no_symbol(credit));
-                    }).fail(function () {
-                    self.gui.show_popup("alert", {
-                        title: "Alerta", body: "El PTV no pudo conectar al servidor!!"
-                    });
+            if (partner_id.id == default_partner_id[0]) {
+                self.gui.show_popup("alert", {
+                    title: "Alerta", body: "No esta permitido aplicar creditos de devoluciones a facturas sin antes asignarle un cliente," +
+                    "Si la nota de credito que desea aplicar no tiene cliente asignado solicite ayuda de un supervisor!!"
                 });
             }
-        },
+
+            PosOrderModel.call("get_partner_credit", [order.get_client().id])
+                .then(function (result) {
+
+                    if (!result || order.get_due() == 0) {
+                        return
+                    }
+
+                    credit = result;
+                    if (result > order.get_due()) {
+                        credit = order.get_due()
+                    }
+
+                    var cashregisters = self.pos.cashregisters[0];
+                    self.pos.get_order().add_paymentline(cashregisters);
+                    order.selected_paymentline.set_amount(credit);
+                    order.selected_paymentline.set_type("credit");
+                    self.order_changes();
+                    self.render_paymentlines();
+                    self.$('.paymentline.selected .edit').text(self.format_currency_no_symbol(credit));
+                }).fail(function () {
+                self.gui.show_popup("alert", {
+                    title: "Alerta", body: "El PTV no pudo conectar al servidor!!"
+                });
+            });
+
+        }
+        ,
         render_paymentlines: function () {
             var self = this;
             var order = this.pos.get_order();

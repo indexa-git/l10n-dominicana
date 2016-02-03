@@ -104,17 +104,30 @@ class PosMakePayment(models.TransientModel):
         return self.launch_payment()
 
     def launch_payment(self):
-        return {
-            'name': _('Payment'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': 'pos.make.payment',
-            'view_id': False,
-            'target': 'new',
-            'views': False,
-            'type': 'ir.actions.act_window',
-            'context': self._context,
-        }
+        if self.state != "draft_refund_money":
+            return {
+                'name': _('Payment'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pos.make.payment',
+                'view_id': False,
+                'target': 'new',
+                'views': False,
+                'type': 'ir.actions.act_window',
+                'context': self._context,
+            }
+        else:
+            return {
+                'name': "Devolucion de el pago",
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'pos.make.payment.refund',
+                'view_id': False,
+                'target': 'new',
+                'views': False,
+                'type': 'ir.actions.act_window',
+                'context': self._context,
+            }
 
 
 class PosMakePaymentRefund(models.TransientModel):

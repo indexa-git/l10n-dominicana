@@ -6,7 +6,8 @@ from openerp import models, fields, api, exceptions
 class pos_cancel_order(models.TransientModel):
     _name = "pos.order.cancel"
 
-    why = fields.Char("Motivo")
+
+    cancel_refund_info = fields.Many2many("order.info.tags")
     manager = fields.Char("Clave", required=True)
 
     @api.one
@@ -18,7 +19,7 @@ class pos_cancel_order(models.TransientModel):
 
         if cancel:
             order = self.env["pos.order"].browse(self._context["active_id"])
-            order.why_cancel = self.why
+            order.cancel_refund_info = [r.id for r in self.cancel_refund_info]
             order.action_cancel()
             return {'type': 'ir.actions.act_window_close'}
         else:
