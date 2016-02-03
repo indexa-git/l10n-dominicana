@@ -50,6 +50,10 @@
                     <field name="move_name" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
                 </field>
 
+                <field name="amount_untaxed" position="after">
+                    <field name="total_discount"/>
+                </field>
+
             </field>
         </record>
 

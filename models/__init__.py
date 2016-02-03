@@ -10,3 +10,5 @@ import account_invoice_state
 import dgii_cancel
 import dgii_exterior
 import account_move
+import number_to_word
+import account_payment

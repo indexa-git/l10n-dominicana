@@ -2,13 +2,14 @@
 
 import json
 
-from openerp import models, fields, api, exceptions
+from openerp import exceptions
 import requests
 from tools import is_ncf, _internet_on
 import openerp.addons.decimal_precision as dp
 from openerp import api, fields, models, _
 
-from datetime import date, datetime
+from datetime import datetime
+
 
 MAGIC_COLUMNS = ('id', 'create_uid', 'create_date', 'write_uid', 'write_date')
 
@@ -24,6 +25,14 @@ class InheritedAccountInvoice(models.Model):
         shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
         return shop_user_config["sale_journal_ids"][0]
 
+    @api.one
+    def _get_total_dicount(self):
+        total_discount = 0.0
+        for line in self.invoice_line_ids:
+            total_discount += line.price_unit * ((line.discount or 0.0) / 100.0)
+        self.total_discount = total_discount
+
+    total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id", compute=_get_total_dicount)
     anulation_type = fields.Selection([
         ("01", "DETERIORO DE FACTURA PRE-IMPRESA"),
         ("02", "ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
@@ -276,6 +285,18 @@ class InheritedAccountInvoice(models.Model):
 class AccountInvoiceLine(models.Model):
     _inherit = "account.invoice.line"
 
+
+    @api.one
+    def compute_tax_line(self):
+
+        currency = self.invoice_id and self.invoice_id.currency_id or None
+        price = self.price_unit * (1 - (self.discount or 0.0) / 100.0)
+        if self.invoice_line_tax_ids:
+            taxes = self.invoice_line_tax_ids.compute_all(price, currency, self.quantity, product=self.product_id, partner=self.invoice_id.partner_id)
+            self.tax_amount = sum([t["amount"] for t in taxes["taxes"]])
+        else:
+            self.tax_amount = 0.0
+
     qty_allow_refund = fields.Float(string='qty allow refund', digits=dp.get_precision('Product Unit of Measure'), required=False,copy=False)
     refund_line_ref = fields.Many2one("account.invoice.line", string="origin line refund", copy=False)
-
+    tax_amount = fields.Monetary(string='tax_amount', required=False, currency_field="company_currency_id", compute=compute_tax_line)
