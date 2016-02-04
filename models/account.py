@@ -96,3 +96,27 @@ class AccountTax(models.Model):
 
     purchase_tax_type = fields.Selection([('itbis','ITBIS Pagado'),('ritbis','ITBIS Retenido'),('isr','ISR Retenido')],
                                          default="itbis", string="Tipo de impuesto de compra")
+    tax_except = fields.Boolean(string="Exento de este impuesto")
+
+
+    @api.v8
+    def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None):
+        res = super(AccountTax, self).compute_all(price_unit, currency=currency, quantity=quantity, product=product, partner=partner)
+        # if self.tax_except and res:
+        #     for product_tax in res["taxes"]:
+        #         product_tax["amount"] = 0.0
+        return res
+
+    @api.model
+    def _fix_tax_included_price(self, price, prod_taxes, line_taxes):
+        """Subtract tax amount from price when corresponding "price included" taxes do not apply"""
+
+        if line_taxes.tax_except and line_taxes:
+            return price
+
+        incl_tax = prod_taxes.filtered(lambda tax: tax not in line_taxes and tax.price_include)
+
+        if incl_tax:
+            return incl_tax.compute_all(price)['total_excluded']
+
+        return price

@@ -14,6 +14,12 @@
                     <field name="supplier_fiscal_type" attrs="{'invisible':[('supplier','!=',True)]}"/>
                     <field name="journal_id" attrs="{'invisible':[('supplier','!=',True)]}"/>
                 </field>
+                <xpath expr="//tree//field[@name='tax_dest_id']" position="replace">
+                    <field name="tax_dest_id" domain="[('type_tax_use', '!=', None)]"/>
+                </xpath>
+                <xpath expr="//form//field[@name='tax_dest_id']" position="replace">
+                    <field name="tax_dest_id" domain="[('type_tax_use', '!=', None)]"/>
+                </xpath>
 
             </field>
         </record>
@@ -62,6 +68,9 @@
                 <field name="type_tax_use" position="after">
                     <field name="purchase_tax_type" widget="radio"
                            attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
+                </field>
+                <field name="price_include" position="before">
+                    <field name="tax_except"/>
                 </field>
 
             </field>

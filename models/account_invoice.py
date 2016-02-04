@@ -26,13 +26,13 @@ class InheritedAccountInvoice(models.Model):
         return shop_user_config["sale_journal_ids"][0]
 
     @api.one
-    def _get_total_dicount(self):
+    def _get_total_discount(self):
         total_discount = 0.0
         for line in self.invoice_line_ids:
             total_discount += line.price_unit * ((line.discount or 0.0) / 100.0)
         self.total_discount = total_discount
 
-    total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id", compute=_get_total_dicount)
+    total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id", compute=_get_total_discount)
     anulation_type = fields.Selection([
         ("01", "DETERIORO DE FACTURA PRE-IMPRESA"),
         ("02", "ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
