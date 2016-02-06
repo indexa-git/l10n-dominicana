@@ -168,6 +168,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.origin_ncf = this.origin_ncf || false;
             this.credit = this.credit || 0;
             this.credit_ncf = this.credit_ncf || "";
+            this.ncf = this.ncf || "";
 
             if (!self.get_client()) {
                 var default_partner_id = self.pos.db.get_partner_by_id(self.pos.config.default_partner_id[0]);
@@ -203,6 +204,13 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_origin: function () {
             return this.origin || false
+        },
+        set_ncf: function (ncf) {
+            this.ncf = ncf;
+            this.trigger('change', this);
+        },
+        get_ncf: function () {
+            return this.ncf || false
         },
         set_origin_ncf: function (origin_ncf) {
             this.origin_ncf = origin_ncf;
@@ -284,6 +292,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.origin_ncf = this.get_origin_ncf();
             json.credit = this.get_credit();
             json.credit_ncf = this.get_credit_ncf();
+            json.ncf = this.get_ncf();
             return json;
         },
         export_for_printing: function () {
@@ -294,6 +303,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.origin_ncf = this.get_origin_ncf();
             json.credit = this.get_credit();
             json.credit_ncf = this.get_credit_ncf();
+            json.ncf = this.get_ncf();
             return json
         }
     });
