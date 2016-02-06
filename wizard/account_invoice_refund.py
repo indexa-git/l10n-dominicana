@@ -105,7 +105,7 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
         if self._context.get("type", False) == "in_invoice":
             refund_inv.write({"ncf": self.refund_ncf, "ncf_required": True})
 
-        inv.rel_invoice_id = refund_inv.id
-        refund_inv.rel_invoice_id = inv.id
+        # inv.rel_invoice_id = refund_inv.id
+        # refund_inv.rel_invoice_id = inv.id
         return res
 

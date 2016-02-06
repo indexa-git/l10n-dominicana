@@ -21,6 +21,7 @@ class AccountJournal(models.Model):
     unique_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para unico ingreso")
 
 
+
 class AccountFiscalPosition(models.Model):
     _inherit = 'account.fiscal.position'
 
