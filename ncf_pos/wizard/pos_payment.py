@@ -197,6 +197,7 @@ class PosMakePaymentRefund(models.TransientModel):
         self.refund_order_id.signal_workflow('paid')
         return {'type': 'ir.actions.act_window_close'}
 
+
 class PosMakePaymentRefundLine(models.TransientModel):
     _name = "pos.make.payment.refund.line"
 
