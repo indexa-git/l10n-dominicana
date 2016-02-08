@@ -32,7 +32,8 @@ class InheritedAccountInvoice(models.Model):
             total_discount += line.price_unit * ((line.discount or 0.0) / 100.0)
         self.total_discount = total_discount
 
-    total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id", compute=_get_total_discount)
+
+    internal_number = fields.Char("Número de factura")
     anulation_type = fields.Selection([
         ("01", "DETERIORO DE FACTURA PRE-IMPRESA"),
         ("02", "ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
@@ -54,6 +55,7 @@ class InheritedAccountInvoice(models.Model):
         required=True, readonly=True, states={'draft': [('readonly', False)]},
         default=_default_user_journal,
         domain="[('type', 'in', {'out_invoice': ['sale'], 'out_refund': ['sale'], 'in_refund': ['purchase'], 'in_invoice': ['purchase']}.get(type, [])), ('company_id', '=', company_id)]")
+    total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id", compute=_get_total_discount)
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)', 'Invoice Number must be unique per Company!'),
@@ -67,6 +69,9 @@ class InheritedAccountInvoice(models.Model):
                 self.ncf_required = True
             else:
                 self.ncf_required = False
+
+            if not self.partner_id.journal_id:
+                self.partner_id.write({"journal_id": self.journal_id.id})
 
         if self.journal_id.purchase_type == "minor":
             self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
