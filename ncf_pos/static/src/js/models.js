@@ -238,7 +238,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.fiscal_type = credit;
             this.trigger('change', this)
         },
-        get_fiscal_type: function () {
+            get_fiscal_type: function () {
             return this.fiscal_type || 0;
         },
         add_product: function (product, options) {

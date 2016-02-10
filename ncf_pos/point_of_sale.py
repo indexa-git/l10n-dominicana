@@ -385,7 +385,6 @@ class PosOrder(models.Model):
 
             debit_docs = self._get_partner_unreconcile_invoice(">", self.invoice_id.id)
             move_line_ids += [r[0] for r in debit_docs]
-
             self.env["account.move.line.reconcile.writeoff"].with_context(
                 active_ids=move_line_ids).trans_rec_reconcile_partial()
 
@@ -406,13 +405,40 @@ class PosOrder(models.Model):
                 active_ids=move_line_ids).trans_rec_reconcile_partial()
 
     @api.model
-    def get_ncf(self, name):
+    def get_fiscal_data(self, name):
+        res = {}
         ncf = False
         while not ncf:
             time.sleep(1)
-            ncf = self.search([('pos_reference', '=', name)]).reserve_ncf_seq
+            order = self.search([('pos_reference', '=', name)])
+            if order:
+                ncf = order.reserve_ncf_seq
+                res.update({"ncf": ncf, "id": order.id})
             self._cr.commit()
-        return {"ncf": ncf}
+
+        fiscal_code = ncf[9:11]
+        if not order.origin:
+            if fiscal_code == "01":
+                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL"})
+            elif fiscal_code == "02":
+                res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL"})
+            if fiscal_code == "14":
+                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL"})
+            elif fiscal_code == "15":
+                res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES"})
+        else:
+            reference_ncf = order.origin.invoice_id.number
+            reference_ncf_type = reference_ncf[9:11]
+            res.update({"fiscal_type_name": "NOTA DE CREDITO"})
+            if reference_ncf_type in ("01","14"):
+                res.update({"fiscal_type": "fiscal_note"})
+            elif reference_ncf_type == "02":
+                res.update({"fiscal_type": "final_note"})
+            elif reference_ncf_type == "15":
+                res.update({"fiscal_type": "special_note"})
+
+        return res
+
 
     @api.model
     def create(self, values):

@@ -168,48 +168,10 @@ odoo.define('ncf_pos.screens', function (require) {
             var self = this;
             var order = this.pos.get_order();
             var client = order.attributes.client;
-            new Model('pos.order').call("get_ncf", [order.name]).then(function (result) {
-
+            new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (result) {
 
                 order.set_ncf(result.ncf);
-
-                var ncf = order.get_ncf();
-                var ncf_reference = order.get_credit_ncf();
-                var fiscal_type = ncf.slice(9, 11);
-                if (ncf_reference) {
-                    var fiscal_reference_type = ncf_reference.slice(9, 11);
-                }
-                var invoice_type;
-
-                switch (fiscal_type) {
-                    case "01":
-                        invoice_type = "FACTURA CON VALOR FISCAL";
-                        order.set_fiscal_type("fiscal");
-                        break;
-                    case "02":
-                        invoice_type = "FACTURA PARA CONSUMIDOR FINAL";
-                        order.set_fiscal_type("final");
-                        break;
-                    case "14":
-                        invoice_type = "FACTURA GUBERNAMENTAL";
-                        order.set_fiscal_type("fiscal");
-                        break;
-                    case "15":
-                        invoice_type = "FACTURA PARA REGIMENES ESPECIALES";
-                        order.set_fiscal_type("special");
-                        break;
-                    case "04":
-                        if (fiscal_reference_type == "01" || fiscal_reference_type == "13"){
-                            order.set_fiscal_type("fiscal_note");
-                        } else if (fiscal_reference_type == "02"){
-                            order.set_fiscal_type("final_note");
-                        } else {
-                            order.set_fiscal_type("special_note");
-                        }
-                        invoice_type = "NOTA DE CREDITO";
-                    default:
-                        invoice_type = "";
-                }
+                var invoice_type = result.fiscal_type_name;
 
                 order.save_to_db();
                 self.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
