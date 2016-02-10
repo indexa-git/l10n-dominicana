@@ -79,5 +79,8 @@
         <menuitem action="account.action_account_moves_all_a" icon="STOCK_JUSTIFY_FILL" id="account.menu_action_account_moves_all"
                   parent="account.menu_finance_entries" sequence="1" groups="account.group_account_manager"/>
 
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="action_account_type_form_menu" name="Tipos de cuentas" parent="account.menu_finance_entries" action="account.action_account_type_form" sequence=""/>
+
     </data>
 </openerp>
