@@ -16,7 +16,6 @@ class AccountMove(models.Model):
         for move in self:
             move.line_ids.create_analytic_lines()
             if move.name == '/':
-                new_name = False
                 journal = move.journal_id
 
                 if invoice and invoice.move_name and invoice.move_name != '/':

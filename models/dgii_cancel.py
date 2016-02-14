@@ -16,13 +16,13 @@ class DgiiCancelReport(models.Model):
 
     company_id = fields.Many2one('res.company', string='Company', required=True,
         default=lambda self: self.env['res.company']._company_default_get('dgii.cancel.report'))
-    name = fields.Char()
+    name = fields.Char(u"Descripción")
     year = fields.Integer(u"Año", size=4, default=lambda s: int(time.strftime("%Y")))
     month = fields.Integer("Mes", size=2, default=lambda s: int(time.strftime("%m")))
-    CANTIDAD_REGISTRO = fields.Integer("Cantidad de registros")
+    CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros")
     report_lines = fields.One2many("dgii.cancel.report.line", "cancel_report_id")
-    txt = fields.Binary(u"Reporte TXT", readonly=True)
-    txt_name = fields.Char(readonly=True)
+    txt = fields.Binary("Reporte TXT", readonly=True)
+    txt_name = fields.Char("Nombre", readonly=True)
     state = fields.Selection([('draft','Nuevo'),('done','Generado')], default="draft")
 
 

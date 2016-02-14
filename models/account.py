@@ -7,18 +7,18 @@ from openerp import models, fields, api
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
-    purchase_type = fields.Selection([("normal","Proveedor normal"),
-                                      ("minor", "Gasto menor"),
-                                      ("informal", "Proveedor informal"),
-                                      ("exterior", "Pagos al exterior")
+    purchase_type = fields.Selection([("normal",u"Proveedor normal"),
+                                      ("minor", u"Gasto menor"),
+                                      ("informal", u"Proveedor informal"),
+                                      ("exterior", u"Pagos al exterior")
                                       ],
-                                     string="Tipo de compra", default="normal")
-    ncf_remote_validation = fields.Boolean("Validar NCF con DGII", default=True)
-    final_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para consumidor final")
-    fiscal_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para credito fiscal")
-    gov_sequence_id = fields.Many2one("ir.sequence", string="Secuencia gubernamental")
-    special_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para regimenes especiales")
-    unique_sequence_id = fields.Many2one("ir.sequence", string="Secuencia para unico ingreso")
+                                     string=u"Tipo de compra", default="normal")
+    ncf_remote_validation = fields.Boolean(u"Validar NCF con DGII", default=True)
+    final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para consumidor final")
+    fiscal_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para credito fiscal")
+    gov_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia gubernamental")
+    special_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para regimenes especiales")
+    unique_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para unico ingreso")
 
 
 
@@ -27,26 +27,26 @@ class AccountFiscalPosition(models.Model):
 
     supplier = fields.Boolean("Para proveedores")
     client_fiscal_type = fields.Selection([
-        ("final", "Consumidor final"),
-        ("fiscal", "Para credito fiscal"),
-        ("gov", "Gubernamental"),
-        ("special", "Regimenes especiales"),
-        ("unico", "Unico ingreso")
+        ("final", u"Consumidor final"),
+        ("fiscal", u"Para credito fiscal"),
+        ("gov", u"Gubernamental"),
+        ("special", u"Regimenes especiales"),
+        ("unico", u"Unico ingreso")
     ], string="Tipo de comprobante")
     journal_id = fields.Many2one("account.journal", string="Diario de compra", domain="[('type','=','purchase')]")
     supplier_fiscal_type = fields.Selection([
-        ('01', '01 - Gastos de personal'),
-        ('02', '02 - Gastos por trabajo, suministros y servicios'),
-        ('03', '03 - Arrendamientos'),
-        ('04', '04 - Gastos de Activos Fijos'),
+        ('01', u'01 - Gastos de personal'),
+        ('02', u'02 - Gastos por trabajo, suministros y servicios'),
+        ('03', u'03 - Arrendamientos'),
+        ('04', u'04 - Gastos de Activos Fijos'),
         ('05', u'05 - Gastos de Representación'),
-        ('06', '06 - Otras Deducciones Admitidas'),
-        ('07', '07 - Gastos Financieros'),
-        ('08', '08 - Gastos Extraordinarios'),
-        ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
-        ('10', '10 - Adquisiciones de Activos'),
-        ('11', '11 - Gastos de Seguro'),
-    ], string="Tipo de gasto")
+        ('06', u'06 - Otras Deducciones Admitidas'),
+        ('07', u'07 - Gastos Financieros'),
+        ('08', u'08 - Gastos Extraordinarios'),
+        ('09', u'09 - Compras y Gastos que forman parte del Costo de Venta'),
+        ('10', u'10 - Adquisiciones de Activos'),
+        ('11', u'11 - Gastos de Seguro'),
+    ], string=u"Tipo de gasto")
 
     @api.model
     def get_fiscal_position(self, partner_id, delivery_id=None):

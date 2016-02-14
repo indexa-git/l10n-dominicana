@@ -33,17 +33,17 @@ class InheritedAccountInvoice(models.Model):
         self.total_discount = total_discount
 
 
-    internal_number = fields.Char("Número de factura")
+    internal_number = fields.Char(u"Número de factura")
     anulation_type = fields.Selection([
-        ("01", "DETERIORO DE FACTURA PRE-IMPRESA"),
-        ("02", "ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
+        ("01", u"DETERIORO DE FACTURA PRE-IMPRESA"),
+        ("02", u"ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
         ("03", u"IMPRESIÓN DEFECTUOSA"),
-        ("04", "DUPLICIDAD DE FACTURA"),
-        ("05", "CORRECCIÓN DE LA INFORMACIÓN"),
-        ("06", "CAMBIO DE PRODUCTOS"),
-        ("07", "DEVOLUCIÓN DE PRODUCTOS"),
-        ("08", "OMISIÓN DE PRODUCTOS"),
-        ("09", "ERRORES EN SECUENCIA DE NCF")
+        ("04", u"DUPLICIDAD DE FACTURA"),
+        ("05", u"CORRECCIÓN DE LA INFORMACIÓN"),
+        ("06", u"CAMBIO DE PRODUCTOS"),
+        ("07", u"DEVOLUCIÓN DE PRODUCTOS"),
+        ("08", u"OMISIÓN DE PRODUCTOS"),
+        ("09", u"ERRORES EN SECUENCIA DE NCF")
     ], string=u"Tipo de anulación", copy=False)
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal", required=False,
                               default=_default_user_shop)
@@ -238,7 +238,7 @@ class InheritedAccountInvoice(models.Model):
             total_refund = sum([rec.amount_untaxed for rec in refund_inv])+self.amount_untaxed
             afected_inv = self.env['account.invoice'].search([('number','=',self.origin),('state','in',('open', 'paid'))])
             if total_refund>afected_inv.amount_untaxed:
-                raise exceptions.UserError("No puede crear notas de credito por un valor mayor a la factura afectada.")
+                raise exceptions.UserError(u"No puede crear notas de credito por un valor mayor a la factura afectada.")
         return res
 
     def get_days_between(self, joining_date):

@@ -9,12 +9,12 @@ class ShopJournalConfig(models.Model):
 
     company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id, string=u"Compañia")
     name = fields.Char("Nombre", size=40, required=True)
-    sale_journal_ids = fields.Many2many("account.journal", string="Diarios de ventas", required=False, domain="[('type','=','sale')]")
-    user_ids = fields.Many2many("res.users", string="Usuarios que pueden usar esta sucursal")
+    sale_journal_ids = fields.Many2many("account.journal", string=u"Diarios de ventas", required=False, domain="[('type','=','sale')]")
+    user_ids = fields.Many2many("res.users", string=u"Usuarios que pueden usar esta sucursal")
 
 
     _sql_constraints = [
-        ('shop_ncf_config_name_uniq', 'unique(name)', 'El nombre de la sucursal debe de ser unico!'),
+        ('shop_ncf_config_name_uniq', 'unique(name)', u'El nombre de la sucursal debe de ser unico!'),
     ]
 
     @api.model

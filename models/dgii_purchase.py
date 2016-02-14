@@ -22,8 +22,8 @@ class DgiiPurchaseReport(models.Model):
     TOTAL_MONTO_FACTURADO = fields.Float("TOTAL FACTURADO")
     RETENCION_RENTA = fields.Float("TOTAL RETENCION RENTA")
     report_lines = fields.One2many("dgii.purchase.report.line", "purchase_report_id")
-    txt = fields.Binary(u"Reporte TXT", readonly=True)
-    txt_name = fields.Char(readonly=True)
+    txt = fields.Binary("Reporte TXT", readonly=True)
+    txt_name = fields.Char("Nombre del archivo",readonly=True)
     state = fields.Selection([('draft','Nuevo'),('done','Generado')], default="draft")
 
     @api.model
