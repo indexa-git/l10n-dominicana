@@ -4,6 +4,7 @@ from openerp import models, fields, api, _
 from openerp.tools.safe_eval import safe_eval as eval
 from openerp.exceptions import UserError
 import openerp.addons.decimal_precision as dp
+from ..models.tools import is_ncf
 
 
 class InheritedAccountInvoiceRefund(models.TransientModel):
@@ -11,6 +12,27 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
 
     refund_ncf = fields.Char(u"NCF nota de crédito", size=19)
     invoice_type = fields.Char(default=lambda s: s._context.get("type", False))
+    amount = fields.Float("valor del descuento")
+    account_id = fields.Many2one("account.account", domain=[('user_type_id.type','=','other')])
+    filter_refund = fields.Selection(
+        [('discount', 'Nota de crédito para descuento'),
+         ('refund', 'Create a draft refund'),
+         ('cancel', 'Cancel: create refund and reconcile'),
+         ('modify', 'Modify: create refund, reconcile and create a new draft invoice')],
+        default='discount', string='Refund Method', required=True,
+        help='Refund base on this type. You can not Modify and Cancel if the invoice is already reconciled')
+
+    @api.onchange("refund_ncf")
+    def onchange_ncf(self):
+        if self.refund_ncf:
+            if not is_ncf(self.refund_ncf, "in_refund"):
+                self.refund_ncf = False
+                return {
+                    'warning': {'title': "Ncf invalido", 'message': "El numero de comprobante fiscal no es valido "
+                                                                    "verifique de que no esta digitando un comprobante"
+                                                                    "de consumidor final codigo 02 o revise si lo ha "
+                                                                    "digitado incorrectamente"}
+                }
 
     @api.multi
     def compute_refund(self, mode='refund'):
@@ -22,21 +44,29 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
 
         for form in self:
             created_inv = []
-            date = False
-            description = False
             for inv in inv_obj.browse(context.get('active_ids')):
+
                 if inv.state in ['draft', 'proforma2', 'cancel']:
                     raise UserError(_('Cannot refund draft/proforma/cancelled invoice.'))
                 if inv.reconciled and mode in ('cancel', 'modify'):
-                    raise UserError(_('Cannot refund invoice which is already reconciled, invoice should be unreconciled first. You can only refund this invoice.'))
+                    raise UserError(_(
+                        'Cannot refund invoice which is already reconciled, invoice should be unreconciled first. You can only refund this invoice.'))
 
                 date = form.date or False
                 description = form.description or inv.name
+
                 refund = inv.refund(form.date_invoice, date, description, inv.journal_id.id)
+                if mode == "discount":
+                    refund.write({"invoice_line_ids": [(5, False, False)]})
+                    refund.write({"invoice_line_ids": [(0, False, {"name": self.description,
+                                                                   "account_id": self.account_id.id,
+                                                                   "quantity": 1,
+                                                                   "price_unit": self.amount})]})
+
                 refund.compute_taxes()
 
                 created_inv.append(refund.id)
-                if mode in ('cancel', 'modify'):
+                if mode in ('cancel', 'modify', "discount"):
                     movelines = inv.move_id.line_ids
                     to_reconcile_ids = {}
                     to_reconcile_lines = self.env['account.move.line']
@@ -46,6 +76,8 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
                             to_reconcile_ids.setdefault(line.account_id.id, []).append(line.id)
                         if line.reconciled:
                             line.remove_move_reconcile()
+
+                    refund.move_name = refund.ncf = self.refund_ncf
                     refund.signal_workflow('invoice_open')
                     for tmpline in refund.move_id.line_ids:
                         if tmpline.account_id.id == inv.account_id.id:
@@ -53,16 +85,17 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
                             to_reconcile_lines.reconcile()
                     if mode == 'modify':
                         invoice = inv.read(
-                                    ['name', 'type', 'number', 'reference',
-                                    'comment', 'date_due', 'partner_id',
-                                    'partner_insite', 'partner_contact',
-                                    'partner_ref', 'payment_term_id', 'account_id',
-                                    'currency_id', 'invoice_line_ids', 'tax_line_ids',
-                                    'journal_id', 'date'])
+                            ['name', 'type', 'number', 'reference',
+                             'comment', 'date_due', 'partner_id',
+                             'partner_insite', 'partner_contact',
+                             'partner_ref', 'payment_term_id', 'account_id',
+                             'currency_id', 'invoice_line_ids', 'tax_line_ids',
+                             'journal_id', 'date'])
                         invoice = invoice[0]
                         del invoice['id']
                         invoice_lines = inv_line_obj.browse(invoice['invoice_line_ids'])
-                        invoice_lines = inv_obj.with_context({"refund_type": "modify"})._refund_cleanup_lines(invoice_lines)
+                        invoice_lines = inv_obj.with_context({"refund_type": "modify"})._refund_cleanup_lines(
+                            invoice_lines)
                         tax_lines = inv_tax_obj.browse(invoice['tax_line_ids'])
                         tax_lines = inv_obj.with_context({"refund_type": "modify"})._refund_cleanup_lines(tax_lines)
                         invoice.update({
@@ -73,11 +106,11 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
                             'invoice_line_ids': invoice_lines,
                             'tax_line_ids': tax_lines,
                             'date': date,
-                            'name': description
+                            'name': description,
                         })
                         for field in ('partner_id', 'account_id', 'currency_id',
-                                         'payment_term_id', 'journal_id'):
-                                invoice[field] = invoice[field] and invoice[field][0]
+                                      'payment_term_id', 'journal_id'):
+                            invoice[field] = invoice[field] and invoice[field][0]
                         inv_refund = inv_obj.create(invoice)
                         if inv_refund.payment_term_id.id:
                             inv_refund._onchange_payment_term_date_invoice()
@@ -98,14 +131,14 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
 
     @api.multi
     def invoice_refund(self):
+
         res = super(InheritedAccountInvoiceRefund, self).invoice_refund()
 
         inv = self.env['account.invoice'].browse(self._context.get("active_id"))
-        refund_inv = self.env['account.invoice'].search([('origin','=',inv.number),('type','=',"in_refund")])
+        refund_inv = self.env['account.invoice'].search([('origin', '=', inv.number), ('type', '=', "in_refund")])
         if self._context.get("type", False) == "in_invoice":
             refund_inv.write({"ncf": self.refund_ncf, "ncf_required": True})
 
-        inv.rel_invoice_id = refund_inv.id
-        refund_inv.rel_invoice_id = inv.id
+        # inv.rel_invoice_id = refund_inv.id
+        # refund_inv.rel_invoice_id = inv.id
         return res
-

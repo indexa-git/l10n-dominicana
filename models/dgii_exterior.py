@@ -3,7 +3,7 @@
 from openerp import models, fields, api, exceptions
 import calendar
 import base64
-from tools import is_identification, is_ncf
+from tools import is_identification
 import time
 
 

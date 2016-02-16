@@ -2,25 +2,38 @@
 <openerp>
     <data>
 
-        <record id="ncf_manager_res_partner_form" model="ir.ui.view">
-            <field name="name">ncf manager res partner form</field>
-            <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_form"/>
-            <field name="arch" type="xml">
-
+        <record id="ncf_manager_view_partner_property_form" model="ir.ui.view">
+            <field name='name'>ncf_manager_customer.form.inherit.payment.order</field>
+            <field name='model'>res.partner</field>
+            <field name="inherit_id" ref="account.view_partner_property_form"/>
+            <field name='arch' type='xml'>
                 <field name="property_account_position_id" position="replace">
                     <field name="property_account_position_id" attrs="{'domain': [('supplier','=',False)]}"
                            string="Posición fiscal cliente"/>
                     <field name="property_account_position_supplier_id" attrs="{'domain': [('supplier','=',True)]}"/>
                     <field name="journal_id"/>
                 </field>
+                <field name="credit" position="replace">
+                    <field name="credit" groups="account.group_account_invoice"/>
+                    <field name="credit_limit" groups="account.group_account_invoice"/>
+                </field>
 
-                    <field name="parent_id" position="after">
-                        <field name="vat" string="RNC/Cédula" attrs="{'required':[('company_type','=','company')],
+                <field name="debit" position="replace">
+                    <field name="debit" groups="account.group_account_invoice"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="ncf_manager_res_partner_form" model="ir.ui.view">
+            <field name="name">ncf manager res partner form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <field name="parent_id" position="after">
+                    <field name="vat" string="RNC/Cédula" attrs="{'required':[('company_type','=','company')],
                         'invisible':[('company_type','!=','company')]}"
-                        placeholder="RNC/Cédula"/>
-                    </field>
-
+                           placeholder="RNC/Cédula"/>
+                </field>
             </field>
         </record>
 

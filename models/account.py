@@ -19,7 +19,7 @@ class AccountJournal(models.Model):
     gov_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia gubernamental")
     special_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para regimenes especiales")
     unique_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para unico ingreso")
-
+    credit_out_invoice = fields.Boolean(u"Puede facturar a crédito")
 
 
 class AccountFiscalPosition(models.Model):

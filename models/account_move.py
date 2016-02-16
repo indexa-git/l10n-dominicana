@@ -12,12 +12,11 @@ class AccountMove(models.Model):
     def post(self):
         invoice = self._context.get('invoice', False)
         self._post_validate()
-
         for move in self:
             move.line_ids.create_analytic_lines()
             if move.name == '/':
+                new_name = False
                 journal = move.journal_id
-
                 if invoice and invoice.move_name and invoice.move_name != '/':
                     new_name = invoice.move_name
                 elif invoice and invoice.type == 'out_invoice':
