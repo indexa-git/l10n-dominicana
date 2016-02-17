@@ -13,9 +13,10 @@
                     <field name="authorize" invisible="1"/>
                     <field name="overdue_type" invisible="1"/>
                     <div class="alert alert-danger" role="alert" style="margin-bottom:0px;"
-                         attrs="{'invisible': ['|','|','|','|',('overdue_type','=','none'),
+                         attrs="{'invisible': ['|','|','|','|','|',('overdue_type','=','none'),
                                                ('credit_out_invoice','=',False),
                                                ('state','in',('open','paid')),
+                                               ('partner_id','=',False),
                                                ('authorize','=',True),
                                                ('type','!=','out_invoice')]}">
                         <h2>Crédito bloqueado</h2>
