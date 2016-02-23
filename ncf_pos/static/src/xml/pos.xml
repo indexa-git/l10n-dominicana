@@ -2,50 +2,119 @@
 <templates id="template" xml:space="preserve">
 
     <t t-extend="ClientDetailsEdit">
-        <t t-jquery=".client-detail:last" t-operation="replace"/>
-
         <t t-jquery=".detail.client-name" t-operation="replace">
-            <input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Cédula, RNC o Nombre'
-                   style="width:100%"/>
-        </t>
-
-        <t t-jquery=".client-details-left .client-detail:last" t-operation="replace"/>
-
-        <t t-jquery=".client-details-left" t-operation="prepend">
-
             <div class='client-detail'>
-                <span class='label'>Comprob.</span>
-
-                <select class="detail client-fiscal_position" name="property_account_position_id">
-                    <t t-foreach='widget.pos.fiscal_positions' t-as='fiscal_position'>
-
-                        <option t-att-value='fiscal_position.id' t-att-selected="partner.property_account_position_id ? ((fiscal_position.id === partner.property_account_position_id[0]) ? true : false) : false">
-                            <t t-esc='fiscal_position.name'/>
-                        </option>
-                    </t>
-                </select>
-            </div>
-
-
-            <div class='client-detail'>
-                <span class='label'>RNC/Céd</span>
-                <input class='detail client-ref' name='vat' t-att-value='partner.vat' placeholder='RNC/Cédula'/>
-            </div>
-
-            <div class='client-detail'>
-                <span class='label'>Country</span>
-                <select class='detail client-address-country' name='country_id'>
-                    <option value=''>None</option>
-                    <t t-foreach='widget.pos.countries' t-as='country'>
-                        <option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">
-                            <t t-esc='country.name'/>
-                        </option>
-                    </t>
-                </select>
+                <span class='label' t-if="partner.vat">RNC/Céd</span>
+                <input t-if="partner.vat" class='detail client-ref' name='vat' t-att-value='partner.vat' placeholder='RNC/Cédula' style="width:120px;background-color: #F0EEEE;" readonly="1"/>
+                <input t-if="!partner.vat" class='detail client-name' name='name' t-att-value='partner.name' placeholder='Cédula, RNC o Nombre' style="width:50%;font-size: 14px;"/>
+                <input t-if="partner.vat" class='detail client-name' name='name' t-att-value='partner.name' placeholder='Cédula, RNC o Nombre' style="width:50%;font-size: 14px;background-color: #F0EEEE;" readonly="1"/>
             </div>
         </t>
 
+        <t t-jquery=".client-details-box" t-operation="replace">
+            <div class='client-details-box clearfix'>
+                <div class='client-details-left'>
+                    <div class='client-detail' t-if="!partner.vat">
+                        <span class='label'>Comprob.</span>
+
+                        <select class="detail client-fiscal_position" name="property_account_position_id">
+                            <t t-foreach='widget.pos.fiscal_positions' t-as='fiscal_position'>
+
+                                <option t-att-value='fiscal_position.id' t-att-selected="partner.property_account_position_id ? ((fiscal_position.id === partner.property_account_position_id[0]) ? true : false) : false">
+                                    <t t-esc='fiscal_position.name'/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Dirección</span>
+                        <input class='detail client-address-street' name='street' t-att-value='partner.street' placeholder='Street'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>City</span>
+                        <input class='detail client-address-city'   name='city'         t-att-value='partner.city' placeholder='City'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Codigo</span>
+                        <input class='detail barcode'       name='barcode'    t-att-value='partner.barcode || ""'></input>
+                    </div>
+
+                    <!--<div class='client-detail'>-->
+                        <!--<span class='label'>Postcode</span>-->
+                        <!--<input class='detail client-address-zip'    name='zip'          t-att-value='partner.zip' placeholder='ZIP'></input>-->
+                    <!--</div>-->
+                    <!--<div class='client-detail'>-->
+                        <!--<span class='label'>Country</span>-->
+                        <!--<select class='detail client-address-country' name='country_id'>-->
+                            <!--<option value=''>None</option>-->
+                            <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
+                                <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
+                                    <!--<t t-esc='country.name'/>-->
+                                <!--</option>-->
+                            <!--</t>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                </div>
+                <div class='client-details-right'>
+                    <div class='client-detail'>
+                        <span class='label'>Phone</span>
+                        <input class='detail client-phone'  name='phone'    type='tel'      t-att-value='partner.phone || ""'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Celular</span>
+                        <input class='detail client-mobile'  name='mobile'    type='tel'      t-att-value='partner.mobile || ""'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Email</span>
+                        <input class='detail client-email'  name='email'    type='email'    t-att-value='partner.email || ""'></input>
+                    </div>
+                    <!--<div class='client-detail'>-->
+                        <!--<span class='label'>Phone</span>-->
+                        <!--<input class='detail client-phone'  name='phone'    type='tel'      t-att-value='partner.phone || ""'></input>-->
+                    <!--</div>-->
+                    <!--<div class='client-detail'>-->
+                        <!--<span class='label'>Tax ID</span>-->
+                        <!--<input class='detail vat'           name='vat'     t-att-value='partner.vat || ""'></input>-->
+                    <!--</div>-->
+                </div>
+            </div>
+        </t>
     </t>
+
+    <!--<t t-extend="ClientDetailsEdit">-->
+        <!--<t t-jquery=".client-detail:last" t-operation="replace"/>-->
+
+        <!--<t t-jquery=".detail.client-name" t-operation="replace">-->
+            <!--<input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Cédula, RNC o Nombre'-->
+                   <!--style="width:100%"/>-->
+        <!--</t>-->
+
+        <!--<t t-jquery=".client-details-left .client-detail:last" t-operation="replace"/>-->
+
+        <!--<t t-jquery=".client-details-left" t-operation="prepend">-->
+
+
+
+
+            <!--<div class='client-detail'>-->
+                <!--<span class='label'>RNC/Céd</span>-->
+                <!--<input class='detail client-ref' name='vat' t-att-value='partner.vat' placeholder='RNC/Cédula'/>-->
+            <!--</div>-->
+
+            <!--<div class='client-detail'>-->
+                <!--<span class='label'>Country</span>-->
+                <!--<select class='detail client-address-country' name='country_id'>-->
+                    <!--<option value=''>None</option>-->
+                    <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
+                        <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
+                            <!--<t t-esc='country.name'/>-->
+                        <!--</option>-->
+                    <!--</t>-->
+                <!--</select>-->
+            <!--</div>-->
+        <!--</t>-->
+
+    <!--</t>-->
 
     <t t-extend="ClientDetails">
         <t t-jquery="span.label:contains('Tax ID')" t-operation="replace">
@@ -175,6 +244,14 @@
             </table>
 
         </t>
+
+        <t t-jquery=".pos-sale-ticket" t-operation="append">
+          <t t-if="widget.pos.config.print_note">
+           <p>
+               <strong>Nota: </strong> <t t-esc="order.get_order_note()"/>
+           </p>
+          </t>
+        </t>
     </t>
 
 
@@ -182,13 +259,16 @@
     <div class="modal-dialog">
         <div class="popup popup-alert" style="height:200px">
             <p class="title">Cotizar</p>
-            Como desea enviar la contización?
+            Seleccione una opecion?
             <div class="footer">
                 <span class="button fa fa-print" id="print_pdf">
-                    Impresa
+                    Imprimir cotización
                 </span>
                 <span class="button send fa fa-envelope-o" id="send_mail">
-                    Por email
+                    Enviar cotización
+                </span>
+                <span class="button send fa fa-truck" id="send_delivery">
+                    Delivery
                 </span>
                 <span class="button cancel fa fa-no-o" id="quotation_cancel">
                     Cancelar
@@ -200,7 +280,7 @@
 
     <t t-name="QuotationActionWidget">
         <div class="control-button">
-            Cotizar
+            Cotización / Delivery
         </div>
     </t>
 
@@ -234,8 +314,41 @@
                 <i class='fa fa-pencil-square-o' /> Aplicar Nota de Créditos
             </div>
         </t>
+
+        <t t-jquery=".left-content" t-operation="append">
+         <center> <textarea id="wk_note_id"  style="" placeholder="Notas"></textarea></center>
+        </t>
     </t>
 
+
+
+    <t t-name="DeliveryPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-alert" style="height:600px">
+                <form>
+                      <div class="form-group">
+                        <label for="exampleInputEmail1">Email address</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password"/>
+                      </div>
+                      <div class="form-group">
+                        <label for="exampleInputFile">File input</label>
+                        <input type="file" id="exampleInputFile"/>
+                        <p class="help-block">Example block-level help text here.</p>
+                      </div>
+                      <div class="checkbox">
+                        <label>
+                          <input type="checkbox"/> Check me out
+                        </label>
+                      </div>
+                      <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+        </div>
+    </t>
 
 
 </templates>

@@ -3,13 +3,52 @@ odoo.define('ncf_pos.screens', function (require) {
     var core = require('web.core');
     var Model = require('web.DataModel');
     var gui = require('point_of_sale.gui');
-    var PopUpWidget = require('point_of_sale.popups');
     var form_common = require('web.form_common');
 
     var QWeb = core.qweb;
     var _t = core._t;
 
+
+
+
     screens.PaymentScreenWidget.include({
+        init: function (parent, options) {
+            var self = this;
+            this._super(parent, options);
+            this.keyboard_keydown_handler = function (event) {
+                if (event.keyCode === 8 || event.keyCode === 46) {
+                    self.keyboard_handler(event);
+                }
+            };
+            this.keyboard_handler = function (event) {
+                var key = '';
+
+                if (event.type === "keypress") {
+                    if (event.keyCode === 13) { // Enter
+                        self.validate_order();
+                    } else if (event.keyCode === 190 || // Dot
+                        event.keyCode === 110 ||  // Decimal point (numpad)
+                        event.keyCode === 188) { // Comma
+                        key = '.';
+                    } else if (event.keyCode >= 48 && event.keyCode <= 57) { // Numbers
+                        key = '' + (event.keyCode - 48);
+                    } else if (event.keyCode === 45) { // Minus
+                        key = '-';
+                    } else if (event.keyCode === 43) { // Plus
+                        key = '+';
+                    }
+                } else { // keyup/keydown
+                    if (event.keyCode === 46) { // Delete
+                        key = 'CLEAR';
+                    } else if (event.keyCode === 8) { // Backspace
+                        key = 'BACKSPACE';
+                    }
+                }
+
+                self.payment_input(key);
+
+            };
+        },
         renderElement: function () {
             var self = this;
             this._super();
@@ -43,7 +82,8 @@ odoo.define('ncf_pos.screens', function (require) {
 
             if (partner_id.id == default_partner_id[0]) {
                 self.gui.show_popup("alert", {
-                    title: "Alerta", body: "No esta permitido aplicar creditos de devoluciones a facturas sin antes asignarle un cliente," +
+                    title: "Alerta",
+                    body: "No esta permitido aplicar creditos de devoluciones a facturas sin antes asignarle un cliente," +
                     "Si la nota de credito que desea aplicar no tiene cliente asignado solicite ayuda de un supervisor!!"
                 });
             }
@@ -119,6 +159,10 @@ odoo.define('ncf_pos.screens', function (require) {
             this._super();
             var self = this;
 
+
+            $(self.action_buttons.set_fiscal_position.$el).remove()
+
+
             $(".refund-cancel-button").click(function () {
                 self.cancel_refund();
             });
@@ -130,7 +174,6 @@ odoo.define('ncf_pos.screens', function (require) {
             $(".refund-money-button").click(function () {
                 self.ask_refund_money();
             });
-
         },
         cancel_refund: function () {
             var self = this;
@@ -210,119 +253,7 @@ odoo.define('ncf_pos.screens', function (require) {
     });
 
 
-    var QuotationPopupWidget = PopUpWidget.extend({
-        template: 'QuotationPopupWidget',
-        show: function (opts) {
-            var self = this;
-            this._super(opts);
-            var order = self.pos.get_order();
 
-            this.$("#print_pdf").click(function () {
-                self.report_action("print", order);
-            });
-
-            this.$("#send_mail").click(function () {
-                self.report_action("send", order);
-            });
-
-            this.$("#quotation_cancel").click(function () {
-                self.gui.close_popup();
-            })
-
-        },
-        report_action: function (action, order) {
-            var self = this;
-            order.set_quotation_type(action);
-            var invoiced = self.push_and_quotation_order(order);
-
-            invoiced.fail(function (error) {
-                self.invoicing = false;
-
-                if (error.message === 'Missing Customer') {
-                    self.pos.gui.show_popup('confirm', {
-                        'title': _t('Please select the Customer'),
-                        'body': _t('You need to select the customer before you can invoice an order.'),
-                        confirm: function () {
-                            self.gui.show_screen('clientlist');
-                        },
-                    });
-                }
-                else if (error.message === 'Missing Customer Email') {
-                    self.pos.gui.show_popup('confirm', {
-                        'title': _t('Please select the Customer'),
-                        'body': _t('You need to select the customer before you can invoice an order.'),
-                        confirm: function () {
-                            self.gui.show_screen('clientlist');
-                        },
-                    });
-                }
-                else if (error.code < 0) {        // XmlHttpRequest Errors
-                    self.pos.gui.show_popup('error', {
-                        'title': _t('The order could not be sent'),
-                        'body': _t('Check your internet connection and try again.'),
-                    });
-                } else if (error.code === 200) {    // OpenERP Server Errors
-                    self.pos.gui.show_popup('error-traceback', {
-                        'title': error.data.message || _t("Server Error"),
-                        'body': error.data.debug || _t('The server encountered an error while receiving your order.'),
-                    });
-                } else {                            // ???
-                    self.pos.gui.show_popup('error', {
-                        'title': _t("Unknown Error"),
-                        'body': _t("The order could not be sent to the server due to an unknown error"),
-                    });
-                }
-            });
-
-
-            invoiced.done(function (res) {
-
-                order.finalize();
-                self.gui.close_popup();
-
-            });
-
-        },
-        push_and_quotation_order: function (order) {
-            var self = this;
-            var invoiced = new $.Deferred();
-            var pos = self.pos;
-
-            if (!order.get_client()) {
-                invoiced.reject({code: 400, message: 'Missing Customer', data: {}});
-                return invoiced;
-            }
-
-            if (!order.get_client().email && order.get_quotation_type === 'send') {
-                invoiced.reject({code: 400, message: 'Missing Customer Email', data: {}});
-                return invoiced;
-            }
-
-            var order_id = pos.db.add_order(order.export_as_JSON());
-
-            pos.flush_mutex.exec(function () {
-                var done = new $.Deferred(); // holds the mutex
-
-                var transfer = pos._flush_orders([pos.db.get_order(order_id)], {timeout: 30000, to_invoice: true});
-
-                transfer.fail(function (error) {
-                    invoiced.reject(error);
-                    done.reject();
-                });
-
-                // on success, get the order id generated by the server
-                transfer.pipe(function (order_server_id) {
-                    pos.chrome.do_action(order_server_id);
-                    invoiced.resolve();
-                    done.resolve();
-                });
-                return done;
-
-            });
-            return invoiced;
-        }
-    });
-    gui.define_popup({name: 'QuotationPopup', widget: QuotationPopupWidget});
 
 
 });

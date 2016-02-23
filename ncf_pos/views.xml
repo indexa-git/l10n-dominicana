@@ -16,6 +16,10 @@
                     <field name='sequence' widget='handle'/>
                 </field>
 
+                <field name="cash_control" position="before">
+                    <field name="print_note"/>
+                </field>
+
             </field>
         </record>
 

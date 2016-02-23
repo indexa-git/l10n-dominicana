@@ -185,6 +185,9 @@ odoo.define('ncf_pos.models', function (require) {
             this.origin = json.origin;
             this.origin_ncf = json.origin_ncf;
         },
+        get_order_note: function () {
+            return $("#wk_note_id").val();
+        },
         set_quotation_type: function (quotation_type) {
             this.quotation_type = quotation_type;
             this.trigger('change', this);
@@ -302,6 +305,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.credit_ncf = this.get_credit_ncf();
             json.ncf = this.get_ncf();
             json.fiscal_type = this.get_fiscal_type();
+            json.order_note = this.get_order_note()
             return json;
         },
         export_for_printing: function () {

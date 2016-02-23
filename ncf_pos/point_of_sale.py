@@ -229,7 +229,8 @@ class PosOrder(models.Model):
         if ui_order.get("origin", False):
             res.update({"origin": ui_order["origin"],
                         "state": ui_order.get("order_type", False)})
-        res.update({"credit_ncf": ui_order.get("credit_ncf", False)})
+        res.update({"credit_ncf": ui_order.get("credit_ncf", False),
+                    'note':ui_order.get('order_note','')})
         return res
 
     @api.model
@@ -654,6 +655,7 @@ class PosConfig(models.Model):
     _inherit = 'pos.config'
 
     default_partner_id = fields.Many2one("res.partner", string="Cliente de contado")
+    print_note = fields.Boolean('Imprimir nota en re recibo', default=True)
 
 
 class ResPartner(models.Model):
@@ -664,6 +666,21 @@ class ResPartner(models.Model):
         """ create or modify a partner from the point of sale ui.
             partner contains the partner's fields. """
         # image is a dataurl, get the data after the comma
+
+
+
+        try:
+            name = partner.get("name", False)
+            if isinstance( int(name), (int,)):
+                partner_exist = self.search([('vat','=',name)])
+                if partner_exist:
+                    if partner.get("property_account_position_id", False):
+                        partner.pop("property_account_position_id", None)
+                    partner.update({"id": partner_exist[0].id,
+                                    "name": partner_exist.name})
+        except:
+            pass
+
         if partner.get('image', False):
             img = partner['image'].split(',')[1]
             partner['image'] = img
