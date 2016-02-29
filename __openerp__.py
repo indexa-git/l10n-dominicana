@@ -55,11 +55,10 @@
     'version': '1.0',
 
 
-    'depends': ['base','account', 'account_accountant', 'l10n_do_custom','rnc_validation'],
+    'depends': ['base','account', 'account_accountant','rnc_validation', "l10n_do_custom"],
 
     'data': [
         'security/ir.model.access.csv',
-        'data/setup_ncf.xml',
         'views/shop_view.xml',
         'views/partner_view.xml',
         'views/account_view.xml',
@@ -71,6 +70,7 @@
         'views/account_invoice_state_view.xml',
         'views/account_move_view.xml',
         'wizard/account_invoice_refund_view.xml',
+        'data/setup_ncf.xml'
     ],
     "qweb": ['static/src/xml/base.xml'],
     'demo': [],

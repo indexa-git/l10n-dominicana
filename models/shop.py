@@ -70,6 +70,7 @@ class ShopJournalConfig(models.Model):
             raise exceptions.UserError("Su sucursal no tiene diarios de facturas asignadas.")
         return {"shop_ids": shop_ids, "sale_journal_ids": sale_journal_ids}
 
+
     @api.model
     def setup_ncf(self):
         fiscal_posistions = self.env["account.fiscal.position"].search([])

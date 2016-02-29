@@ -81,7 +81,22 @@
                   parent="account.menu_finance_entries" sequence="1" groups="account.group_account_manager"/>
 
         <!-- This Menu Item must have a parent and an action -->
-        <menuitem id="action_account_type_form_menu" name="Tipos de cuentas" parent="account.menu_finance_entries" action="account.action_account_type_form" sequence=""/>
+
+                <!-- Inherit Form View to Modify it -->
+        <record id="inherit_view_account_type_form" model="ir.ui.view">
+            <field name="name">inherit_view_account_type_form</field>
+            <field name="model">account.account.type</field>
+            <field name="inherit_id" ref="account.view_account_type_form"/>
+            <field name="arch" type="xml">
+
+                <field name="type" position="after">
+                    <field name="include_initial_balance"/>
+                </field>
+
+            </field>
+        </record>
+
+        <menuitem id="action_account_type_form_menu" name="Tipos de cuentas" parent="account.account_management_menu" action="account.action_account_type_form" sequence=""/>
 
     </data>
 </openerp>

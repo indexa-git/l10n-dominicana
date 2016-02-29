@@ -55,6 +55,15 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
         default='discount', string='Refund Method', required=True,
         help='Refund base on this type. You can not Modify and Cancel if the invoice is already reconciled')
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super(InheritedAccountInvoiceRefund, self).default_get(fields_list)
+        active_id = self._context.get("active_id", False)
+        if active_id:
+            inv = self.env["account.invoice"].browse(active_id)
+            res.update({"account_id": inv.account_id.id})
+        return res
+
     @api.onchange("refund_ncf")
     def onchange_ncf(self):
         if self.refund_ncf:
@@ -90,9 +99,10 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
 
                 refund = inv.refund(form.date_invoice, date, description, inv.journal_id.id)
                 if mode == "discount":
+                    product_account_id = refund.invoice_line_ids[0].account_id.id
                     refund.write({"invoice_line_ids": [(5, False, False)]})
                     refund.write({"invoice_line_ids": [(0, False, {"name": self.description,
-                                                                   "account_id": self.account_id.id,
+                                                                   "account_id": product_account_id,
                                                                    "quantity": 1,
                                                                    "price_unit": self.amount})]})
 
@@ -140,6 +150,7 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
                             'tax_line_ids': tax_lines,
                             'date': date,
                             'name': description,
+                            'fiscal_position_id': inv.fiscal_position_id.id
                         })
                         for field in ('partner_id', 'account_id', 'currency_id',
                                       'payment_term_id', 'journal_id'):
