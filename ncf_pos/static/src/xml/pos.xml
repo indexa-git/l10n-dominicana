@@ -40,19 +40,19 @@
                     </div>
 
                     <!--<div class='client-detail'>-->
-                        <!--<span class='label'>Postcode</span>-->
-                        <!--<input class='detail client-address-zip'    name='zip'          t-att-value='partner.zip' placeholder='ZIP'></input>-->
+                    <!--<span class='label'>Postcode</span>-->
+                    <!--<input class='detail client-address-zip'    name='zip'          t-att-value='partner.zip' placeholder='ZIP'></input>-->
                     <!--</div>-->
                     <!--<div class='client-detail'>-->
-                        <!--<span class='label'>Country</span>-->
-                        <!--<select class='detail client-address-country' name='country_id'>-->
-                            <!--<option value=''>None</option>-->
-                            <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
-                                <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
-                                    <!--<t t-esc='country.name'/>-->
-                                <!--</option>-->
-                            <!--</t>-->
-                        <!--</select>-->
+                    <!--<span class='label'>Country</span>-->
+                    <!--<select class='detail client-address-country' name='country_id'>-->
+                    <!--<option value=''>None</option>-->
+                    <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
+                    <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
+                    <!--<t t-esc='country.name'/>-->
+                    <!--</option>-->
+                    <!--</t>-->
+                    <!--</select>-->
                     <!--</div>-->
                 </div>
                 <div class='client-details-right'>
@@ -69,12 +69,12 @@
                         <input class='detail client-email'  name='email'    type='email'    t-att-value='partner.email || ""'></input>
                     </div>
                     <!--<div class='client-detail'>-->
-                        <!--<span class='label'>Phone</span>-->
-                        <!--<input class='detail client-phone'  name='phone'    type='tel'      t-att-value='partner.phone || ""'></input>-->
+                    <!--<span class='label'>Phone</span>-->
+                    <!--<input class='detail client-phone'  name='phone'    type='tel'      t-att-value='partner.phone || ""'></input>-->
                     <!--</div>-->
                     <!--<div class='client-detail'>-->
-                        <!--<span class='label'>Tax ID</span>-->
-                        <!--<input class='detail vat'           name='vat'     t-att-value='partner.vat || ""'></input>-->
+                    <!--<span class='label'>Tax ID</span>-->
+                    <!--<input class='detail vat'           name='vat'     t-att-value='partner.vat || ""'></input>-->
                     <!--</div>-->
                 </div>
             </div>
@@ -82,37 +82,35 @@
     </t>
 
     <!--<t t-extend="ClientDetailsEdit">-->
-        <!--<t t-jquery=".client-detail:last" t-operation="replace"/>-->
+    <!--<t t-jquery=".client-detail:last" t-operation="replace"/>-->
 
-        <!--<t t-jquery=".detail.client-name" t-operation="replace">-->
-            <!--<input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Cédula, RNC o Nombre'-->
-                   <!--style="width:100%"/>-->
-        <!--</t>-->
+    <!--<t t-jquery=".detail.client-name" t-operation="replace">-->
+    <!--<input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Cédula, RNC o Nombre'-->
+    <!--style="width:100%"/>-->
+    <!--</t>-->
 
-        <!--<t t-jquery=".client-details-left .client-detail:last" t-operation="replace"/>-->
+    <!--<t t-jquery=".client-details-left .client-detail:last" t-operation="replace"/>-->
 
-        <!--<t t-jquery=".client-details-left" t-operation="prepend">-->
-
-
+    <!--<t t-jquery=".client-details-left" t-operation="prepend">-->
 
 
-            <!--<div class='client-detail'>-->
-                <!--<span class='label'>RNC/Céd</span>-->
-                <!--<input class='detail client-ref' name='vat' t-att-value='partner.vat' placeholder='RNC/Cédula'/>-->
-            <!--</div>-->
+    <!--<div class='client-detail'>-->
+    <!--<span class='label'>RNC/Céd</span>-->
+    <!--<input class='detail client-ref' name='vat' t-att-value='partner.vat' placeholder='RNC/Cédula'/>-->
+    <!--</div>-->
 
-            <!--<div class='client-detail'>-->
-                <!--<span class='label'>Country</span>-->
-                <!--<select class='detail client-address-country' name='country_id'>-->
-                    <!--<option value=''>None</option>-->
-                    <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
-                        <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
-                            <!--<t t-esc='country.name'/>-->
-                        <!--</option>-->
-                    <!--</t>-->
-                <!--</select>-->
-            <!--</div>-->
-        <!--</t>-->
+    <!--<div class='client-detail'>-->
+    <!--<span class='label'>Country</span>-->
+    <!--<select class='detail client-address-country' name='country_id'>-->
+    <!--<option value=''>None</option>-->
+    <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
+    <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
+    <!--<t t-esc='country.name'/>-->
+    <!--</option>-->
+    <!--</t>-->
+    <!--</select>-->
+    <!--</div>-->
+    <!--</t>-->
 
     <!--</t>-->
 
@@ -259,16 +257,13 @@
     <div class="modal-dialog">
         <div class="popup popup-alert" style="height:200px">
             <p class="title">Cotizar</p>
-            Seleccione una opecion?
+            Seleccione una opción?
             <div class="footer">
                 <span class="button fa fa-print" id="print_pdf">
                     Imprimir cotización
                 </span>
                 <span class="button send fa fa-envelope-o" id="send_mail">
                     Enviar cotización
-                </span>
-                <span class="button send fa fa-truck" id="send_delivery">
-                    Delivery
                 </span>
                 <span class="button cancel fa fa-no-o" id="quotation_cancel">
                     Cancelar
@@ -280,7 +275,7 @@
 
     <t t-name="QuotationActionWidget">
         <div class="control-button">
-            Cotización / Delivery
+            Cotización
         </div>
     </t>
 
@@ -320,35 +315,6 @@
         </t>
     </t>
 
-
-
-    <t t-name="DeliveryPopupWidget">
-        <div class="modal-dialog">
-            <div class="popup popup-alert" style="height:600px">
-                <form>
-                      <div class="form-group">
-                        <label for="exampleInputEmail1">Email address</label>
-                        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email"/>
-                      </div>
-                      <div class="form-group">
-                        <label for="exampleInputPassword1">Password</label>
-                        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password"/>
-                      </div>
-                      <div class="form-group">
-                        <label for="exampleInputFile">File input</label>
-                        <input type="file" id="exampleInputFile"/>
-                        <p class="help-block">Example block-level help text here.</p>
-                      </div>
-                      <div class="checkbox">
-                        <label>
-                          <input type="checkbox"/> Check me out
-                        </label>
-                      </div>
-                      <button type="submit" class="btn btn-default">Submit</button>
-                </form>
-            </div>
-        </div>
-    </t>
 
 
 </templates>

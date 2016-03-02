@@ -7,17 +7,6 @@ odoo.define('ncf_pos.popups', function (require) {
     var _t = require('web.core')._t;
 
 
-
-    var DeliveryPopupWidget = PopUpWidget.extend({
-        template: 'DeliveryPopupWidget',
-        show: function (options) {
-            this._super(options);
-
-        }
-    });
-    gui.define_popup({name: 'DeliveryPopupWidget', widget: DeliveryPopupWidget});
-
-
     var QuotationPopupWidget = PopUpWidget.extend({
         template: 'QuotationPopupWidget',
         show: function (opts) {
@@ -31,14 +20,6 @@ odoo.define('ncf_pos.popups', function (require) {
 
             this.$("#send_mail").click(function () {
                 self.report_action("send", order);
-            });
-
-            this.$("#send_delivery").click(function () {
-                //self.delivery_action("delivery", order);
-                console.log("================")
-                console.log(self)
-                console.log("================")
-                self.gui.show_popup('DeliveryPopupWidget');
             });
 
             this.$("#quotation_cancel").click(function () {

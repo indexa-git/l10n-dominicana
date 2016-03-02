@@ -4,6 +4,21 @@ odoo.define('ncf_pos.models', function (require) {
     var models = require('point_of_sale.models');
     var session = require('web.session');
 
+    //TODO load info for tracking serial number
+    //models.load_models({
+    //    model: 'product.template',
+    //    fields: ['tracking'],
+    //    domain: [['tracking', '!=', 'none']],
+    //    loaded: function (self, products_tracking) {
+    //        models.load_models({
+    //            models: 'product.',
+    //            fields: ['id'],
+    //            domain: [['product_tmpl_id', 'in', '']]
+    //
+    //        });
+    //    }
+    //});
+
 
     models.load_models({
             model: 'res.company',
@@ -241,7 +256,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.fiscal_type = credit;
             this.trigger('change', this)
         },
-            get_fiscal_type: function () {
+        get_fiscal_type: function () {
             return this.fiscal_type || 0;
         },
         add_product: function (product, options) {
