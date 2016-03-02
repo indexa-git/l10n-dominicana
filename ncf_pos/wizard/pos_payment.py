@@ -126,17 +126,17 @@ class PosMakePayment(models.TransientModel):
         data = self.read()[0]
         data['journal'] = data['journal_id'][0]
 
+        amount = round(amount, 2)
         if amount != 0.0:
             order.add_payment(data)
-
         if order.test_paid():
             order.signal_workflow('paid')
             return {'type': 'ir.actions.act_window_close'}
 
-        return self.launch_payment()
+        return self.launch_payment(order)
 
-    def launch_payment(self):
-        if self.state != "draft_refund_money":
+    def launch_payment(self, order):
+        if order.state != "draft_refund_money":
             return {
                 'name': _('Payment'),
                 'view_type': 'form',

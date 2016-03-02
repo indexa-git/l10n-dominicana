@@ -158,7 +158,7 @@ class PosOrder(models.Model):
 
             order.amount_tax = cur.round(val1)
             amount_untaxed = cur.round(val2)
-            order.amount_total = order.amount_tax + amount_untaxed
+            order.amount_total = round(order.amount_tax + amount_untaxed, 2)
 
     amount_tax = fields.Float(compute=_amount_all, string='Taxes', digits=0, multi='all')
     amount_total = fields.Float(compute=_amount_all, string='Total', digits=0, multi='all')
@@ -239,6 +239,16 @@ class PosOrder(models.Model):
         if ui_paymentline.get("type", False):
             res.update({"type": ui_paymentline["type"]})
         return res
+
+    @api.model
+    def check_if_real_stock_valuation(self, product_ids):
+        res = False
+        product = self.env["product.product"].browse(product_ids)
+        zero_cost = [p.name for p in product if p.standard_price == 0 and p.cost_method]
+        if zero_cost:
+            res = [{"label": name} for name in zero_cost]
+        return res
+
 
     @api.model
     def create_from_ui(self, orders):
@@ -561,9 +571,9 @@ class PosOrder(models.Model):
             if order.lines and not order.amount_total:
                 return True
 
-            if (not order.lines) or (not order.statement_ids) or (
-                        abs(order.amount_total - order.amount_paid) > 0.00001):
+            if (not order.lines) or (not order.statement_ids) or (abs(order.amount_total - order.amount_paid) > 0.00001):
                 return False
+
         return True
 
     def action_quotation(self, order):
@@ -649,6 +659,7 @@ class PosOrderLine(models.Model):
                                     copy=False, required=False)
     refund_line_ref = fields.Many2one("pos.order.line", string="origin line refund", copy=False)
     note = fields.Char("Nota")
+    # prodlot_id = fields.Many2one('stock.production.lot', 'Serial No')
 
 
 class PosConfig(models.Model):
