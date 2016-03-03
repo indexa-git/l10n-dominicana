@@ -147,6 +147,9 @@ class ShopJournalConfig(models.Model):
             seq_values["name"] = "Notas de credito"
             nc_id = self.env["ir.sequence"].create(seq_values)
             sale_journal.refund_sequence_id = nc_id.id
+            sale_journal.refund_sequence = True
+
+
 
         if not self.search([]):
             self.create({"name": "Principal", "sale_journal_ids": [(4, 1, False)], "user_ids": [(4, 1, False)]})
