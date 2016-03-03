@@ -368,6 +368,36 @@ odoo.define('ncf_pos.screens', function (require) {
 
             self.pos.push_order(order);
             self.gui.show_screen('receipt');
+        },
+        click_product: function (product) {
+            var self = this;
+            var StockProductLot = new Model("stock.production.lot");
+            if (product.tracking != 'none') {
+                self.gui.show_popup('textinput', {
+                    title: "Este producto requiere número de Serie/Lote para venderlo.",
+                    confirm: function (value) {
+                        StockProductLot.query(["id"]).filter([['name', '=', value], ['product_id', '=', product.id]])
+                            .limit(1)
+                            .all()
+                            .then(function (res) {
+                                if (res.length == 1) {
+                                    self.extended_click_product(product, {"prodlot_id": res[0].id})
+                                }
+                            });
+                    }
+                });
+
+            } else {
+                self.extended_click_product(product, {})
+            }
+
+        },
+        extended_click_product: function (product, options) {
+            if (product.to_weight && this.pos.config.iface_electronic_scale) {
+                this.gui.show_screen('scale', {product: product});
+            } else {
+                this.pos.get_order().add_product(product, options);
+            }
         }
     });
 

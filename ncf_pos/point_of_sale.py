@@ -75,9 +75,8 @@ class PosOrder(models.Model):
 
     @api.model
     def get_credit_by_ncf(self, ncf):
-        refund_invoice = self.env["account.invoice"].search([('number','=',ncf),('state','=','open')])
+        refund_invoice = self.env["account.invoice"].search([('number', '=', ncf), ('state', '=', 'open')])
         return refund_invoice.residual
-
 
     @api.model
     def get_partner_credit(self, partner_id):
@@ -230,7 +229,7 @@ class PosOrder(models.Model):
             res.update({"origin": ui_order["origin"],
                         "state": ui_order.get("order_type", False)})
         res.update({"credit_ncf": ui_order.get("credit_ncf", False),
-                    'note':ui_order.get('order_note','')})
+                    'note': ui_order.get('order_note', '')})
         return res
 
     @api.model
@@ -248,7 +247,6 @@ class PosOrder(models.Model):
         if zero_cost:
             res = [{"label": name} for name in zero_cost]
         return res
-
 
     @api.model
     def create_from_ui(self, orders):
@@ -474,7 +472,7 @@ class PosOrder(models.Model):
             reference_ncf = order.origin.invoice_id.number
             reference_ncf_type = reference_ncf[9:11]
             res.update({"fiscal_type_name": "NOTA DE CREDITO"})
-            if reference_ncf_type in ("01","14"):
+            if reference_ncf_type in ("01", "14"):
                 res.update({"fiscal_type": "fiscal_note"})
             elif reference_ncf_type == "02":
                 res.update({"fiscal_type": "final_note"})
@@ -482,7 +480,6 @@ class PosOrder(models.Model):
                 res.update({"fiscal_type": "special_note"})
 
         return res
-
 
     @api.model
     def create(self, values):
@@ -571,7 +568,8 @@ class PosOrder(models.Model):
             if order.lines and not order.amount_total:
                 return True
 
-            if (not order.lines) or (not order.statement_ids) or (abs(order.amount_total - order.amount_paid) > 0.00001):
+            if (not order.lines) or (not order.statement_ids) or (
+                        abs(order.amount_total - order.amount_paid) > 0.00001):
                 return False
 
         return True
@@ -651,6 +649,89 @@ class PosOrder(models.Model):
             raise exceptions.UserError("No esta permitido duplicar devoluciones.")
         return super(PosOrder, self).copy(cr, uid, id, default=default, context=context)
 
+    @api.multi
+    def create_picking(self):
+        """Create a picking for each order and validate it."""
+        picking_obj = self.env['stock.picking']
+        partner_obj = self.env['res.partner']
+        move_obj = self.env['stock.move']
+
+        for order in self:
+            if all(t == 'service' for t in order.lines.mapped('product_id.type')):
+                continue
+            addr = order.partner_id and partner_obj.address_get(['delivery']) or {}
+            picking_type = order.picking_type_id
+            picking_id = False
+            location_id = order.location_id.id
+            if order.partner_id:
+                destination_id = order.partner_id.property_stock_customer.id
+            else:
+                if (not picking_type) or (not picking_type.default_location_dest_id):
+                    customerloc, supplierloc = self.pool['stock.warehouse']._get_partner_locations()
+                    destination_id = customerloc.id
+                else:
+                    destination_id = picking_type.default_location_dest_id.id
+
+            # All qties negative => Create negative
+            if picking_type:
+                pos_qty = all([x.qty >= 0 for x in order.lines])
+                # Check negative quantities
+                picking_id = picking_obj.create({
+                    'origin': order.name,
+                    'partner_id': addr.get('delivery', False),
+                    'date_done': order.date_order,
+                    'picking_type_id': picking_type.id,
+                    'company_id': order.company_id.id,
+                    'move_type': 'direct',
+                    'note': order.note or "",
+                    'location_id': location_id if pos_qty else destination_id,
+                    'location_dest_id': destination_id if pos_qty else location_id,
+                })
+
+                self.write({'picking_id': picking_id.id})
+
+            move_list = []
+            for line in order.lines:
+                if line.product_id and line.product_id.type not in ['product', 'consu']:
+                    continue
+
+                move_list.append(move_obj.create({
+                    'name': line.name,
+                    'product_uom': line.product_id.uom_id.id,
+                    'picking_id': picking_id.id,
+                    'picking_type_id': picking_type.id,
+                    'product_id': line.product_id.id,
+                    'product_uom_qty': abs(line.qty),
+                    'state': 'draft',
+                    'location_id': location_id if line.qty >= 0 else destination_id,
+                    'location_dest_id': destination_id if line.qty >= 0 else location_id,
+                    'prodlot_id': line.prodlot_id.id,
+                }))
+
+            if picking_id:
+                picking_id.action_confirm()
+                picking_id.force_assign()
+                # Mark pack operations as done
+                pick = picking_id
+                lot_dict = [{l.product_id.id: l.prodlot_id.id} for l in order.lines if l.prodlot_id] or [{}]
+                for pack in pick.pack_operation_ids:
+                    if pack.product_id.id not in lot_dict[0].keys():
+                        pack.write({'qty_done': pack.product_qty})
+                    elif pack.product_id.id in lot_dict[0].keys():
+                        pack.write({'qty_done': pack.product_qty,
+                                    "pack_lot_ids": [(0, 0, {"qty": pack.product_qty,
+                                                             "lot_id": lot_dict[0][pack.product_id.id]}
+                                                      )
+                                                     ]
+                                    })
+
+                picking_id.action_done()
+            elif move_list:
+                move_obj.action_confirm()
+                move_obj.force_assign()
+                move_obj.action_done()
+        return True
+
 
 class PosOrderLine(models.Model):
     _inherit = "pos.order.line"
@@ -659,7 +740,7 @@ class PosOrderLine(models.Model):
                                     copy=False, required=False)
     refund_line_ref = fields.Many2one("pos.order.line", string="origin line refund", copy=False)
     note = fields.Char("Nota")
-    # prodlot_id = fields.Many2one('stock.production.lot', 'Serial No')
+    prodlot_id = fields.Many2one('stock.production.lot', 'Serial No')
 
 
 class PosConfig(models.Model):
@@ -682,8 +763,8 @@ class ResPartner(models.Model):
 
         try:
             name = partner.get("name", False)
-            if isinstance( int(name), (int,)):
-                partner_exist = self.search([('vat','=',name)])
+            if isinstance(int(name), (int,)):
+                partner_exist = self.search([('vat', '=', name)])
                 if partner_exist:
                     if partner.get("property_account_position_id", False):
                         partner.pop("property_account_position_id", None)

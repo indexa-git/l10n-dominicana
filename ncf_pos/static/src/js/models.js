@@ -119,16 +119,25 @@ odoo.define('ncf_pos.models', function (require) {
         get_refund_line_ref: function () {
             return this.refund_line_ref || false;
         },
+        set_prodlot_id: function(product_serial_lot){
+            this.prodlot_id = product_serial_lot || false;
+            this.trigger('change', this)
+        },
+        get_prodlot_id: function(serial_lot){
+            return this.prodlot_id || false;
+        },
         export_as_JSON: function () {
             var json = _order_line_super.export_as_JSON.apply(this, arguments);
             json.qty_allow_refund = this.get_qty_allow_refund();
             json.refund_line_ref = this.get_refund_line_ref();
+            json.prodlot_id = this.get_prodlot_id();
             return json
         },
         export_for_printing: function () {
             var json = _order_line_super.export_for_printing.apply(this, arguments);
             json.qty_allow_refund = this.get_qty_allow_refund();
             json.refund_line_ref = this.get_refund_line_ref();
+            json.prodlot_id = this.get_prodlot_id();
             return json;
         }
     });
@@ -271,6 +280,10 @@ odoo.define('ncf_pos.models', function (require) {
                 line.set_qty_allow_refund(product.qty_allow_refund);
                 line.set_refund_line_ref(product.refund_line_ref);
                 product.qty_allow_refund--;
+            }
+
+            if (options.prodlot_id !== undefined){
+                line.set_prodlot_id(options.prodlot_id)
             }
 
             if (options.quantity !== undefined) {
