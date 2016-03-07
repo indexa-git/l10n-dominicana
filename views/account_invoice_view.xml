@@ -71,6 +71,7 @@
 
                 <field name="move_name" position="replace"/>
 
+
                 <field name="number" position="before">
                     <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
                     <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>

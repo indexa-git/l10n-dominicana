@@ -77,12 +77,13 @@
             </field>
         </record>
 
-        <menuitem action="account.action_account_moves_all_a" icon="STOCK_JUSTIFY_FILL" id="account.menu_action_account_moves_all"
+        <menuitem action="account.action_account_moves_all_a" icon="STOCK_JUSTIFY_FILL"
+                  id="account.menu_action_account_moves_all"
                   parent="account.menu_finance_entries" sequence="1" groups="account.group_account_manager"/>
 
         <!-- This Menu Item must have a parent and an action -->
 
-                <!-- Inherit Form View to Modify it -->
+        <!-- Inherit Form View to Modify it -->
         <record id="inherit_view_account_type_form" model="ir.ui.view">
             <field name="name">inherit_view_account_type_form</field>
             <field name="model">account.account.type</field>
@@ -96,7 +97,26 @@
             </field>
         </record>
 
-        <menuitem id="action_account_type_form_menu" name="Tipos de cuentas" parent="account.account_management_menu" action="account.action_account_type_form" sequence=""/>
+        <menuitem id="action_account_type_form_menu" name="Tipos de cuentas" parent="account.account_management_menu"
+                  action="account.action_account_type_form" sequence=""/>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="ncf_manager_view_account_bnk_stmt_cashbox" model="ir.ui.view">
+            <field name="name">ncf_manager_view_account_bnk_stmt_cashbox</field>
+            <field name="model">account.bank.statement.cashbox</field>
+            <field name="inherit_id" ref="account.view_account_bnk_stmt_cashbox"/>
+            <field name="arch" type="xml">
+
+                <tree position="replace">
+                    <tree editable="bottom">
+                        <field name="number"/>
+                        <field name="coin_value"/>
+                        <field name="subtotal" sum="Total"/>
+                    </tree>
+                </tree>
+
+            </field>
+        </record>
 
     </data>
 </openerp>
