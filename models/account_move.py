@@ -43,7 +43,8 @@ class AccountMove(models.Model):
     @api.multi
     def post(self):
         invoice = self._context.get('invoice', False)
-        invoice.set_ncf()
+        if invoice:
+            invoice.set_ncf()
         return super(AccountMove, self).post()
 
 class AccountMoveLine(models.Model):
