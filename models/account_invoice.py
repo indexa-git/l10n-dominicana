@@ -131,6 +131,7 @@ class InheritedAccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
+
         if self.type in ('in_invoice', 'in_refund'):
             self.ncf = False
             if self.journal_id.purchase_type == "normal":
@@ -180,11 +181,10 @@ class InheritedAccountInvoice(models.Model):
         elif self.type in ('in_invoice', 'in_refund'):
             if self.partner_id.journal_id:
                 self.journal_id = self.partner_id.journal_id.id
-            else:
+            elif self.fiscal_position_id.journal_id:
                 self.journal_id = self.fiscal_position_id.journal_id.id
 
-            if self.fiscal_position_id.supplier_fiscal_type in (
-            "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11"):
+            elif self.journal_id.purchase_type == "normal":
                 self.ncf_required = True
             else:
                 self.ncf_required = False

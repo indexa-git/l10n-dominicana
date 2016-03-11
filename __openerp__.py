@@ -55,7 +55,7 @@
     'version': '1.0',
 
 
-    'depends': ['base','account', 'account_accountant','rnc_validation', "l10n_do_custom"],
+    'depends': ['base','account', 'account_accountant','rnc_validation'],
 
     'data': [
         'security/ir.model.access.csv',

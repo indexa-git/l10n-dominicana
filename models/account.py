@@ -57,6 +57,7 @@ class AccountJournal(models.Model):
 class AccountFiscalPosition(models.Model):
     _inherit = 'account.fiscal.position'
 
+
     supplier = fields.Boolean("Para proveedores")
     client_fiscal_type = fields.Selection([
         ("final", u"Consumidor final"),
