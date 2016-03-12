@@ -118,5 +118,55 @@
             </field>
         </record>
 
+        <!-- Inherit Form View to Modify it -->
+        <record id="ncf_manager_view_account_payment_form_inherited" model="ir.ui.view">
+            <field name="name">ncf_manager_view_account_payment_form_inherited</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account_check_printing.view_account_payment_form_inherited"/>
+            <field name="arch" type="xml">
+
+                <field name="check_amount_in_words" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </field>
+
+            </field>
+        </record>
+
+        <record id="ncf_manager_account_payment_method_form" model="ir.ui.view">
+            <field name="name">ncf_manager_account_payment_method_form</field>
+            <field name="model">account.payment.method</field>
+            <field name="arch" type="xml">
+                <form string="Tipo de pagos en diarios">
+                    <sheet>
+                        <group>
+                            <field name="code" groups="base.group_no_one"/>
+                            <field name="name"/>
+                            <field name="payment_type"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="ncf_manager_account_payment_method_action" model="ir.actions.act_window">
+            <field name="name">Tipo de pagos en diarios</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.payment.method</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    <!-- Add Text Here -->
+                </p>
+                <p>
+                    <!-- More details about what a user can do with this object will be OK -->
+                </p>
+            </field>
+        </record>
+
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="UNIQUE_ID_categ" name="Tipo de pagos en diarios" parent="account.account_account_menu"
+                  action="ncf_manager_account_payment_method_action" sequence=""/>
+
+
     </data>
 </openerp>
