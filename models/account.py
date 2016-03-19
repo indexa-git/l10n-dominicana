@@ -42,7 +42,8 @@ class AccountJournal(models.Model):
     purchase_type = fields.Selection([("normal",u"Proveedor normal"),
                                       ("minor", u"Gasto menor"),
                                       ("informal", u"Proveedor informal"),
-                                      ("exterior", u"Pagos al exterior")
+                                      ("exterior", u"Pagos al exterior"),
+                                      ("import", u"Importaciones"),
                                       ],
                                      string=u"Tipo de compra", default="normal")
     ncf_remote_validation = fields.Boolean(u"Validar NCF con DGII", default=True)
@@ -128,7 +129,10 @@ class AccountFiscalPosition(models.Model):
 class AccountTax(models.Model):
     _inherit = 'account.tax'
 
-    purchase_tax_type = fields.Selection([('itbis','ITBIS Pagado'),('ritbis','ITBIS Retenido'),('isr','ISR Retenido')],
+    purchase_tax_type = fields.Selection([('itbis','ITBIS Pagado'),
+                                          ('ritbis','ITBIS Retenido'),
+                                          ('isr','ISR Retenido'),
+                                          ('none','No deducible')],
                                          default="itbis", string="Tipo de impuesto de compra")
     tax_except = fields.Boolean(string="Exento de este impuesto")
 

@@ -56,7 +56,7 @@ class DgiiPurchaseReport(models.Model):
     RETENCION_RENTA = fields.Float("TOTAL RETENCION RENTA")
     report_lines = fields.One2many("dgii.purchase.report.line", "purchase_report_id")
     txt = fields.Binary("Reporte TXT", readonly=True)
-    txt_name = fields.Char("Nombre del archivo",readonly=True)
+    txt_filename = fields.Char("Nombre del archivo",readonly=True)
     state = fields.Selection([('draft','Nuevo'),('done','Generado')], default="draft")
 
     @api.model
@@ -78,19 +78,38 @@ class DgiiPurchaseReport(models.Model):
         if self._context.get("recreate", False):
             self.report_lines.unlink()
             self.txt = False
-        lines = []
-        line_number = 1
-        for inv in invoices:
-            line = []
 
+        CANTIDAD_REGISTRO = len(invoices)
+        ITBIS_RETENIDO = 0
+        ITBIS_TOTAL = 0
+        TOTAL_MONTO_FACTURADO = sum([inv.amount_untaxed for inv in invoices])
+        RETENCION_RENTA = 0
+
+        lines = []
+        line_number = 0
+        for inv in invoices:
+            line_number += 1
             LINE = line_number
 
-            # if not is_identification(inv.partner_id.vat):
-            #     raise exceptions.ValidationError(u"El número de RNC/Cédula para el proveedor {} no es valido!".format(inv.partner_id.name))
+            LINE_ITBIS_TOTAL = 0
+            LINE_ITBIS_RETENIDO = 0
+            LINE_RETENCION_RENTA = 0
+
+            tax_lines = [tax.tax_line_ids for tax in inv if tax.tax_line_ids]
+            for tax_line in tax_lines:
+                for line in tax_line:
+                    if line.tax_id.purchase_tax_type == "itbis":
+                        ITBIS_TOTAL += line.amount
+                        LINE_ITBIS_TOTAL += line.amount
+                    elif line.tax_id.purchase_tax_type == "ritbis":
+                        ITBIS_RETENIDO += line.amount
+                        LINE_ITBIS_RETENIDO += line.amount
+                    elif line.tax_id.purchase_tax_type == "isr":
+                        RETENCION_RENTA += line.amount
+                        LINE_RETENCION_RENTA += line.amount
 
             RNC_CEDULA = inv.partner_id.vat
             TIPO_IDENTIFICACION = "1" if len(RNC_CEDULA.strip()) == 9 else "2"
-
             TIPO_BIENES_SERVICIOS_COMPRADOS = inv.fiscal_position_id.supplier_fiscal_type
 
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
@@ -99,8 +118,8 @@ class DgiiPurchaseReport(models.Model):
             if not is_ncf(inv.number, inv.type):
                 raise exceptions.ValidationError(u"El número de NCF {} no es valido!".format(inv.number))
 
-
             NUMERO_COMPROBANTE_MODIFICADO = "".rjust(19)
+
             if inv.type == "in_invoice":
                 NUMERO_COMPROBANTE_FISCAL = inv.number
             elif inv.type == "in_refund":
@@ -113,42 +132,6 @@ class DgiiPurchaseReport(models.Model):
             else:
                 FECHA_PAGO = False
 
-            MONTO_FACTURADO = 0.00
-            for line in inv.invoice_line_ids:
-                account_ids  = [l.account_id.id for l in line]
-                move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-                MONTO_FACTURADO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])
-                if inv.type == "in_refund":
-                    MONTO_FACTURADO = MONTO_FACTURADO * -1
-
-
-            MONTO_FACTURADO = MONTO_FACTURADO
-
-            ITBIS_FACTURADO = 0
-            ITBIS_RETENIDO = 0
-            RETENCION_RENTA = 0
-
-            for tax in inv.tax_line_ids:
-                if tax.tax_id.purchase_tax_type == "itbis":
-                    account_ids  = [t.account_id.id for t in tax]
-                    move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-                    ITBIS_FACTURADO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])
-                    if inv.type == "in_refund":
-                        ITBIS_FACTURADO = ITBIS_FACTURADO * -1
-                elif tax.tax_id.purchase_tax_type == "ritbis":
-                    account_ids  = [t.account_id.id for t in tax]
-                    move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-                    ITBIS_RETENIDO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])
-                    if inv.type == "in_refund":
-                        ITBIS_RETENIDO = ITBIS_RETENIDO * -1
-                else:
-                    account_ids  = [t.account_id.id for t in tax]
-                    move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-                    RETENCION_RENTA += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])
-                    if inv.type == "in_refund":
-                        RETENCION_RENTA = RETENCION_RENTA * -1
-
-
             lines.append((0,False,{"LINE":LINE,
                                    "RNC_CEDULA":RNC_CEDULA,
                                    "TIPO_IDENTIFICACION":TIPO_IDENTIFICACION,
@@ -157,20 +140,13 @@ class DgiiPurchaseReport(models.Model):
                                    "NUMERO_COMPROBANTE_MODIFICADO":NUMERO_COMPROBANTE_MODIFICADO,
                                    "FECHA_COMPROBANTE":FECHA_COMPROBANTE,
                                    "FECHA_PAGO":FECHA_PAGO,
-                                   "ITBIS_FACTURADO":ITBIS_FACTURADO,
-                                   "ITBIS_RETENIDO":ITBIS_RETENIDO,
-                                   "MONTO_FACTURADO":MONTO_FACTURADO,
-                                   "RETENCION_RENTA":RETENCION_RENTA
+                                   "ITBIS_FACTURADO":LINE_ITBIS_TOTAL,
+                                   "ITBIS_RETENIDO":LINE_ITBIS_RETENIDO,
+                                   "MONTO_FACTURADO":inv.amount_untaxed,
+                                   "RETENCION_RENTA": LINE_RETENCION_RENTA
                                    }))
 
 
-            line_number += 1
-
-        CANTIDAD_REGISTRO = len(lines)
-        ITBIS_RETENIDO = sum([line[2]["ITBIS_RETENIDO"] for line in lines])
-        ITBIS_TOTAL = sum([line[2]["ITBIS_FACTURADO"] for line in lines])
-        TOTAL_MONTO_FACTURADO = sum([line[2]["MONTO_FACTURADO"] for line in lines])
-        RETENCION_RENTA = sum([line[2]["RETENCION_RENTA"] for line in lines])
 
         res = self.write({"report_lines": lines,
                            "CANTIDAD_REGISTRO": CANTIDAD_REGISTRO,
@@ -193,6 +169,7 @@ class DgiiPurchaseReport(models.Model):
         header += self.company_id.vat.zfill(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
+        header += "{:.2f}".format(self.CANTIDAD_REGISTRO).zfill(16)
         header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
         header += "{:.2f}".format(self.RETENCION_RENTA).zfill(12)
         lines.append(header)
@@ -219,7 +196,7 @@ class DgiiPurchaseReport(models.Model):
         file = open(path,'rb')
         report = base64.b64encode(file.read())
         report_name = 'DGII_606_{}_{}{}.TXT'.format(self.company_id.vat, str(self.year), str(self.month).zfill(2))
-        self.write({'txt': report, 'txt_name': report_name})
+        self.write({'txt': report, 'txt_filename': report_name})
 
     @api.multi
     def create_report(self):
