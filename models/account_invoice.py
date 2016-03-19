@@ -45,7 +45,7 @@ from datetime import datetime
 MAGIC_COLUMNS = ('id', 'create_uid', 'create_date', 'write_uid', 'write_date')
 
 
-class InheritedAccountInvoice(models.Model):
+class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
     def _default_user_shop(self):
@@ -109,6 +109,9 @@ class InheritedAccountInvoice(models.Model):
                                      compute=_get_total_discount)
     credit_out_invoice = fields.Boolean(related="journal_id.credit_out_invoice")
     authorize = fields.Boolean("Credito autorizado", default=False)
+    move_name = fields.Char(string='Journal Entry', readonly=False,
+        default=False, copy=False,
+        help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)',
@@ -150,11 +153,11 @@ class InheritedAccountInvoice(models.Model):
             self.date_due = fields.Date.today()
             self.payment_term_id = 1
 
-        return super(InheritedAccountInvoice, self)._onchange_journal_id()
+        return super(AccountInvoice, self)._onchange_journal_id()
 
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
-        super(InheritedAccountInvoice, self)._onchange_partner_id()
+        super(AccountInvoice, self)._onchange_partner_id()
         if self.type in ("in_invoice", "in_refund"):
             self.fiscal_position_id = self.partner_id.property_account_position_supplier_id.id
 
@@ -223,13 +226,13 @@ class InheritedAccountInvoice(models.Model):
     def create(self, vals):
         if vals.get("ncf", False) and vals.get("type", False) in ('in_invoice','in_refund'):
             vals.update({"move_name": vals.get("ncf", False)})
-        return super(InheritedAccountInvoice, self).create(vals)
+        return super(AccountInvoice, self).create(vals)
 
     @api.multi
     def write(self, vals):
         if vals.get("ncf", False) and (vals.get("type", False) in ('in_invoice','in_refund') or self.type in ('in_invoice','in_refund')):
             vals.update({"move_name": vals.get("ncf", False) or self.ncf})
-        return super(InheritedAccountInvoice, self).write(vals)
+        return super(AccountInvoice, self).write(vals)
 
     @api.model
     def _refund_cleanup_lines(self, lines):
@@ -307,7 +310,7 @@ class InheritedAccountInvoice(models.Model):
                 if msg and self.authorize == False:
                     raise exceptions.ValidationError(msg)
 
-        res = super(InheritedAccountInvoice, self).invoice_validate()
+        res = super(AccountInvoice, self).invoice_validate()
 
         if self.type in ["out_invoice", "in_invoice"]:
             for line in self.invoice_line_ids:
@@ -383,7 +386,7 @@ class InheritedAccountInvoice(models.Model):
     def copy(self, default=None):
         if self.type in ("in_refund", "out_refund"):
             raise exceptions.UserError("No esta permitido duplicar notas de crédito!")
-        return super(InheritedAccountInvoice, self).copy(default=default)
+        return super(AccountInvoice, self).copy(default=default)
 
     @api.multi
     def authorize_credit(self):

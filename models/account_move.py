@@ -33,7 +33,7 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 from openerp import models, api, _, fields
-from openerp.exceptions import UserError
+from openerp.exceptions import UserError, ValidationError
 import openerp.addons.decimal_precision as dp
 
 
@@ -44,6 +44,11 @@ class AccountMove(models.Model):
     def post(self):
         invoice = self._context.get('invoice', False)
         if invoice:
+            if invoice.type in ('out_invoice', 'out_refund'):
+                fiscal_position = invoice.fiscal_position_id.client_fiscal_type
+                if fiscal_position != False:
+                    if fiscal_position != 'final' and invoice.partner_id.vat == False:
+                        raise ValidationError(u"Para este tipo de posición fiscal el relacionado debe de tener un RNC/Establecido!")
             invoice.set_ncf()
         return super(AccountMove, self).post()
 
