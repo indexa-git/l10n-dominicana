@@ -61,6 +61,7 @@
         'wizard/pos_order_cancel_view.xml',
         'wizard/pos_order_refund_view.xml',
         'wizard/pos_payment.xml',
+        'wizard/cash_box_control_view.xml',
         'views.xml',
         'templates.xml'
     ],

@@ -8,7 +8,91 @@ odoo.define('ncf_pos.screens', function (require) {
     var QWeb = core.qweb;
     var _t = core._t;
 
-    //var _PaymentScreenWidget = screens.PaymentScreenWidget.prototype;
+    screens.ProductScreenWidget.include({
+        start: function () {
+            this._super();
+            var self = this;
+            var fiscal_position = self.action_buttons.set_fiscal_position;
+
+            if (fiscal_position === undefined) {
+                window.location.replace("/web");
+                alert("Debe asignar posiciones fiscales a esta terminal.");
+            } else {
+                $(self.action_buttons.set_fiscal_position.$el).remove();
+            }
+
+            $(".refund-cancel-button").click(function () {
+                self.cancel_refund();
+            });
+
+            $(".refund-button").click(function () {
+                self.refund_order();
+            });
+
+            $(".refund-money-button").click(function () {
+                self.ask_refund_money();
+            });
+        },
+        cancel_refund: function () {
+            var self = this;
+            self.pos.delete_current_order();
+        },
+        ask_refund_money: function () {
+            var self = this;
+            var order = self.pos.get_order();
+            if (order.is_empty()) {
+                self.gui.show_popup("alert", {title: "Alerta", body: "No hay ningun productos para devolver!!"});
+                return
+            }
+            order.set_order_type("draft_refund_money");
+            self.pos.push_order(order);
+            self.gui.show_screen('products');
+            self.pos.delete_current_order();
+
+        },
+        refund_order: function () {
+            var self = this;
+            var order = self.pos.get_order();
+            if (order.is_empty()) {
+                self.gui.show_popup("alert", {title: "Alerta", body: "No hay ningun productos para devolver!!"});
+                return
+            }
+
+            self.pos.push_order(order);
+            self.gui.show_screen('receipt');
+        },
+        click_product: function (product) {
+            var self = this;
+            var StockProductLot = new Model("stock.production.lot");
+            if (product.tracking != 'none') {
+                self.gui.show_popup('textinput', {
+                    title: "Este producto requiere número de Serie/Lote para venderlo.",
+                    confirm: function (value) {
+                        StockProductLot.query(["id"]).filter([['name', '=', value], ['product_id', '=', product.id]])
+                            .limit(1)
+                            .all()
+                            .then(function (res) {
+                                if (res.length == 1) {
+                                    self.extended_click_product(product, {"prodlot_id": res[0].id})
+                                }
+                            });
+                    }
+                });
+
+            } else {
+                self.extended_click_product(product, {})
+            }
+
+        },
+        extended_click_product: function (product, options) {
+            if (product.to_weight && this.pos.config.iface_electronic_scale) {
+                this.gui.show_screen('scale', {product: product});
+            } else {
+                this.pos.get_order().add_product(product, options);
+            }
+        }
+    });
+
     screens.PaymentScreenWidget.include({
         init: function (parent, options) {
             var self = this;
@@ -74,21 +158,130 @@ odoo.define('ncf_pos.screens', function (require) {
                 });
 
         },
-        validate_order: function (force_validation) {
+        renderElement: function () {
+            var self = this;
+            this._super();
+            this.$(".js_credit_note").click(function () {
+                self.apply_credit();
+            });
+        },
+        payment_input: function (input) {
+            var order = this.pos.get_order();
+            if (order.selected_paymentline) {
+                if (order.selected_paymentline.get_type() == "credit") {
+                    return
+                }
+            }
+
+            this._super(input);
+
+        },
+        apply_credit: function () {
+            var self = this;
+            var order = self.pos.get_order();
+            var default_partner_id = self.pos.config.default_partner_id;
+            var partner_id = order.get_client();
+            var credit = 0;
+            var PosOrderModel = new Model("pos.order");
+
+            if (order.get_total_with_tax() == 0) {
+                return
+            }
+
+            if (partner_id.id == default_partner_id[0]) {
+                self.gui.show_popup("alert", {
+                    title: "Alerta",
+                    body: "No esta permitido aplicar creditos de devoluciones a facturas sin antes asignarle un cliente," +
+                    "Si la nota de credito que desea aplicar no tiene cliente asignado solicite ayuda de un supervisor!!"
+                });
+            }
+
+            PosOrderModel.call("get_partner_credit", [order.get_client().id])
+                .then(function (result) {
+
+                    if (!result || order.get_due() == 0) {
+                        return
+                    }
+
+                    credit = result;
+                    if (result > order.get_due()) {
+                        credit = order.get_due()
+                    }
+
+                    var cashregisters = self.pos.cashregisters[0];
+                    self.pos.get_order().add_paymentline(cashregisters);
+                    order.selected_paymentline.set_amount(credit);
+                    order.selected_paymentline.set_type("credit");
+                    self.order_changes();
+                    self.render_paymentlines();
+                    self.$('.paymentline.selected .edit').text(self.format_currency_no_symbol(credit));
+                }).fail(function () {
+                self.gui.show_popup("alert", {
+                    title: "Alerta", body: "El PTV no pudo conectar al servidor!!"
+                });
+            });
+
+        },
+        render_paymentlines: function () {
             var self = this;
             var order = this.pos.get_order();
+            if (!order) {
+                return;
+            }
+
+            var lines = order.get_paymentlines();
+            var due = order.get_due();
+            var extradue = 0;
+            if (due && lines.length && due !== order.get_due(lines[lines.length - 1])) {
+                extradue = due;
+            }
+            _.each(lines, function (line) {
+                if (line.get_type() == "credit") {
+                    line.name = "Nota de crédito";
+                }
+            });
+
+            this.$('.paymentlines-container').empty();
+            var lines = $(QWeb.render('PaymentScreen-Paymentlines', {
+                widget: this,
+                order: order,
+                paymentlines: lines,
+                extradue: extradue,
+            }));
+
+            lines.on('click', '.delete-button', function () {
+                self.click_delete_paymentline($(this).data('cid'));
+            });
+
+            lines.on('click', '.paymentline', function () {
+                self.click_paymentline($(this).data('cid'));
+            });
+
+            lines.appendTo(this.$('.paymentlines-container'));
+        },
+        validate_client: function () {
+            var order = this.pos.get_order();
             var client = order.get_client();
-            var can_print = false;
 
             if (client === undefined) {
+                return "Debe de seleccionar cliente para validar la factura!"
+            } else if (order.fiscal_position.client_fiscal_type != 'final' && client.vat == false) {
+                return "La posicion fiscal del cliente seleccionado requiere RNC/Cédula."
+            }
+            return true;
+        },
+        validate_order: function (force_validation) {
+            var self = this;
+            var res = self.validate_client();
+
+            if (res != true) {
                 self.gui.show_popup('confirm', {
                     title: _t('Cliente no seleccionado!'),
-                    body: "Debe de seleccionar cliente para validar la factura!",
+                    body: res,
                     confirm: function () {
                         self.gui.close_popup();
                     }
                 });
-                return false;
             } else {
                 this.check_if_real_stock_valuation().then(function (res) {
                     if (res) {
@@ -212,192 +405,6 @@ odoo.define('ncf_pos.screens', function (require) {
                 this.pos.push_order(order);
                 this.gui.show_screen('receipt');
             }
-        },
-        renderElement: function () {
-            var self = this;
-            this._super();
-            this.$(".js_credit_note").click(function () {
-                self.apply_credit();
-            });
-        },
-        payment_input: function (input) {
-            var order = this.pos.get_order();
-            if (order.selected_paymentline) {
-                if (order.selected_paymentline.get_type() == "credit") {
-                    return
-                }
-            }
-
-            this._super(input);
-
-        },
-        apply_credit: function () {
-            var self = this;
-            var order = self.pos.get_order();
-            var default_partner_id = self.pos.config.default_partner_id;
-            var partner_id = order.get_client();
-            var credit = 0;
-            var PosOrderModel = new Model("pos.order");
-
-            if (order.get_total_with_tax() == 0) {
-                return
-            }
-
-            if (partner_id.id == default_partner_id[0]) {
-                self.gui.show_popup("alert", {
-                    title: "Alerta",
-                    body: "No esta permitido aplicar creditos de devoluciones a facturas sin antes asignarle un cliente," +
-                    "Si la nota de credito que desea aplicar no tiene cliente asignado solicite ayuda de un supervisor!!"
-                });
-            }
-
-            PosOrderModel.call("get_partner_credit", [order.get_client().id])
-                .then(function (result) {
-
-                    if (!result || order.get_due() == 0) {
-                        return
-                    }
-
-                    credit = result;
-                    if (result > order.get_due()) {
-                        credit = order.get_due()
-                    }
-
-                    var cashregisters = self.pos.cashregisters[0];
-                    self.pos.get_order().add_paymentline(cashregisters);
-                    order.selected_paymentline.set_amount(credit);
-                    order.selected_paymentline.set_type("credit");
-                    self.order_changes();
-                    self.render_paymentlines();
-                    self.$('.paymentline.selected .edit').text(self.format_currency_no_symbol(credit));
-                }).fail(function () {
-                self.gui.show_popup("alert", {
-                    title: "Alerta", body: "El PTV no pudo conectar al servidor!!"
-                });
-            });
-
-        },
-        render_paymentlines: function () {
-            var self = this;
-            var order = this.pos.get_order();
-            if (!order) {
-                return;
-            }
-
-            var lines = order.get_paymentlines();
-            var due = order.get_due();
-            var extradue = 0;
-            if (due && lines.length && due !== order.get_due(lines[lines.length - 1])) {
-                extradue = due;
-            }
-            _.each(lines, function (line) {
-                if (line.get_type() == "credit") {
-                    line.name = "Nota de crédito";
-                }
-            });
-
-            this.$('.paymentlines-container').empty();
-            var lines = $(QWeb.render('PaymentScreen-Paymentlines', {
-                widget: this,
-                order: order,
-                paymentlines: lines,
-                extradue: extradue,
-            }));
-
-            lines.on('click', '.delete-button', function () {
-                self.click_delete_paymentline($(this).data('cid'));
-            });
-
-            lines.on('click', '.paymentline', function () {
-                self.click_paymentline($(this).data('cid'));
-            });
-
-            lines.appendTo(this.$('.paymentlines-container'));
-        }
-    });
-
-    screens.ProductScreenWidget.include({
-        start: function () {
-            this._super();
-            var self = this;
-            var fiscal_position = self.action_buttons.set_fiscal_position;
-
-            if (fiscal_position === undefined) {
-                window.location.replace("/web");
-                alert("Debe asignar posiciones fiscales a esta terminal.");
-            } else {
-                $(self.action_buttons.set_fiscal_position.$el).remove();
-            }
-
-            $(".refund-cancel-button").click(function () {
-                self.cancel_refund();
-            });
-
-            $(".refund-button").click(function () {
-                self.refund_order();
-            });
-
-            $(".refund-money-button").click(function () {
-                self.ask_refund_money();
-            });
-        },
-        cancel_refund: function () {
-            var self = this;
-            self.pos.delete_current_order();
-        },
-        ask_refund_money: function () {
-            var self = this;
-            var order = self.pos.get_order();
-            if (order.is_empty()) {
-                self.gui.show_popup("alert", {title: "Alerta", body: "No hay ningun productos para devolver!!"});
-                return
-            }
-            order.set_order_type("draft_refund_money");
-            self.pos.push_order(order);
-            self.gui.show_screen('products');
-            self.pos.delete_current_order();
-
-        },
-        refund_order: function () {
-            var self = this;
-            var order = self.pos.get_order();
-            if (order.is_empty()) {
-                self.gui.show_popup("alert", {title: "Alerta", body: "No hay ningun productos para devolver!!"});
-                return
-            }
-
-            self.pos.push_order(order);
-            self.gui.show_screen('receipt');
-        },
-        click_product: function (product) {
-            var self = this;
-            var StockProductLot = new Model("stock.production.lot");
-            if (product.tracking != 'none') {
-                self.gui.show_popup('textinput', {
-                    title: "Este producto requiere número de Serie/Lote para venderlo.",
-                    confirm: function (value) {
-                        StockProductLot.query(["id"]).filter([['name', '=', value], ['product_id', '=', product.id]])
-                            .limit(1)
-                            .all()
-                            .then(function (res) {
-                                if (res.length == 1) {
-                                    self.extended_click_product(product, {"prodlot_id": res[0].id})
-                                }
-                            });
-                    }
-                });
-
-            } else {
-                self.extended_click_product(product, {})
-            }
-
-        },
-        extended_click_product: function (product, options) {
-            if (product.to_weight && this.pos.config.iface_electronic_scale) {
-                this.gui.show_screen('scale', {product: product});
-            } else {
-                this.pos.get_order().add_product(product, options);
-            }
         }
     });
 
@@ -406,8 +413,7 @@ odoo.define('ncf_pos.screens', function (require) {
         render_receipt: function () {
             var self = this;
             var order = this.pos.get_order();
-            var client = order.attributes.client;
-
+            var client = order.get_client();
 
             new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (result) {
 

@@ -54,9 +54,7 @@ class PosSession(osv.osv):
 
             move_id = pos_order_obj._create_account_move(cr, uid, session.start_at, session.name,
                                                          session.config_id.journal_id.id, company_id, context=context)
-
             pos_order_obj._create_account_move_line(cr, uid, order_ids, session, move_id, context=local_context)
-
             for order in session.order_ids:
                 if order.state == 'done':
                     continue
@@ -67,6 +65,38 @@ class PosSession(osv.osv):
                     pos_order_obj.signal_workflow(cr, uid, [order.id], 'done')
 
         return True
+
+
+
+    @api.multi
+    def wkf_action_close(self):
+        # Close CashBox
+        local_context = dict(self._context)
+        for record in self:
+            company_id = record.config_id.company_id.id
+            local_context.update({'force_company': company_id, 'company_id': company_id})
+            for st in record.statement_ids:
+                if abs(st.difference) > st.journal_id.amount_authorized_diff:
+                    # The pos manager can close statements with maximums.
+                    if not self.env['ir.model.access'].check_groups("point_of_sale.group_pos_manager"):
+                        raise exceptions.UserError(_(
+                            "Your ending balance is too different from the theoretical cash closing (%.2f), the maximum allowed is: %.2f. You can contact your manager to force it.") % (
+                                                       st.difference, st.journal_id.amount_authorized_diff))
+                if (st.journal_id.type not in ['bank', 'cash']):
+                    raise exceptions.UserError(
+                        _("The type of the journal for your payment method should be bank or cash "))
+                st.sudo().button_confirm_bank()
+        self._confirm_orders()
+        self.write({'state': 'closed'})
+
+        obj = self.env['ir.model.data'].get_object_reference('point_of_sale', 'menu_point_root')[1]
+
+        return {
+            'type': 'ir.actions.client',
+            'name': 'Point of Sale Menu',
+            'tag': 'reload',
+            'params': {'menu_id': obj},
+        }
 
 
 class PosOrder(models.Model):
@@ -214,6 +244,7 @@ class PosOrder(models.Model):
     @api.onchange("partner_id")
     def _onchange_partner_id(self, part=False):
         if self.partner_id:
+            self.pricelist_id = self.partner_id.property_product_pricelist.id
             self.fiscal_position_id = self.partner_id.property_account_position_id.id
 
     @api.onchange("fiscal_position_id")
@@ -450,6 +481,7 @@ class PosOrder(models.Model):
     def get_fiscal_data(self, name):
         res = {}
         ncf = False
+
         while not ncf:
             time.sleep(1)
             order = self.search([('pos_reference', '=', name)])

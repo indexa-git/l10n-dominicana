@@ -194,10 +194,10 @@ class PosMakePaymentRefund(models.TransientModel):
             lines.append(line)
 
         res = {}
+        # res["origin_order_id"] = origin_order_id.id
         res["refund_order_id"] = order.id
         res["lines"] = lines
-        res["total_refund"] = order.amount_total * -1
-
+        res["total_refund"] = (order.amount_total * -1)
         return res
 
     @api.depends("lines")
@@ -205,9 +205,9 @@ class PosMakePaymentRefund(models.TransientModel):
         amount = 0
         for line in self.lines:
             amount += line.refund
+        self.refunded = (self.total_refund - amount)
 
-        self.refunded = self.total_refund - amount
-
+    # origin_order_id = fields.Many2one("pos.order", string="Origin_order")
     refund_order_id = fields.Many2one("pos.order", string="Orden")
     lines = fields.One2many("pos.make.payment.refund.line", "refund_id", string="Pagos")
     total_refund = fields.Float(u"Monto de la devolución", readonly=True)

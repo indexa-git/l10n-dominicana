@@ -5,77 +5,79 @@ odoo.define('ncf_pos.models', function (require) {
     var session = require('web.session');
 
     models.load_fields("product.product", ["tracking"]);
+    models.load_fields("res.company", ['street', 'street2', "city", 'state_id', 'zip', 'country_id']);
+    models.load_fields("res.users", ['allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order', 'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit']);
+    models.load_fields("res.partner", ['property_account_position_id']);
 
 
-    models.load_models({
-            model: 'res.company',
-            fields: ['currency_id', 'email', 'website', 'company_registry', 'vat', 'name', 'phone', 'partner_id',
-                'country_id', 'tax_calculation_rounding_method', 'street', 'street2', "city", 'state_id', 'zip', 'country_id'],
-            ids: function (self) {
-                return [self.company.id];
-            },
-            loaded: function (self, companies) {
-                self.company = companies[0];
-            }
-        },
-        {
-            model: 'res.users',
-            fields: ['name', 'company_id'],
-            ids: function (self) {
-                return [session.uid];
-            },
-            loaded: function (self, users) {
-                self.user = users[0];
-            }
-        });
+    //models.load_models(
+    //{
+    //    model: 'res.company',
+    //    fields: ['currency_id', 'email', 'website', 'company_registry', 'vat', 'name', 'phone', 'partner_id', 'country_id', 'tax_calculation_rounding_method', 'street', 'street2', "city", 'state_id', 'zip', 'country_id'],
+    //    ids: function (self) {
+    //        return [self.company.id];
+    //    },
+    //    loaded: function (self, companies) {
+    //        self.company = companies[0];
+    //    }
+    //},
+    //{
+    //    model: 'res.users',
+    //    fields: ['name', 'company_id'],
+    //    ids: function (self) {
+    //        return [session.uid];
+    //    },
+    //    loaded: function (self, users) {
+    //        self.user = users[0];
+    //    }
+    //});
 
-    models.load_models({
-        model: 'res.users',
-        fields: ['name', 'company_id',
-            'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order',
-            'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
-        ids: function (self) {
-            return [session.uid];
-        },
-        loaded: function (self, users) {
-            self.user = users[0];
-        }
-    });
+    //models.load_models({
+    //    model: 'res.users',
+    //    fields: ['name', 'company_id',
+    //        'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order','allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
+    //    ids: function (self) {
+    //        return [session.uid];
+    //    },
+    //    loaded: function (self, users) {
+    //        self.user = users[0];
+    //    }
+    //});
 
-    models.load_models({
-        model: 'res.users',
-        fields: ['name', 'pos_security_pin', 'groups_id', 'barcode',
-            'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order',
-            'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
-        domain: function (self) {
-            return [['company_id', '=', self.user.company_id[0]], '|', ['groups_id', '=', self.config.group_pos_manager_id[0]], ['groups_id', '=', self.config.group_pos_user_id[0]]];
-        },
-        loaded: function (self, users) {
-            // we attribute a role to the user, 'cashier' or 'manager', depending
-            // on the group the user belongs.
-            var pos_users = [];
-            for (var i = 0; i < users.length; i++) {
-                var user = users[i];
-                for (var j = 0; j < user.groups_id.length; j++) {
-                    var group_id = user.groups_id[j];
-                    if (group_id === self.config.group_pos_manager_id[0]) {
-                        user.role = 'manager';
-                        break;
-                    } else if (group_id === self.config.group_pos_user_id[0]) {
-                        user.role = 'cashier';
-                    }
-                }
-                if (user.role) {
-                    pos_users.push(user);
-                }
-                // replace the current user with its updated version
-                if (user.id === self.user.id) {
-                    self.user = user;
-                }
-            }
-            self.users = pos_users;
-        }
-    });
+    //models.load_models({
+    //    model: 'res.users',
+    //    fields: ['name', 'pos_security_pin', 'groups_id', 'barcode',
+    //        'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order',
+    //        'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
+    //    domain: function (self) {
+    //        return [['company_id', '=', self.user.company_id[0]], '|', ['groups_id', '=', self.config.group_pos_manager_id[0]], ['groups_id', '=', self.config.group_pos_user_id[0]]];
+    //    },
+    //    loaded: function (self, users) {
+    //        // we attribute a role to the user, 'cashier' or 'manager', depending
+    //        // on the group the user belongs.
+    //        var pos_users = [];
+    //        for (var i = 0; i < users.length; i++) {
+    //            var user = users[i];
+    //            for (var j = 0; j < user.groups_id.length; j++) {
+    //                var group_id = user.groups_id[j];
+    //                if (group_id === self.config.group_pos_manager_id[0]) {
+    //                    user.role = 'manager';
+    //                    break;
+    //                } else if (group_id === self.config.group_pos_user_id[0]) {
+    //                    user.role = 'cashier';
+    //                }
+    //            }
+    //            if (user.role) {
+    //                pos_users.push(user);
+    //            }
+    //            // replace the current user with its updated version
+    //            if (user.id === self.user.id) {
+    //                self.user = user;
+    //            }
+    //        }
+    //        self.users = pos_users;
+    //    }
+    //});
 
     var PosModelSuper = models.PosModel;
     models.PosModel = models.PosModel.extend({
@@ -119,11 +121,11 @@ odoo.define('ncf_pos.models', function (require) {
         get_refund_line_ref: function () {
             return this.refund_line_ref || false;
         },
-        set_prodlot_id: function(product_serial_lot){
+        set_prodlot_id: function (product_serial_lot) {
             this.prodlot_id = product_serial_lot || false;
             this.trigger('change', this)
         },
-        get_prodlot_id: function(serial_lot){
+        get_prodlot_id: function (serial_lot) {
             return this.prodlot_id || false;
         },
         export_as_JSON: function () {
@@ -188,6 +190,23 @@ odoo.define('ncf_pos.models', function (require) {
             }
 
             this.save_to_db();
+        },
+        set_client: function (client) {
+            var self = this;
+
+            if (client) {
+                _.each(self.pos.fiscal_positions, function (fiscal_position) {
+                    if (client.property_account_position_id) {
+                        if (fiscal_position.id === client.property_account_position_id[0]) {
+                            self.fiscal_position = fiscal_position
+                        }
+                    } else if (fiscal_position.client_fiscal_type === "final") {
+                        self.fiscal_position = fiscal_position
+                    }
+                });
+            }
+            this.assert_editable();
+            this.set('client', client);
         },
         init_from_JSON: function (json) {
             _super_order.init_from_JSON.apply(this, arguments);
@@ -282,7 +301,7 @@ odoo.define('ncf_pos.models', function (require) {
                 product.qty_allow_refund--;
             }
 
-            if (options.prodlot_id !== undefined){
+            if (options.prodlot_id !== undefined) {
                 line.set_prodlot_id(options.prodlot_id)
             }
 

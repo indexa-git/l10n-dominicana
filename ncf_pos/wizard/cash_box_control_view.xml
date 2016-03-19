@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="ncf_pos_check_cash_box_form" model="ir.ui.view">
+            <field name="name">ncf_pos_check_cash_box_form</field>
+            <field name="model">check.cash.box</field>
+            <field name="arch" type="xml">
+                <form string="Caja descuadrada">
+                    <html>
+                        <h1>Desea cerrar la caja con descuadre.</h1>
+                    </html>
+                    <footer>
+                        <button name="confirm_cash_diff" string="Si" type="object" class="oe_highlight"/>
+                        or
+                        <button special="cancel" string="Salir" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!--<record id="ncf_pos_check_cash_box_action" model="ir.actions.act_window">-->
+            <!--<field name="name">Caja descuadrada</field>-->
+            <!--<field name="type">ir.actions.act_window</field>-->
+            <!--<field name="res_model">check.cash.box</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="target">new</field>-->
+            <!--<field name="view_id" ref="ncf_pos.ncf_pos_check_cash_box_form"></field>-->
+            <!--<field name="context">{'cancel': True}</field>-->
+        <!--</record>-->
+
+
+    </data>
+</openerp>
