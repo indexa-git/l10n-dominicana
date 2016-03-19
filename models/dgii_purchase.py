@@ -169,7 +169,7 @@ class DgiiPurchaseReport(models.Model):
         header += self.company_id.vat.zfill(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
-        header += "{:.2f}".format(self.CANTIDAD_REGISTRO).zfill(16)
+        header += "{:.2f}".format(self.CANTIDAD_REGISTRO).zfill(12)
         header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
         header += "{:.2f}".format(self.RETENCION_RENTA).zfill(12)
         lines.append(header)
