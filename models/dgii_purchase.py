@@ -166,7 +166,7 @@ class DgiiPurchaseReport(models.Model):
         lines = []
 
         header = "606"
-        header += self.company_id.vat.zfill(11)
+        header += self.company_id.vat.rjust(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
         header += "{:.2f}".format(self.CANTIDAD_REGISTRO).zfill(12)
