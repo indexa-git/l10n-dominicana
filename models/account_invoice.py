@@ -113,11 +113,11 @@ class AccountInvoice(models.Model):
     total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id",
                                      compute=_get_total_discount)
     credit_out_invoice = fields.Boolean(related="journal_id.credit_out_invoice")
-    authorize = fields.Boolean("Credito autorizado", default=False)
+    authorize = fields.Boolean(u"Crédito autorizado", default=False)
     move_name = fields.Char(string='Journal Entry', readonly=False,
                             default=False, copy=False,
                             help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
-    rate = fields.Float("Taza de hoy", compute=_get_rate)
+    rate = fields.Float(u"Taza del día", compute=_get_rate)
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)',

@@ -86,7 +86,7 @@
                 <xpath expr="//div[@groups='base.group_multi_currency']" position="replace">
                     <field name="company_currency_id" invisible="1"/>
                     <field name="currency_id" options="{'no_create': True, 'no_open': True}" class="oe_inline"/>
-                    <field name="rate" groups="base.group_multi_currency" string="Taza del día"
+                    <field name="rate" groups="base.group_multi_currency"
                            attrs="{'invisible': [('rate','=',1)]}"/>
                 </xpath>
 
@@ -125,7 +125,7 @@
                 </field>
 
                 <field name="currency_id" position="after">
-                    <field name="rate" groups="base.group_multi_currency" string="Taza del día"/>
+                    <field name="rate" groups="base.group_multi_currency"/>
                 </field>
 
             </field>
