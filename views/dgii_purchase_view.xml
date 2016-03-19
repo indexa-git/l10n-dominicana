@@ -16,7 +16,7 @@
                             <field name="company_id" readonly="[('state','=','done')]"/>
                             <field name="year" placeholder="2018" required="1" attrs="{'readonly': [('state','=','done')]}"/>
                             <field name="month" placeholder="12" required="1" attrs="{'readonly': [('state','=','done')]}"/>
-                            <field name="txt" filename="report_name"/>
+                            <field name="txt" filename="txt_filename"/>
                         </group>
                         <group>
                             <field name="CANTIDAD_REGISTRO" readonly="1"/>
