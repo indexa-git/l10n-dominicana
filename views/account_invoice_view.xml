@@ -82,6 +82,14 @@
                     <field name="total_discount"/>
                 </field>
 
+                <xpath expr="//label[@groups='base.group_multi_currency']" position="replace"/>
+                <xpath expr="//div[@groups='base.group_multi_currency']" position="replace">
+                    <field name="company_currency_id" invisible="1"/>
+                    <field name="currency_id" options="{'no_create': True, 'no_open': True}" class="oe_inline"/>
+                    <field name="rate" groups="base.group_multi_currency" string="Taza del día"
+                           attrs="{'invisible': [('rate','=',1)]}"/>
+                </xpath>
+
             </field>
         </record>
 
@@ -114,6 +122,10 @@
 
                 <field name="date_due" position="after">
                     <field name="journal_id"/>
+                </field>
+
+                <field name="currency_id" position="after">
+                    <field name="rate" groups="base.group_multi_currency" string="Taza del día"/>
                 </field>
 
             </field>
