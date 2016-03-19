@@ -77,6 +77,11 @@ class AccountInvoice(models.Model):
         else:
             self.overdue_type = "none"
 
+    @api.depends("currency_id")
+    def _get_rate(self):
+        if self.currency_id:
+            self.rate = 1 / self.currency_id.rate
+
     overdue_type = fields.Selection(
         [('overlimit_overdue', u'Este cliente tiene el limite de crédito agotado y facturas vencidas'),
          ('overlimit', u'Este cliente no tiene crédito disponible'),
@@ -110,8 +115,9 @@ class AccountInvoice(models.Model):
     credit_out_invoice = fields.Boolean(related="journal_id.credit_out_invoice")
     authorize = fields.Boolean("Credito autorizado", default=False)
     move_name = fields.Char(string='Journal Entry', readonly=False,
-        default=False, copy=False,
-        help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
+                            default=False, copy=False,
+                            help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
+    rate = fields.Float("Taza de hoy", compute=_get_rate)
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)',
@@ -224,13 +230,14 @@ class AccountInvoice(models.Model):
 
     @api.model
     def create(self, vals):
-        if vals.get("ncf", False) and vals.get("type", False) in ('in_invoice','in_refund'):
+        if vals.get("ncf", False) and vals.get("type", False) in ('in_invoice', 'in_refund'):
             vals.update({"move_name": vals.get("ncf", False)})
         return super(AccountInvoice, self).create(vals)
 
     @api.multi
     def write(self, vals):
-        if vals.get("ncf", False) and (vals.get("type", False) in ('in_invoice','in_refund') or self.type in ('in_invoice','in_refund')):
+        if vals.get("ncf", False) and (
+                vals.get("type", False) in ('in_invoice', 'in_refund') or self.type in ('in_invoice', 'in_refund')):
             vals.update({"move_name": vals.get("ncf", False) or self.ncf})
         return super(AccountInvoice, self).write(vals)
 
@@ -407,6 +414,7 @@ class AccountInvoice(models.Model):
         self.authorize = False
         self.message_post(body=u"<p>Crédito cancelado con {}</p>".format(overdue_type[self.overdue_type]),
                           subject=u"factura a Crédito no autorizada", subtype="mail.mt_comment")
+
     @api.multi
     def set_ncf(self):
         for inv in self:
