@@ -98,6 +98,7 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
                 description = form.description or inv.name
 
                 refund = inv.refund(form.date_invoice, date, description, inv.journal_id.id)
+
                 if mode == "discount":
                     product_account_id = refund.invoice_line_ids[0].account_id.id
                     refund.write({"invoice_line_ids": [(5, False, False)]})
@@ -150,7 +151,7 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
                             'tax_line_ids': tax_lines,
                             'date': date,
                             'name': description,
-                            'fiscal_position_id': inv.fiscal_position_id.id
+                            'fiscal_position_id': inv.fiscal_position_id.id,
                         })
                         for field in ('partner_id', 'account_id', 'currency_id',
                                       'payment_term_id', 'journal_id'):
