@@ -326,7 +326,8 @@ class PosOrder(models.Model):
                         'search_disable_custom_filters': True,
                         'journal_type': 'sale',
                         'active_model': 'account.invoice',
-                        "default_description": order.origin.invoice_id.name
+                        "default_description": order.origin.invoice_id.name,
+                        "default_refund_ncf": self.reserve_ncf_seq
                         })
 
         refund_inovice = self.env["account.invoice.refund"].with_context(context).create({})
