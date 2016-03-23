@@ -30,9 +30,9 @@
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
                 <field name="parent_id" position="after">
-                    <field name="vat" string="RNC/Cédula" attrs="{'required':[('company_type','=','company')],
-                        'invisible':[('company_type','!=','company')]}"
-                           placeholder="RNC/Cédula"/>
+                    <field name="vat" string="RNC/Cédula" placeholder="RNC/Cédula"/>
+                           <!--attrs="{'required':[('company_type','=','company')], 'invisible':[('company_type','!=','company')]}"-->
+
                 </field>
             </field>
         </record>

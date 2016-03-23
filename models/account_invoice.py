@@ -53,8 +53,18 @@ class AccountInvoice(models.Model):
         return shop_user_config["shop_ids"][0]
 
     def _default_user_journal(self):
-        shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
-        return shop_user_config["sale_journal_ids"][0]
+        if self.type in ("in_invoice", "in_refound"):
+            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+            if not shop_user_config:
+                raise exceptions.ValidationError("Los diarios de ventas no estan configurados corectamente.")
+            else:
+                return shop_user_config["sale_journal_ids"][0]
+        else:
+            res = self.env["account.journal"].search([('type','=','purchase'), ('purchase_type','=','normal')])[0].id
+            if not res:
+                raise exceptions.ValidationError("Debe configurar diarios de compra.")
+            else:
+                return res
 
     @api.one
     def _get_total_discount(self):
@@ -236,6 +246,13 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def write(self, vals):
+        if not vals.get("fiscal_position_id", False):
+            fiscal_position_id = self.env["account.fiscal.position"].search([('client_fiscal_type','=','final')])
+            if not fiscal_position_id:
+                raise exceptions.ValidationError("Antes de generar una factura debe definir las posiciones fiscales.")
+            else:
+                vals.update({"fiscal_position_id": fiscal_position_id.id})
+
         if vals.get("ncf", False) and (
                 vals.get("type", False) in ('in_invoice', 'in_refund') or self.type in ('in_invoice', 'in_refund')):
             vals.update({"move_name": vals.get("ncf", False) or self.ncf})
