@@ -89,8 +89,9 @@ class AccountInvoice(models.Model):
 
     @api.depends("currency_id")
     def _get_rate(self):
-        if self.currency_id:
-            self.rate = 1 / self.currency_id.rate
+        for rec in self:
+            if rec.currency_id:
+                rec.rate = 1 / rec.currency_id.rate
 
     overdue_type = fields.Selection(
         [('overlimit_overdue', u'Este cliente tiene el limite de crédito agotado y facturas vencidas'),
