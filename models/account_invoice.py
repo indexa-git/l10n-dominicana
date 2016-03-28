@@ -449,6 +449,8 @@ class AccountInvoice(models.Model):
                 else:
                     sequence = inv.journal_id.final_sequence_id
 
+                if not sequence:
+                    raise exceptions.ValidationError("Las secuencias para este diario de ventas no estan configuradas.")
                 inv.move_name = sequence.with_context(ir_sequence_date=inv.date_invoice).next_by_id()
 
 
