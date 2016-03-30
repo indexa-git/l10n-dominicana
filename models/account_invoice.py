@@ -60,7 +60,13 @@ class AccountInvoice(models.Model):
             else:
                 return shop_user_config["sale_journal_ids"][0]
         elif self._context.get("type", False) in ("in_invoice", "in_refound"):
-            res = self.env["account.journal"].search([('type','=','purchase'), ('purchase_type','=','normal')])[0].id
+            res = False
+            journal = self.env["account.journal"].search([('type','=','purchase'), ('purchase_type','=','normal')])
+            if not journal:
+                journal = self.env["account.journal"].search([('type','=','purchase')])
+
+            if journal:
+                res = journal[0].id
             if not res:
                 raise exceptions.ValidationError("Debe configurar diarios de compra.")
             else:
