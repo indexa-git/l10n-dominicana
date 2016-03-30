@@ -139,22 +139,99 @@ class AccountTax(models.Model):
 
     @api.v8
     def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None):
-        res = super(AccountTax, self).compute_all(price_unit, currency=currency, quantity=quantity, product=product, partner=partner)
-        # if self.tax_except and res:
-        #     for product_tax in res["taxes"]:
-        #         product_tax["amount"] = 0.0
-        return res
+        """ Returns all information required to apply taxes (in self + their children in case of a tax goup).
+            We consider the sequence of the parent for group of taxes.
+                Eg. considering letters as taxes and alphabetic order as sequence :
+                [G, B([A, D, F]), E, C] will be computed as [A, D, F, C, E, G]
 
-    @api.model
-    def _fix_tax_included_price(self, price, prod_taxes, line_taxes):
-        """Subtract tax amount from price when corresponding "price included" taxes do not apply"""
+        RETURN: {
+            'total_excluded': 0.0,    # Total without taxes
+            'total_included': 0.0,    # Total with taxes
+            'taxes': [{               # One dict for each tax in self and their children
+                'id': int,
+                'name': str,
+                'amount': float,
+                'sequence': int,
+                'account_id': int,
+                'refund_account_id': int,
+                'analytic': boolean,
+            }]
+        } """
+        if len(self) == 0:
+            company_id = self.env.user.company_id
+        else:
+            company_id = self[0].company_id
+        if not currency:
+            currency = company_id.currency_id
+        taxes = []
+        # By default, for each tax, tax amount will first be computed
+        # and rounded at the 'Account' decimal precision for each
+        # PO/SO/invoice line and then these rounded amounts will be
+        # summed, leading to the total amount for that tax. But, if the
+        # company has tax_calculation_rounding_method = round_globally,
+        # we still follow the same method, but we use a much larger
+        # precision when we round the tax amount for each line (we use
+        # the 'Account' decimal precision + 5), and that way it's like
+        # rounding after the sum of the tax amounts of each line
+        prec = currency.decimal_places
+        if company_id.tax_calculation_rounding_method == 'round_globally':
+            prec += 5
+        total_excluded = total_included = base = round(price_unit * quantity, prec)
 
-        if line_taxes.tax_except and line_taxes:
-            return price
+        for tax in self:
+            if tax.amount_type == 'group':
+                ret = tax.children_tax_ids.compute_all(price_unit, currency, quantity, product, partner)
+                total_excluded = ret['total_excluded']
+                base = ret['base']
+                total_included = ret['total_included']
+                tax_amount = total_included - total_excluded
+                taxes += ret['taxes']
+                continue
 
-        incl_tax = prod_taxes.filtered(lambda tax: tax not in line_taxes and tax.price_include)
+            tax_amount = tax._compute_amount(base, price_unit, quantity, product, partner)
 
-        if incl_tax:
-            return incl_tax.compute_all(price)['total_excluded']
+            if tax.tax_except:
+                tax_amount = 0
+            if company_id.tax_calculation_rounding_method == 'round_globally':
+                tax_amount = round(tax_amount, prec)
+            else:
+                tax_amount = currency.round(tax_amount)
 
-        return price
+            if tax.price_include:
+                total_excluded -= tax_amount
+                base -= tax_amount
+            else:
+                total_included += tax_amount
+
+            if tax.include_base_amount:
+                base += tax_amount
+
+            taxes.append({
+                'id': tax.id,
+                'name': tax.name,
+                'amount': tax_amount,
+                'sequence': tax.sequence,
+                'account_id': tax.account_id.id,
+                'refund_account_id': tax.refund_account_id.id,
+                'analytic': tax.analytic,
+            })
+
+        return {
+            'taxes': sorted(taxes, key=lambda k: k['sequence']),
+            'total_excluded': currency.round(total_excluded),
+            'total_included': currency.round(total_included),
+            'base': base,
+        }
+
+    # @api.model
+    # def _fix_tax_included_price(self, price, prod_taxes, line_taxes):
+    #     """Subtract tax amount from price when corresponding "price included" taxes do not apply"""
+    #     if line_taxes.tax_except and line_taxes:
+    #         return price
+    #
+    #     incl_tax = prod_taxes.filtered(lambda tax: tax not in line_taxes and tax.price_include)
+    #
+    #     if incl_tax:
+    #         return incl_tax.compute_all(price)['total_excluded']
+    #
+    #     return price
