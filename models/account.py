@@ -46,6 +46,7 @@ class AccountJournal(models.Model):
                                       ("import", u"Importaciones"),
                                       ],
                                      string=u"Tipo de compra", default="normal")
+    ncf_control = fields.Boolean("Control de NCF")
     ncf_remote_validation = fields.Boolean(u"Validar NCF con DGII", default=True)
     final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para consumidor final")
     fiscal_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para credito fiscal")

@@ -439,7 +439,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def set_ncf(self):
         for inv in self:
-            if inv.type == 'out_invoice' and not inv.move_name:
+            if inv.type == 'out_invoice' and not inv.move_name and inv.journal_id.ncf_control:
                 fiscal_type = inv.fiscal_position_id.client_fiscal_type
                 if fiscal_type == 'fiscal':
                     sequence = inv.journal_id.fiscal_sequence_id

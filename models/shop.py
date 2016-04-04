@@ -109,6 +109,7 @@ class ShopJournalConfig(models.Model):
                      u'suffix': False}
 
         sale_journal = self.env["account.journal"].browse(1)
+        sale_journal.ncf_control = True
 
         if not sale_journal.final_sequence_id:
             seq_values["prefix"] = final_prefix
