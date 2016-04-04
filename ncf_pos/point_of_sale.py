@@ -370,17 +370,19 @@ class PosOrder(models.Model):
             self.partner_id = self.session_id.config_id.default_partner_id.id
 
         fiscal_type = self.partner_id.property_account_position_id.client_fiscal_type
+        sequence = self.sale_journal.sequence_id
 
         if self.amount_total < 0:
             sequence = self.sale_journal.refund_sequence_id
-        elif fiscal_type == 'fiscal':
-            sequence = self.sale_journal.fiscal_sequence_id
-        elif fiscal_type == 'gov':
-            sequence = self.sale_journal.gov_sequence_id
-        elif fiscal_type == 'special':
-            sequence = self.sale_journal.special_sequence_id
-        else:
-            sequence = self.sale_journal.final_sequence_id
+        elif self.sale_journal.ncf_control:
+            if fiscal_type == 'fiscal':
+                sequence = self.sale_journal.fiscal_sequence_id
+            elif fiscal_type == 'gov':
+                sequence = self.sale_journal.gov_sequence_id
+            elif fiscal_type == 'special':
+                sequence = self.sale_journal.special_sequence_id
+            else:
+                sequence = self.sale_journal.final_sequence_id
 
         date_order = self.date_order.split(" ")[0]
         self.reserve_ncf_seq = sequence.with_context(ir_sequence_date=date_order).next_by_id()
