@@ -46,7 +46,8 @@ class AccountMove(models.Model):
         if invoice:
             if invoice.type in ('out_invoice', 'out_refund'):
                 fiscal_position = invoice.fiscal_position_id.client_fiscal_type
-                if fiscal_position != False:
+                ncf_control = invoice.journal_id.ncf_control
+                if fiscal_position != False and ncf_control == True:
                     if fiscal_position != 'final' and invoice.partner_id.vat == False:
                         raise ValidationError(u"Para este tipo de posición fiscal el relacionado debe de tener un RNC/Establecido!")
             invoice.set_ncf()

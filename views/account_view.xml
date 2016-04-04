@@ -31,6 +31,7 @@
             <field name="arch" type="xml">
 
                 <field name="type" position="after">
+                    <field name="ncf_control" attrs="{'invisible': [('type','!=','sale')]}"/>
                     <field name="credit_out_invoice" attrs="{'invisible': [('type','!=','sale')]}"/>
                     <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
                     <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
@@ -45,14 +46,14 @@
                 <xpath expr="//page[@name='journal_entries']" position="inside">
 
                     <group attrs="{'invisible':[('type','!=','sale')]}">
-                        <field name="final_sequence_id"/>
-                        <field name="fiscal_sequence_id"/>
-                        <field name="gov_sequence_id"/>
-                        <field name="special_sequence_id"/>
-                        <field name="unique_sequence_id"/>
+                        <field name="final_sequence_id" attrs="{'invisible': [('ncf_control','!=',True)]}"/>
+                        <field name="fiscal_sequence_id" attrs="{'invisible': [('ncf_control','!=',True)]}"/>
+                        <field name="gov_sequence_id" attrs="{'invisible': [('ncf_control','!=',True)]}"/>
+                        <field name="special_sequence_id" attrs="{'invisible': [('ncf_control','!=',True)]}"/>
+                        <field name="unique_sequence_id" attrs="{'invisible': [('ncf_control','!=',True)]}"/>
                         <field name="refund_sequence_id" string="Secuencia para nota de crédito"
                                attrs="{'invisible': ['|',('type', 'not in', ['sale', 'purchase']), ('refund_sequence', '!=', True)]}"
-                               required="0" groups="base.group_no_one"/>
+                               required="0"/>
                     </group>
 
                 </xpath>
