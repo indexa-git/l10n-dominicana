@@ -40,7 +40,10 @@
         </record>
 
         <menuitem id="marcos_account_dgii_menu" name="DGII" parent="account.menu_finance" sequence="5"
-                  groups="account.group_account_manager"/>
+                  groups="account.group_account_user"/>
+
+        <menuitem id="marcos_account_dgii_flies_menu" name="Archivos" parent="marcos_account_dgii_menu" sequence="5"/>
+
         <menuitem action="invoice_journal_config_action" id="invoice_journal_config_menu"
                   parent="account.account_management_menu"
                   groups="account.group_account_user,account.group_account_manager,account.group_account_invoice"/>

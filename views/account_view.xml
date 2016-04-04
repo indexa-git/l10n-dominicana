@@ -57,6 +57,10 @@
 
                 </xpath>
 
+                <field name="default_credit_account_id" position="after">
+                    <field name="default_dicount_account_id" domain="[('deprecated', '=', False)]"/>
+                </field>
+
             </field>
         </record>
 

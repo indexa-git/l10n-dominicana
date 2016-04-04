@@ -71,7 +71,7 @@
         </record>
 
         <!-- This Menu Item must have a parent and an action -->
-        <menuitem id="ncf_manager_dgii_cancel_report_menu" name="Reporte 608" parent="marcos_account_dgii_menu"
+        <menuitem id="ncf_manager_dgii_cancel_report_menu" name="Reporte 608" parent="marcos_account_dgii_flies_menu"
                   action="ncf_manager_dgii_cancel_report_action" sequence="3"/>
 
     </data>

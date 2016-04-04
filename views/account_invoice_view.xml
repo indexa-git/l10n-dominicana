@@ -99,6 +99,8 @@
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
 
+                <field name="move_name" position="replace"/>
+
                 <xpath expr="//button[@name='invoice_open']" position="replace">
                     <button name="invoice_ncf_validation" type="object" states="draft,proforma2" string="Validate"
                             class="oe_highlight" groups="account.group_account_invoice"/>
@@ -109,7 +111,7 @@
                 <field name="partner_id" position="after">
                     <field name="fiscal_position_id"/>
                     <field name="ncf_required" invisible="1"/>
-                    <field name="ncf" attrs="{'invisible': [('ncf_required','=',False)], 'required': [('ncf_required','=',True)],
+                    <field name="move_name" string="NCF" attrs="{'size': 19, 'invisible': [('ncf_required','=',False)], 'required': [('ncf_required','=',True)],
                     'readonly': [('state','!=','draft')]}"/>
                 </field>
 

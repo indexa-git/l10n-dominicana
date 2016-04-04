@@ -53,7 +53,8 @@ class AccountInvoice(models.Model):
         return shop_user_config["shop_ids"][0]
 
     def _default_user_journal(self):
-        if self._context.get("type", False) in ("out_invoice", "out_refound") or self._context.get("active_model", False) == "sale.order":
+        if self._context.get("type", False) in ("out_invoice", "out_refound") or self._context.get("active_model",
+                                                                                                   False) == "sale.order":
             shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
             if not shop_user_config:
                 raise exceptions.ValidationError("Los diarios de ventas no estan configurados corectamente.")
@@ -61,9 +62,9 @@ class AccountInvoice(models.Model):
                 return shop_user_config["sale_journal_ids"][0]
         elif self._context.get("type", False) in ("in_invoice", "in_refound"):
             res = False
-            journal = self.env["account.journal"].search([('type','=','purchase'), ('purchase_type','=','normal')])
+            journal = self.env["account.journal"].search([('type', '=', 'purchase'), ('purchase_type', '=', 'normal')])
             if not journal:
-                journal = self.env["account.journal"].search([('type','=','purchase')])
+                journal = self.env["account.journal"].search([('type', '=', 'purchase')])
 
             if journal:
                 res = journal[0].id
@@ -119,7 +120,9 @@ class AccountInvoice(models.Model):
     ], string=u"Tipo de anulación", copy=False)
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal", required=False,
                               default=_default_user_shop)
-    ncf = fields.Char("NCF", size=19, copy=False)
+    move_name = fields.Char(string='Journal Entry',
+                            default=False, copy=False,
+                            help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
     ncf_required = fields.Boolean()
     client_fiscal_type = fields.Selection(related="fiscal_position_id.client_fiscal_type")
     supplier_fiscal_type = fields.Selection(related="fiscal_position_id.supplier_fiscal_type")
@@ -141,11 +144,11 @@ class AccountInvoice(models.Model):
          'Invoice Number must be unique per Company!'),
     ]
 
-    @api.onchange("ncf")
+    @api.onchange("move_name")
     def onchange_ncf(self):
-        if self.ncf:
-            if not is_ncf(self.ncf, self.type):
-                self.ncf = False
+        if self.move_name and self.type in ('in_invoice','in_refund'):
+            if not is_ncf(self.move_name, self.type):
+                self.move_name = False
                 return {
                     'warning': {'title': "Ncf invalido", 'message': "El numero de comprobante fiscal no es valido "
                                                                     "verifique de que no esta digitando un comprobante"
@@ -153,13 +156,11 @@ class AccountInvoice(models.Model):
                                                                     "digitado incorrectamente"}
                 }
 
-            self.move_name = self.ncf
-
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
 
         if self.type in ('in_invoice', 'in_refund'):
-            self.ncf = False
+            self.move_name = False
             if self.journal_id.purchase_type == "normal":
                 self.ncf_required = True
             else:
@@ -231,13 +232,13 @@ class AccountInvoice(models.Model):
             if not invoice.journal_id.purchase_type in ['minor', 'informal',
                                                         'exterior'] and invoice.ncf_required == True:
 
-                inv_exist = self.search([('partner_id', '=', invoice.partner_id.id), ('number', '=', invoice.ncf),
+                inv_exist = self.search([('partner_id', '=', invoice.partner_id.id), ('number', '=', invoice.move_name),
                                          ('state', 'in', ('open', 'paid'))])
                 if inv_exist:
                     raise exceptions.Warning(u"Este número de comprobante ya fue registrado para este proveedor!")
 
                 if _internet_on() and self.journal_id.ncf_remote_validation:
-                    result = self._check_ncf(invoice.partner_id.vat, invoice.ncf)
+                    result = self._check_ncf(invoice.partner_id.vat, invoice.move_name)
                     if not result.get("valid", False):
                         raise exceptions.UserError("El numero de comprobante fiscal no es valido! "
                                                    "no paso la validacion en DGII, Verifique que el NCF y el RNC del "
@@ -245,26 +246,19 @@ class AccountInvoice(models.Model):
 
             self.signal_workflow("invoice_open")
 
-    @api.model
-    def create(self, vals):
-        if vals.get("ncf", False) and vals.get("type", False) in ('in_invoice', 'in_refund'):
-            vals.update({"move_name": vals.get("ncf", False)})
-        return super(AccountInvoice, self).create(vals)
-
     @api.multi
     def write(self, vals):
-        if self.type in ("out_invoice", "out_refund"):
-            if not vals.get("fiscal_position_id", False):
-                if not self.fiscal_position_id:
-                    fiscal_position_id = self.env["account.fiscal.position"].search([('client_fiscal_type','=','final')])
-                    if not fiscal_position_id:
-                        raise exceptions.ValidationError("Antes de generar una factura debe definir las posiciones fiscales.")
-                    else:
-                        vals.update({"fiscal_position_id": fiscal_position_id.id})
+        for rec in self:
+            if rec.type in ("out_invoice", "out_refund"):
+                if not vals.get("fiscal_position_id", False):
+                    if not rec.fiscal_position_id:
+                        fiscal_position_id = rec.env["account.fiscal.position"].search([('client_fiscal_type', '=', 'final')])
+                        if not fiscal_position_id:
+                            raise exceptions.ValidationError(
+                                "Antes de generar una factura debe definir las posiciones fiscales.")
+                        else:
+                            vals.update({"fiscal_position_id": fiscal_position_id.id})
 
-        if vals.get("ncf", False) and (
-                vals.get("type", False) in ('in_invoice', 'in_refund') or self.type in ('in_invoice', 'in_refund')):
-            vals.update({"move_name": vals.get("ncf", False) or self.ncf})
         return super(AccountInvoice, self).write(vals)
 
     @api.model
@@ -326,46 +320,47 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def invoice_validate(self):
+        for rec in self:
+            if rec.type == "out_invoice":
+                msg = ""
+                if rec.journal_id.credit_out_invoice == False:
+                    rec.payment_term_id = 1
+                    rec.date_due = fields.Date.today()
+                else:
+                    if rec.overdue_type == "overlimit_overdue":
+                        msg = u"El cliente {} no tiene crédito disponible y facturas vencidas".format(rec.partner_id.name)
+                    elif rec.overdue_type == "overlimit":
+                        msg = u"El cliente {} no tiene crédito disponible".format(rec.partner_id.name)
+                    elif rec.overdue_type == "overdue":
+                        msg = u"El cliente {} tiene facturas vencidas".format(rec.partner_id.name)
 
-        if self.type == "out_invoice":
-            msg = ""
-            if self.journal_id.credit_out_invoice == False:
-                self.payment_term_id = 1
-                self.date_due = fields.Date.today()
-            else:
-                if self.overdue_type == "overlimit_overdue":
-                    msg = u"El cliente no tiene crédito disponible y facturas vencidas"
-                elif self.overdue_type == "overlimit":
-                    msg = u"El cliente no tiene crédito disponible"
-                elif self.overdue_type == "overdue":
-                    msg = u"El cliente tiene facturas vencidas"
+                    if msg and self.authorize == False:
+                        raise exceptions.ValidationError(msg)
 
-                if msg and self.authorize == False:
-                    raise exceptions.ValidationError(msg)
+            if rec.type in ["out_invoice", "in_invoice"]:
+                for line in rec.invoice_line_ids:
+                    line.qty_allow_refund = line.quantity
+            elif rec.type in ["out_refund", "in_refund"]:
+                for line in rec.invoice_line_ids:
+                    if line.product_id:
+                        if line.quantity > line.qty_allow_refund:
+                            raise exceptions.UserError("No puede devolver mas productos de que los facturados.")
+
+                    origin = self.env["account.invoice.line"].browse(line.refund_line_ref.id)
+                    origin.write({"qty_allow_refund": origin.qty_allow_refund - line.quantity})
+
+                refund_inv = self.env['account.invoice'].search([('origin', '=', rec.number), ('state', 'in', ('open', 'paid'))])
+
+                total_refund = sum([rec.amount_untaxed for rec in refund_inv]) + rec.amount_untaxed
+
+                afected_inv = self.env['account.invoice'].search([('number', '=', rec.origin), ('state', 'in', ('open', 'paid'))])
+
+                amount_untaxed = sum([r.amount_untaxed for r in afected_inv]) or 0.0
+
+                if total_refund > amount_untaxed:
+                    raise exceptions.UserError(u"No puede crear notas de credito por un valor mayor a la factura afectada.")
 
         res = super(AccountInvoice, self).invoice_validate()
-
-        if self.type in ["out_invoice", "in_invoice"]:
-            for line in self.invoice_line_ids:
-                line.qty_allow_refund = line.quantity
-        elif self.type in ["out_refund", "in_refund"]:
-            for line in self.invoice_line_ids:
-                if line.product_id:
-                    if line.quantity > line.qty_allow_refund:
-                        raise exceptions.UserError("No puede devolver mas productos de que los facturados.")
-                origin = self.env["account.invoice.line"].browse(line.refund_line_ref.id)
-                origin.write({"qty_allow_refund": origin.qty_allow_refund - line.quantity})
-
-            refund_inv = self.env['account.invoice'].search(
-                [('origin', '=', self.number), ('state', 'in', ('open', 'paid'))])
-            total_refund = sum([rec.amount_untaxed for rec in refund_inv]) + self.amount_untaxed
-            afected_inv = self.env['account.invoice'].search(
-                [('number', '=', self.origin), ('state', 'in', ('open', 'paid'))])
-
-            amount_untaxed = sum([r.amount_untaxed for r in afected_inv]) or 0.0
-
-            if total_refund > amount_untaxed:
-                raise exceptions.UserError(u"No puede crear notas de credito por un valor mayor a la factura afectada.")
         return res
 
     def get_days_between(self, joining_date):
@@ -376,44 +371,44 @@ class AccountInvoice(models.Model):
         delta = current_date - doc_date
         return delta.days
 
-    @api.one
-    def _get_outstanding_info_JSON(self):
-        self.outstanding_credits_debits_widget = json.dumps(False)
-        if self.state == 'open':
-            domain = [('journal_id.type', 'in', ('bank', 'cash', 'sale')), ('account_id', '=', self.account_id.id),
-                      ('partner_id', '=', self.env['res.partner']._find_accounting_partner(self.partner_id).id),
-                      ('reconciled', '=', False), ('amount_residual', '!=', 0.0)]
-            if self.type in ('out_invoice', 'in_refund'):
-                domain.extend([('credit', '>', 0), ('debit', '=', 0)])
-                type_payment = _('Outstanding credits')
-            else:
-                domain.extend([('credit', '=', 0), ('debit', '>', 0)])
-                type_payment = _('Outstanding debits')
-            info = {'title': '', 'outstanding': True, 'content': [], 'invoice_id': self.id}
-            lines = self.env['account.move.line'].search(domain)
-            if len(lines) != 0:
-                for line in lines:
-                    # get the outstanding residual value in invoice currency
-                    # get the outstanding residual value in its currency. We don't want to show it
-                    # in the invoice currency since the exchange rate between the invoice date and
-                    # the payment date might have changed.
-                    if line.currency_id:
-                        currency_id = line.currency_id
-                        amount_to_show = abs(line.amount_residual_currency)
-                    else:
-                        currency_id = line.company_id.currency_id
-                        amount_to_show = abs(line.amount_residual)
-                    info['content'].append({
-                        'journal_name': line.ref or line.move_id.name,
-                        'amount': amount_to_show,
-                        'currency': currency_id.symbol,
-                        'id': line.id,
-                        'position': currency_id.position,
-                        'digits': [69, self.currency_id.decimal_places],
-                    })
-                info['title'] = type_payment
-                self.outstanding_credits_debits_widget = json.dumps(info)
-                self.has_outstanding = True
+    # @api.one
+    # def _get_outstanding_info_JSON(self):
+    #     self.outstanding_credits_debits_widget = json.dumps(False)
+    #     if self.state == 'open':
+    #         domain = [('journal_id.type', 'in', ('bank', 'cash', 'sale')), ('account_id', '=', self.account_id.id),
+    #                   ('partner_id', '=', self.env['res.partner']._find_accounting_partner(self.partner_id).id),
+    #                   ('reconciled', '=', False), ('amount_residual', '!=', 0.0)]
+    #         if self.type in ('out_invoice', 'in_refund'):
+    #             domain.extend([('credit', '>', 0), ('debit', '=', 0)])
+    #             type_payment = _('Outstanding credits')
+    #         else:
+    #             domain.extend([('credit', '=', 0), ('debit', '>', 0)])
+    #             type_payment = _('Outstanding debits')
+    #         info = {'title': '', 'outstanding': True, 'content': [], 'invoice_id': self.id}
+    #         lines = self.env['account.move.line'].search(domain)
+    #         if len(lines) != 0:
+    #             for line in lines:
+    #                 # get the outstanding residual value in invoice currency
+    #                 # get the outstanding residual value in its currency. We don't want to show it
+    #                 # in the invoice currency since the exchange rate between the invoice date and
+    #                 # the payment date might have changed.
+    #                 if line.currency_id:
+    #                     currency_id = line.currency_id
+    #                     amount_to_show = abs(line.amount_residual_currency)
+    #                 else:
+    #                     currency_id = line.company_id.currency_id
+    #                     amount_to_show = abs(line.amount_residual)
+    #                 info['content'].append({
+    #                     'journal_name': line.ref or line.move_id.name,
+    #                     'amount': amount_to_show,
+    #                     'currency': currency_id.symbol,
+    #                     'id': line.id,
+    #                     'position': currency_id.position,
+    #                     'digits': [69, self.currency_id.decimal_places],
+    #                 })
+    #             info['title'] = type_payment
+    #             self.outstanding_credits_debits_widget = json.dumps(info)
+    #             self.has_outstanding = True
 
     @api.one
     def copy(self, default=None):
