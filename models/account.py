@@ -53,6 +53,7 @@ class AccountJournal(models.Model):
     special_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para regimenes especiales")
     unique_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia para unico ingreso")
     credit_out_invoice = fields.Boolean(u"Puede facturar a crédito")
+    default_dicount_account_id = fields.Many2one("account.account", string="Cuenta para descuentos")
 
 
 class AccountFiscalPosition(models.Model):

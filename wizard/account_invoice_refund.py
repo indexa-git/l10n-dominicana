@@ -33,7 +33,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, fields, api, _
+from openerp import models, fields, api, _, exceptions
 from openerp.tools.safe_eval import safe_eval as eval
 from openerp.exceptions import UserError
 import openerp.addons.decimal_precision as dp
@@ -100,7 +100,10 @@ class InheritedAccountInvoiceRefund(models.TransientModel):
                 refund = inv.refund(form.date_invoice, date, description, inv.journal_id.id)
 
                 if mode == "discount":
-                    product_account_id = refund.invoice_line_ids[0].account_id.id
+                    product_account_id = refund.journal_id.default_dicount_account_id.id
+                    if not product_account_id:
+                        raise exceptions.ValidationError("Para poder aplicar descuentos debe de configurar la Cuenta para descuentos del diario")
+
                     refund.write({"invoice_line_ids": [(5, False, False)]})
                     refund.write({"invoice_line_ids": [(0, False, {"name": self.description,
                                                                    "account_id": product_account_id,
