@@ -327,11 +327,11 @@ class AccountInvoice(models.Model):
                     rec.payment_term_id = 1
                     rec.date_due = fields.Date.today()
                 else:
-                    if rec.overdue_type == "overlimit_overdue":
+                    if rec.overdue_type == "overlimit_overdue" and self.env.user.id != 1:
                         msg = u"El cliente {} no tiene crédito disponible y facturas vencidas".format(rec.partner_id.name)
-                    elif rec.overdue_type == "overlimit":
+                    elif rec.overdue_type == "overlimit" and self.env.user.id != 1:
                         msg = u"El cliente {} no tiene crédito disponible".format(rec.partner_id.name)
-                    elif rec.overdue_type == "overdue":
+                    elif rec.overdue_type == "overdue" and self.env.user.id != 1:
                         msg = u"El cliente {} tiene facturas vencidas".format(rec.partner_id.name)
 
                     if msg and self.authorize == False:
