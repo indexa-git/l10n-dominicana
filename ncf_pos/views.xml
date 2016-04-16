@@ -20,6 +20,11 @@
                     <field name="print_note"/>
                 </field>
 
+                <field name="picking_type_id" position="replace">
+                    <field name="picking_type_id" widget="selection" groups="stock.group_locations"
+                        on_change="onchange_picking_type_id(picking_type_id)" required="1"/>
+                </field>
+
             </field>
         </record>
 
