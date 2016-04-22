@@ -14,43 +14,46 @@ odoo.define('pos_manager.chrome', function (require) {
             var cashier = self.pos.get_cashier();
             var order = this.pos.get_order();
 
-            if (order.order_type === "refund") {
-                this.refund_mode();
-            } else {
-                this.order_mode();
-            }
 
-
-            if (order.get_order_type() === "order") {
-                //allow_delete_order
-                if (!cashier.allow_delete_order) {
-                    self.$('.deleteorder-button').toggle(order.is_empty());
-                } else if (cashier.allow_delete_order) {
-                    self.$('.deleteorder-button').show()
+            if (order) {
+                if (order.order_type === "refund") {
+                    this.refund_mode();
+                } else {
+                    this.order_mode();
                 }
 
-                self.$(".button.pay").toggle(cashier.allow_payments);
 
-                //allow_discount
-                self.$el.find("[data-mode='discount']").css('visibility', 'visible');
-                if (cashier.allow_discount === 0) {
-                    self.$el.find("[data-mode='discount']").css('visibility', 'hidden')
-                }
+                if (order.get_order_type() === "order") {
+                    //allow_delete_order
+                    if (!cashier.allow_delete_order) {
+                        self.$('.deleteorder-button').toggle(order.is_empty());
+                    } else if (cashier.allow_delete_order) {
+                        self.$('.deleteorder-button').show()
+                    }
 
-                //allow_edit_price
-                self.$el.find("[data-mode='price']").css('visibility', 'visible');
-                if (!cashier.allow_edit_price) {
-                    self.$el.find("[data-mode='price']").css('visibility', 'hidden')
-                }
+                    self.$(".button.pay").toggle(cashier.allow_payments);
 
-                self.$el.find(".numpad-minus").css('visibility', 'visible');
-                if (!cashier.allow_refund) {
-                    self.$el.find(".numpad-minus").css('visibility', 'hidden')
-                }
+                    //allow_discount
+                    self.$el.find("[data-mode='discount']").css('visibility', 'visible');
+                    if (cashier.allow_discount === 0) {
+                        self.$el.find("[data-mode='discount']").css('visibility', 'hidden')
+                    }
 
-                self.$el.find(".refund-money-button").css('visibility', 'visible');
-                if (!cashier.allow_cash_refund) {
-                    self.$el.find(".refund-money-button").css('visibility', 'hidden')
+                    //allow_edit_price
+                    self.$el.find("[data-mode='price']").css('visibility', 'visible');
+                    if (!cashier.allow_edit_price) {
+                        self.$el.find("[data-mode='price']").css('visibility', 'hidden')
+                    }
+
+                    self.$el.find(".numpad-minus").css('visibility', 'visible');
+                    if (!cashier.allow_refund) {
+                        self.$el.find(".numpad-minus").css('visibility', 'hidden')
+                    }
+
+                    self.$el.find(".refund-money-button").css('visibility', 'visible');
+                    if (!cashier.allow_cash_refund) {
+                        self.$el.find(".refund-money-button").css('visibility', 'hidden')
+                    }
                 }
             }
 

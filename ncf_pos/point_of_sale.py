@@ -268,6 +268,7 @@ class PosOrder(models.Model):
             res.update({"type": ui_paymentline["type"]})
         return res
 
+    # TODO find better way to poup error when not cost on post wit average prive
     @api.model
     def check_if_real_stock_valuation(self, product_ids):
         res = False
@@ -275,7 +276,8 @@ class PosOrder(models.Model):
         zero_cost = [(p.barcode, p.name) for p in product if p.standard_price == 0 and p.cost_method]
         if zero_cost:
             res = [{"label": "{}-{}".format(name[0],name[1])} for name in zero_cost]
-        return res
+        # return res
+        return False
 
     @api.model
     def create_from_ui(self, orders):
