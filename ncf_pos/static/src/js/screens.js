@@ -415,7 +415,8 @@ odoo.define('ncf_pos.screens', function (require) {
             var order = this.pos.get_order();
             var client = order.get_client();
 
-            new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (result) {
+            if (order.get_screen_data('screen') == "receipt") {
+                new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (result) {
 
                 order.set_ncf(result.ncf);
                 var invoice_type = result.fiscal_type_name;
@@ -433,6 +434,10 @@ odoo.define('ncf_pos.screens', function (require) {
                 }));
 
             })
+            } else {
+                this._super();
+            }
+
         }
 
     });
