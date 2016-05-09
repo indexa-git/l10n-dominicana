@@ -86,8 +86,8 @@ class DgiiSaleReport(models.Model):
 
             LINE = line_number
 
-            if not is_identification(inv.partner_id.vat):
-                raise exceptions.ValidationError(u"El número de RNC/Cédula para el proveedor {} no es valido!".format(inv.partner_id.name))
+            # if not is_identification(inv.partner_id.vat):
+            #     raise exceptions.ValidationError(u"El número de RNC/Cédula para el proveedor {} no es valido!".format(inv.partner_id.name))
 
             RNC_CEDULA = inv.partner_id.vat
             TIPO_IDENTIFICACION = "1" if len(RNC_CEDULA.strip()) == 9 else "2"

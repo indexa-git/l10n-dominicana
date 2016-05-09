@@ -39,6 +39,7 @@
                                     <field name="NUMERO_COMPROBANTE_FISCAL"/>
                                     <field name="NUMERO_COMPROBANTE_MODIFICADO"/>
                                     <field name="FECHA_COMPROBANTE"/>
+                                    <field name="FECHA_PAGO"/>
                                     <field name="ITBIS_FACTURADO"/>
                                     <field name="ITBIS_RETENIDO"/>
                                     <field name="MONTO_FACTURADO"/>
