@@ -101,8 +101,8 @@ class DgiiPurchaseReport(models.Model):
                     if line.tax_id.purchase_tax_type == "itbis":
                         ITBIS_TOTAL += line.amount
                         LINE_ITBIS_TOTAL += line.amount
-                    elif line.tax_id.purchase_tax_type == "ritbis":
-                        ITBIS_RETENIDO += line.amount
+                    elif line.tax_id.purchase_tax_type == "ritbis" and inv.state == 'paid':
+                        ITBIS_RETENIDO += abs(line.amount)
                         LINE_ITBIS_RETENIDO += line.amount
                     elif line.tax_id.purchase_tax_type == "isr":
                         RETENCION_RENTA += line.amount
@@ -141,7 +141,7 @@ class DgiiPurchaseReport(models.Model):
                                    "FECHA_COMPROBANTE":FECHA_COMPROBANTE,
                                    "FECHA_PAGO":FECHA_PAGO,
                                    "ITBIS_FACTURADO":LINE_ITBIS_TOTAL,
-                                   "ITBIS_RETENIDO":LINE_ITBIS_RETENIDO,
+                                   "ITBIS_RETENIDO":abs(LINE_ITBIS_RETENIDO),
                                    "MONTO_FACTURADO":inv.amount_untaxed,
                                    "RETENCION_RENTA": LINE_RETENCION_RENTA
                                    }))
@@ -150,15 +150,14 @@ class DgiiPurchaseReport(models.Model):
 
         res = self.write({"report_lines": lines,
                            "CANTIDAD_REGISTRO": CANTIDAD_REGISTRO,
-                           "ITBIS_RETENIDO": ITBIS_RETENIDO,
+                           "ITBIS_RETENIDO": abs(ITBIS_RETENIDO),
                            "ITBIS_TOTAL": ITBIS_TOTAL,
                            "TOTAL_MONTO_FACTURADO": TOTAL_MONTO_FACTURADO,
                            "RETENCION_RENTA": RETENCION_RENTA,
                            "state": "done"})
 
     def generate_txt(self):
-
-        if not self.company_id.vat or not is_identification(self.company_id.vat):
+        if not self.company_id.vat:
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
 
         path = '/tmp/606{}.txt'.format(self.company_id.vat)
@@ -184,7 +183,7 @@ class DgiiPurchaseReport(models.Model):
             ln += line.FECHA_COMPROBANTE.replace("-","")
             ln += line.FECHA_PAGO.replace("-","") if line.FECHA_PAGO else "".rjust(8)
             ln += "{:.2f}".format(line.ITBIS_FACTURADO).zfill(12)
-            ln += "{:.2f}".format(line.ITBIS_RETENIDO).zfill(12)
+            ln += "{:.2f}".format(abs(line.ITBIS_RETENIDO)).zfill(12)
             ln += "{:.2f}".format(line.MONTO_FACTURADO).zfill(12)
             ln += "{:.2f}".format(line.RETENCION_RENTA).zfill(12)
             lines.append(ln)
@@ -201,10 +200,14 @@ class DgiiPurchaseReport(models.Model):
     @api.multi
     def create_report(self):
         start_date, end_date = self.get_date_range()
+
         invoices = self.env["account.invoice"].search([('date_invoice','>=',start_date),
                                                        ('date_invoice','<=',end_date),
                                                        ('state','in',('open','paid')),
                                                        ('type','in',('in_invoice','in_refund'))])
+
+
+        invoices += self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),('payment_move_line_ids.date','<=',end_date),('reconciled','=',True)])
 
         self.create_report_lines(invoices)
         self.generate_txt()
