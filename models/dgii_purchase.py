@@ -102,8 +102,9 @@ class DgiiPurchaseReport(models.Model):
                         ITBIS_TOTAL += line.amount
                         LINE_ITBIS_TOTAL += line.amount
                     elif line.tax_id.purchase_tax_type == "ritbis" and inv.state == 'paid':
-                        ITBIS_RETENIDO += abs(line.amount)
-                        LINE_ITBIS_RETENIDO += line.amount
+                        if int(inv.payment_move_line_ids.date.split("-")[1]) == self.month:
+                            ITBIS_RETENIDO += abs(line.amount)
+                            LINE_ITBIS_RETENIDO += line.amount
                     elif line.tax_id.purchase_tax_type == "isr":
                         RETENCION_RENTA += line.amount
                         LINE_RETENCION_RENTA += line.amount
@@ -113,7 +114,7 @@ class DgiiPurchaseReport(models.Model):
             TIPO_BIENES_SERVICIOS_COMPRADOS = inv.fiscal_position_id.supplier_fiscal_type
 
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
-                raise exceptions.ValidationError(u"Debe de definir el tipo de gasto para la posición fiscal {}!".format(inv.fiscal_position_id.name))
+                raise exceptions.ValidationError(u"Debe de definir el tipo de gasto para la posición fiscal {}! en la factura {}".format(inv.fiscal_position_id.name, inv.number))
 
             if not is_ncf(inv.number, inv.type):
                 raise exceptions.ValidationError(u"El número de NCF {} no es valido!".format(inv.number))
@@ -207,7 +208,10 @@ class DgiiPurchaseReport(models.Model):
                                                        ('type','in',('in_invoice','in_refund'))])
 
 
-        invoices += self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),('payment_move_line_ids.date','<=',end_date),('reconciled','=',True)])
+        invoices += self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),
+                                                        ('payment_move_line_ids.date','<=',end_date),
+                                                        ('reconciled','=',True),
+                                                        ('type','in',('in_invoice','in_refund'))])
 
         self.create_report_lines(invoices)
         self.generate_txt()
