@@ -321,6 +321,8 @@ class AccountInvoice(models.Model):
     @api.multi
     def invoice_validate(self):
         for rec in self:
+            if rec.amount_total == 0:
+                raise exceptions.ValidationError("No puede grabar una factura con valor 0!")
             if rec.type == "out_invoice":
                 msg = ""
                 if rec.journal_id.credit_out_invoice == False:
