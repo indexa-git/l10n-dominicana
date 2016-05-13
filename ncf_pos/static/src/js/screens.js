@@ -263,6 +263,10 @@ odoo.define('ncf_pos.screens', function (require) {
             var order = this.pos.get_order();
             var client = order.get_client();
 
+            if (order.fiscal_position == undefined){
+                return alert("El cliente no tiene posicion fiscal asignada.")
+            }
+
             if (client === undefined) {
                 return "Debe de seleccionar cliente para validar la factura!"
             } else if (order.fiscal_position.client_fiscal_type != 'final' && client.vat == false) {
@@ -364,6 +368,8 @@ odoo.define('ncf_pos.screens', function (require) {
 
                 this.pos.proxy.open_cashbox();
             }
+
+            order.initialize_validation_date();
 
             if (order.is_to_invoice()) {
                 var invoiced = this.pos.push_and_invoice_order(order);

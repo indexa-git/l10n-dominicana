@@ -188,8 +188,6 @@ odoo.define('ncf_pos.models', function (require) {
                 var default_partner_id = self.pos.db.get_partner_by_id(self.pos.config.default_partner_id[0]);
                 self.set_client(default_partner_id);
             }
-
-            this.save_to_db();
         },
         set_client: function (client) {
             var self = this;
@@ -214,6 +212,8 @@ odoo.define('ncf_pos.models', function (require) {
             this.order_type = json.order_type;
             this.origin = json.origin;
             this.origin_ncf = json.origin_ncf;
+
+            return this
         },
         get_order_note: function () {
             return $("#wk_note_id").val();
@@ -339,7 +339,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.credit_ncf = this.get_credit_ncf();
             json.ncf = this.get_ncf();
             json.fiscal_type = this.get_fiscal_type();
-            json.order_note = this.get_order_note()
+            json.order_note = this.get_order_note();
             return json;
         },
         export_for_printing: function () {

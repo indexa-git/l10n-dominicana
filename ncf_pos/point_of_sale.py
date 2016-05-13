@@ -141,10 +141,11 @@ class PosOrder(models.Model):
         INNER JOIN "res_partner"  ON "account_move_line"."partner_id" = "res_partner"."id"
         INNER JOIN "account_account"  ON "account_move_line"."account_id" = "account_account"."id"
         WHERE "account_account"."reconcile" = TRUE AND
+        "account_move_line"."account_id" = {} AND
         "account_move_line"."reconciled" = FALSE AND
         "account_move_line"."amount_residual" {} 0 AND
         "res_partner"."id" = {}
-        """.format(operator, self.partner_id.id)
+        """.format(self.partner_id.property_account_receivable_id.id, operator, self.partner_id.id)
 
         self.env.cr.execute(sql)
         return self.env.cr.fetchall()
@@ -183,9 +184,10 @@ class PosOrder(models.Model):
                 val1 += order._amount_line_tax(line, order.fiscal_position_id)
                 val2 += line.price_subtotal
 
+            order.amount_paid = cur.round(order.amount_paid)
             order.amount_tax = cur.round(val1)
             amount_untaxed = cur.round(val2)
-            order.amount_total = round(order.amount_tax + amount_untaxed, 2)
+            order.amount_total = cur.round(order.amount_tax + amount_untaxed)
 
     amount_tax = fields.Float(compute=_amount_all, string='Taxes', digits=0, multi='all')
     amount_total = fields.Float(compute=_amount_all, string='Total', digits=0, multi='all')
@@ -272,7 +274,7 @@ class PosOrder(models.Model):
     def check_if_real_stock_valuation(self, product_ids):
         res = False
         product = self.env["product.product"].browse(product_ids)
-        zero_cost = [(p.barcode, p.name) for p in product if p.standard_price == 0 and p.cost_method]
+        zero_cost = [(p.barcode, p.name) for p in product if p.standard_price == 0 and p.categ_id.property_valuation != 'manual_periodic']
         if zero_cost:
             res = [{"label": "{}-{}".format(name[0],name[1])} for name in zero_cost]
         return res
@@ -456,6 +458,7 @@ class PosOrder(models.Model):
             rec.statement_ids.fast_counterpart_creation()
 
             credit_docs = self._get_partner_unreconcile("<>")
+
             move_line_ids += [r[0] for r in credit_docs]
 
             debit_docs = self._get_partner_unreconcile_invoice(">", self.invoice_id.id)
@@ -651,6 +654,11 @@ class PosOrder(models.Model):
     @api.multi
     def payment_wizard(self):
         if self.state != "draft_refund_money":
+            if self.amount_paid == self.amount_total and self.test_paid():
+
+                self.generate_ncf_invoice()
+                return True
+
 
             return {
                 'name': _('Payment'),
@@ -782,6 +790,8 @@ class PosConfig(models.Model):
 
     default_partner_id = fields.Many2one("res.partner", string="Cliente de contado")
     print_note = fields.Boolean('Imprimir nota en re recibo', default=True)
+    fiscal_position_ids = fields.Many2many('account.fiscal.position', string='Fiscal Positions', domain=[('supplier','=',False)])
+
 
 
 class ResPartner(models.Model):
