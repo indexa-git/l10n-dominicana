@@ -44,6 +44,7 @@ class AccountJournal(models.Model):
                                       ("informal", u"Proveedor informal"),
                                       ("exterior", u"Pagos al exterior"),
                                       ("import", u"Importaciones"),
+                                      ("others", u"Varios"),
                                       ],
                                      string=u"Tipo de compra", default="normal")
     ncf_control = fields.Boolean("Control de NCF")
