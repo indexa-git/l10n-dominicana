@@ -364,8 +364,8 @@ class AccountInvoice(models.Model):
 
                 amount_untaxed = sum([r.amount_untaxed for r in afected_inv]) or 0.0
 
-                if total_refund > amount_untaxed:
-                    raise exceptions.UserError(u"No puede crear notas de credito por un valor mayor a la factura afectada.")
+                # if total_refund > amount_untaxed:
+                #     raise exceptions.UserError(u"No puede crear notas de credito por un valor mayor a la factura afectada.")
 
         res = super(AccountInvoice, self).invoice_validate()
         return res
