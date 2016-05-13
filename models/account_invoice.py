@@ -97,8 +97,13 @@ class AccountInvoice(models.Model):
     @api.depends("currency_id")
     def _get_rate(self):
         for rec in self:
-            if rec.currency_id:
-                rec.rate = 1 / rec.currency_id.rate
+            if self.company_id.currency_id.id != rec.currency_id.id:
+                if rec.currency_id and self.date_invoice:
+                    rec.rate = 1 / rec.currency_id.with_context(date=self.date_invoice).rate
+
+    @api.onchange("date_invoice")
+    def onchange_date_invoice(self):
+        self._get_rate()
 
     overdue_type = fields.Selection(
         [('overlimit_overdue', u'Este cliente tiene el limite de crédito agotado y facturas vencidas'),
@@ -137,7 +142,7 @@ class AccountInvoice(models.Model):
     move_name = fields.Char(string='Journal Entry', readonly=False,
                             default=False, copy=False,
                             help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
-    rate = fields.Float(u"Taza del día", compute=_get_rate)
+    rate = fields.Float(u"Taza del día", compute=_get_rate, digits=(12,4))
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)',
