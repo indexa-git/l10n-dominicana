@@ -10,75 +10,6 @@ odoo.define('ncf_pos.models', function (require) {
     models.load_fields("res.partner", ['property_account_position_id']);
 
 
-    //models.load_models(
-    //{
-    //    model: 'res.company',
-    //    fields: ['currency_id', 'email', 'website', 'company_registry', 'vat', 'name', 'phone', 'partner_id', 'country_id', 'tax_calculation_rounding_method', 'street', 'street2', "city", 'state_id', 'zip', 'country_id'],
-    //    ids: function (self) {
-    //        return [self.company.id];
-    //    },
-    //    loaded: function (self, companies) {
-    //        self.company = companies[0];
-    //    }
-    //},
-    //{
-    //    model: 'res.users',
-    //    fields: ['name', 'company_id'],
-    //    ids: function (self) {
-    //        return [session.uid];
-    //    },
-    //    loaded: function (self, users) {
-    //        self.user = users[0];
-    //    }
-    //});
-
-    //models.load_models({
-    //    model: 'res.users',
-    //    fields: ['name', 'company_id',
-    //        'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order','allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
-    //    ids: function (self) {
-    //        return [session.uid];
-    //    },
-    //    loaded: function (self, users) {
-    //        self.user = users[0];
-    //    }
-    //});
-
-    //models.load_models({
-    //    model: 'res.users',
-    //    fields: ['name', 'pos_security_pin', 'groups_id', 'barcode',
-    //        'allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order',
-    //        'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit'],
-    //    domain: function (self) {
-    //        return [['company_id', '=', self.user.company_id[0]], '|', ['groups_id', '=', self.config.group_pos_manager_id[0]], ['groups_id', '=', self.config.group_pos_user_id[0]]];
-    //    },
-    //    loaded: function (self, users) {
-    //        // we attribute a role to the user, 'cashier' or 'manager', depending
-    //        // on the group the user belongs.
-    //        var pos_users = [];
-    //        for (var i = 0; i < users.length; i++) {
-    //            var user = users[i];
-    //            for (var j = 0; j < user.groups_id.length; j++) {
-    //                var group_id = user.groups_id[j];
-    //                if (group_id === self.config.group_pos_manager_id[0]) {
-    //                    user.role = 'manager';
-    //                    break;
-    //                } else if (group_id === self.config.group_pos_user_id[0]) {
-    //                    user.role = 'cashier';
-    //                }
-    //            }
-    //            if (user.role) {
-    //                pos_users.push(user);
-    //            }
-    //            // replace the current user with its updated version
-    //            if (user.id === self.user.id) {
-    //                self.user = user;
-    //            }
-    //        }
-    //        self.users = pos_users;
-    //    }
-    //});
-
     var PosModelSuper = models.PosModel;
     models.PosModel = models.PosModel.extend({
         initialize: function () {
@@ -182,6 +113,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.credit = this.credit || 0;
             this.credit_ncf = this.credit_ncf || "";
             this.ncf = this.ncf || "";
+            this.invoice_type = this.invoice_type || "";
             this.fiscal_type = this.fiscal_type || "";
 
             if (!self.get_client()) {
@@ -245,6 +177,13 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_ncf: function () {
             return this.ncf || false
+        },
+        set_fiscal_type_name: function (fiscal_type_name) {
+            this.fiscal_type_name = fiscal_type_name;
+            this.trigger('change', this);
+        },
+        get_fiscal_type_name: function () {
+            return this.fiscal_type_name || false
         },
         set_origin_ncf: function (origin_ncf) {
             this.origin_ncf = origin_ncf;
@@ -338,6 +277,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.credit = this.get_credit();
             json.credit_ncf = this.get_credit_ncf();
             json.ncf = this.get_ncf();
+            json.fiscal_type_name = this.get_fiscal_type_name();
             json.fiscal_type = this.get_fiscal_type();
             json.order_note = this.get_order_note();
             return json;
@@ -351,6 +291,7 @@ odoo.define('ncf_pos.models', function (require) {
             json.credit = this.get_credit();
             json.credit_ncf = this.get_credit_ncf();
             json.ncf = this.get_ncf();
+            json.fiscal_type_name = this.get_fiscal_type_name();
             json.fiscal_type = this.get_fiscal_type();
             return json
         }

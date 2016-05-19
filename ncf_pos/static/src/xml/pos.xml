@@ -39,21 +39,6 @@
                         <input class='detail barcode'       name='barcode'    t-att-value='partner.barcode || ""'></input>
                     </div>
 
-                    <!--<div class='client-detail'>-->
-                    <!--<span class='label'>Postcode</span>-->
-                    <!--<input class='detail client-address-zip'    name='zip'          t-att-value='partner.zip' placeholder='ZIP'></input>-->
-                    <!--</div>-->
-                    <!--<div class='client-detail'>-->
-                    <!--<span class='label'>Country</span>-->
-                    <!--<select class='detail client-address-country' name='country_id'>-->
-                    <!--<option value=''>None</option>-->
-                    <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
-                    <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
-                    <!--<t t-esc='country.name'/>-->
-                    <!--</option>-->
-                    <!--</t>-->
-                    <!--</select>-->
-                    <!--</div>-->
                 </div>
                 <div class='client-details-right'>
                     <div class='client-detail'>
@@ -68,51 +53,12 @@
                         <span class='label'>Email</span>
                         <input class='detail client-email'  name='email'    type='email'    t-att-value='partner.email || ""'></input>
                     </div>
-                    <!--<div class='client-detail'>-->
-                    <!--<span class='label'>Phone</span>-->
-                    <!--<input class='detail client-phone'  name='phone'    type='tel'      t-att-value='partner.phone || ""'></input>-->
-                    <!--</div>-->
-                    <!--<div class='client-detail'>-->
-                    <!--<span class='label'>Tax ID</span>-->
-                    <!--<input class='detail vat'           name='vat'     t-att-value='partner.vat || ""'></input>-->
-                    <!--</div>-->
+
                 </div>
             </div>
         </t>
     </t>
 
-    <!--<t t-extend="ClientDetailsEdit">-->
-    <!--<t t-jquery=".client-detail:last" t-operation="replace"/>-->
-
-    <!--<t t-jquery=".detail.client-name" t-operation="replace">-->
-    <!--<input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Cédula, RNC o Nombre'-->
-    <!--style="width:100%"/>-->
-    <!--</t>-->
-
-    <!--<t t-jquery=".client-details-left .client-detail:last" t-operation="replace"/>-->
-
-    <!--<t t-jquery=".client-details-left" t-operation="prepend">-->
-
-
-    <!--<div class='client-detail'>-->
-    <!--<span class='label'>RNC/Céd</span>-->
-    <!--<input class='detail client-ref' name='vat' t-att-value='partner.vat' placeholder='RNC/Cédula'/>-->
-    <!--</div>-->
-
-    <!--<div class='client-detail'>-->
-    <!--<span class='label'>Country</span>-->
-    <!--<select class='detail client-address-country' name='country_id'>-->
-    <!--<option value=''>None</option>-->
-    <!--<t t-foreach='widget.pos.countries' t-as='country'>-->
-    <!--<option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">-->
-    <!--<t t-esc='country.name'/>-->
-    <!--</option>-->
-    <!--</t>-->
-    <!--</select>-->
-    <!--</div>-->
-    <!--</t>-->
-
-    <!--</t>-->
 
     <t t-extend="ClientDetails">
         <t t-jquery="span.label:contains('Tax ID')" t-operation="replace">
@@ -185,21 +131,22 @@
             <div class="pos-center-align">
                 <div class="pos-center-align"><t t-esc="moment().format('L LT')"/> <t t-esc="order.name"/></div>
                 <strong>
-                <span t-esc="invoice_type"/>
+                <span t-esc="order.fiscal_type_name"/>
                 <br/>
-                <span t-esc="ncf"/>
+                <span t-esc="order.ncf"/>
                 <br/>
                 <t t-if="order.origin_ncf"><span>Afecta: </span><span t-esc="order.origin_ncf"/></t>
                 </strong>
             </div>
 
             <br/>
+            <t t-set="client" t-value="order.get('client')"/>
              <t t-if="client">
                  <span>Cliente:</span><t t-esc="client.name || ''"/>
                  <br t-if="client.vat"/>
                  <t t-if="client.vat"><span>RNC:</span><t t-esc="client.vat"/></t>
-                 <br t-if="client.street"/>
-                 <t t-if="client.street"><span>Dirección:</span><t t-esc="client.street || ''"/></t>
+                 <br t-if="client.address"/>
+                 <t t-if="client.address"><span>Dirección:</span><t t-esc="client.address || ''"/></t>
              </t>
         </t>
 
