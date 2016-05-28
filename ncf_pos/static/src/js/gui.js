@@ -13,7 +13,7 @@ odoo.define('ncf_pos.gui', function (require) {
             if(screen_name == "ncf") {
                 this._super("receipt", params, refresh);
             }
-            else if (screen_name === "receipt" || screen_name === "bill") {
+            else if (screen_name === "receipt") {
                 var self = this;
                 var order = this.pos.get_order();
                 new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (result) {
@@ -24,7 +24,6 @@ odoo.define('ncf_pos.gui', function (require) {
                     self.show_screen_ncf()
                 });
             } else {
-                console.log("super from child")
                 this._super(screen_name, params, refresh);
             }
         }
