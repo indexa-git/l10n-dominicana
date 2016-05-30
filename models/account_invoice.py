@@ -94,14 +94,42 @@ class AccountInvoice(models.Model):
         else:
             self.overdue_type = "none"
 
+    @api.one
     @api.depends("currency_id")
     def _get_rate(self):
-        for rec in self:
-            if self.company_id.currency_id.id != rec.currency_id.id:
-                if rec.currency_id and self.date_invoice:
-                    rec.rate = 1 / rec.currency_id.with_context(date=self.date_invoice).rate
+        if self.currency_id:
+            if self.currency_id.id != self.company_id.currency_id.id:
+                self._cr.execute("""SELECT rate FROM res_currency_rate
+                                   WHERE currency_id = %s
+                                     AND name = %s
+                                     AND (company_id is null
+                                         OR company_id = %s)
+                                ORDER BY company_id, name desc LIMIT 1""",
+                               (self.currency_id.id, self.date_invoice or fields.Date.today(), self.company_id.id))
+                if self._cr.rowcount > 0:
+                    self.rate = 1 / self._cr.fetchone()[0]
+                else:
+                    self.rate = 0
+            else:
+               self.rate = 1
 
-    @api.onchange("date_invoice")
+
+    @api.multi
+    def update_rate_wizard(self):
+        view_id = self.env.ref("ncf_manager.update_rate_wizard_form", True)
+        return {
+            'name': _('Fecha sin tasa, Actualizar tasa de la moneda'),
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'update.rate.wizard',
+            'view_id': view_id.id,
+            'target': 'new',
+            'views': False,
+            'type': 'ir.actions.act_window',
+            'context': {"default_name": self.date_invoice or fields.Date.today(), "default_currency_id": self.currency_id.id}
+        }
+
+    @api.onchange("date_invoice", "currency_id")
     def onchange_date_invoice(self):
         self._get_rate()
 
@@ -142,7 +170,9 @@ class AccountInvoice(models.Model):
     move_name = fields.Char(string='Journal Entry', readonly=False,
                             default=False, copy=False,
                             help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
-    rate = fields.Float(u"Taza del día", compute=_get_rate, digits=(12,4))
+    rate = fields.Float(u"Tasa del día", compute=_get_rate, digits=(12,4))
+    pay_to = fields.Many2one("res.partner", string="Pagar a", readonly=True, states={'draft': [('readonly', False)]}, copy=False)
+    charge_to = fields.Many2one("res.partner", string="Facturar a", readonly=True, states={'draft': [('readonly', False)]}, copy=False)
 
     _sql_constraints = [
         ('number_uniq', 'unique(number, company_id, journal_id, type, partner_id)',

@@ -52,7 +52,7 @@
     'website': "http://marcos.do",
 
     'category': 'Localization',
-    'version': '1.0',
+    'version': '2.0',
 
 
     'depends': ['base','account', 'account_accountant', 'l10n_do','rnc_validation'],
@@ -70,6 +70,7 @@
         'views/account_invoice_state_view.xml',
         'views/account_move_view.xml',
         'wizard/account_invoice_refund_view.xml',
+        'wizard/rate_update_wizard_view.xml',
         'data/setup_ncf.xml'
     ],
     "qweb": ['static/src/xml/base.xml'],
