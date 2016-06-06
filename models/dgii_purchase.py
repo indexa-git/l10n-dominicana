@@ -207,11 +207,11 @@ class DgiiPurchaseReport(models.Model):
                                                        ('state','in',('open','paid')),
                                                        ('type','in',('in_invoice','in_refund'))])
 
-
-        invoices += self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),
-                                                        ('payment_move_line_ids.date','<=',end_date),
-                                                        ('reconciled','=',True),
-                                                        ('type','in',('in_invoice','in_refund'))])
+        #todo fix 606 when have to place retention paymeny day
+        # invoices += self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),
+        #                                                 ('payment_move_line_ids.date','<=',end_date),
+        #                                                 ('reconciled','=',True),
+        #                                                 ('type','in',('in_invoice','in_refund'))])
 
         self.create_report_lines(invoices)
         self.generate_txt()
