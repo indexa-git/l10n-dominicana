@@ -90,7 +90,7 @@ class DgiiSaleReport(models.Model):
             #     raise exceptions.ValidationError(u"El número de RNC/Cédula para el proveedor {} no es valido!".format(inv.partner_id.name))
 
             RNC_CEDULA = inv.partner_id.vat
-            TIPO_IDENTIFICACION = "1" if len(RNC_CEDULA.strip()) == 9 else "2"
+            TIPO_IDENTIFICACION = "1" if len(str(RNC_CEDULA).strip()) == 9 else "2"
 
             if not is_ncf(inv.number, inv.type):
                 raise exceptions.ValidationError(u"El número de NCF {} no es valido!".format(inv.number))
