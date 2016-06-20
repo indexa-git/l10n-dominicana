@@ -190,6 +190,8 @@ class AccountInvoice(models.Model):
                                                                     "de consumidor final codigo 02 o revise si lo ha "
                                                                     "digitado incorrectamente"}
                 }
+            self.invoice_ncf_validation()
+
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
@@ -268,7 +270,7 @@ class AccountInvoice(models.Model):
                                                         'exterior'] and invoice.ncf_required == True:
 
                 inv_exist = self.search([('partner_id', '=', invoice.partner_id.id), ('number', '=', invoice.move_name),
-                                         ('state', 'in', ('open', 'paid'))])
+                                         ('state', 'in', ('open', 'paid', 'draft, cancel'))])
                 if inv_exist:
                     raise exceptions.Warning(u"Este número de comprobante ya fue registrado para este proveedor!")
 
