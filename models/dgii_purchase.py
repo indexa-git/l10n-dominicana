@@ -102,22 +102,24 @@ class DgiiPurchaseReport(models.Model):
                         ITBIS_TOTAL += line.amount
                         LINE_ITBIS_TOTAL += line.amount
                     elif line.tax_id.purchase_tax_type == "ritbis" and inv.state == 'paid':
-                        if int(inv.payment_move_line_ids.date.split("-")[1]) == self.month:
+                        if int(max(inv.payment_move_line_ids).date.split("-")[1]) == self.month:
                             ITBIS_RETENIDO += abs(line.amount)
                             LINE_ITBIS_RETENIDO += line.amount
                     elif line.tax_id.purchase_tax_type == "isr":
                         RETENCION_RENTA += line.amount
                         LINE_RETENCION_RENTA += line.amount
 
+            if not inv.partner_id.vat:
+                raise exceptions.UserError(u"El número de RNC/Cédula del proveedor {} no es valido para el NCF {}".format(inv.partner_id.name, inv.number))
             RNC_CEDULA = inv.partner_id.vat
             TIPO_IDENTIFICACION = "1" if len(RNC_CEDULA.strip()) == 9 else "2"
             TIPO_BIENES_SERVICIOS_COMPRADOS = inv.fiscal_position_id.supplier_fiscal_type
 
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
-                raise exceptions.ValidationError(u"Debe de definir el tipo de gasto para la posición fiscal {}! en la factura {}".format(inv.fiscal_position_id.name, inv.number))
+                raise exceptions.UserError(u"Debe de definir el tipo de gasto para la posición fiscal {}! en la factura {}".format(inv.fiscal_position_id.name, inv.number))
 
             if not is_ncf(inv.number, inv.type):
-                raise exceptions.ValidationError(u"El número de NCF {} no es valido!".format(inv.number))
+                raise exceptions.UserError(u"El número de NCF {} no es valido!".format(inv.number))
 
             NUMERO_COMPROBANTE_MODIFICADO = "".rjust(19)
 
@@ -205,13 +207,15 @@ class DgiiPurchaseReport(models.Model):
         invoices = self.env["account.invoice"].search([('date_invoice','>=',start_date),
                                                        ('date_invoice','<=',end_date),
                                                        ('state','in',('open','paid')),
+                                                       ('journal_id.purchase_type','in',('normal','minor','informal')),
                                                        ('type','in',('in_invoice','in_refund'))])
 
         #todo fix 606 when have to place retention paymeny day
-        # invoices += self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),
-        #                                                 ('payment_move_line_ids.date','<=',end_date),
-        #                                                 ('reconciled','=',True),
-        #                                                 ('type','in',('in_invoice','in_refund'))])
+        invoices += self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),
+                                                        ('payment_move_line_ids.date','<=',end_date),
+                                                        ('journal_id.purchase_type','in',('normal','minor','informal')),
+                                                        ('reconciled','=',True),
+                                                        ('type','in',('in_invoice','in_refund'))])
 
         self.create_report_lines(invoices)
         self.generate_txt()
