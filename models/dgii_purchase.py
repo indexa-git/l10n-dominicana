@@ -216,7 +216,10 @@ class DgiiPurchaseReport(models.Model):
                                                         ('journal_id.purchase_type','in',('normal','minor','informal')),
                                                         ('reconciled','=',True),
                                                         ('type','in',('in_invoice','in_refund'))])
-
+        # import pdb;pdb.set_trace()
+        invoice_ids = [rec.id for rec in invoices]
+        invoice_ids = list(set(invoice_ids))
+        invoices = self.env["account.invoice"].browse(invoice_ids)
         self.create_report_lines(invoices)
         self.generate_txt()
         return True
