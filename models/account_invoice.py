@@ -82,17 +82,18 @@ class AccountInvoice(models.Model):
 
     @api.one
     def _get_overdue_type(self):
-        overdue = self.partner_id.issued_total - self.amount_total
-        credit_available = self.partner_id.credit_limit - (self.partner_id.balance - self.amount_total)
-
-        if self.amount_total > credit_available and overdue > 0:
-            self.overdue_type = "overlimit_overdue"
-        elif self.amount_total > credit_available:
-            self.overdue_type = "overlimit"
-        elif overdue > 0:
-            self.overdue_type = "overdue"
-        else:
-            self.overdue_type = "none"
+        pass
+        # overdue = self.partner_id.issued_total - self.amount_total
+        # credit_available = self.partner_id.credit_limit - (self.partner_id.balance - self.amount_total)
+        #
+        # if self.amount_total > credit_available and overdue > 0:
+        #     self.overdue_type = "overlimit_overdue"
+        # elif self.amount_total > credit_available:
+        #     self.overdue_type = "overlimit"
+        # elif overdue > 0:
+        #     self.overdue_type = "overdue"
+        # else:
+        #     self.overdue_type = "none"
 
     @api.one
     @api.depends("currency_id")
