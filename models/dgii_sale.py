@@ -39,6 +39,7 @@ import base64
 from tools import is_identification, is_ncf
 import time
 
+import re
 
 class DgiiSaleReport(models.Model):
     _name = "dgii.sale.report"
@@ -86,11 +87,12 @@ class DgiiSaleReport(models.Model):
 
             LINE = line_number
 
-            # if not is_identification(inv.partner_id.vat):
-            #     raise exceptions.ValidationError(u"El número de RNC/Cédula para el proveedor {} no es valido!".format(inv.partner_id.name))
-
-            RNC_CEDULA = inv.partner_id.vat
-            TIPO_IDENTIFICACION = "1" if len(str(RNC_CEDULA).strip()) == 9 else "2"
+            if not inv.partner_id.vat:
+                RNC_CEDULA = ""
+                TIPO_IDENTIFICACION = "3"
+            else:
+                RNC_CEDULA = inv.partner_id.vat
+                TIPO_IDENTIFICACION = "1" if len(str(RNC_CEDULA).strip()) == 9 else "2"
 
             if not is_ncf(inv.number, inv.type):
                 raise exceptions.ValidationError(u"El número de NCF {} no es valido!".format(inv.number))
@@ -156,15 +158,17 @@ class DgiiSaleReport(models.Model):
 
     def generate_txt(self):
 
-        if not self.company_id.vat or not is_identification(self.company_id.vat):
+        company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
+
+        if not company_fiscal_identificacion or not is_identification(company_fiscal_identificacion):
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
 
-        path = '/tmp/607{}.txt'.format(self.company_id.vat)
+        path = '/tmp/607{}.txt'.format(company_fiscal_identificacion)
         file = open(path,'w')
         lines = []
 
         header = "607"
-        header += self.company_id.vat.zfill(11)
+        header += company_fiscal_identificacion.zfill(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
         header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
@@ -188,7 +192,7 @@ class DgiiSaleReport(models.Model):
         file.close()
         file = open(path,'rb')
         report = base64.b64encode(file.read())
-        report_name = 'DGII_607_{}_{}{}.TXT'.format(self.company_id.vat, str(self.year), str(self.month).zfill(2))
+        report_name = 'DGII_607_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(self.year), str(self.month).zfill(2))
         self.write({'txt': report, 'txt_name': report_name})
 
     @api.multi
