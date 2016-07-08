@@ -37,6 +37,7 @@ import calendar
 import base64
 from tools import is_identification
 import time
+import re
 
 
 class DgiiExteriorReport(models.Model):
@@ -140,15 +141,18 @@ class DgiiExteriorReport(models.Model):
 
 
     def generate_txt(self):
-        if not self.company_id.vat or not is_identification(self.company_id.vat):
+
+        company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
+
+        if not company_fiscal_identificacion or not is_identification(company_fiscal_identificacion):
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
 
-        path = '/tmp/609{}.txt'.format(self.company_id.vat)
+        path = '/tmp/609{}.txt'.format(company_fiscal_identificacion)
         file = open(path, 'w')
         lines = []
 
         header = "609"
-        header += self.company_id.vat.zfill(11)
+        header += company_fiscal_identificacion.zfill(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
         header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
@@ -173,7 +177,7 @@ class DgiiExteriorReport(models.Model):
         file.close()
         file = open(path, 'rb')
         report = base64.b64encode(file.read())
-        report_name = 'DGII_609_{}_{}{}.TXT'.format(self.company_id.vat, str(self.year), str(self.month).zfill(2))
+        report_name = 'DGII_609_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(self.year), str(self.month).zfill(2))
         self.write({'txt': report, 'txt_name': report_name})
 
 
