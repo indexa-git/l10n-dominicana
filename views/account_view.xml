@@ -125,16 +125,16 @@
 
         <!-- Inherit Form View to Modify it -->
         <!--<record id="ncf_manager_view_account_payment_form_inherited" model="ir.ui.view">-->
-            <!--<field name="name">ncf_manager_view_account_payment_form_inherited</field>-->
-            <!--<field name="model">account.payment</field>-->
-            <!--<field name="inherit_id" ref="account_check_printing.view_account_payment_form_inherited"/>-->
-            <!--<field name="arch" type="xml">-->
+        <!--<field name="name">ncf_manager_view_account_payment_form_inherited</field>-->
+        <!--<field name="model">account.payment</field>-->
+        <!--<field name="inherit_id" ref="account_check_printing.view_account_payment_form_inherited"/>-->
+        <!--<field name="arch" type="xml">-->
 
-                <!--<field name="check_amount_in_words" position="attributes">-->
-                    <!--<attribute name="invisible">1</attribute>-->
-                <!--</field>-->
+        <!--<field name="check_amount_in_words" position="attributes">-->
+        <!--<attribute name="invisible">1</attribute>-->
+        <!--</field>-->
 
-            <!--</field>-->
+        <!--</field>-->
         <!--</record>-->
 
         <record id="ncf_manager_account_payment_method_form" model="ir.ui.view">
@@ -172,6 +172,29 @@
         <menuitem id="UNIQUE_ID_categ" name="Tipo de pagos en diarios" parent="account.account_account_menu"
                   action="ncf_manager_account_payment_method_action" sequence=""/>
 
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="ncf_manager_view_account_move_line_filter" model="ir.ui.view">
+            <field name="name">ncf_manager_view_account_move_line_filter</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+            <field name="arch" type="xml">
+
+                <field name="date" position="after">
+                    <field name="debit"/>
+                    <field name="credit"/>
+                </field>
+
+            </field>
+        </record>
+
+        <record id="account.action_account_moves_all_a" model="ir.actions.act_window">
+            <field name="context">{'journal_type':'general'}</field>
+            <field name="name">Journal Items</field>
+            <field name="res_model">account.move.line</field>
+            <field name="view_id" ref="account.view_move_line_tree"/>
+            <field name="view_mode">tree,form,pivot,graph</field>
+        </record>
 
     </data>
 </openerp>

@@ -156,14 +156,13 @@ class DgiiPurchaseReport(models.Model):
                                    }))
 
 
-
-        res = self.write({"report_lines": lines,
-                           "CANTIDAD_REGISTRO": CANTIDAD_REGISTRO,
-                           "ITBIS_RETENIDO": abs(ITBIS_RETENIDO),
-                           "ITBIS_TOTAL": ITBIS_TOTAL,
-                           "TOTAL_MONTO_FACTURADO": TOTAL_MONTO_FACTURADO,
-                           "RETENCION_RENTA": RETENCION_RENTA,
-                           "state": "done"})
+        self.write({"report_lines": lines,
+                       "CANTIDAD_REGISTRO": CANTIDAD_REGISTRO,
+                       "ITBIS_RETENIDO": abs(ITBIS_RETENIDO),
+                       "ITBIS_TOTAL": ITBIS_TOTAL,
+                       "TOTAL_MONTO_FACTURADO": TOTAL_MONTO_FACTURADO,
+                       "RETENCION_RENTA": RETENCION_RENTA,
+                       "state": "done"})
 
     def generate_txt(self):
 
