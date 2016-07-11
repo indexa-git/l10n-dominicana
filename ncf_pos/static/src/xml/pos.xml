@@ -262,6 +262,10 @@
         </t>
     </t>
 
-
+    <t t-name="OrderlineChangeNameButton">
+        <div class='control-button'>
+            <i class='fa fa-pencil-square-o' /> Descripción
+        </div>
+    </t>
 
 </templates>

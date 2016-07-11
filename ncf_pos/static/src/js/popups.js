@@ -5,6 +5,7 @@ odoo.define('ncf_pos.popups', function (require) {
     var PopUpWidget = require('point_of_sale.popups');
     var gui = require('point_of_sale.gui');
     var _t = require('web.core')._t;
+    var screens = require('point_of_sale.screens');
 
 
     var QuotationPopupWidget = PopUpWidget.extend({
@@ -123,5 +124,29 @@ odoo.define('ncf_pos.popups', function (require) {
 
     gui.define_popup({name: 'QuotationPopup', widget: QuotationPopupWidget});
 
+
+    var OrderlineChangeNameButton = screens.ActionButtonWidget.extend({
+        template: 'OrderlineChangeNameButton',
+        button_click: function () {
+            var line = this.pos.get_order().get_selected_orderline();
+            if (line) {
+                this.gui.show_popup('textarea', {
+                    title: _t('Cambiar descripción'),
+                    value: line.get_note(),
+                    confirm: function (note) {
+                        line.set_note(note);
+                    },
+                });
+            }
+        },
+    });
+
+    screens.define_action_button({
+        'name': 'orderline_note',
+        'widget': OrderlineChangeNameButton,
+        'condition': function () {
+            return this.pos.user.allow_line_rename;
+        },
+    });
 
 });

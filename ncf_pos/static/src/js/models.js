@@ -6,7 +6,7 @@ odoo.define('ncf_pos.models', function (require) {
 
     models.load_fields("product.product", ["tracking"]);
     models.load_fields("res.company", ['street', 'street2', "city", 'state_id', 'zip', 'country_id']);
-    models.load_fields("res.users", ['allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order', 'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit']);
+    models.load_fields("res.users", ['allow_payments', 'allow_delete_order', 'allow_discount', 'allow_edit_price', 'allow_delete_order', 'allow_refund', 'allow_delete_order_line', 'allow_cancel', 'allow_cash_refund', 'allow_credit', 'allow_line_rename']);
     models.load_fields("res.partner", ['property_account_position_id']);
 
 
@@ -27,6 +27,7 @@ odoo.define('ncf_pos.models', function (require) {
             _order_line_super.initialize.apply(this, arguments);
             this.qty_allow_refund = this.qty_allow_refund || 0;
             this.refund_line_ref = this.refund_line_ref || false;
+
         },
         set_discount: function (discount) {
             var self = this;
@@ -144,7 +145,6 @@ odoo.define('ncf_pos.models', function (require) {
             this.order_type = json.order_type;
             this.origin = json.origin;
             this.origin_ncf = json.origin_ncf;
-
             return this
         },
         get_order_note: function () {
