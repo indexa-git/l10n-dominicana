@@ -34,4 +34,3 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 import account_invoice_refund
-import rate_update_wizard

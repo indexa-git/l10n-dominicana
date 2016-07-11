@@ -117,7 +117,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def update_rate_wizard(self):
-        view_id = self.env.ref("ncf_manager.update_rate_wizard_form", True)
+        view_id = self.env.ref("currency_rates_control.update_rate_wizard_form", True)
         return {
             'name': _('Fecha sin tasa, Actualizar tasa de la moneda'),
             'view_type': 'form',

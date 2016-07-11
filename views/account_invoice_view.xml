@@ -14,7 +14,6 @@
                                 groups="base.group_multi_currency"
                                 type="object"
                                 class="oe_stat_button" icon="fa-money"
-                                attrs="{'invisible': [('rate','!=',0)]}"
                                 string="Actualizar Tasa">
                         </button>
                     </div>
@@ -122,7 +121,7 @@
                                 groups="base.group_multi_currency"
                                 class="oe_stat_button" icon="fa-money"
                                 attrs="{'invisible': [('rate','!=',0)]}"
-                                string="Actualizar Tasa"    >
+                                string="Actualizar Tasa">
                         </button>
                     </div>
                 </xpath>

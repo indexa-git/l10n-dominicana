@@ -55,7 +55,7 @@
     'version': '2.0',
 
 
-    'depends': ['base','account', 'account_accountant', 'l10n_do','rnc_validation'],
+    'depends': ['base','account', 'account_accountant', 'l10n_do','rnc_validation', 'currency_rates_control'],
 
     'data': [
         'security/ir.model.access.csv',
@@ -70,7 +70,6 @@
         'views/account_invoice_state_view.xml',
         'views/account_move_view.xml',
         'wizard/account_invoice_refund_view.xml',
-        'wizard/rate_update_wizard_view.xml',
         'data/setup_ncf.xml'
     ],
     "qweb": ['static/src/xml/base.xml'],
