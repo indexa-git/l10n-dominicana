@@ -10,12 +10,20 @@
 
                 <xpath expr="//sheet/label" position="before">
                     <div class="oe_button_box" name="button_box">
-                        <button name="update_rate_wizard"
+                        <button name="update_currency_wizard"
                                 groups="base.group_multi_currency"
                                 type="object"
                                 class="oe_stat_button" icon="fa-money"
-                                string="Actualizar Tasa">
-                        </button>
+                                string="Cambiar moneda de la factura"
+                                states="draft"
+                            />
+
+                        <button name="update_rate_wizard"
+                                groups="base.group_multi_currency"
+                                type="object"
+                                class="oe_stat_button" icon="fa-usd"
+                                string="Actualizar Tasa" states="draft"/>
+
                     </div>
                 </xpath>
 
