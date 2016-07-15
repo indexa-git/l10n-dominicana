@@ -114,6 +114,26 @@ class AccountInvoice(models.Model):
             else:
                self.rate = 1
 
+    @api.onchange("date_invoice", "currency_id")
+    def onchange_date_invoice(self):
+        self._get_rate()
+
+
+    @api.multi
+    def update_currency_wizard(self):
+        view_id = self.env.ref("ncf_manager.invoice_currency_change_wizard_form", True)
+        return {
+            'name': _('Actualizar modena de la factura'),
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'invoice.currency.change.wizard',
+            'view_id': view_id.id,
+            'target': 'new',
+            'views': False,
+            'type': 'ir.actions.act_window',
+            'context': {"default_currency_id": self.currency_id.id}
+        }
+
 
     @api.multi
     def update_rate_wizard(self):
@@ -129,10 +149,6 @@ class AccountInvoice(models.Model):
             'type': 'ir.actions.act_window',
             'context': {"default_name": self.date_invoice or fields.Date.today(), "default_currency_id": self.currency_id.id}
         }
-
-    @api.onchange("date_invoice", "currency_id")
-    def onchange_date_invoice(self):
-        self._get_rate()
 
     overdue_type = fields.Selection(
         [('overlimit_overdue', u'Este cliente tiene el limite de crédito agotado y facturas vencidas'),
