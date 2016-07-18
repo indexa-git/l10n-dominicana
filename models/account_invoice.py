@@ -400,7 +400,8 @@ class AccountInvoice(models.Model):
                 for line in rec.invoice_line_ids:
                     if line.product_id:
                         if line.quantity > line.qty_allow_refund:
-                            raise exceptions.UserError("No puede devolver mas productos de que los facturados.")
+                            pass
+                            # raise exceptions.UserError("No puede devolver mas productos de que los facturados.")
 
                     origin = self.env["account.invoice.line"].browse(line.refund_line_ref.id)
                     origin.write({"qty_allow_refund": origin.qty_allow_refund - line.quantity})
