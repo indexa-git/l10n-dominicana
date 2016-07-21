@@ -55,7 +55,7 @@
     'version': '2.0',
 
 
-    'depends': ['base','account', 'account_accountant', 'l10n_do','rnc_validation', 'currency_rates_control'],
+    'depends': ['base','account', 'account_accountant', 'l10n_do','rnc_validation'],
 
     'data': [
         'security/ir.model.access.csv',
