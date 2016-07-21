@@ -238,3 +238,11 @@ class AccountTax(models.Model):
     #         return incl_tax.compute_all(price)['total_excluded']
     #
     #     return price
+
+class AccountMoveLine(models.Model):
+    _inherit = "account.move.line"
+
+
+    @api.one
+    def duplicate_line(self):
+        self.copy({"debit":0, "credit": 0})
