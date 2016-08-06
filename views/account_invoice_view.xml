@@ -22,7 +22,8 @@
                                 groups="base.group_multi_currency"
                                 type="object"
                                 class="oe_stat_button" icon="fa-usd"
-                                string="Actualizar Tasa" states="draft"/>
+                                string="Actualizar Tasa" states="draft"
+                                />
 
                     </div>
                 </xpath>

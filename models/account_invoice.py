@@ -137,6 +137,8 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def update_rate_wizard(self):
+        if self.currency_id.id == self.env.user.company_id.currency_id.id:
+            raise exceptions.UserError(u"Esta factura se encuentra con la moneda base, solo puede actulizar la tasa para otras monedas!")
         view_id = self.env.ref("currency_rates_control.update_rate_wizard_form", True)
         return {
             'name': _('Fecha sin tasa, Actualizar tasa de la moneda'),
