@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <form string="Cambiar moneda de la factura">
                     <group>
-                        <field name="currency_id"/>
+                        <field name="currency_id" widget="selection"/>
                     </group>
                     <footer>
                         <button name="update_invoice_currency" type="object" string="Cambiar moneda de la factura" class="oe_highlight"/>
