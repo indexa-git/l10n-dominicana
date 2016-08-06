@@ -131,7 +131,7 @@ class AccountInvoice(models.Model):
             'target': 'new',
             'views': False,
             'type': 'ir.actions.act_window',
-            'context': {"default_currency_id": self.currency_id.id}
+            'context': {"currency_id": self.currency_id.id}
         }
 
 

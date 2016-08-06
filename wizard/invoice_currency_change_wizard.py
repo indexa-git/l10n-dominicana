@@ -6,7 +6,13 @@ from openerp import models, fields, api
 class InvoiceCurrecyChangeWizard(models.TransientModel):
     _name = "invoice.currency.change.wizard"
 
-    currency_id = fields.Many2one("res.currency")
+    def _get_currency_domain(self):
+        if self.env.context.get("currency_id", False):
+            return [('id','!=',self.env.context["currency_id"])]
+
+        return[]
+
+    currency_id = fields.Many2one("res.currency", domain=_get_currency_domain, require=True, string="Moneda")
 
     @api.multi
     def update_invoice_currency(self):
