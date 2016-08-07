@@ -122,7 +122,7 @@ class AccountInvoice(models.Model):
     def update_currency_wizard(self):
 
         if not self.date_invoice:
-            raise exceptions.ValidationError(u"Debe indicar la fecha de la factura antes de hacer un cambio de moneda.")
+            self.date_invoice = fields.Date.today()
 
         view_id = self.env.ref("ncf_manager.invoice_currency_change_wizard_form", True)
         return {
