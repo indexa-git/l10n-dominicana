@@ -82,18 +82,17 @@ class AccountInvoice(models.Model):
 
     @api.one
     def _get_overdue_type(self):
-        pass
-        # overdue = self.partner_id.issued_total - self.amount_total
-        # credit_available = self.partner_id.credit_limit - (self.partner_id.balance - self.amount_total)
-        #
-        # if self.amount_total > credit_available and overdue > 0:
-        #     self.overdue_type = "overlimit_overdue"
-        # elif self.amount_total > credit_available:
-        #     self.overdue_type = "overlimit"
-        # elif overdue > 0:
-        #     self.overdue_type = "overdue"
-        # else:
-        #     self.overdue_type = "none"
+        overdue = self.partner_id.issued_total - self.amount_total
+        credit_available = self.partner_id.credit_limit - (self.partner_id.balance - self.amount_total)
+
+        if self.amount_total > credit_available and overdue > 0:
+            self.overdue_type = "overlimit_overdue"
+        elif self.amount_total > credit_available:
+            self.overdue_type = "overlimit"
+        elif overdue > 0:
+            self.overdue_type = "overdue"
+        else:
+            self.overdue_type = "none"
 
     @api.one
     @api.depends("currency_id")
@@ -121,9 +120,13 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def update_currency_wizard(self):
+
+        if not self.date_invoice:
+            raise exceptions.ValidationError(u"Debe indicar la fecha de la factura antes de hacer un cambio de moneda.")
+
         view_id = self.env.ref("ncf_manager.invoice_currency_change_wizard_form", True)
         return {
-            'name': _('Actualizar modena de la factura'),
+            'name': _('Cambiar modena de la factura'),
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'invoice.currency.change.wizard',
@@ -137,8 +140,6 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def update_rate_wizard(self):
-        if self.currency_id.id == self.env.user.company_id.currency_id.id:
-            raise exceptions.UserError(u"Esta factura se encuentra con la moneda base, solo puede actulizar la tasa para otras monedas!")
         view_id = self.env.ref("currency_rates_control.update_rate_wizard_form", True)
         return {
             'name': _('Fecha sin tasa, Actualizar tasa de la moneda'),
@@ -149,7 +150,7 @@ class AccountInvoice(models.Model):
             'target': 'new',
             'views': False,
             'type': 'ir.actions.act_window',
-            'context': {"default_name": self.date_invoice or fields.Date.today(), "default_currency_id": self.currency_id.id}
+            'context': {"default_name": self.date_invoice or fields.Date.today()}
         }
 
     overdue_type = fields.Selection(
@@ -430,44 +431,44 @@ class AccountInvoice(models.Model):
         delta = current_date - doc_date
         return delta.days
 
-    # @api.one
-    # def _get_outstanding_info_JSON(self):
-    #     self.outstanding_credits_debits_widget = json.dumps(False)
-    #     if self.state == 'open':
-    #         domain = [('journal_id.type', 'in', ('bank', 'cash', 'sale')), ('account_id', '=', self.account_id.id),
-    #                   ('partner_id', '=', self.env['res.partner']._find_accounting_partner(self.partner_id).id),
-    #                   ('reconciled', '=', False), ('amount_residual', '!=', 0.0)]
-    #         if self.type in ('out_invoice', 'in_refund'):
-    #             domain.extend([('credit', '>', 0), ('debit', '=', 0)])
-    #             type_payment = _('Outstanding credits')
-    #         else:
-    #             domain.extend([('credit', '=', 0), ('debit', '>', 0)])
-    #             type_payment = _('Outstanding debits')
-    #         info = {'title': '', 'outstanding': True, 'content': [], 'invoice_id': self.id}
-    #         lines = self.env['account.move.line'].search(domain)
-    #         if len(lines) != 0:
-    #             for line in lines:
-    #                 # get the outstanding residual value in invoice currency
-    #                 # get the outstanding residual value in its currency. We don't want to show it
-    #                 # in the invoice currency since the exchange rate between the invoice date and
-    #                 # the payment date might have changed.
-    #                 if line.currency_id:
-    #                     currency_id = line.currency_id
-    #                     amount_to_show = abs(line.amount_residual_currency)
-    #                 else:
-    #                     currency_id = line.company_id.currency_id
-    #                     amount_to_show = abs(line.amount_residual)
-    #                 info['content'].append({
-    #                     'journal_name': line.ref or line.move_id.name,
-    #                     'amount': amount_to_show,
-    #                     'currency': currency_id.symbol,
-    #                     'id': line.id,
-    #                     'position': currency_id.position,
-    #                     'digits': [69, self.currency_id.decimal_places],
-    #                 })
-    #             info['title'] = type_payment
-    #             self.outstanding_credits_debits_widget = json.dumps(info)
-    #             self.has_outstanding = True
+    @api.one
+    def _get_outstanding_info_JSON(self):
+        self.outstanding_credits_debits_widget = json.dumps(False)
+        if self.state == 'open':
+            domain = [('journal_id.type', 'in', ('bank', 'cash', 'sale')), ('account_id', '=', self.account_id.id),
+                      ('partner_id', '=', self.env['res.partner']._find_accounting_partner(self.partner_id).id),
+                      ('reconciled', '=', False), ('amount_residual', '!=', 0.0)]
+            if self.type in ('out_invoice', 'in_refund'):
+                domain.extend([('credit', '>', 0), ('debit', '=', 0)])
+                type_payment = _('Outstanding credits')
+            else:
+                domain.extend([('credit', '=', 0), ('debit', '>', 0)])
+                type_payment = _('Outstanding debits')
+            info = {'title': '', 'outstanding': True, 'content': [], 'invoice_id': self.id}
+            lines = self.env['account.move.line'].search(domain)
+            if len(lines) != 0:
+                for line in lines:
+                    # get the outstanding residual value in invoice currency
+                    # get the outstanding residual value in its currency. We don't want to show it
+                    # in the invoice currency since the exchange rate between the invoice date and
+                    # the payment date might have changed.
+                    if line.currency_id:
+                        currency_id = line.currency_id
+                        amount_to_show = abs(line.amount_residual_currency)
+                    else:
+                        currency_id = line.company_id.currency_id
+                        amount_to_show = abs(line.amount_residual)
+                    info['content'].append({
+                        'journal_name': line.ref or line.move_id.name,
+                        'amount': amount_to_show,
+                        'currency': currency_id.symbol,
+                        'id': line.id,
+                        'position': currency_id.position,
+                        'digits': [69, self.currency_id.decimal_places],
+                    })
+                info['title'] = type_payment
+                self.outstanding_credits_debits_widget = json.dumps(info)
+                self.has_outstanding = True
 
     @api.one
     def copy(self, default=None):
