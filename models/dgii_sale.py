@@ -115,7 +115,9 @@ class DgiiSaleReport(models.Model):
             for line in inv.invoice_line_ids:
                 account_ids  = [l.account_id.id for l in line]
                 move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-                MONTO_FACTURADO += sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])*-1
+
+                MONTO_FACTURADO = sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])*-1
+
                 if inv.type == "out_refund":
                     MONTO_FACTURADO = MONTO_FACTURADO
 
