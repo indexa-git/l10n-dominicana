@@ -170,11 +170,11 @@
                     </td>
                     <td>
                         <t t-esc="orderline.get_product().display_name"/>
-                         <t t-if="orderline.get_note()">
-                             <div class="pos-disc-font">
-                                Nota: <t t-esc="orderline.get_note()"/>
-                            </div>
-                         </t>
+                         <!--<t t-if="orderline.get_note()">-->
+                             <!--<div class="pos-disc-font">-->
+                                <!--Nota: <t t-esc="orderline.get_note()"/>-->
+                            <!--</div>-->
+                         <!--</t>-->
                          <t t-if="orderline.get_discount() > 0">
                             <div class="pos-disc-font">
                                 With a <t t-esc="orderline.get_discount()"/>% discount
