@@ -40,8 +40,7 @@
                                                ('authorize','=',True),
                                                ('type','!=','out_invoice')]}">
                         <h2>Crédito bloqueado</h2>
-                        <button name="authorize_credit" type='object' string="Autorizar crédito"
-                                groups="account.group_account_user"/>
+                        <button name="authorize_credit" type='object' string="Autorizar crédito"/>
                     </div>
                     <div class="alert alert-success" role="alert" style="margin-bottom:0px;"
                          attrs="{'invisible': ['|',('authorize','=',False),
@@ -49,8 +48,7 @@
 
                         <h2>Crédito autorizado</h2>
 
-                        <button name="disallows_credit" type='object' string="Desautorizar crédito"
-                                groups="account.group_account_user"/>
+                        <button name="disallows_credit" type='object' string="Desautorizar crédito"/>
                     </div>
                 </field>
 
