@@ -44,7 +44,7 @@ class InvoiceCurrecyChangeWizard(models.TransientModel):
                 default_currency_id = inv.currency_id.id
 
         if self.currency_id.id != self.env.user.company_id.currency_id.id:
-            if not inv.currency_id._get_rate(self.date_invoice):
+            if not self.currency_id._get_rate(inv.date_invoice):
                 update_curr = True
                 default_currency_id = self.currency_id.id
 
@@ -62,7 +62,6 @@ class InvoiceCurrecyChangeWizard(models.TransientModel):
                 'context': {"default_currency_id": default_currency_id,
                             "default_name": inv.date_invoice or fields.Date.today()}
             }
-
 
         if self.currency_id.id != inv.currency_id.id:
             if self.currency_id.id == self.env.user.company_id.currency_id.id:
