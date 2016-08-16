@@ -478,23 +478,25 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def authorize_credit(self):
-        overdue_type = {'overlimit_overdue': u'Este cliente, tiene el limite de crédito agotado y facturas vencidas',
-                        'overlimit': u'Este cliente, no tiene crédito disponible',
-                        'overdue': 'Este cliente, tiene facturas vencidas',
-                        'none': 'None'}
-        self.authorize = True
-        self.message_post(body=u"<p>Crédito autorizado con {}</p>".format(overdue_type[self.overdue_type]),
-                          subject=u"factura a Crédito Autorizada", subtype="mail.mt_comment")
+        for rec in self:
+            overdue_type = {'overlimit_overdue': u'Este cliente, tiene el limite de crédito agotado y facturas vencidas',
+                            'overlimit': u'Este cliente, no tiene crédito disponible',
+                            'overdue': 'Este cliente, tiene facturas vencidas',
+                            'none': 'None'}
+            rec.authorize = True
+            rec.message_post(body=u"<p>Crédito autorizado con {}</p>".format(overdue_type[rec.overdue_type]),
+                              subject=u"factura a Crédito Autorizada", subtype="mail.mt_comment")
 
     @api.multi
     def disallows_credit(self):
-        overdue_type = {'overlimit_overdue': u'Este cliente, tiene el limite de crédito agotado y facturas vencidas',
-                        'overlimit': u'Este cliente, no tiene crédito disponible',
-                        'overdue': 'Este cliente, tiene facturas vencidas',
-                        'none': 'None'}
-        self.authorize = False
-        self.message_post(body=u"<p>Crédito cancelado con {}</p>".format(overdue_type[self.overdue_type]),
-                          subject=u"factura a Crédito no autorizada", subtype="mail.mt_comment")
+        for rec in self:
+            overdue_type = {'overlimit_overdue': u'Este cliente, tiene el limite de crédito agotado y facturas vencidas',
+                            'overlimit': u'Este cliente, no tiene crédito disponible',
+                            'overdue': 'Este cliente, tiene facturas vencidas',
+                            'none': 'None'}
+            rec.authorize = False
+            rec.message_post(body=u"<p>Crédito cancelado con {}</p>".format(overdue_type[rec.overdue_type]),
+                              subject=u"factura a Crédito no autorizada", subtype="mail.mt_comment")
 
     @api.multi
     def set_ncf(self):
