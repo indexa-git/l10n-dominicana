@@ -2,6 +2,21 @@
 <openerp>
     <data>
 
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="inherit_view_company_inherit_form" model="ir.ui.view">
+            <field name="name">inherit_view_company_inherit_form</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="account.view_company_inherit_form"/>
+            <field name="arch" type="xml">
+
+                <field name="tax_calculation_rounding_method" position="after">
+                    <field name="payment_tax_on_606"/>
+                </field>
+
+            </field>
+        </record>
+
         <record id="ncf_manager_dgii_purchase_report_form" model="ir.ui.view">
             <field name="name">ncf manager dgii purchase report form</field>
             <field name="model">dgii.purchase.report</field>

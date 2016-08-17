@@ -41,6 +41,12 @@ import time
 import re
 
 
+class ResCompany(models.Model):
+    _inherit = "res.company"
+
+    payment_tax_on_606 = fields.Boolean("Reportar retenciones del 606 en la fecha del pago")
+
+
 class DgiiPurchaseReport(models.Model):
     _name = "dgii.purchase.report"
 
@@ -97,6 +103,7 @@ class DgiiPurchaseReport(models.Model):
             LINE_ITBIS_TOTAL = 0
             LINE_ITBIS_RETENIDO = 0
             LINE_RETENCION_RENTA = 0
+            LINE_TAX_COST = 0
 
 
             move_lines = [move_line for move_line in inv.move_id.line_ids if move_line.account_id.id in account_tax_ids]
@@ -112,6 +119,11 @@ class DgiiPurchaseReport(models.Model):
                 elif tax_account[move_line.account_id.id] == "isr":
                     RETENCION_RENTA += amount
                     LINE_RETENCION_RENTA += amount
+                elif tax_account[move_line.account_id.id] == "cost" and move_line.tax_line_id:
+                    print amount
+                    print inv.number
+                    LINE_TAX_COST += amount
+                    TOTAL_MONTO_FACTURADO += amount
 
             if not inv.partner_id.vat:
                 raise exceptions.UserError(u"El número de RNC/Cédula del proveedor {} no es valido para el NCF {}".format(inv.partner_id.name, inv.number))
@@ -151,7 +163,7 @@ class DgiiPurchaseReport(models.Model):
                                    "FECHA_PAGO":FECHA_PAGO,
                                    "ITBIS_FACTURADO":LINE_ITBIS_TOTAL,
                                    "ITBIS_RETENIDO":abs(LINE_ITBIS_RETENIDO),
-                                   "MONTO_FACTURADO":inv.amount_untaxed,
+                                   "MONTO_FACTURADO":inv.amount_untaxed+LINE_TAX_COST,
                                    "RETENCION_RENTA": LINE_RETENCION_RENTA
                                    }))
 
@@ -229,19 +241,22 @@ class DgiiPurchaseReport(models.Model):
                                                        ('journal_id.purchase_type','in',('normal','minor','informal')),
                                                        ('type','in',('in_invoice','in_refund'))])
 
-        #todo fix 606 when have to place retention paymeny day
-        paid_in_period_with_retention_invoices = self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),
-                                                        ('payment_move_line_ids.date','<=',end_date),
-                                                        ('journal_id.purchase_type','in',('normal','minor','informal')),
-                                                        ('reconciled','=',True),
-                                                        ('type','in',('in_invoice','in_refund'))])
+        if self.env.user.company_id.payment_tax_on_606:
+            #todo fix 606 when have to place retention paymeny day
+            paid_in_period_with_retention_invoices = self.env["account.invoice"].search([('payment_move_line_ids.date','>=',start_date),
+                                                            ('payment_move_line_ids.date','<=',end_date),
+                                                            ('journal_id.purchase_type','in',('normal','minor','informal')),
+                                                            ('reconciled','=',True),
+                                                            ('type','in',('in_invoice','in_refund'))])
 
-        for inv_paid in paid_in_period_with_retention_invoices:
-            account_ids = [move_id.account_id.id for move_id in inv_paid.move_id.line_ids]
-            for account in account_ids:
-                if tax_account.get(account, "") in ('ritbis','isr'):
-                    invoices += inv_paid
-                    continue
+
+
+            for inv_paid in paid_in_period_with_retention_invoices:
+                account_ids = [move_id.account_id.id for move_id in inv_paid.move_id.line_ids]
+                for account in account_ids:
+                    if tax_account.get(account, "") in ('ritbis','isr'):
+                        invoices += inv_paid
+                        continue
 
 
         invoice_ids = [rec.id for rec in invoices]
