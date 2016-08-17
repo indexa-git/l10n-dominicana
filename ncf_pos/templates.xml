@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="assets_backend" name="pos_multi_session assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="/ncf_pos/static/src/css/ncf_pos.css"/>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/models.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/gui.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/screens.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/chrome.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/transcoder.js"></script>
+                <script type="text/javascript" src="/ncf_pos/static/src/js/popups.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>

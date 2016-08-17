@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="ncf_pos.view_pos_payment" model="ir.ui.view">
+            <field name="name">ncf_pos.view_pos_payment</field>
+            <field name="model">pos.make.payment</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
+            <field name="arch" type="xml">
+                <field name="amount" position="replace"/>
+                <field name="journal_id" position="replace">
+
+                    <field name="journal_id" options="{'no_open':True,'no_create':True}" widget="radio"
+                           attrs="{'invisible': [('amount','=',0)]}" class="journal_id_payment_class"/>
+                    <field name="credit"/>
+                    <field name="journal_type" invisible="1"/>
+                    <field name="amount" attrs="{'readonly': ['|',('amount','=',0)]}" class="amount_input_payment_class"
+                           autofocus="autofocus">
+                    </field>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_pos_payment_refund" model="ir.ui.view">
+            <field name="name">view_pos_payment_refund</field>
+            <field name="model">pos.make.payment.refund</field>
+            <field name="arch" type="xml">
+                <form string="Aplicar pagos">
+                    <html>
+                        <div class="row" style="text-align: center;">
+
+                            <div class="alert alert-warning" role="alert">
+                                <span>
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                    <strong> Advertencia! </strong>
+                                    Debe de digitar el valor a devolver de acuerdo a las formaa de pago.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row" style="text-align: center;" attrs="{'invisible': [('refunded','&lt;=',0)]}">
+                            <div class="alert alert-info" role="alert">
+                                <span>
+                                    <i class="fa fa-money"></i>
+                                    Devolver <strong><field name="refunded" style="display: inline;"/></strong> de
+                                    <strong><field name="total_refund" style="display: inline;"/></strong>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row" style="text-align: center;" attrs="{'invisible': [('refunded','!=',0)]}">
+                            <div class="alert alert-success" role="alert">
+                                <span>
+                                    <i class="fa fa-thumbs-o-up"></i>
+                                    <strong> Perfecto! </strong>ya puede devolver el pago.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row" style="text-align: center;" attrs="{'invisible': [('refunded','&gt;=',0)]}">
+                            <div class="alert alert-danger" role="alert">
+                                <span>
+                                    <i class="fa fa-thumbs-o-down"></i>
+                                    <strong> Muy mal! </strong> no puede devolver un valor mayor al de la devolución.
+                                </span>
+                            </div>
+                        </div>
+                    </html>
+                    <field name="lines">
+                        <tree editable="top" create="0" open="0">
+                            <field name="journal_id"/>
+                            <field name="amount"/>
+                            <field name="refund"/>
+                        </tree>
+                    </field>
+                    <footer>
+                        <button name="refund_payment" type="object" string="Devolver el pago" class="oe_highlight"
+                        attrs="{'invisible': [('refunded','!=',0)]}"/>
+                        <button special="cancel" string="Cancelar" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>
+
