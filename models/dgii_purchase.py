@@ -120,8 +120,6 @@ class DgiiPurchaseReport(models.Model):
                     RETENCION_RENTA += amount
                     LINE_RETENCION_RENTA += amount
                 elif tax_account[move_line.account_id.id] == "cost" and move_line.tax_line_id:
-                    print amount
-                    print inv.number
                     LINE_TAX_COST += amount
                     TOTAL_MONTO_FACTURADO += amount
 
