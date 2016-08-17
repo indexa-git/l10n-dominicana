@@ -135,6 +135,7 @@ class AccountTax(models.Model):
     purchase_tax_type = fields.Selection([('itbis','ITBIS Pagado'),
                                           ('ritbis','ITBIS Retenido'),
                                           ('isr','ISR Retenido'),
+                                          ("cost", u"Format parte del gasto"),
                                           ('none','No deducible')],
                                          default="itbis", string="Tipo de impuesto de compra")
     tax_except = fields.Boolean(string="Exento de este impuesto")
