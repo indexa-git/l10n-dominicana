@@ -196,20 +196,5 @@
             <field name="view_mode">tree,form,pivot,graph</field>
         </record>
 
-
-        <!-- Inherit Form View to Modify it -->
-        <record id="ncf_manager_view_move_form" model="ir.ui.view">
-            <field name="name">ncf_manager_view_move_form</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.view_move_form"/>
-            <field name="arch" type="xml">
-
-                <xpath expr="//tree//field[@name='partner_id']" position="before">
-                    <button name="duplicate_line" type="object" icon="gtk-copy" string="Duplicar"/>
-                </xpath>
-
-            </field>
-        </record>
-
     </data>
 </openerp>
