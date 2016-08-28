@@ -32,7 +32,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, fields, api, exceptions, tools
+from openerp import models, fields, api, exceptions, tools, registry
 
 import time
 import openerp.addons.decimal_precision as dp
@@ -40,14 +40,22 @@ from openerp.tools.translate import _
 from openerp.osv import osv
 from datetime import datetime
 
+import logging
+from threading import Thread, Lock
+from Queue import Queue
+_logger = logging.getLogger(__name__)
 
 class PosSession(osv.osv):
     _inherit = ['pos.session', 'mail.thread', 'ir.needaction_mixin']
     _name = "pos.session"
 
     def _confirm_orders(self, cr, uid, ids, context=None):
+
         pos_order_obj = self.pool.get('pos.order')
         for session in self.browse(cr, uid, ids, context=context):
+            if session.config_id.create_invoice_from_cron:
+                cron_id = self.pool["ir.model.data"].xmlid_to_res_id(cr, uid, "ncf_pos.ir_cron_ptv_create_invoice")
+                self.pool["ir.cron"].method_direct_trigger(cr, uid, [cron_id], context=context)
             company_id = session.config_id.journal_id.company_id.id
             local_context = dict(context or {}, force_company=company_id)
             order_ids = [order.id for order in session.order_ids if order.state == 'paid']
@@ -95,6 +103,76 @@ class PosSession(osv.osv):
             'tag': 'reload',
             'params': {'menu_id': obj},
         }
+
+
+class PosOrderLine(models.Model):
+    _inherit = "pos.order.line"
+
+    qty_allow_refund = fields.Float(string='qty allow refund', digits=dp.get_precision('Product Unit of Measure'),
+                                    copy=False, required=False)
+    refund_line_ref = fields.Many2one("pos.order.line", string="origin line refund", copy=False)
+    note = fields.Char("Nota")
+    prodlot_id = fields.Many2one('stock.production.lot', 'Serial No')
+
+
+class PosConfig(models.Model):
+    _inherit = 'pos.config'
+
+    default_partner_id = fields.Many2one("res.partner", string="Cliente de contado")
+    print_note = fields.Boolean('Imprimir nota en re recibo', default=True)
+    fiscal_position_ids = fields.Many2many('account.fiscal.position', string='Fiscal Positions', domain=[('supplier','=',False)])
+    create_invoice_from_cron = fields.Boolean(string="Crear facturas en segundo plano", help=u"Esta opción permite que despues de "
+                                                                                             u"validar un pedido la facturam el conduce, y el pago"
+                                                                                             u"se ejecuten en segundo plano permitiendo que el proceso "
+                                                                                             u"para el cliente sea de inmediato.")
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    @api.model
+    def create_from_ui(self, partner):
+        """ create or modify a partner from the point of sale ui.
+            partner contains the partner's fields. """
+        # image is a dataurl, get the data after the comma
+
+
+
+        try:
+            name = partner.get("name", False)
+            if isinstance(int(name), (int,)):
+                partner_exist = self.search([('vat', '=', name)])
+                if partner_exist:
+                    if partner.get("property_account_position_id", False):
+                        partner.pop("property_account_position_id", None)
+                    partner.update({"id": partner_exist[0].id,
+                                    "name": partner_exist.name})
+        except:
+            pass
+
+        if partner.get('image', False):
+            img = partner['image'].split(',')[1]
+            partner['image'] = img
+
+        property_account_position_id = partner.get("property_account_position_id", False)
+        if property_account_position_id:
+            partner.update({"property_account_position_id": int(property_account_position_id)})
+
+        if partner.get('id', False):  # Modifying existing partner
+            partner_id = partner['id']
+            del partner['id']
+            self.browse(partner_id).write(partner)
+        else:
+            partner_id = self.create(partner)
+            return partner_id.id
+
+        return partner_id
+
+
+class OrderInfoTags(models.Model):
+    _name = "order.info.tags"
+
+    name = fields.Char("Info")
 
 
 class PosOrder(models.Model):
@@ -297,14 +375,30 @@ class PosOrder(models.Model):
         res = super(PosOrder, self).create_from_ui(orders)
 
         for order_id in res:
-            self.browse(order_id).set_reserve_ncf_seq()
-            self.env.cr.commit()
-            order = self.browse(order_id)
+            new_order = self.browse(order_id)
+            new_order.set_reserve_ncf_seq()
+            if new_order.session_id.config_id.create_invoice_from_cron:
+                break
+            else:
+                # self.env.cr.commit()
+                order = self.browse(order_id)
+                if order.origin:
+                    order.with_context(context).create_refund_invoice()
+                else:
+                    order.with_context(context).generate_ncf_invoice()
+        return res
+
+    @api.model
+    def cron_ncf_generate(self):
+        orders = self.search([('state','=','draft'),('reserve_ncf_seq','!=',False)])
+        context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1, "from_ui": True}
+        for order in orders:
             if order.origin:
                 order.with_context(context).create_refund_invoice()
             else:
                 order.with_context(context).generate_ncf_invoice()
-        return res
+            _logger.info("PTV GENERO LA FACTURA {}".format(order.reserve_ncf_seq))
+
 
     @api.model
     def action_paid(self):
@@ -440,8 +534,8 @@ class PosOrder(models.Model):
         }
         return abs
 
+    @api.model
     def generate_ncf_invoice(self):
-
         self.write({'state': 'paid'})
         self._cr.execute("update pos_order_line set qty_allow_refund = qty where order_id = {}".format(self.id))
         self.action_invoice()
@@ -450,7 +544,7 @@ class PosOrder(models.Model):
         self.invoice_id.signal_workflow("invoice_open")
         self.action_paid_reconcile()
 
-    @api.model
+    @api.multi
     def action_paid_reconcile(self):
 
         for rec in self:
@@ -773,70 +867,3 @@ class PosOrder(models.Model):
                 move_obj.force_assign()
                 move_obj.action_done()
         return True
-
-
-class PosOrderLine(models.Model):
-    _inherit = "pos.order.line"
-
-    qty_allow_refund = fields.Float(string='qty allow refund', digits=dp.get_precision('Product Unit of Measure'),
-                                    copy=False, required=False)
-    refund_line_ref = fields.Many2one("pos.order.line", string="origin line refund", copy=False)
-    note = fields.Char("Nota")
-    prodlot_id = fields.Many2one('stock.production.lot', 'Serial No')
-
-
-class PosConfig(models.Model):
-    _inherit = 'pos.config'
-
-    default_partner_id = fields.Many2one("res.partner", string="Cliente de contado")
-    print_note = fields.Boolean('Imprimir nota en re recibo', default=True)
-    fiscal_position_ids = fields.Many2many('account.fiscal.position', string='Fiscal Positions', domain=[('supplier','=',False)])
-
-
-
-class ResPartner(models.Model):
-    _inherit = 'res.partner'
-
-    @api.model
-    def create_from_ui(self, partner):
-        """ create or modify a partner from the point of sale ui.
-            partner contains the partner's fields. """
-        # image is a dataurl, get the data after the comma
-
-
-
-        try:
-            name = partner.get("name", False)
-            if isinstance(int(name), (int,)):
-                partner_exist = self.search([('vat', '=', name)])
-                if partner_exist:
-                    if partner.get("property_account_position_id", False):
-                        partner.pop("property_account_position_id", None)
-                    partner.update({"id": partner_exist[0].id,
-                                    "name": partner_exist.name})
-        except:
-            pass
-
-        if partner.get('image', False):
-            img = partner['image'].split(',')[1]
-            partner['image'] = img
-
-        property_account_position_id = partner.get("property_account_position_id", False)
-        if property_account_position_id:
-            partner.update({"property_account_position_id": int(property_account_position_id)})
-
-        if partner.get('id', False):  # Modifying existing partner
-            partner_id = partner['id']
-            del partner['id']
-            self.browse(partner_id).write(partner)
-        else:
-            partner_id = self.create(partner)
-            return partner_id.id
-
-        return partner_id
-
-
-class OrderInfoTags(models.Model):
-    _name = "order.info.tags"
-
-    name = fields.Char("Info")

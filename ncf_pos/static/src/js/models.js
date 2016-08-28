@@ -3,6 +3,7 @@ odoo.define('ncf_pos.models', function (require) {
 
     var models = require('point_of_sale.models');
     var session = require('web.session');
+    var Model = require('web.DataModel');
 
     models.load_fields("product.product", ["tracking"]);
     models.load_fields("res.company", ['street', 'street2', "city", 'state_id', 'zip', 'country_id']);
@@ -11,6 +12,7 @@ odoo.define('ncf_pos.models', function (require) {
 
 
     var PosModelSuper = models.PosModel;
+
     models.PosModel = models.PosModel.extend({
         initialize: function () {
             PosModelSuper.prototype.initialize.apply(this, arguments);
@@ -18,6 +20,64 @@ odoo.define('ncf_pos.models', function (require) {
         set_cashier: function (user) {
             this.cashier = user;
             this.chrome.check_allow_delete_order();
+        },
+        // send an array of orders to the server
+        // available options:
+        // - timeout: timeout for the rpc call in ms
+        // returns a deferred that resolves with the list of
+        // server generated ids for the sent orders
+        _save_to_server: function (orders, options) {
+            if (!orders || !orders.length) {
+                var result = $.Deferred();
+                result.resolve([]);
+                return result;
+            }
+
+            options = options || {};
+
+            var self = this;
+            var timeout = typeof options.timeout === 'number' ? options.timeout : 97500 * orders.length;
+
+            // we try to send the order. shadow prevents a spinner if it takes too long. (unless we are sending an invoice,
+            // then we want to notify the user that we are waiting on something )
+            var posOrderModel = new Model('pos.order');
+            return posOrderModel.call('create_from_ui',
+                [_.map(orders, function (order) {
+                    order.to_invoice = options.to_invoice || false;
+                    return order;
+                })],
+                undefined,
+                {
+                    shadow: !options.to_invoice,
+                    timeout: timeout
+                }
+            ).then(function (server_ids) {
+                _.each(orders, function (order) {
+                    self.db.remove_order(order.id);
+                });
+                self.set('failed', false);
+                return server_ids;
+            }).fail(function (error, event) {
+                if (error.code === 200) {    // Business Logic Error, not a connection problem
+                    //if warning do not need to display traceback!!
+                    if (error.data.exception_type == 'warning') {
+                        delete error.data.debug;
+                    }
+
+                    // Hide error if already shown before ...
+                    if ((!self.get('failed') || options.show_error) && !options.to_invoice) {
+                        self.gui.show_popup('error-traceback', {
+                            'title': error.data.message,
+                            'body': error.data.debug
+                        });
+                    }
+                    self.set('failed', error)
+                }
+                // prevent an error popup creation by the rpc failure
+                // we want the failure to be silent as we send the orders in the background
+                event.preventDefault();
+                console.error('Failed to send orders:', orders);
+            });
         }
     });
 

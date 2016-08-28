@@ -141,12 +141,12 @@ odoo.define('ncf_pos.popups', function (require) {
     //     },
     // });
 
-    screens.define_action_button({
-        'name': 'orderline_note',
-        'widget': OrderlineChangeNameButton,
-        'condition': function () {
-            return this.pos.user.allow_line_rename;
-        },
-    });
+    // screens.define_action_button({
+    //     'name': 'orderline_note',
+    //     'widget': OrderlineChangeNameButton,
+    //     'condition': function () {
+    //         return this.pos.user.allow_line_rename;
+    //     },
+    // });
 
 });

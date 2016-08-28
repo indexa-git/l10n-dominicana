@@ -10,6 +10,7 @@
             <field name="arch" type="xml">
                 <field name="journal_id" position="after">
                     <field name="default_partner_id"/>
+                    <field name="create_invoice_from_cron"/>
                 </field>
 
                 <field name="code" position="before">

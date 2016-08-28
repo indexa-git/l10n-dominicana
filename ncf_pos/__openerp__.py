@@ -63,7 +63,8 @@
         'wizard/pos_payment.xml',
         'wizard/cash_box_control_view.xml',
         'views.xml',
-        'templates.xml'
+        'templates.xml',
+        'data/cron.xml'
     ],
     # only loaded in demonstration mode
     'demo': [],
