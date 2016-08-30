@@ -186,7 +186,7 @@ class AccountInvoice(models.Model):
     total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id",
                                      compute=_get_total_discount)
     credit_out_invoice = fields.Boolean(related="journal_id.credit_out_invoice")
-    authorize = fields.Boolean(u"Crédito autorizado", default=False)
+    authorize = fields.Boolean(u"Crédito autorizado", default=False, copy=False)
     move_name = fields.Char(string='Journal Entry', readonly=False,
                             default=False, copy=False,
                             help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
@@ -378,24 +378,6 @@ class AccountInvoice(models.Model):
     @api.multi
     def invoice_validate(self):
         for rec in self:
-            if rec.amount_total == 0:
-                raise exceptions.ValidationError("No puede grabar una factura con valor 0!")
-            if rec.type == "out_invoice":
-                msg = ""
-                if rec.journal_id.credit_out_invoice == False:
-                    rec.payment_term_id = 1
-                    rec.date_due = fields.Date.today()
-                else:
-                    if rec.overdue_type == "overlimit_overdue" and self.env.user.id != 1:
-                        msg = u"El cliente {} no tiene crédito disponible y facturas vencidas".format(rec.partner_id.name)
-                    elif rec.overdue_type == "overlimit" and self.env.user.id != 1:
-                        msg = u"El cliente {} no tiene crédito disponible".format(rec.partner_id.name)
-                    elif rec.overdue_type == "overdue" and self.env.user.id != 1:
-                        msg = u"El cliente {} tiene facturas vencidas".format(rec.partner_id.name)
-
-                    if msg and self.authorize == False:
-                        raise exceptions.ValidationError(msg)
-
             if rec.type in ["out_invoice", "in_invoice"]:
                 for line in rec.invoice_line_ids:
                     line.qty_allow_refund = line.quantity
