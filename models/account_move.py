@@ -44,6 +44,26 @@ class AccountMove(models.Model):
     def post(self):
         invoice = self._context.get('invoice', False)
         if invoice:
+
+            if invoice.amount_total == 0:
+                raise ValidationError("No puede grabar una factura con valor 0!")
+            if invoice.type == "out_invoice":
+                msg = ""
+                if invoice.journal_id.credit_out_invoice == False:
+                    invoice.payment_term_id = 1
+                    invoice.date_due = fields.Date.today()
+                else:
+                    if invoice.overdue_type == "overlimit_overdue" and self.env.user.id != 1:
+                        msg = u"El cliente {} no tiene crédito disponible y facturas vencidas".format(invoice.partner_id.name)
+                    elif invoice.overdue_type == "overlimit" and self.env.user.id != 1:
+                        msg = u"El cliente {} no tiene crédito disponible".format(invoice.partner_id.name)
+                    elif invoice.overdue_type == "overdue" and self.env.user.id != 1:
+                        msg = u"El cliente {} tiene facturas vencidas".format(invoice.partner_id.name)
+
+                    if msg and invoice.authorize == False:
+                        raise ValidationError(msg)
+
+
             if invoice.type in ('out_invoice', 'out_refund'):
                 fiscal_position = invoice.fiscal_position_id.client_fiscal_type
                 ncf_control = invoice.journal_id.ncf_control
