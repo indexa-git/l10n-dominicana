@@ -53,7 +53,7 @@
     'version': '9.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'point_of_sale', 'ncf_manager','birthday_wish', 'sale', 'web_editor', "sale_control", 'mrp'],
+    'depends': ['base', 'point_of_sale', 'ncf_manager', 'sale', 'web_editor', "sale_control", 'mrp'],
 
     # always loaded
     'data': [

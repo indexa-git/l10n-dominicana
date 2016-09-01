@@ -53,10 +53,6 @@
                         <span class='label'>Email</span>
                         <input class='detail client-email'  name='email'    type='email'    t-att-value='partner.email || ""'></input>
                     </div>
-                    <div class='client-detail'>
-                        <span class='label'>Cumpleaños</span>
-                        <input class='detail client-birth_date'  name='birth_date'    type='date'    t-att-value='partner.birth_date || ""'></input>
-                    </div>
                 </div>
             </div>
         </t>
