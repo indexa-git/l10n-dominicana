@@ -42,6 +42,10 @@ from openerp import api, fields, models, _
 
 from datetime import datetime
 
+
+import logging
+_logger = logging.getLogger(__name__)
+
 MAGIC_COLUMNS = ('id', 'create_uid', 'create_date', 'write_uid', 'write_date')
 
 
@@ -480,6 +484,7 @@ class AccountInvoice(models.Model):
             rec.message_post(body=u"<p>Crédito cancelado con {}</p>".format(overdue_type[rec.overdue_type]),
                               subject=u"factura a Crédito no autorizada", subtype="mail.mt_comment")
 
+
     @api.multi
     def set_ncf(self):
         for inv in self:
@@ -498,7 +503,15 @@ class AccountInvoice(models.Model):
 
                 if not sequence:
                     raise exceptions.ValidationError("Las secuencias para este diario de ventas no estan configuradas.")
-                inv.move_name = sequence.with_context(ir_sequence_date=inv.date_invoice).next_by_id()
+
+                next_ncf = True
+                while next_ncf:
+                    ncf_next = sequence.with_context(ir_sequence_date=inv.date_invoice).next_by_id()
+                    _logger.info("EL SISTEMA SALTO EL NUMERO {} DEL DIARIO {} PORQUE YA EXISTE DESDE CONTABILIDAD".format(ncf_next, self.journal_id.name))
+                    if not self.search_count([('number','=',ncf_next),('journal_id','=',self.journal_id.id)]):
+                        next_ncf = False
+
+                inv.move_name = ncf_next
 
 
 class AccountInvoiceLine(models.Model):
