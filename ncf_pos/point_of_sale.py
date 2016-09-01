@@ -45,6 +45,7 @@ from threading import Thread, Lock
 from Queue import Queue
 _logger = logging.getLogger(__name__)
 
+
 class PosSession(osv.osv):
     _inherit = ['pos.session', 'mail.thread', 'ir.needaction_mixin']
     _name = "pos.session"
@@ -480,7 +481,17 @@ class PosOrder(models.Model):
                 sequence = self.sale_journal.final_sequence_id
 
         date_order = self.date_order.split(" ")[0]
-        self.reserve_ncf_seq = sequence.with_context(ir_sequence_date=date_order).next_by_id()
+
+        next_ncf = True
+        while next_ncf:
+            ncf_next = sequence.with_context(ir_sequence_date=date_order).next_by_id()
+            _logger.info(
+                "EL SISTEMA SALTO EL NUMERO {} DEL DIARIO {} PORQUE YA EXISTE DESDE EL PUNTO DE VENTA".format(ncf_next, self.sale_journal.name))
+
+            if not self.search_count([('reserve_ncf_seq', '=', ncf_next), ('sale_journal', '=', self.sale_journal.id)]):
+                next_ncf = False
+
+        self.reserve_ncf_seq = ncf_next
 
     @api.multi
     def refund(self):
