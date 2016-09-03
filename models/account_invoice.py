@@ -220,8 +220,11 @@ class AccountInvoice(models.Model):
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
 
+        super(AccountInvoice, self)._onchange_journal_id()
+
         if self.type in ('in_invoice', 'in_refund'):
             self.move_name = False
+
             if self.journal_id.purchase_type == "normal":
                 self.ncf_required = True
             else:
@@ -230,15 +233,15 @@ class AccountInvoice(models.Model):
             if not self.partner_id.journal_id:
                 self.partner_id.write({"journal_id": self.journal_id.id})
 
-        if self.journal_id.purchase_type == "minor":
-            self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
-            self.ncf_required = False
+            if not self.partner_id and self.journal_id.purchase_type == "minor":
+                self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
+                self.ncf_required = False
 
         if self.type == "out_invoice" and self.credit_out_invoice == False:
             self.date_due = fields.Date.today()
             self.payment_term_id = 1
 
-        return super(AccountInvoice, self)._onchange_journal_id()
+
 
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
