@@ -82,10 +82,6 @@
             </field>
         </record>
 
-        <menuitem action="account.action_account_moves_all_a" icon="STOCK_JUSTIFY_FILL"
-                  id="account.menu_action_account_moves_all"
-                  parent="account.menu_finance_entries" sequence="1" groups="account.group_account_manager"/>
-
         <!-- This Menu Item must have a parent and an action -->
 
         <!-- Inherit Form View to Modify it -->
@@ -186,14 +182,6 @@
                 </field>
 
             </field>
-        </record>
-
-        <record id="account.action_account_moves_all_a" model="ir.actions.act_window">
-            <field name="context">{'journal_type':'general'}</field>
-            <field name="name">Journal Items</field>
-            <field name="res_model">account.move.line</field>
-            <field name="view_id" ref="account.view_move_line_tree"/>
-            <field name="view_mode">tree,form,pivot,graph</field>
         </record>
 
     </data>

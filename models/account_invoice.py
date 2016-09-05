@@ -180,13 +180,22 @@ class AccountInvoice(models.Model):
     move_name = fields.Char(string='Journal Entry',
                             default=False, copy=False,
                             help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
-    ncf_required = fields.Boolean()
+    ncf_required = fields.Boolean(copy=True)
     client_fiscal_type = fields.Selection(related="fiscal_position_id.client_fiscal_type")
     supplier_fiscal_type = fields.Selection(related="fiscal_position_id.supplier_fiscal_type")
     journal_id = fields.Many2one('account.journal', string='Journal',
                                  required=True, readonly=True, states={'draft': [('readonly', False)]},
                                  default=_default_user_journal,
                                  domain="[('type', 'in', {'out_invoice': ['sale'], 'out_refund': ['sale'], 'in_refund': ['purchase'], 'in_invoice': ['purchase']}.get(type, [])), ('company_id', '=', company_id)]")
+
+    purchase_type = fields.Selection([("normal",u"REQUIERE NCF"),
+                                      ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
+                                      ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
+                                      ("exterior", u"PASGOS AL EXTERIOR NO REQUIRE NCF"),
+                                      ("import", u"IMPORTACIONES NO REQUIRE NCF"),
+                                      ("others", u"OTROS NO REQUIRE NCF"),
+                                      ],
+                                     string=u"Tipo de compra", default="normal", related="journal_id.purchase_type")
     total_discount = fields.Monetary(string='Descuento', currency_field="company_currency_id",
                                      compute=_get_total_discount)
     credit_out_invoice = fields.Boolean(related="journal_id.credit_out_invoice")
@@ -220,27 +229,31 @@ class AccountInvoice(models.Model):
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
 
-        super(AccountInvoice, self)._onchange_journal_id()
+        if self.journal_id:
+            self.currency_id = self.journal_id.currency_id.id or self.journal_id.company_id.currency_id.id
 
-        if self.type in ('in_invoice', 'in_refund'):
-            self.move_name = False
+        if not self._context.get("default_supplier", False):
+            if self.type in ('in_invoice', 'in_refund'):
+                self.move_name = False
 
-            if self.journal_id.purchase_type == "normal":
-                self.ncf_required = True
-            else:
-                self.ncf_required = False
+                if self.purchase_type == "normal":
+                    self.ncf_required = True
+                else:
+                    self.ncf_required = False
 
-            if not self.partner_id.journal_id:
-                self.partner_id.write({"journal_id": self.journal_id.id})
+                if not self.partner_id.journal_id:
+                    self.partner_id.write({"journal_id": self.journal_id.id})
 
-            if not self.partner_id and self.journal_id.purchase_type == "minor":
-                self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
-                self.ncf_required = False
+                if self.purchase_type == "minor":
+                    self.partner_id = self.env['res.company']._company_default_get('account.invoice').partner_id.id
+                    self.ncf_required = False
 
-        if self.type == "out_invoice" and self.credit_out_invoice == False:
-            self.date_due = fields.Date.today()
-            self.payment_term_id = 1
+                if self.purchase_type != "minor" and self.partner_id.id == self.env.user.company_id.id:
+                    self.partner_id = False
 
+            if self.type == "out_invoice" and self.credit_out_invoice == False:
+                self.date_due = fields.Date.today()
+                self.payment_term_id = 1
 
 
     @api.onchange('partner_id', 'company_id')
@@ -293,8 +306,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def invoice_ncf_validation(self):
         for invoice in self:
-            if not invoice.journal_id.purchase_type in ['minor', 'informal',
-                                                        'exterior'] and invoice.ncf_required == True:
+            if not invoice.journal_id.purchase_type in ['exterior','import','others'] and invoice.ncf_required == True:
 
                 inv_exist = self.search([('partner_id', '=', invoice.partner_id.id), ('number', '=', invoice.move_name),
                                          ('state', 'in', ('open', 'paid', 'draft, cancel'))])
@@ -306,9 +318,19 @@ class AccountInvoice(models.Model):
                     if not result.get("valid", False):
                         raise exceptions.UserError("El numero de comprobante fiscal no es valido! "
                                                    "no paso la validacion en DGII, Verifique que el NCF y el RNC del "
-                                                   "proveedor esten correctamente digitados.")
+                                                   "proveedor esten correctamente digitados, si es de proveedor informal o de "
+                                                   "gasto menor vefifique si debe solicitar nuevos numero.")
 
             self.signal_workflow("invoice_open")
+
+
+    @api.model
+    def create(self, vals):
+        res = super(AccountInvoice, self).create(vals)
+        if res.purchase_type == "minor":
+            res.partner_id = self.env.user.company_id.id
+        return res
+
 
     @api.multi
     def write(self, vals):
@@ -322,6 +344,10 @@ class AccountInvoice(models.Model):
                                 "Antes de generar una factura debe definir las posiciones fiscales.")
                         else:
                             vals.update({"fiscal_position_id": fiscal_position_id.id})
+
+            if rec.type in ("in_invoice", "in_refund"):
+                if self.purchase_type == "minor":
+                    vals.update({"partner_id": self.env.user.company_id.id})
 
         return super(AccountInvoice, self).write(vals)
 
@@ -510,8 +536,10 @@ class AccountInvoice(models.Model):
                 next_ncf = True
                 while next_ncf:
                     ncf_next = sequence.with_context(ir_sequence_date=inv.date_invoice).next_by_id()
-                    _logger.info("EL SISTEMA SALTO EL NUMERO {} DEL DIARIO {} PORQUE YA EXISTE DESDE CONTABILIDAD".format(ncf_next, self.journal_id.name))
                     if not self.search_count([('number','=',ncf_next),('journal_id','=',self.journal_id.id)]):
+                        _logger.info(
+                            "EL SISTEMA SALTO EL NUMERO {} DEL DIARIO {} PORQUE YA EXISTE DESDE CONTABILIDAD".format(
+                                ncf_next, self.journal_id.name))
                         next_ncf = False
 
                 inv.move_name = ncf_next
