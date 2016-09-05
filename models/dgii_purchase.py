@@ -91,7 +91,7 @@ class DgiiPurchaseReport(models.Model):
         CANTIDAD_REGISTRO = len(invoices)
         ITBIS_RETENIDO = 0
         ITBIS_TOTAL = 0
-        TOTAL_MONTO_FACTURADO = sum([inv.amount_untaxed for inv in invoices])
+        TOTAL_MONTO_FACTURADO = 0 #sum([inv.amount_untaxed*inv.rate for inv in invoices])
         RETENCION_RENTA = 0
 
         lines = []
@@ -104,11 +104,16 @@ class DgiiPurchaseReport(models.Model):
             LINE_ITBIS_RETENIDO = 0
             LINE_RETENCION_RENTA = 0
             LINE_TAX_COST = 0
+            CURRENCY_RATE = 1
 
 
             move_lines = [move_line for move_line in inv.move_id.line_ids if move_line.account_id.id in account_tax_ids]
             for move_line in move_lines:
                 amount = move_line.debit if move_line.debit > 0 else move_line.credit
+
+                if move_line.amount_currency:
+                    CURRENCY_RATE = abs(amount)/abs(move_line.amount_currency)
+
                 if tax_account[move_line.account_id.id] == "itbis":
                     ITBIS_TOTAL += amount
                     LINE_ITBIS_TOTAL += amount
@@ -122,6 +127,8 @@ class DgiiPurchaseReport(models.Model):
                 elif tax_account[move_line.account_id.id] == "cost" and move_line.tax_line_id:
                     LINE_TAX_COST += amount
                     TOTAL_MONTO_FACTURADO += amount
+
+            TOTAL_MONTO_FACTURADO += inv.amount_untaxed*CURRENCY_RATE
 
             if not inv.partner_id.vat:
                 raise exceptions.UserError(u"El número de RNC/Cédula del proveedor {} no es valido para el NCF {}".format(inv.partner_id.name, inv.number))
@@ -161,7 +168,7 @@ class DgiiPurchaseReport(models.Model):
                                    "FECHA_PAGO":FECHA_PAGO,
                                    "ITBIS_FACTURADO":LINE_ITBIS_TOTAL,
                                    "ITBIS_RETENIDO":abs(LINE_ITBIS_RETENIDO),
-                                   "MONTO_FACTURADO":inv.amount_untaxed+LINE_TAX_COST,
+                                   "MONTO_FACTURADO":(inv.amount_untaxed+LINE_TAX_COST)*CURRENCY_RATE,
                                    "RETENCION_RENTA": LINE_RETENCION_RENTA
                                    }))
 
