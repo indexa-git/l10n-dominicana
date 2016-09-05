@@ -232,14 +232,16 @@ class AccountInvoice(models.Model):
         if self.journal_id:
             self.currency_id = self.journal_id.currency_id.id or self.journal_id.company_id.currency_id.id
 
-        if not self._context.get("default_supplier", False):
-            if self.type in ('in_invoice', 'in_refund'):
-                self.move_name = False
+        if self.type in ('in_invoice', 'in_refund'):
 
-                if self.purchase_type == "normal":
-                    self.ncf_required = True
-                else:
-                    self.ncf_required = False
+            if self.purchase_type == "normal":
+                self.ncf_required = True
+            else:
+                self.ncf_required = False
+
+            if not self._context.get("default_supplier", False):
+
+                self.move_name = False
 
                 if not self.partner_id.journal_id:
                     self.partner_id.write({"journal_id": self.journal_id.id})
