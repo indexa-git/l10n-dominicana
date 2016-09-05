@@ -142,7 +142,11 @@
 
                 <field name="fiscal_position_id" position="replace"/>
 
-                <field name="partner_id" position="after">
+                <field name="partner_id" position="replace">
+                    <field name="purchase_type" readonly="1"/>
+                    <field string="Vendor" name="partner_id"
+                           context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
+                           domain="[('supplier', '=', True)]" attrs="{'readonly': [('purchase_type','=','minor')]}"/>
                     <field name="fiscal_position_id"/>
                     <field name="ncf_required" invisible="1"/>
                     <field name="move_name" string="NCF" attrs="{'size': 19, 'invisible': [('ncf_required','=',False)], 'required': [('ncf_required','=',True)],

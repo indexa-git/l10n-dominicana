@@ -39,12 +39,12 @@ from openerp import models, fields, api
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
-    purchase_type = fields.Selection([("normal",u"Proveedor normal"),
-                                      ("minor", u"Gasto menor"),
-                                      ("informal", u"Proveedor informal"),
-                                      ("exterior", u"Pagos al exterior"),
-                                      ("import", u"Importaciones"),
-                                      ("others", u"Varios"),
+    purchase_type = fields.Selection([("normal",u"REQUIERE NCF"),
+                                      ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
+                                      ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
+                                      ("exterior", u"PASGOS AL EXTERIOR NO REQUIRE NCF"),
+                                      ("import", u"IMPORTACIONES NO REQUIRE NCF"),
+                                      ("others", u"OTROS NO REQUIRE NCF"),
                                       ],
                                      string=u"Tipo de compra", default="normal")
     ncf_control = fields.Boolean("Control de NCF")
