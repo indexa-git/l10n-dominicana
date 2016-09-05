@@ -346,7 +346,7 @@ class AccountInvoice(models.Model):
                             vals.update({"fiscal_position_id": fiscal_position_id.id})
 
             if rec.type in ("in_invoice", "in_refund"):
-                if self.purchase_type == "minor":
+                if vals.get("purchase_type", False) == "minor":
                     vals.update({"partner_id": self.env.user.company_id.id})
 
         return super(AccountInvoice, self).write(vals)
