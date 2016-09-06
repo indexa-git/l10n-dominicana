@@ -328,9 +328,9 @@ class AccountInvoice(models.Model):
 
     @api.model
     def create(self, vals):
+        if not vals.get("partner_id", False):
+            vals.update({"partner_id": self.env.user.company_id.partner_id.id})
         res = super(AccountInvoice, self).create(vals)
-        if res.purchase_type == "minor":
-            res.partner_id = self.env.user.company_id.id
         return res
 
 
@@ -349,7 +349,7 @@ class AccountInvoice(models.Model):
 
             if rec.type in ("in_invoice", "in_refund"):
                 if vals.get("purchase_type", False) == "minor":
-                    vals.update({"partner_id": self.env.user.company_id.id})
+                    vals.update({"partner_id": self.env.user.company_id.partner_id.id})
 
         return super(AccountInvoice, self).write(vals)
 
