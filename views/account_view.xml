@@ -118,21 +118,7 @@
 
             </field>
         </record>
-
-        <!-- Inherit Form View to Modify it -->
-        <!--<record id="ncf_manager_view_account_payment_form_inherited" model="ir.ui.view">-->
-        <!--<field name="name">ncf_manager_view_account_payment_form_inherited</field>-->
-        <!--<field name="model">account.payment</field>-->
-        <!--<field name="inherit_id" ref="account_check_printing.view_account_payment_form_inherited"/>-->
-        <!--<field name="arch" type="xml">-->
-
-        <!--<field name="check_amount_in_words" position="attributes">-->
-        <!--<attribute name="invisible">1</attribute>-->
-        <!--</field>-->
-
-        <!--</field>-->
-        <!--</record>-->
-
+        
         <record id="ncf_manager_account_payment_method_form" model="ir.ui.view">
             <field name="name">ncf_manager_account_payment_method_form</field>
             <field name="model">account.payment.method</field>
