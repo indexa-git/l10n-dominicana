@@ -11,4 +11,5 @@ class CheckCashBox(models.TransientModel):
 
     @api.model
     def confirm_cash_diff(self):
-        import pdb;pdb.set_trace()
+        pass
+        # import pdb;pdb.set_trace()
