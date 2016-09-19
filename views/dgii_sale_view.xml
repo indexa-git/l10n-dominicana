@@ -8,23 +8,28 @@
             <field name="arch" type="xml">
                 <form string="Reporte 607">
                     <header>
-                        <button name="create_report" string="Regenerar reporte" class="oe_highlight" states="done" type="object" context="{'recreate':True}"/>
+                        <button name="create_report" string="Regenerar reporte" class="oe_highlight" states="done"
+                                type="object" context="{'recreate':True}"/>
                         <field name="state" widget="statusbar"/>
                     </header>
-                    <group>
+                    <group col="3">
                         <group>
-                            <field name="company_id" readonly="[('state','=','done')]"/>
-                            <field name="year" placeholder="2018" required="1" />
-                            <field name="month" placeholder="12" required="1" />
-                            <field name="txt" filename="txt_name"/>
-                        </group>
-                        <group>
+                            <field name="company_id" readonly="[('state','=','done')]" groups="base.group_multi_company"/>
+                            <field name="year" placeholder="2018" required="1"/>
+                            <field name="month" placeholder="12" required="1"/>
                             <field name="CANTIDAD_REGISTRO" readonly="1"/>
                             <field name="ITBIS_TOTAL" readonly="1"/>
                             <field name="TOTAL_MONTO_FACTURADO" readonly="1"/>
+                            <field name="txt" filename="txt_name"/>
                         </group>
-
-
+                        <group>
+                            <field name="TOTAL_MONTO_FACTURAS"/>
+                            <field name="ITBIS_TOTAL_FACTURAS"/>
+                            <field name="TOTAL_MONTO_NC"/>
+                            <field name="ITBIS_TOTAL_NC"/>
+                            <field name="TOTAL_VENTA"/>
+                            <field name="TOTAL_VENTA_ITBIS"/>
+                        </group>
                     </group>
                     <notebook>
                         <page string="Detalle">
