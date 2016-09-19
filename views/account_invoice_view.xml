@@ -60,7 +60,7 @@
                 <field name="fiscal_position_id" position="replace"/>
 
                 <field name="partner_id" position="after">
-                    <field name="fiscal_position_id"/>
+                    <field name="fiscal_position_id" attrs="{'required': True}"/>
                 </field>
 
                 <field name="journal_id" position="replace">

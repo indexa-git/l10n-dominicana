@@ -273,30 +273,32 @@ class AccountInvoice(models.Model):
     @api.onchange("fiscal_position_id")
     def onchange_fiscal_position_id(self):
 
-        if self.type in ('out_invoice', 'out_refund'):
-            if self.partner_id and self.partner_id.property_account_position_id.id != self.fiscal_position_id.id:
-                self.partner_id.write({"property_account_position_id": self.fiscal_position_id.id})
+        if self.fiscal_position_id:
 
-            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+            if self.type in ('out_invoice', 'out_refund'):
+                if self.partner_id and self.partner_id.property_account_position_id.id != self.fiscal_position_id.id:
+                    self.partner_id.write({"property_account_position_id": self.fiscal_position_id.id})
 
-            return {"domain": {
-                "shop_id": [('shop_id', 'in', shop_user_config["shop_ids"])],
-                "journal_id": [('id', 'in', shop_user_config["sale_journal_ids"])]
-            }}
+                shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
 
-        elif self.type in ('in_invoice', 'in_refund'):
-            if self.partner_id.journal_id:
-                self.journal_id = self.partner_id.journal_id.id
-            elif self.fiscal_position_id.journal_id:
-                self.journal_id = self.fiscal_position_id.journal_id.id
+                return {"domain": {
+                    "shop_id": [('shop_id', 'in', shop_user_config["shop_ids"])],
+                    "journal_id": [('id', 'in', shop_user_config["sale_journal_ids"])]
+                }}
 
-            elif self.journal_id.purchase_type == "normal":
-                self.ncf_required = True
-            else:
-                self.ncf_required = False
+            elif self.type in ('in_invoice', 'in_refund'):
+                if self.partner_id.journal_id:
+                    self.journal_id = self.partner_id.journal_id.id
+                elif self.fiscal_position_id.journal_id:
+                    self.journal_id = self.fiscal_position_id.journal_id.id
 
-            if self.partner_id and self.partner_id.property_account_position_supplier_id.id != self.fiscal_position_id.id:
-                self.partner_id.write({"property_account_position_supplier_id": self.fiscal_position_id.id})
+                elif self.journal_id.purchase_type == "normal":
+                    self.ncf_required = True
+                else:
+                    self.ncf_required = False
+
+                if self.partner_id and self.partner_id.property_account_position_supplier_id.id != self.fiscal_position_id.id:
+                    self.partner_id.write({"property_account_position_supplier_id": self.fiscal_position_id.id})
 
     def _check_ncf(self, rnc, ncf):
         if ncf and rnc:
