@@ -87,15 +87,17 @@ class DgiiSaleReport(models.Model):
 
             LINE = line_number
 
-            if not inv.partner_id.vat:
+            if not inv.fiscal_position_id.client_fiscal_type == "final":
                 RNC_CEDULA = ""
                 TIPO_IDENTIFICACION = "3"
             else:
+                if not inv.partner_id.vat:
+                    raise exceptions.UserError(u"El cliente para la factura {} no tiene RNC/Cédula.".format(inv.number))
                 RNC_CEDULA = inv.partner_id.vat
                 TIPO_IDENTIFICACION = "1" if len(str(RNC_CEDULA).strip()) == 9 else "2"
 
             if not is_ncf(inv.number, inv.type):
-                raise exceptions.ValidationError(u"El número de NCF {} no es valido!".format(inv.number))
+                raise exceptions.ValidationError(u"El número de NCF o el RNC/Cédula del clienten para el comprobante {} no es valido!".format(inv.number))
 
 
             NUMERO_COMPROBANTE_MODIFICADO = "".rjust(19)
@@ -115,8 +117,7 @@ class DgiiSaleReport(models.Model):
             for line in inv.invoice_line_ids:
                 account_ids  = [l.account_id.id for l in line]
                 move_lines = self.env["account.move.line"].search([('move_id','=',inv.move_id.id),('account_id','in',account_ids)])
-
-                MONTO_FACTURADO = sum([l.debit for l in move_lines])-sum([l.credit for l in move_lines])*-1
+                MONTO_FACTURADO = abs(sum([l.credit for l in move_lines])-sum([l.debit for l in move_lines]))
 
                 if inv.type == "out_refund":
                     MONTO_FACTURADO = MONTO_FACTURADO
