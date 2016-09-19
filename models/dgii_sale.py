@@ -44,6 +44,17 @@ import re
 class DgiiSaleReport(models.Model):
     _name = "dgii.sale.report"
 
+    @api.one
+    @api.depends("ITBIS_TOTAL","TOTAL_MONTO_FACTURADO")
+    def _calc_total(self):
+
+        self.TOTAL_MONTO_FACTURAS = sum([line.MONTO_FACTURADO for line in self.report_lines if not line.NUMERO_COMPROBANTE_MODIFICADO.strip()])
+        self.TOTAL_MONTO_NC = sum([line.MONTO_FACTURADO for line in self.report_lines if line.NUMERO_COMPROBANTE_MODIFICADO.strip()])
+        self.ITBIS_TOTAL_FACTURAS = sum([line.ITBIS_FACTURADO for line in self.report_lines if not line.NUMERO_COMPROBANTE_MODIFICADO.strip()])
+        self.ITBIS_TOTAL_NC = sum([line.ITBIS_FACTURADO for line in self.report_lines if line.NUMERO_COMPROBANTE_MODIFICADO.strip()])
+        self.TOTAL_VENTA = self.TOTAL_MONTO_FACTURAS-self.TOTAL_MONTO_NC
+        self.TOTAL_VENTA_ITBIS = self.ITBIS_TOTAL_FACTURAS-self.ITBIS_TOTAL_NC
+
     def get_default_period(self):
         self.year = int(time.strftime("%Y"))
 
@@ -54,8 +65,16 @@ class DgiiSaleReport(models.Model):
     year = fields.Integer(u"Año", size=4, default=lambda s: int(time.strftime("%Y")))
     month = fields.Integer(u"Mes", size=2, default=lambda s: int(time.strftime("%m")))
     CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros")
-    ITBIS_TOTAL = fields.Float(u"TOTAL ITBIS PAGADO")
-    TOTAL_MONTO_FACTURADO = fields.Float("TOTAL FACTURADO")
+    ITBIS_TOTAL = fields.Float(u"OFV ITBIS")
+    TOTAL_MONTO_FACTURADO = fields.Float(u"OFV FACTURADO", help=u"Suma de las facturas y las notas de crédito como se digitan en el formulario de la DGII")
+
+    TOTAL_MONTO_FACTURAS = fields.Float(u"FACTURADO", compute=_calc_total)
+    TOTAL_MONTO_NC = fields.Float(u"NOTAS CRÉDITO", compute=_calc_total)
+    ITBIS_TOTAL_FACTURAS = fields.Float(u"ITBIS FACTURADO", compute=_calc_total)
+    ITBIS_TOTAL_NC = fields.Float(u"ITBIS NOTAS CRÉDITO", compute=_calc_total)
+    TOTAL_VENTA = fields.Float(u"VENTA", compute=_calc_total)
+    TOTAL_VENTA_ITBIS = fields.Float(u"ITBIS", compute=_calc_total)
+
     report_lines = fields.One2many("dgii.sale.report.line", "sale_report_id")
     txt = fields.Binary(u"Reporte TXT", readonly=True)
     txt_name = fields.Char("Nombre del archivo", readonly=True)
