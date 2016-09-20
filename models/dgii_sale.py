@@ -41,6 +41,8 @@ import time
 
 import re
 
+import re
+
 class DgiiSaleReport(models.Model):
     _name = "dgii.sale.report"
 
@@ -106,13 +108,13 @@ class DgiiSaleReport(models.Model):
 
             LINE = line_number
 
-            if not inv.fiscal_position_id.client_fiscal_type == "final":
+            if inv.fiscal_position_id.client_fiscal_type == "final":
                 RNC_CEDULA = ""
                 TIPO_IDENTIFICACION = "3"
             else:
                 if not inv.partner_id.vat:
                     raise exceptions.UserError(u"El cliente para la factura {} no tiene RNC/Cédula.".format(inv.number))
-                RNC_CEDULA = inv.partner_id.vat
+                RNC_CEDULA = re.sub("[^0-9]", "", inv.partner_id.vat.strip())
                 TIPO_IDENTIFICACION = "1" if len(str(RNC_CEDULA).strip()) == 9 else "2"
 
             if not is_ncf(inv.number, inv.type):
@@ -190,9 +192,10 @@ class DgiiSaleReport(models.Model):
         lines = []
 
         header = "607"
-        header += company_fiscal_identificacion.zfill(11)
+        header += company_fiscal_identificacion.rjust(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
+        header += str(self.CANTIDAD_REGISTRO).zfill(12)
         header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
         lines.append(header)
 
@@ -203,7 +206,7 @@ class DgiiSaleReport(models.Model):
             ln += line.NUMERO_COMPROBANTE_FISCAL
             ln += line.NUMERO_COMPROBANTE_MODIFICADO
             ln += line.FECHA_COMPROBANTE.replace("-","")
-            ln += line.FECHA_PAGO.replace("-","") if line.FECHA_PAGO else "".rjust(8)
+            # ln += line.FECHA_PAGO.replace("-","") if line.FECHA_PAGO else "".rjust(8)
             ln += "{:.2f}".format(line.ITBIS_FACTURADO).zfill(12)
             ln += "{:.2f}".format(line.MONTO_FACTURADO).zfill(12)
             lines.append(ln)
