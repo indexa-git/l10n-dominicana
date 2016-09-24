@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<openerp>
+
+    <data>
+
+        <template id="ncf_manage_js" name="ncf_manager_js" inherit_id="web.assets_backend">
+
+            <xpath expr="." position="inside">
+
+                <script type="text/javascript" src="/ncf_manager/static/src/js/account_reconciliation_widgets.js"></script>
+
+            </xpath>
+
+        </template>
+
+    </data>
+
+</openerp>

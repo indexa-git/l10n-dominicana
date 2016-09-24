@@ -59,6 +59,7 @@
 
     'data': [
         'security/ir.model.access.csv',
+        'views/template.xml',
         'views/shop_view.xml',
         'views/partner_view.xml',
         'views/account_view.xml',
