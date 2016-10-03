@@ -191,7 +191,7 @@ class AccountInvoice(models.Model):
     purchase_type = fields.Selection([("normal",u"REQUIERE NCF"),
                                       ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
                                       ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
-                                      ("exterior", u"PASGOS AL EXTERIOR NO REQUIRE NCF"),
+                                      ("exterior", u"PAGOS AL EXTERIOR NO REQUIRE NCF"),
                                       ("import", u"IMPORTACIONES NO REQUIRE NCF"),
                                       ("others", u"OTROS NO REQUIRE NCF"),
                                       ],
