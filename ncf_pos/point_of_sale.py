@@ -395,9 +395,9 @@ class PosOrder(models.Model):
         context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1, "from_ui": True}
         for order in orders:
             if order.origin:
-                order.with_context(context).create_refund_invoice()
+                order.with_context(context).sudo(order.user_id.id).create_refund_invoice()
             else:
-                order.with_context(context).generate_ncf_invoice()
+                order.with_context(context).sudo(order.user_id.id).generate_ncf_invoice()
             _logger.info("PTV GENERO LA FACTURA {}".format(order.reserve_ncf_seq))
 
 
