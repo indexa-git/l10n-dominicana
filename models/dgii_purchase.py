@@ -183,6 +183,9 @@ class DgiiPurchaseReport(models.Model):
 
     def generate_txt(self):
 
+        if not self.company_id.vat:
+            raise exceptions.ValidationError(u"Para poder generar el 606 primero debe especificar el RNC/Cédula de la compañia.")
+
         company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
 
         if not company_fiscal_identificacion or not is_identification(company_fiscal_identificacion):
