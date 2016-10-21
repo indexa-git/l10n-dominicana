@@ -177,9 +177,6 @@ class AccountInvoice(models.Model):
     ], string=u"Tipo de anulación", copy=False)
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal", required=False,
                               default=_default_user_shop)
-    move_name = fields.Char(string='Journal Entry',
-                            default=False, copy=False,
-                            help="Technical field holding the number given to the invoice, automatically set when the invoice is validated then stored to set the same number again if the invoice is cancelled, set to draft and re-validated.")
     ncf_required = fields.Boolean(copy=True)
     client_fiscal_type = fields.Selection(related="fiscal_position_id.client_fiscal_type")
     supplier_fiscal_type = fields.Selection(related="fiscal_position_id.supplier_fiscal_type")
@@ -187,7 +184,6 @@ class AccountInvoice(models.Model):
                                  required=True, readonly=True, states={'draft': [('readonly', False)]},
                                  default=_default_user_journal,
                                  domain="[('type', 'in', {'out_invoice': ['sale'], 'out_refund': ['sale'], 'in_refund': ['purchase'], 'in_invoice': ['purchase']}.get(type, [])), ('company_id', '=', company_id)]")
-
     purchase_type = fields.Selection([("normal",u"REQUIERE NCF"),
                                       ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
                                       ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
