@@ -310,10 +310,19 @@ class AccountInvoice(models.Model):
     @api.multi
     def invoice_ncf_validation(self):
         for invoice in self:
-            if not invoice.journal_id.purchase_type in ['exterior','import','others'] and invoice.ncf_required == True:
+            if not invoice.journal_id.purchase_type in ['exterior', 'import',
+                                                        'others'] and invoice.ncf_required == True:
+
+                inv_in_draft = self.search(
+                    [('id', '!=', invoice.id), ('partner_id', '=', invoice.partner_id.id),
+                     ('move_name', '=', invoice.move_name), ('state', 'in', ('draft', 'cancel'))])
+
+                if inv_in_draft:
+                    raise exceptions.ValidationError(
+                        u"El número de comprobante fiscal digitado para este proveedor ya se encuentra en una factura en borrador o cancelada.")
 
                 inv_exist = self.search([('partner_id', '=', invoice.partner_id.id), ('number', '=', invoice.move_name),
-                                         ('state', 'in', ('open', 'paid', 'draft, cancel'))])
+                                         ('state', 'in', ('open', 'paid'))])
                 if inv_exist:
                     raise exceptions.Warning(u"Este número de comprobante ya fue registrado para este proveedor!")
 
@@ -326,7 +335,6 @@ class AccountInvoice(models.Model):
                                                    "gasto menor vefifique si debe solicitar nuevos numero.")
 
             self.signal_workflow("invoice_open")
-
 
     @api.model
     def create(self, vals):
