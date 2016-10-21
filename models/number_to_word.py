@@ -116,7 +116,8 @@ def to_word(number, mi_moneda=None):
         return 'No es posible convertir el numero a letras'
 
     if "." in str(number):
-        number, decimal = str(number).split(".")
+        number = "{:.2f}".format(number)
+        number, decimal = number.split(".")
     else:
         number = str(number)
         decimal = "00"
