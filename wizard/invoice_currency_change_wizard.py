@@ -70,7 +70,7 @@ class InvoiceCurrecyChangeWizard(models.TransientModel):
             else:
                 new_rate = self._get_rate(inv.date_invoice)
                 if not new_rate:
-                    raise exceptions.ValidationError(u"Antes de cambiar la mondeda de la factura debe actulizar la tasa.")
+                    raise exceptions.ValidationError(u"Antes de cambiar la mondeda de la factura debe actualizar la tasa.")
                 for line in inv.invoice_line_ids:
                    line.price_unit = line.price_unit/new_rate
 
