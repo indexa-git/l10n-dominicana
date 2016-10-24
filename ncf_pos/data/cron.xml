@@ -2,8 +2,8 @@
 <openerp>
     <data noupdate="1">
 
-        <record forcecreate="True" id="ir_cron_ptv_create_invoice" model="ir.cron">
-            <field name="name">Create invoice from new order on PTV</field>
+        <record forcecreate="True" id="ir_cron_ptv_create_picking" model="ir.cron">
+            <field name="name">Genera los conduces del PTV pendientes</field>
             <field eval="True" name="active"/>
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
@@ -11,7 +11,7 @@
             <field name="numbercall">-1</field>
             <field eval="False" name="doall"/>
             <field eval="'pos.order'" name="model"/>
-            <field eval="'cron_ncf_generate'" name="function"/>
+            <field eval="'cron_picking_generate'" name="function"/>
             <field eval="'()'" name="args"/>
         </record>
 

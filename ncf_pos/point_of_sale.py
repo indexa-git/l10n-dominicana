@@ -54,7 +54,7 @@ class PosSession(osv.osv):
 
         pos_order_obj = self.pool.get('pos.order')
         for session in self.browse(cr, uid, ids, context=context):
-            if session.config_id.create_invoice_from_cron:
+            if session.config_id.create_picking_from_cron:
                 cron_id = self.pool["ir.model.data"].xmlid_to_res_id(cr, uid, "ncf_pos.ir_cron_ptv_create_invoice")
                 self.pool["ir.cron"].method_direct_trigger(cr, uid, [cron_id], context=context)
             company_id = session.config_id.journal_id.company_id.id
@@ -122,10 +122,10 @@ class PosConfig(models.Model):
     default_partner_id = fields.Many2one("res.partner", string="Cliente de contado")
     print_note = fields.Boolean('Imprimir nota en re recibo', default=True)
     fiscal_position_ids = fields.Many2many('account.fiscal.position', string='Fiscal Positions', domain=[('supplier','=',False)])
-    create_invoice_from_cron = fields.Boolean(string="Crear facturas en segundo plano", help=u"Esta opción permite que despues de "
-                                                                                             u"validar un pedido la facturam el conduce, y el pago"
+    create_picking_from_cron = fields.Boolean(string="Crear conduce en segundo plano", help=u"Esta opción permite que despues de "
+                                                                                             u"validar un pedido el conduce"
                                                                                              u"se ejecuten en segundo plano permitiendo que el proceso "
-                                                                                             u"para el cliente sea de inmediato.")
+                                                                                             u"para el cliente mas rapido.")
 
 
 class ResPartner(models.Model):
@@ -378,27 +378,24 @@ class PosOrder(models.Model):
         for order_id in res:
             new_order = self.browse(order_id)
             new_order.set_reserve_ncf_seq()
-            if new_order.session_id.config_id.create_invoice_from_cron:
-                break
+
+            # self.env.cr.commit()
+            order = self.browse(order_id)
+            if order.origin:
+                order.with_context(context).create_refund_invoice()
             else:
-                # self.env.cr.commit()
-                order = self.browse(order_id)
-                if order.origin:
-                    order.with_context(context).create_refund_invoice()
-                else:
-                    order.with_context(context).generate_ncf_invoice()
+                order.with_context(context).generate_ncf_invoice()
         return res
 
     @api.model
-    def cron_ncf_generate(self):
-        orders = self.search([('state','=','draft'),('reserve_ncf_seq','!=',False)])
+    def cron_picking_generate(self):
+        orders = self.search([('picking_id','=',False)])
         context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1, "from_ui": True}
         for order in orders:
-            if order.origin:
-                order.with_context(context).sudo(order.user_id.id).create_refund_invoice()
-            else:
-                order.with_context(context).sudo(order.user_id.id).generate_ncf_invoice()
-            _logger.info("PTV GENERO LA FACTURA {}".format(order.reserve_ncf_seq))
+            order.create_picking()
+            order.invoice_id.signal_workflow("invoice_open")
+            order.action_paid_reconcile()
+            _logger.info("PTV GENERO EL PICKING {}".format(order.reserve_ncf_seq))
 
 
     @api.model
@@ -550,10 +547,11 @@ class PosOrder(models.Model):
         self.write({'state': 'paid'})
         self._cr.execute("update pos_order_line set qty_allow_refund = qty where order_id = {}".format(self.id))
         self.action_invoice()
-        self.create_picking()
         self.invoice_id.move_name = self.reserve_ncf_seq
-        self.invoice_id.signal_workflow("invoice_open")
-        self.action_paid_reconcile()
+        if not self.session_id.config_id.create_picking_from_cron:
+            self.create_picking()
+            self.invoice_id.signal_workflow("invoice_open")
+            self.action_paid_reconcile()
 
     @api.multi
     def action_paid_reconcile(self):
