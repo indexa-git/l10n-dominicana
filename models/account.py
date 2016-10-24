@@ -141,7 +141,7 @@ class AccountTax(models.Model):
 
     @api.v8
     def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None):
-        res = super(AccountTax, self).compute_all(price_unit, currency=None, quantity=1.0, product=None, partner=None)
+        res = super(AccountTax, self).compute_all(price_unit, currency=currency, quantity=quantity, product=product, partner=partner)
         for tax in res.get("taxes", False):
             tax_id = self.browse(tax["id"])
             if tax_id.tax_except:
