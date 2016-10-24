@@ -587,7 +587,7 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-        res = {}
+        res = {"origin": False}
         ncf = False
 
         while not ncf:
@@ -618,7 +618,7 @@ class PosOrder(models.Model):
                 res.update({"fiscal_type": "final_note"})
             elif reference_ncf_type == "15":
                 res.update({"fiscal_type": "special_note"})
-
+            res.update({"origin": reference_ncf})
         return res
 
     @api.model
