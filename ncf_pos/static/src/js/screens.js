@@ -415,40 +415,6 @@ odoo.define('ncf_pos.screens', function (require) {
         }
     });
 
-    //screens.ReceiptScreenWidget.include({
-
-        //render_receipt: function () {
-        //    var self = this;
-        //    var order = this.pos.get_order();
-        //    var client = order.get_client();
-        //
-        //    if (order.get_screen_data('screen') == "receipt") {
-        //        new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (result) {
-        //
-        //        order.set_ncf(result.ncf);
-        //        var invoice_type = result.fiscal_type_name;
-        //
-        //        order.save_to_db();
-        //        self.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
-        //            widget: self,
-        //            order: order,
-        //            invoice_type: invoice_type,
-        //            ncf: order.get_ncf(),
-        //            client: client,
-        //            receipt: order.export_for_printing(),
-        //            orderlines: order.get_orderlines(),
-        //            paymentlines: order.get_paymentlines()
-        //        }));
-        //
-        //    })
-        //    } else {
-        //        this._super();
-        //    }
-        //
-        //}
-
-    //});
-
 
     //Button for quotations
     var QuotationActionWidget = screens.ActionButtonWidget.extend({
