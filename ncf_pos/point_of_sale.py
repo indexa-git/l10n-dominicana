@@ -389,7 +389,7 @@ class PosOrder(models.Model):
 
     @api.model
     def cron_picking_generate(self):
-        orders = self.search([('picking_id','=',False)])
+        orders = self.search([('picking_id','=',False),('state','=','invoiced')])
         context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1, "from_ui": True}
         for order in orders:
             order.create_picking()
