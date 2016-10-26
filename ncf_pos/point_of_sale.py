@@ -587,39 +587,40 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-        res = {"origin": False}
-        ncf = False
+        if name:
+            res = {"origin": False}
+            ncf = False
 
-        while not ncf:
-            time.sleep(1)
-            order = self.search([('pos_reference', '=', name)])
-            if order:
-                ncf = order.reserve_ncf_seq
-                res.update({"ncf": ncf, "id": order.id})
-            self._cr.commit()
+            while not ncf:
+                time.sleep(1)
+                order = self.search([('pos_reference', '=', name)])
+                if order:
+                    ncf = order.reserve_ncf_seq
+                    res.update({"ncf": ncf, "id": order.id})
+                self._cr.commit()
 
-        fiscal_code = ncf[9:11]
-        if not order.origin:
-            if fiscal_code == "01":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL"})
-            elif fiscal_code == "02":
-                res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL"})
-            if fiscal_code == "14":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL"})
-            elif fiscal_code == "15":
-                res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES"})
-        else:
-            reference_ncf = order.origin.invoice_id.number
-            reference_ncf_type = reference_ncf[9:11]
-            res.update({"fiscal_type_name": "NOTA DE CREDITO"})
-            if reference_ncf_type in ("01", "14"):
-                res.update({"fiscal_type": "fiscal_note"})
-            elif reference_ncf_type == "02":
-                res.update({"fiscal_type": "final_note"})
-            elif reference_ncf_type == "15":
-                res.update({"fiscal_type": "special_note"})
-            res.update({"origin": reference_ncf})
-        return res
+            fiscal_code = ncf[9:11]
+            if not order.origin:
+                if fiscal_code == "01":
+                    res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL"})
+                elif fiscal_code == "02":
+                    res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL"})
+                if fiscal_code == "14":
+                    res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL"})
+                elif fiscal_code == "15":
+                    res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES"})
+            else:
+                reference_ncf = order.origin.invoice_id.number
+                reference_ncf_type = reference_ncf[9:11]
+                res.update({"fiscal_type_name": "NOTA DE CREDITO"})
+                if reference_ncf_type in ("01", "14"):
+                    res.update({"fiscal_type": "fiscal_note"})
+                elif reference_ncf_type == "02":
+                    res.update({"fiscal_type": "final_note"})
+                elif reference_ncf_type == "15":
+                    res.update({"fiscal_type": "special_note"})
+                res.update({"origin": reference_ncf})
+            return res
 
     @api.model
     def create(self, values):
