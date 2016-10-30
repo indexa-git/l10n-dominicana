@@ -52,7 +52,7 @@
                     </div>
                 </field>
 
-                <xpath expr="//button[@name='invoice_cancel']" position="replace">
+                <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
                     <button name="%(account.action_account_invoice_cancel)d" type='action' states="draft,proforma2,open"
                             string="Cancel Invoice" groups="account.group_account_user"/>
                 </xpath>
@@ -135,7 +135,7 @@
 
                 <field name="move_name" position="replace"/>
 
-                <xpath expr="//button[@name='invoice_open']" position="replace">
+                <xpath expr="//button[@name='action_invoice_open']" position="replace">
                     <button name="invoice_ncf_validation" type="object" states="draft,proforma2" string="Validate"
                             class="oe_highlight" groups="account.group_account_invoice"/>
                 </xpath>

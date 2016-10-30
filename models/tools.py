@@ -38,7 +38,7 @@ import csv
 import cPickle
 import re
 import urllib2
-from openerp import models
+from odoo import models
 
 
 __author__ = 'eneldoserrata'

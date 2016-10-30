@@ -33,7 +33,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, fields, api, _
+from odoo import models, fields, api, _
 
 from lxml import etree
 

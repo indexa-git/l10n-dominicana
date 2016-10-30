@@ -33,7 +33,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions
 import calendar
 import base64
 from tools import is_identification, is_ncf
@@ -41,8 +41,8 @@ import time
 import re
 
 
-class ResCompany(models.Model):
-    _inherit = "res.company"
+class AccountConfigSettings(models.TransientModel):
+    _inherit = "account.config.settings"
 
     payment_tax_on_606 = fields.Boolean("Reportar retenciones del 606 en la fecha del pago")
 
