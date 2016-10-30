@@ -32,12 +32,12 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, fields, api, exceptions, tools, registry
+from odoo import models, fields, api, exceptions, tools, registry
 
 import time
 import openerp.addons.decimal_precision as dp
-from openerp.tools.translate import _
-from openerp.osv import osv
+from odoo.tools.translate import _
+from odoo.osv import osv
 from datetime import datetime
 
 import logging
@@ -393,7 +393,7 @@ class PosOrder(models.Model):
         context = {u'lang': u'es_DO', u'tz': u'America/Santo_Domingo', u'uid': 1, "from_ui": True}
         for order in orders:
             order.create_picking()
-            order.invoice_id.signal_workflow("invoice_open")
+            order.invoice_id.action_invoice_open()
             order.action_paid_reconcile()
             _logger.info("PTV GENERO EL PICKING {}".format(order.reserve_ncf_seq))
 
@@ -450,7 +450,7 @@ class PosOrder(models.Model):
             inv_line_ref.create(inv_line)
 
         refund_invoice_id.compute_taxes()
-        refund_invoice_id.signal_workflow("invoice_open")
+        refund_invoice_id.action_invoice_open()
 
         order.invoice_id = refund_invoice_id.id
         order.create_picking()
@@ -550,7 +550,7 @@ class PosOrder(models.Model):
         self.invoice_id.move_name = self.reserve_ncf_seq
         if not self.session_id.config_id.create_picking_from_cron:
             self.create_picking()
-            self.invoice_id.signal_workflow("invoice_open")
+            self.invoice_id.action_invoice_open()
             self.action_paid_reconcile()
 
     @api.multi
