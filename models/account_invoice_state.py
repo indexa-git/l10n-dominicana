@@ -32,8 +32,8 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, api, _, fields
-from openerp.exceptions import UserError
+from odoo import models, api, _, fields
+from odoo.exceptions import UserError
 
 
 class AccountInvoiceCancel(models.TransientModel):
@@ -66,5 +66,5 @@ class AccountInvoiceCancel(models.TransientModel):
             if record.state in ('cancel', 'paid'):
                 raise UserError(_("Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Done' state."))
             record.write({"anulation_type": self.anulation_type})
-            record.signal_workflow('invoice_cancel')
+            record.action_invoice_cancel()
         return {'type': 'ir.actions.act_window_close'}

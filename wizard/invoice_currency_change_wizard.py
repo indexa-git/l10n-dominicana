@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from openerp import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions
 
 
 class InvoiceCurrecyChangeWizard(models.TransientModel):

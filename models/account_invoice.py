@@ -34,11 +34,11 @@
 ########################################################################################################################
 import json
 
-from openerp import exceptions
+from odoo import exceptions
 import requests
 from tools import is_ncf, _internet_on
 import openerp.addons.decimal_precision as dp
-from openerp import api, fields, models, _
+from odoo import api, fields, models, _
 
 from datetime import datetime
 
@@ -330,7 +330,7 @@ class AccountInvoice(models.Model):
                                                    "proveedor esten correctamente digitados, si es de proveedor informal o de "
                                                    "gasto menor vefifique si debe solicitar nuevos numero.")
 
-            self.signal_workflow("invoice_open")
+            self.action_invoice_open()
 
     @api.model
     def create(self, vals):

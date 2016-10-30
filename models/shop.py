@@ -34,7 +34,7 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 
-from openerp import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions
 
 
 class ShopJournalConfig(models.Model):

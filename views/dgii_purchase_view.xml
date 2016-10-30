@@ -4,15 +4,19 @@
 
 
         <!-- Inherit Form View to Modify it -->
-        <record id="inherit_view_company_inherit_form" model="ir.ui.view">
-            <field name="name">inherit_view_company_inherit_form</field>
-            <field name="model">res.company</field>
-            <field name="inherit_id" ref="account.view_company_inherit_form"/>
+        <record id="ncf_manager_view_account_config_settings" model="ir.ui.view">
+            <field name="name">ncf_manager_view_account_config_settings</field>
+            <field name="model">account.config.settings</field>
+            <field name="inherit_id" ref="account.view_account_config_settings"/>
             <field name="arch" type="xml">
 
-                <field name="tax_calculation_rounding_method" position="after">
-                    <field name="payment_tax_on_606"/>
-                </field>
+                <xpath expr="//div[@name='customer_payments']">
+                    <div>
+                        <field name="payment_tax_on_606" class="oe_inline"/>
+                        <label for="payment_tax_on_606"/>
+                    </div>
+                </xpath>
+
 
             </field>
         </record>
@@ -23,14 +27,17 @@
             <field name="arch" type="xml">
                 <form string="Reporte 606">
                     <header>
-                        <button name="create_report" string="Regenerar reporte" class="oe_highlight" states="done" type="object" context="{'recreate':True}"/>
+                        <button name="create_report" string="Regenerar reporte" class="oe_highlight" states="done"
+                                type="object" context="{'recreate':True}"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <group>
                         <group>
                             <field name="company_id" readonly="[('state','=','done')]"/>
-                            <field name="year" placeholder="2018" required="1" attrs="{'readonly': [('state','=','done')]}"/>
-                            <field name="month" placeholder="12" required="1" attrs="{'readonly': [('state','=','done')]}"/>
+                            <field name="year" placeholder="2018" required="1"
+                                   attrs="{'readonly': [('state','=','done')]}"/>
+                            <field name="month" placeholder="12" required="1"
+                                   attrs="{'readonly': [('state','=','done')]}"/>
                             <field name="txt" filename="txt_filename"/>
                         </group>
                         <group>

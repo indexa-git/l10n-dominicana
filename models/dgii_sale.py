@@ -33,7 +33,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions
 import calendar
 import base64
 from tools import is_identification, is_ncf

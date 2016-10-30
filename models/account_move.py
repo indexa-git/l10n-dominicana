@@ -32,8 +32,8 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
-from openerp import models, api, _, fields
-from openerp.exceptions import UserError, ValidationError
+from odoo import models, api, _, fields
+from odoo.exceptions import UserError, ValidationError
 import openerp.addons.decimal_precision as dp
 
 
