@@ -1,2 +1,0 @@
-Manejador de comprobantes fiscales
-==================================
