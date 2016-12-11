@@ -20,13 +20,17 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'account', 'account_invoice_refund_link'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
+        'views/shop_view.xml',
+        'views/account_invoice_view.xml',
+        'views/account_view.xml',
         'views/views.xml',
         'views/templates.xml',
+        'data/setup_ncf.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
