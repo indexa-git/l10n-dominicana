@@ -47,6 +47,7 @@ class AccountInvoice(models.Model):
     shop_id = fields.Many2one("shop.ncf.config", string="Punto de venta", required=False,
                               default=_default_user_shop, domain=lambda s: [('user_ids', '=', [s._uid])])
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
+    purchase_type = fields.Selection(related="journal_id.purchase_type")
 
     sale_fiscal_type = fields.Selection([
         ("final", u"Consumidor final"),
@@ -54,7 +55,7 @@ class AccountInvoice(models.Model):
         ("gov", u"Gubernamental"),
         ("special", u"Regimenes especiales"),
         ("unico", u"Unico ingreso")
-    ], string="Tipo de comprobante", default="final")
+    ], string="NCF para", default="final")
 
     purchase_fiscal_type = fields.Selection([
         ('01', u'01 - Gastos de personal'),
