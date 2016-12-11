@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-                <record id="ncf_manager_account_journal_form" model="ir.ui.view">
+        <record id="ncf_manager_account_journal_form" model="ir.ui.view">
             <field name="name">ncf manager aacount journal form</field>
             <field name="model">account.journal</field>
             <field name="inherit_id" ref="account.view_account_journal_form"/>
