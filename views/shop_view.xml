@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="invoice_journal_config_form" model="ir.ui.view">
+            <field name="name">invoice.journal.config.form</field>
+            <field name="model">shop.ncf.config</field>
+            <field name="arch" type="xml">
+                <form string="Comprobantes fiscales">
+                    <sheet>
+                        <group col="2">
+                            <field name="company_id"/>
+                            <field name="name"/>
+                            <field name="journal_id"/>
+                        </group>
+                        <group col="2" string="Configuración NCF consumidor final">
+                            <field name="final_sequence_id"/>
+                            <field name="final_max"/>
+                        </group>
+                        <group col="2" string="Configuración NCF para crédito fiscal">
+                            <field name="fiscal_sequence_id"/>
+                            <field name="fiscal_max"/>
+                        </group>
+                        <group col="2" string="Configuración NCF gubernamentales">
+                            <field name="gov_sequence_id"/>
+                            <field name="gov_max"/>
+                        </group>
+                        <group col="2" string="Configuración NCF regímenes especiales">
+                            <field name="special_sequence_id"/>
+                            <field name="special_max"/>
+                        </group>
+                        <group col="2" string="Configuración NCF NC / ND">
+                            <field name="nota_de_credito_sequence_id"/>
+                            <field name="nc_max"/>
+                            <field name="nota_de_debito_sequence_id"/>
+                            <field name="nd_max"/>
+                        </group>
+                        <group string="Usuarios">
+                            <field name="user_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="invoice_journal_config_tree" model="ir.ui.view">
+            <field name="name">invoice.journal.config.tree</field>
+            <field name="model">shop.ncf.config</field>
+            <field name="arch" type="xml">
+                <tree string="Comprobantes fiscales">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="shop_ncf_config_action" model="ir.actions.act_window">
+            <field name="name">Comprobantes fiscales</field>
+            <field name="res_model">shop.ncf.config</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="invoice_journal_config_tree"/>
+        </record>
+
+        <menuitem action="shop_ncf_config_action" id="invoice_journal_config_menu"
+                  parent="account.account_management_menu"
+                  groups="account.group_account_user,account.group_account_manager,account.group_account_invoice"/>
+
+    </data>
+</odoo>

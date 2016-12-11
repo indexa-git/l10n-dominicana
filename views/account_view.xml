@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+                <record id="ncf_manager_account_journal_form" model="ir.ui.view">
+            <field name="name">ncf manager aacount journal form</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="arch" type="xml">
+
+                <field name="type" position="after">
+                    <field name="ncf_control" attrs="{'invisible': [('type','!=','sale')]}"/>
+                    <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
+                    <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
+                </field>
+
+            </field>
+        </record>
+
+
+    </data>
+</odoo>
