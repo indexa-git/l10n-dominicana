@@ -7,6 +7,18 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
+
+                <field name="number" position="before">
+                    <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
+                    <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
+                    <field name="move_name" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
+                </field>
+
+                <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
+                    <button name="%(account.action_account_invoice_cancel)d" type='action' states="draft,proforma2,open"
+                            string="Cancel Invoice" groups="account.group_account_user"/>
+                </xpath>
+
                 <field name="user_id" position="after">
                     <field name="shop_id" required="1" attrs="{'readonly': [('state','!=','draft')]}"
                            options="{'no_quick_create': True,    'no_create_edit' : True}"/>
@@ -15,6 +27,7 @@
                     <field name="sale_fiscal_type" attrs="{'invisible':[('ncf_control','=',False)],
                     'required': [('ncf_control','=',True)], 'readonly': [('state','!=','draft')]}"/>
                     <field name="reference" invisible="0" readonly="1"/>
+                    <field name="move_name" invisible="0" groups="account.group_account_manager"/>
                 </field>
             </field>
         </record>
@@ -25,11 +38,15 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
+                <field name="journal_id" position="replace"/>
                 <field name="reference" position="before">
-                    <field name="purchase_type" readonly="1"/>
+                    <field name="purchase_type" invisible="1"/>
+                    <field name="journal_id" groups="account.group_account_user" options="{'no_create': True}"
+                           attrs="{'readonly':[('move_name','!=',False)]}"/>
                     <field name="purchase_fiscal_type" attrs="{'invisible':[('purchase_type','not in',['normal','minor','informal'])],
                     'required': [('purchase_type','in',['normal','minor','informal'])],'readonly': [('state','!=','draft')]}"/>
-                    <field name="move_name" string="NCF" attrs="{'size': 19,'invisible': [('purchase_type','!=','normal')],'required': [('purchase_type','=','normal')],'readonly': [('state','!=','draft')]}"/>
+                    <field name="move_name" string="NCF"
+                           attrs="{'size': 19,'invisible': [('purchase_type','!=','normal')],'required': [('purchase_type','=','normal')],'readonly': [('state','!=','draft')]}"/>
                 </field>
 
             </field>

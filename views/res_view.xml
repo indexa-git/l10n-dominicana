@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="view_company_form" model="ir.ui.view">
+            <field name="name">res.company.form</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+
+                <notebook>
+                    <page string="Parametros">
+                        <group>
+                            <field name="payment_tax_on_606"></field>
+                        </group>
+                    </page>
+                </notebook>
+
+            </field>
+        </record>
+
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="view_partner_form" model="ir.ui.view">
+            <field name="name">res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@class='o_row']">
+                    <field name="fiscal_info_required" invisible="1"/>
+                    <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)]}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="view_partner_property_form" model="ir.ui.view">
+            <field name="name">res.partner.property.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="account.view_partner_property_form"/>
+            <field name="arch" type="xml">
+                <group name="acc_sale">
+                    <field name="sale_fiscal_type"/>
+                </group>
+                <group name="acc_purchase">
+                    <field name="purchase_fiscal_type"/>
+                </group>
+            </field>
+        </record>
+
+    </data>
+</odoo>

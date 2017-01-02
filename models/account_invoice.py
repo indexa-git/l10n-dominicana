@@ -71,6 +71,36 @@ class AccountInvoice(models.Model):
         ('11', u'11 - Gastos de Seguro'),
     ], string=u"Tipo de gasto")
 
+    anulation_type = fields.Selection([
+        ("01", u"DETERIORO DE FACTURA PRE-IMPRESA"),
+        ("02", u"ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
+        ("03", u"IMPRESIÓN DEFECTUOSA"),
+        ("04", u"DUPLICIDAD DE FACTURA"),
+        ("05", u"CORRECCIÓN DE LA INFORMACIÓN"),
+        ("06", u"CAMBIO DE PRODUCTOS"),
+        ("07", u"DEVOLUCIÓN DE PRODUCTOS"),
+        ("08", u"OMISIÓN DE PRODUCTOS"),
+        ("09", u"ERRORES EN SECUENCIA DE NCF")
+    ], string=u"Tipo de anulación", copy=False)
+
+    @api.onchange('partner_id', 'company_id')
+    def _onchange_partner_id(self):
+        super(AccountInvoice, self)._onchange_partner_id()
+
+        if self.partner_id:
+            if type in ('out_invoice', 'out_refund'):
+                self.sale_fiscal_type = self.partner_id.sale_fiscal_type
+            else:
+                self.purchase_fiscal_type = self.partner_id.purchase_fiscal_type
+
+    @api.onchange('sale_fiscal_type', 'purchase_fiscal_type')
+    def _onchange_fiscal_type(self):
+        if self.partner_id:
+            if type in ('out_invoice', 'out_refund'):
+                self.partner_id.write({'sale_fiscal_type': self.sale_fiscal_type})
+            else:
+                self.partner_id.write({'purchase_fiscal_type': self.purchase_fiscal_type})
+
     @api.onchange("shop_id")
     def onchange_shop_id(self):
         self.journal_id = self.shop_id.journal_id

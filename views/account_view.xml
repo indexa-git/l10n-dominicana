@@ -16,6 +16,28 @@
             </field>
         </record>
 
+        <record id="ncf_manager_account_tax_form" model="ir.ui.view">
+            <field name="name">ncf manager account tax form</field>
+            <field name="model">account.tax</field>
+            <field name="inherit_id" ref="account.view_tax_form"/>
+            <field name="arch" type="xml">
+
+                <field name="type_tax_use" position="after">
+                    <field name="purchase_tax_type" widget="radio"
+                           attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
+                </field>
+                <field name="price_include" position="before">
+                    <field name="tax_except"/>
+                </field>
+
+            </field>
+        </record>
+
+        <menuitem id="marcos_account_dgii_menu" name="DGII" parent="account.menu_finance" sequence="5"
+                  groups="account.group_account_user"/>
+
+        <menuitem id="marcos_account_dgii_file_menu" name="Archivos" parent="marcos_account_dgii_menu" sequence="5"/>
+
 
     </data>
 </odoo>

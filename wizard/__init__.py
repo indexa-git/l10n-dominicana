@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 ########################################################################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>)
-#  Write by Eneldo Serrata (eneldo@marcos.do)
+#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>) #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0
@@ -32,13 +31,6 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
-########################################################################################################################
+#######################################################################################################################
 
-from . import shop
-from . import account
-from . import account_invoice
-from . import dgii_exterior
-from . import dgii_purchase
-from . import dgii_sale
-from . import dgii_cancel
-from . import res
+from . import account_invoice_cancel
