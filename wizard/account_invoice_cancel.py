@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 ########################################################################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>)
-#  Write by Eneldo Serrata (eneldo@marcos.do)
+#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>) #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0
@@ -33,12 +32,35 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
+from odoo import models, api, _, fields
+from odoo.exceptions import UserError
 
-from . import shop
-from . import account
-from . import account_invoice
-from . import dgii_exterior
-from . import dgii_purchase
-from . import dgii_sale
-from . import dgii_cancel
-from . import res
+
+class AccountInvoiceCancel(models.TransientModel):
+    """
+    This wizard will cancel the all the selected invoices.
+    If in the journal, the option allow cancelling entry is not selected then it will give warning message.
+    """
+
+    _inherit = "account.invoice.cancel"
+    _description = "Cancel the Selected Invoices"
+
+    anulation_type = fields.Selection([
+        ("01", u"01 - DETERIORO DE FACTURA PRE-IMPRESA"),
+        ("02", u"02 - ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
+        ("03", u"03 - IMPRESIÓN DEFECTUOSA"),
+        ("04", u"04 - DUPLICIDAD DE FACTURA"),
+        ("05", u"05 - CORRECCIÓN DE LA INFORMACIÓN"),
+        ("06", u"06 - CAMBIO DE PRODUCTOS"),
+        ("07", u"07 - DEVOLUCIÓN DE PRODUCTOS"),
+        ("08", u"08 - OMISIÓN DE PRODUCTOS"),
+        ("09", u"09 - ERRORES EN SECUENCIA DE NCF")
+    ], string=u"Tipo de anulación", required=True)
+
+    @api.multi
+    def invoice_cancel(self):
+        active_id = self._context.get("active_id", False)
+        if active_id:
+            invoice_id = self.env['account.invoice'].browse(active_id)
+            invoice_id.anulation_type = self.anulation_type
+            return invoice_id.action_invoice_cancel()

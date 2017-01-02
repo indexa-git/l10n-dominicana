@@ -64,19 +64,41 @@ class AccountMove(models.Model):
             if not invoice.sale_fiscal_type:
                 raise ValidationError(u"Debe especificar el tipo de comprobante para la venta.")
 
-            if invoice.type == "out_refund":
-                sequence = invoice.shop_id.nota_de_credito_sequence_id
-            elif invoice.sale_fiscal_type == "final":
-                sequence = invoice.shop_id.final_sequence_id
-            elif invoice.sale_fiscal_type == "fiscal":
-                sequence = invoice.shop_id.fiscal_sequence_id
-            elif invoice.sale_fiscal_type == "gov":
-                sequence = invoice.shop_id.gov_sequence_id
-            elif invoice.sale_fiscal_type == "special":
-                sequence = invoice.shop_id.special_sequence_id
+            if not invoice.move_name:
+                if invoice.type == "out_refund":
+                    sequence = invoice.shop_id.nota_de_credito_sequence_id
+                elif invoice.sale_fiscal_type == "final":
+                    sequence = invoice.shop_id.final_sequence_id
+                elif invoice.sale_fiscal_type == "fiscal":
+                    sequence = invoice.shop_id.fiscal_sequence_id
+                elif invoice.sale_fiscal_type == "gov":
+                    sequence = invoice.shop_id.gov_sequence_id
+                elif invoice.sale_fiscal_type == "special":
+                    sequence = invoice.shop_id.special_sequence_id
 
-            invoice.shop_id.check_max(invoice.sale_fiscal_type, invoice)
-            invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
-            invoice.reference = invoice.journal_id.sequence_id.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
+                invoice.shop_id.check_max(invoice.sale_fiscal_type, invoice)
+                invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
+                invoice.reference = invoice.journal_id.sequence_id.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
 
         return super(AccountMove, self).post()
+
+
+class AccountTax(models.Model):
+    _inherit = 'account.tax'
+
+    purchase_tax_type = fields.Selection([('itbis', 'ITBIS Pagado'),
+                                          ('ritbis', 'ITBIS Retenido'),
+                                          ('isr', 'ISR Retenido'),
+                                          ("cost", u"Format parte del gasto"),
+                                          ('none', 'No deducible')],
+                                         default="itbis", string="Tipo de impuesto de compra")
+    tax_except = fields.Boolean(string="Exento de este impuesto")
+
+    @api.multi
+    def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None):
+        res = super(AccountTax, self).compute_all(price_unit, currency=currency, quantity=quantity, product=product, partner=partner)
+        for tax in res.get("taxes", False):
+            tax_id = self.browse(tax["id"])
+            if tax_id.tax_except:
+                tax["amount"] = 0
+        return res
