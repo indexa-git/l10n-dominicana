@@ -42,26 +42,36 @@ class ShopJournalConfig(models.Model):
 
     company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id,
                                  string=u"Compañia")
-    name = fields.Char("Nombre", size=40, required=True)
+    name = fields.Char("Sucursal", size=40, required=True)
 
     journal_id = fields.Many2one("account.journal", string="Diario")
 
     final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia")
+    final_number_next_actual = fields.Integer(string=u"Próximo número", related="final_sequence_id.number_next_actual")
     final_max = fields.Integer(string=u"Número máximo")
 
     fiscal_sequence_id = fields.Many2one("ir.sequence", string=u"Credito fiscal")
+    fiscal_number_next_actual = fields.Integer(string=u"Próximo número",
+                                               related="fiscal_sequence_id.number_next_actual")
     fiscal_max = fields.Integer(string=u"Número máximo")
 
     gov_sequence_id = fields.Many2one("ir.sequence", string=u"Gubernamental")
+    gov_number_next_actual = fields.Integer(string=u"Próximo número", related="gov_sequence_id.number_next_actual")
     gov_max = fields.Integer(string=u"Número máximo")
 
     special_sequence_id = fields.Many2one("ir.sequence", string=u"Especiales")
+    special_number_next_actual = fields.Integer(string=u"Próximo número",
+                                                related="special_sequence_id.number_next_actual")
     special_max = fields.Integer(string=u"Número máximo")
 
     nota_de_credito_sequence_id = fields.Many2one("ir.sequence", string=u"Nota de crédito")
+    nota_de_credito_number_next_actual = fields.Integer(string=u"Próximo número",
+                                                        related="nota_de_credito_sequence_id.number_next_actual")
     nc_max = fields.Integer(string=u"Número máximo")
 
     nota_de_debito_sequence_id = fields.Many2one("ir.sequence", string=u"Nota de débito")
+    nota_de_debito_number_next_actual = fields.Integer(string=u"Próximo número",
+                                                       related="nota_de_debito_sequence_id.number_next_actual")
     nd_max = fields.Integer(string=u"Número máximo")
 
     user_ids = fields.Many2many("res.users", string=u"Usuarios que pueden usar esta sucursal")
@@ -120,7 +130,6 @@ class ShopJournalConfig(models.Model):
 
             sale_journal = self.env["account.journal"].browse(1)
             sale_journal.ncf_control = True
-
 
             seq_values["prefix"] = final_prefix
             seq_values["name"] = "Facturas de cliente final"
@@ -181,5 +190,4 @@ class ShopJournalConfig(models.Model):
                             'partner_ids': [user.id for user in self.user_ids]
                             }
 
-            invoice.message_post(type="notification",subtype="mt_comment", **mail_details)
-
+            invoice.message_post(type="notification", subtype="mt_comment", **mail_details)
