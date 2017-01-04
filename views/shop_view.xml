@@ -13,26 +13,32 @@
                             <field name="name"/>
                             <field name="journal_id"/>
                         </group>
-                        <group col="2" string="Configuración NCF consumidor final">
+                        <group col="6" string="Configuración NCF consumidor final">
                             <field name="final_sequence_id"/>
+                            <field name="final_number_next_actual"/>
                             <field name="final_max"/>
                         </group>
-                        <group col="2" string="Configuración NCF para crédito fiscal">
+                        <group col="6" string="Configuración NCF para crédito fiscal">
                             <field name="fiscal_sequence_id"/>
+                            <field name="fiscal_number_next_actual"/>
                             <field name="fiscal_max"/>
                         </group>
-                        <group col="2" string="Configuración NCF gubernamentales">
+                        <group col="6" string="Configuración NCF gubernamentales">
                             <field name="gov_sequence_id"/>
+                            <field name="gov_number_next_actual"/>
                             <field name="gov_max"/>
                         </group>
-                        <group col="2" string="Configuración NCF regímenes especiales">
+                        <group col="6" string="Configuración NCF regímenes especiales">
                             <field name="special_sequence_id"/>
+                            <field name="special_number_next_actual"/>
                             <field name="special_max"/>
                         </group>
-                        <group col="2" string="Configuración NCF NC / ND">
+                        <group col="6" string="Configuración NCF NC / ND">
                             <field name="nota_de_credito_sequence_id"/>
+                            <field name="nota_de_credito_number_next_actual"/>
                             <field name="nc_max"/>
                             <field name="nota_de_debito_sequence_id"/>
+                            <field name="nota_de_debito_number_next_actual"/>
                             <field name="nd_max"/>
                         </group>
                         <group string="Usuarios">
