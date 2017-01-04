@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="PosTicket">
+
+        <t t-jquery="t[t-esc='moment().format(\'L LT\')']" t-operation="replace"/>
+        <t t-jquery="t[t-esc='order.name']" t-operation="replace">
+
+            <div class="pos-center-align">
+                <h2><t t-esc="order.pos.company.name"/></h2>
+            </div>
+
+            <div t-attf-style="padding-bottom:0px; padding-left:0px; padding-right:0px;text-align: left;" class="header col-xs-12 company-info">
+                <div class="mb8" style="font-size:12px !important; padding-bottom:2px;">
+                    <div  t-if="widget.pos.company.street or  widget.pos.company.street2 or  widget.pos.company.zip">
+                        <span class="fa fa-map-marker fa-lg"/>
+                        &#160;
+                        <span  t-esc="widget.pos.company.street"/>
+                        <span  t-if="widget.pos.company.street and  widget.pos.company.street2">,</span>
+                        <span  t-esc="widget.pos.company.street2"/>
+                        <!--<span  t-if="widget.pos.company.zip and (widget.pos.company.street or  widget.pos.company.street2)">,</span>-->
+                        <!--<span  t-esc="widget.pos.company.zip"/>-->
+                    </div>
+                    <div  t-if="widget.pos.company.city or  widget.pos.company.country_id">
+                        <span class="fa fa-map-marker fa-lg"/>
+                        &#160;
+                        <span  t-esc="widget.pos.company.city"/>
+                        <!--<span  t-if="widget.pos.company.city and  widget.pos.company.country_id">,</span>-->
+                        <!--<span  t-esc="widget.pos.company.country_id"/>-->
+                    </div>
+                    <div  t-if="widget.pos.company.phone or  widget.pos.company.fax"><span class="fa fa-phone-square fa-lg"/>&#160;
+                        <span  t-esc="widget.pos.company.phone"/>
+                        <span  t-if="widget.pos.company.phone and  widget.pos.company.fax">,</span>
+                        <span  t-if="widget.pos.company.fax">Fax:</span>
+                        <span  t-esc="widget.pos.company.fax"/>
+                    </div>
+                    <div  t-if="widget.pos.company.email">
+                        <span class="fa fa-envelope-square fa-lg"/>&#160;
+                        <span  t-esc="widget.pos.company.email"/>
+                    </div>
+                    <div  t-if="widget.pos.company.website">
+                        <span class="fa fa-globe fa-lg"/>&#160;
+                        <span  t-esc="widget.pos.company.website"/>
+                    </div>
+                    <div  t-if="widget.pos.company.vat">
+                        <span class="fa fa-building fa-lg"/>&#160; RNC:
+                        <span  t-esc="widget.pos.company.vat"/>
+                    </div>
+                </div>
+                <div t-attf-style="width:auto; float:left; padding-left:15px;
+				   padding-right:15px; padding-top:2px; padding-bottom:2px;">
+                    <span  t-if="widget.pos.company.twitter" style="padding-left:0px;" class="fa fa-twitter-square fa-lg"/>&#160;
+                    <span  t-esc="widget.pos.company.twitter"/>
+                    <span  t-if="widget.pos.company.facebook" style="padding-left:13px;" class="fa fa-facebook-square fa-lg"/>&#160;
+                    <span  t-esc="widget.pos.company.facebook"/>
+                    <span  t-if="widget.pos.company.googleplus" style="padding-left:13px;" class="fa fa-google-plus-square fa-lg"/>
+                    &#160;
+                    <span  t-esc="widget.pos.company.googleplus"/>
+                </div>
+            </div>
+
+        </t>
+
+        <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
+
+            <div class="pos-center-align">
+                <div class="pos-center-align"><t t-esc="moment().format('L LT')"/> <t t-esc="order.name"/></div>
+                <strong>
+                <span t-esc="order.fiscal_type_name"/>
+                <br/>
+                <span t-esc="order.ncf"/>
+                <br/>
+                <t t-if="order.origin_ncf"><span>Afecta: </span><span t-esc="order.origin_ncf"/></t>
+                </strong>
+            </div>
+
+            <br/>
+            <t t-set="client" t-value="order.get('client')"/>
+             <t t-if="client">
+                 <span>Cliente:</span><t t-esc="client.name || ''"/>
+                 <br t-if="client.vat"/>
+                 <t t-if="client.vat"><span>RNC:</span><t t-esc="client.vat"/></t>
+                 <br t-if="client.address"/>
+                 <t t-if="client.address"><span>Dirección:</span><t t-esc="client.address || ''"/></t>
+             </t>
+        </t>
+
+        <t t-jquery="t[t-esc*='widget.pos.company.phone']" t-operation="replace">
+            <t t-if="client">
+                <t t-esc="client.phone || ''"/>
+            </t>
+        </t>
+
+
+        <t t-jquery="tr[t-foreach='orderlines']" t-operation="replace">
+            <table class="table">
+              <tr style="border-width: 2px;border-style: dotted;">
+                <th>Cant.</th>
+                <th>Desc.</th>
+                <th class="pos-right-align">Monto</th>
+              </tr>
+                <tr t-foreach="orderlines" t-as="orderline">
+                    <td>
+                        <t t-esc="orderline.get_quantity_str_with_unit()"/>
+                    </td>
+                    <td>
+                        <t t-esc="orderline.get_product().display_name"/>
+                        <!--<t t-if="orderline.get_note()">-->
+                            <!--<div class="pos-disc-font"> Nota: <t t-esc="orderline.get_note()"/>-->
+                            <!--</div>-->
+                        <!--</t>-->
+                         <t t-if="orderline.get_discount() > 0">
+                            <div class="pos-disc-font">
+                                With a <t t-esc="orderline.get_discount()"/>% discount
+                            </div>
+                        </t>
+                    </td>
+
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(orderline.get_display_price())"/>
+                    </td>
+                </tr>
+            </table>
+
+        </t>
+
+        <!--<t t-jquery=".pos-sale-ticket" t-operation="append">-->
+        <!--<t t-if="widget.pos.config.print_note">-->
+        <!--<p>-->
+        <!--<strong>Nota: </strong> <t t-esc="order.get_order_note()"/>-->
+        <!--</p>-->
+        <!--</t>-->
+        <!--</t>-->
+    </t>
+
+</templates>
