@@ -39,6 +39,7 @@
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
                 <field name="journal_id" position="replace"/>
+                <field name="move_name" position="replace"/>
                 <field name="reference" position="before">
                     <field name="purchase_type" invisible="1"/>
                     <field name="journal_id" groups="account.group_account_user" options="{'no_create': True}"
@@ -47,6 +48,7 @@
                     'required': [('purchase_type','in',['normal','minor','informal'])],'readonly': [('state','!=','draft')]}"/>
                     <field name="move_name" string="NCF"
                            attrs="{'size': 19,'invisible': [('purchase_type','!=','normal')],'required': [('purchase_type','=','normal')],'readonly': [('state','!=','draft')]}"/>
+
                 </field>
 
             </field>
