@@ -61,8 +61,8 @@
 
                 <xpath expr="//sheet//label" position="before">
                     <div class="oe_button_box" name="button_box">
-                        <button name="set_invoice_rate"
-                                type="object"
+                        <button name="%(update_rate_wizard_action)d"
+                                type="action"
                                 class="oe_stat_button"
                                 icon="fa-money"
                                 attrs="{'invisible': [('is_company_currency', '=', False)]}">
