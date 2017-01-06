@@ -44,33 +44,36 @@ class UpdateRateWizard(models.TransientModel):
 
     def _get_bank_rates(self):
         rates = []
-        comerciales = requests.get("http://api.marcos.do/rates").json()
-        central = requests.get("http://api.marcos.do/central_bank_rates").json()
+        try:
+            comerciales = requests.get("http://api.marcos.do/rates").json()
+            central = requests.get("http://api.marcos.do/central_bank_rates").json()
 
-        rates.append(("central-USD-{}".format(central['dollar']['selling_rate']),
-                      "BANCO CENTRAL USD - {}".format(central['dollar']['selling_rate'])))
+            rates.append(("central-USD-{}".format(central['dollar']['selling_rate']),
+                          "BANCO CENTRAL USD - {}".format(central['dollar']['selling_rate'])))
 
-        for k, v in comerciales.iteritems():
-            if k == 'bpd':
-                rates.append(("bpd-USD-{}".format(v['dollar']['selling_rate']),
-                              "BANCO POPULAR USD - {}".format(v['dollar']['selling_rate'])))
-                rates.append(("bpd-EUR-{}".format(v['euro']['selling_rate']),
-                              "BANCO POPULAR EUR - {}".format(v['euro']['selling_rate'])))
-            if k == 'blh':
-                rates.append(("blh-USD-{}".format(v['dollar']['selling_rate']),
-                              "BANCO LOPEZ DE HARO USD - {}".format(v['dollar']['selling_rate'])))
-                rates.append(("blh-EUR-{}".format(v['euro']['selling_rate']),
-                              "BANCO LOPEZ DE HARO EUR - {}".format(v['euro']['selling_rate'])))
-            if k == 'progress':
-                rates.append(("progress-USD-{}".format(v['dollar']['selling_rate']),
-                              "BANCO DOMINICANO DEL PROGRESO USD - {}".format(v['dollar']['selling_rate'])))
-                rates.append(("progress-EUR-{}".format(v['euro']['selling_rate']),
-                              "BANCO DOMINICANO DEL PROGRESO EUR - {}".format(v['euro']['selling_rate'])))
-            if k == 'banreservas':
-                rates.append(("banreservas-USD-{}".format(v['dollar']['selling_rate']),
-                              "BANRESERVAS USD - {}".format(v['dollar']['selling_rate'])))
-                rates.append(("banreservas-EUR-{}".format(v['euro']['selling_rate']),
-                              "BANRESERVAS EUR - {}".format(v['euro']['selling_rate'])))
+            for k, v in comerciales.iteritems():
+                if k == 'bpd':
+                    rates.append(("bpd-USD-{}".format(v['dollar']['selling_rate']),
+                                  "BANCO POPULAR USD - {}".format(v['dollar']['selling_rate'])))
+                    rates.append(("bpd-EUR-{}".format(v['euro']['selling_rate']),
+                                  "BANCO POPULAR EUR - {}".format(v['euro']['selling_rate'])))
+                if k == 'blh':
+                    rates.append(("blh-USD-{}".format(v['dollar']['selling_rate']),
+                                  "BANCO LOPEZ DE HARO USD - {}".format(v['dollar']['selling_rate'])))
+                    rates.append(("blh-EUR-{}".format(v['euro']['selling_rate']),
+                                  "BANCO LOPEZ DE HARO EUR - {}".format(v['euro']['selling_rate'])))
+                if k == 'progress':
+                    rates.append(("progress-USD-{}".format(v['dollar']['selling_rate']),
+                                  "BANCO DOMINICANO DEL PROGRESO USD - {}".format(v['dollar']['selling_rate'])))
+                    rates.append(("progress-EUR-{}".format(v['euro']['selling_rate']),
+                                  "BANCO DOMINICANO DEL PROGRESO EUR - {}".format(v['euro']['selling_rate'])))
+                if k == 'banreservas':
+                    rates.append(("banreservas-USD-{}".format(v['dollar']['selling_rate']),
+                                  "BANRESERVAS USD - {}".format(v['dollar']['selling_rate'])))
+                    rates.append(("banreservas-EUR-{}".format(v['euro']['selling_rate']),
+                                  "BANRESERVAS EUR - {}".format(v['euro']['selling_rate'])))
+        except:
+            pass
 
         return rates
 
