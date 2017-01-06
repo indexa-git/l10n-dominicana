@@ -8,6 +8,22 @@
             <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
 
+                <field name="number" position="after">
+                    <field name="is_company_currency" invisible="0"/>
+                </field>
+
+                <xpath expr="//sheet//label" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(update_rate_wizard_action)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                attrs="{'invisible': [('is_company_currency', '=', False)]}">
+                            <field name="invoice_rate" widget="statinfo" string="Tasa"/>
+                        </button>
+                    </div>
+                </xpath>
+
                 <field name="number" position="before">
                     <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
                     <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
@@ -38,6 +54,22 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
+
+                <field name="number" position="after">
+                    <field name="is_company_currency" invisible="1"/>
+                </field>
+
+                <xpath expr="//sheet//label" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="set_invoice_rate"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                attrs="{'invisible': [('is_company_currency', '=', False)]}">
+                            <field name="invoice_rate" widget="statinfo" string="Tasa"/>
+                        </button>
+                    </div>
+                </xpath>
                 <field name="journal_id" position="replace"/>
                 <field name="move_name" position="replace"/>
                 <field name="reference" position="before">

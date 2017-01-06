@@ -26,6 +26,8 @@
     'data': [
         'security/ir.model.access.csv',
         'security/ncf_manager_security.xml',
+        'wizard/account_invoice_cancel_view.xml',
+        'wizard/update_rate_wizard_view.xml',
         'views/shop_view.xml',
         'views/account_invoice_view.xml',
         'views/account_view.xml',
@@ -36,7 +38,6 @@
         'views/dgii_sale_view.xml',
         'views/dgii_cancel_view.xml',
         'views/res_view.xml',
-        'wizard/account_invoice_cancel_view.xml',
         'data/setup_ncf.xml',
     ],
     # only loaded in demonstration mode
