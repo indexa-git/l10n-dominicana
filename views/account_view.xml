@@ -39,5 +39,79 @@
         <menuitem id="marcos_account_dgii_file_menu" name="Archivos" parent="marcos_account_dgii_menu" sequence="5"/>
 
 
+        <record id="view_move_line_tree" model="ir.ui.view">
+            <field name="name">account.move.line.form</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_move_line_tree"/>
+            <field name="arch" type="xml">
+                <field name="credit" position="after">
+                    <field name="balance" sum="Balance"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="account.action_account_moves_all_a" model="ir.actions.act_window">
+            <field name="context">{'journal_type':'general'}</field>
+            <field name="name">Journal Items</field>
+            <field name="res_model">account.move.line</field>
+            <field name="view_id" ref="account.view_move_line_tree"/>
+            <field name="view_mode">tree,form,pivot,graph</field>
+        </record>
+
+        <menuitem action="account.action_account_moves_all_a" icon="STOCK_JUSTIFY_FILL"
+                  id="account.menu_action_account_moves_all"
+                  parent="account.menu_finance_entries" sequence="1" groups="account.group_account_manager"/>
+
+        <record id="view_account_move_line_filter" model="ir.ui.view">
+            <field name="name">account.move.line.filter</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+            <field name="arch" type="xml">
+                <filter name="posted" position="after">
+                    <separator/>
+                    <filter name="receivable" string="Receivable" domain="[('account_id.reconcile','=',True)]"
+                            help="Lines of Receivable Accounts"/>
+                    <filter name="payable" string="Payable" domain="[('account_id.reconcile','=',True)]"
+                            help="Lines of Payable Accounts"/>
+                </filter>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_move_line_pivot">
+            <field name="name">account.move.line.pivot</field>
+            <field name="model">account.move.line</field>
+            <field name="arch" type="xml">
+                <pivot string="Invoices" display_quantity="true">
+                    <field name="partner_id"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_move_line_graph">
+            <field name="name">account.move.line.graph</field>
+            <field name="model">account.move.line</field>
+            <field name="arch" type="xml">
+                <graph string="Invoices">
+                    <field name="partner_id"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="ncf_manager_view_account_move_line_filter" model="ir.ui.view">
+            <field name="name">ncf_manager_view_account_move_line_filter</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_account_move_line_filter"/>
+            <field name="arch" type="xml">
+
+                <field name="date" position="after">
+                    <field name="debit"/>
+                    <field name="credit"/>
+                </field>
+
+            </field>
+        </record>
+
+
     </data>
 </odoo>

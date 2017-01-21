@@ -34,7 +34,7 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 
-from odoo import models, fields, api
+from odoo import api, fields, models, tools
 
 
 class ResCompany(models.Model):
@@ -46,12 +46,11 @@ class ResCompany(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-
     @api.multi
-    @api.depends('sale_fiscal_type','purchase_fiscal_type')
+    @api.depends('sale_fiscal_type', 'purchase_fiscal_type')
     def _fiscal_info_required(self):
         for rec in self:
-            if rec.sale_fiscal_type in ['fiscal','gov','special'] or rec.purchase_fiscal_type:
+            if rec.sale_fiscal_type in ['fiscal', 'gov', 'special'] or rec.purchase_fiscal_type:
                 rec.fiscal_info_required = True
             else:
                 rec.fiscal_info_required = False
@@ -79,3 +78,15 @@ class ResPartner(models.Model):
         ('10', u'10 - Adquisiciones de Activos'),
         ('11', u'11 - Gastos de Seguro')
     ], string=u"Tipo de gasto")
+
+
+class Currency(models.Model):
+    _inherit = "res.currency"
+
+    rate = fields.Float(compute='_compute_current_rate', string='Current Rate', digits=(12, 16),
+                    help='The rate of the currency to the currency of rate 1.')
+
+class CurrencyRate(models.Model):
+    _inherit = "res.currency.rate"
+
+    rate = fields.Float(digits=(12, 16), help='The rate of the currency to the currency of rate 1')

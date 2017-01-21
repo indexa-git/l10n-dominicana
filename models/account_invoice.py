@@ -40,19 +40,22 @@ from odoo import models, fields, api
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
+    @api.multi
     @api.depends('currency_id', "invoice_rate", "date_invoice")
-    def _get_default_rate(self):
+    def _get_rate(self):
         for rec in self:
-            if rec.invoice_rate == 0:
-                rec.invoice_rate = rec.currency_id.with_context(dict(self._context or {}, date=rec.date_invoice)).rate/1
+            try:
+                rec.invoice_rate = 1/rec.currency_id.with_context(dict(self._context or {}, date=rec.date_invoice)).rate
+            except:
+                pass
 
     @api.depends("currency_id")
     def _is_company_currency(self):
         for rec in self:
             if rec.currency_id == rec.company_id.currency_id:
-                rec.is_company_currency = False
-            else:
                 rec.is_company_currency = True
+            else:
+                rec.is_company_currency = False
 
     def _default_user_shop(self):
         shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
@@ -97,9 +100,8 @@ class AccountInvoice(models.Model):
         ("09", u"ERRORES EN SECUENCIA DE NCF")
     ], string=u"Tipo de anulación", copy=False)
 
-    invoice_rate = fields.Monetary(string="Tasa", compute=_get_default_rate, store=True)
+    invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
     is_company_currency = fields.Boolean(compute=_is_company_currency)
-
 
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):

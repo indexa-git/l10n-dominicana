@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'account', 'account_invoice_refund_link','account_invoice_change_currency','web_sheet_full_width'],
+    'depends': ['base', 'account_accountant','account', 'account_invoice_refund_link','account_invoice_change_currency','web_sheet_full_width','rnc_validation','l10n_do_bank_statement_import'],
 
     # always loaded
     'data': [
