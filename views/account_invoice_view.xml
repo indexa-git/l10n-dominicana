@@ -18,7 +18,7 @@
                                 type="action"
                                 class="oe_stat_button"
                                 icon="fa-money"
-                                attrs="{'invisible': [('is_company_currency', '=', False)]}">
+                                attrs="{'invisible': [('is_company_currency', '=', True)]}">
                             <field name="invoice_rate" widget="statinfo" string="Tasa"/>
                         </button>
                     </div>
@@ -65,7 +65,7 @@
                                 type="action"
                                 class="oe_stat_button"
                                 icon="fa-money"
-                                attrs="{'invisible': [('is_company_currency', '=', False)]}">
+                                attrs="{'invisible': [('is_company_currency', '=', True)]}">
                             <field name="invoice_rate" widget="statinfo" string="Tasa"/>
                         </button>
                     </div>
