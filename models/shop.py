@@ -46,38 +46,50 @@ class ShopJournalConfig(models.Model):
 
     journal_id = fields.Many2one("account.journal", string="Diario")
 
+    final_active = fields.Boolean("Activo")
     final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia")
     final_number_next_actual = fields.Integer(string=u"Próximo número", related="final_sequence_id.number_next_actual")
     final_max = fields.Integer(string=u"Número máximo")
 
+    fiscal_active = fields.Boolean("Activo")
     fiscal_sequence_id = fields.Many2one("ir.sequence", string=u"Credito fiscal")
     fiscal_number_next_actual = fields.Integer(string=u"Próximo número",
                                                related="fiscal_sequence_id.number_next_actual")
     fiscal_max = fields.Integer(string=u"Número máximo")
 
+    gov_active = fields.Boolean("Activo")
     gov_sequence_id = fields.Many2one("ir.sequence", string=u"Gubernamental")
     gov_number_next_actual = fields.Integer(string=u"Próximo número", related="gov_sequence_id.number_next_actual")
     gov_max = fields.Integer(string=u"Número máximo")
 
+    special_active = fields.Boolean("Activo")
     special_sequence_id = fields.Many2one("ir.sequence", string=u"Especiales")
     special_number_next_actual = fields.Integer(string=u"Próximo número",
                                                 related="special_sequence_id.number_next_actual")
     special_max = fields.Integer(string=u"Número máximo")
 
-    nota_de_credito_sequence_id = fields.Many2one("ir.sequence", string=u"Nota de crédito")
-    nota_de_credito_number_next_actual = fields.Integer(string=u"Próximo número",
-                                                        related="nota_de_credito_sequence_id.number_next_actual")
+    unico_active = fields.Boolean("Activo")
+    unico_sequence_id = fields.Many2one("ir.sequence", string=u"Especiales")
+    unico_number_next_actual = fields.Integer(string=u"Próximo número",
+                                              related="unico_sequence_id.number_next_actual")
+    unico_max = fields.Integer(string=u"Número máximo")
+
+    nc_active = fields.Boolean("Activo")
+    nc_sequence_id = fields.Many2one("ir.sequence", string=u"Nota de crédito")
+    nc_number_next_actual = fields.Integer(string=u"Próximo número",
+                                           related="nc_sequence_id.number_next_actual")
     nc_max = fields.Integer(string=u"Número máximo")
 
-    nota_de_debito_sequence_id = fields.Many2one("ir.sequence", string=u"Nota de débito")
-    nota_de_debito_number_next_actual = fields.Integer(string=u"Próximo número",
-                                                       related="nota_de_debito_sequence_id.number_next_actual")
+    nd_active = fields.Boolean("Activo")
+    nd_sequence_id = fields.Many2one("ir.sequence", string=u"Nota de débito")
+    nd_number_next_actual = fields.Integer(string=u"Próximo número",
+                                           related="nd_sequence_id.number_next_actual")
     nd_max = fields.Integer(string=u"Número máximo")
 
-    user_ids = fields.Many2many("res.users", string=u"Usuarios que pueden usar esta sucursal")
+    user_ids = fields.Many2many("res.users", string=u"Usuarios que pueden usar estas secuancias")
 
     _sql_constraints = [
-        ('shop_ncf_config_name_uniq', 'unique(name)', u'El nombre de la sucursal debe de ser unico!'),
+        ('shop_ncf_config_name_uniq', 'unique(name, company_id)', u'El nombre de la sucursal debe de ser unico!'),
     ]
 
     @api.model
@@ -89,30 +101,33 @@ class ShopJournalConfig(models.Model):
         return user_shops[0]
 
     @api.model
-    def setup_ncf(self):
+    def setup_ncf(self, name=False, company_id=False, journal_id=False):
         self.env["account.fiscal.position"].search([]).unlink()
+
+        name = name or u"A01001001"
+        company_id = company_id or self.env.user.company_id.id
+        journal_id = journal_id or 1
 
         final_prefix = u"A0100100102"
         fiscal_prefix = u"A0100100101"
-        gov_prefix = u"A0100100114"
-        esp_prefix = u"A0100100115"
+        gov_prefix = u"A0100100115"
+        esp_prefix = u"A0100100114"
         nc_prefix = u"A0100100104"
         nd_prefix = u"A0100100103"
+        unico_prefix = u"A0100100112"
 
-        if not self.search([]):
-            shop = self.create({"name": "Principal",
-                                "journal_id": 1,
+        if self.search_count([('company_id','=',company_id),('name','=',name)]) == 0:
+            shop = self.create({"name": name,
+                                "journal_id": journal_id,
                                 "user_ids": [(4, 1, False)],
-                                "final_account_id": 115,
-                                "fiscal_account_id": 115,
-                                "gov_account_id": 115,
-                                "special_account_id": 115,
-                                "final_max": 100,
-                                "fiscal_max": 100,
-                                "gov_max": 100,
-                                "special_max": 100,
-                                "nc_max": 100,
-                                "nd_max": 100
+                                "company_id": company_id,
+                                u'final_max': 10000000,
+                                u'fiscal_max': 10000000,
+                                u'gov_max': 10000000,
+                                u'special_max': 10000000,
+                                u'nc_max': 10000000,
+                                u'nd_max': 10000000,
+                                u'unico_max': 10000000
                                 })
 
             seq_values = {u'padding': 8,
@@ -126,46 +141,52 @@ class ShopJournalConfig(models.Model):
                           u'date_range_ids': [],
                           u'number_next_actual': 1,
                           u'active': True,
-                          u'suffix': False}
+                          u'suffix': False
+                          }
 
             sale_journal = self.env["account.journal"].browse(1)
             sale_journal.ncf_control = True
 
             seq_values["prefix"] = final_prefix
-            seq_values["name"] = "Facturas de cliente final"
+            seq_values["name"] = "Facturas de cliente final {}".format(name)
             final_id = self.env["ir.sequence"].create(seq_values)
             shop.final_sequence_id = final_id.id
 
             seq_values["prefix"] = fiscal_prefix
-            seq_values["name"] = "Facturas de cliente fiscal"
+            seq_values["name"] = "Facturas de cliente fiscal {}".format(name)
             fiscal_id = self.env["ir.sequence"].create(seq_values)
             shop.fiscal_sequence_id = fiscal_id.id
 
             seq_values["prefix"] = gov_prefix
-            seq_values["name"] = "Facturas de cliente gubernamental"
+            seq_values["name"] = "Facturas de cliente gubernamental {}".format(name)
             gov_id = self.env["ir.sequence"].create(seq_values)
             shop.gov_sequence_id = gov_id.id
 
             seq_values["prefix"] = esp_prefix
-            seq_values["name"] = "Facturas de cliente especiales"
+            seq_values["name"] = "Facturas de cliente especiales {}".format(name)
             esp_id = self.env["ir.sequence"].create(seq_values)
             shop.special_sequence_id = esp_id.id
 
+            seq_values["prefix"] = unico_prefix
+            seq_values["name"] = "Facturas de unico ingreso {}".format(name)
+            esp_id = self.env["ir.sequence"].create(seq_values)
+            shop.unico_sequence_id = esp_id.id
+
             seq_values["prefix"] = nc_prefix
-            seq_values["name"] = "Notas de credito"
+            seq_values["name"] = "Notas de credito {}".format(name)
             nc_id = self.env["ir.sequence"].create(seq_values)
-            shop.nota_de_credito_sequence_id = nc_id.id
+            shop.nc_sequence_id = nc_id.id
 
             seq_values["prefix"] = nd_prefix
-            seq_values["name"] = "Notas de debito"
+            seq_values["name"] = "Notas de debito {}".format(name)
             nd_id = self.env["ir.sequence"].create(seq_values)
             shop.refund_sequence_id = nc_id.id
-            shop.nota_de_debito_sequence_id = nd_id.id
+            shop.nd_sequence_id = nd_id.id
 
     def check_max(self, sale_fiscal_type, invoice):
         message = False
 
-        if invoice.type == "out_refund" and self.nc_max >= self.nota_de_credito_sequence_id.number_next_actual - 10:
+        if invoice.type == "out_refund" and self.nc_max >= self.nc_sequence_id.number_next_actual - 10:
             message = u"La secuencia para el tipo de NCF las notas de crédito para el punto de venta {} a sobrepasado el " \
                       u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
         elif sale_fiscal_type == "final" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
