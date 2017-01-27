@@ -66,7 +66,7 @@ class AccountMove(models.Model):
 
             if not invoice.move_name:
                 if invoice.type == "out_refund":
-                    sequence = invoice.shop_id.nota_de_credito_sequence_id
+                    sequence = invoice.shop_id.nc_sequence_id
                 elif invoice.sale_fiscal_type == "final":
                     sequence = invoice.shop_id.final_sequence_id
                 elif invoice.sale_fiscal_type == "fiscal":

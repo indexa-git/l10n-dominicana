@@ -10,7 +10,7 @@
             <field name="arch" type="xml">
 
                 <notebook>
-                    <page string="Parametros">
+                    <page name="parameters" string="Parametros">
                         <group>
                             <field name="payment_tax_on_606"></field>
                         </group>
