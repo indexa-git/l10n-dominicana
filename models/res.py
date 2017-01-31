@@ -41,6 +41,8 @@ class ResCompany(models.Model):
     _inherit = 'res.company'
 
     payment_tax_on_606 = fields.Boolean(u"Para el 606 declarar retenciones al pago")
+    country_id = fields.Many2one('res.country', compute='_compute_address', inverse='_inverse_country',
+                                 string="Country", default=62)
 
 
 class ResPartner(models.Model):
@@ -79,3 +81,5 @@ class ResPartner(models.Model):
         ('10', u'10 - Adquisiciones de Activos'),
         ('11', u'11 - Gastos de Seguro')
     ], string=u"Tipo de gasto")
+
+    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=62)
