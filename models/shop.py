@@ -101,12 +101,13 @@ class ShopJournalConfig(models.Model):
         return user_shops[0]
 
     @api.model
-    def setup_ncf(self, name=False, company_id=False, journal_id=False):
+    def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False):
         self.env["account.fiscal.position"].search([]).unlink()
 
         name = name or u"A01001001"
         company_id = company_id or self.env.user.company_id.id
         journal_id = journal_id or 1
+        user_id = user_id or 1
 
         final_prefix = u"A0100100102"
         fiscal_prefix = u"A0100100101"
@@ -119,7 +120,7 @@ class ShopJournalConfig(models.Model):
         if self.search_count([('company_id','=',company_id),('name','=',name)]) == 0:
             shop = self.create({"name": name,
                                 "journal_id": journal_id,
-                                "user_ids": [(4, 1, False)],
+                                "user_ids": [(4, user_id, False)],
                                 "company_id": company_id,
                                 u'final_max': 10000000,
                                 u'fiscal_max': 10000000,
