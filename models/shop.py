@@ -94,7 +94,6 @@ class ShopJournalConfig(models.Model):
 
     @api.model
     def get_user_shop_config(self):
-
         user_shops = self.search([('user_ids', '=', self._uid)])
         if not user_shops:
             raise exceptions.UserError("Su usuario no tiene una sucursal asignada.")
@@ -102,11 +101,15 @@ class ShopJournalConfig(models.Model):
 
     @api.model
     def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False):
+
         self.env["account.fiscal.position"].search([]).unlink()
 
         name = name or u"A01001001"
         company_id = company_id or self.env.user.company_id.id
+
         journal_id = journal_id or 1
+        self.env["account.journal"].sudo().browse(journal_id).write({"ncf_control": True})
+
         user_id = user_id or 1
 
         final_prefix = u"A0100100102"
@@ -184,6 +187,8 @@ class ShopJournalConfig(models.Model):
             shop.refund_sequence_id = nc_id.id
             shop.nd_sequence_id = nd_id.id
 
+            return shop
+
     def check_max(self, sale_fiscal_type, invoice):
         message = False
 
@@ -206,10 +211,6 @@ class ShopJournalConfig(models.Model):
             message = u"La secuencia para el tipo de NCF único ingreso para el punto de venta {} a sobrepasado el " \
                       u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
 
-        if message:
-            mail_details = {'subject': "NCF agotados",
-                            'body': message,
-                            'partner_ids': [user.id for user in self.user_ids]
-                            }
 
-            invoice.message_post(type="notification", subtype="mt_comment", **mail_details)
+            invoice.message_post(body=message)
+
