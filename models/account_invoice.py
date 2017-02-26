@@ -135,8 +135,24 @@ class AccountInvoice(models.Model):
     @api.one
     @api.constrains("move_name")
     def constrains_move_name(self):
-        if self.type in ("in_invoice", "in_refund"):
+        if self.type in ("in_invoice", "in_refund") and self.state != "draft":
             res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
             if not res == True:
                 _logger.warning(res)
                 raise exceptions.ValidationError(res[2])
+
+    @api.multi
+    def action_invoice_open(self):
+        msg = False
+        for rec in self:
+            if rec.type in ("out_invoice",
+                             "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
+                msg = u"El cliente no tiene RNC y es requerido para este tipo de factura."
+            elif rec.type in (
+                    "in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
+                msg = u"El proveedor no tiene RNC y es requerido para este tipo de compra."
+
+            if msg:
+                raise exceptions.ValidationError(msg)
+
+        return super(AccountInvoice, self).action_invoice_open()
