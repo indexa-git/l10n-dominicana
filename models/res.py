@@ -86,6 +86,13 @@ class ResPartner(models.Model):
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=62)
 
+    @api.constrains("name")
+    def name_constrains(self):
+        existing_names = self.env[self._name].search_count([('name', '=', self.name)])
+        if existing_names:
+            raise exceptions.ValidationError(u"Ya esxite un relacionado con este nombre.")
+
+
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         res = super(ResPartner, self).name_search(name, args=args, operator=operator, limit=100)
