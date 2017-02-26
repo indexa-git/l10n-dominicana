@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="update_rate_wizard_form" model="ir.ui.view">
+            <field name="name">update_rate_wizard_form</field>
+            <field name="model">update.rate.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Actualizacion de tasa de comabio">
+                    <group>
+                        <field name="custom_rate"/>
+                        <field name="currency_date" attrs="{'invisible':[('custom_rate','=',False)], 'required':[('custom_rate','!=',False)]}"/>
+                        <field name="currency_id" attrs="{'invisible':[('custom_rate','=',False)], 'required':[('custom_rate','!=',False)]}"/>
+                        <field name="rate" attrs="{'invisible':[('custom_rate','=',False)], 'required':[('custom_rate','!=',False)]}"/>
+                    </group>
+                    <group string="Tasas de cambio para el día de hoy" attrs="{'invisible':[('custom_rate','=',True)]}">
+                        <field name="bank_rates" attrs="{'required':[('custom_rate','!=',True)]}"/>
+                    </group>
+                    <footer>
+                        <button string="Actualizar tasa" name="change_rate" type="object" default_focus="1"
+                                class="btn-primary"/>
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="update_rate_wizard_action"
+            name="Actualizacion de tasa de comabio"
+            src_model="account.invoice"
+            res_model="update.rate.wizard"
+            view_mode="form"
+            target="new"
+            key2="client_action_multi"/>
+
+    </data>
+</odoo>

@@ -46,6 +46,24 @@ import requests
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
+    @api.multi
+    @api.depends('currency_id', "invoice_rate", "date_invoice")
+    def _get_rate(self):
+        for rec in self:
+            try:
+                rec.invoice_rate = 1 / rec.currency_id.with_context(
+                    dict(self._context or {}, date=rec.date_invoice)).rate
+            except:
+                pass
+
+    @api.depends("currency_id")
+    def _is_company_currency(self):
+        for rec in self:
+            if rec.currency_id == rec.company_id.currency_id:
+                rec.is_company_currency = True
+            else:
+                rec.is_company_currency = False
+
     def _default_user_shop(self):
         shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
         return shop_user_config
@@ -89,6 +107,9 @@ class AccountInvoice(models.Model):
         ("09", u"ERRORES EN SECUENCIA DE NCF")
     ], string=u"Tipo de anulación", copy=False)
 
+    is_company_currency = fields.Boolean(compute=_is_company_currency)
+    invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
+
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         super(AccountInvoice, self)._onchange_partner_id()
@@ -114,7 +135,8 @@ class AccountInvoice(models.Model):
     @api.one
     @api.constrains("move_name")
     def constrains_move_name(self):
-        res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
-        if not res == True:
-            _logger.warning(res)
-            raise exceptions.ValidationError(res[2])
+        if self.type in ("in_invoice", "in_refund"):
+            res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
+            if not res == True:
+                _logger.warning(res)
+                raise exceptions.ValidationError(res[2])

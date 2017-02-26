@@ -7,7 +7,26 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
+                <form>
+                    <field name="ncf_control" invisible="1"/>
+                    <field name="is_company_currency" invisible="1"/>
 
+                </form>
+                <field name="date_due" position="replace">
+                    <field name="move_name" invisible="0" groups="account.group_account_manager"/>
+                </field>
+
+                <xpath expr="//sheet//label" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(update_rate_wizard_action)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                attrs="{'invisible': [('is_company_currency', '=', True)]}">
+                            <field name="invoice_rate" widget="statinfo" string="Tasa"/>
+                        </button>
+                    </div>
+                </xpath>
                 <field name="number" position="before">
                     <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
                     <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
@@ -18,18 +37,24 @@
                     <button name="%(account.action_account_invoice_cancel)d" type='action' states="draft,proforma2,open"
                             string="Cancel Invoice" groups="account.group_account_user"/>
                 </xpath>
-
-                <field name="user_id" position="after">
+                <field name="reference" position="replace"/>
+                <field name="date_invoice" position="after">
+                    <field name="date_due" string="Vence"/>
                     <field name="shop_id" required="1" attrs="{'readonly': [('state','!=','draft')]}"
                            options="{'no_quick_create': True,    'no_create_edit' : True}"/>
+                    <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1" string="Referencia"/>
+                </field>
 
-                    <field name="ncf_control" invisible="1"/>
+                <field name="user_id" position="replace"/>
+
+                <field name="partner_id" position="after">
                     <field name="sale_fiscal_type" attrs="{'invisible':[('ncf_control','=',False)],
                     'required': [('ncf_control','=',True)], 'readonly': [('state','!=','draft')]}"/>
-                    <field name="reference" invisible="0" readonly="1"/>
-                    <field name="move_name" invisible="0" groups="account.group_account_manager"/>
+                    <field name="user_id" groups="base.group_user"/>
                 </field>
+
             </field>
+
         </record>
 
 
@@ -39,16 +64,27 @@
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
 
-                <!--<field name="partner_id" position="attributes">-->
-                    <!--<attribute name="options">{"no_create": True}</attribute>-->
-                <!--</field>-->
+                <field name="number" position="after">
+                    <field name="is_company_currency" invisible="1"/>
+                </field>
 
                 <field string="Vendor" name="partner_id"
-                              context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
-                              domain="[('supplier', '=', True)]"/>
+                       context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
+                       domain="[('supplier', '=', True)]"/>
 
+                <xpath expr="//sheet//label" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(update_rate_wizard_action)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-money"
+                                attrs="{'invisible': [('is_company_currency', '=', True)]}">
+                            <field name="invoice_rate" widget="statinfo" string="Tasa"/>
+                        </button>
+                    </div>
+                </xpath>
                 <field name="journal_id" position="replace"/>
-                <field name="move_name"  position="replace"/>
+                <field name="move_name" position="replace"/>
                 <field name="reference" position="before">
                     <field name="purchase_type" invisible="1"/>
                     <field name="journal_id" groups="account.group_account_user" options="{'no_create': True}"
