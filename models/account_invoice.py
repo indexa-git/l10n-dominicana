@@ -34,7 +34,13 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 
-from odoo import models, fields, api
+from odoo import models, fields, api, exceptions
+
+import logging
+
+_logger = logging.getLogger(__name__)
+
+import requests
 
 
 class AccountInvoice(models.Model):
@@ -102,4 +108,13 @@ class AccountInvoice(models.Model):
 
     @api.onchange("shop_id")
     def onchange_shop_id(self):
-        self.journal_id = self.shop_id.journal_id
+        if self.type in ('out_invoice', 'out_refund'):
+            self.journal_id = self.shop_id.journal_id.id
+
+    @api.one
+    @api.constrains("move_name")
+    def constrains_move_name(self):
+        res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
+        if not res == True:
+            _logger.warning(res)
+            raise exceptions.ValidationError(res[2])

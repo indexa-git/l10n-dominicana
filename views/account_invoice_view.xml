@@ -38,6 +38,14 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
+
+                <field name="partner_id" position="attributes">
+                    <attribute name="options">{"no_create_edit": True}</attribute>
+                </field>
+                <field string="Vendor" name="partner_id"
+                              context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
+                              domain="[('supplier', '=', True)]"/>
+
                 <field name="journal_id" position="replace"/>
                 <field name="move_name"  position="replace"/>
                 <field name="reference" position="before">
