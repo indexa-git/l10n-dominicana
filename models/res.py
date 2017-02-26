@@ -34,7 +34,11 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 
-from odoo import models, fields, api
+from odoo import models, fields, api, exceptions
+
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ResCompany(models.Model):
@@ -48,17 +52,14 @@ class ResCompany(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-
     @api.multi
-    @api.depends('sale_fiscal_type','purchase_fiscal_type')
+    @api.depends('sale_fiscal_type', 'purchase_fiscal_type')
     def _fiscal_info_required(self):
         for rec in self:
-            if rec.sale_fiscal_type in ['fiscal','gov','special'] or rec.purchase_fiscal_type:
+            if rec.sale_fiscal_type in ['fiscal', 'gov', 'special'] or rec.purchase_fiscal_type:
                 rec.fiscal_info_required = True
             else:
                 rec.fiscal_info_required = False
-
-    fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
 
     sale_fiscal_type = fields.Selection([
         ("final", u"Consumidor final"),
@@ -82,4 +83,48 @@ class ResPartner(models.Model):
         ('11', u'11 - Gastos de Seguro')
     ], string=u"Tipo de gasto")
 
+    fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=62)
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        res = super(ResPartner, self).name_search(name, args=args, operator=operator, limit=100)
+        if not res and name:
+            if len(name) in (9, 11):
+                partners = self.search([('vat', '=', name)])
+            else:
+                partners = self.search([('vat', 'ilike', name)])
+
+            if partners:
+                res = partners.name_get()
+        return res
+
+    @api.model
+    def create(self, vals):
+        if self._context.get("install_mode", False):
+            return super(ResPartner, self).create(vals)
+        elif vals.get("vat"):
+            vat_exist = self.search([('vat', '=', vals["vat"])])
+            if vat_exist:
+                return vat_exist
+
+            res = self.env["marcos.api.tools"].rnc_cedula_validation(vals["vat"])
+            if res[0] == 1:
+                vals.update({"name": res[1]["name"]})
+
+        return super(ResPartner, self).create(vals)
+
+    @api.model
+    def name_create(self, name):
+        if self._context.get("install_mode", False):
+            return super(ResPartner, self).name_create(name)
+        if self._rec_name:
+            if name.isdigit():
+                partner = self.search([('vat', '=', name)])
+                if partner:
+                    return partner.name_get()[0]
+                else:
+                    new_partner = self.create({"vat": name})
+                    return new_partner.name_get()[0]
+            else:
+                return super(ResPartner, self).name_create(name)
