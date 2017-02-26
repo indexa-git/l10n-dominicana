@@ -20,7 +20,8 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'account', 'account_invoice_refund_link','account_invoice_change_currency','web_sheet_full_width','marcos_api_tools'],
+    'depends': ['base', 'account', 'account_invoice_refund_link', 'account_invoice_change_currency',
+                'web_sheet_full_width', 'marcos_api_tools','save_readonly_fields'],
 
     # always loaded
     'data': [

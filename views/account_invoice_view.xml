@@ -42,7 +42,8 @@
                     <field name="date_due" string="Vence"/>
                     <field name="shop_id" required="1" attrs="{'readonly': [('state','!=','draft')]}"
                            options="{'no_quick_create': True,    'no_create_edit' : True}"/>
-                    <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1" string="Referencia"/>
+                    <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1"
+                           string="Referencia"/>
                 </field>
 
                 <field name="user_id" position="replace"/>
@@ -68,9 +69,12 @@
                     <field name="is_company_currency" invisible="1"/>
                 </field>
 
-                <field string="Vendor" name="partner_id"
-                       context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
-                       domain="[('supplier', '=', True)]"/>
+                <field name="partner_id" position="replace">
+                    <field name="purchase_type" invisible="1"/>
+                    <field string="Vendor" name="partner_id"
+                           context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
+                           domain="[('supplier', '=', True)]" attrs="{'readonly': [('purchase_type','=','minor')]}"/>
+                </field>
 
                 <xpath expr="//sheet//label" position="before">
                     <div class="oe_button_box" name="button_box">
