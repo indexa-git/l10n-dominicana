@@ -86,11 +86,11 @@ class ResPartner(models.Model):
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=62)
 
-    @api.constrains("name")
+    @api.constrains("name",'vat')
     def name_constrains(self):
-        existing_names = self.env[self._name].search_count([('name', '=', self.name)])
-        if existing_names:
-            raise exceptions.ValidationError(u"Ya esxite un relacionado con este nombre.")
+        existing_names = self.search_count([('name', '=', self.name)])
+        if existing_names > 1:
+            raise exceptions.ValidationError(u"Ya esxite un relacionado con este nombre o RNC.")
 
 
     @api.model
@@ -114,7 +114,6 @@ class ResPartner(models.Model):
             vat_exist = self.search([('vat', '=', vals["vat"])])
             if vat_exist:
                 return vat_exist
-
             res = self.env["marcos.api.tools"].rnc_cedula_validation(vals["vat"])
             if res[0] == 1:
                 vals.update({"name": res[1]["name"]})
