@@ -109,6 +109,22 @@ class AccountInvoice(models.Model):
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
+    purchase_type = fields.Selection([("normal", u"REQUIERE NCF"),
+                                      ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
+                                      ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
+                                      ("exterior", u"PAGOS AL EXTERIOR NO REQUIRE NCF"),
+                                      ("import", u"IMPORTACIONES NO REQUIRE NCF"),
+                                      ("others", u"OTROS NO REQUIRE NCF")],
+                                     string=u"Tipo de compra", default="normal", related="journal_id.purchase_type")
+
+
+
+    @api.onchange('journal_id')
+    def _onchange_journal_id(self):
+        super(AccountInvoice, self)._onchange_journal_id()
+
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+            self.partner_id = self.company_id.partner_id.id
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -118,6 +134,9 @@ class AccountInvoice(models.Model):
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
             else:
                 self.purchase_fiscal_type = self.partner_id.purchase_fiscal_type
+
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+            self.partner_id = self.company_id.partner_id.id
 
     @api.onchange('sale_fiscal_type', 'purchase_fiscal_type')
     def _onchange_fiscal_type(self):
@@ -135,7 +154,7 @@ class AccountInvoice(models.Model):
     @api.one
     @api.constrains("move_name")
     def constrains_move_name(self):
-        if self.type in ("in_invoice", "in_refund") and self.state != "draft":
+        if self.type in ("in_invoice", "in_refund") and self.journal_id.ncf_remote_validation:
             res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
             if not res == True:
                 _logger.warning(res)
@@ -146,7 +165,7 @@ class AccountInvoice(models.Model):
         msg = False
         for rec in self:
             if rec.type in ("out_invoice",
-                             "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
+                            "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
                 msg = u"El cliente no tiene RNC y es requerido para este tipo de factura."
             elif rec.type in (
                     "in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
