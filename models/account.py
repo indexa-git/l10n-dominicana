@@ -65,7 +65,9 @@ class AccountMove(models.Model):
                 raise ValidationError(u"Debe especificar el tipo de comprobante para la venta.")
 
             if not invoice.move_name:
-                if invoice.type == "out_refund":
+                if invoice.is_nd:
+                    sequence = invoice.shop_id.nd_sequence_id
+                elif invoice.type == "out_refund":
                     sequence = invoice.shop_id.nc_sequence_id
                 elif invoice.sale_fiscal_type == "final":
                     sequence = invoice.shop_id.final_sequence_id

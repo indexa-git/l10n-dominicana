@@ -1,0 +1,4 @@
+#. module: account
+#: model:ir.ui.view,arch_db:account.invoice_supplier_form
+msgid "Ask Refund"
+msgstr "Aplicar Nota de Crédito o Débito"
