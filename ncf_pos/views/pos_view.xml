@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="view_pos_config_form" model="ir.ui.view">
+            <field name="name">pos.config.form.view</field>
+            <field name="model">pos.config</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+            <field name="arch" type="xml">
+
+                <field name="active" position="after">
+                    <field name="default_partner_id"/>
+                </field>
+
+                <xpath expr="//field[@name='iface_display_categ_images']" position="after">
+                    <field name='load_orders_of_current_session'/>
+                    <field name='load_orders_after_this_date'/>
+                    <field name='load_orders_from'
+                           attrs="{'invisible': [('load_orders_after_this_date', '=', False)]}"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id='pos_return_order_inherit_product_template_view' model='ir.ui.view'>
+            <field name='name'>product.product.return</field>
+            <field name='model'>product.template</field>
+            <field name='inherit_id' ref='point_of_sale.product_template_form_view'/>
+            <field name='arch' type='xml'>
+                <field name='available_in_pos' position='after'>
+                    <field name='not_returnable' id='not_returnable'/>
+                </field>
+            </field>
+        </record>
+
+        <record id='pos_return_order_inherit_pos_order_view' model='ir.ui.view'>
+            <field name="name">pos.order.return</field>
+            <field name='model'>pos.order</field>
+            <field name='inherit_id' ref='point_of_sale.view_pos_pos_form'/>
+            <field name="arch" type="xml">
+                <field name='partner_id' position='after'>
+                    <field name='is_return_order' invisible='True'/>
+                    <field name='return_order_id' readonly='True'
+                           attrs="{'invisible':[('is_return_order','!=',True)]}"/>
+                    <field name='return_status' readonly='True' attrs="{'invisible':[('is_return_order','=',True)]}"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

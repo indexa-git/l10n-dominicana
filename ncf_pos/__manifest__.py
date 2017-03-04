@@ -20,17 +20,21 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','web','ncf_manager','point_of_sale'],
+    'depends': ['base', 'web', 'ncf_manager', 'point_of_sale'],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
-        'views/pos_config_view.xml',
+        'views/pos_view.xml',
         'views/templates.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
         'demo/demo.xml',
     ],
-'qweb': ['static/src/xml/ncf_pos.xml'],
+    'qweb': [
+        'static/src/xml/pos_orders.xml',
+        'static/src/xml/pos_order_return.xml',
+        'static/src/xml/ncf_pos.xml',
+    ],
 }
