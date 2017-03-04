@@ -34,30 +34,11 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 
-from odoo import models, fields, api, exceptions
+
+from odoo import models, fields
 
 
-class PosConfig(models.Model):
-    _inherit = 'pos.config'
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
 
-    default_partner_id = fields.Many2one("res.partner", string="Cliente de contado", required=True)
-    load_orders_of_current_session = fields.Boolean(string='Load Order Of Current Session Only', default=True)
-    load_orders_after_this_date = fields.Boolean(string='Load Order After A Specified Date')
-    load_orders_from = fields.Date(string='Select A Date')
-
-    @api.onchange('load_orders_of_current_session')
-    def onchange_load_orders_of_current_session(self):
-        if self.load_orders_of_current_session:
-            self.load_orders_after_this_date = False;
-
-    @api.onchange("load_orders_after_this_date")
-    def onchange_load_orders_after_this_date(self):
-        if self.load_orders_after_this_date:
-            self.load_orders_of_current_session = False;
-
-    @api.constrains('load_orders_after_this_date')
-    def load_orders_date_validation(self):
-        if self.load_orders_after_this_date:
-            if not self.load_orders_from:
-                raise exceptions.ValidationError("Please Specify A Date!!!")
-
+    not_returnable = fields.Boolean('Not Returnable')
