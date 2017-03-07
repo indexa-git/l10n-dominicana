@@ -21,10 +21,11 @@
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'account', 'account_invoice_change_currency',
-                'web_sheet_full_width', 'marcos_api_tools','save_readonly_fields'],
+                'web_sheet_full_width', 'marcos_api_tools', 'save_readonly_fields'],
 
     # always loaded
     'data': [
+        'data/data.xml',
         'security/ir.model.access.csv',
         'security/ncf_manager_security.xml',
         'wizard/account_invoice_cancel_view.xml',
@@ -40,8 +41,7 @@
         'views/dgii_sale_view.xml',
         'views/dgii_cancel_view.xml',
         'views/res_view.xml',
-        'data/setup_ncf.xml',
-        'data/data.xml'
+        'data/setup_ncf.xml'
     ],
     # only loaded in demonstration mode
     'demo': [
