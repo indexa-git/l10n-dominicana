@@ -41,4 +41,4 @@ from odoo import models, fields
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    not_returnable = fields.Boolean('Not Returnable')
+    not_returnable = fields.Boolean('No retornable')

@@ -47,12 +47,12 @@ _logger = logging.getLogger(__name__)
 class PosOrder(models.Model):
     _inherit = "pos.order"
 
-    is_return_order = fields.Boolean(string='Return Order', copy=False)
-    return_order_id = fields.Many2one('pos.order', 'Return Order Of', readonly=True, copy=False)
+    is_return_order = fields.Boolean(string='Devolver orden', copy=False)
+    return_order_id = fields.Many2one('pos.order', u'Orden de devolución de', readonly=True, copy=False)
     return_status = fields.Selection(
-        [('-', 'Nor Returned'), ('Fully-Returned', 'Fully-Returned'), ('Partially-Returned', 'Partially-Returned'),
-         ('Non-Returnable', 'Non-Returnable')], default='-', copy=False, string='Return Status')
-
+        [('-', 'Ni devuelto'), ('Fully-Returned', 'Totalmente devuelto'),
+         ('Partially-Returned', 'Devuelto parcialmente'),
+         ('Non-Returnable', 'No retornable')], default='-', copy=False, string=u'Estado de devolución')
 
     @api.model
     def create_from_ui_second_step(self, order_ids):
@@ -96,7 +96,7 @@ class PosOrder(models.Model):
             else:
                 vals['partner_id'] = False
             if (not hasattr(order_objs[0], 'return_status') or (
-                hasattr(order_objs[0], 'return_status') and not order_obj.is_return_order)):
+                        hasattr(order_objs[0], 'return_status') and not order_obj.is_return_order)):
                 vals['id'] = order_obj.id
                 for line in order_obj.lines:
                     vals['lines'].append(line.id)
@@ -159,7 +159,7 @@ class PosOrder(models.Model):
                 # do not hide transactional errors, the order(s) won't be saved!
                 raise
             except Exception as e:
-                _logger.error('Could not fully process the POS Order: %s', tools.ustr(e))
+                _logger.error('No se pudo procesar completamente el pedido POS: %s', tools.ustr(e))
 
             if not pos_order.partner_id:
                 pos_order.partner_id = pos_order.session_id.config_id.default_partner_id.id
@@ -176,7 +176,7 @@ class PosOrder(models.Model):
         order_state = False
         while not order_state == 'invoiced':
             time.sleep(1)
-            order_id = self.search([('pos_reference','=',name)])
+            order_id = self.search([('pos_reference', '=', name)])
             if order_id:
                 order_state = order_id.state
             self._cr.commit()
@@ -250,7 +250,8 @@ class PosOrder(models.Model):
                     cash_journal = [statement.journal_id for statement in pos_session.statement_ids if
                                     statement.journal_id.type == 'cash']
                     if not cash_journal:
-                        raise exceptions.UserError(_("No cash statement found for this session. Unable to record returned cash."))
+                        raise exceptions.UserError(_(
+                            u"No se encontró ninguna declaración de efectivo para esta sesión. No se puede registrar el efectivo devuelto."))
                 cash_journal_id = cash_journal[0].id
             order.add_payment({
                 'amount': -pos_order['amount_return'],
@@ -264,8 +265,8 @@ class PosOrder(models.Model):
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
 
-    line_qty_returned = fields.Integer('Line Returned', default=0)
-    original_line_id = fields.Many2one('pos.order.line', "Original line")
+    line_qty_returned = fields.Integer(u'Línea devuelta', default=0)
+    original_line_id = fields.Many2one('pos.order.line', u"Línea original")
 
     @api.model
     def _order_line_fields(self, line):

@@ -1,6 +1,6 @@
-odoo.define('pos_order_return.pos_order_return', function (require) {
+odoo.define('ncf_pos.pos_order_return', function (require) {
     "use strict";
-    var pos_orders = require('pos_orders.pos_orders');
+    var pos_orders = require('ncf_pos.pos_orders');
     var Model = require('web.DataModel');
     var core = require('web.core');
     var gui = require('point_of_sale.gui');
