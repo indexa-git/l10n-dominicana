@@ -40,10 +40,10 @@ from odoo import models, fields, api, exceptions
 class PosConfig(models.Model):
     _inherit = 'pos.config'
 
-    default_partner_id = fields.Many2one("res.partner", string="Cliente de contado", required=True)
-    load_orders_of_current_session = fields.Boolean(string='Load Order Of Current Session Only', default=True)
-    load_orders_after_this_date = fields.Boolean(string='Load Order After A Specified Date')
-    load_orders_from = fields.Date(string='Select A Date')
+    default_partner_id = fields.Many2one("res.partner", string=u"Cliente de contado", required=True)
+    load_orders_of_current_session = fields.Boolean(string=u'Cargar orden de sesión actual sólo', default=True)
+    load_orders_after_this_date = fields.Boolean(string=u'Cargar orden después de una fecha especificada')
+    load_orders_from = fields.Date(string=u'Seleccione una fecha')
 
     @api.onchange('load_orders_of_current_session')
     def onchange_load_orders_of_current_session(self):
@@ -59,5 +59,5 @@ class PosConfig(models.Model):
     def load_orders_date_validation(self):
         if self.load_orders_after_this_date:
             if not self.load_orders_from:
-                raise exceptions.ValidationError("Please Specify A Date!!!")
+                raise exceptions.ValidationError(u"¡Por favor especifique una fecha!")
 

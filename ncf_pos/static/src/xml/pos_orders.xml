@@ -4,7 +4,7 @@
 	<t t-extend="ActionpadWidget">  
 		<t t-jquery=".actionpad" t-operation="before">
 			<span class="control-button" id="all_orders" style="width: 384px;margin-right: 5px;margin-top: 3px;margin-bottom: -7px;">
-				All Orders
+				Todas las órdenes
 			</span>
 		</t>	
 	</t>
@@ -15,7 +15,7 @@
                 <section class="top-content">
                     <span class='button back'>
                         <i class='fa fa-angle-double-left'></i>
-                        Cancel
+                        Cancelar
                     </span>
                 </section>
                 <span class="searchbox">
@@ -36,10 +36,10 @@
                                     <table class='client-list wk_order_list'>
                                         <thead>
                                             <tr style="background-color: rgb(135, 160, 166);color: white;">
-                                                <th>Order Ref.</th>
-                                                <th>Receipt Ref.</th>
-                                                <th>Customer</th>
-                                                <th>Order Date</th>                                                
+                                                <th>Pedido Ref.</th>
+                                                <th>Recibo Ref.</th>
+                                                <th>Cliente</th>
+                                                <th>Fecha de orden</th>
                                             </tr>
                                         </thead>
                                         <tbody class='wk-order-list-contents'>

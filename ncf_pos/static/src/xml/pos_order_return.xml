@@ -20,10 +20,10 @@
     <t t-extend="PaymentScreenWidget">
         <t t-jquery="h1" t-operation="replace">
             <t t-if="widget.pos.get_order().is_return_order">
-                <h1>Refund</h1>
+                <h1>Reembolso</h1>
             </t>
             <t t-if="!widget.pos.get_order().is_return_order">
-                <h1>Payment</h1>
+                <h1>Pago</h1>
             </t>
         </t>
     </t>
@@ -35,7 +35,7 @@
                         <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
                     </div>
                     <div class='message'>
-                        Please select a refund method. 
+                        Seleccione un método de reembolso.
                     </div>
                 </div>
             </t>
@@ -45,7 +45,7 @@
                         <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
                     </div>
                     <div class='message'>
-                        Please select a payment method. 
+                        Por favor seleccione un método de pago.
                     </div>
                 </div>
             </t>
@@ -85,11 +85,11 @@
                 </t>
                 <t t-if="line.get_discount_str() !== '0'">
                     <li class="info">
-                        With a 
+                        Con un
                         <em>
                             <t t-esc="line.get_discount_str()" />%
                         </em>
-                        discount
+                        descuento
                     </li>
                 </t>
             </ul>
@@ -99,7 +99,7 @@
     <t t-extend="SynchNotificationWidget">
         <t t-jquery="div.oe_status.js_synch" t-operation="prepend">
             <span id="cancel_refund_order" style="position: absolute;top: 160px;right: 25px;color: white;font-size: xx-large;z-index: 333;text-align: center;height: 38px;border-radius: 5%;font-family: fantasy;font-style: normal;padding-top: 14px;opacity: 0.7;width: 112px;background-color: rgb(154, 71, 71);display: block;">
-                Cancel
+                Cancelar
             </span>
         </t>
     </t>
@@ -107,7 +107,7 @@
     <t t-extend="ProductListWidget">
         <t t-jquery=".product-list-scroller.touch-scrollable" t-operation="prepend">
             <div id="refund_order_notify" style="color: rgb(0, 0, 0);height: 100%;width: 100%;position: absolute;font-size: -webkit-xxx-large;font-family: fantasy;padding-top: 25%;text-shadow: -5px 4px 2px #c5c5c5;display:none;">
-                THIS IS A REFUND ORDER
+                ESTO ES UNA DEVOLUCIÓN
             </div>
         </t>
     </t>
@@ -117,18 +117,18 @@
             <div class="popup popup-textinput return_popup_style">
                 <div class="title">
                     <span>
-                        Return Products 
+                        Devolver Productos
                     </span>
                     <span class="button" id="complete_return" style="position: absolute;right: 1%;top: -1%;background-color: #5c92a7;color: white;width: 28%;">
-                        Complete Return
+                        Devolucón completa
                     </span>
                 </div>
                 <div class="body">
                     <div class='container_div'>
                         <table border="1" frame="void" rules="rows" class="return_popup_table">
                             <tr class="return_popup_tr">
-                                <th class="table_data_cells"><p>Product (<span style="color:#2f6e75">Qty</span>.)</p></th>
-                                <th class="table_data_cells">Return Qty.</th>
+                                <th class="table_data_cells"><p>Producto (<span style="color:#2f6e75">Cantidad</span>.)</p></th>
+                                <th class="table_data_cells">Cantidad de devuelta.</th>
                             </tr>
 
                             <t t-foreach="widget.orderlines || []" t-as="line">
@@ -143,10 +143,10 @@
                 </div>
                 <div class="footer">
                     <div class="button" id="return_order" style="background-color: rgb(94, 191, 143);color: white;">
-                        Return
+                        Devolver
                     </div>
                     <div class="button cancel">
-                        Cancel
+                        Cancelar
                     </div>
                 </div>
             </div>
@@ -157,21 +157,21 @@
             <div class='client-details-box clearfix' style="background-color: rgb(252, 252, 252);">
                 <div class='client-details-left' style="margin-bottom: 1%;">
                     <div class='client-detail'>
-                        <h2 style="margin-left: 5.6%;color: rgb(67, 134, 111);">Order Details</h2>
+                        <h2 style="margin-left: 5.6%;color: rgb(67, 134, 111);">Detalles de la orden</h2>
                     </div>
                     <div class='client-detail' style="margin-left: 6.3%;">
-                        <span class='label' style="text-align: left;">Name:</span>
+                        <span class='label' style="text-align: left;">Nombre:</span>
                         <span class='detail client-address'><t t-esc='order.name' /></span>
                     </div>
                     <t t-if="order.partner_id">
                         <div class='client-detail' style="margin-left: 6.3%;">
-                            <span class='label'>Customer:</span>
+                            <span class='label'>Cliente:</span>
                             <span class='detail client-address'><t t-esc='order.partner_id[1]' /></span>
                         </div>
                     </t>
                     <t t-if="!order.partner_id">
                         <div class='client-detail' style="margin-left: 6.3%;">
-                            <span class='label'>Customer:</span>
+                            <span class='label'>CLiente:</span>
                             -
                         </div>
                     </t>
@@ -180,17 +180,17 @@
                     <t t-if="!order.refunded">
                         <div class='client-detail'>
                             <div id="wk_refund" class='control-button highlight' style="margin-left: 18%;margin-top: 1%;">
-                                Refund/Return
+                                Devolver
                             </div>
                         </div>
                     </t>
-                    <img id="close_order_details" src="/pos_order_return/static/src/img/icon-cross.png" style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
+                    <img id="close_order_details" src="/ncf_pos/static/src/img/icon-cross.png" style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
                     <div class='client-detail'>
-                        <span class='label' style="text-align: left;">Date:</span>
+                        <span class='label' style="text-align: left;">Fecha:</span>
                         <span class='detail client-id'><t t-esc='order.date_order'/></span>
                     </div>
                     <div class='client-detail'>
-                        <span class='label' style="text-align: left;width: 27%;">Return/Refund:</span>
+                        <span class='label' style="text-align: left;width: 27%;">Return/Refund 1:</span>
                         <span class='detail client-id'><t t-esc='order.return_status'/></span>
                     </div>
                 </div>
@@ -198,19 +198,19 @@
                 <div class='order-detail' style="width: 100%;text-align: left;margin-left: 3%;">
                     <table border="1" frame="void" rules="rows" id="order_line_content" style="width: 94%;text-align:center;border-bottom: 3px solid rgb(70, 150, 110);">
                         <tr style="color: rgb(51, 112, 39);border-bottom: 3px solid rgb(67, 134, 111);">
-                            <th style="text-align:left;width: 35%;">Product</th>
-                            <th style="width: 10%;">Quantity</th>
-                            <th style="width: 10%;">Returns</th>
-                            <th style="width: 10%;">Unit Price</th>
-                            <th style="width: 10%;">Tax</th>
-                            <th style="width: 10%;">Discount(%)</th>
-                            <th style="width: 10%;">Price</th>
+                            <th style="text-align:left;width: 35%;">Producto</th>
+                            <th style="width: 10%;">Cantidad</th>
+                            <th style="width: 10%;">Devuelto</th>
+                            <th style="width: 10%;">Precio</th>
+                            <th style="width: 10%;">Impuesto</th>
+                            <th style="width: 10%;">Descuento(%)</th>
+                            <th style="width: 10%;">Total</th>
                         </tr>
                         <t t-foreach='orderlines' t-as='line'>
                             <tr>
                                 <td style="text-align:left">
                                     <t t-if="widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
-                                        <t t-esc="line.product_id[1]"/> <b style="color: rgb(160, 89, 89);">(Non-Returnable)</b>
+                                        <t t-esc="line.product_id[1]"/> <b style="color: rgb(160, 89, 89);">(No retornable)</b>
                                     </t>
                                     <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
                                         <t t-esc="line.product_id[1]"/>
@@ -256,7 +256,7 @@
                 <div class='client-details-box clearfix'>
                     <div class='client-details-left' style="margin-top: 1%;">
                         <div class='client-detail'>
-                            <span class='label' style="width: 27.5%;color: rgb(67, 134, 111);text-align: left;margin-left: 5.7%;">Payment modes:</span>
+                            <span class='label' style="width: 27.5%;color: rgb(67, 134, 111);text-align: left;margin-left: 5.7%;">Modos de pago:</span>
                             <ul style="margin-left: 5.7%;">
                             <t t-foreach='statements' t-as='statement'>
                                 <li><t t-esc="statement.journal_id[1]"/> (<t t-esc="widget.chrome.screens.payment.format_currency(statement.amount)"/>)</li>
@@ -281,7 +281,7 @@
                 <td width="100%" style="padding-top:3%;background-color: rgb(235, 255, 246);">
                     <t t-esc='journal_id[1]' style=''/>: <span style="  color: rgb(42, 129, 128);"><t t-esc="widget.chrome.screens.payment.format_currency(amount)"/></span>
                     <t t-if="journal_id[0]==widget.pos.db.cash_journal[0]">
-                        <span style="color: rgb(127, 77, 67);">[Return Cash]</span>
+                        <span style="color: rgb(127, 77, 67);">[Devolución de efectivo]</span>
                     </t>
                 </td>
             </t>
@@ -294,7 +294,7 @@
     </t>
     <t t-extend='OrdersScreenWidget'>
         <t t-jquery='.wk_order_list thead tr' t-operation='append'>
-            <th>Return Status</th>
+            <th>Estado de devolución</th>
         </t>
     </t>
     <t t-extend='WkOrderLine'>
@@ -325,30 +325,30 @@
                 </t>
                 <t t-if="line.get_discount_str() !== '0'">
                     <li class="info">
-                        With a 
+                        Con un
                         <em>
                             <t t-esc="line.get_discount_str()" />%
                         </em>
-                        discount
+                        descuento
                     </li>
                 </t>
             </ul>
             <t t-if="line.get_product().not_returnable">
-                <span style="color:#888;font-size:10px;float:right;margin-top: -5px;">Not Returnable</span>
+                <span style="color:#888;font-size:10px;float:right;margin-top: -5px;">No retornable</span>
             </t>
         </li>
     </t>
     <t t-extend="PosTicket">
         <t t-jquery=".pos-center-align" t-operation="after">
             <t t-if='order.is_return_order'>
-                <div class="pos-center-align"><span>Return Order</span></div>
+                <div class="pos-center-align"><span>Devolución</span></div>
             </t>
          </t>
          <t t-jquery=".emph" t-operation="replace">
             <tr class="emph">  
                 <td>
                     <t t-if="order.is_return_order">
-                        Total Refund
+                        Reembolso total
                     </t>
                     <t t-if="!order.is_return_order">
                         Total:
@@ -381,7 +381,7 @@
         <t t-jquery=".total" t-operation="replace">
             <line class='total' size='double-height'>
                 <t t-if='widget.pos.get_order().is_return_order'>
-                    <left><pre>   TOTAL REFUND</pre></left>
+                    <left><pre>   REEMBOLSO TOTAL</pre></left>
                     <right><value><t t-esc='receipt.total_with_tax * -1' /></value></right>
                 </t>
                 <t t-if='!widget.pos.get_order().is_return_order'>
@@ -393,7 +393,7 @@
         <t t-jquery="receipt " t-operation="append">
             <t t-if='widget.pos.get_order().is_return_order'>
                 <div>***********************************</div>
-                <div>Refund Receipt Generated By:
+                <div>Reembolso Recibo Generado Por:
                     <t t-esc='receipt.cashier' />
                 </div>
                 <div>***********************************</div>
