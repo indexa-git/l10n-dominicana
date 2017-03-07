@@ -13,7 +13,7 @@
                             <field name="name"/>
                             <field name="journal_id"/>
                         </group>
-                        <group string="Configuración de secuencias">
+                        <group string="Configuración de secuencias" attrs="{'invisible':[('name','=',False)]}">
                             <html>
                                 <table class="table table-striped table-condensed table-hover">
                                     <tr>
@@ -75,7 +75,7 @@
                                 </table>
                             </html>
                         </group>
-                        <group name="group_two" string="Usuarios que pueden usar estas secuencias">
+                        <group name="group_two" string="Usuarios que pueden usar estas secuencias" attrs="{'invisible':[('name','=',False)]}">
                             <field name="user_ids" nolabel="1"/>
                         </group>
                     </sheet>

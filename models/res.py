@@ -61,6 +61,11 @@ class ResPartner(models.Model):
             else:
                 rec.fiscal_info_required = False
 
+            if not rec.vat:
+                rec.vat_readonly = False
+            else:
+                rec.vat_readonly = True
+
     sale_fiscal_type = fields.Selection([
         ("final", u"Consumidor final"),
         ("fiscal", u"Para credito fiscal"),
@@ -84,14 +89,14 @@ class ResPartner(models.Model):
     ], string=u"Tipo de gasto")
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
+    vat_readonly = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=62)
 
-    @api.constrains("name",'vat')
+    @api.constrains("name", 'vat')
     def name_constrains(self):
         existing_names = self.search_count([('name', '=', self.name)])
         if existing_names > 1:
             raise exceptions.ValidationError(u"Ya esxite un relacionado con este nombre o RNC.")
-
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -105,6 +110,22 @@ class ResPartner(models.Model):
             if partners:
                 res = partners.name_get()
         return res
+
+    @api.multi
+    def update_partner_name_from_dgii(self):
+        for rec in self:
+            if rec.vat:
+                res = self.env["marcos.api.tools"].rnc_cedula_validation(self.vat)
+                if res[0] == 1:
+                    self.write({"name": res[1]["name"]})
+
+    @api.multi
+    def write(self, vals):
+        if vals.get("vat"):
+            res = self.env["marcos.api.tools"].rnc_cedula_validation(vals["vat"])
+            if res[0] == 1:
+                vals.update({"name": res[1]["name"]})
+        return super(ResPartner, self).write(vals)
 
     @api.model
     def create(self, vals):
@@ -134,3 +155,10 @@ class ResPartner(models.Model):
                     return new_partner.name_get()[0]
             else:
                 return super(ResPartner, self).name_create(name)
+
+    @api.onchange("sale_fiscal_type")
+    def onchange_sale_fiscal_type(self):
+        if self.sale_fiscal_type == "special":
+            self.property_account_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
+        else:
+            self.property_account_position_id = False
