@@ -41,6 +41,7 @@
         'views/dgii_cancel_view.xml',
         'views/res_view.xml',
         'data/setup_ncf.xml',
+        'data/data.xml'
     ],
     # only loaded in demonstration mode
     'demo': [

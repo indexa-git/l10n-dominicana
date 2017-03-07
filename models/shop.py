@@ -42,9 +42,9 @@ class ShopJournalConfig(models.Model):
 
     company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id,
                                  string=u"Compañia")
-    name = fields.Char("Sucursal", size=40, required=True)
+    name = fields.Char("Prefijo NCF", size=9, required=True)
 
-    journal_id = fields.Many2one("account.journal", string="Diario")
+    journal_id = fields.Many2one("account.journal", string="Diario", required=True)
 
     final_active = fields.Boolean("Activo")
     final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia")
@@ -92,6 +92,30 @@ class ShopJournalConfig(models.Model):
         ('shop_ncf_config_name_uniq', 'unique(name, company_id)', u'El nombre de la sucursal debe de ser unico!'),
     ]
 
+    @api.onchange("name")
+    def onchange_name(self):
+        if self.name:
+            if self.final_sequence_id:
+                self.final_sequence_id.write({"prefix": self.name+"02",
+                                              "name": "Facturas de cliente final {}".format(self.name)})
+                self.fiscal_sequence_id.write({"prefix": self.name+"01",
+                                              "name": "Facturas de cliente fiscal {}".format(self.name)})
+                self.gov_sequence_id.write({"prefix": self.name+"15",
+                                              "name": "Facturas de cliente gubernamental {}".format(self.name)})
+                self.special_sequence_id.write({"prefix": self.name+"14",
+                                              "name": "Facturas de cliente especiales {}".format(self.name)})
+                self.unico_sequence_id.write({"prefix": self.name+"12",
+                                              "name": "Facturas de unico ingreso {}".format(self.name)})
+                self.nc_sequence_id.write({"prefix": self.name+"04",
+                                              "name": "Notas de credito {}".format(self.name)})
+                self.nd_sequence_id.write({"prefix": self.name+"03",
+                                              "name": "Notas de debito {}".format(self.name)})
+            else:
+                self.setup_ncf(name=self.name,company_id=self.company_id.id, journal_id=self.journal_id.id,shop_id=self)
+
+
+
+
     @api.model
     def get_user_shop_config(self):
         user_shops = self.search([('user_ids', '=', self._uid)])
@@ -100,9 +124,10 @@ class ShopJournalConfig(models.Model):
         return user_shops[0]
 
     @api.model
-    def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False):
+    def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False, shop_id=False):
 
-        self.env["account.fiscal.position"].search([]).unlink()
+        special_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
+        self.env["account.fiscal.position"].search([('id','!=',special_position_id.id)]).unlink()
 
         name = name or u"A01001001"
         company_id = company_id or self.env.user.company_id.id
@@ -112,27 +137,30 @@ class ShopJournalConfig(models.Model):
 
         user_id = user_id or 1
 
-        final_prefix = u"A0100100102"
-        fiscal_prefix = u"A0100100101"
-        gov_prefix = u"A0100100115"
-        esp_prefix = u"A0100100114"
-        nc_prefix = u"A0100100104"
-        nd_prefix = u"A0100100103"
-        unico_prefix = u"A0100100112"
+        final_prefix = name + u"02"
+        fiscal_prefix = name + u"01"
+        gov_prefix = name + u"15"
+        esp_prefix = name + u"14"
+        nc_prefix = name + u"04"
+        nd_prefix = name + u"03"
+        unico_prefix = name + u"12"
 
         if self.search_count([('company_id','=',company_id),('name','=',name)]) == 0:
-            shop = self.create({"name": name,
-                                "journal_id": journal_id,
-                                "user_ids": [(4, user_id, False)],
-                                "company_id": company_id,
-                                u'final_max': 10000000,
-                                u'fiscal_max': 10000000,
-                                u'gov_max': 10000000,
-                                u'special_max': 10000000,
-                                u'nc_max': 10000000,
-                                u'nd_max': 10000000,
-                                u'unico_max': 10000000
-                                })
+            if shop_id:
+                shop = shop_id
+            else:
+                shop = self.create({"name": name,
+                                    "journal_id": journal_id,
+                                    "user_ids": [(4, user_id, False)],
+                                    "company_id": company_id,
+                                    u'final_max': 10000000,
+                                    u'fiscal_max': 10000000,
+                                    u'gov_max': 10000000,
+                                    u'special_max': 10000000,
+                                    u'nc_max': 10000000,
+                                    u'nd_max': 10000000,
+                                    u'unico_max': 10000000
+                                    })
 
             seq_values = {u'padding': 8,
                           u'code': False,

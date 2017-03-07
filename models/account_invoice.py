@@ -47,7 +47,7 @@ class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
     @api.multi
-    @api.depends('currency_id', "invoice_rate", "date_invoice")
+    @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
         for rec in self:
             try:
@@ -68,7 +68,7 @@ class AccountInvoice(models.Model):
         shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
         return shop_user_config
 
-    shop_id = fields.Many2one("shop.ncf.config", string="Punto de venta", required=False,
+    shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF", required=False,
                               default=_default_user_shop, domain=lambda s: [('user_ids', '=', [s._uid])])
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
@@ -107,13 +107,13 @@ class AccountInvoice(models.Model):
     origin_invoice_ids = fields.Many2many(
         comodel_name='account.invoice', column1='refund_invoice_id',
         column2='original_invoice_id', relation='account_invoice_refunds_rel',
-        string="Original invoice", readonly=True,
-        help="Original invoice to which this refund invoice is referred to")
+        string=u"Factura original", readonly=True,
+        help=u"Factura original a la que se remite esta factura de reembolso")
     refund_invoice_ids = fields.Many2many(
         comodel_name='account.invoice', column1='original_invoice_id',
         column2='refund_invoice_id', relation='account_invoice_refunds_rel',
-        string="Refund invoices", readonly=True,
-        help="Refund invoices created from this invoice")
+        string=u"Reembolso de facturas", readonly=True,
+        help=u"Devolución de facturas creadas a partir de esta factura")
 
     @api.multi
     def match_origin_lines(self, origin_inv):
@@ -156,19 +156,21 @@ class AccountInvoice(models.Model):
             else:
                 self.purchase_fiscal_type = self.partner_id.purchase_fiscal_type
 
-        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
-            self.partner_id = self.company_id.partner_id.id
+            if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+                self.partner_id = self.company_id.partner_id.id
 
-        if self.type in ("out_invoice", "out_refund") and not self.partner_id.customer:
-            self.partner_id.customer.customer = True
-        if self.type in ("in_invoice", "in_refund") and not self.partner_id.supplier:
-            self.partner_id.customer.supplier = True
+            if self.type in ("out_invoice", "out_refund") and not self.partner_id.customer:
+                self.partner_id.customer = True
+            if self.type in ("in_invoice", "in_refund") and not self.partner_id.supplier:
+                self.partner_id.supplier = True
 
     @api.onchange('sale_fiscal_type', 'purchase_fiscal_type')
     def _onchange_fiscal_type(self):
         if self.partner_id:
             if self.type in ('out_invoice', 'out_refund'):
                 self.partner_id.write({'sale_fiscal_type': self.sale_fiscal_type})
+                if self.sale_fiscal_type == "special":
+                    self.fiscal_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
             else:
                 self.partner_id.write({'purchase_fiscal_type': self.purchase_fiscal_type})
 
@@ -208,12 +210,11 @@ class AccountInvoiceLine(models.Model):
 
     origin_line_ids = fields.Many2many(
         comodel_name='account.invoice.line', column1='refund_line_id',
-        column2='original_line_id', string="Original invoice line",
+        column2='original_line_id', string=u"Línea de factura original",
         relation='account_invoice_line_refunds_rel',
-        help="Original invoice line to which this refund invoice line "
-             "is referred to")
+        help=u"Línea de factura original a la que se refiere esta línea de factura de reembolso")
     refund_line_ids = fields.Many2many(
         comodel_name='account.invoice.line', column1='original_line_id',
-        column2='refund_line_id', string="Refund invoice line",
+        column2='refund_line_id', string=u"Reembolso de la línea de factura",
         relation='account_invoice_line_refunds_rel',
-        help="Refund invoice lines created from this invoice line")
+        help=u"Reembolso de las líneas de factura creadas a partir de esta línea de factura")

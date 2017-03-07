@@ -88,7 +88,7 @@ class UpdateRateWizard(models.TransientModel):
         active_id = self._context.get("active_id", False)
         invoice_id = self.env["account.invoice"].browse(active_id)
         if invoice_id.state != "draft":
-            raise exceptions.UserError("No puede cambiar la tasa porque la factura no está en estado borrador!")
+            raise exceptions.UserError(u"No puede cambiar la tasa porque la factura no está en estado borrador!")
         if not self.custom_rate:
             bank, cur, rate = self.bank_rates.split("-")
             currency_id = self.env["res.currency"].search([('name', '=', cur)])

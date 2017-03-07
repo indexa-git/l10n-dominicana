@@ -35,7 +35,7 @@
 ########################################################################################################################
 
 from odoo import models, fields, api
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import ValidationError
 
 
 class AccountJournal(models.Model):
@@ -67,16 +67,35 @@ class AccountMove(models.Model):
             if not invoice.move_name:
                 if invoice.is_nd:
                     sequence = invoice.shop_id.nd_sequence_id
+                    active_sequence = invoice.shop_id.nd_active
+                    sequence_type = u"Nota de débito"
                 elif invoice.type == "out_refund":
                     sequence = invoice.shop_id.nc_sequence_id
+                    active_sequence = invoice.shop_id.nc_active
+                    sequence_type = u"Nota de crédito"
                 elif invoice.sale_fiscal_type == "final":
                     sequence = invoice.shop_id.final_sequence_id
+                    active_sequence = invoice.shop_id.final_active
+                    sequence_type = u"Cosumidor final"
                 elif invoice.sale_fiscal_type == "fiscal":
                     sequence = invoice.shop_id.fiscal_sequence_id
+                    active_sequence = invoice.shop_id.fiscal_active
+                    sequence_type = u"crédito fiscal"
                 elif invoice.sale_fiscal_type == "gov":
                     sequence = invoice.shop_id.gov_sequence_id
+                    active_sequence = invoice.shop_id.gov_active
+                    sequence_type = u"Gubernamental"
                 elif invoice.sale_fiscal_type == "special":
                     sequence = invoice.shop_id.special_sequence_id
+                    active_sequence = invoice.shop_id.special_active
+                    sequence_type = u"Regimenes especiales"
+                elif invoice.sale_fiscal_type == "unico":
+                    sequence = invoice.shop_id.special_sequence_id
+                    active_sequence = invoice.shop_id.special_active
+                    sequence_type = u"Unico ingreso"
+
+                if not active_sequence:
+                    raise ValidationError(u"Este tipo de NCF para {} no esta activado.".format(sequence_type))
 
                 invoice.shop_id.check_max(invoice.sale_fiscal_type, invoice)
                 invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
