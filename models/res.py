@@ -53,10 +53,10 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     @api.multi
-    @api.depends('sale_fiscal_type', 'purchase_fiscal_type')
+    @api.depends('sale_fiscal_type')
     def _fiscal_info_required(self):
         for rec in self:
-            if rec.sale_fiscal_type in ['fiscal', 'gov', 'special'] or rec.purchase_fiscal_type:
+            if rec.sale_fiscal_type in ['fiscal', 'gov', 'special']:
                 rec.fiscal_info_required = True
             else:
                 rec.fiscal_info_required = False
