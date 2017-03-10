@@ -45,8 +45,8 @@ class UpdateRateWizard(models.TransientModel):
     def _get_bank_rates(self):
         rates = []
         try:
-            comerciales = requests.get("http://api.marcos.do/rates").json()
-            central = requests.get("http://api.marcos.do/central_bank_rates").json()
+            comerciales = self.env['marcos.api.tools'].rates()
+            central = self.env['marcos.api.tools'].central_bank_rates()
 
             rates.append(("central-USD-{}".format(central['dollar']['selling_rate']),
                           "BANCO CENTRAL USD - {}".format(central['dollar']['selling_rate'])))
@@ -88,7 +88,7 @@ class UpdateRateWizard(models.TransientModel):
         active_id = self._context.get("active_id", False)
         invoice_id = self.env["account.invoice"].browse(active_id)
         if invoice_id.state != "draft":
-            raise exceptions.UserError("No puede cambiar la tasa porque la factura no está en estado borrador!")
+            raise exceptions.UserError(u"No puede cambiar la tasa porque la factura no está en estado borrador!")
         if not self.custom_rate:
             bank, cur, rate = self.bank_rates.split("-")
             currency_id = self.env["res.currency"].search([('name', '=', cur)])

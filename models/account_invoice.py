@@ -34,18 +34,25 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 
-from odoo import models, fields, api
+from odoo import models, fields, api, exceptions
+
+import logging
+
+_logger = logging.getLogger(__name__)
+
+import requests
 
 
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
     @api.multi
-    @api.depends('currency_id', "invoice_rate", "date_invoice")
+    @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
         for rec in self:
             try:
-                rec.invoice_rate = 1/rec.currency_id.with_context(dict(self._context or {}, date=rec.date_invoice)).rate
+                rec.invoice_rate = 1 / rec.currency_id.with_context(
+                    dict(self._context or {}, date=rec.date_invoice)).rate
             except:
                 pass
 
@@ -61,11 +68,10 @@ class AccountInvoice(models.Model):
         shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
         return shop_user_config
 
-    shop_id = fields.Many2one("shop.ncf.config", string="Punto de venta", required=False,
+    shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF", required=False,
                               default=_default_user_shop, domain=lambda s: [('user_ids', '=', [s._uid])])
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
-
     sale_fiscal_type = fields.Selection([
         ("final", u"Consumidor final"),
         ("fiscal", u"Para credito fiscal"),
@@ -73,7 +79,6 @@ class AccountInvoice(models.Model):
         ("special", u"Regimenes especiales"),
         ("unico", u"Unico ingreso")
     ], string="NCF para", default="final")
-
     purchase_fiscal_type = fields.Selection([
         ('01', u'01 - Gastos de personal'),
         ('02', u'02 - Gastos por trabajo, suministros y servicios'),
@@ -87,7 +92,6 @@ class AccountInvoice(models.Model):
         ('10', u'10 - Adquisiciones de Activos'),
         ('11', u'11 - Gastos de Seguro'),
     ], string=u"Tipo de gasto")
-
     anulation_type = fields.Selection([
         ("01", u"DETERIORO DE FACTURA PRE-IMPRESA"),
         ("02", u"ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
@@ -99,28 +103,118 @@ class AccountInvoice(models.Model):
         ("08", u"OMISIÓN DE PRODUCTOS"),
         ("09", u"ERRORES EN SECUENCIA DE NCF")
     ], string=u"Tipo de anulación", copy=False)
+    refund_reason = fields.Text(string="Refund reason")
+    origin_invoice_ids = fields.Many2many(
+        comodel_name='account.invoice', column1='refund_invoice_id',
+        column2='original_invoice_id', relation='account_invoice_refunds_rel',
+        string=u"Factura original", readonly=True,
+        help=u"Factura original a la que se remite esta factura de reembolso")
+    refund_invoice_ids = fields.Many2many(
+        comodel_name='account.invoice', column1='original_invoice_id',
+        column2='refund_invoice_id', relation='account_invoice_refunds_rel',
+        string=u"Reembolso de facturas", readonly=True,
+        help=u"Devolución de facturas creadas a partir de esta factura")
 
-    invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
+    @api.multi
+    def match_origin_lines(self, origin_inv):
+        for idx, line in enumerate(origin_inv.invoice_line_ids):
+            try:
+                # Protect this write, maybe refund invoice doesn't
+                # have the same lines than original one
+                self.invoice_line_ids[idx].write({
+                    'origin_line_ids': [(6, 0, line.ids)],
+                })
+            except:  # pragma: no cover
+                pass
+        return True
+
     is_company_currency = fields.Boolean(compute=_is_company_currency)
+    invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
+    purchase_type = fields.Selection([("normal", u"REQUIERE NCF"),
+                                      ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
+                                      ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
+                                      ("exterior", u"PAGOS AL EXTERIOR NO REQUIRE NCF"),
+                                      ("import", u"IMPORTACIONES NO REQUIRE NCF"),
+                                      ("others", u"OTROS NO REQUIRE NCF")],
+                                     string=u"Tipo de compra", default="normal", related="journal_id.purchase_type")
+    is_nd = fields.Boolean()
 
-    @api.onchange('partner_id', 'company_id')
+    @api.onchange('journal_id')
+    def _onchange_journal_id(self):
+        super(AccountInvoice, self)._onchange_journal_id()
+
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+            self.partner_id = self.company_id.partner_id.id
+
+    @api.onchange('partner_id')
     def _onchange_partner_id(self):
         super(AccountInvoice, self)._onchange_partner_id()
 
         if self.partner_id:
-            if type in ('out_invoice', 'out_refund'):
+            if self.type in ('out_invoice', 'out_refund'):
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
             else:
                 self.purchase_fiscal_type = self.partner_id.purchase_fiscal_type
 
+            if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+                self.partner_id = self.company_id.partner_id.id
+
+            if self.type in ("out_invoice", "out_refund") and not self.partner_id.customer:
+                self.partner_id.customer = True
+            if self.type in ("in_invoice", "in_refund") and not self.partner_id.supplier:
+                self.partner_id.supplier = True
+
     @api.onchange('sale_fiscal_type', 'purchase_fiscal_type')
     def _onchange_fiscal_type(self):
         if self.partner_id:
-            if type in ('out_invoice', 'out_refund'):
+            if self.type in ('out_invoice', 'out_refund'):
                 self.partner_id.write({'sale_fiscal_type': self.sale_fiscal_type})
+                if self.sale_fiscal_type == "special":
+                    self.fiscal_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
             else:
                 self.partner_id.write({'purchase_fiscal_type': self.purchase_fiscal_type})
 
     @api.onchange("shop_id")
     def onchange_shop_id(self):
-        self.journal_id = self.shop_id.journal_id
+        if self.type in ('out_invoice', 'out_refund'):
+            self.journal_id = self.shop_id.journal_id.id
+
+    @api.one
+    @api.constrains("move_name")
+    def constrains_move_name(self):
+        if self.type in ("in_invoice", "in_refund"):
+            res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
+            if not res == True:
+                _logger.warning(res)
+                raise exceptions.ValidationError(res[2])
+
+    @api.multi
+    def action_invoice_open(self):
+        msg = False
+        for rec in self:
+            if rec.type in ("out_invoice",
+                            "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
+                msg = u"El cliente no tiene RNC y es requerido para este tipo de factura."
+            elif rec.type in (
+                    "in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
+                msg = u"El proveedor no tiene RNC y es requerido para este tipo de compra."
+
+            if msg:
+                raise exceptions.ValidationError(msg)
+
+        return super(AccountInvoice, self).action_invoice_open()
+
+
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    origin_line_ids = fields.Many2many(
+        comodel_name='account.invoice.line', column1='refund_line_id',
+        column2='original_line_id', string=u"Línea de factura original",
+        relation='account_invoice_line_refunds_rel',
+        help=u"Línea de factura original a la que se refiere esta línea de factura de reembolso")
+    refund_line_ids = fields.Many2many(
+        comodel_name='account.invoice.line', column1='original_line_id',
+        column2='refund_line_id', string=u"Reembolso de la línea de factura",
+        relation='account_invoice_line_refunds_rel',
+        help=u"Reembolso de las líneas de factura creadas a partir de esta línea de factura")
