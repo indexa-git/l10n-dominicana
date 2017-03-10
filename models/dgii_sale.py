@@ -37,10 +37,8 @@ from odoo import models, fields, api, exceptions
 import calendar
 import base64
 import time
-
 import re
 
-import re
 
 class DgiiSaleReport(models.Model):
     _name = "dgii.sale.report"
@@ -116,7 +114,7 @@ class DgiiSaleReport(models.Model):
                 RNC_CEDULA = re.sub("[^0-9]", "", inv.partner_id.vat.strip())
                 TIPO_IDENTIFICACION = "1" if len(str(RNC_CEDULA).strip()) == 9 else "2"
 
-            if not self.env['res.partner'].is_ncf(inv.number, inv.type):
+            if not self.env['marcos.api.tools'].is_ncf(inv.number, inv.type):
                 raise exceptions.ValidationError(u"El número de NCF o el RNC/Cédula del clienten para el comprobante {} no es valido!".format(inv.number))
 
 
@@ -181,7 +179,7 @@ class DgiiSaleReport(models.Model):
 
         company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
 
-        if not company_fiscal_identificacion or not self.env['res.partner'].is_identification(company_fiscal_identificacion):
+        if not company_fiscal_identificacion or not self.env['marcos.api.tools'].is_identification(company_fiscal_identificacion):
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
 
         path = '/tmp/607{}.txt'.format(company_fiscal_identificacion)
