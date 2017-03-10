@@ -146,7 +146,7 @@ class DgiiPurchaseReport(models.Model):
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
                 raise exceptions.UserError(u"Debe de definir el tipo de gasto para la posición fiscal {}! en la factura {}".format(inv.fiscal_position_id.name, inv.number))
 
-            if not self.env['res.partner'].is_ncf(inv.number, inv.type):
+            if not self.env['marcos.api.tools'].is_ncf(inv.number, inv.type):
                 raise exceptions.UserError(u"El número de NCF {} no es valido!".format(inv.number))
 
             NUMERO_COMPROBANTE_MODIFICADO = "".rjust(19)
@@ -193,7 +193,7 @@ class DgiiPurchaseReport(models.Model):
 
         company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
 
-        if not company_fiscal_identificacion or not self.env['res.partner'].is_identification(company_fiscal_identificacion):
+        if not company_fiscal_identificacion or not self.env['marcos.api.tools'].is_identification(company_fiscal_identificacion):
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
 
         path = '/tmp/606{}.txt'.format(company_fiscal_identificacion)

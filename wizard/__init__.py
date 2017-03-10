@@ -35,3 +35,4 @@
 
 from . import account_invoice_cancel
 from . import update_rate_wizard
+from . import account_invoice_refund
