@@ -69,7 +69,7 @@ class AccountInvoice(models.Model):
             shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
             return shop_user_config
         except:
-            pass
+            return False
 
     shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF", required=False,
                               default=_default_user_shop, domain=lambda s: [('user_ids', '=', [s._uid])])
