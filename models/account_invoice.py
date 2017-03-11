@@ -65,11 +65,15 @@ class AccountInvoice(models.Model):
                 rec.is_company_currency = False
 
     def _default_user_shop(self):
-        shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
-        return shop_user_config
+        try:
+            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+            return shop_user_config
+        except:
+            pass
 
     shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF", required=False,
                               default=_default_user_shop, domain=lambda s: [('user_ids', '=', [s._uid])])
+
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
     sale_fiscal_type = fields.Selection([
