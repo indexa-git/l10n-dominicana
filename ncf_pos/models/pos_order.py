@@ -55,9 +55,11 @@ class PosOrder(models.Model):
          ('Non-Returnable', 'No retornable')], default='-', copy=False, string=u'Estado de devolución')
 
     @api.model
-    def create_from_ui_second_step(self, order_ids):
-        # order_ids = super(PosOrder, self).create_from_ui(orders);
-        order_objs = self.env['pos.order'].browse(order_ids);
+    def create_from_ui(self, orders):
+        for order in orders:
+            order.update({"to_invoice": True})
+        order_ids = super(PosOrder, self).create_from_ui(orders)
+        order_objs = self.env['pos.order'].browse(order_ids)
         result = {}
         order_list = []
         order_line_list = []
@@ -135,45 +137,19 @@ class PosOrder(models.Model):
         result['statements'] = statement_list
         return result
 
-    @api.model
-    def create_from_ui(self, orders):
-        # Keep only new orders
-        submitted_references = [o['data']['name'] for o in orders]
-        pos_order = self.search([('pos_reference', 'in', submitted_references)])
-        existing_orders = pos_order.read(['pos_reference'])
-        existing_references = set([o['pos_reference'] for o in existing_orders])
-        orders_to_save = [o for o in orders if o['data']['name'] not in existing_references]
-        order_ids = []
-
-        for tmp_order in orders_to_save:
-            to_invoice = tmp_order['to_invoice']
-            order = tmp_order['data']
-            if to_invoice:
-                self._match_payment_to_invoice(order)
-            pos_order = self._process_order(order)
-            order_ids.append(pos_order.id)
-
-            try:
-                pos_order.action_pos_order_paid()
-            except psycopg2.OperationalError:
-                # do not hide transactional errors, the order(s) won't be saved!
-                raise
-            except Exception as e:
-                _logger.error('No se pudo procesar completamente el pedido POS: %s', tools.ustr(e))
-
-            if not pos_order.partner_id:
-                pos_order.partner_id = pos_order.session_id.config_id.default_partner_id.id
-            pos_order.action_pos_order_invoice()
-            pos_order.invoice_id.sale_fiscal_type = pos_order.partner_id.sale_fiscal_type
-            pos_order.invoice_id.sudo().action_invoice_open()
-        return self.create_from_ui_second_step(order_ids)
+    def _prepare_invoice(self):
+        res = super(PosOrder, self)._prepare_invoice()
+        if self.is_return_order:
+            res.update({"type": "out_refund"})
+        return res
 
     @api.model
     def get_fiscal_data(self, name):
 
-        res = {}
+        res = {"fiscal_type": "none", "fiscal_type_name": u"PRE-CUENTA"}
 
         order_state = False
+        order_id = False
         while not order_state == 'invoiced':
             time.sleep(1)
             order_id = self.search([('pos_reference', '=', name)])
@@ -181,15 +157,18 @@ class PosOrder(models.Model):
                 order_state = order_id.state
             self._cr.commit()
 
-        res.update({"ncf": order_id.invoice_id.number})
-        if order_id.invoice_id.sale_fiscal_type == "fiscal":
-            res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL"})
-        elif order_id.invoice_id.sale_fiscal_type == "final":
-            res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL"})
-        elif order_id.invoice_id.sale_fiscal_type == "gov":
-            res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL"})
-        elif order_id.invoice_id.sale_fiscal_type == "special":
-            res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES"})
+        if order_id:
+            res.update({"ncf": order_id.invoice_id.number})
+            if order_id.is_return_order:
+                res.update({"fiscal_type": "nc", "fiscal_type_name": u"NOTA DE CRÉDITO"})
+            elif order_id.invoice_id.sale_fiscal_type == "fiscal":
+                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL"})
+            elif order_id.invoice_id.sale_fiscal_type == "final":
+                res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL"})
+            elif order_id.invoice_id.sale_fiscal_type == "gov":
+                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL"})
+            elif order_id.invoice_id.sale_fiscal_type == "special":
+                res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES"})
 
         return res
 
@@ -260,6 +239,16 @@ class PosOrder(models.Model):
                 'journal': cash_journal_id,
             })
         return order
+
+    @api.multi
+    def action_pos_order_invoice(self):
+        for order in self:
+            if not order.partner_id:
+                if not order.config_id.default_partner_id:
+                    raise exceptions.ValidationError(
+                        u"Debe configurar un cliente por defecto en la configuración del punto de venta")
+                order.partner_id = order.config_id.default_partner_id.id
+        return super(PosOrder, self).action_pos_order_invoice()
 
 
 class PosOrderLine(models.Model):
