@@ -34,12 +34,13 @@
 # DEALINGS IN THE SOFTWARE.
 ########################################################################################################################
 
-from . import shop
-from . import account
-from . import account_invoice
-from . import dgii_exterior
-from . import dgii_purchase
-from . import dgii_sale
-from . import dgii_cancel
-from . import res
-from . import sale
+from odoo import models, api
+
+
+class Sale(models.Model):
+    _inherit = "sale.order"
+
+    @api.model
+    def create(self, vals):
+        vals['name'] = self.env['ir.sequence'].next_by_code('sale.order')
+        return super(Sale, self).create(vals)
