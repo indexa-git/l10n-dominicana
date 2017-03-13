@@ -8,7 +8,7 @@
             <field name="state">code</field>
             <field name="code">
                 if records:
-                records.update_partner_name_from_dgii()
+                    records.update_partner_name_from_dgii()
             </field>
         </record>
 
