@@ -35,7 +35,9 @@
 ########################################################################################################################
 from lxml import etree
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api
+
+import re
 
 import logging
 
@@ -93,12 +95,6 @@ class ResPartner(models.Model):
     vat_readonly = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country', ondelete='restrict', default=62)
 
-    @api.constrains("name", 'vat')
-    def name_constrains(self):
-        existing_names = self.search_count([('name', '=', self.name)])
-        if existing_names > 1:
-            raise exceptions.ValidationError(u"Ya esxite un relacionado con este nombre o RNC.")
-
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         res = super(ResPartner, self).name_search(name, args=args, operator=operator, limit=100)
@@ -132,13 +128,24 @@ class ResPartner(models.Model):
     def create(self, vals):
         if self._context.get("install_mode", False):
             return super(ResPartner, self).create(vals)
-        elif vals.get("vat"):
-            vat_exist = self.search([('vat', '=', vals["vat"])])
-            if vat_exist:
-                return vat_exist
-            res = self.env["marcos.api.tools"].rnc_cedula_validation(vals["vat"])
-            if res[0] == 1:
-                vals.update({"name": res[1]["name"]})
+
+        vat_or_name = vals.get("vat", False) or vals.get("name", False)
+
+        if vat_or_name:
+            vat_or_name_exist = self.search(["|", ('name', '=', vat_or_name), ('vat', '=', vat_or_name)])
+            if vat_or_name_exist:
+                return vat_or_name_exist[0]
+
+            vat = re.sub("[^0-9]", "", vat_or_name)
+
+            if vat.isdigit():
+                vat_or_name_exist = self.search([('vat', '=', vat)])
+                if vat_or_name_exist:
+                    return vat_or_name_exist[0]
+                res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
+                if res[0] == 1:
+                    vals.update({"name": res[1]["name"],
+                                 "vat": res[1]["rnc"]})
 
         return super(ResPartner, self).create(vals)
 
@@ -166,7 +173,8 @@ class ResPartner(models.Model):
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        result = super(ResPartner, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        result = super(ResPartner, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar,
+                                                         submenu=submenu)
         if view_type == 'form' and result.get("name", False) == "res.partner.form":
             arch = etree.fromstring(result['arch'])
             name_field = arch.xpath("//field[@name='name']")
@@ -176,4 +184,3 @@ class ResPartner(models.Model):
             result["arch"] = etree.tostring(arch)
 
         return result
-
