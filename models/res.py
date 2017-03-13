@@ -35,7 +35,7 @@
 ########################################################################################################################
 from lxml import etree
 
-from odoo import models, fields, api
+from odoo import models, fields, api, exceptions
 
 import re
 
@@ -116,19 +116,7 @@ class ResPartner(models.Model):
                 if res[0] == 1:
                     self.write({"name": res[1]["name"]})
 
-    @api.multi
-    def write(self, vals):
-        if vals.get("vat"):
-            res = self.env["marcos.api.tools"].rnc_cedula_validation(vals["vat"])
-            if res[0] == 1:
-                vals.update({"name": res[1]["name"]})
-        return super(ResPartner, self).write(vals)
-
-    @api.model
-    def create(self, vals):
-        if self._context.get("install_mode", False):
-            return super(ResPartner, self).create(vals)
-
+    def validate_vat_or_name(self, vals):
         vat_or_name = vals.get("vat", False) or vals.get("name", False)
 
         if vat_or_name:
@@ -146,6 +134,25 @@ class ResPartner(models.Model):
                 if res[0] == 1:
                     vals.update({"name": res[1]["name"],
                                  "vat": res[1]["rnc"]})
+
+        return vals
+
+    @api.multi
+    def write(self, vals):
+        vals = self.validate_vat_or_name(vals)
+        if not isinstance(vals, dict):
+            raise exceptions.ValidationError(
+                u"Ya existe un contacto registrado con esta identificación a nombre de {}!".format(vals.name))
+        return super(ResPartner, self).write(vals)
+
+    @api.model
+    def create(self, vals):
+        if self._context.get("install_mode", False):
+            return super(ResPartner, self).create(vals)
+
+        vals = self.validate_vat_or_name(vals)
+        if not isinstance(vals, dict):
+            return vals
 
         return super(ResPartner, self).create(vals)
 
