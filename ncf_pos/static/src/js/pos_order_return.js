@@ -302,16 +302,17 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
         }
     });
 
+
     models.Order = models.Order.extend({
         initialize: function (attributes, options) {
             SuperOrder.prototype.initialize.call(this, attributes, options);
-            var self = this;
-            self.return_status = '-';
-            self.is_return_order = false;
-            self.return_order_id = false;
-            if (!self.get_client()) {
-                var default_partner_id = self.pos.db.get_partner_by_id(self.pos.config.default_partner_id[0]);
-                self.set_client(default_partner_id);
+
+            this.return_status = '-';
+            this.is_return_order = false;
+            this.return_order_id = false;
+            if (!this.get_client()) {
+                var default_partner_id = this.pos.db.get_partner_by_id(this.pos.config.default_partner_id[0]);
+                this.set_client(default_partner_id);
             }
         },
         export_as_JSON: function () {
@@ -343,13 +344,15 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     models.PosModel = models.PosModel.extend({
         set_order: function (order) {
             SuperPosModel.set_order.call(this, order);
-            if (!order.is_return_order) {
-                $("#cancel_refund_order").hide();
+            if (order) {
+                if (!order.is_return_order) {
+                    $("#cancel_refund_order").hide();
+                }
+                else {
+                    $("#cancel_refund_order").show();
+                }
             }
-            else {
-                $("#cancel_refund_order").show();
-            }
-        },
+        }
     });
 
     pos_orders.include({
