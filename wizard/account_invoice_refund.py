@@ -114,6 +114,5 @@ class AccountInvoiceRefund(models.TransientModel):
                                                           u"no paso la validacion en DGII, Verifique que el NCF y el RNC del "
                                                           u"proveedor esten correctamente digitados, si es de proveedor informal o de "
                                                           u"gasto menor vefifique si debe solicitar nuevos numero.")
-        ctx = dict(self._context) or {}
-        ctx.update({"validate_ncf": False})
-        return super(AccountInvoiceRefund, self.with_context(ctx)).invoice_refund()
+
+        return super(AccountInvoiceRefund, self).invoice_refund()
