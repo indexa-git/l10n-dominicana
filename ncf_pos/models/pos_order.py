@@ -240,16 +240,6 @@ class PosOrder(models.Model):
             })
         return order
 
-    @api.multi
-    def action_pos_order_invoice(self):
-        for order in self:
-            if not order.partner_id:
-                if not order.config_id.default_partner_id:
-                    raise exceptions.ValidationError(
-                        u"Debe configurar un cliente por defecto en la configuración del punto de venta")
-                order.partner_id = order.config_id.default_partner_id.id
-        return super(PosOrder, self).action_pos_order_invoice()
-
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'

@@ -304,11 +304,15 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
 
     models.Order = models.Order.extend({
         initialize: function (attributes, options) {
+            SuperOrder.prototype.initialize.call(this, attributes, options);
             var self = this;
             self.return_status = '-';
             self.is_return_order = false;
             self.return_order_id = false;
-            SuperOrder.prototype.initialize.call(this, attributes, options);
+            if (!self.get_client()) {
+                var default_partner_id = self.pos.db.get_partner_by_id(self.pos.config.default_partner_id[0]);
+                self.set_client(default_partner_id);
+            }
         },
         export_as_JSON: function () {
             var self = this;
