@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>  
+<?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-name="MyMessagePopup">
         <div class="modal-dialog">
@@ -19,35 +19,42 @@
     </t>
     <t t-extend="PaymentScreenWidget">
         <t t-jquery="h1" t-operation="replace">
-            <t t-if="widget.pos.get_order().is_return_order">
-                <h1>Reembolso</h1>
+            <t t-if="widget.pos.get_order()">
+                <t t-if="widget.pos.get_order().is_return_order">
+                    <h1>Reembolso</h1>
+                </t>
+                <t t-if="!widget.pos.get_order().is_return_order">
+                    <h1>Pago</h1>
+                </t>
             </t>
-            <t t-if="!widget.pos.get_order().is_return_order">
+            <t t-if="!widget.pos.get_order()">
                 <h1>Pago</h1>
             </t>
         </t>
     </t>
     <t t-extend="PaymentScreen-Paymentlines">
         <t t-jquery="div.paymentlines-empty" t-operation="replace">
-            <t t-if="order.is_return_order">
-                <div class='paymentlines-empty'>
-                    <div class='total' style="color:#2b8b8e">
-                        <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
+            <t t-if="order">
+                <t t-if="order.is_return_order">
+                    <div class='paymentlines-empty'>
+                        <div class='total' style="color:#2b8b8e">
+                            <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
+                        </div>
+                        <div class='message'>
+                            Seleccione un método de reembolso.
+                        </div>
                     </div>
-                    <div class='message'>
-                        Seleccione un método de reembolso.
+                </t>
+                <t t-if="!order.is_return_order">
+                    <div class='paymentlines-empty'>
+                        <div class='total'>
+                            <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
+                        </div>
+                        <div class='message'>
+                            Por favor seleccione un método de pago.
+                        </div>
                     </div>
-                </div>
-            </t>
-            <t t-if="!order.is_return_order">
-                <div class='paymentlines-empty'>
-                    <div class='total'>
-                        <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
-                    </div>
-                    <div class='message'>
-                        Por favor seleccione un método de pago.
-                    </div>
-                </div>
+                </t>
             </t>
         </t>
     </t>
@@ -287,7 +294,7 @@
             </t>
             <t t-if="journal_id[0]!=widget.pos.db.cash_journal[0]">
                 <td width="100%" style="padding-top:3%;">
-                    <t t-esc='journal_id[1]'/>: <span style="  color: rgb(42, 129, 128);"><t t-esc="widget.chrome.screens.payment.format_currency(amount)"/></span>                 
+                    <t t-esc='journal_id[1]'/>: <span style="  color: rgb(42, 129, 128);"><t t-esc="widget.chrome.screens.payment.format_currency(amount)"/></span>
                 </td>
             </t>
         </tr>
@@ -345,7 +352,7 @@
             </t>
          </t>
          <t t-jquery=".emph" t-operation="replace">
-            <tr class="emph">  
+            <tr class="emph">
                 <td>
                     <t t-if="order.is_return_order">
                         Reembolso total
@@ -377,7 +384,7 @@
             </t>
         </t>
     </t>
-    <t t-extend="XmlReceipt"> 
+    <t t-extend="XmlReceipt">
         <t t-jquery=".total" t-operation="replace">
             <line class='total' size='double-height'>
                 <t t-if='widget.pos.get_order().is_return_order'>
@@ -401,4 +408,4 @@
         </t>
     </t>
 </templates>
-    
+
