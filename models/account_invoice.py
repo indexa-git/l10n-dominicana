@@ -46,6 +46,15 @@ import requests
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
+    @api.model_cr_context
+    def _auto_init(self):
+        self._sql_constraints = [
+            ('number_uniq', 'unique(number, company_id, partner_id, journal_id, type)',
+             'Invoice Number must be unique per Company!'),
+        ]
+
+        super(AccountInvoice, self)._auto_init()
+
     @api.multi
     @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
