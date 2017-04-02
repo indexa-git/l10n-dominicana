@@ -41,11 +41,21 @@ import time
 from odoo import models, fields, api, tools, exceptions, _
 from odoo.tools import float_is_zero
 
+from odoo.tools.safe_eval import safe_eval
+
 _logger = logging.getLogger(__name__)
 
 
 class PosOrder(models.Model):
     _inherit = "pos.order"
+
+    def get_pos_session_concile_type(self):
+        IrConfigParam = self.env['ir.config_parameter']
+        return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_concile_type', 'ticket'))
+
+    def get_pos_session_picking_on_cron(self):
+        IrConfigParam = self.env['ir.config_parameter']
+        return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_picking_on_cron', 'False'))
 
     is_return_order = fields.Boolean(string='Devolver orden', copy=False)
     return_order_id = fields.Many2one('pos.order', u'Orden de devolución de', readonly=True, copy=False)
@@ -137,6 +147,16 @@ class PosOrder(models.Model):
         result['statements'] = statement_list
         return result
 
+    @api.multi
+    def action_pos_order_paid(self):
+        if not self.get_pos_session_picking_on_cron():
+            return super(PosOrder, self).action_pos_order_paid()
+        else:
+            if not self.test_paid():
+                raise exceptions.UserError(_("Order is not paid."))
+            self.write({'state': 'paid'})
+            return True
+
     def _prepare_invoice(self):
         res = super(PosOrder, self)._prepare_invoice()
         if self.is_return_order:
@@ -150,6 +170,7 @@ class PosOrder(models.Model):
 
         order_state = False
         order_id = False
+
         while not order_state == 'invoiced':
             time.sleep(1)
             order_id = self.search([('pos_reference', '=', name)])
@@ -239,6 +260,37 @@ class PosOrder(models.Model):
                 'journal': cash_journal_id,
             })
         return order
+
+    @api.multi
+    def action_pos_order_invoice(self):
+        for rec in self:
+            if not rec.partner_id:
+                rec.partner_id = rec.config_id.default_partner_id.id
+        return super(PosOrder, self).action_pos_order_invoice()
+
+    def _reconcile_payments(self):
+
+        for order in self:
+            aml = order.account_move.line_ids
+            for line in order.statement_ids.mapped('journal_entry_ids'):
+                aml |= line.line_ids
+                # aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id)
+            aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable')
+
+            try:
+                aml.reconcile()
+            except:
+                # There might be unexpected situations where the automatic reconciliation won't
+                # work. We don't want the user to be blocked because of this, since the automatic
+                # reconciliation is introduced for convenience, not for mandatory accounting
+                # reasons.
+
+                continue
+
+    def pos_picking_generate_cron(self):
+        orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced')])
+        for order in orders:
+            order.create_picking()
 
 
 class PosOrderLine(models.Model):

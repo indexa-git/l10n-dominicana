@@ -35,6 +35,7 @@
 ########################################################################################################################
 
 from odoo import models, fields, api, exceptions
+from odoo.tools.safe_eval import safe_eval
 
 
 class PosConfig(models.Model):
@@ -61,4 +62,3 @@ class PosConfig(models.Model):
         if self.load_orders_after_this_date:
             if not self.load_orders_from:
                 raise exceptions.ValidationError(u"¡Por favor especifique una fecha!")
-
