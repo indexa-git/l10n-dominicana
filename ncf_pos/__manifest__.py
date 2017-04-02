@@ -27,7 +27,9 @@
         # 'security/ir.model.access.csv',
         'views/pos_view.xml',
         'views/templates.xml',
-        'data/pos_ir_rules.xml',
+        'views/res_config.xml',
+        'data/data.xml',
+
     ],
     # only loaded in demonstration mode
     'demo': [
