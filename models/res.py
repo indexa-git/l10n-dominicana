@@ -132,9 +132,7 @@ class ResPartner(models.Model):
                     return vat_or_name_exist[0]
                 res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
                 if res[0] == 1:
-                    vals.update({"name": res[1]["name"],
-                                 "vat": res[1]["rnc"]})
-
+                    vals.update(res[1])
         return vals
 
     @api.multi
