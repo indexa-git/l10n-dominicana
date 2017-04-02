@@ -11,6 +11,7 @@
 
                 <field name="active" position="after">
                     <field name="default_partner_id"/>
+                    <field name="user_ids" widget="many2many_tags"/>
                 </field>
 
                 <xpath expr="//field[@name='iface_display_categ_images']" position="after">
@@ -45,6 +46,21 @@
                            attrs="{'invisible':[('is_return_order','!=',True)]}"/>
                     <field name='return_status' readonly='True' attrs="{'invisible':[('is_return_order','=',True)]}"/>
                 </field>
+            </field>
+        </record>
+
+
+        <!-- Inherit Form View to Modify it -->
+        <record id="view_pos_config_kanban" model="ir.ui.view">
+            <field name="name">ncf_pos.pos.config.kanban.view</field>
+            <field name="model">pos.config</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//div[@class='o_kanban_card_manage_settings row']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+
             </field>
         </record>
 

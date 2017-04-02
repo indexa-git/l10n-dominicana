@@ -44,6 +44,7 @@ class PosConfig(models.Model):
     load_orders_of_current_session = fields.Boolean(string=u'Cargar orden de sesión actual sólo', default=True)
     load_orders_after_this_date = fields.Boolean(string=u'Cargar orden después de una fecha especificada')
     load_orders_from = fields.Date(string=u'Seleccione una fecha')
+    user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
 
     @api.onchange('load_orders_of_current_session')
     def onchange_load_orders_of_current_session(self):
