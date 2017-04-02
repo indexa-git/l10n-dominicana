@@ -206,6 +206,8 @@ class AccountInvoice(models.Model):
     def action_invoice_open(self):
         msg = False
         for rec in self:
+            if not rec.partner_id.sale_fiscal_type:
+                rec.sale_fiscal_type = "final"
             if rec.type in ("out_invoice",
                             "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
                 msg = u"El cliente no tiene RNC y es requerido para este tipo de factura."
