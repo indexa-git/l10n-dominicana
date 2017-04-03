@@ -50,10 +50,13 @@ class PosConfiguration(models.TransientModel):
         IrConfigParam = self.env['ir.config_parameter']
         try:
             return {
-                'pos_session_concile_type': safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_concile_type', 'session'))
+                'pos_session_concile_type': safe_eval(
+                    IrConfigParam.get_param('ncf_pos.pos_session_concile_type', 'session'))
             }
         except:
-            return "session"
+            return {
+                'pos_session_concile_type': 'session'
+            }
 
     @api.multi
     def set_pos_session_concile_type(self):
