@@ -42,7 +42,7 @@ class PosConfiguration(models.TransientModel):
     _inherit = 'pos.config.settings'
 
     pos_session_concile_type = fields.Selection([('session', u'Por session'), ('none', u'Manual')],
-                                                string=u"Conciliación", default=u"ticket")
+                                                string=u"Conciliación", default=u"session")
     pos_session_picking_on_cron = fields.Boolean("Crear conduce desde un cron", default=False)
 
     @api.model
