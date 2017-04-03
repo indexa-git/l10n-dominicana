@@ -423,7 +423,7 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
                     var original_orderlines = [];
                     var allow_return = true;
                     if (order.return_status == 'Fully-Returned') {
-                        message = 'Sorry, You can`t return same order twice !!'
+                        message = 'Lo sentimos, no puede devolver el mismo pedido dos veces !!'
                         allow_return = false;
                     }
                     if (allow_return) {
@@ -432,15 +432,15 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
                             var product = self.pos.db.get_product_by_id(line.product_id[0]);
                             if (product.not_returnable) {
                                 non_returnable_products = true;
-                                message = 'This order contains some Non-Returnable products, do you wish to return other products?'
+                                message = 'Este pedido contiene algunos productos no retornables, ¿desea devolver otros productos?'
                             }
                             else if (line.qty - line.line_qty_returned > 0)
                                 original_orderlines.push(line);
                         });
                         if (original_orderlines.length == 0) {
                             self.gui.show_popup('my_message', {
-                                'title': _t('Cannot Return This Order!!!'),
-                                'body': _t("There are no returnable products left for this order!"),
+                                'title': _t('¡No puede devolver esta orden !!!'),
+                                'body': _t("¡No hay productos retornables para esta orden!"),
                             });
                         }
                         else if (non_returnable_products) {
