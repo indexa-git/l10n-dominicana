@@ -42,7 +42,7 @@ class ShopJournalConfig(models.Model):
 
     company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id,
                                  string=u"Compañia")
-    name = fields.Char("Prefijo NCF", size=9, required=True)
+    name = fields.Char("Prefijo NCF", size=9, required=True, copy=False)
 
     journal_id = fields.Many2one("account.journal", string="Diario", required=True)
 
@@ -89,7 +89,7 @@ class ShopJournalConfig(models.Model):
     user_ids = fields.Many2many("res.users", string=u"Usuarios que pueden usar estas secuancias")
 
     _sql_constraints = [
-        ('shop_ncf_config_name_uniq', 'unique(name, company_id)', u'El nombre de la sucursal debe de ser unico!'),
+        ('shop_ncf_config_name_uniq', 'unique(name, company_id)', u'El Prefijo NCF de la sucursal debe de ser unico!'),
     ]
 
     @api.onchange("name")
