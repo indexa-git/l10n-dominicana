@@ -13,6 +13,7 @@ odoo.define('ncf_pos.ncf_ticket', function (require) {
             var order = this.pos.get_order();
             order.fiscal_type_name = fiscal_data.fiscal_type_name;
             order.ncf = fiscal_data.ncf;
+            order.origin_ncf = fiscal_data.origin;
             this.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                 widget: this,
                 order: order,

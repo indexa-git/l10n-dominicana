@@ -179,17 +179,28 @@ class PosOrder(models.Model):
             self._cr.commit()
 
         if order_id:
-            res.update({"ncf": order_id.invoice_id.number})
+            res.update({"ncf": order_id.invoice_id.number, "id": order_id.id})
             if order_id.is_return_order:
-                res.update({"fiscal_type": "nc", "fiscal_type_name": u"NOTA DE CRÉDITO"})
+                res.update({"fiscal_type_name": u"NOTA DE CRÉDITO"})
+
+                reference_ncf = order_id.return_order_id.invoice_id.number
+                reference_ncf_type = reference_ncf[9:11]
+                if reference_ncf_type in ("01", "14"):
+                    res.update({"fiscal_type": "fiscal_note"})
+                elif reference_ncf_type == "02":
+                    res.update({"fiscal_type": "final_note"})
+                elif reference_ncf_type == "15":
+                    res.update({"fiscal_type": "special_note"})
+                res.update({"origin": reference_ncf})
+
             elif order_id.invoice_id.sale_fiscal_type == "fiscal":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL"})
+                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL", "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "final":
-                res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL"})
+                res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL", "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "gov":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL"})
+                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL", "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "special":
-                res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES"})
+                res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES", "origin": False})
 
         return res
 

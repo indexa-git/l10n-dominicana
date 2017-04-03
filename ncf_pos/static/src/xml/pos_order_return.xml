@@ -114,7 +114,7 @@
     <t t-extend="ProductListWidget">
         <t t-jquery=".product-list-scroller.touch-scrollable" t-operation="prepend">
             <div id="refund_order_notify" style="color: rgb(0, 0, 0);height: 100%;width: 100%;position: absolute;font-size: -webkit-xxx-large;font-family: fantasy;padding-top: 25%;text-shadow: -5px 4px 2px #c5c5c5;display:none;">
-                ESTO ES UNA DEVOLUCIÓN
+                ESTO ES UNA DE CRÉDITO
             </div>
         </t>
     </t>
@@ -301,7 +301,7 @@
     </t>
     <t t-extend='OrdersScreenWidget'>
         <t t-jquery='.wk_order_list thead tr' t-operation='append'>
-            <th>Estado de devolución</th>
+            <th>Estado de nota de crédito</th>
         </t>
     </t>
     <t t-extend='WkOrderLine'>
@@ -348,7 +348,7 @@
     <t t-extend="PosTicket">
         <t t-jquery=".pos-center-align" t-operation="after">
             <t t-if='order.is_return_order'>
-                <div class="pos-center-align"><span>Devolución</span></div>
+                <div class="pos-center-align"><span>Nota de crédito</span></div>
             </t>
          </t>
          <t t-jquery=".emph" t-operation="replace">
