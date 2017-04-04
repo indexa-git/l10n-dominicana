@@ -41,7 +41,6 @@ odoo.define('ncf_pos.db', function (require) {
 
                 for (var id in this.partner_by_id) {
                     partner = this.partner_by_id[id];
-                    console.log(partner.vat);
                     if (partner.barcode) {
                         this.partner_by_barcode[partner.barcode] = partner;
                     }
