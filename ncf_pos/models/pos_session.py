@@ -39,7 +39,9 @@ from odoo.tools.safe_eval import safe_eval
 
 
 class PosSession(models.Model):
-    _inherit = 'pos.session'
+    _name = 'pos.session'
+    _inherit = ['pos.session', 'mail.thread']
+
 
     def get_pos_session_concile_type(self):
         IrConfigParam = self.env['ir.config_parameter']
