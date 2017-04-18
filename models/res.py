@@ -120,7 +120,7 @@ class ResPartner(models.Model):
         vat_or_name = vals.get("vat", False) or vals.get("name", False)
 
         if vat_or_name:
-            vat_or_name_exist = self.search(["|", ('name', '=', vat_or_name), ('vat', '=', vat_or_name)])
+            vat_or_name_exist = self.search([('vat', '=', vat_or_name)])
             if vat_or_name_exist:
                 return vat_or_name_exist[0]
 
