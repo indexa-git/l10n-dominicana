@@ -32,7 +32,11 @@ class AccountInvoiceRefund(models.TransientModel):
 
     @api.multi
     def compute_refund(self, mode='refund'):
-        result = super(AccountInvoiceRefund, self).compute_refund(mode)
+        ctx = dict(self._context)
+        if self.supplier_ncf:
+            ctx.update({"credit_note_supplier_ncf": self.supplier_ncf})
+
+        result = super(AccountInvoiceRefund, self.with_context(ctx)).compute_refund(mode)
 
         active_ids = self.env.context.get('active_ids')
         if not active_ids:  # pragma: no cover
@@ -80,7 +84,6 @@ class AccountInvoiceRefund(models.TransientModel):
 
                 if self.supplier_ncf:
                     vals.update({"is_nd": self.supplier_ncf,
-                                 "move_name": self.supplier_ncf,
                                  "purchase_fiscal_type": origin_inv.purchase_fiscal_type})
 
                 refund.write(vals)
