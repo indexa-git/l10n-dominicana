@@ -63,6 +63,7 @@ class PosOrder(models.Model):
         [('-', 'Ni devuelto'), ('Fully-Returned', 'Totalmente devuelto'),
          ('Partially-Returned', 'Devuelto parcialmente'),
          ('Non-Returnable', 'No retornable')], default='-', copy=False, string=u'Estado de devolución')
+    invoice_name = fields.Char(related="invoice_id.name")
 
     @api.model
     def create_from_ui(self, orders):
@@ -179,7 +180,8 @@ class PosOrder(models.Model):
             self._cr.commit()
 
         if order_id:
-            res.update({"ncf": order_id.invoice_id.number, "id": order_id.id})
+            res.update({"ncf": order_id.invoice_id.number, "id": order_id.id, "rnc": order_id.partner_id.vat,
+                        "name": order_id.partner_id.name})
             if order_id.is_return_order:
                 res.update({"fiscal_type_name": u"NOTA DE CRÉDITO"})
 
@@ -302,6 +304,14 @@ class PosOrder(models.Model):
         orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced')])
         for order in orders:
             order.create_picking()
+
+
+    @api.model
+    def ncf_search_by_ui(self, query):
+        order_ids = self.search([('invoice_name','=',query)])
+        if order_ids:
+            return
+
 
 
 class PosOrderLine(models.Model):
