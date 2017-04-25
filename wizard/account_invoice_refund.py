@@ -21,7 +21,7 @@ class AccountInvoiceRefund(models.TransientModel):
         help='Refund base on this type. You can not Modify and Cancel if the invoice is already reconciled')
     amount = fields.Float(u"Monto")
     account_id = fields.Many2one(u"account.account", string=u"Cuenta contable")
-    supplier_ncf = fields.Char(string="NCF que afecta", size=19)
+    supplier_ncf = fields.Char(string="NCF nota de crédito", size=19)
     invoice_type = fields.Char(default=lambda s: s._context.get("type", False))
 
     @api.onchange("filter_refund")
