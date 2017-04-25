@@ -10,12 +10,11 @@ odoo.define('ncf_pos.pos_orders', function (require) {
     var SuperPosModel = models.PosModel.prototype;
 
 
-
     models.load_models([{
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id'],
         domain: function (self) {
-            var domain_list = []
+            var domain_list = [];
             if (self.config.load_orders_after_this_date)
                 domain_list = [['date_order', '>', self.config.load_orders_from], ['state', 'not in', ['draft', 'cancel']]]
             else
@@ -138,6 +137,9 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                 return undefined;
         },
         render_list: function (order, input_txt) {
+            models.load_models([{}]);
+
+
             var self = this;
             var customer_id = this.get_customer();
             var new_order_data = [];
@@ -150,7 +152,7 @@ odoo.define('ncf_pos.pos_orders', function (require) {
             }
             if (input_txt != undefined && input_txt != '') {
                 var new_order_data = [];
-                var search_text = input_txt.toLowerCase()
+                var search_text = input_txt.toLowerCase();
                 for (var i = 0; i < order.length; i++) {
                     if (order[i].partner_id == '') {
                         order[i].partner_id = [0, '-'];

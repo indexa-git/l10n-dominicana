@@ -158,7 +158,7 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id', 'is_return_order', 'return_order_id', 'return_status', 'statement_ids', 'amount_total'],
         domain: function (self) {
-            var domain_list = []
+            var domain_list = [];
             if (self.config.load_orders_after_this_date)
                 domain_list = [['date_order', '>', self.config.load_orders_from], ['state', 'not in', ['draft', 'cancel']], ['is_return_order', '=', false]]
             else
