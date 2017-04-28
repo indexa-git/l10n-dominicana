@@ -210,7 +210,7 @@ class AccountInvoice(models.Model):
                 rec.sale_fiscal_type = "final"
             if rec.type in ("out_invoice",
                             "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
-                msg = u"El cliente no tiene RNC y es requerido para este tipo de factura."
+                msg = u"El cliente [{}]{} no tiene RNC y es requerido para este tipo de factura.".format(rec.partner_id.id, rec.partner_id.name)
             elif rec.type in (
                     "in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
                 msg = u"El proveedor no tiene RNC y es requerido para este tipo de compra."
