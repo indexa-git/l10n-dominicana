@@ -1,7 +1,6 @@
 odoo.define('ncf_pos.pos_order_return', function (require) {
     "use strict";
     var pos_orders = require('ncf_pos.pos_orders');
-    var Model = require('web.DataModel');
     var core = require('web.core');
     var gui = require('point_of_sale.gui');
     var chrome = require('point_of_sale.chrome');
@@ -10,8 +9,6 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     var models = require('point_of_sale.models');
     var PopupWidget = require('point_of_sale.popups');
     var _t = core._t;
-    var SuperNumpadWidget = screens.NumpadWidget.prototype;
-    var PosBaseWidget = require('point_of_sale.BaseWidget');
     var SuperOrder = models.Order;
     var SuperOrderline = models.Orderline.prototype;
     var SuperPosModel = models.PosModel.prototype;
@@ -225,6 +222,21 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     });
 
     screens.PaymentScreenWidget.include({
+        show: function () {
+            var self = this;
+            self._super();
+
+            $('#order_note').on('focus', function () {
+                window.document.body.removeEventListener('keypress', self.keyboard_handler);
+                window.document.body.removeEventListener('keydown', self.keyboard_keydown_handler);
+            });
+
+            $('#order_note').on('focusout', function () {
+                window.document.body.addEventListener('keypress', self.keyboard_handler);
+                window.document.body.addEventListener('keydown', self.keyboard_keydown_handler);
+            });
+        },
+
         payment_input: function (input) {
             var newbuf = this.gui.numpad_input(this.inputbuffer, input, {'firstinput': this.firstinput});
 
@@ -286,23 +298,6 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
         }
     });
 
-    models.Orderline = models.Orderline.extend({
-        initialize: function (attr, options) {
-            var self = this;
-            this.line_qty_returned = 0;
-            this.original_line_id = null;
-            SuperOrderline.initialize.call(this, attr, options);
-        },
-        export_as_JSON: function () {
-            var self = this;
-            var loaded = SuperOrderline.export_as_JSON.call(this);
-            loaded.line_qty_returned = self.line_qty_returned;
-            loaded.original_line_id = self.original_line_id;
-            return loaded;
-        }
-    });
-
-
     models.Order = models.Order.extend({
         initialize: function (attributes, options) {
             SuperOrder.prototype.initialize.call(this, attributes, options);
@@ -323,9 +318,29 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
                 loaded.is_return_order = current_order.is_return_order;
                 loaded.return_status = current_order.return_status;
                 loaded.return_order_id = current_order.return_order_id;
+                loaded.order_note = self.get_order_note();
             }
             return loaded;
         },
+        get_order_note: function () {
+            return $("#order_note").val();
+        }
+    });
+
+    models.Orderline = models.Orderline.extend({
+        initialize: function (attr, options) {
+            var self = this;
+            this.line_qty_returned = 0;
+            this.original_line_id = null;
+            SuperOrderline.initialize.call(this, attr, options);
+        },
+        export_as_JSON: function () {
+            var self = this;
+            var loaded = SuperOrderline.export_as_JSON.call(this);
+            loaded.line_qty_returned = self.line_qty_returned;
+            loaded.original_line_id = self.original_line_id;
+            return loaded;
+        }
     });
 
     screens.NumpadWidget.include({
