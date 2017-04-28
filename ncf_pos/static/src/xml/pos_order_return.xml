@@ -18,6 +18,15 @@
         </div>
     </t>
     <t t-extend="PaymentScreenWidget">
+
+        <t t-jquery=" .payment-screen .screen-content .right-content .paymentlines-container" t-operation="after">
+			<t t-if="widget.pos.config.on_order">
+				<center>
+					<textarea id="order_note"  style="width:610px; height:50px;resize: none;" placeholder="Escriba aquí alguna nota para la orden"></textarea>
+				</center>
+			</t>
+		</t>
+
         <t t-jquery="h1" t-operation="replace">
             <t t-if="widget.pos.get_order()">
                 <t t-if="widget.pos.get_order().is_return_order">
@@ -32,6 +41,7 @@
             </t>
         </t>
     </t>
+
     <t t-extend="PaymentScreen-Paymentlines">
         <t t-jquery="div.paymentlines-empty" t-operation="replace">
             <t t-if="order">

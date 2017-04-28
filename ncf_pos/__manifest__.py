@@ -29,6 +29,7 @@
         'views/templates.xml',
         'views/res_config.xml',
         'views/pos_sesion_view.xml',
+        'views/pos_config_view.xml',
         'data/data.xml',
 
     ],
