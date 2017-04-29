@@ -35,20 +35,30 @@
 ########################################################################################################################
 
 from odoo import models, fields, api, exceptions
-from odoo.tools.safe_eval import safe_eval
+from datetime import datetime, timedelta
+from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+
 
 
 class PosConfig(models.Model):
     _inherit = 'pos.config'
 
+    @api.multi
+    def _get_load_orders_from(self):
+        for rec in self:
+            load_orders_from = datetime.today() - timedelta(days=rec.load_orders_from_days)
+            rec.load_orders_from = load_orders_from.strftime(DEFAULT_SERVER_DATE_FORMAT)
+
     default_partner_id = fields.Many2one("res.partner", string=u"Cliente de contado", required=True)
     load_orders_of_current_session = fields.Boolean(string=u'Cargar orden de sesión actual sólo', default=True)
-    load_orders_after_this_date = fields.Boolean(string=u'Cargar orden después de una fecha especificada')
-    load_orders_from = fields.Date(string=u'Seleccione una fecha')
+    load_orders_after_this_date = fields.Boolean(string=u'Cargar orden de no mas de días de realizada')
+    load_orders_from_days = fields.Integer(string=u'Días atras de ordenes a cargar')
+    load_orders_from = fields.Date(string=u'Seleccione una fecha', compute=_get_load_orders_from)
     user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
 
     on_order = fields.Boolean('Añadir nota a la orden completa', default=True)
     receipt_order_note = fields.Boolean('Imprimir notas en el recibo', default=True)
+
 
     @api.onchange('load_orders_of_current_session')
     def onchange_load_orders_of_current_session(self):
