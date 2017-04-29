@@ -75,7 +75,14 @@
 				<button class="view_all_order" t-att-id='partner.id'><i class="fa fa-filter"></i> View orders</button>
 			</td>
 		</t>
-	</t>	
+	</t>
+
+
+    <t t-extend="ClientDetailsEdit">
+        <t t-jquery="input.client-name" t-operation="replace">
+            <input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Nombre, RNC o Cédula'></input>
+        </t>
+    </t>
 
 </templates>
 

@@ -10,49 +10,6 @@ odoo.define('ncf_pos.pos_orders', function (require) {
     var SuperPosModel = models.PosModel.prototype;
     var Model = require('web.Model');
 
-
-    // models.load_models([{
-    //     model: 'pos.order',
-    //     fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id'],
-    //     domain: function (self) {
-    //         var domain_list = [];
-    //         if (self.config.load_orders_after_this_date)
-    //             domain_list = [['date_order', '>', self.config.load_orders_from], ['state', 'not in', ['draft', 'cancel']]]
-    //         else
-    //             domain_list = [['session_id', '=', self.pos_session.name], ['state', 'not in', ['draft', 'cancel']]]
-    //         return domain_list;
-    //     },
-    //     loaded: function (self, wk_order) {
-    //         self.db.pos_all_orders = wk_order;
-    //         self.db.order_by_id = {};
-    //         wk_order.forEach(function (order) {
-    //             self.db.order_by_id[order.id] = order;
-    //         });
-    //     },
-    // }, {
-    //     model: 'pos.order.line',
-    //     fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_tax', 'price_subtotal_incl', 'price_subtotal'],
-    //     domain: function (self) {
-    //         var order_lines = [];
-    //         var orders = self.db.pos_all_orders;
-    //         for (var i = 0; i < orders.length; i++) {
-    //             order_lines = order_lines.concat(orders[i]['lines']);
-    //         }
-    //         return [
-    //             ['id', 'in', order_lines]
-    //         ];
-    //     },
-    //     loaded: function (self, wk_order_lines) {
-    //         self.db.pos_all_order_lines = wk_order_lines;
-    //         self.db.line_by_id = {};
-    //         wk_order_lines.forEach(function (line) {
-    //             self.db.line_by_id[line.id] = line;
-    //         });
-    //     },
-    // },], {
-    //     'after': 'product.product'
-    // });
-
     models.PosModel = models.PosModel.extend({
         push_and_invoice_order: function (order) {
             var self = this;
