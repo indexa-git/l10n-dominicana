@@ -168,7 +168,7 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
             wk_order.forEach(function (order) {
                 self.db.order_by_id[order.id] = order;
             });
-        },
+        }
     });
 
     models.load_models({
