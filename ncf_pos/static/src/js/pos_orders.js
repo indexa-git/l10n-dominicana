@@ -8,49 +8,50 @@ odoo.define('ncf_pos.pos_orders', function (require) {
     var core = require('web.core');
     var QWeb = core.qweb;
     var SuperPosModel = models.PosModel.prototype;
+    var Model = require('web.Model');
 
 
-    models.load_models([{
-        model: 'pos.order',
-        fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id'],
-        domain: function (self) {
-            var domain_list = [];
-            if (self.config.load_orders_after_this_date)
-                domain_list = [['date_order', '>', self.config.load_orders_from], ['state', 'not in', ['draft', 'cancel']]]
-            else
-                domain_list = [['session_id', '=', self.pos_session.name], ['state', 'not in', ['draft', 'cancel']]]
-            return domain_list;
-        },
-        loaded: function (self, wk_order) {
-            self.db.pos_all_orders = wk_order;
-            self.db.order_by_id = {};
-            wk_order.forEach(function (order) {
-                self.db.order_by_id[order.id] = order;
-            });
-        },
-    }, {
-        model: 'pos.order.line',
-        fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_tax', 'price_subtotal_incl', 'price_subtotal'],
-        domain: function (self) {
-            var order_lines = []
-            var orders = self.db.pos_all_orders;
-            for (var i = 0; i < orders.length; i++) {
-                order_lines = order_lines.concat(orders[i]['lines']);
-            }
-            return [
-                ['id', 'in', order_lines]
-            ];
-        },
-        loaded: function (self, wk_order_lines) {
-            self.db.pos_all_order_lines = wk_order_lines;
-            self.db.line_by_id = {};
-            wk_order_lines.forEach(function (line) {
-                self.db.line_by_id[line.id] = line;
-            });
-        },
-    },], {
-        'after': 'product.product'
-    });
+    // models.load_models([{
+    //     model: 'pos.order',
+    //     fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id'],
+    //     domain: function (self) {
+    //         var domain_list = [];
+    //         if (self.config.load_orders_after_this_date)
+    //             domain_list = [['date_order', '>', self.config.load_orders_from], ['state', 'not in', ['draft', 'cancel']]]
+    //         else
+    //             domain_list = [['session_id', '=', self.pos_session.name], ['state', 'not in', ['draft', 'cancel']]]
+    //         return domain_list;
+    //     },
+    //     loaded: function (self, wk_order) {
+    //         self.db.pos_all_orders = wk_order;
+    //         self.db.order_by_id = {};
+    //         wk_order.forEach(function (order) {
+    //             self.db.order_by_id[order.id] = order;
+    //         });
+    //     },
+    // }, {
+    //     model: 'pos.order.line',
+    //     fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_tax', 'price_subtotal_incl', 'price_subtotal'],
+    //     domain: function (self) {
+    //         var order_lines = [];
+    //         var orders = self.db.pos_all_orders;
+    //         for (var i = 0; i < orders.length; i++) {
+    //             order_lines = order_lines.concat(orders[i]['lines']);
+    //         }
+    //         return [
+    //             ['id', 'in', order_lines]
+    //         ];
+    //     },
+    //     loaded: function (self, wk_order_lines) {
+    //         self.db.pos_all_order_lines = wk_order_lines;
+    //         self.db.line_by_id = {};
+    //         wk_order_lines.forEach(function (line) {
+    //             self.db.line_by_id[line.id] = line;
+    //         });
+    //     },
+    // },], {
+    //     'after': 'product.product'
+    // });
 
     models.PosModel = models.PosModel.extend({
         push_and_invoice_order: function (order) {
@@ -136,11 +137,7 @@ odoo.define('ncf_pos.pos_orders', function (require) {
             else
                 return undefined;
         },
-        render_list: function (order, input_txt) {
-            models.load_models([{}]);
-
-
-            var self = this;
+        search_order: function (order, input_txt) {
             var customer_id = this.get_customer();
             var new_order_data = [];
             if (customer_id != undefined) {
@@ -150,6 +147,7 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                 }
                 order = new_order_data;
             }
+
             if (input_txt != undefined && input_txt != '') {
                 var new_order_data = [];
                 var search_text = input_txt.toLowerCase();
@@ -157,27 +155,83 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                     if (order[i].partner_id == '') {
                         order[i].partner_id = [0, '-'];
                     }
-                    if (((order[i].name.toLowerCase()).indexOf(search_text) != -1) || ((order[i].partner_id[1].toLowerCase()).indexOf(search_text) != -1)) {
+                    if (((order[i].invoice_id[1].toLowerCase()).indexOf(search_text) != -1) || ((order[i].name.toLowerCase()).indexOf(search_text) != -1) || ((order[i].partner_id[1].toLowerCase()).indexOf(search_text) != -1)) {
                         new_order_data = new_order_data.concat(order[i]);
                     }
                 }
                 order = new_order_data;
             }
-            var contents = this.$el[0].querySelector('.wk-order-list-contents');
-            contents.innerHTML = "";
-            var wk_orders = order;
-            for (var i = 0, len = Math.min(wk_orders.length, 1000); i < len; i++) {
-                var wk_order = wk_orders[i];
-                var orderline_html = QWeb.render('WkOrderLine', {
-                    widget: this,
-                    order: wk_orders[i],
-                    customer_id: wk_orders[i].partner_id[0],
-                });
-                var orderline = document.createElement('tbody');
-                orderline.innerHTML = orderline_html;
-                orderline = orderline.childNodes[1];
-                contents.appendChild(orderline);
+
+            return order;
+
+        },
+        render_list: function (order, input_txt) {
+            var self = this;
+
+            var wk_orders = self.search_order(order, input_txt);
+
+            if (wk_orders.length === 0) {
+
+                if (input_txt != undefined && input_txt.length >= 4) {
+
+                    var PosOrder = new Model('pos.order');
+                    PosOrder.call("order_search_from_ui", [input_txt])
+                        .then(function (orders) {
+
+                            console.log(orders.wk_order);
+
+
+                            self.pos.db.pos_all_orders = orders.wk_order;
+                            self.pos.db.order_by_id = {};
+                            orders.wk_order.forEach(function (order) {
+                                self.pos.db.order_by_id[order.id] = order;
+                            });
+
+                            self.pos.db.pos_all_order_lines = orders.wk_order_lines;
+                            self.pos.db.line_by_id = {};
+                            orders.wk_order_lines.forEach(function (line) {
+                                self.pos.db.line_by_id[line.id] = line;
+                            });
+
+                        }).then(function () {
+                            var pos_all_orders = self.pos.db.pos_all_orders;
+                            wk_orders = self.search_order(pos_all_orders, input_txt);
+                            var contents = self.$el[0].querySelector('.wk-order-list-contents');
+                            contents.innerHTML = "";
+
+                            for (var i = 0, len = Math.min(wk_orders.length, 1000); i < len; i++) {
+                                var orderline_html = QWeb.render('WkOrderLine', {
+                                    widget: this,
+                                    order: wk_orders[i],
+                                    customer_id: wk_orders[i].partner_id[0],
+                                });
+                                var orderline = document.createElement('tbody');
+                                orderline.innerHTML = orderline_html;
+                                orderline = orderline.childNodes[1];
+                                contents.appendChild(orderline);
+                            }
+                    })
+                }
+
+            } else {
+
+
+                var contents = this.$el[0].querySelector('.wk-order-list-contents');
+                contents.innerHTML = "";
+
+                for (var i = 0, len = Math.min(wk_orders.length, 1000); i < len; i++) {
+                    var orderline_html = QWeb.render('WkOrderLine', {
+                        widget: this,
+                        order: wk_orders[i],
+                        customer_id: wk_orders[i].partner_id[0],
+                    });
+                    var orderline = document.createElement('tbody');
+                    orderline.innerHTML = orderline_html;
+                    orderline = orderline.childNodes[1];
+                    contents.appendChild(orderline);
+                }
             }
+
         },
         show: function () {
             var self = this;
