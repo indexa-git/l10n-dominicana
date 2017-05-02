@@ -282,24 +282,24 @@ class PosOrder(models.Model):
                 rec.partner_id = rec.config_id.default_partner_id.id
         return super(PosOrder, self).action_pos_order_invoice()
 
-    def _reconcile_payments(self):
-
-        for order in self:
-            aml = order.account_move.line_ids
-            for line in order.statement_ids.mapped('journal_entry_ids'):
-                aml |= line.line_ids
-                # aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id)
-            aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable')
-
-            try:
-                aml.reconcile()
-            except:
-                # There might be unexpected situations where the automatic reconciliation won't
-                # work. We don't want the user to be blocked because of this, since the automatic
-                # reconciliation is introduced for convenience, not for mandatory accounting
-                # reasons.
-
-                continue
+    # def _reconcile_payments(self):
+    #
+    #     for order in self:
+    #         aml = order.account_move.line_ids
+    #         for line in order.statement_ids.mapped('journal_entry_ids'):
+    #             aml |= line.line_ids
+    #             # aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id)
+    #         aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable')
+    #
+    #         try:
+    #             aml.reconcile()
+    #         except:
+    #             # There might be unexpected situations where the automatic reconciliation won't
+    #             # work. We don't want the user to be blocked because of this, since the automatic
+    #             # reconciliation is introduced for convenience, not for mandatory accounting
+    #             # reasons.
+    #
+    #             continue
 
     def pos_picking_generate_cron(self):
         orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced')])

@@ -47,9 +47,9 @@ class PosSession(models.Model):
         IrConfigParam = self.env['ir.config_parameter']
         return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_concile_type', 'ticket'))
 
-    def _confirm_orders(self):
-        super(PosSession, self)._confirm_orders()
-        for session in self:
-            if self.get_pos_session_concile_type() == "session":
-                orders = session.order_ids.filtered(lambda order: order.state == 'invoiced')
-                orders._reconcile_payments()
+    # def _confirm_orders(self):
+    #     super(PosSession, self)._confirm_orders()
+    #     for session in self:
+    #         if self.get_pos_session_concile_type() == "session":
+    #             orders = session.order_ids.filtered(lambda order: order.state == 'invoiced')
+    #             orders._reconcile_payments()#
