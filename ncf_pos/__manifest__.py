@@ -26,11 +26,11 @@
     'data': [
         # 'security/ir.model.access.csv',
         'views/pos_view.xml',
-        'views/templates.xml',
         'views/res_config.xml',
         'views/pos_sesion_view.xml',
         'views/pos_config_view.xml',
         'data/data.xml',
+        'views/templates.xml',
 
     ],
     # only loaded in demonstration mode
@@ -41,5 +41,6 @@
         'static/src/xml/pos_orders.xml',
         'static/src/xml/pos_order_return.xml',
         'static/src/xml/ncf_pos.xml',
+        'static/src/xml/pos.xml',
     ],
 }

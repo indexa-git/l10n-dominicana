@@ -19,5 +19,5 @@ class ResPartner(models.Model):
             partner.pop('vat', None)
             self.browse(partner_id).write(partner)
         else:
-            partner_id = self.create(partner).id
+            partner_id = self.create(partner).ids
         return partner_id
