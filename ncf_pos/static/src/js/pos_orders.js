@@ -79,6 +79,17 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                 //Code for POS All Orders List --start-- 
             });
         },
+        set_order: function (order) {
+            SuperPosModel.set_order.call(this, order);
+            if (order) {
+                if (!order.is_return_order) {
+                    $("#cancel_refund_order").hide();
+                }
+                else {
+                    $("#cancel_refund_order").show();
+                }
+            }
+        }
     });
 
     var OrdersScreenWidget = screens.ScreenWidget.extend({
@@ -151,22 +162,22 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                             });
 
                         }).then(function () {
-                            var pos_all_orders = self.pos.db.pos_all_orders;
-                            wk_orders = self.search_order(pos_all_orders, input_txt);
-                            var contents = self.$el[0].querySelector('.wk-order-list-contents');
-                            contents.innerHTML = "";
+                        var pos_all_orders = self.pos.db.pos_all_orders;
+                        wk_orders = self.search_order(pos_all_orders, input_txt);
+                        var contents = self.$el[0].querySelector('.wk-order-list-contents');
+                        contents.innerHTML = "";
 
-                            for (var i = 0, len = Math.min(wk_orders.length, 1000); i < len; i++) {
-                                var orderline_html = QWeb.render('WkOrderLine', {
-                                    widget: this,
-                                    order: wk_orders[i],
-                                    customer_id: wk_orders[i].partner_id[0],
-                                });
-                                var orderline = document.createElement('tbody');
-                                orderline.innerHTML = orderline_html;
-                                orderline = orderline.childNodes[1];
-                                contents.appendChild(orderline);
-                            }
+                        for (var i = 0, len = Math.min(wk_orders.length, 1000); i < len; i++) {
+                            var orderline_html = QWeb.render('WkOrderLine', {
+                                widget: this,
+                                order: wk_orders[i],
+                                customer_id: wk_orders[i].partner_id[0],
+                            });
+                            var orderline = document.createElement('tbody');
+                            orderline.innerHTML = orderline_html;
+                            orderline = orderline.childNodes[1];
+                            contents.appendChild(orderline);
+                        }
                     })
                 }
 
@@ -208,27 +219,7 @@ odoo.define('ncf_pos.pos_orders', function (require) {
         },
     });
     gui.define_screen({name: 'wk_order', widget: OrdersScreenWidget});
-    screens.ProductScreenWidget.include({
-        show: function () {
-            var self = this;
-            this._super();
-            this.product_categories_widget.reset_category();
-            this.numpad.state.reset();
-            $('#all_orders').on('click', function () {
-                self.gui.show_screen('wk_order', {});
-            });
-        },
-    });
-    screens.ClientListScreenWidget.include({
-        show: function () {
-            var self = this;
-            self._super();
-            $('.view_all_order').on('click', function () {
-                self.gui.show_screen('wk_order', {
-                    'customer_id': this.id
-                });
-            });
-        }
-    });
+
+
     return OrdersScreenWidget;
 });

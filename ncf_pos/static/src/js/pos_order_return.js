@@ -11,9 +11,9 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     var _t = core._t;
     var SuperOrder = models.Order;
     var SuperOrderline = models.Orderline.prototype;
-    var SuperPosModel = models.PosModel.prototype;
     var formats = require('web.formats');
     models.load_fields('product.product', 'not_returnable');
+    models.load_fields('res.partner', 'sale_fiscal_type');
 
     var MyMessagePopup = PopupWidget.extend({
         template: 'MyMessagePopup'
@@ -148,6 +148,12 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
             statements.forEach(function (statement) {
                 self.db.statement_by_id[statement.id] = statement;
             });
+
+            self.sale_fiscal_type = [{"code": "final", "name": "Consumidor final"},
+                {"code": "fiscal", "name": "Para crédito fiscal"},
+                {"code": "gov", "name": "Gubernamental"},
+                {"code": "special", "name": "Regimenes especiales"}]
+
         },
     }]);
 
@@ -193,6 +199,7 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
         },
     });
 
+
     screens.OrderWidget.include({
         update_summary: function () {
             this._super();
@@ -215,9 +222,16 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
         show: function () {
             var self = this;
             self._super();
+
             if (self.pos.get_order().is_return_order) {
                 self.gui.back();
             }
+
+            $('.view_all_order').on('click', function () {
+                self.gui.show_screen('wk_order', {
+                    'customer_id': this.id
+                });
+            });
         }
     });
 
@@ -281,6 +295,13 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
                 $(".deleteorder-button").trigger("click");
             });
             this._super();
+
+            this.product_categories_widget.reset_category();
+            this.numpad.state.reset();
+            $('#all_orders').on('click', function () {
+                self.gui.show_screen('wk_order', {});
+            });
+
             if (self.pos.get_order().is_return_order) {
                 $('.product').css("pointer-events", "none");
                 $('.product').css("opacity", "0.4");
@@ -329,7 +350,6 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
 
     models.Orderline = models.Orderline.extend({
         initialize: function (attr, options) {
-            var self = this;
             this.line_qty_returned = 0;
             this.original_line_id = null;
             SuperOrderline.initialize.call(this, attr, options);
@@ -354,20 +374,6 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
             if (!self.pos.get_order().is_return_order)
                 this._super(event);
         },
-    });
-
-    models.PosModel = models.PosModel.extend({
-        set_order: function (order) {
-            SuperPosModel.set_order.call(this, order);
-            if (order) {
-                if (!order.is_return_order) {
-                    $("#cancel_refund_order").hide();
-                }
-                else {
-                    $("#cancel_refund_order").show();
-                }
-            }
-        }
     });
 
     pos_orders.include({
