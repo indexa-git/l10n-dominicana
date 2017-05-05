@@ -60,10 +60,11 @@ class PosOrder(models.Model):
     is_return_order = fields.Boolean(string='Devolver orden', copy=False)
     return_order_id = fields.Many2one('pos.order', u'Orden de devolución de', readonly=True, copy=False)
     return_status = fields.Selection(
-        [('-', 'Ni devuelto'), ('Fully-Returned', 'Totalmente devuelto'),
+        [('-', 'Sin Devoluciones'), ('Fully-Returned', 'Totalmente devuelto'),
          ('Partially-Returned', 'Devuelto parcialmente'),
          ('Non-Returnable', 'No retornable')], default='-', copy=False, string=u'Estado de devolución')
     invoice_number = fields.Char(related="invoice_id.number")
+    is_service_order = fields.Boolean("Ordenes que no generan picking")
 
     @api.model
     def create_from_ui(self, orders):
@@ -166,7 +167,6 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-
         res = {"fiscal_type": "none", "fiscal_type_name": u"PRE-CUENTA"}
 
         order_state = False
@@ -302,9 +302,25 @@ class PosOrder(models.Model):
     #             continue
 
     def pos_picking_generate_cron(self):
-        orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced')])
+
+        orders_list_for_picking = []
+        orders_count = self.search_count([('picking_id', '=', False), ('state', '=', 'invoiced'),('is_service_order','=',False)])
+        orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced'),('is_service_order','=',False)], limit=20)
+        _logger.info("========== INICIO del cron para generarcion de los conduces del POS, conduces pendientes {} ==========".format(orders_count))
         for order in orders:
-            order.create_picking()
+            is_not_service_order = [line for line in order.lines if line.product_id.product_tmpl_id.type != "service"]
+            if is_not_service_order:
+                orders_list_for_picking.append(order.id)
+            else:
+                order.is_service_order = True
+
+        res = self.browse(orders_list_for_picking).create_picking()
+        _logger.info("========== FIN del cron para generarcion de los conduces del POS ==========")
+
+        return res
+
+
+
 
 
     @api.model
