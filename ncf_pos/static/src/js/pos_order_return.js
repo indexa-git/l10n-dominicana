@@ -377,6 +377,49 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     });
 
     pos_orders.include({
+        show: function () {
+            var self = this;
+            this._super();
+
+            this.details_visible = false;
+            this.selected_tr_element = null;
+            self.$('.wk-order-list-contents').delegate('.wk-order-line', 'click', function (event) {
+                self.line_select(event, $(this), parseInt($(this).data('id')));
+            });
+
+            var contents = this.$('.order-details-contents');
+            contents.empty();
+            var parent = self.$('.wk_order_list').parent();
+            parent.scrollTop(0);
+
+            //reorder
+            this.$('.wk-order-list-contents').delegate('.wk_reorder_content', 'click', function(event){
+				var order_line_data = self.pos.db.pos_all_order_lines;
+				var order = self.pos.get_order();
+				for(var i=0; i<order_line_data.length;i++) {
+					if(order_line_data[i].order_id[0] == this.id)
+					{
+						var product = self.pos.db.get_product_by_id(order_line_data[i].product_id[0]);
+						order.add_product(product,{quantity:order_line_data[i].qty});
+					}
+				}
+				self.gui.show_screen('products');
+			});
+
+            //reprint
+            this.$('.wk-order-list-contents').delegate('.wk_reprint_content', 'click', function(event){
+				var order_line_data = self.pos.db.pos_all_order_lines;
+				for(var i=0; i<order_line_data.length;i++) {
+					if(order_line_data[i].order_id[0] == this.id)
+					{
+						var product = self.pos.db.get_product_by_id(order_line_data[i].product_id[0]);
+						order.add_product(product,{quantity:order_line_data[i].qty});
+					}
+				}
+				self.gui.show_screen('products');
+			});
+
+        },
         line_select: function (event, $line, id) {
             var self = this;
             var order = self.pos.db.order_by_id[id];
@@ -505,20 +548,6 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
                 }
                 this.details_visible = false;
             }
-        },
-        show: function () {
-            var self = this;
-            this._super();
-            var self = this;
-            this.details_visible = false;
-            this.selected_tr_element = null;
-            self.$('.wk-order-list-contents').delegate('.wk-order-line', 'click', function (event) {
-                self.line_select(event, $(this), parseInt($(this).data('id')));
-            });
-            var contents = this.$('.order-details-contents');
-            contents.empty();
-            var parent = self.$('.wk_order_list').parent();
-            parent.scrollTop(0);
-        },
+        }
     });
 });

@@ -301,11 +301,11 @@ class PosOrder(models.Model):
     #
     #             continue
 
-    def pos_picking_generate_cron(self):
+    def pos_picking_generate_cron(self, limit=20):
 
         orders_list_for_picking = []
         orders_count = self.search_count([('picking_id', '=', False), ('state', '=', 'invoiced'),('is_service_order','=',False)])
-        orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced'),('is_service_order','=',False)], limit=20)
+        orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced'),('is_service_order','=',False)], limit=limit)
         _logger.info("========== INICIO del cron para generarcion de los conduces del POS, conduces pendientes {} ==========".format(orders_count))
         for order in orders:
             is_not_service_order = [line for line in order.lines if line.product_id.product_tmpl_id.type != "service"]

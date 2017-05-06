@@ -183,7 +183,6 @@ odoo.define('ncf_pos.pos_orders', function (require) {
 
             } else {
 
-
                 var contents = this.$el[0].querySelector('.wk-order-list-contents');
                 contents.innerHTML = "";
 
