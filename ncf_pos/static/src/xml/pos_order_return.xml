@@ -311,14 +311,28 @@
     </t>
     <t t-extend='OrdersScreenWidget'>
         <t t-jquery='.wk_order_list thead tr' t-operation='append'>
-            <th>Estado de nota de crédito</th>
+            <th>Estado</th>
+            <th>Re-Ordenar</th>
+			<th>Re-Imprimir</th>
         </t>
     </t>
+
+
     <t t-extend='WkOrderLine'>
         <t t-jquery='.wk-order-line' t-operation='append'>
-            <td><t t-esc='order.return_status' /></td>
+            <td>
+                <t t-esc='order.return_status' />
+            </td>
+            <td>
+				<button class="wk_reorder_content" t-att-id='order.id'><i class="fa fa-repeat fa-2x"></i></button>
+			</td>
+            <td>
+				<button class="wk_reprint_content" t-att-id='order.id'><i class="fa fa-print fa-2x"></i></button>
+			</td>
         </t>
+
     </t>
+
     <t t-name="Orderline">
         <li t-attf-class="orderline #{ line.selected ? 'selected' : '' }">
             <span class="product-name">

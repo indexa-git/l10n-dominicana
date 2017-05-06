@@ -28,6 +28,7 @@ odoo.define('ncf_pos.ncf_ticket', function (require) {
             $(".pos-sale-ticket").hide();
             $(".button.next.highlight").hide();
             $(".button.print").hide();
+            
             new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
                 self.ncf_render_receipt(fiscal_data);
                 $(".pos-sale-ticket").show();

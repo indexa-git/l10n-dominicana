@@ -36,10 +36,10 @@
                                     <table class='client-list wk_order_list'>
                                         <thead>
                                             <tr style="background-color: rgb(135, 160, 166);color: white;">
-                                                <th>NCF.</th>
-                                                <th>Pedido Ref.</th>
-                                                <th>Cliente</th>
                                                 <th>Fecha de orden</th>
+                                                <th>NCF.</th>
+                                                <th>Cliente</th>
+                                                <th>Monto</th>
                                             </tr>
                                         </thead>
                                         <tbody class='wk-order-list-contents'>
@@ -56,10 +56,10 @@
 	
 	<t t-name="WkOrderLine"> 
 		<tr class='wk-order-line' t-att-data-id='order.id'>
-			<td><t t-esc='order.invoice_id[1]' /></td>
-			<td><t t-esc='order.pos_reference' /></td>
+            <td><t t-esc='order.date_order' /></td>
+			<td><t t-esc='order.invoice_id[1] || order.pos_reference'/></td>
 			<td><t t-esc="order.partner_id[1] || '-'" /></td>
-			<td><t t-esc='order.date_order' /></td>
+            <td><t t-esc='order.amount_total' /></td>
 		</tr>
 	</t>
 
