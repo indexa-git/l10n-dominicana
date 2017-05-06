@@ -317,7 +317,7 @@ class PosOrder(models.Model):
         orders = self.browse(orders_list_for_picking)
 
         for order in orders:
-            _logger.info("************ Procesando POS ORDER {} ************").format(order.id)
+            _logger.info("************ Procesando POS ORDER {} ************".format(order.id))
             order.create_picking()
         _logger.info("========== FIN del cron para generarcion de los conduces del POS ==========")
 
