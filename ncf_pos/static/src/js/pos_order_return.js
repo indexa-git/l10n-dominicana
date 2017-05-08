@@ -1,5 +1,6 @@
 odoo.define('ncf_pos.pos_order_return', function (require) {
     "use strict";
+    var ActionManager1 = require('web.ActionManager');
     var pos_orders = require('ncf_pos.pos_orders');
     var core = require('web.core');
     var gui = require('point_of_sale.gui');
@@ -13,7 +14,8 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     var SuperOrderline = models.Orderline.prototype;
     var formats = require('web.formats');
     models.load_fields('product.product', 'not_returnable');
-    models.load_fields('res.partner', 'sale_fiscal_type');
+    models.load_fields('res.partner', 'sale_fiscal_type', 'email');
+    var Model = require('web.Model');
 
     var MyMessagePopup = PopupWidget.extend({
         template: 'MyMessagePopup'
@@ -159,7 +161,7 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
 
     models.load_models({
         model: 'pos.order',
-        fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id', 'is_return_order', 'return_order_id', 'return_status', 'statement_ids', 'amount_total'],
+        fields: ['id', 'name', 'date_order', 'partner_id', 'partner_id.email', 'lines', 'pos_reference', 'invoice_id', 'is_return_order', 'return_order_id', 'return_status', 'statement_ids', 'amount_total'],
         domain: function (self) {
             var domain_list = [];
             if (self.config.load_orders_after_this_date)
@@ -393,31 +395,106 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
             parent.scrollTop(0);
 
             //reorder
-            this.$('.wk-order-list-contents').delegate('.wk_reorder_content', 'click', function(event){
-				var order_line_data = self.pos.db.pos_all_order_lines;
-				var order = self.pos.get_order();
-				for(var i=0; i<order_line_data.length;i++) {
-					if(order_line_data[i].order_id[0] == this.id)
-					{
-						var product = self.pos.db.get_product_by_id(order_line_data[i].product_id[0]);
-						order.add_product(product,{quantity:order_line_data[i].qty});
-					}
-				}
-				self.gui.show_screen('products');
-			});
+            this.$('.wk-order-list-contents').delegate('.wk_reorder_content', 'click', function (event) {
+                var order_line_data = self.pos.db.pos_all_order_lines;
+                var order = self.pos.get_order();
+                for (var i = 0; i < order_line_data.length; i++) {
+                    if (order_line_data[i].order_id[0] == this.id) {
+                        var product = self.pos.db.get_product_by_id(order_line_data[i].product_id[0]);
+                        order.add_product(product, {quantity: order_line_data[i].qty});
+                    }
+                }
+                self.gui.show_screen('products');
+            });
 
             //reprint
-            this.$('.wk-order-list-contents').delegate('.wk_reprint_content', 'click', function(event){
-				var order_line_data = self.pos.db.pos_all_order_lines;
-				for(var i=0; i<order_line_data.length;i++) {
-					if(order_line_data[i].order_id[0] == this.id)
-					{
-						var product = self.pos.db.get_product_by_id(order_line_data[i].product_id[0]);
-						order.add_product(product,{quantity:order_line_data[i].qty});
-					}
-				}
-				self.gui.show_screen('products');
-			});
+            this.$('.wk-order-list-contents').delegate('.wk_reprint_content', 'click', function (event) {
+
+                var order_data = self.pos.db.pos_all_orders;
+                for (var i = 0; i < order_data.length; i++) {
+                    if (order_data[i].id == this.id) {
+                        var order_to_reprint = order_data[i];
+                    }
+                }
+                self.gui.show_popup('selection', {
+                    title: "¿Como desea reimprimir la factura?",
+                    list: [
+                        {label: 'Impresora PTV', item: "pos"},
+                        {label: 'Descargar PDF', item: "pdf"},
+                        {label: 'Enviar por correo', item: "email"}
+                    ],
+                    confirm: function (item) {
+
+                        if (item === "pos") {
+                        }
+                        else if (item === "pdf") {
+                            return new Model('pos.order').call("get_invoice_id_from_pos_order_id", [order_to_reprint.id])
+                                .then(function (invoice_id) {
+                                    if (invoice_id) {
+
+                                        this.action_manager = new ActionManager1(this);
+                                        this.action_manager.do_action(178, {
+                                            additional_context: {
+                                                active_id: invoice_id,
+                                                active_ids: [invoice_id],
+                                                active_model: 'account.invoice'
+                                            }
+                                        });
+                                        self.gui.show_screen('products');
+
+                                    }
+                                });
+                        }
+                        else if (item === "email") {
+                            new Model('pos.order').call("get_email_from_pos", [order_to_reprint.partner_id[0]])
+                                .then(function (result) {
+                                    self.gui.show_popup('textinput', {
+                                        title: "Enviar factura por Email.",
+                                        value: result,
+                                        confirm: function (result) {
+                                            if (result) {
+                                                self.mail_invoice_from_pos(order_to_reprint.id, result);
+                                                self.gui.show_screen('products');
+                                            }
+                                        },
+                                        cancel: function () {
+
+                                        }
+                                    });
+                                });
+                        }
+
+                    },
+                    cancel: function () {
+                        // user chose nothing
+                    }
+                });
+            });
+
+        },
+        mail_invoice_from_pos: function (order_id, email) {
+            var self = this;
+            return new Model('pos.order').call("mail_invoice_from_pos", [order_id, email])
+                .then(function (result) {
+                    if (result) {
+                        self.gui.show_popup('alert', {
+                            title: "Informacion!",
+                            body: "La factura se envió correctamente.!"
+                        });
+                    } else {
+                        self.gui.show_popup('error', {
+                            title: "Alerta!",
+                            body: "Falló el envío de la factura por email verifique si está correcto."
+                        });
+                    }
+
+                })
+                .fail(function (error, event) {
+                    self.gui.show_popup('error', {
+                        'title': "Error!!!",
+                        'body': "Compruebe su conexión a Internet y vuelva a intentarlo.",
+                    });
+                });
 
         },
         line_select: function (event, $line, id) {

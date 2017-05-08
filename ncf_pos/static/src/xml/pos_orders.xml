@@ -166,6 +166,36 @@
         </t>
     </t>
 
+    <t t-name="ReprintPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup order-reprint-popup">
+                <p class="title">Reimpresion de factura</p>
+                <div class='wk_ipf_data'>
+                    <p>
+                        ¿Como desa reimprimir la factura?
+                    </p>
+                    <div class="button ipf-report-button pos_print_report">
+                        <i class="fa fa-print fa-1x"/>
+                        Impresora PTV
+                    </div>
+                    <div class="button ipf-report-button pdf_print_report">
+                        <i class="fa fa-file-pdf-o fa-1x"/>
+                        Descargar PDF
+                    </div>
+                    <div class="button ipf-report-button pdf_print_send_report">
+                        <i class="fa fa-paper-plane-o fa-1x"/>
+                        Enviar por correo
+                    </div>
+                </div>
+                <div class="footer">
+                    <div class="button cancel">
+                        Cancelar
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
 </templates>
 
 
