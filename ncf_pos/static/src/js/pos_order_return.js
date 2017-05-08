@@ -13,9 +13,13 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     var SuperOrder = models.Order;
     var SuperOrderline = models.Orderline.prototype;
     var formats = require('web.formats');
+    var ipfAPI = require('ipf_manager.service');
+    var Model = require('web.Model');
+    var web_data = require('web.data');
+
     models.load_fields('product.product', 'not_returnable');
     models.load_fields('res.partner', 'sale_fiscal_type', 'email');
-    var Model = require('web.Model');
+
 
     var MyMessagePopup = PopupWidget.extend({
         template: 'MyMessagePopup'
@@ -426,6 +430,25 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
                     confirm: function (item) {
 
                         if (item === "pos") {
+                            return new Model('pos.order').call("get_invoice_id_from_pos_order_id", [order_to_reprint.id])
+                                .then(function (invoice_id) {
+                                    if (invoice_id) {
+                                        if (self.pos.config.iface_fiscal_printer) {
+                                            var context = new web_data.CompoundContext({
+                                                active_model: "account.invoice",
+                                                active_id: invoice_id
+                                            });
+                                            var ipfProxy = new ipfAPI();
+                                            ipfProxy.post_invoice(context);
+
+                                        } else {
+                                            alert("Esta funcionalidad solo funciona con la impresora fiscal.")
+                                        }
+
+
+                                        self.gui.show_screen('products');
+                                    }
+                                });
                         }
                         else if (item === "pdf") {
                             return new Model('pos.order').call("get_invoice_id_from_pos_order_id", [order_to_reprint.id])
