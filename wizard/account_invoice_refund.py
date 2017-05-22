@@ -45,8 +45,7 @@ class AccountInvoiceRefund(models.TransientModel):
         # [('type', '=', 'out_refund'), ('id', 'in', [43L, 44L])]
         # The created refund invoice is the first invoice in the
         # ('id', 'in', ...) tupla
-        created_inv = [x[2] for x in result['domain']
-                       if x[0] == 'id' and x[1] == 'in'][0]
+        created_inv = [x[2] for x in result['domain'] if x[0] == 'id' and x[1] == 'in'][0]
         if mode == 'modify':
             # Remove pairs ids, because they are new draft invoices
             del created_inv[1::2]
