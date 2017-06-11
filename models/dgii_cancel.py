@@ -40,6 +40,7 @@ import calendar
 import base64
 import time
 import re
+import io
 
 
 class DgiiCancelReport(models.Model):
@@ -124,7 +125,7 @@ class DgiiCancelReport(models.Model):
                                              " su empresa!")
 
         path = '/tmp/608{}.txt'.format(company_fiscal_identificacion)
-        file = open(path, 'w')
+        file = io.open(path, 'w', encoding="utf-8", newline='\r\n')
         lines = []
 
         header = "608"
