@@ -62,13 +62,14 @@ class AccountInvoiceRefund(models.TransientModel):
 
                 if mode in ("nd","discount"):
 
-                    new_line = refund.invoice_line_ids[0].copy({"product_id": False,
-                                                                "name": self.description,
-                                                                "account_id": self.account_id.id,
-                                                                "quantity": 1,
-                                                                "price_unit": self.amount
-                                                                })
-                    vals.update({"invoice_line_ids": [(6, False, [new_line.id])]})
+                    new_line = refund.invoice_line_ids[0].copy(
+                        {"product_id": False,
+                         "name": self.description,
+                         "account_id": self.account_id.id,
+                         "quantity": 1,
+                         "price_unit": self.amount})
+                    vals.update({"invoice_line_ids": [(6, False,
+                                                       [new_line.id])]})
 
                     if mode == "nd":
                         vals.update({"is_nd": True})
@@ -110,11 +111,21 @@ class AccountInvoiceRefund(models.TransientModel):
             if self.supplier_ncf and invoice.journal_id.ncf_remote_validation:
                     request_params = self.env["marcos.api.tools"].get_marcos_api_request_params()
                     if request_params[0] == 1:
-                        res = requests.get('{}/ncf/{}/{}'.format(request_params[1], invoice.partner_id.vat, self.supplier_ncf),proxies=request_params[2])
-                        if res.status_code == 200 and not res.json().get("valid", False) == True:
-                            return (500, u"Ncf invalido", u"El numero de comprobante fiscal no es valido! "
-                                                          u"no paso la validacion en DGII, Verifique que el NCF y el RNC del "
-                                                          u"proveedor esten correctamente digitados, si es de proveedor informal o de "
-                                                          u"gasto menor vefifique si debe solicitar nuevos numero.")
-
+                        res = requests.get('{}/ncf/{}/{}'.format(
+                                request_params[1],
+                                invoice.partner_id.vat,
+                                self.supplier_ncf),
+                         proxies=request_params[2])
+                        if res.status_code == 200 and not res.json().get("valid", False) is True:
+                            return (
+                                500, u"NCF Inválido",
+                                u"¡El número de comprobante {} del proveedor"
+                                u" {} no es válido! No pasó la validación en"
+                                " DGII. Verifique que el NCF y el RNC del"
+                                u" proveedor estén correctamente"
+                                u" digitados, o si los números de ese NCF se"
+                                " le agotaron al proveedor".format(
+                                                    invoice.move_name,
+                                                    invoice.partner_id.name)
+                            )
         return super(AccountInvoiceRefund, self).invoice_refund()

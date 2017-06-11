@@ -37,7 +37,7 @@
 ###############################################################################
 from lxml import etree
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api
 
 import re
 
