@@ -27,6 +27,7 @@
     'data': [
         'data/data.xml',
         'security/ir.model.access.csv',
+        'security/ncf_manager_security.xml',
         'wizard/account_invoice_cancel_view.xml',
         'wizard/update_rate_wizard_view.xml',
         'wizard/account_invoice_refund.xml',
