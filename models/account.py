@@ -44,16 +44,16 @@ class AccountJournal(models.Model):
     _inherit = "account.journal"
 
     purchase_type = fields.Selection(
-        [("normal", u"REQUIERE NCF"),
-         ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
-         ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
-         ("exterior", u"PAGOS AL EXTERIOR NO REQUIRE NCF"),
-         ("import", u"IMPORTACIONES NO REQUIRE NCF"),
-         ("others", u"OTROS NO REQUIRE NCF")],
-        string=u"Tipo de compra", default="normal")
+        [("normal", u"Requiere NCF"),
+         ("minor", u"Gasto Menor. NCF Generado por el Sistema"),
+         ("informal", u"Proveedores Informales. NCF Generado por el Sistema"),
+         ("exterior", u"Pagos al Exterior. NCF Generado por el Sistema"),
+         ("import", u"Importaciones. NCF Generado por el Sistema"),
+         ("others", u"Otros. No requiere NCF")],
+        string=u"Tipo de Compra", default="normal")
+
     ncf_control = fields.Boolean("Control de NCF")
-    ncf_remote_validation = fields.Boolean(u"Validar NCF con DGII",
-                                           default=True)
+    ncf_remote_validation = fields.Boolean(u"Validar con DGII", default=True)
 
 
 class AccountMove(models.Model):
@@ -115,9 +115,11 @@ class AccountTax(models.Model):
         [('itbis', 'ITBIS Pagado'),
          ('ritbis', 'ITBIS Retenido'),
          ('isr', 'ISR Retenido'),
-         ("cost", u"Format parte del gasto"),
-         ('none', 'No deducible')],
-        default="itbis", string="Tipo de impuesto de compra")
+         ('cost', 'Forma Parte del Gasto'),
+         ('none', 'No Deducible')],
+        default="itbis", string="Tipo de Impuesto de Compra"
+        )
+
     tax_except = fields.Boolean(string="Exento de este impuesto")
 
     @api.multi

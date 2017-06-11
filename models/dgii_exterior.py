@@ -72,13 +72,13 @@ class DgiiExteriorReport(models.Model):
     def get_date_range(self):
         if self.month > 12 or self.month < 1:
             self.month = False
-            raise exceptions.ValidationError("El mes es invalido!")
+            raise exceptions.ValidationError(u"¡El mes es inválido!")
         last_day = calendar.monthrange(self.year, self.month)[1]
-        return ("{}-{}-{}".format(str(self.year),
-                                  str(self.month).zfill(2), "01"),
-                "{}-{}-{}".format(str(self.year),
-                                  str(self.month).zfill(2),
-                                  str(last_day).zfill(2)))
+        return (
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2), "01"),
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2),
+                              str(last_day).zfill(2))
+            )
 
     def create_report_lines(self, invoices):
         if self._context.get("recreate", False):
@@ -88,16 +88,14 @@ class DgiiExteriorReport(models.Model):
         line_number = 1
         for inv in invoices:
             line = []
-
             LINE = line_number
-
             RAZON_SOCIAL = inv.partner_id.name
-
             TIPO_BIENES_SERVICIOS_COMPRADOS = inv.purchase_fiscal_type
 
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
                 raise exceptions.ValidationError(
-                    u"Debe de definir el tipo de gasto para la posición fiscal {}!".format(inv.fiscal_position_id.name))
+                    u"Debe de definir el tipo de gasto para la posición fiscal"
+                    "{}".format(inv.fiscal_position_id.name))
 
             FECHA_FACTURA = inv.date_invoice
             FECHA_RETENCION_ISR = False
@@ -109,7 +107,8 @@ class DgiiExteriorReport(models.Model):
                 move_lines = self.env["account.move.line"].search(
                     [('move_id', '=', inv.move_id.id),
                      ('account_id', 'in', account_ids)])
-                MONTO_FACTURADO += sum([l.debit for l in move_lines]) - sum([l.credit for l in move_lines])
+                MONTO_FACTURADO += (sum([l.debit for l in move_lines]) -
+                                    sum([l.credit for l in move_lines]))
                 if inv.type == "in_refund":
                     MONTO_FACTURADO = MONTO_FACTURADO * -1
 
@@ -119,16 +118,18 @@ class DgiiExteriorReport(models.Model):
 
             for tax in inv.tax_line_ids:
                 if tax.tax_id.purchase_tax_type == "itbis":
-                    raise exceptions.UserError("Impuesto invalido para el tipo de comprobante!")
+                    raise exceptions.UserError(u"¡Impuesto inválido para el"
+                                               " tipo de compra!")
                 elif tax.tax_id.purchase_tax_type == "ritbis":
-                    raise exceptions.UserError("Impuesto invalido para el tipo de comprobante!")
+                    raise exceptions.UserError(u"¡Impuesto inválido para el"
+                                               " tipo de compra!")
                 else:
                     account_ids = [t.account_id.id for t in tax]
                     move_lines = self.env["account.move.line"].search(
                         [('move_id', '=', inv.move_id.id),
                          ('account_id', 'in', account_ids)])
-                    ISR_RETENCION += sum([l.debit for l in move_lines]) - sum(
-                                         [l.credit for l in move_lines]) * -1
+                    ISR_RETENCION += (sum([l.debit for l in move_lines]) -
+                                      sum([l.credit for l in move_lines]) * -1)
 
             lines.append((0, False,
                           {"LINE": LINE,
@@ -151,19 +152,24 @@ class DgiiExteriorReport(models.Model):
         return res
 
     def generate_txt(self):
+        if not self.company_id.vat:
+            raise exceptions.ValidationError(
+                u"Para poder generar el 609 primero debe especificar el RNC/"
+                u"Cédula de la compañia.")
 
         company_fiscal_identificacion = re.sub("[^0-9]", "",
                                                self.company_id.vat)
 
-        if not company_fiscal_identificacion or not self.env['res.partner'].is_identification(company_fiscal_identificacion):
-            raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
+        if not company_fiscal_identificacion or not self.env['marcos.api.tools'].is_identification(company_fiscal_identificacion):
+            raise exceptions.ValidationError(u"¡Debe configurar el RNC de"
+                                             " su empresa!")
 
         path = '/tmp/609{}.txt'.format(company_fiscal_identificacion)
         file = open(path, 'w')
         lines = []
 
         header = "609"
-        header += company_fiscal_identificacion.zfill(11)
+        header += company_fiscal_identificacion.rjust(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
         header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
@@ -187,7 +193,10 @@ class DgiiExteriorReport(models.Model):
         file.close()
         file = open(path, 'rb')
         report = base64.b64encode(file.read())
-        report_name = 'DGII_609_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(self.year), str(self.month).zfill(2))
+        report_name = 'DGII_609_{}_{}{}.TXT'.format(
+                                                company_fiscal_identificacion,
+                                                str(self.year),
+                                                str(self.month).zfill(2))
         self.write({'txt': report, 'txt_name': report_name})
 
     @api.multi
@@ -209,12 +218,12 @@ class DgiiExteriorReportline(models.Model):
     _name = "dgii.exterior.report.line"
 
     exterior_report_id = fields.Many2one("dgii.exterior.report")
-    LINE = fields.Integer("Linea")
+    LINE = fields.Integer(u"Línea")
     RNC_CEDULA = fields.Char(u"RNC", size=11)
-    RAZON_SOCIAL = fields.Char("Razon Social")
+    RAZON_SOCIAL = fields.Char(u"Razón Social")
     TIPO_IDENTIFICACION = fields.Char("Tipo ID", size=1)
     TIPO_BIENES_SERVICIOS_COMPRADOS = fields.Char("Tipo", size=2)
     FECHA_FACTURA = fields.Date("Fecha")
-    FECHA_RETENCION_ISR = fields.Date("Fecha retencion ISR")
+    FECHA_RETENCION_ISR = fields.Date(u"Fecha retención ISR")
     ISR_RETENCION = fields.Float("ISR Retenido")
     MONTO_FACTURADO = fields.Float("Monto Facturado")

@@ -61,10 +61,9 @@ class DgiiCancelReport(models.Model):
     report_lines = fields.One2many("dgii.cancel.report.line",
                                    "cancel_report_id")
     txt = fields.Binary("Reporte TXT", readonly=True)
-    txt_name = fields.Char("Nombre", readonly=True)
+    txt_name = fields.Char("Nombre del Archivo", readonly=True)
     state = fields.Selection([('draft', 'Nuevo'),
-                              ('done', 'Generado')],
-                             default="draft")
+                              ('done', 'Generado')], default="draft")
 
     @api.model
     def create(self, vals):
@@ -76,12 +75,13 @@ class DgiiCancelReport(models.Model):
     def get_date_range(self):
         if self.month > 12 or self.month < 1:
             self.month = False
-            raise exceptions.ValidationError("El mes es invalido!")
+            raise exceptions.ValidationError(u"¡El mes es inválido!")
         last_day = calendar.monthrange(self.year, self.month)[1]
-        return ("{}-{}-{}".format(str(self.year), str(self.month).zfill(2),
-                                  "01"),
-                "{}-{}-{}".format(str(self.year), str(self.month).zfill(2),
-                                  str(last_day).zfill(2)))
+        return (
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2), "01"),
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2),
+                              str(last_day).zfill(2))
+            )
 
     def create_report_lines(self, invoices):
         if self._context.get("recreate", False):
@@ -90,18 +90,14 @@ class DgiiCancelReport(models.Model):
         lines = []
         line_number = 1
         for inv in invoices:
-
             LINE = line_number
-
             NUMERO_COMPROBANTE_FISCAL = inv.move_name
-
             FECHA_COMPROBANTE = inv.date_invoice
-
             TIPO_ANULACION = inv.anulation_type
-
             lines.append((0, False,
                          {"LINE": LINE,
-                          "NUMERO_COMPROBANTE_FISCAL": NUMERO_COMPROBANTE_FISCAL,
+                          "NUMERO_COMPROBANTE_FISCAL":
+                          NUMERO_COMPROBANTE_FISCAL,
                           "FECHA_COMPROBANTE": FECHA_COMPROBANTE,
                           "TIPO_ANULACION": TIPO_ANULACION}))
 
@@ -116,11 +112,16 @@ class DgiiCancelReport(models.Model):
         return res
 
     def generate_txt(self):
+        if not self.company_id.vat:
+            raise exceptions.ValidationError(
+                u"Para poder generar el 608 primero debe especificar el RNC/"
+                u"Cédula de la compañia.")
 
         company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
 
         if not company_fiscal_identificacion or not self.env['res.partner'].is_identification(company_fiscal_identificacion):
-            raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
+            raise exceptions.ValidationError(u"¡Debe configurar el RNC de"
+                                             " su empresa!")
 
         path = '/tmp/608{}.txt'.format(company_fiscal_identificacion)
         file = open(path, 'w')
@@ -155,11 +156,11 @@ class DgiiCancelReport(models.Model):
     def create_report(self):
         start_date, end_date = self.get_date_range()
         invoices = self.env["account.invoice"].search(
-                                        [('date_invoice', '>=', start_date),
-                                         ('date_invoice', '<=', end_date),
-                                         ('state', '=', 'cancel'),
-                                         ('type', 'in', ('out_invoice',
-                                                         'out_refund'))])
+            [('date_invoice', '>=', start_date),
+             ('date_invoice', '<=', end_date),
+             ('state', '=', 'cancel'),
+             ('type', 'in', ('out_invoice', 'out_refund'))]
+            )
 
         self.create_report_lines(invoices)
         self.generate_txt()
@@ -170,7 +171,7 @@ class DgiiCancelReportline(models.Model):
     _name = "dgii.cancel.report.line"
 
     cancel_report_id = fields.Many2one("dgii.cancel.report")
-    LINE = fields.Integer("Linea")
+    LINE = fields.Integer(u"Línea")
     NUMERO_COMPROBANTE_FISCAL = fields.Char("NCF", size=19)
     FECHA_COMPROBANTE = fields.Date("Fecha")
     TIPO_ANULACION = fields.Char(u"Tipo de anulación", size=2)

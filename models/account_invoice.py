@@ -89,6 +89,7 @@ class AccountInvoice(models.Model):
 
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
+
     sale_fiscal_type = fields.Selection(
         [("final", u"Consumidor final"),
          ("fiscal", u"Para credito fiscal"),
@@ -96,9 +97,10 @@ class AccountInvoice(models.Model):
          ("special", u"Regimenes especiales"),
          ("unico", u"Unico ingreso")],
         string="NCF para", default="final")
+
     purchase_fiscal_type = fields.Selection(
-        [('01', u'01 - Gastos de personal'),
-         ('02', u'02 - Gastos por trabajo, suministros y servicios'),
+        [('01', u'01 - Gastos de Personal'),
+         ('02', u'02 - Gastos por Trabajo, Suministros y Servicios'),
          ('03', u'03 - Arrendamientos'),
          ('04', u'04 - Gastos de Activos Fijos'),
          ('05', u'05 - Gastos de Representación'),
@@ -109,17 +111,19 @@ class AccountInvoice(models.Model):
          ('10', u'10 - Adquisiciones de Activos'),
          ('11', u'11 - Gastos de Seguro')],
         string=u"Tipo de gasto")
+
     anulation_type = fields.Selection(
-        [("01", u"DETERIORO DE FACTURA PRE-IMPRESA"),
-         ("02", u"ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
-         ("03", u"IMPRESIÓN DEFECTUOSA"),
-         ("04", u"DUPLICIDAD DE FACTURA"),
-         ("05", u"CORRECCIÓN DE LA INFORMACIÓN"),
-         ("06", u"CAMBIO DE PRODUCTOS"),
-         ("07", u"DEVOLUCIÓN DE PRODUCTOS"),
-         ("08", u"OMISIÓN DE PRODUCTOS"),
-         ("09", u"ERRORES EN SECUENCIA DE NCF")],
+        [("01", u"01 - Deterioro de Factura Pre-impresa"),
+         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("03", u"03 - Impresión Defectuosa"),
+         ("04", u"04 - Duplicidad de Factura"),
+         ("05", u"05 - Corrección de La Información"),
+         ("06", u"06 - Cambio de Productos"),
+         ("07", u"07 - Devolución de Productos"),
+         ("08", u"08 - Omisión de Productos"),
+         ("09", u"09 - Errores en Secuencia de NCF")],
         string=u"Tipo de anulación", copy=False)
+
     refund_reason = fields.Text(string="Refund reason")
     origin_invoice_ids = fields.Many2many(
         comodel_name='account.invoice', column1='refund_invoice_id',
@@ -147,15 +151,17 @@ class AccountInvoice(models.Model):
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
+
     purchase_type = fields.Selection(
-        [("normal", u"REQUIERE NCF"),
-         ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
-         ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
-         ("exterior", u"PAGOS AL EXTERIOR NO REQUIRE NCF"),
-         ("import", u"IMPORTACIONES NO REQUIRE NCF"),
-         ("others", u"OTROS NO REQUIRE NCF")],
-        string=u"Tipo de compra", default="normal",
+        [("normal", u"Requiere NCF"),
+         ("minor", u"Gasto Menor. NCF Generado por el Sistema"),
+         ("informal", u"Proveedores Informales. NCF Generado por el Sistema"),
+         ("exterior", u"Pagos al Exterior. NCF Generado por el Sistema"),
+         ("import", u"Importaciones. NCF Generado por el Sistema"),
+         ("others", u"Otros. No requiere NCF")],
+        string=u"Tipo de Compra", default="normal",
         related="journal_id.purchase_type")
+
     is_nd = fields.Boolean()
 
     @api.onchange('journal_id')
@@ -213,12 +219,18 @@ class AccountInvoice(models.Model):
         for rec in self:
             if not rec.partner_id.sale_fiscal_type:
                 rec.sale_fiscal_type = "final"
-            if rec.type in ("out_invoice",
-                            "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
-                msg = u"El cliente [{}]{} no tiene RNC y es requerido para este tipo de factura.".format(rec.partner_id.id, rec.partner_id.name)
-            elif rec.type in (
-                    "in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
-                msg = u"El proveedor no tiene RNC y es requerido para este tipo de compra."
+            if rec.type in ("out_invoice", "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
+                msg = u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
+                "para este tipo de factura.".format(rec.partner_id.id,
+                                                    rec.partner_id.name)
+
+            elif rec.type in ("in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
+                    msg = (u"¡Para este tipo de Compra el Proveedor"
+                           u" debe de tener un RNC/Cédula establecido!")
+
+                res = self.env["marcos.api.tools"].invoice_ncf_validation(rec)
+                if res is not True:
+                    raise exceptions.ValidationError(res[2])
 
             if msg:
                 raise exceptions.ValidationError(msg)
