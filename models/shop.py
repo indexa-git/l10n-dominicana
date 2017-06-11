@@ -93,7 +93,7 @@ class ShopJournalConfig(models.Model):
     nd_max = fields.Integer(string=u"Número máximo")
 
     user_ids = fields.Many2many("res.users",
-                                string=u"Usuarios que pueden usar estas secuancias")
+                                string=u"Usuarios que pueden usar estas secuencias")
 
     _sql_constraints = [
         ('shop_ncf_config_name_uniq',

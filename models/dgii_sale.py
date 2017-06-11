@@ -68,9 +68,12 @@ class DgiiSaleReport(models.Model):
     month = fields.Integer(u"Mes", size=2,
                            default=lambda s: int(time.strftime("%m")))
     CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros")
-    ITBIS_TOTAL = fields.Float(u"OFV ITBIS")
-    TOTAL_MONTO_FACTURADO = fields.Float(u"OFV FACTURADO",
-                                         help=u"Suma de las facturas y las notas de crédito como se digitan en el formulario de la DGII")
+    ITBIS_TOTAL = fields.Float(u"ITBIS FACTURADO")
+    TOTAL_MONTO_FACTURADO = fields.Float(
+                                    u"TOTAL FACTURADO",
+                                    help="Suma de las facturas y las notas de"
+                                    " crédito como se digitan en el formulario"
+                                    " de la DGII")
 
     TOTAL_MONTO_FACTURAS = fields.Float(u"FACTURADO", compute=_calc_total)
     TOTAL_MONTO_NC = fields.Float(u"NOTAS CRÉDITO", compute=_calc_total)
@@ -95,13 +98,13 @@ class DgiiSaleReport(models.Model):
     def get_date_range(self):
         if self.month > 12 or self.month < 1:
             self.month = False
-            raise exceptions.ValidationError("El mes es invalido!")
+            raise exceptions.ValidationError(u"¡El mes es inválido!")
         last_day = calendar.monthrange(self.year, self.month)[1]
-        return ("{}-{}-{}".format(str(self.year),
-                                  str(self.month).zfill(2), "01"),
-                "{}-{}-{}".format(str(self.year),
-                                  str(self.month).zfill(2),
-                                  str(last_day).zfill(2)))
+        return (
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2), "01"),
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2),
+                              str(last_day).zfill(2))
+            )
 
     def create_report_lines(self, invoices):
         if self._context.get("recreate", False):
@@ -110,9 +113,7 @@ class DgiiSaleReport(models.Model):
         lines = []
         line_number = 1
         for inv in invoices:
-
             LINE = line_number
-
             if inv.sale_fiscal_type == "final":
                 RNC_CEDULA = ""
                 TIPO_IDENTIFICACION = "3"
@@ -123,7 +124,9 @@ class DgiiSaleReport(models.Model):
                 TIPO_IDENTIFICACION = "1" if len(str(RNC_CEDULA).strip()) == 9 else "2"
 
             if not self.env['marcos.api.tools'].is_ncf(inv.number, inv.type):
-                raise exceptions.ValidationError(u"El número de NCF o el RNC/Cédula del clienten para el comprobante {} no es valido!".format(inv.number))
+                raise exceptions.ValidationError(
+                    u"¡El número de NCF o el RNC/Cédula del clienten para el"
+                    u" comprobante {} no es válido!".format(inv.number))
 
             NUMERO_COMPROBANTE_MODIFICADO = "".rjust(19)
             if inv.type == "out_invoice":
@@ -187,8 +190,13 @@ class DgiiSaleReport(models.Model):
         return res
 
     def generate_txt(self):
+        if not self.company_id.vat:
+            raise exceptions.ValidationError(
+                u"Para poder generar el 607 primero debe especificar el RNC/"
+                u"Cédula de la compañia.")
 
-        company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
+        company_fiscal_identificacion = re.sub("[^0-9]", "",
+                                               self.company_id.vat)
 
         if not company_fiscal_identificacion or not self.env['marcos.api.tools'].is_identification(company_fiscal_identificacion):
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
@@ -201,7 +209,7 @@ class DgiiSaleReport(models.Model):
         header += company_fiscal_identificacion.rjust(11)
         header += str(self.year)
         header += str(self.month).zfill(2)
-        header += str(self.CANTIDAD_REGISTRO).zfill(12)
+        header += "{:.2f}".format(self.CANTIDAD_REGISTRO).zfill(12)
         header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
         lines.append(header)
 
@@ -212,21 +220,22 @@ class DgiiSaleReport(models.Model):
             ln += line.NUMERO_COMPROBANTE_FISCAL
             ln += line.NUMERO_COMPROBANTE_MODIFICADO
             ln += line.FECHA_COMPROBANTE.replace("-", "")
-            # ln += line.FECHA_PAGO.replace("-","") if line.FECHA_PAGO else "".rjust(8)
+            # ln += line.FECHA_PAGO.replace("-","") if line.FECHA_PAGO else
+            # "".rjust(8)
             ln += "{:.2f}".format(line.ITBIS_FACTURADO).zfill(12)
             ln += "{:.2f}".format(line.MONTO_FACTURADO).zfill(12)
             lines.append(ln)
 
         for line in lines:
-            file.write(line+"\n")
+            file.write(line + "\n")
 
         file.close()
         file = open(path, 'rb')
         report = base64.b64encode(file.read())
         report_name = 'DGII_607_{}_{}{}.TXT'.format(
-                                        company_fiscal_identificacion,
-                                        str(self.year),
-                                        str(self.month).zfill(2))
+                                                company_fiscal_identificacion,
+                                                str(self.year),
+                                                str(self.month).zfill(2))
         self.write({'txt': report, 'txt_name': report_name})
 
     @api.multi

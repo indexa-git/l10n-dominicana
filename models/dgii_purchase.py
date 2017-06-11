@@ -81,13 +81,13 @@ class DgiiPurchaseReport(models.Model):
     def get_date_range(self):
         if self.month > 12 or self.month < 1:
             self.month = False
-            raise exceptions.ValidationError("El mes es invalido!")
+            raise exceptions.ValidationError(u"¡El mes es inválido!")
         last_day = calendar.monthrange(self.year, self.month)[1]
-        return ("{}-{}-{}".format(str(self.year),
-                                  str(self.month).zfill(2), "01"),
-                "{}-{}-{}".format(str(self.year),
-                                  str(self.month).zfill(2),
-                                  str(last_day).zfill(2)))
+        return (
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2), "01"),
+            "{}-{}-{}".format(str(self.year), str(self.month).zfill(2),
+                              str(last_day).zfill(2))
+            )
 
     def create_report_lines(self, invoices, tax_account):
         if self._context.get("recreate", False):
@@ -145,17 +145,24 @@ class DgiiPurchaseReport(models.Model):
             TOTAL_MONTO_FACTURADO += inv.amount_untaxed*CURRENCY_RATE
 
             if not inv.partner_id.vat:
-                raise exceptions.UserError(u"El número de RNC/Cédula del proveedor {} no es valido para el NCF {}".format(inv.partner_id.name, inv.number))
+                raise exceptions.UserError(
+                        u"El proveedor {} de la factura {} no tiene RNC/"
+                        u"Cédula".format(inv.partner_id.name, inv.number)
+                        )
 
             RNC_CEDULA = re.sub("[^0-9]", "", inv.partner_id.vat.strip())
             TIPO_IDENTIFICACION = "1" if len(RNC_CEDULA.strip()) == 9 else "2"
             TIPO_BIENES_SERVICIOS_COMPRADOS = inv.purchase_fiscal_type
 
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
-                raise exceptions.UserError(u"Debe de definir el tipo de gasto para la posición fiscal {}! en la factura {}".format(inv.fiscal_position_id.name, inv.number))
-
+                raise exceptions.UserError(
+                    u"¡Debe definir el tipo de gasto para la posición fiscal"
+                    u" {} en la factura {}!".format(
+                                             inv.fiscal_position_id.name,
+                                             inv.number)
+                                           )
             if not self.env['marcos.api.tools'].is_ncf(inv.number, inv.type):
-                raise exceptions.UserError(u"El número de NCF {} no es valido!".format(inv.number))
+                raise exceptions.UserError(u"El número de NCF {} no es válido!".format(inv.number))
 
             NUMERO_COMPROBANTE_MODIFICADO = "".rjust(19)
 
@@ -195,14 +202,17 @@ class DgiiPurchaseReport(models.Model):
                     "state": "done"})
 
     def generate_txt(self):
-
         if not self.company_id.vat:
-            raise exceptions.ValidationError(u"Para poder generar el 606 primero debe especificar el RNC/Cédula de la compañia.")
+            raise exceptions.ValidationError(
+                u"Para poder generar el 606 primero debe especificar el RNC/"
+                u"Cédula de la compañia.")
 
-        company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
+        company_fiscal_identificacion = re.sub("[^0-9]", "",
+                                               self.company_id.vat)
 
         if not company_fiscal_identificacion or not self.env['marcos.api.tools'].is_identification(company_fiscal_identificacion):
-            raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
+            raise exceptions.ValidationError("Debe configurar el RNC de su"
+                                             " empresa!")
 
         path = '/tmp/606{}.txt'.format(company_fiscal_identificacion)
         file = open(path, 'w')
@@ -233,7 +243,7 @@ class DgiiPurchaseReport(models.Model):
             lines.append(ln)
 
         for line in lines:
-            file.write(line+"\n")
+            file.write(line + "\n")
 
         file.close()
         file = open(path, 'rb')
@@ -299,7 +309,7 @@ class DgiiPurchaseReportline(models.Model):
     purchase_report_id = fields.Many2one("dgii.purchase.report")
     LINE = fields.Integer("Linea")
     RNC_CEDULA = fields.Char(u"RNC", size=11)
-    TIPO_IDENTIFICACION= fields.Char("Tipo ID", size=1)
+    TIPO_IDENTIFICACION = fields.Char("Tipo ID", size=1)
     TIPO_BIENES_SERVICIOS_COMPRADOS = fields.Char("Tipo", size=2)
     NUMERO_COMPROBANTE_FISCAL = fields.Char("NCF", size=19)
     NUMERO_COMPROBANTE_MODIFICADO = fields.Char("Afecta", size=19)
@@ -308,4 +318,4 @@ class DgiiPurchaseReportline(models.Model):
     ITBIS_FACTURADO = fields.Float("ITBIS Facturado")
     ITBIS_RETENIDO = fields.Float("ITBIS Retenido")
     MONTO_FACTURADO = fields.Float("Monto Facturado")
-    RETENCION_RENTA = fields.Float(u"Retención Renta")
+    RETENCION_RENTA = fields.Float(u"Retención ISR")

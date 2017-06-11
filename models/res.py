@@ -49,7 +49,8 @@ _logger = logging.getLogger(__name__)
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    payment_tax_on_606 = fields.Boolean(u"Para el 606 declarar retenciones al pago")
+    payment_tax_on_606 = fields.Boolean("Reportar retenciones del 606 al pago")
+
     country_id = fields.Many2one('res.country', compute='_compute_address',
                                  inverse='_inverse_country',
                                  string="Country", default=62)
@@ -73,16 +74,16 @@ class ResPartner(models.Model):
                 rec.vat_readonly = True
 
     sale_fiscal_type = fields.Selection(
-        [("final", u"Consumidor final"),
-         ("fiscal", u"Para credito fiscal"),
+        [("final", u"Consumidor Final"),
+         ("fiscal", u"Para Crédito Fiscal"),
          ("gov", u"Gubernamental"),
-         ("special", u"Regimenes especiales"),
-         ("unico", u"Unico ingreso")],
+         ("special", u"Regímenes Especiales"),
+         ("unico", u"Único Ingreso")],
         string="Tipo de comprobante", default="final")
 
     purchase_fiscal_type = fields.Selection(
-        [('01', u'01 - Gastos de personal'),
-         ('02', u'02 - Gastos por trabajo, suministros y servicios'),
+        [('01', u'01 - Gastos de Personal'),
+         ('02', u'02 - Gastos por Trabajo, Suministros y Servicios'),
          ('03', u'03 - Arrendamientos'),
          ('04', u'04 - Gastos de Activos Fijos'),
          ('05', u'05 - Gastos de Representación'),
