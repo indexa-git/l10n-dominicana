@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
-########################################################################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>)
+###############################################################################
+#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
+#  (<https://marcos.do/>) 
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0
 #
 # This software and associated files (the "Software") may only be used
-# (nobody can redistribute (or sell) your module once they have bought it, unless you gave them your consent)
+# (nobody can redistribute (or sell) your module once they have bought it,
+# unless you gave them your consent)
 # if you have purchased a valid license
 # from the authors, typically via Odoo Apps, or if you have received a written
 # agreement from the authors of the Software (see the COPYRIGHT file).
 #
 # You may develop Odoo modules that use the Software as a library (typically
-# by depending on it, importing it and using its resources), but without copying
-# any source code or material from the Software. You may distribute those
-# modules under the license of your choice, provided that this license is
+# by depending on it, importing it and using its resources), but without
+# copying any source code or material from the Software. You may distribute
+# those modules under the license of your choice, provided that this license is
 # compatible with the terms of the Odoo Proprietary License (For example:
 # LGPL, MIT, or proprietary licenses similar to this one).
 #
-# It is forbidden to publish, distribute, sublicense, or sell copies of the Software
-# or modified copies of the Software.
+# It is forbidden to publish, distribute, sublicense, or sell copies of the
+# Softwar or modified copies of the Software.
 #
 # The above copyright notice and this permission notice must be included in all
 # copies or substantial portions of the Software.
@@ -29,10 +31,10 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
-########################################################################################################################
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+###############################################################################
 
 from odoo import models, fields, api, exceptions
 
@@ -40,11 +42,13 @@ from odoo import models, fields, api, exceptions
 class ShopJournalConfig(models.Model):
     _name = "shop.ncf.config"
 
-    company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id,
+    company_id = fields.Many2one("res.company", required=True,
+                                 default=lambda s: s.env.user.company_id.id,
                                  string=u"Compañia")
     name = fields.Char("Prefijo NCF", size=9, required=True, copy=False)
 
-    journal_id = fields.Many2one("account.journal", string="Diario", required=True)
+    journal_id = fields.Many2one("account.journal", string="Diario",
+                                 required=True)
 
     final_active = fields.Boolean("Activo")
     final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia")
@@ -52,14 +56,16 @@ class ShopJournalConfig(models.Model):
     final_max = fields.Integer(string=u"Número máximo")
 
     fiscal_active = fields.Boolean("Activo")
-    fiscal_sequence_id = fields.Many2one("ir.sequence", string=u"Credito fiscal")
+    fiscal_sequence_id = fields.Many2one("ir.sequence",
+                                         string=u"Credito fiscal")
     fiscal_number_next_actual = fields.Integer(string=u"Próximo número",
                                                related="fiscal_sequence_id.number_next_actual")
     fiscal_max = fields.Integer(string=u"Número máximo")
 
     gov_active = fields.Boolean("Activo")
     gov_sequence_id = fields.Many2one("ir.sequence", string=u"Gubernamental")
-    gov_number_next_actual = fields.Integer(string=u"Próximo número", related="gov_sequence_id.number_next_actual")
+    gov_number_next_actual = fields.Integer(string=u"Próximo número",
+                                            related="gov_sequence_id.number_next_actual")
     gov_max = fields.Integer(string=u"Número máximo")
 
     special_active = fields.Boolean("Activo")
@@ -86,35 +92,43 @@ class ShopJournalConfig(models.Model):
                                            related="nd_sequence_id.number_next_actual")
     nd_max = fields.Integer(string=u"Número máximo")
 
-    user_ids = fields.Many2many("res.users", string=u"Usuarios que pueden usar estas secuancias")
+    user_ids = fields.Many2many("res.users",
+                                string=u"Usuarios que pueden usar estas secuancias")
 
     _sql_constraints = [
-        ('shop_ncf_config_name_uniq', 'unique(name, company_id)', u'El Prefijo NCF de la sucursal debe de ser unico!'),
+        ('shop_ncf_config_name_uniq',
+         'unique(name, company_id)',
+         u'El Prefijo NCF de la sucursal debe de ser unico!'),
     ]
 
     @api.onchange("name")
     def onchange_name(self):
         if self.name:
             if self.final_sequence_id:
-                self.final_sequence_id.write({"prefix": self.name+"02",
-                                              "name": "Facturas de cliente final {}".format(self.name)})
-                self.fiscal_sequence_id.write({"prefix": self.name+"01",
-                                              "name": "Facturas de cliente fiscal {}".format(self.name)})
-                self.gov_sequence_id.write({"prefix": self.name+"15",
-                                              "name": "Facturas de cliente gubernamental {}".format(self.name)})
-                self.special_sequence_id.write({"prefix": self.name+"14",
-                                              "name": "Facturas de cliente especiales {}".format(self.name)})
-                self.unico_sequence_id.write({"prefix": self.name+"12",
-                                              "name": "Facturas de unico ingreso {}".format(self.name)})
-                self.nc_sequence_id.write({"prefix": self.name+"04",
-                                              "name": "Notas de credito {}".format(self.name)})
-                self.nd_sequence_id.write({"prefix": self.name+"03",
-                                              "name": "Notas de debito {}".format(self.name)})
+                self.final_sequence_id.write(
+                    {"prefix": self.name+"02",
+                     "name": "Facturas Cliente Final {}".format(self.name)})
+                self.fiscal_sequence_id.write(
+                    {"prefix": self.name+"01",
+                     "name": "Facturas Valor Fiscal {}".format(self.name)})
+                self.gov_sequence_id.write(
+                    {"prefix": self.name+"15",
+                     "name": "Facturas Gubernamentales {}".format(self.name)})
+                self.special_sequence_id.write(
+                    {"prefix": self.name+"14",
+                     "name": "Facturas Especiales {}".format(self.name)})
+                self.unico_sequence_id.write(
+                    {"prefix": self.name+"12",
+                     "name": "Facturas de Unico Ingreso {}".format(self.name)})
+                self.nc_sequence_id.write(
+                    {"prefix": self.name+"04",
+                     "name": "Notas de Credito {}".format(self.name)})
+                self.nd_sequence_id.write(
+                    {"prefix": self.name+"03",
+                     "name": "Notas de Debito {}".format(self.name)})
             else:
-                self.setup_ncf(name=self.name,company_id=self.company_id.id, journal_id=self.journal_id.id,shop_id=self)
-
-
-
+                self.setup_ncf(name=self.name, company_id=self.company_id.id,
+                               journal_id=self.journal_id.id, shop_id=self)
 
     @api.model
     def get_user_shop_config(self):
@@ -124,16 +138,20 @@ class ShopJournalConfig(models.Model):
         return user_shops[0]
 
     @api.model
-    def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False, shop_id=False):
+    def setup_ncf(self, name=False, company_id=False,
+                  journal_id=False, user_id=False, shop_id=False):
 
-        special_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
-        self.env["account.fiscal.position"].search([('id','!=',special_position_id.id)]).unlink()
+        special_position_id = self.env.ref(
+                            "ncf_manager.ncf_manager_special_fiscal_position")
+        self.env["account.fiscal.position"].search(
+                               [('id', '!=', special_position_id.id)]).unlink()
 
         name = name or u"A01001001"
         company_id = company_id or self.env.user.company_id.id
 
         journal_id = journal_id or 1
-        self.env["account.journal"].sudo().browse(journal_id).write({"ncf_control": True})
+        self.env["account.journal"].sudo().browse(journal_id).write(
+                                                        {"ncf_control": True})
 
         user_id = user_id or 1
 
@@ -145,7 +163,9 @@ class ShopJournalConfig(models.Model):
         nd_prefix = name + u"03"
         unico_prefix = name + u"12"
 
-        if self.search_count([('company_id','=',company_id),('name','=',name)]) == 0:
+        if self.search_count(
+                [('company_id', '=', company_id),
+                 ('name', '=', name)]) == 0:
             if shop_id:
                 shop = shop_id
             else:
@@ -221,24 +241,33 @@ class ShopJournalConfig(models.Model):
         message = False
 
         if invoice.type == "out_refund" and self.nc_max >= self.nc_sequence_id.number_next_actual - 10:
-            message = u"La secuencia para el tipo de NCF las notas de crédito para el punto de venta {} a sobrepasado el " \
-                      u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
-        elif sale_fiscal_type == "final" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
-            message = u"La secuencia para el tipo de NCF consumidor final para el punto de venta {} a sobrepasado el " \
-                      u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
-        elif sale_fiscal_type == "fiscal" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
-            message = u"La secuencia para el tipo de NCF cr´ito fiscal para el punto de venta {} a sobrepasado el " \
-                      u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
-        elif sale_fiscal_type == "gov" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
-            message = u"La secuencia para el tipo de NCF gubernamental para el punto de venta {} a sobrepasado el " \
-                      u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
-        elif sale_fiscal_type == "special" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
-            message = u"La secuencia para el tipo de NCF régimenes especiales para el punto de venta {} a sobrepasado el " \
-                      u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
-        elif sale_fiscal_type == "unico" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
-            message = u"La secuencia para el tipo de NCF único ingreso para el punto de venta {} a sobrepasado el " \
-                      u"número maximo solicitado debe solicitar mas NCF para este punto de venta".format(self.name)
+            message = u"Las secuencias de Notas de Crédito para la sucursal {}"
+            u" han sobrepasado el número máximo establecido, debe solicitar"
+            u" más NCF para esta sucursal".format(self.name)
 
+        elif sale_fiscal_type == "final" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
+            message = u"Las secuencias de Consumidor Final para la sucursal {}"
+            u" han sobrepasado el número máximo establecido, debe solicitar"
+            u" más NCF para esta sucursal".format(self.name)
+
+        elif sale_fiscal_type == "fiscal" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
+            message = u"Las secuencias de Valor Fiscal para la sucursal {}"
+            u" han sobrepasado el número máximo establecido, debe solicitar"
+            u" más NCF para esta sucursal".format(self.name)
+
+        elif sale_fiscal_type == "gov" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
+            message = u"Las secuencias Gubernamentales para la sucursal {}"
+            u" han sobrepasado el número máximo establecido, debe solicitar"
+            u" más NCF para esta sucursal".format(self.name)
+
+        elif sale_fiscal_type == "special" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
+            message = u"Las secuencias de Regímenes Esp. para la sucursal {}"
+            u" han sobrepasado el número máximo establecido, debe solicitar"
+            u" más NCF para esta sucursal".format(self.name)
+
+        elif sale_fiscal_type == "unico" and self.final_max >= self.final_sequence_id.number_next_actual - 10:
+            message = u"Las secuencias de Único Ingreso para la sucursal {}"
+            u" han sobrepasado el número máximo establecido, debe solicitar"
+            u" más NCF para esta sucursal".format(self.name)
 
             invoice.message_post(body=message)
-
