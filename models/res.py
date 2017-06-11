@@ -175,5 +175,3 @@ class ResPartner(models.Model):
     def onchange_sale_fiscal_type(self):
         if self.sale_fiscal_type == "special":
             self.property_account_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
-        else:
-            self.property_account_position_id = False
