@@ -53,9 +53,9 @@ class PosConfig(models.Model):
     default_partner_id = fields.Many2one("res.partner",
                                          string=u"Cliente de contado",
                                          required=True)
-    load_orders_of_current_session = fields.Boolean(string=u'Cargar orden de sesión actual sólo', default=True)
-    load_orders_after_this_date = fields.Boolean(string=u'Cargar orden de no mas de días de realizada')
-    load_orders_from_days = fields.Integer(string=u'Días atras de ordenes a cargar')
+    load_orders_of_current_session = fields.Boolean(string=u'Cargar orden de sesión actual solamente', default=True)
+    load_orders_after_this_date = fields.Boolean(string=u'Cargar orden de no más de días de realizada')
+    load_orders_from_days = fields.Integer(string=u'Días atrás de órdenes a cargar')
     load_orders_from = fields.Date(string=u'Seleccione una fecha',
                                    compute=_get_load_orders_from)
     user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
