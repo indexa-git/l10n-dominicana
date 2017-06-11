@@ -68,11 +68,6 @@ class ResPartner(models.Model):
             else:
                 rec.fiscal_info_required = False
 
-            if not rec.vat:
-                rec.vat_readonly = False
-            else:
-                rec.vat_readonly = True
-
     sale_fiscal_type = fields.Selection(
         [("final", u"Consumidor Final"),
          ("fiscal", u"Para Crédito Fiscal"),
@@ -96,7 +91,6 @@ class ResPartner(models.Model):
         string=u"Tipo de gasto")
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
-    vat_readonly = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
                                  ondelete='restrict', default=62)
 
@@ -144,10 +138,10 @@ class ResPartner(models.Model):
     @api.multi
     def write(self, vals):
         validation = self.validate_vat_or_name(vals)
-        if not isinstance(validation, dict) and self:
-            raise exceptions.ValidationError(
-                u"Ya existe un contacto registrado con esta identificación a nombre de {}!".format(vals.name))
-        elif isinstance(validation, dict) and self:
+        # if not isinstance(validation, dict) and self:
+        #     raise exceptions.ValidationError(
+        #         u"Ya existe un contacto registrado con esta identificación a nombre de {}!".format(vals.name))
+        if isinstance(validation, dict) and self:
             vals = validation
         return super(ResPartner, self).write(vals)
 
