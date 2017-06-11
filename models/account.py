@@ -66,7 +66,8 @@ class AccountMove(models.Model):
 
         if invoice and invoice.type in ['out_invoice', 'out_refund'] and invoice.journal_id.ncf_control:
             if not invoice.sale_fiscal_type:
-                raise ValidationError(u"Debe especificar el tipo de comprobante para la venta.")
+                raise ValidationError(u"Debe especificar el tipo de"
+                                      " comprobante para la venta.")
 
             if not invoice.move_name:
                 if invoice.is_nd:
@@ -99,7 +100,7 @@ class AccountMove(models.Model):
                     sequence_type = u"Unico ingreso"
 
                 if not active_sequence:
-                    raise ValidationError(u"Este tipo de NCF para {} no esta activado.".format(sequence_type))
+                    raise ValidationError(u"El NCF para {} no está activado.".format(sequence_type))
 
                 invoice.shop_id.check_max(invoice.sale_fiscal_type, invoice)
                 invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
