@@ -40,6 +40,7 @@ import calendar
 import base64
 import time
 import re
+import io
 
 
 class DgiiSaleReport(models.Model):
@@ -202,7 +203,7 @@ class DgiiSaleReport(models.Model):
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
 
         path = '/tmp/607{}.txt'.format(company_fiscal_identificacion)
-        file = open(path, 'w')
+        file = io.open(path, 'w', encoding="utf-8", newline='\r\n')
         lines = []
 
         header = "607"
