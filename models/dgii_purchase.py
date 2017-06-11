@@ -43,12 +43,6 @@ import re
 import io
 
 
-class ResCompany(models.Model):
-    _inherit = "res.company"
-
-    payment_tax_on_606 = fields.Boolean("Reportar retenciones del 606 en la fecha del pago")
-
-
 class DgiiPurchaseReport(models.Model):
     _name = "dgii.purchase.report"
 
