@@ -223,7 +223,8 @@ class AccountInvoice(models.Model):
                 "para este tipo de factura.".format(rec.partner_id.id,
                                                     rec.partner_id.name)
 
-            elif rec.type in ("in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
+            elif rec.type in ("in_invoice", "in_refund"):
+                if rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
                     msg = (u"¡Para este tipo de Compra el Proveedor"
                            u" debe de tener un RNC/Cédula establecido!")
 
