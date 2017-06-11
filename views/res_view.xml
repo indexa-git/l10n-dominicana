@@ -54,14 +54,11 @@
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
                 <field name="name" position="replace">
-                    <field name="vat_readonly" invisible="1"/>
-                    <field name="name" default_focus="1" placeholder="Name" attrs="{'required' : [('type', '=', 'contact')],
-                    'readonly': [('vat_readonly','=',True)]}"/>
+                    <field name="name" default_focus="1" placeholder="Name" attrs="{'required': [('type', '=', 'contact')]}"/>
                 </field>
                 <xpath expr="//div[@class='o_row']">
                     <field name="fiscal_info_required" invisible="1"/>
-                    <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)],
-                    'readonly': [('vat_readonly','=',True)]}"/>
+                    <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)]}"/>
                 </xpath>
             </field>
         </record>
