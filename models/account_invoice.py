@@ -224,7 +224,7 @@ class AccountInvoice(models.Model):
                                                     rec.partner_id.name)
 
             elif rec.type in ("in_invoice", "in_refund"):
-                if rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
+                if rec.journal_id.purchase_type in ('normal', 'informal') and not rec.partner_id.vat:
                     msg = (u"¡Para este tipo de Compra el Proveedor"
                            u" debe de tener un RNC/Cédula establecido!")
 
@@ -241,9 +241,8 @@ class AccountInvoice(models.Model):
     def _prepare_refund(self, invoice, date_invoice=None,
                         date=None, description=None, journal_id=None):
         res = super(AccountInvoice, self)._prepare_refund(
-                                            invoice, date_invoice=date_invoice,
-                                            date=date, description=description,
-                                            journal_id=journal_id)
+                    invoice, date_invoice=date_invoice, date=date,
+                    description=description, journal_id=journal_id)
         if self._context.get("credit_note_supplier_ncf", False):
             res.update({"move_name":  self._context["credit_note_supplier_ncf"]})
         return res
