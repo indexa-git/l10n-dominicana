@@ -141,11 +141,6 @@ class ShopJournalConfig(models.Model):
     def setup_ncf(self, name=False, company_id=False,
                   journal_id=False, user_id=False, shop_id=False):
 
-        special_position_id = self.env.ref(
-                            "ncf_manager.ncf_manager_special_fiscal_position")
-        self.env["account.fiscal.position"].search(
-                               [('id', '!=', special_position_id.id)]).unlink()
-
         name = name or u"A01001001"
         company_id = company_id or self.env.user.company_id.id
 
