@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
-########################################################################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>)
+###############################################################################
+#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
+#  (<https://marcos.do/>) 
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0
 #
 # This software and associated files (the "Software") may only be used
-# (nobody can redistribute (or sell) your module once they have bought it, unless you gave them your consent)
+# (nobody can redistribute (or sell) your module once they have bought it,
+# unless you gave them your consent)
 # if you have purchased a valid license
 # from the authors, typically via Odoo Apps, or if you have received a written
 # agreement from the authors of the Software (see the COPYRIGHT file).
 #
 # You may develop Odoo modules that use the Software as a library (typically
-# by depending on it, importing it and using its resources), but without copying
-# any source code or material from the Software. You may distribute those
-# modules under the license of your choice, provided that this license is
+# by depending on it, importing it and using its resources), but without
+# copying any source code or material from the Software. You may distribute
+# those modules under the license of your choice, provided that this license is
 # compatible with the terms of the Odoo Proprietary License (For example:
 # LGPL, MIT, or proprietary licenses similar to this one).
 #
-# It is forbidden to publish, distribute, sublicense, or sell copies of the Software
-# or modified copies of the Software.
+# It is forbidden to publish, distribute, sublicense, or sell copies of the
+# Softwar or modified copies of the Software.
 #
 # The above copyright notice and this permission notice must be included in all
 # copies or substantial portions of the Software.
@@ -29,19 +31,19 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
-########################################################################################################################
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+###############################################################################
 
 import logging
 import time
 
-from odoo import models, fields, api, tools, exceptions, _
+from odoo import models, fields, api, exceptions, _
 from odoo.tools import float_is_zero
 
 from odoo.tools.safe_eval import safe_eval
-import simplejson as json
+# import simplejson as json
 
 _logger = logging.getLogger(__name__)
 
@@ -58,11 +60,14 @@ class PosOrder(models.Model):
         return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_picking_on_cron', 'False'))
 
     is_return_order = fields.Boolean(string='Devolver orden', copy=False)
-    return_order_id = fields.Many2one('pos.order', u'Orden de devolución de', readonly=True, copy=False)
+    return_order_id = fields.Many2one('pos.order',
+                                      u'Orden de devolución de',
+                                      readonly=True, copy=False)
     return_status = fields.Selection(
         [('-', 'Sin Devoluciones'), ('Fully-Returned', 'Totalmente devuelto'),
          ('Partially-Returned', 'Devuelto parcialmente'),
-         ('Non-Returnable', 'No retornable')], default='-', copy=False, string=u'Estado de devolución')
+         ('Non-Returnable', 'No retornable')],
+        default='-', copy=False, string=u'Estado de devolución')
     invoice_number = fields.Char(related="invoice_id.number")
     is_service_order = fields.Boolean("Ordenes que no generan picking")
 
@@ -196,14 +201,20 @@ class PosOrder(models.Model):
                 res.update({"origin": reference_ncf})
 
             elif order_id.invoice_id.sale_fiscal_type == "fiscal":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL", "origin": False})
+                res.update({"fiscal_type": "fiscal",
+                           "fiscal_type_name": "FACTURA CON VALOR FISCAL",
+                            "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "final":
-                res.update(
-                    {"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL", "origin": False})
+                res.update({"fiscal_type": "final",
+                           "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL",
+                            "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "gov":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL", "origin": False})
+                res.update({"fiscal_type": "fiscal",
+                           "fiscal_type_name": "FACTURA GUBERNAMENTAL",
+                            "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "special":
-                res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES",
+                res.update({"fiscal_type": "special",
+                           "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES",
                             "origin": False})
 
         return res
@@ -288,8 +299,11 @@ class PosOrder(models.Model):
 
         orders_list_for_picking = []
         orders_count = self.search_count(
-            [('picking_id', '=', False), ('state', '=', 'invoiced'), ('is_service_order', '=', False)])
-        orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced'), ('is_service_order', '=', False)],
+            [('picking_id', '=', False), ('state', '=', 'invoiced'),
+             ('is_service_order', '=', False)])
+        orders = self.search([('picking_id', '=', False),
+                              ('state', '=', 'invoiced'),
+                              ('is_service_order', '=', False)],
                              limit=limit)
         _logger.info(
             "========== INICIO del cron para generarcion de los conduces del POS, conduces pendientes {} ==========".format(
