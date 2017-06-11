@@ -4,7 +4,7 @@
 import re
 
 
-from odoo import api, fields, models, tools, _
+from odoo import api, fields, models
 
 CURRENCY_DISPLAY_PATTERN = re.compile(r'(\w+)\s*(?:\((.*)\))?')
 
@@ -21,7 +21,6 @@ class BcRateImport(models.TransientModel):
     _name = "bc.rate.import"
 
     excel_file = fields.Binary()
-
 
     @api.multi
     def import_excel(self):

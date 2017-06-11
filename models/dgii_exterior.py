@@ -1,25 +1,28 @@
 # -*- coding: utf-8 -*-
-########################################################################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>) #  Write by Eneldo Serrata (eneldo@marcos.do)
+###############################################################################
+#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
+#  (<https://marcos.do/>) 
+#  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0
 #
 # This software and associated files (the "Software") may only be used
-# (nobody can redistribute (or sell) your module once they have bought it, unless you gave them your consent)
+# (nobody can redistribute (or sell) your module once they have bought it,
+# unless you gave them your consent)
 # if you have purchased a valid license
 # from the authors, typically via Odoo Apps, or if you have received a written
 # agreement from the authors of the Software (see the COPYRIGHT file).
 #
 # You may develop Odoo modules that use the Software as a library (typically
-# by depending on it, importing it and using its resources), but without copying
-# any source code or material from the Software. You may distribute those
-# modules under the license of your choice, provided that this license is
+# by depending on it, importing it and using its resources), but without
+# copying any source code or material from the Software. You may distribute
+# those modules under the license of your choice, provided that this license is
 # compatible with the terms of the Odoo Proprietary License (For example:
 # LGPL, MIT, or proprietary licenses similar to this one).
 #
-# It is forbidden to publish, distribute, sublicense, or sell copies of the Software
-# or modified copies of the Software.
+# It is forbidden to publish, distribute, sublicense, or sell copies of the
+# Softwar or modified copies of the Software.
 #
 # The above copyright notice and this permission notice must be included in all
 # copies or substantial portions of the Software.
@@ -28,10 +31,10 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
-########################################################################################################################
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+###############################################################################
 from odoo import models, fields, api, exceptions
 import calendar
 import base64
@@ -42,18 +45,22 @@ import re
 class DgiiExteriorReport(models.Model):
     _name = "dgii.exterior.report"
 
-    company_id = fields.Many2one('res.company', string='Company', required=True,
+    company_id = fields.Many2one('res.company', string='Company',
+                                 required=True,
                                  default=lambda self: self.env['res.company']._company_default_get(
                                      'dgii.exterior.report'))
     name = fields.Char("Nombre")
-    year = fields.Integer(u"Año", size=4, default=lambda s: int(time.strftime("%Y")))
-    month = fields.Integer("Mes", size=2, default=lambda s: int(time.strftime("%m")))
+    year = fields.Integer(u"Año", size=4,
+                          default=lambda s: int(time.strftime("%Y")))
+    month = fields.Integer("Mes", size=2,
+                           default=lambda s: int(time.strftime("%m")))
     CANTIDAD_REGISTRO = fields.Integer("Cantidad de registros")
     TOTAL_MONTO_FACTURADO = fields.Float("TOTAL FACTURADO")
     report_lines = fields.One2many("dgii.exterior.report.line", "exterior_report_id")
     txt = fields.Binary("Reporte TXT", readonly=True)
-    txt_name = fields.Char("Nombre del archivo",readonly=True)
-    state = fields.Selection([('draft', 'Nuevo'), ('done', 'Generado')], default="draft")
+    txt_name = fields.Char("Nombre del archivo", readonly=True)
+    state = fields.Selection([('draft', 'Nuevo'),
+                              ('done', 'Generado')], default="draft")
 
     @api.model
     def create(self, vals):
@@ -67,8 +74,11 @@ class DgiiExteriorReport(models.Model):
             self.month = False
             raise exceptions.ValidationError("El mes es invalido!")
         last_day = calendar.monthrange(self.year, self.month)[1]
-        return ("{}-{}-{}".format(str(self.year), str(self.month).zfill(2), "01"),
-                "{}-{}-{}".format(str(self.year), str(self.month).zfill(2), str(last_day).zfill(2)))
+        return ("{}-{}-{}".format(str(self.year),
+                                  str(self.month).zfill(2), "01"),
+                "{}-{}-{}".format(str(self.year),
+                                  str(self.month).zfill(2),
+                                  str(last_day).zfill(2)))
 
     def create_report_lines(self, invoices):
         if self._context.get("recreate", False):
@@ -97,7 +107,8 @@ class DgiiExteriorReport(models.Model):
             for line in inv.invoice_line_ids:
                 account_ids = [l.account_id.id for l in line]
                 move_lines = self.env["account.move.line"].search(
-                    [('move_id', '=', inv.move_id.id), ('account_id', 'in', account_ids)])
+                    [('move_id', '=', inv.move_id.id),
+                     ('account_id', 'in', account_ids)])
                 MONTO_FACTURADO += sum([l.debit for l in move_lines]) - sum([l.credit for l in move_lines])
                 if inv.type == "in_refund":
                     MONTO_FACTURADO = MONTO_FACTURADO * -1
@@ -114,23 +125,24 @@ class DgiiExteriorReport(models.Model):
                 else:
                     account_ids = [t.account_id.id for t in tax]
                     move_lines = self.env["account.move.line"].search(
-                        [('move_id', '=', inv.move_id.id), ('account_id', 'in', account_ids)])
-                    ISR_RETENCION += sum([l.debit for l in move_lines]) - sum([l.credit for l in move_lines]) * -1
+                        [('move_id', '=', inv.move_id.id),
+                         ('account_id', 'in', account_ids)])
+                    ISR_RETENCION += sum([l.debit for l in move_lines]) - sum(
+                                         [l.credit for l in move_lines]) * -1
 
-            lines.append((0, False, {"LINE": LINE,
-                                     "RAZON_SOCIAL": RAZON_SOCIAL,
-                                     "TIPO_BIENES_SERVICIOS_COMPRADOS": TIPO_BIENES_SERVICIOS_COMPRADOS,
-                                     "FECHA_FACTURA": FECHA_FACTURA,
-                                     "FECHA_RETENCION_ISR": FECHA_RETENCION_ISR,
-                                     "ISR_RETENCION": ISR_RETENCION,
-                                     "MONTO_FACTURADO": MONTO_FACTURADO
-                                     }))
+            lines.append((0, False,
+                          {"LINE": LINE,
+                           "RAZON_SOCIAL": RAZON_SOCIAL,
+                           "TIPO_BIENES_SERVICIOS_COMPRADOS": TIPO_BIENES_SERVICIOS_COMPRADOS,
+                           "FECHA_FACTURA": FECHA_FACTURA,
+                           "FECHA_RETENCION_ISR": FECHA_RETENCION_ISR,
+                           "ISR_RETENCION": ISR_RETENCION,
+                           "MONTO_FACTURADO": MONTO_FACTURADO}))
 
             line_number += 1
 
         CANTIDAD_REGISTRO = len(lines)
         TOTAL_MONTO_FACTURADO = sum([line[2]["MONTO_FACTURADO"] for line in lines])
-
 
         res = self.write({"report_lines": lines,
                           "CANTIDAD_REGISTRO": CANTIDAD_REGISTRO,
@@ -138,10 +150,10 @@ class DgiiExteriorReport(models.Model):
                           "state": "done"})
         return res
 
-
     def generate_txt(self):
 
-        company_fiscal_identificacion = re.sub("[^0-9]", "", self.company_id.vat)
+        company_fiscal_identificacion = re.sub("[^0-9]", "",
+                                               self.company_id.vat)
 
         if not company_fiscal_identificacion or not self.env['res.partner'].is_identification(company_fiscal_identificacion):
             raise exceptions.ValidationError("Debe de configurar el RNC de su empresa!")
@@ -167,7 +179,6 @@ class DgiiExteriorReport(models.Model):
             ln += "{:.2f}".format(line.MONTO_FACTURADO).zfill(12)
             lines.append(ln)
 
-
         line_count = 1
         for l in lines:
             line_count += 1
@@ -179,18 +190,16 @@ class DgiiExteriorReport(models.Model):
         report_name = 'DGII_609_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(self.year), str(self.month).zfill(2))
         self.write({'txt': report, 'txt_name': report_name})
 
-
     @api.multi
     def create_report(self):
         start_date, end_date = self.get_date_range()
         exterior_journal_ids = [rec.id for rec in self.env["account.journal"].search([('purchase_type', '=', 'exterior')])]
-        invoices = self.env["account.invoice"].search([
-            ('date_invoice', '>=', start_date),
-            ('date_invoice', '<=', end_date),
-            ('state', 'in', ('open', 'paid')),
-            ('type', '=', 'in_invoice'),
-            ('journal_id', 'in', exterior_journal_ids)
-        ])
+        invoices = self.env["account.invoice"].search(
+            [('date_invoice', '>=', start_date),
+             ('date_invoice', '<=', end_date),
+             ('state', 'in', ('open', 'paid')),
+             ('type', '=', 'in_invoice'),
+             ('journal_id', 'in', exterior_journal_ids)])
         self.create_report_lines(invoices)
         self.generate_txt()
         return True

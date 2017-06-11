@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
-########################################################################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>)
+###############################################################################
+#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
+#  (<https://marcos.do/>) 
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0
 #
 # This software and associated files (the "Software") may only be used
-# (nobody can redistribute (or sell) your module once they have bought it, unless you gave them your consent)
+# (nobody can redistribute (or sell) your module once they have bought it,
+# unless you gave them your consent)
 # if you have purchased a valid license
 # from the authors, typically via Odoo Apps, or if you have received a written
 # agreement from the authors of the Software (see the COPYRIGHT file).
 #
 # You may develop Odoo modules that use the Software as a library (typically
-# by depending on it, importing it and using its resources), but without copying
-# any source code or material from the Software. You may distribute those
-# modules under the license of your choice, provided that this license is
+# by depending on it, importing it and using its resources), but without
+# copying any source code or material from the Software. You may distribute
+# those modules under the license of your choice, provided that this license is
 # compatible with the terms of the Odoo Proprietary License (For example:
 # LGPL, MIT, or proprietary licenses similar to this one).
 #
-# It is forbidden to publish, distribute, sublicense, or sell copies of the Software
-# or modified copies of the Software.
+# It is forbidden to publish, distribute, sublicense, or sell copies of the
+# Softwar or modified copies of the Software.
 #
 # The above copyright notice and this permission notice must be included in all
 # copies or substantial portions of the Software.
@@ -29,18 +31,16 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
-########################################################################################################################
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+###############################################################################
 
 from odoo import models, fields, api, exceptions
 
 import logging
 
 _logger = logging.getLogger(__name__)
-
-import requests
 
 
 class AccountInvoice(models.Model):
@@ -49,7 +49,8 @@ class AccountInvoice(models.Model):
     @api.model_cr_context
     def _auto_init(self):
         self._sql_constraints = [
-            ('number_uniq', 'unique(number, company_id, partner_id, journal_id, type)',
+            ('number_uniq',
+             'unique(number, company_id, partner_id, journal_id, type)',
              'Invoice Number must be unique per Company!'),
         ]
 
@@ -81,42 +82,44 @@ class AccountInvoice(models.Model):
         else:
             return False
 
-    shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF", required=False,
-                              default=_default_user_shop, domain=lambda s: [('user_ids', '=', [s._uid])])
+    shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF",
+                              required=False,
+                              default=_default_user_shop,
+                              domain=lambda s: [('user_ids', '=', [s._uid])])
 
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
-    sale_fiscal_type = fields.Selection([
-        ("final", u"Consumidor final"),
-        ("fiscal", u"Para credito fiscal"),
-        ("gov", u"Gubernamental"),
-        ("special", u"Regimenes especiales"),
-        ("unico", u"Unico ingreso")
-    ], string="NCF para", default="final")
-    purchase_fiscal_type = fields.Selection([
-        ('01', u'01 - Gastos de personal'),
-        ('02', u'02 - Gastos por trabajo, suministros y servicios'),
-        ('03', u'03 - Arrendamientos'),
-        ('04', u'04 - Gastos de Activos Fijos'),
-        ('05', u'05 - Gastos de Representación'),
-        ('06', u'06 - Otras Deducciones Admitidas'),
-        ('07', u'07 - Gastos Financieros'),
-        ('08', u'08 - Gastos Extraordinarios'),
-        ('09', u'09 - Compras y Gastos que forman parte del Costo de Venta'),
-        ('10', u'10 - Adquisiciones de Activos'),
-        ('11', u'11 - Gastos de Seguro'),
-    ], string=u"Tipo de gasto")
-    anulation_type = fields.Selection([
-        ("01", u"DETERIORO DE FACTURA PRE-IMPRESA"),
-        ("02", u"ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
-        ("03", u"IMPRESIÓN DEFECTUOSA"),
-        ("04", u"DUPLICIDAD DE FACTURA"),
-        ("05", u"CORRECCIÓN DE LA INFORMACIÓN"),
-        ("06", u"CAMBIO DE PRODUCTOS"),
-        ("07", u"DEVOLUCIÓN DE PRODUCTOS"),
-        ("08", u"OMISIÓN DE PRODUCTOS"),
-        ("09", u"ERRORES EN SECUENCIA DE NCF")
-    ], string=u"Tipo de anulación", copy=False)
+    sale_fiscal_type = fields.Selection(
+        [("final", u"Consumidor final"),
+         ("fiscal", u"Para credito fiscal"),
+         ("gov", u"Gubernamental"),
+         ("special", u"Regimenes especiales"),
+         ("unico", u"Unico ingreso")],
+        string="NCF para", default="final")
+    purchase_fiscal_type = fields.Selection(
+        [('01', u'01 - Gastos de personal'),
+         ('02', u'02 - Gastos por trabajo, suministros y servicios'),
+         ('03', u'03 - Arrendamientos'),
+         ('04', u'04 - Gastos de Activos Fijos'),
+         ('05', u'05 - Gastos de Representación'),
+         ('06', u'06 - Otras Deducciones Admitidas'),
+         ('07', u'07 - Gastos Financieros'),
+         ('08', u'08 - Gastos Extraordinarios'),
+         ('09', u'09 - Compras y Gastos que forman parte del Costo de Venta'),
+         ('10', u'10 - Adquisiciones de Activos'),
+         ('11', u'11 - Gastos de Seguro')],
+        string=u"Tipo de gasto")
+    anulation_type = fields.Selection(
+        [("01", u"DETERIORO DE FACTURA PRE-IMPRESA"),
+         ("02", u"ERRORES DE IMPRESIÓN (FACTURA PRE-IMPRESA)"),
+         ("03", u"IMPRESIÓN DEFECTUOSA"),
+         ("04", u"DUPLICIDAD DE FACTURA"),
+         ("05", u"CORRECCIÓN DE LA INFORMACIÓN"),
+         ("06", u"CAMBIO DE PRODUCTOS"),
+         ("07", u"DEVOLUCIÓN DE PRODUCTOS"),
+         ("08", u"OMISIÓN DE PRODUCTOS"),
+         ("09", u"ERRORES EN SECUENCIA DE NCF")],
+        string=u"Tipo de anulación", copy=False)
     refund_reason = fields.Text(string="Refund reason")
     origin_invoice_ids = fields.Many2many(
         comodel_name='account.invoice', column1='refund_invoice_id',
@@ -144,13 +147,15 @@ class AccountInvoice(models.Model):
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
-    purchase_type = fields.Selection([("normal", u"REQUIERE NCF"),
-                                      ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
-                                      ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
-                                      ("exterior", u"PAGOS AL EXTERIOR NO REQUIRE NCF"),
-                                      ("import", u"IMPORTACIONES NO REQUIRE NCF"),
-                                      ("others", u"OTROS NO REQUIRE NCF")],
-                                     string=u"Tipo de compra", default="normal", related="journal_id.purchase_type")
+    purchase_type = fields.Selection(
+        [("normal", u"REQUIERE NCF"),
+         ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
+         ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
+         ("exterior", u"PAGOS AL EXTERIOR NO REQUIRE NCF"),
+         ("import", u"IMPORTACIONES NO REQUIRE NCF"),
+         ("others", u"OTROS NO REQUIRE NCF")],
+        string=u"Tipo de compra", default="normal",
+        related="journal_id.purchase_type")
     is_nd = fields.Boolean()
 
     @api.onchange('journal_id')
@@ -198,7 +203,7 @@ class AccountInvoice(models.Model):
     def constrains_move_name(self):
         if self.type in ("in_invoice", "in_refund"):
             res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
-            if not res == True:
+            if res is not True:
                 _logger.warning(res)
                 raise exceptions.ValidationError(res[2])
 
@@ -221,9 +226,12 @@ class AccountInvoice(models.Model):
         return super(AccountInvoice, self).action_invoice_open()
 
     @api.model
-    def _prepare_refund(self, invoice, date_invoice=None, date=None, description=None, journal_id=None):
-        res = super(AccountInvoice, self)._prepare_refund(invoice, date_invoice=date_invoice,
-                                                          date=date, description=description, journal_id=journal_id)
+    def _prepare_refund(self, invoice, date_invoice=None,
+                        date=None, description=None, journal_id=None):
+        res = super(AccountInvoice, self)._prepare_refund(
+                                            invoice, date_invoice=date_invoice,
+                                            date=date, description=description,
+                                            journal_id=journal_id)
         if self._context.get("credit_note_supplier_ncf", False):
             res.update({"move_name":  self._context["credit_note_supplier_ncf"]})
         return res
@@ -237,6 +245,7 @@ class AccountInvoiceLine(models.Model):
         column2='original_line_id', string=u"Línea de factura original",
         relation='account_invoice_line_refunds_rel',
         help=u"Línea de factura original a la que se refiere esta línea de factura de reembolso")
+
     refund_line_ids = fields.Many2many(
         comodel_name='account.invoice.line', column1='original_line_id',
         column2='refund_line_id', string=u"Reembolso de la línea de factura",
