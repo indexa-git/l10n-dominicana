@@ -177,17 +177,3 @@ class ResPartner(models.Model):
             self.property_account_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
         else:
             self.property_account_position_id = False
-
-    @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        result = super(ResPartner, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar,
-                                                         submenu=submenu)
-        if view_type == 'form' and result.get("name", False) == "res.partner.form":
-            arch = etree.fromstring(result['arch'])
-            name_field = arch.xpath("//field[@name='name']")
-            for field in name_field:
-                field.set(u"placeholder", u"Nombre, RNC o Cédula")
-
-            result["arch"] = etree.tostring(arch)
-
-        return result
