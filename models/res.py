@@ -76,7 +76,7 @@ class ResPartner(models.Model):
          ("unico", u"Único Ingreso")],
         string="Tipo de comprobante", default="final")
 
-    purchase_fiscal_type = fields.Selection(
+    expense_type = fields.Selection(
         [('01', u'01 - Gastos de Personal'),
          ('02', u'02 - Gastos por Trabajo, Suministros y Servicios'),
          ('03', u'03 - Arrendamientos'),

@@ -84,7 +84,7 @@ class AccountInvoiceRefund(models.TransientModel):
 
                 if self.supplier_ncf:
                     vals.update({"is_nd": self.supplier_ncf,
-                                 "purchase_fiscal_type": origin_inv.purchase_fiscal_type})
+                                 "expense_type": origin_inv.expense_type})
 
                 refund.write(vals)
 

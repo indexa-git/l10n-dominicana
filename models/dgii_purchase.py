@@ -147,7 +147,7 @@ class DgiiPurchaseReport(models.Model):
 
             RNC_CEDULA = re.sub("[^0-9]", "", inv.partner_id.vat.strip())
             TIPO_IDENTIFICACION = "1" if len(RNC_CEDULA.strip()) == 9 else "2"
-            TIPO_BIENES_SERVICIOS_COMPRADOS = inv.purchase_fiscal_type
+            TIPO_BIENES_SERVICIOS_COMPRADOS = inv.expense_type
 
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
                 raise exceptions.UserError(
