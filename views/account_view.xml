@@ -26,10 +26,6 @@
                     <field name="purchase_tax_type" widget="radio"
                            attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
                 </field>
-                <field name="price_include" position="before">
-                    <field name="tax_except"/>
-                </field>
-
             </field>
         </record>
 
