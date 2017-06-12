@@ -9,7 +9,6 @@ odoo.define('ncf_pos.pos_orders', function (require) {
     var QWeb = core.qweb;
     var SuperPosModel = models.PosModel.prototype;
     var Model = require('web.Model');
-    var PopupWidget = require("point_of_sale.popups");
 
     models.PosModel = models.PosModel.extend({
         push_and_invoice_order: function (order) {
@@ -124,15 +123,7 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                     if (order[i].partner_id == '') {
                         order[i].partner_id = [0, '-'];
                     }
-
-
-                    try {
-                        var invoice_id = ((order[i].invoice_id[1].toLowerCase()).indexOf(search_text) != -1)
-                    } catch (error) {
-                        var invoice_id = "";
-                    }
-
-                    if ( invoice_id || ((order[i].name.toLowerCase()).indexOf(search_text) != -1) || ((order[i].partner_id[1].toLowerCase()).indexOf(search_text) != -1)) {
+                    if (((order[i].invoice_id[1].toLowerCase()).indexOf(search_text) != -1) || ((order[i].name.toLowerCase()).indexOf(search_text) != -1) || ((order[i].partner_id[1].toLowerCase()).indexOf(search_text) != -1)) {
                         new_order_data = new_order_data.concat(order[i]);
                     }
                 }
@@ -155,6 +146,9 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                     PosOrder.call("order_search_from_ui", [input_txt])
                         .then(function (orders) {
 
+                            console.log(orders.wk_order);
+
+
                             self.pos.db.pos_all_orders = orders.wk_order;
                             self.pos.db.order_by_id = {};
                             orders.wk_order.forEach(function (order) {
@@ -172,6 +166,7 @@ odoo.define('ncf_pos.pos_orders', function (require) {
                         wk_orders = self.search_order(pos_all_orders, input_txt);
                         var contents = self.$el[0].querySelector('.wk-order-list-contents');
                         contents.innerHTML = "";
+
                         for (var i = 0, len = Math.min(wk_orders.length, 1000); i < len; i++) {
                             var orderline_html = QWeb.render('WkOrderLine', {
                                 widget: this,
@@ -223,7 +218,6 @@ odoo.define('ncf_pos.pos_orders', function (require) {
         },
     });
     gui.define_screen({name: 'wk_order', widget: OrdersScreenWidget});
-
 
 
     return OrdersScreenWidget;
