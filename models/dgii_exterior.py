@@ -91,7 +91,7 @@ class DgiiExteriorReport(models.Model):
             line = []
             LINE = line_number
             RAZON_SOCIAL = inv.partner_id.name
-            TIPO_BIENES_SERVICIOS_COMPRADOS = inv.purchase_fiscal_type
+            TIPO_BIENES_SERVICIOS_COMPRADOS = inv.expense_type
 
             if not TIPO_BIENES_SERVICIOS_COMPRADOS:
                 raise exceptions.ValidationError(

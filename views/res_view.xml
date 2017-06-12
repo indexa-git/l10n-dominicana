@@ -73,7 +73,7 @@
                     <field name="sale_fiscal_type"/>
                 </group>
                 <group name="acc_purchase">
-                    <field name="purchase_fiscal_type"/>
+                    <field name="expense_type"/>
                 </group>
             </field>
         </record>

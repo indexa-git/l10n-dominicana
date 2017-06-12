@@ -98,7 +98,7 @@ class AccountInvoice(models.Model):
          ("unico", u"Unico ingreso")],
         string="NCF para", default="final")
 
-    purchase_fiscal_type = fields.Selection(
+    expense_type = fields.Selection(
         [('01', u'01 - Gastos de Personal'),
          ('02', u'02 - Gastos por Trabajo, Suministros y Servicios'),
          ('03', u'03 - Arrendamientos'),
@@ -179,7 +179,7 @@ class AccountInvoice(models.Model):
             if self.type in ('out_invoice', 'out_refund'):
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
             else:
-                self.purchase_fiscal_type = self.partner_id.purchase_fiscal_type
+                self.expense_type = self.partner_id.expense_type
 
             if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
                 self.partner_id = self.company_id.partner_id.id
@@ -189,7 +189,7 @@ class AccountInvoice(models.Model):
             if self.type in ("in_invoice", "in_refund") and not self.partner_id.supplier:
                 self.partner_id.supplier = True
 
-    @api.onchange('sale_fiscal_type', 'purchase_fiscal_type')
+    @api.onchange('sale_fiscal_type', 'expense_type')
     def _onchange_fiscal_type(self):
         if self.partner_id:
             if self.type in ('out_invoice', 'out_refund'):
@@ -197,7 +197,7 @@ class AccountInvoice(models.Model):
                 if self.sale_fiscal_type == "special":
                     self.fiscal_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
             else:
-                self.partner_id.write({'purchase_fiscal_type': self.purchase_fiscal_type})
+                self.partner_id.write({'expense_type': self.expense_type})
 
     @api.onchange("shop_id")
     def onchange_shop_id(self):
