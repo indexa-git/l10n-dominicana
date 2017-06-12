@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
-########################################################################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL. (<https://marcos.do/>)
+###############################################################################
+#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
+#  (<https://marcos.do/>) 
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0
 #
 # This software and associated files (the "Software") may only be used
-# (nobody can redistribute (or sell) your module once they have bought it, unless you gave them your consent)
+# (nobody can redistribute (or sell) your module once they have bought it,
+# unless you gave them your consent)
 # if you have purchased a valid license
 # from the authors, typically via Odoo Apps, or if you have received a written
 # agreement from the authors of the Software (see the COPYRIGHT file).
 #
 # You may develop Odoo modules that use the Software as a library (typically
-# by depending on it, importing it and using its resources), but without copying
-# any source code or material from the Software. You may distribute those
-# modules under the license of your choice, provided that this license is
+# by depending on it, importing it and using its resources), but without
+# copying any source code or material from the Software. You may distribute
+# those modules under the license of your choice, provided that this license is
 # compatible with the terms of the Odoo Proprietary License (For example:
 # LGPL, MIT, or proprietary licenses similar to this one).
 #
-# It is forbidden to publish, distribute, sublicense, or sell copies of the Software
-# or modified copies of the Software.
+# It is forbidden to publish, distribute, sublicense, or sell copies of the
+# Softwar or modified copies of the Software.
 #
 # The above copyright notice and this permission notice must be included in all
 # copies or substantial portions of the Software.
@@ -29,19 +31,18 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
-########################################################################################################################
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+# USE OR OTHER DEALINGS IN THE SOFTWARE.
+###############################################################################
 
 import logging
 import time
 
-from odoo import models, fields, api, tools, exceptions, _
+from odoo import models, fields, api, exceptions, _
 from odoo.tools import float_is_zero
 
 from odoo.tools.safe_eval import safe_eval
-import simplejson as json
 
 _logger = logging.getLogger(__name__)
 
@@ -58,11 +59,15 @@ class PosOrder(models.Model):
         return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_picking_on_cron', 'False'))
 
     is_return_order = fields.Boolean(string='Devolver orden', copy=False)
-    return_order_id = fields.Many2one('pos.order', u'Orden de devolución de', readonly=True, copy=False)
+    return_order_id = fields.Many2one('pos.order', u'Orden de devolución de',
+                                      readonly=True, copy=False)
     return_status = fields.Selection(
-        [('-', 'Sin Devoluciones'), ('Fully-Returned', 'Totalmente devuelto'),
+        [('-', 'Sin Devoluciones'),
+         ('Fully-Returned', 'Totalmente devuelto'),
          ('Partially-Returned', 'Devuelto parcialmente'),
-         ('Non-Returnable', 'No retornable')], default='-', copy=False, string=u'Estado de devolución')
+         ('Non-Returnable', 'No retornable')],
+        default='-', copy=False, string=u'Estado de devolución')
+
     invoice_number = fields.Char(related="invoice_id.number")
     is_service_order = fields.Boolean("Ordenes que no generan picking")
 
@@ -138,8 +143,7 @@ class PosOrder(models.Model):
                     statement_vals['id'] = statement_id.id
                     if statement_id.journal_id:
                         currency = statement_id.journal_id.currency_id or statement_id.journal_id.company_id.currency_id
-                        statement_vals['journal_id'] = [statement_id.journal_id.id,
-                                                        statement_id.journal_id.name + " (" + currency.name + ")"]
+                        statement_vals['journal_id'] = [statement_id.journal_id.id, statement_id.journal_id.name + " (" + currency.name + ")"]
                     else:
                         statement_vals['journal_id'] = False
                     statement_list.append(statement_vals)
@@ -167,7 +171,7 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-        res = {"fiscal_type": "none", "fiscal_type_name": u"PRE-CUENTA"}
+        res = {"fiscal_type": "none", "fiscal_type_name": u"CUENTA"}
 
         order_state = False
         order_id = False
@@ -180,7 +184,8 @@ class PosOrder(models.Model):
             self._cr.commit()
 
         if order_id:
-            res.update({"ncf": order_id.invoice_id.number, "id": order_id.id, "rnc": order_id.partner_id.vat,
+            res.update({"ncf": order_id.invoice_id.number,
+                        "id": order_id.id, "rnc": order_id.partner_id.vat,
                         "name": order_id.partner_id.name})
             if order_id.is_return_order:
                 res.update({"fiscal_type_name": u"NOTA DE CRÉDITO"})
@@ -196,13 +201,21 @@ class PosOrder(models.Model):
                 res.update({"origin": reference_ncf})
 
             elif order_id.invoice_id.sale_fiscal_type == "fiscal":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA CON VALOR FISCAL", "origin": False})
+                res.update({"fiscal_type": "fiscal",
+                            "fiscal_type_name": "FACTURA CON VALOR FISCAL",
+                            "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "final":
-                res.update({"fiscal_type": "final", "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL", "origin": False})
+                res.update({"fiscal_type": "final",
+                           "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL",
+                            "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "gov":
-                res.update({"fiscal_type": "fiscal", "fiscal_type_name": "FACTURA GUBERNAMENTAL", "origin": False})
+                res.update({"fiscal_type": "fiscal",
+                            "fiscal_type_name": "FACTURA GUBERNAMENTAL",
+                            "origin": False})
             elif order_id.invoice_id.sale_fiscal_type == "special":
-                res.update({"fiscal_type": "special", "fiscal_type_name": "FACTURA PARA REGIMENES ESPECIALES", "origin": False})
+                res.update({"fiscal_type": "special",
+                           "fiscal_type_name": u"FACTURA PARA REGÍMENES ESPECIALES",
+                            "origin": False})
 
         return res
 
@@ -240,12 +253,14 @@ class PosOrder(models.Model):
         order = self.create(self._order_fields(pos_order))
         journal_ids = set()
         for payments in pos_order['statement_ids']:
-            if not float_is_zero(payments[2]['amount'], precision_digits=prec_acc):
+            if not float_is_zero(payments[2]['amount'],
+                                 precision_digits=prec_acc):
                 order.add_payment(self._payment_fields(payments[2]))
             journal_ids.add(payments[2]['journal_id'])
 
         if pos_session.sequence_number <= pos_order['sequence_number']:
-            pos_session.write({'sequence_number': pos_order['sequence_number'] + 1})
+            pos_session.write(
+                        {'sequence_number': pos_order['sequence_number'] + 1})
             pos_session.refresh()
 
         if not float_is_zero(pos_order['amount_return'], prec_acc):
@@ -255,12 +270,14 @@ class PosOrder(models.Model):
                 # payment
                 cash_journal = self.env['account.journal'].search([
                     ('type', '=', 'cash'),
-                    ('id', 'in', list(journal_ids)),
-                ], limit=1)
+                    ('id', 'in', list(journal_ids))],
+                    limit=1)
                 if not cash_journal:
-                    # If none, select for change one of the cash journals of the POS
-                    # This is used for example when a customer pays by credit card
-                    # an amount higher than total amount of the order and gets cash back
+                    # If none, select for change one of the cash journals
+                    # of the POS
+                    # This is used for example when a customer pays by
+                    # credit card an amount higher than total amount of the
+                    # order and gets cash back
                     cash_journal = [statement.journal_id for statement in pos_session.statement_ids if
                                     statement.journal_id.type == 'cash']
                     if not cash_journal:
@@ -282,30 +299,20 @@ class PosOrder(models.Model):
                 rec.partner_id = rec.config_id.default_partner_id.id
         return super(PosOrder, self).action_pos_order_invoice()
 
-    # def _reconcile_payments(self):
-    #
-    #     for order in self:
-    #         aml = order.account_move.line_ids
-    #         for line in order.statement_ids.mapped('journal_entry_ids'):
-    #             aml |= line.line_ids
-    #             # aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id)
-    #         aml = aml.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable')
-    #
-    #         try:
-    #             aml.reconcile()
-    #         except:
-    #             # There might be unexpected situations where the automatic reconciliation won't
-    #             # work. We don't want the user to be blocked because of this, since the automatic
-    #             # reconciliation is introduced for convenience, not for mandatory accounting
-    #             # reasons.
-    #
-    #             continue
-
     def pos_picking_generate_cron(self, limit=20):
 
         orders_list_for_picking = []
-        orders_count = self.search_count([('picking_id', '=', False), ('state', '=', 'invoiced'),('is_service_order','=',False)])
-        orders = self.search([('picking_id', '=', False), ('state', '=', 'invoiced'),('is_service_order','=',False)], limit=limit)
+        orders_count = self.search_count(
+            [('picking_id', '=', False),
+             ('state', '=', 'invoiced'),
+             ('is_service_order', '=', False)]
+            )
+        orders = self.search(
+            [('picking_id', '=', False),
+             ('state', '=', 'invoiced'),
+             ('is_service_order', '=', False)],
+            limit=limit
+            )
         _logger.info("========== INICIO del cron para generarcion de los conduces del POS, conduces pendientes {} ==========".format(orders_count))
         for order in orders:
             is_not_service_order = [line for line in order.lines if line.product_id.product_tmpl_id.type != "service"]
@@ -323,13 +330,11 @@ class PosOrder(models.Model):
 
         return True
 
-
-
-
-
     @api.model
     def order_search_from_ui(self, input_txt):
-        invoice_ids = self.env["account.invoice"].search([('number','like',"%{}%".format(input_txt))], limit=100)
+        invoice_ids = self.env["account.invoice"].search(
+                    [('number', 'like', "%{}%".format(input_txt))],
+                    limit=100)
         print invoice_ids
         print invoice_ids.ids
         order_ids = self.search([('invoice_id','in',invoice_ids.ids)])
@@ -342,7 +347,7 @@ class PosOrder(models.Model):
                 "amount_total": order.amount_total,
                 "date_order": order.date_order,
                 "id": order.id,
-                "invoice_id": [order.invoice_id.id,order.invoice_id.number],
+                "invoice_id": [order.invoice_id.id, order.invoice_id.number],
                 "is_return_order": order.is_return_order,
                 "name": order.name,
                 "pos_reference": order.pos_reference,
@@ -367,9 +372,6 @@ class PosOrder(models.Model):
                 }
                 order_lines_list.append(order_lines_json)
         return {"wk_order": order_list, "wk_order_lines": order_lines_list}
-
-
-
 
 
 class PosOrderLine(models.Model):
