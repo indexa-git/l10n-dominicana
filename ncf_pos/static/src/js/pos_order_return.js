@@ -236,20 +236,6 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
     });
 
     screens.PaymentScreenWidget.include({
-        show: function () {
-            var self = this;
-            self._super();
-
-            $('#order_note').on('focus', function () {
-                window.document.body.removeEventListener('keypress', self.keyboard_handler);
-                window.document.body.removeEventListener('keydown', self.keyboard_keydown_handler);
-            });
-
-            $('#order_note').on('focusout', function () {
-                window.document.body.addEventListener('keypress', self.keyboard_handler);
-                window.document.body.addEventListener('keydown', self.keyboard_keydown_handler);
-            });
-        },
 
         payment_input: function (input) {
             var newbuf = this.gui.numpad_input(this.inputbuffer, input, {'firstinput': this.firstinput});
@@ -339,13 +325,9 @@ odoo.define('ncf_pos.pos_order_return', function (require) {
                 loaded.is_return_order = current_order.is_return_order;
                 loaded.return_status = current_order.return_status;
                 loaded.return_order_id = current_order.return_order_id;
-                loaded.order_note = self.get_order_note();
             }
             return loaded;
         },
-        get_order_note: function () {
-            return $("#order_note").val();
-        }
     });
 
     models.Orderline = models.Orderline.extend({

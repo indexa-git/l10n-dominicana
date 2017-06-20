@@ -193,12 +193,6 @@
                 </tr>
             </table>
             <br/>
-            <!-- <t t-if="widget.pos.config.print_note">
-                <p>
-                    <strong>Nota: </strong>
-                    <t t-esc="order.get_order_note()"/>
-                </p>
-            </t> -->
         </t>
     </t>
 </templates>
