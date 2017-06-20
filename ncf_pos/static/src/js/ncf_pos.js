@@ -1,15 +1,18 @@
-odoo.define('ncf_pos.ncf_ticket', function (require) {
+odoo.define('ncf_pos.ncf_ticket', function(require) {
     "use strict";
 
     var core = require('web.core');
+    var models = require('point_of_sale.models');
     var screens = require('point_of_sale.screens');
     var Model = require('web.DataModel');
 
     var QWeb = core.qweb;
 
+    models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
+
     screens.ReceiptScreenWidget.include({
 
-        ncf_render_receipt: function (fiscal_data) {
+        ncf_render_receipt: function(fiscal_data) {
             var order = this.pos.get_order();
             order.fiscal_type_name = fiscal_data.fiscal_type_name;
             order.ncf = fiscal_data.ncf;
@@ -22,14 +25,14 @@ odoo.define('ncf_pos.ncf_ticket', function (require) {
                 paymentlines: order.get_paymentlines(),
             }));
         },
-        render_receipt: function () {
+        render_receipt: function() {
             var self = this;
             var order = this.pos.get_order();
             $(".pos-sale-ticket").hide();
             $(".button.next.highlight").hide();
             $(".button.print").hide();
-            
-            new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
+
+            new Model('pos.order').call("get_fiscal_data", [order.name]).then(function(fiscal_data) {
                 self.ncf_render_receipt(fiscal_data);
                 $(".pos-sale-ticket").show();
                 $(".button.next.highlight").show();

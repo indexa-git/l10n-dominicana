@@ -15,3 +15,32 @@
     line-height: 48px;
     font-style:italic;
 }
+
+.pos .pos-sale-ticket {
+    text-align: left;
+    width: 300px;
+    background-color: white;
+    margin: 20px;
+    padding: 15px;
+    font-size: 14px;
+    padding-bottom:30px;
+    display: inline-block;
+    font-family: "Monospace";
+    border: solid 1px rgb(220,220,220);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+
+.pos .pos-sale-ticket pre {
+    font-family: "Monospace";
+
+}
+
+.pos .pos-sale-ticket table {
+    width: 95%;
+    border: 0;
+    table-layout: fixed;
+
+}
+

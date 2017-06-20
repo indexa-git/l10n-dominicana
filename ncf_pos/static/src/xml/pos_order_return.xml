@@ -369,45 +369,6 @@
             </t>
         </li>
     </t>
-    <t t-extend="PosTicket">
-        <t t-jquery=".pos-center-align" t-operation="after">
-            <t t-if='order.is_return_order'>
-                <div class="pos-center-align"><span>Nota de crédito</span></div>
-            </t>
-         </t>
-         <t t-jquery=".emph" t-operation="replace">
-            <tr class="emph">
-                <td>
-                    <t t-if="order.is_return_order">
-                        Reembolso total
-                    </t>
-                    <t t-if="!order.is_return_order">
-                        Total:
-                    </t>
-                </td>
-                <td class="pos-right-align">
-                    <t t-if="order.is_return_order">
-                        <t t-esc="widget.format_currency(order.get_total_with_tax()* -1)"/>
-                    </t>
-                    <t t-if="!order.is_return_order">
-                        <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
-                    </t>
-                </td>
-            </tr>
-        </t>
-        <t t-jquery="table.receipt-paymentlines .pos-right-align" t-operation='replace'>
-            <t t-if="order.is_return_order">
-                <td class="pos-right-align">
-                    <t t-esc="widget.format_currency(line.get_amount() * -1)"/>
-                </td>
-            </t>
-            <t t-if="!order.is_return_order">
-                <td class="pos-right-align">
-                    <t t-esc="widget.format_currency(line.get_amount())"/>
-                </td>
-            </t>
-        </t>
-    </t>
     <t t-extend="XmlReceipt">
         <t t-jquery=".total" t-operation="replace">
             <line class='total' size='double-height'>
