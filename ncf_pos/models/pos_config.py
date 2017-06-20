@@ -59,10 +59,6 @@ class PosConfig(models.Model):
     load_orders_from = fields.Date(string=u'Seleccione una fecha', compute=_get_load_orders_from)
     user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
 
-    on_order = fields.Boolean('Añadir nota a la orden completa', default=True)
-    receipt_order_note = fields.Boolean('Imprimir notas en el recibo',
-                                        default=True)
-
     @api.onchange('load_orders_of_current_session')
     def onchange_load_orders_of_current_session(self):
         if self.load_orders_of_current_session:

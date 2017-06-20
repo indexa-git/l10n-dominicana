@@ -226,7 +226,6 @@ class PosOrder(models.Model):
             'is_return_order': ui_order.get('is_return_order') or False,
             'return_order_id': ui_order.get('return_order_id') or False,
             'return_status': ui_order.get('return_status') or False,
-            'note': ui_order.get('order_note', '')
         })
         return fields_return
 
@@ -379,12 +378,10 @@ class PosOrderLine(models.Model):
 
     line_qty_returned = fields.Integer(u'Línea devuelta', default=0)
     original_line_id = fields.Many2one('pos.order.line', u"Línea original")
-    order_line_note = fields.Text('Extra Comments')
 
     @api.model
     def _order_line_fields(self, line):
         fields_return = super(PosOrderLine, self)._order_line_fields(line)
         fields_return[2].update({'line_qty_returned': line[2].get('line_qty_returned', '')})
         fields_return[2].update({'original_line_id': line[2].get('original_line_id', '')})
-        fields_return[2].update({'order_line_note': line[2].get('order_line_note', '')})
         return fields_return
