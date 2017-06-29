@@ -1,0 +1,8 @@
+.orders-screen-content{
+    margin: 0px auto;
+    max-width: 98%;
+    text-align: left;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
