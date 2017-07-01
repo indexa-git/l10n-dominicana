@@ -39,7 +39,9 @@
 import logging
 import time
 
-from odoo import models, fields, api, exceptions, _
+import psycopg2
+
+from odoo import api, exceptions, fields, models, tools, _
 from odoo.tools import float_is_zero
 
 from odoo.tools.safe_eval import safe_eval
@@ -61,6 +63,7 @@ class PosOrder(models.Model):
     is_return_order = fields.Boolean(string='Devolver orden', copy=False)
     return_order_id = fields.Many2one('pos.order', u'Orden de devolución de',
                                       readonly=True, copy=False)
+
     return_status = fields.Selection(
         [('-', 'Sin Devoluciones'),
          ('Fully-Returned', 'Totalmente devuelto'),
@@ -68,6 +71,8 @@ class PosOrder(models.Model):
          ('Non-Returnable', 'No retornable')],
         default='-', copy=False, string=u'Estado de devolución')
 
+    move_name = fields.Char(size=19)
+    fiscal_nif = fields.Char()
     invoice_number = fields.Char(related="invoice_id.number")
     is_service_order = fields.Boolean("Ordenes que no generan picking")
 
@@ -75,7 +80,30 @@ class PosOrder(models.Model):
     def create_from_ui(self, orders):
         for order in orders:
             order.update({"to_invoice": True})
-        order_ids = super(PosOrder, self).create_from_ui(orders)
+
+        submitted_references = [o['data']['name'] for o in orders]
+        pos_order = self.search([('pos_reference', 'in', submitted_references)])
+        existing_orders = pos_order.read(['pos_reference'])
+        existing_references = set([o['pos_reference'] for o in existing_orders])
+        orders_to_save = [o for o in orders if o['data']['name'] not in existing_references]
+        order_ids = []
+
+        for tmp_order in orders_to_save:
+            to_invoice = tmp_order['to_invoice']
+            order = tmp_order['data']
+            if to_invoice:
+                self._match_payment_to_invoice(order)
+            pos_order = self._process_order(order)
+            order_ids.append(pos_order.id)
+
+            try:
+                pos_order.action_pos_order_paid()
+            except psycopg2.OperationalError:
+                # do not hide transactional errors, the order(s) won't be saved!
+                raise
+            except Exception as e:
+                _logger.error('Could not fully process the POS Order: %s', tools.ustr(e))
+
         order_objs = self.env['pos.order'].browse(order_ids)
         result = {}
         order_list = []
@@ -166,56 +194,78 @@ class PosOrder(models.Model):
     def _prepare_invoice(self):
         res = super(PosOrder, self)._prepare_invoice()
         if self.is_return_order:
-            res.update({"type": "out_refund"})
+            res.update({"type": "out_refund",
+                        "origin_invoice_ids": [(4, self.return_order_id.invoice_id.id, _)]})
+        res.update({"move_name": self.move_name})
+        if self.fiscal_nif:
+            res.update({"fiscal_nif": self.fiscal_nif})
+
         return res
 
     @api.model
     def get_fiscal_data(self, name):
         res = {"fiscal_type": "none", "fiscal_type_name": u"CUENTA"}
 
-        order_state = False
-        order_id = False
-
-        while not order_state == 'invoiced':
+        timeout = time.time() + 60 * 0.5
+        while True:
             time.sleep(1)
             order_id = self.search([('pos_reference', '=', name)])
-            if order_id:
-                order_state = order_id.state
             self._cr.commit()
-
+            if order_id or time.time() > timeout:
+                break
         if order_id:
-            res.update({"ncf": order_id.invoice_id.number,
-                        "id": order_id.id, "rnc": order_id.partner_id.vat,
+            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+
+            res.update({"id": order_id.id,
+                        "rnc": order_id.partner_id.vat,
                         "name": order_id.partner_id.name})
+        #     res.update({"ncf": order_id.invoice_id.number,
+        #                 "id": order_id.id, "rnc": order_id.partner_id.vat,
+        #                 "name": order_id.partner_id.name})
             if order_id.is_return_order:
                 res.update({"fiscal_type_name": u"NOTA DE CRÉDITO"})
 
                 reference_ncf = order_id.return_order_id.invoice_id.number
                 reference_ncf_type = reference_ncf[9:11]
+
                 if reference_ncf_type in ("01", "14"):
                     res.update({"fiscal_type": "fiscal_note"})
+
                 elif reference_ncf_type == "02":
                     res.update({"fiscal_type": "final_note"})
                 elif reference_ncf_type == "15":
                     res.update({"fiscal_type": "special_note"})
                 res.update({"origin": reference_ncf})
+                sequence = shop_user_config.nc_sequence_id
 
             elif order_id.invoice_id.sale_fiscal_type == "fiscal":
                 res.update({"fiscal_type": "fiscal",
                             "fiscal_type_name": "FACTURA CON VALOR FISCAL",
                             "origin": False})
+                sequence = shop_user_config.fiscal_sequence_id
+
             elif order_id.invoice_id.sale_fiscal_type == "final":
                 res.update({"fiscal_type": "final",
                            "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL",
                             "origin": False})
+                sequence = shop_user_config.final_sequence_id
+
             elif order_id.invoice_id.sale_fiscal_type == "gov":
                 res.update({"fiscal_type": "fiscal",
                             "fiscal_type_name": "FACTURA GUBERNAMENTAL",
                             "origin": False})
+                sequence = shop_user_config.gov_sequence_id
+
             elif order_id.invoice_id.sale_fiscal_type == "special":
                 res.update({"fiscal_type": "special",
                            "fiscal_type_name": u"FACTURA PARA REGÍMENES ESPECIALES",
                             "origin": False})
+                sequence = shop_user_config.special_sequence_id
+
+            order_id.move_name = sequence.with_context(ir_sequence_date=fields.Date.today()).next_by_id()
+            res.update({"ncf": order_id.move_name})
+            order_id.action_pos_order_invoice()
+            res.update({"ncf": order_id.move_name})
 
         return res
 
@@ -296,7 +346,10 @@ class PosOrder(models.Model):
         for rec in self:
             if not rec.partner_id:
                 rec.partner_id = rec.config_id.default_partner_id.id
-        return super(PosOrder, self).action_pos_order_invoice()
+        self.action_pos_order_paid()
+        super(PosOrder, self).action_pos_order_invoice()
+        self.invoice_id.sudo().action_invoice_open()
+        self.account_move = self.invoice_id.move_id
 
     def pos_picking_generate_cron(self, limit=20):
 
