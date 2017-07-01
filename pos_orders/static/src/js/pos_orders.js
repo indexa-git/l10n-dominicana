@@ -90,7 +90,7 @@ odoo.define('pos_orders.pos_orders',function(require){
 		_save_to_server: function (orders, options) {
 			var self = this;
 			return SuperPosModel._save_to_server.call(this,orders,options).then(function(return_dict){
-				if(return_dict.orders !== null){
+				if(return_dict.orders != null){
 					return_dict.orders.forEach(function(order){
 						if(order.existing)
 						{
@@ -147,14 +147,14 @@ odoo.define('pos_orders.pos_orders',function(require){
 			var self = this;
 			var customer_id = this.get_customer();
 			var new_order_data = [];
-			if(customer_id !== undefined){
+			if(customer_id != undefined){
 				for(var i=0; i<order.length; i++){
 					if(order[i].partner_id[0] == customer_id)
 						new_order_data = new_order_data.concat(order[i]);
 				}
 				order = new_order_data;
 			}
-			if (input_txt !== undefined && input_txt !== '') {
+			if (input_txt != undefined && input_txt != '') {
 				var new_order_data = [];
 				var search_text = input_txt.toLowerCase();
 				for (var i = 0; i < order.length; i++) {
