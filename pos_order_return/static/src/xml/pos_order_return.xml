@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>  
+<?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-name="MyMessagePopup">
         <div class="modal-dialog">
@@ -21,10 +21,10 @@
         <t t-jquery="h1" t-operation="replace">
             <t t-if="widget.pos.get_order() != null">
                 <t t-if="widget.pos.get_order().is_return_order">
-                    <h1>Refund</h1>
+                    <h1>Devolución</h1>
                 </t>
                 <t t-if="!widget.pos.get_order().is_return_order">
-                    <h1>Payment</h1>
+                    <h1>Pago</h1>
                 </t>
             </t>
         </t>
@@ -38,7 +38,7 @@
                             <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
                         </div>
                         <div class='message'>
-                            Please select a refund method. 
+                            Por favor seleccione un método de devolución.
                         </div>
                     </div>
                 </t>
@@ -48,7 +48,7 @@
                             <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
                         </div>
                         <div class='message'>
-                            Please select a payment method. 
+                            Por favor selecciones un método de pago.
                         </div>
                     </div>
                 </t>
@@ -89,7 +89,7 @@
                 </t>
                 <t t-if="line.get_discount_str() !== '0'">
                     <li class="info">
-                        With a 
+                        With a
                         <em>
                             <t t-esc="line.get_discount_str()" />%
                         </em>
@@ -111,7 +111,7 @@
     <t t-extend="ProductListWidget">
         <t t-jquery=".product-list-scroller.touch-scrollable" t-operation="prepend">
             <div id="refund_order_notify" style="color: rgb(0, 0, 0);height: 100%;width: 100%;position: absolute;font-size: -webkit-xxx-large;font-family: fantasy;padding-top: 25%;text-shadow: -5px 4px 2px #c5c5c5;display:none;">
-                THIS IS A REFUND ORDER
+                ESTA ES UNA DEVOLUCIÓN
             </div>
         </t>
     </t>
@@ -121,10 +121,10 @@
             <div class="popup popup-textinput return_popup_style">
                 <div class="title">
                     <span>
-                        Return Products 
+                        Devolver Productos
                     </span>
                     <span class="button" id="complete_return" style="position: absolute;right: 1%;top: -1%;background-color: #5c92a7;color: white;width: 28%;">
-                        Complete Return
+                        Completar Devolución
                     </span>
                 </div>
                 <div class="body">
@@ -147,7 +147,7 @@
                 </div>
                 <div class="footer">
                     <div class="button" id="return_order" style="background-color: rgb(94, 191, 143);color: white;">
-                        Return
+                        Devolución
                     </div>
                     <div class="button cancel">
                         Cancel
@@ -161,21 +161,21 @@
             <div class='client-details-box clearfix' style="background-color: rgb(252, 252, 252);">
                 <div class='client-details-left' style="margin-bottom: 1%;">
                     <div class='client-detail'>
-                        <h2 style="margin-left: 5.6%;color: rgb(67, 134, 111);">Order Details</h2>
+                        <h2 style="margin-left: 5.6%;color: rgb(67, 134, 111);">Detalles de la Orden</h2>
                     </div>
                     <div class='client-detail' style="margin-left: 6.3%;">
-                        <span class='label' style="text-align: left;">Name:</span>
+                        <span class='label' style="text-align: left;">Nombre:</span>
                         <span class='detail client-address'><t t-esc='order.name' /></span>
                     </div>
                     <t t-if="order.partner_id">
                         <div class='client-detail' style="margin-left: 6.3%;">
-                            <span class='label'>Customer:</span>
+                            <span class='label'>Cliente:</span>
                             <span class='detail client-address'><t t-esc='order.partner_id[1]' /></span>
                         </div>
                     </t>
                     <t t-if="!order.partner_id">
                         <div class='client-detail' style="margin-left: 6.3%;">
-                            <span class='label'>Customer:</span>
+                            <span class='label'>Cliente:</span>
                             -
                         </div>
                     </t>
@@ -184,17 +184,17 @@
                     <t t-if="!order.refunded">
                         <div class='client-detail'>
                             <div id="wk_refund" class='control-button highlight' style="margin-left: 18%;margin-top: 1%;">
-                                Refund/Return
+                                NC/Devolución
                             </div>
                         </div>
                     </t>
                     <img id="close_order_details" src="/pos_order_return/static/src/img/icon-cross.png" style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
                     <div class='client-detail'>
-                        <span class='label' style="text-align: left;">Date:</span>
+                        <span class='label' style="text-align: left;">Fecha:</span>
                         <span class='detail client-id'><t t-esc='order.date_order'/></span>
                     </div>
                     <div class='client-detail'>
-                        <span class='label' style="text-align: left;width: 27%;">Return/Refund:</span>
+                        <span class='label' style="text-align: left;width: 27%;">NC/Devolución:</span>
                         <span class='detail client-id'><t t-esc='order.return_status'/></span>
                     </div>
                 </div>
@@ -202,13 +202,13 @@
                 <div class='order-detail' style="width: 100%;text-align: left;margin-left: 3%;">
                     <table border="1" frame="void" rules="rows" id="order_line_content" style="width: 94%;text-align:center;border-bottom: 3px solid rgb(70, 150, 110);">
                         <tr style="color: rgb(51, 112, 39);border-bottom: 3px solid rgb(67, 134, 111);">
-                            <th style="text-align:left;width: 35%;">Product</th>
-                            <th style="width: 10%;">Quantity</th>
-                            <th style="width: 10%;">Returns</th>
-                            <th style="width: 10%;">Unit Price</th>
-                            <th style="width: 10%;">Tax</th>
-                            <th style="width: 10%;">Discount(%)</th>
-                            <th style="width: 10%;">Price</th>
+                            <th style="text-align:left;width: 35%;">Producto</th>
+                            <th style="width: 10%;">Cantidad</th>
+                            <th style="width: 10%;">Devoluciones</th>
+                            <th style="width: 10%;">Precio Unitario</th>
+                            <th style="width: 10%;">Impuesto</th>
+                            <th style="width: 10%;">Descuento(%)</th>
+                            <th style="width: 10%;">Precio</th>
                         </tr>
                         <t t-foreach='orderlines' t-as='line'>
                             <tr>
@@ -265,7 +265,7 @@
                 <div class='client-details-box clearfix'>
                     <div class='client-details-left' style="margin-top: 1%;">
                         <div class='client-detail'>
-                            <span class='label' style="width: 27.5%;color: rgb(67, 134, 111);text-align: left;margin-left: 5.7%;">Payment modes:</span>
+                            <span class='label' style="width: 27.5%;color: rgb(67, 134, 111);text-align: left;margin-left: 5.7%;">Métodos de pago:</span>
                             <ul style="margin-left: 5.7%;">
                             <t t-foreach='statements' t-as='statement'>
                                 <li><t t-esc="statement.journal_id[1]"/> (<t t-esc="widget.chrome.screens.payment.format_currency(statement.amount)"/>)</li>
@@ -296,14 +296,14 @@
             </t>
             <t t-if="journal_id[0]!=widget.pos.db.cash_journal[0]">
                 <td width="100%" style="padding-top:3%;">
-                    <t t-esc='journal_id[1]'/>: <span style="  color: rgb(42, 129, 128);"><t t-esc="widget.chrome.screens.payment.format_currency(amount)"/></span>                 
+                    <t t-esc='journal_id[1]'/>: <span style="  color: rgb(42, 129, 128);"><t t-esc="widget.chrome.screens.payment.format_currency(amount)"/></span>
                 </td>
             </t>
         </tr>
     </t>
     <t t-extend='OrdersScreenWidget'>
         <t t-jquery='.wk_order_list thead tr' t-operation='append'>
-            <th>Return Status</th>
+            <th>Estatus Devolución</th>
         </t>
     </t>
     <t t-extend='WkOrderLine'>
@@ -334,7 +334,7 @@
                 </t>
                 <t t-if="line.get_discount_str() !== '0'">
                     <li class="info">
-                        With a 
+                        With a
                         <em>
                             <t t-esc="line.get_discount_str()" />%
                         </em>
@@ -343,21 +343,21 @@
                 </t>
             </ul>
             <t t-if="line.get_product().not_returnable">
-                <span style="color:#888;font-size:10px;float:right;margin-top: -5px;">Not Returnable</span>
+                <span style="color:#888;font-size:10px;float:right;margin-top: -5px;">No Retornable</span>
             </t>
         </li>
     </t>
     <t t-extend="PosTicket">
         <t t-jquery=".pos-center-align" t-operation="after">
             <t t-if='order.is_return_order'>
-                <div class="pos-center-align"><span>Return Order</span></div>
+                <div class="pos-center-align"><span>Orden de Devolución</span></div>
             </t>
          </t>
          <t t-jquery=".emph" t-operation="replace">
-            <tr class="emph">  
+            <tr class="emph">
                 <td>
                     <t t-if="order.is_return_order">
-                        Total Refund
+                        Total Devolución
                     </t>
                     <t t-if="!order.is_return_order">
                         Total:
@@ -386,11 +386,11 @@
             </t>
         </t>
     </t>
-    <t t-extend="XmlReceipt"> 
+    <t t-extend="XmlReceipt">
         <t t-jquery=".total" t-operation="replace">
             <line class='total' size='double-height'>
                 <t t-if='widget.pos.get_order().is_return_order'>
-                    <left><pre>   TOTAL REFUND</pre></left>
+                    <left><pre>   TOTAL DEVUELTO</pre></left>
                     <right><value><t t-esc='receipt.total_with_tax * -1' /></value></right>
                 </t>
                 <t t-if='!widget.pos.get_order().is_return_order'>
@@ -402,7 +402,7 @@
         <t t-jquery="receipt " t-operation="append">
             <t t-if='widget.pos.get_order().is_return_order'>
                 <div>***********************************</div>
-                <div>Refund Receipt Generated By:
+                <div>Recibo de Devolución Generado por:
                     <t t-esc='receipt.cashier' />
                 </div>
                 <div>***********************************</div>
@@ -410,4 +410,4 @@
         </t>
     </t>
 </templates>
-    
+

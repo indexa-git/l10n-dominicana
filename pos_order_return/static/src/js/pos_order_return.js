@@ -12,7 +12,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 	var SuperOrderline =  models.Orderline.prototype;
 	var SuperPosModel = models.PosModel.prototype;
 	var formats = require('web.formats');
-	
+
 	models.load_fields('product.product','not_returnable');
 	var order_model = null;
 	var order_line_model = null;
@@ -96,7 +96,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 			var self = this;
 			var order = self.options.order;
 			var orderlines = self.options.orderlines;
-			var current_order = self.pos.get_order(); 
+			var current_order = self.pos.get_order();
 			if(Object.keys(return_dict).length > 0){
 				self.chrome.widget.order_selector.neworder_click_handler();
 				var refund_order = self.pos.get_order();
@@ -205,7 +205,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 			if (this.gui.has_popup()) {
 				return;
 			}
-			
+
 			if (newbuf !== this.inputbuffer) {
 				this.inputbuffer = newbuf;
 				var order = this.pos.get_order();
@@ -288,7 +288,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 			var loaded=SuperOrder.prototype.export_as_JSON.call(this);
 			var current_order = self.pos.get_order();
 			if(self.pos.get_order()!=null)
-			{	
+			{
 				loaded.is_return_order = current_order.is_return_order;
 				loaded.return_status = current_order.return_status;
 				loaded.return_order_id = current_order.return_order_id;
@@ -306,7 +306,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 		clickSwitchSign: function() {
 			var self = this;
 			if(!self.pos.get_order().is_return_order)
-				this._super();	
+				this._super();
 		},
 	});
 
@@ -385,7 +385,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 					var original_orderlines = [];
 					var allow_return = true;
 					if(order.return_status == 'Fully-Returned'){
-						message = 'No items are left to return for this order!!'
+						message = 'No quedan items para devolver en esta orden!!';
 						allow_return = false;
 					}
 					if (allow_return) {
@@ -394,19 +394,19 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 							var product = self.pos.db.get_product_by_id(line.product_id[0]);
 							if(product == null){
 								non_returnable_products = true;
-								message = 'Some product(s) of this order are unavailable in Point Of Sale, do you wish to return other products?'
+								message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
 							}
 							else if (product.not_returnable) {
 								non_returnable_products = true;
-								message = 'This order contains some Non-Returnable products, do you wish to return other products?'
+								message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
 							}
 							else if(line.qty - line.line_qty_returned > 0)
 								original_orderlines.push(line);
 						});
 						if(original_orderlines.length == 0){
 							self.gui.show_popup('my_message',{
-								'title': _t('Cannot Return This Order!!!'),
-								'body': _t("There are no returnable products left for this order. Maybe the products are Non-Returnable or unavailable in Point Of Sale!!"),
+								'title': _t('No se puede devolver esta Orden!!!'),
+								'body': _t("No quedan productos retornables en esta orden. Tal vez los productos son No Retornables o no estan disponibles en el Punto de Venta!!"),
 							});
 						}
 						else if(non_returnable_products){
