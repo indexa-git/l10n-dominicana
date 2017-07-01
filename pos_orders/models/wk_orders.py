@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 ##########################################################################
 #
-#   Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>)
+#   Copyright (c) 2015-Present Webkul Software Pvt. Ltd.
+#   (<https://webkul.com/>)
 #
 ##########################################################################
 from odoo import api, fields, models
-from datetime import datetime, timedelta
-from odoo.exceptions import Warning, ValidationError, RedirectWarning
+from odoo.exceptions import ValidationError
 
 
 class PosOrder(models.Model):

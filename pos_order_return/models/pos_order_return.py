@@ -6,13 +6,10 @@
 #
 ##########################################################################
 from odoo.tools.translate import _
-import time
 import logging
 from odoo.tools import float_is_zero
-from datetime import datetime
-from odoo import netsvc
 from odoo import api, fields, models
-from odoo.exceptions import UserError, Warning, RedirectWarning
+from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 
@@ -43,8 +40,8 @@ class PosOrder(models.Model):
                 line_dict = line[2]
                 line_dict['qty'] = line_dict['qty'] * -1
                 original_line = self.env['pos.order.line'].browse(
-                    line_dict['original_line_id'])
-                original_line.line_qty_returned += abs(line_dict['qty'])
+                    line_dict.get('original_line_id', False))
+                original_line.line_qty_returned += abs(line_dict.get('qty', 0))
             for statement in pos_order['statement_ids']:
                 statement_dict = statement[2]
                 statement_dict['amount'] = statement_dict['amount'] * -1
