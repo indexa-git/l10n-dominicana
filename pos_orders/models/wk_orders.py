@@ -67,11 +67,11 @@ class PosOrder(models.Model):
 					line_vals['price_subtotal_incl'] = line.price_subtotal_incl
 					line_vals['price_unit'] = line.price_unit
 					line_vals['product_id'] = [line.product_id.id, line.product_id.name]
-					line_vals['qty'] = line.qty 
+					line_vals['qty'] = line.qty
 					line_vals['write_date'] = line.write_date
 					if hasattr(line, 'line_qty_returned'):
-						line_vals['line_qty_returned'] = line.line_qty_returned 
-					# LINE DATAA	
+						line_vals['line_qty_returned'] = line.line_qty_returned
+					# LINE DATAA
 					order_line_list.append(line_vals)
 				for statement_id in order_obj.statement_ids:
 					statement_vals = {}
@@ -94,11 +94,11 @@ class PosOrder(models.Model):
 class PosConfig(models.Model):
 	_inherit = 'pos.config'
 
-	order_loading_options = fields.Selection([("current_session","Load Orders Of Current Session"),("n_days","Load Orders Of Last 'n' Days")], default='current_session', string="Loading Options")
-	number_of_days = fields.Integer(string='Number Of Past Days',default=10)
+	order_loading_options = fields.Selection([("current_session",u"Cargar Órdenes de la Sesión actual"),("n_days",u"Cargar Órdenes de los Últimos 'n' Días")], default='current_session', string="Opciones de Carga")
+	number_of_days = fields.Integer(string=u'Cantida de Días Anteriores',default=10)
 
 	@api.constrains('number_of_days')
 	def number_of_days_validation(self):
 		if self.order_loading_options == 'n_days':
 			if not self.number_of_days or self.number_of_days < 0:
-				raise ValidationError("Please provide a valid value for the field 'Number Of Past Days'!!!")
+				raise ValidationError(u"Por favor provea un valir válido para el campo 'Cantida de Días Anteriores'!!!")

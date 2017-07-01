@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>  
+<?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
 
-	<t t-extend="ActionpadWidget">  
+	<t t-extend="ActionpadWidget">
 		<t t-jquery=".actionpad" t-operation="before">
 			<span class="control-button" id="all_orders" style="width: 384px;margin-right: 5px;margin-top: 3px;margin-bottom: -7px;">
-				All Orders
+				Todas las Órdenes
 			</span>
-		</t>	
+		</t>
 	</t>
 
-	<t t-name="OrdersScreenWidget">        
+	<t t-name="OrdersScreenWidget">
     	<div class="clientlist-screen screen">
             <div class="orders-screen-content">
                 <section class="top-content">
                     <span class='button back'>
                         <i class='fa fa-angle-double-left'></i>
-                        Back
+                        Atrás
                     </span>
                 </section>
                 <span class="searchbox">
@@ -36,10 +36,10 @@
                                     <table class='client-list wk_order_list'>
                                         <thead>
                                             <tr style="background-color: rgb(135, 160, 166);color: white;">
-                                                <th>Order Ref.</th>
-                                                <th>Receipt Ref.</th>
-                                                <th>Customer</th>
-                                                <th>Order Date</th>                                                
+                                                <th>Orden Ref.</th>
+                                                <th>Recibo Ref.</th>
+                                                <th>Cliente</th>
+                                                <th>Fecha Orden</th>
                                             </tr>
                                         </thead>
                                         <tbody class='wk-order-list-contents'>
@@ -53,8 +53,8 @@
             </div>
         </div>
     </t>
-    
-    <t t-name="WkOrderLine"> 
+
+    <t t-name="WkOrderLine">
         <tr class='wk-order-line' t-att-data-id='order.id' style="cursor:pointer;">
             <td><t t-esc='order.name' /></td>
             <td><t t-esc='order.pos_reference' /></td>
@@ -64,18 +64,16 @@
     </t>
 	<t t-extend='ClientListScreenWidget'>
 		<t t-jquery='.client-list thead tr' t-operation='append'>
-			<th>Orders</th>
+			<th>Ordenes</th>
 		</t>
 	</t>
 
 	<t t-extend='ClientLine'>
 		<t t-jquery='.client-line' t-operation='append'>
 			<td>
-				<button class="view_all_order" t-att-id='partner.id'><i class="fa fa-filter"></i> View orders</button>
+				<button class="view_all_order" t-att-id='partner.id'><i class="fa fa-filter"></i> Ver ordenes</button>
 			</td>
 		</t>
-	</t>	
+	</t>
 
 </templates>
-
-

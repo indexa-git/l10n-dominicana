@@ -1,5 +1,5 @@
 odoo.define('pos_orders.pos_orders',function(require){
-	"use strict"
+	"use strict";
 	var Model = require('web.DataModel');
 	var screens = require('point_of_sale.screens');
 	var gui = require('point_of_sale.gui');
@@ -17,10 +17,10 @@ odoo.define('pos_orders.pos_orders',function(require){
 				if(self.config.order_loading_options == 'n_days'){
 					var today = new Date();
 					var validation_date = new Date(today.setDate(today.getDate()-self.config.number_of_days)).toISOString();
-					domain_list = [['date_order','>',validation_date],['state', 'not in', ['draft', 'cancel']]]
+					domain_list = [['date_order','>',validation_date],['state', 'not in', ['draft', 'cancel']]];
 				}
 				else
-					domain_list = [['session_id', '=', self.pos_session.name], ['state', 'not in', ['draft', 'cancel']]]
+					domain_list = [['session_id', '=', self.pos_session.name], ['state', 'not in', ['draft', 'cancel']]];
 				return domain_list;
 			},
 			loaded: function(self, wk_order) {
@@ -37,7 +37,7 @@ odoo.define('pos_orders.pos_orders',function(require){
 			model: 'pos.order.line',
 			fields: ['product_id', 'order_id', 'qty','discount','price_unit','price_tax','price_subtotal_incl','price_subtotal'],
 			domain: function(self) {
-				var order_lines = []
+				var order_lines = [];
 				var orders = self.db.pos_all_orders;
 				for (var i = 0; i < orders.length; i++) {
 					order_lines = order_lines.concat(orders[i]['lines']);
@@ -56,11 +56,11 @@ odoo.define('pos_orders.pos_orders',function(require){
 		}, ], {
 		'after': 'product.product'
 	});
-	
+
 	models.PosModel = models.PosModel.extend({
 		push_and_invoice_order: function(order){
 			var self = this;
-			var invoiced = new $.Deferred(); 
+			var invoiced = new $.Deferred();
 			if(!order.get_client()){
 				invoiced.reject({code:400, message:'Missing Customer', data:{}});
 				return invoiced;
@@ -73,8 +73,8 @@ odoo.define('pos_orders.pos_orders',function(require){
 					invoiced.reject(error);
 					done.reject();
 				});
-				transfer.pipe(function(order_server_id){  
-					self.chrome.do_action('point_of_sale.pos_invoice_report',{additional_context:{ 
+				transfer.pipe(function(order_server_id){
+					self.chrome.do_action('point_of_sale.pos_invoice_report',{additional_context:{
 						//Code chenged for POS All Orders List --START--
 						active_ids:[order_server_id.orders[0].id],
 						// Code chenged for POS All Orders List --END--
@@ -90,19 +90,19 @@ odoo.define('pos_orders.pos_orders',function(require){
 		_save_to_server: function (orders, options) {
 			var self = this;
 			return SuperPosModel._save_to_server.call(this,orders,options).then(function(return_dict){
-				if(return_dict.orders != null){
+				if(return_dict.orders !== null){
 					return_dict.orders.forEach(function(order){
 						if(order.existing)
 						{
 							self.db.pos_all_orders.forEach(function(order_from_list){
 								if(order_from_list.id == order.original_order_id)
-									order_from_list.return_status = order.return_status
+									order_from_list.return_status = order.return_status;
 							});
 						}
 						else{
-							var order_date = new Date(order['date_order'])
+							var order_date = new Date(order['date_order']);
 							var utc = order_date.getTime() - (order_date.getTimezoneOffset() * 60000);
-							order['date_order'] = new Date(utc).toLocaleString()
+							order['date_order'] = new Date(utc).toLocaleString();
 							self.db.pos_all_orders.unshift(order);
 							self.db.order_by_id[order.id] = order;
 						}
@@ -122,10 +122,10 @@ odoo.define('pos_orders.pos_orders',function(require){
 							self.db.all_statements.unshift(statement);
 							self.db.statement_by_id[statement.id] = statement;
 					});
-				
+
 				}
 				return return_dict;
-				//Code for POS All Orders List --start-- 
+				//Code for POS All Orders List --start--
 			});
 		}
 	});
@@ -147,18 +147,18 @@ odoo.define('pos_orders.pos_orders',function(require){
 			var self = this;
 			var customer_id = this.get_customer();
 			var new_order_data = [];
-			if(customer_id != undefined){
+			if(customer_id !== undefined){
 				for(var i=0; i<order.length; i++){
 					if(order[i].partner_id[0] == customer_id)
 						new_order_data = new_order_data.concat(order[i]);
 				}
 				order = new_order_data;
 			}
-			if (input_txt != undefined && input_txt != '') {
+			if (input_txt !== undefined && input_txt !== '') {
 				var new_order_data = [];
-				var search_text = input_txt.toLowerCase()
+				var search_text = input_txt.toLowerCase();
 				for (var i = 0; i < order.length; i++) {
-					if (order[i].partner_id == '') {
+					if (order[i].partner_id === '') {
 						order[i].partner_id = [0, '-'];
 					}
 					if (((order[i].name.toLowerCase()).indexOf(search_text) != -1) || ((order[i].partner_id[1].toLowerCase()).indexOf(search_text) != -1)) {
@@ -209,7 +209,7 @@ odoo.define('pos_orders.pos_orders',function(require){
 			this.numpad.state.reset();
 			$('#all_orders').on('click',function(){
 				self.gui.show_screen('wk_order',{});
-			});  
+			});
 		},
 	});
 	screens.ClientListScreenWidget.include({
