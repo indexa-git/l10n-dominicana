@@ -131,8 +131,8 @@
                     <div class='container_div'>
                         <table border="1" frame="void" rules="rows" class="return_popup_table">
                             <tr class="return_popup_tr">
-                                <th class="table_data_cells"><p>Product (<span style="color:#2f6e75">Qty</span>.)</p></th>
-                                <th class="table_data_cells">Return Qty.</th>
+                                <th class="table_data_cells"><p>ProductO (<span style="color:#2f6e75">Cant.</span>.)</p></th>
+                                <th class="table_data_cells">Cant. devuelta.</th>
                             </tr>
 
                             <t t-foreach="widget.orderlines || []" t-as="line">
@@ -290,7 +290,7 @@
                 <td width="100%" style="padding-top:3%;background-color: rgb(235, 255, 246);">
                     <t t-esc='journal_id[1]' style=''/>: <span style="  color: rgb(42, 129, 128);"><t t-esc="widget.chrome.screens.payment.format_currency(amount)"/></span>
                     <t t-if="journal_id[0]==widget.pos.db.cash_journal[0]">
-                        <span style="color: rgb(127, 77, 67);">[Return Cash]</span>
+                        <span style="color: rgb(127, 77, 67);">[Devolver Efectivo]</span>
                     </t>
                 </td>
             </t>
@@ -350,41 +350,9 @@
     <t t-extend="PosTicket">
         <t t-jquery=".pos-center-align" t-operation="after">
             <t t-if='order.is_return_order'>
-                <div class="pos-center-align"><span>Orden de Devolución</span></div>
+               <div class="pos-center-align"><strong>Devolución</strong></div>
             </t>
          </t>
-         <t t-jquery=".emph" t-operation="replace">
-            <tr class="emph">
-                <td>
-                    <t t-if="order.is_return_order">
-                        Total Devolución
-                    </t>
-                    <t t-if="!order.is_return_order">
-                        Total:
-                    </t>
-                </td>
-                <td class="pos-right-align">
-                    <t t-if="order.is_return_order">
-                        <t t-esc="widget.format_currency(order.get_total_with_tax()* -1)"/>
-                    </t>
-                    <t t-if="!order.is_return_order">
-                        <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
-                    </t>
-                </td>
-            </tr>
-        </t>
-        <t t-jquery="table.receipt-paymentlines .pos-right-align" t-operation='replace'>
-            <t t-if="order.is_return_order">
-                <td class="pos-right-align">
-                    <t t-esc="widget.format_currency(line.get_amount() * -1)"/>
-                </td>
-            </t>
-            <t t-if="!order.is_return_order">
-                <td class="pos-right-align">
-                    <t t-esc="widget.format_currency(line.get_amount())"/>
-                </td>
-            </t>
-        </t>
     </t>
     <t t-extend="XmlReceipt">
         <t t-jquery=".total" t-operation="replace">

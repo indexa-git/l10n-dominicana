@@ -1,5 +1,5 @@
 odoo.define('pos_order_return.pos_order_return', function (require) {
-"use strict";
+	"use strict";
 	var pos_orders = require('pos_orders.pos_orders');
 	var core = require('web.core');
 	var gui = require('point_of_sale.gui');
@@ -16,7 +16,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 	models.load_fields('product.product','not_returnable');
 	var order_model = null;
 	var order_line_model = null;
-	var model_list = models.PosModel.prototype.models
+	var model_list = models.PosModel.prototype.models;
 	for(var i = 0,len = model_list.length;i<len;i++){
 		if(model_list[i].model == "pos.order")
 			order_model = model_list[i];
@@ -358,7 +358,12 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 					journal_ids_used.push(statement.journal_id[0]);
 				});
 				contents.empty();
-				contents.append($(QWeb.render('OrderDetails', { widget: this, order: order, orderlines: orderlines, statements: statements })));
+				contents.append($(QWeb.render('OrderDetails', {
+					widget: this,
+					order: order,
+					orderlines: orderlines,
+					statements: statements
+				})));
 				var new_height = contents.height();
 				if (!this.details_visible) {
 					if (clickpos < scroll + new_height + 20) {

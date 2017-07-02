@@ -5,8 +5,12 @@
 #   (<https://webkul.com/>)
 #
 ##########################################################################
-from odoo import api, fields, models
+import logging
+import psycopg2
+from odoo import api, fields, models, tools
 from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class PosOrder(models.Model):
@@ -14,7 +18,32 @@ class PosOrder(models.Model):
 
     @api.model
     def create_from_ui(self, orders):
-        order_ids = super(PosOrder, self).create_from_ui(orders)
+        for order in orders:
+            order.update({"to_invoice": True})
+
+        submitted_references = [o['data']['name'] for o in orders]
+        pos_order = self.search([('pos_reference', 'in', submitted_references)])
+        existing_orders = pos_order.read(['pos_reference'])
+        existing_references = set([o['pos_reference'] for o in existing_orders])
+        orders_to_save = [o for o in orders if o['data']['name'] not in existing_references]
+        order_ids = []
+
+        for tmp_order in orders_to_save:
+            to_invoice = tmp_order['to_invoice']
+            order = tmp_order['data']
+            if to_invoice:
+                self._match_payment_to_invoice(order)
+            pos_order = self._process_order(order)
+            order_ids.append(pos_order.id)
+
+            try:
+                pos_order.action_pos_order_paid()
+            except psycopg2.OperationalError:
+                # do not hide transactional errors, the order(s) won't be saved!
+                raise
+            except Exception as e:
+                _logger.error('Could not fully process the POS Order: %s', tools.ustr(e))
+
         order_objs = self.env['pos.order'].browse(order_ids)
         result = {}
         order_list = []
