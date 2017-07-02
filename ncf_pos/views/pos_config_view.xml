@@ -12,16 +12,7 @@
                     <field name="default_partner_id"/>
                     <field name="user_ids" widget="many2many_tags"/>
                 </field>
-
-                <xpath expr="//field[@name='iface_display_categ_images']" position="after">
-                    <field name='load_orders_of_current_session'/>
-                    <field name='load_orders_after_this_date'/>
-                    <field name='load_orders_from_days' attrs="{'invisible': [('load_orders_after_this_date', '=', False)]}"/>
-                    <field name='load_orders_from' attrs="{'invisible': [('load_orders_after_this_date', '=', False)]}"/>
-                </xpath>
-
             </field>
         </record>
-
     </data>
 </odoo>
