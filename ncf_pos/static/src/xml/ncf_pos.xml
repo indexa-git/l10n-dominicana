@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<templates id="template" xml:space="preserve">
+<templates id="template">
     <t t-extend="PosTicket">
         <t t-jquery="t[t-esc='moment().format(\'L LT\')']" t-operation="replace">
             <img t-att-src="receipt.company.logo" width="240px"/>
@@ -97,6 +97,11 @@
                     </td>
                     <td width="40%">
                         <t t-esc="orderline.get_product().display_name"/>
+                        <t t-if="widget.pos.config.on_product_line">
+                            <div class="pos-disc-font">
+                                <t t-esc="orderline.get_order_line_comment()" />
+                            </div>
+                        </t>
                         <t t-if="orderline.get_discount() &gt;0">
                             <div class="pos-disc-font">With a
 
@@ -193,6 +198,13 @@
                 </tr>
             </table>
             <br/>
+            <t t-if='widget.pos.get_order().is_return_order'>
+                <div>***********************************</div>
+                <div>Devolución Generada por:
+                    <t t-esc='receipt.cashier' />
+                </div>
+                <div>***********************************</div>
+            </t>
         </t>
     </t>
 </templates>

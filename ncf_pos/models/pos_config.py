@@ -36,41 +36,14 @@
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###############################################################################
 
-from odoo import models, fields, api, exceptions
-from datetime import datetime, timedelta
-from odoo.tools import DEFAULT_SERVER_DATE_FORMAT
+from odoo import models, fields
 
 
 class PosConfig(models.Model):
     _inherit = 'pos.config'
 
-    @api.multi
-    def _get_load_orders_from(self):
-        for rec in self:
-            load_orders_from = datetime.today() - timedelta(days=rec.load_orders_from_days)
-            rec.load_orders_from = load_orders_from.strftime(DEFAULT_SERVER_DATE_FORMAT)
+    user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
 
     default_partner_id = fields.Many2one("res.partner",
                                          string=u"Cliente de contado",
                                          required=True)
-    load_orders_of_current_session = fields.Boolean(string=u'Cargar orden de sesión actual sólo', default=True)
-    load_orders_after_this_date = fields.Boolean(string=u'Cargar orden de no mas de días de realizada')
-    load_orders_from_days = fields.Integer(string=u'Días atras de ordenes a cargar')
-    load_orders_from = fields.Date(string=u'Seleccione una fecha', compute=_get_load_orders_from)
-    user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
-
-    @api.onchange('load_orders_of_current_session')
-    def onchange_load_orders_of_current_session(self):
-        if self.load_orders_of_current_session:
-            self.load_orders_after_this_date = False
-
-    @api.onchange("load_orders_after_this_date")
-    def onchange_load_orders_after_this_date(self):
-        if self.load_orders_after_this_date:
-            self.load_orders_of_current_session = False
-
-    @api.constrains('load_orders_after_this_date')
-    def load_orders_date_validation(self):
-        if self.load_orders_after_this_date:
-            if not self.load_orders_from:
-                raise exceptions.ValidationError(u"¡Por favor especifique una fecha!")

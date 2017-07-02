@@ -38,8 +38,6 @@
         'demo/demo.xml',
     ],
     'qweb': [
-        'static/src/xml/pos_orders.xml',
-        'static/src/xml/pos_order_return.xml',
         'static/src/xml/ncf_pos.xml',
         'static/src/xml/pos.xml',
     ],
