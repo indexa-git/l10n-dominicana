@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template">
     <t t-extend="PosTicket">
-        <t t-jquery="t[t-esc='moment().format(\'L LT\')']" t-operation="replace">
-            <img t-att-src="receipt.company.logo" width="240px"/>
-        </t>
+        <t t-jquery="t[t-esc='moment().format(\'L LT\')']" t-operation="replace"/>
         <t t-jquery="t[t-esc='order.name']" t-operation="replace"/>
         <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
             <div class="pos-center-align">
@@ -55,7 +53,6 @@
             <br/>
             <strong>Sucursal:</strong>
             <t t-esc="widget.pos.shop.name"/>
-            <br/>
         </t>
         <t t-jquery=".receipt-orderlines" t-operation="replace">
             <br/>
@@ -151,18 +148,17 @@
             <table>
                 <tr class="emph" width="100%">
                     <td class="pos-right-align" t-if="order.is_return_order" width="50%">Reembolso:</td>
-                    <td class="pos-right-align" t-else="" width="50%">Total:</td>
+                    <td class="pos-right-align" t-else="" width="50%"><strong>Total:</strong></td>
                     <td class="pos-right-align" width="50%">
                         <t t-if="order.is_return_order">
-                            <t t-esc="widget.format_currency(order.get_total_with_tax()* -1)"/>
+                             <strong><t t-esc="widget.format_currency(order.get_total_with_tax()* -1)"/></strong>
                         </t>
                         <t t-else="">
-                            <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
+                            <strong><t t-esc="widget.format_currency(order.get_total_with_tax())"/></strong>
                         </t>
                     </td>
                 </tr>
             </table>
-            <br/>
         </t>
         <t t-jquery=".receipt-paymentlines" t-operation="replace">
             <table class="receipt-paymentlines">
@@ -197,7 +193,6 @@
                     </t>
                 </tr>
             </table>
-            <br/>
             <t t-if='widget.pos.get_order().is_return_order'>
                 <div>***********************************</div>
                 <div>Devolución Generada por:
