@@ -51,9 +51,11 @@
 
                 <field name="user_id" position="replace"/>
 
+                <field name="fiscal_position_id" position="replace"/>
                 <field name="partner_id" position="after">
                     <field name="sale_fiscal_type" attrs="{'invisible':[('ncf_control','=',False)],
                     'required': [('ncf_control','=',True)], 'readonly': [('state','!=','draft')]}"/>
+                    <field name="fiscal_position_id" options="{'no_create': True}"/>
                     <field name="user_id" groups="base.group_user"/>
                 </field>
 
@@ -118,11 +120,13 @@
                     <field name="is_company_currency" invisible="1"/>
                 </field>
 
+                <field name="fiscal_position_id" position="replace"/>
                 <field name="partner_id" position="replace">
                     <field name="purchase_type" invisible="1"/>
-                    <field string="Vendor" name="partner_id"
+                    <field name="partner_id"
                            context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
                            domain="[('supplier', '=', True)]}"/>
+                    <field name="fiscal_position_id" options="{'no_create': True}"/>
                 </field>
 
                 <xpath expr="//sheet//label" position="before">
