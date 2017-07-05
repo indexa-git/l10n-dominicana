@@ -82,7 +82,7 @@ class AccountInvoice(models.Model):
         else:
             return False
 
-    shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF",
+    shop_id = fields.Many2one("shop.ncf.config", string=u"Sucursal",
                               required=False,
                               default=_default_user_shop,
                               domain=lambda s: [('user_ids', '=', [s._uid])])
