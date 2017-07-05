@@ -10,6 +10,7 @@
                     <sheet>
                         <group col="2">
                             <field name="company_id"/>
+                            <field name="branch_office"/>
                             <field name="name"/>
                             <field name="journal_id"/>
                         </group>
@@ -88,6 +89,7 @@
             <field name="model">shop.ncf.config</field>
             <field name="arch" type="xml">
                 <tree string="Comprobantes fiscales">
+                    <field name ="branch_office"/>
                     <field name="name"/>
                 </tree>
             </field>
