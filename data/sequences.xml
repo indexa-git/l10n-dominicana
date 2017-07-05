@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+
+
+
+        <record id="seq_consumidor_final" model="ir.sequence">
+            <field name="name">Branch Office Sequence</field>
+            <field name="code">branch.office</field>
+            <field name="prefix">Sucursal </field>
+            <field name="padding">2</field>
+        </record>
+
+
+    </data>
+</openerp>
