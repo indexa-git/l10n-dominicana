@@ -39,10 +39,13 @@ from odoo import models, fields, api, exceptions
 
 class ShopJournalConfig(models.Model):
     _name = "shop.ncf.config"
+    _rec_name = 'branch_office'
 
     company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id,
                                  string=u"Compañia")
     name = fields.Char("Prefijo NCF", size=9, required=True, copy=False)
+
+    branch_office = fields.Char(string="Sucursal", required=True, )
 
     journal_id = fields.Many2one("account.journal", string="Diario", required=True)
 
@@ -111,7 +114,7 @@ class ShopJournalConfig(models.Model):
                 self.nd_sequence_id.write({"prefix": self.name+"03",
                                               "name": "Notas de debito {}".format(self.name)})
             else:
-                self.setup_ncf(name=self.name,company_id=self.company_id.id, journal_id=self.journal_id.id,shop_id=self)
+                self.setup_ncf(name=self.name,company_id=self.company_id.id, journal_id=self.journal_id.id,shop_id=self, branch_office=self.branch_office)
 
 
 
@@ -124,13 +127,16 @@ class ShopJournalConfig(models.Model):
         return user_shops[0]
 
     @api.model
-    def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False, shop_id=False):
+    def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False, shop_id=False, branch_office=False):
 
         special_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
         self.env["account.fiscal.position"].search([('id','!=',special_position_id.id)]).unlink()
 
         name = name or u"A01001001"
+        branch_office = branch_office or u"Sucursal"
         company_id = company_id or self.env.user.company_id.id
+
+
 
         journal_id = journal_id or 1
         self.env["account.journal"].sudo().browse(journal_id).write({"ncf_control": True})
@@ -150,6 +156,7 @@ class ShopJournalConfig(models.Model):
                 shop = shop_id
             else:
                 shop = self.create({"name": name,
+                                    "branch_office": branch_office,
                                     "journal_id": journal_id,
                                     "user_ids": [(4, user_id, False)],
                                     "company_id": company_id,
