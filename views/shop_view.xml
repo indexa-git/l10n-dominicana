@@ -11,10 +11,12 @@
                         <group col="2">
                             <field name="company_id"/>
                             <field name="branch_office"/>
-                            <field name="name"/>
                             <field name="journal_id"/>
+                            <field name="name" attrs="{'invisible': [('journal_id', '=', False)]}"/>
+                            <field name="ncf_control" invisible="True"/>
+
                         </group>
-                        <group string="Configuración de secuencias" attrs="{'invisible':[('name','=',False)]}">
+                        <group string="Configuración de secuencias" attrs="{'invisible':[('ncf_control','=',False)]}">
                             <html>
                                 <table class="table table-striped table-condensed table-hover">
                                     <tr>
