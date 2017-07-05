@@ -45,7 +45,7 @@ class ShopJournalConfig(models.Model):
                                  string=u"Compañia")
     name = fields.Char("Prefijo NCF", size=9, required=True, copy=False)
 
-    branch_office = fields.Char(string="Sucursal", required=True, )
+    branch_office = fields.Char(string="Sucursal", required=True, default=lambda obj:obj.env['ir.sequence'].next_by_code('branch.office'))
 
     journal_id = fields.Many2one("account.journal", string="Diario", required=True)
 
