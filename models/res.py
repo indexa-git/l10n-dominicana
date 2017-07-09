@@ -137,12 +137,14 @@ class ResPartner(models.Model):
 
     @api.multi
     def write(self, vals):
-        validation = self.validate_vat_or_name(vals)
-        if not isinstance(validation, dict) and self:
-            raise exceptions.ValidationError(
-                u"Ya existe un contacto registra    do con esta identificación a nombre de {}!".format(vals.name))
-        elif isinstance(validation, dict) and self:
-            vals = validation
+        parent_id = vals.get("parent_id", False) or self.parent_id
+        if not parent_id:
+            validation = self.validate_vat_or_name(vals)
+            if not isinstance(validation, dict) and self:
+                raise exceptions.ValidationError(
+                    u"Ya existe un contacto registra    do con esta identificación a nombre de {}!".format(vals.name))
+            elif isinstance(validation, dict) and self:
+                vals = validation
         return super(ResPartner, self).write(vals)
 
     @api.model
@@ -154,6 +156,8 @@ class ResPartner(models.Model):
         if not isinstance(vals, dict):
             return vals
 
+        if vals.get("vat", False):
+            vals.update({"sale_fiscal_type": "fiscal", "is_company": True})
         return super(ResPartner, self).create(vals)
 
     @api.model
