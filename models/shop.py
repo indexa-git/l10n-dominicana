@@ -43,7 +43,7 @@ class ShopJournalConfig(models.Model):
 
     company_id = fields.Many2one("res.company", required=True, default=lambda s: s.env.user.company_id.id,
                                  string=u"Compañia")
-    name = fields.Char("Prefijo NCF", size=9, required=True, copy=False)
+    name = fields.Char("Prefijo NCF", size=9, copy=False)
 
     branch_office = fields.Char(string="Sucursal", required=True, default=lambda obj:obj.env['ir.sequence'].next_by_code('branch.office'))
 
@@ -95,6 +95,12 @@ class ShopJournalConfig(models.Model):
     _sql_constraints = [
         ('shop_ncf_config_name_uniq', 'unique(name, company_id)', u'El Prefijo NCF de la sucursal debe de ser unico!'),
     ]
+
+    @api.onchange("journal_id")
+    def onchange_name(self):
+        if not self.ncf_control:
+
+            self.name = lambda obj:obj.env['ir.sequence'].next_by_code('name.shop')
 
     @api.onchange("name")
     def onchange_name(self):
@@ -250,4 +256,14 @@ class ShopJournalConfig(models.Model):
 
 
             invoice.message_post(body=message)
+
+    @api.model
+    def create(self, vals):
+
+        if not vals['name']:
+            vals['name'] = self.env['ir.sequence'].next_by_code('name.shop')
+
+
+
+        return super(ShopJournalConfig, self).create(vals)
 
