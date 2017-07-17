@@ -79,8 +79,19 @@ class UpdateRateWizard(models.TransientModel):
 
         return rates
 
+    @api.model
+    def default_get(self, fields):
+        active_id = self._context.get("active_id", False)
+        invoice_id = self.env["account.invoice"].browse(active_id)
+        if not invoice_id.date_invoice:
+            raise exceptions.ValidationError(u"Debe de especificar la fecha de la factura primero.")
+        if invoice_id.state != "draft":
+            raise exceptions.UserError(u"No puede cambiar la tasa porque la factura no está en estado borrador!")
+        return super(UpdateRateWizard, self).default_get(fields)
+
+
     bank_rates = fields.Selection(_get_bank_rates, string="Tasa en bancos")
-    custom_rate = fields.Boolean("Digitar tasa manualmente")
+    custom_rate = fields.Boolean("Digitar tasa manualmente", default=True)
     currency_date = fields.Datetime("Tasa para la fecha")
     currency_id = fields.Many2one("res.currency", string="Moneda", domain=[('name', '!=', 'DOP')])
     rate = fields.Monetary("Tasa")
@@ -89,21 +100,17 @@ class UpdateRateWizard(models.TransientModel):
     def change_rate(self):
         active_id = self._context.get("active_id", False)
         invoice_id = self.env["account.invoice"].browse(active_id)
-        if invoice_id.state != "draft":
-            raise exceptions.UserError(u"No puede cambiar la tasa porque la factura no está en estado borrador!")
+
         if not self.custom_rate:
+            if invoice_id.date_invoice != fields.Date.today():
+                raise exceptions.ValidationError(u"Solo puede usar las [Tasas de cambio para el día de hoy] si la factura es de hoy de lo contrario debe digitar tasa manualmente.")
             bank, cur, rate = self.bank_rates.split("-")
-            currency_id = self.env["res.currency"].search([('name', '=', cur)])
+
             self.env["res.currency.rate"].create({"name": fields.Datetime.now(),
                                                   "rate": 1 / float(rate),
-                                                  "currency_id": currency_id.id,
+                                                  "currency_id": invoice_id.currency_id.id,
                                                   "company_id": invoice_id.company_id.id})
-            invoice_id.currency_id = currency_id.id
-            invoice_id.invoice_rate = float(rate)
+
         else:
-            self.env["res.currency.rate"].create({"name": self.currency_date,
-                                                  "rate": 1 / float(self.rate),
-                                                  "currency_id": self.currency_id.id,
-                                                  "company_id": invoice_id.company_id.id})
-            invoice_id.currency_id = self.currency_id.id
-            invoice_id.invoice_rate = float(self.rate)
+            name = "{} {}".format(invoice_id.date_invoice, fields.Datetime.now().split(" ")[1])
+            self.env["res.currency.rate"].create({"name": name,"rate": 1 / float(self.rate),"currency_id": invoice_id.currency_id.id,"company_id": invoice_id.company_id.id})

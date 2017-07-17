@@ -33,6 +33,7 @@
         'views/shop_view.xml',
         'views/account_invoice_view.xml',
         'views/account_view.xml',
+        'views/res_currency_view.xml',
         'views/dgii_exterior_view.xml',
         'views/dgii_purchase_view.xml',
         'views/dgii_sale_view.xml',
