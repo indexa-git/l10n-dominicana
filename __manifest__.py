@@ -35,6 +35,7 @@
         'views/account_invoice_view.xml',
         'views/account_view.xml',
         'views/views.xml',
+        'views/res_currency_view.xml',
         'views/templates.xml',
         'views/dgii_exterior_view.xml',
         'views/dgii_purchase_view.xml',

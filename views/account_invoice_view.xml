@@ -26,11 +26,16 @@
                                 type="action"
                                 class="oe_stat_button"
                                 icon="fa-money"
-                                attrs="{'invisible': [('is_company_currency', '=', True)]}">
-                            <field name="invoice_rate" widget="statinfo" string="Tasa"/>
+                                attrs="{'invisible': [('rate_id', '=', True)]}">
+                            <field name="invoice_rate" widget="monetary" string="Tasa"/>
                         </button>
                     </div>
                 </xpath>
+
+                <field name="currency_id" position="after">
+                    <field name="rate_id" attrs="{'invisible': [('rate_id','!=',False)]}"/>
+                </field>
+
                 <field name="number" position="before">
                     <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
                     <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
@@ -56,6 +61,8 @@
                     'required': [('ncf_control','=',True)], 'readonly': [('state','!=','draft')]}"/>
                     <field name="user_id" groups="base.group_user"/>
                 </field>
+
+
 
                 <notebook position="inside">
                     <page name="refunds" string="Refunds">
@@ -131,11 +138,14 @@
                                 type="action"
                                 class="oe_stat_button"
                                 icon="fa-money"
-                                attrs="{'invisible': [('is_company_currency', '=', True)]}">
-                            <field name="invoice_rate" widget="statinfo" string="Tasa"/>
+                                attrs="{'invisible': [('rate_id', '!=', False)]}">
+                            <field name="invoice_rate" widget="monetary" string="Tasa"/>
                         </button>
                     </div>
                 </xpath>
+                <field name="currency_id" position="after">
+                    <field name="rate_id" attrs="{'invisible': [('rate_id','=',False)]}"/>
+                </field>
                 <field name="journal_id" position="replace"/>
                 <field name="move_name" position="replace"/>
                 <field name="reference" position="before">

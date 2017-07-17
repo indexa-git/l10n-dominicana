@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
 
-        
-
+        <record id="view_currency_rate_form" model="ir.ui.view">
+            <field name="name">view_currency_rate_form</field>
+            <field name="model">res.currency.rate</field>
+            <field name="inherit_id" ref="base.view_currency_rate_form"/>
+            <field name="arch" type="xml">
+                <field name="rate" position="after">
+                    <field name="converted"/>
+                </field>
+            </field>
+        </record>
     </data>
-</openerp>
+</odoo>

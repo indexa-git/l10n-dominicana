@@ -59,11 +59,13 @@ class AccountInvoice(models.Model):
     @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
         for rec in self:
-            try:
-                rec.invoice_rate = 1 / rec.currency_id.with_context(
-                    dict(self._context or {}, date=rec.date_invoice)).rate
-            except:
-                pass
+            if not rec.is_company_currency:
+                try:
+                    rate = rec.currency_id.with_context(dict(self._context or {}, date=rec.date_invoice))
+                    rec.invoice_rate = 1 / rate.rate
+                    rec.rate_id = rate.res_currency_rate_id
+                except:
+                    pass
 
     @api.depends("currency_id")
     def _is_company_currency(self):
@@ -80,6 +82,19 @@ class AccountInvoice(models.Model):
             return shop_user_config[0]
         else:
             return False
+
+    @api.multi
+    def match_origin_lines(self, origin_inv):
+        for idx, line in enumerate(origin_inv.invoice_line_ids):
+            try:
+                # Protect this write, maybe refund invoice doesn't
+                # have the same lines than original one
+                self.invoice_line_ids[idx].write({
+                    'origin_line_ids': [(6, 0, line.ids)],
+                })
+            except:  # pragma: no cover
+                pass
+        return True
 
     shop_id = fields.Many2one("shop.ncf.config", string=u"Prefijo NCF", required=False,
                               default=_default_user_shop, domain=lambda s: [('user_ids', '=', [s._uid])])
@@ -129,21 +144,9 @@ class AccountInvoice(models.Model):
         string=u"Reembolso de facturas", readonly=True,
         help=u"Devolución de facturas creadas a partir de esta factura")
 
-    @api.multi
-    def match_origin_lines(self, origin_inv):
-        for idx, line in enumerate(origin_inv.invoice_line_ids):
-            try:
-                # Protect this write, maybe refund invoice doesn't
-                # have the same lines than original one
-                self.invoice_line_ids[idx].write({
-                    'origin_line_ids': [(6, 0, line.ids)],
-                })
-            except:  # pragma: no cover
-                pass
-        return True
-
     is_company_currency = fields.Boolean(compute=_is_company_currency)
-    invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate)
+    rate_id = fields.Many2one("res.currency.rate", string=u"Tasa", compute=_get_rate)
+    invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate, currency_field='currency_id')
     purchase_type = fields.Selection([("normal", u"REQUIERE NCF"),
                                       ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
                                       ("informal", u"PROVEEDORES INFORMALES NCF GENERADO POR EL SISTEMA"),
@@ -196,7 +199,7 @@ class AccountInvoice(models.Model):
     @api.one
     @api.constrains("move_name")
     def constrains_move_name(self):
-        if self.type in ("in_invoice", "in_refund"):
+        if self.type in ("in_invoice", "in_refund") and not self.state == "draft":
             res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
             if not res == True:
                 _logger.warning(res)
@@ -228,6 +231,11 @@ class AccountInvoice(models.Model):
             res.update({"move_name":  self._context["credit_note_supplier_ncf"]})
         return res
 
+    @api.multi
+    def finalize_invoice_move_lines(self, move_lines):
+
+        return move_lines
+
 
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
@@ -242,3 +250,8 @@ class AccountInvoiceLine(models.Model):
         column2='refund_line_id', string=u"Reembolso de la línea de factura",
         relation='account_invoice_line_refunds_rel',
         help=u"Reembolso de las líneas de factura creadas a partir de esta línea de factura")
+
+
+
+class AccountInvoiceTax(models.Model):
+    _inherit = "account.invoice.tax"
