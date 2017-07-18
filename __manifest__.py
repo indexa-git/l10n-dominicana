@@ -39,6 +39,7 @@
         'views/dgii_sale_view.xml',
         'views/dgii_cancel_view.xml',
         'views/res_view.xml',
-        'data/setup_ncf.xml'
+        'data/setup_ncf.xml',
+        'data/sequences.xml',
     ],
 }

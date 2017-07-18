@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+
+
+
+        <record id="seq_sucursal" model="ir.sequence">
+            <field name="name">Branch Office Sequence</field>
+            <field name="code">branch.office</field>
+            <field name="prefix">Sucursal </field>
+            <field name="padding">2</field>
+        </record>
+        <record id="seq_na_name_shop" model="ir.sequence">
+            <field name="name">N/A Name shop</field>
+            <field name="code">name.shop</field>
+            <field name="prefix">N/A </field>
+            <field name="padding">5</field>
+        </record>
+
+
+
+    </data>
+</openerp>
