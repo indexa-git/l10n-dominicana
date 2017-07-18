@@ -46,12 +46,13 @@ class ShopJournalConfig(models.Model):
     company_id = fields.Many2one("res.company", required=True,
                                  default=lambda s: s.env.user.company_id.id,
                                  string=u"Compañia")
-    name = fields.Char("Prefijo NCF", size=9, required=True, copy=False)
+    name = fields.Char("Prefijo NCF", size=9, copy=False)
 
-    branch_office = fields.Char(string="Sucursal", required=True, )
+    branch_office = fields.Char(string="Sucursal", required=True, default=lambda obj:obj.env['ir.sequence'].next_by_code('branch.office'))
 
     journal_id = fields.Many2one("account.journal", string="Diario",
                                  required=True)
+    ncf_control = fields.Boolean(string="", related='journal_id.ncf_control')
 
     final_active = fields.Boolean("Activo")
     final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia")
@@ -104,35 +105,42 @@ class ShopJournalConfig(models.Model):
          u'El Prefijo NCF de la sucursal debe de ser unico!'),
     ]
 
+    @api.onchange("journal_id")
+    def onchange_name(self):
+        if not self.ncf_control:
+
+            self.name = lambda obj:obj.env['ir.sequence'].next_by_code('name.shop')
+
     @api.onchange("name")
     def onchange_name(self):
         if self.name:
-            if self.final_sequence_id:
-                self.final_sequence_id.write(
-                    {"prefix": self.name+"02",
-                     "name": "Facturas Cliente Final {}".format(self.name)})
-                self.fiscal_sequence_id.write(
-                    {"prefix": self.name+"01",
-                     "name": "Facturas Valor Fiscal {}".format(self.name)})
-                self.gov_sequence_id.write(
-                    {"prefix": self.name+"15",
-                     "name": "Facturas Gubernamentales {}".format(self.name)})
-                self.special_sequence_id.write(
-                    {"prefix": self.name+"14",
-                     "name": "Facturas Especiales {}".format(self.name)})
-                self.unico_sequence_id.write(
-                    {"prefix": self.name+"12",
-                     "name": "Facturas de Unico Ingreso {}".format(self.name)})
-                self.nc_sequence_id.write(
-                    {"prefix": self.name+"04",
-                     "name": "Notas de Credito {}".format(self.name)})
-                self.nd_sequence_id.write(
-                    {"prefix": self.name+"03",
-                     "name": "Notas de Debito {}".format(self.name)})
-            else:
-                self.setup_ncf(name=self.name,company_id=self.company_id.id,
-                               journal_id=self.journal_id.id, shop_id=self,
-                               branch_office=self.branch_office)
+            if self.journal_id.ncf_control:
+                if self.final_sequence_id:
+                    self.final_sequence_id.write(
+                        {"prefix": self.name+"02",
+                         "name": "Facturas Cliente Final {}".format(self.name)})
+                    self.fiscal_sequence_id.write(
+                        {"prefix": self.name+"01",
+                         "name": "Facturas Valor Fiscal {}".format(self.name)})
+                    self.gov_sequence_id.write(
+                        {"prefix": self.name+"15",
+                         "name": "Facturas Gubernamentales {}".format(self.name)})
+                    self.special_sequence_id.write(
+                        {"prefix": self.name+"14",
+                         "name": "Facturas Especiales {}".format(self.name)})
+                    self.unico_sequence_id.write(
+                        {"prefix": self.name+"12",
+                         "name": "Facturas de Unico Ingreso {}".format(self.name)})
+                    self.nc_sequence_id.write(
+                        {"prefix": self.name+"04",
+                         "name": "Notas de Credito {}".format(self.name)})
+                    self.nd_sequence_id.write(
+                        {"prefix": self.name+"03",
+                         "name": "Notas de Debito {}".format(self.name)})
+                else:
+                    self.setup_ncf(name=self.name,company_id=self.company_id.id,
+                                   journal_id=self.journal_id.id, shop_id=self,
+                                   branch_office=self.branch_office)
 
     @api.model
     def get_user_shop_config(self):
@@ -275,3 +283,9 @@ class ShopJournalConfig(models.Model):
             u" más NCF para esta sucursal".format(self.name)
 
             invoice.message_post(body=message)
+
+    @api.model
+    def create(self, vals):
+        if not vals['name']:
+            vals['name'] = self.env['ir.sequence'].next_by_code('name.shop')
+        return super(ShopJournalConfig, self).create(vals)
