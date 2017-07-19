@@ -111,7 +111,6 @@ class ShopJournalConfig(models.Model):
                 self.nd_sequence_id.write({"prefix": self.name+"03",
                                               "name": "Notas de debito {}".format(self.name)})
             else:
-		import ipdb;ipdb.set_trace()
                 self.setup_ncf(name=self.name,company_id=self.company_id.id, journal_id=self.journal_id.id,shop_id=self)
 
 
