@@ -111,6 +111,7 @@ class ShopJournalConfig(models.Model):
                 self.nd_sequence_id.write({"prefix": self.name+"03",
                                               "name": "Notas de debito {}".format(self.name)})
             else:
+		import ipdb;ipdb.set_trace()
                 self.setup_ncf(name=self.name,company_id=self.company_id.id, journal_id=self.journal_id.id,shop_id=self)
 
 
@@ -125,14 +126,14 @@ class ShopJournalConfig(models.Model):
 
     @api.model
     def setup_ncf(self, name=False, company_id=False, journal_id=False, user_id=False, shop_id=False):
-
+	journal_obj = self.env['account.journal']
         special_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
         self.env["account.fiscal.position"].search([('id','!=',special_position_id.id)]).unlink()
 
         name = name or u"A01001001"
         company_id = company_id or self.env.user.company_id.id
-
-        journal_id = journal_id or 1
+	journal_names = ['Customer Invoices', 'Facturas de Clientes']
+        journal_id = journal_id or journal_obj.search([('type', '=', 'sale'), ('name', 'in', journal_names)]).id
         self.env["account.journal"].sudo().browse(journal_id).write({"ncf_control": True})
 
         user_id = user_id or 1
@@ -176,7 +177,7 @@ class ShopJournalConfig(models.Model):
                           u'suffix': False
                           }
 
-            sale_journal = self.env["account.journal"].browse(1)
+            sale_journal = self.env["account.journal"].browse(journal_id)
             sale_journal.ncf_control = True
 
             seq_values["prefix"] = final_prefix
