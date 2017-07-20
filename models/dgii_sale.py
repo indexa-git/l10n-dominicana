@@ -155,15 +155,23 @@ class DgiiSaleReport(models.Model):
 
             ITBIS_FACTURADO = 0
 
+            # for tax in inv.tax_line_ids:
+            #     account_ids  = [t.account_id.id for t in tax]
+            #     move_lines = self.env["account.move.line"].search(
+            #                     [('move_id', '=', inv.move_id.id),
+            #                      ('account_id', 'in', account_ids)])
+            #     ITBIS_FACTURADO += (sum([l.debit for l in move_lines]) -
+            #                         sum([l.credit for l in move_lines])*-1)
+            #     if inv.type == "out_refund":
+            #         ITBIS_FACTURADO = ITBIS_FACTURADO
+
             for tax in inv.tax_line_ids:
-                account_ids  = [t.account_id.id for t in tax]
-                move_lines = self.env["account.move.line"].search(
-                                [('move_id', '=', inv.move_id.id),
-                                 ('account_id', 'in', account_ids)])
-                ITBIS_FACTURADO += (sum([l.debit for l in move_lines]) -
-                                    sum([l.credit for l in move_lines])*-1)
-                if inv.type == "out_refund":
-                    ITBIS_FACTURADO = ITBIS_FACTURADO
+                if tax.tax_id.tax_group_id.name == 'ITBIS':
+                    ITBIS_FACTURADO += tax.amount
+
+
+
+
 
             lines.append(
                 (0, False,
