@@ -91,7 +91,6 @@
                 <field name="name" position="replace">
                     <field name="name" filter_domain="['|','|','|',('display_name','ilike',self),('ref','=',self),('email','ilike',self),('vat','ilike',self)]"/>
                 </field>
-
             </field>
         </record>
 
