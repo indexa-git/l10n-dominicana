@@ -124,20 +124,36 @@ class DgiiPurchaseReport(models.Model):
                 #     CURRENCY_RATE = abs(amount)/abs(move_line.amount_currency)
 
                 if tax_account[move_line.account_id.id] == "itbis":
-                    ITBIS_TOTAL += amount
                     LINE_ITBIS_TOTAL += amount
+                    if inv.type == "in_refund":
+                        ITBIS_TOTAL -= amount
+                    else:
+                        ITBIS_TOTAL += amount
                 elif tax_account[move_line.account_id.id] == "ritbis" and inv.state == 'paid':
                     if int(max(inv.payment_move_line_ids).date.split("-")[1]) == self.month:
-                        ITBIS_RETENIDO += abs(amount)
                         LINE_ITBIS_RETENIDO += amount
+                        if inv.type == "in_refund":
+                            ITBIS_RETENIDO -= abs(amount)
+                        else:
+                            ITBIS_RETENIDO += abs(amount)
                 elif tax_account[move_line.account_id.id] == "isr":
-                    RETENCION_RENTA += amount
                     LINE_RETENCION_RENTA += amount
+                    if inv.type == "in_refund":
+                        RETENCION_RENTA -= amount
+                    else:
+                        RETENCION_RENTA += amount
                 elif tax_account[move_line.account_id.id] == "cost" and move_line.tax_line_id:
                     LINE_TAX_COST += amount
-                    TOTAL_MONTO_FACTURADO += amount
+                    if inv.type == "in_refund":
+                        TOTAL_MONTO_FACTURADO -= amount
+                    else:
+                        TOTAL_MONTO_FACTURADO += amount
 
-            TOTAL_MONTO_FACTURADO += inv.amount_untaxed*CURRENCY_RATE
+
+            if inv.type == "in_refund":
+                TOTAL_MONTO_FACTURADO -= inv.amount_untaxed*CURRENCY_RATE
+            else:
+                TOTAL_MONTO_FACTURADO += inv.amount_untaxed*CURRENCY_RATE
 
             if not inv.partner_id.vat:
                 raise exceptions.UserError(
