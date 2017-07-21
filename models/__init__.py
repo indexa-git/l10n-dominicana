@@ -42,4 +42,5 @@ from . import dgii_purchase
 from . import dgii_sale
 from . import dgii_cancel
 from . import res
-# from . import sale
+from . import res_currency
+
