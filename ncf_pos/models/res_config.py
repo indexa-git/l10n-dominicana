@@ -71,19 +71,3 @@ class PosConfiguration(models.TransientModel):
         IrConfigParam = self.env['ir.config_parameter']
         IrConfigParam.set_param('ncf_pos.pos_session_concile_type',
                                 repr(self.pos_session_concile_type))
-
-    @api.model
-    def get_default_pos_session_picking_on_cron(self, fields):
-        IrConfigParam = self.env['ir.config_parameter']
-        return {
-            'pos_session_picking_on_cron': safe_eval(
-                IrConfigParam.get_param('ncf_pos.pos_session_picking_on_cron',
-                                        'False'))
-            }
-
-    @api.multi
-    def set_pos_session_picking_on_cron(self):
-        self.ensure_one()
-        IrConfigParam = self.env['ir.config_parameter']
-        IrConfigParam.set_param('ncf_pos.pos_session_picking_on_cron',
-                                repr(self.pos_session_picking_on_cron))
