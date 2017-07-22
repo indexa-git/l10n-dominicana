@@ -204,7 +204,7 @@ class DgiiSaleReport(models.Model):
         header += str(self.year)
         header += str(self.month).zfill(2)
         header += "{:.2f}".format(self.CANTIDAD_REGISTRO).zfill(12)
-        header += "{:.2f}".format(self.TOTAL_MONTO_FACTURADO).zfill(16)
+        header += "{:.2f}".format(self.TOTAL_VENTA).zfill(16)
         lines.append(header)
 
         for line in self.report_lines:
