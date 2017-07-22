@@ -45,5 +45,4 @@ class PosConfig(models.Model):
     user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
 
     default_partner_id = fields.Many2one("res.partner",
-                                         string=u"Cliente de contado",
-                                         required=True)
+                                         string=u"Cliente de contado")
