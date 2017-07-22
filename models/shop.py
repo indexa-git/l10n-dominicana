@@ -155,7 +155,6 @@ class ShopJournalConfig(models.Model):
 
         journal_obj = self.env['account.journal']
         special_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
-        self.env["account.fiscal.position"].search([('id','!=',special_position_id.id)]).unlink()
 
         name = name or u"A01001001"
         branch_office = branch_office or u"Sucursal"
