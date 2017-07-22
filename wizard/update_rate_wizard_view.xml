@@ -9,8 +9,6 @@
                 <form string="Actualizacion de tasa de comabio">
                     <group>
                         <field name="custom_rate"/>
-                        <field name="currency_date" attrs="{'invisible':[('custom_rate','=',False)], 'required':[('custom_rate','!=',False)]}"/>
-                        <field name="currency_id" attrs="{'invisible':[('custom_rate','=',False)], 'required':[('custom_rate','!=',False)]}"/>
                         <field name="rate" attrs="{'invisible':[('custom_rate','=',False)], 'required':[('custom_rate','!=',False)]}"/>
                     </group>
                     <group string="Tasas de cambio para el día de hoy" attrs="{'invisible':[('custom_rate','=',True)]}">
