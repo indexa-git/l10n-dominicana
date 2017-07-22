@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Form View to Modify it -->
+        <record id="view_sale_config_settings_form_pos" model="ir.ui.view">
+            <field name="name">ncf_pos.pos.config.settings.form</field>
+            <field name="model">pos.config.settings</field>
+            <field name="inherit_id" ref="point_of_sale.view_sale_config_settings_form_pos"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='module_pos_reprint']" position="after">
+                    <field name="pos_session_concile_type" widget="radio"/>
+                    <field name="pos_session_picking_on_cron"/>
+                </xpath>
+
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets" inherit_id="point_of_sale.assets">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" href="/ncf_pos/static/src/css/pos_orders.css"/>
+            <link rel="stylesheet" href="/marcos_api_tools/static/src/libs/tingle.min.css"></link>
+            <script type="text/javascript" src="/marcos_api_tools/static/src/libs/tingle.min.js"></script>
+            <script type="text/javascript" src="/marcos_api_tools/static/src/libs/bootbox.min.js"></script>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/ncf_pos.js"></script>
+        </xpath>
+    </template>
+</odoo>
