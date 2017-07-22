@@ -13,18 +13,5 @@
             <field name="groups" eval="[(4, ref('point_of_sale.group_pos_user'))]"/>
         </record>
 
-        <record forcecreate="True" id="ir_cron_ptv_create_picking" model="ir.cron">
-            <field name="name">Genera los conduces del PTV cada minuto</field>
-            <field eval="True" name="active"/>
-            <field name="user_id" ref="base.user_root"/>
-            <field name="interval_number">1</field>
-            <field name="interval_type">minutes</field>
-            <field name="numbercall">-1</field>
-            <field eval="False" name="doall"/>
-            <field eval="'pos.order'" name="model"/>
-            <field eval="'pos_picking_generate_cron'" name="function"/>
-            <field eval="'()'" name="args"/>
-        </record>
-
     </data>
 </odoo>

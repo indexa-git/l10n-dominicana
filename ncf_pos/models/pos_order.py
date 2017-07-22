@@ -39,9 +39,7 @@
 import logging
 import time
 
-from odoo import api, exceptions, fields, models, _
-
-from odoo.tools.safe_eval import safe_eval
+from odoo import api, fields, models, _
 
 _logger = logging.getLogger(__name__)
 
@@ -49,28 +47,10 @@ _logger = logging.getLogger(__name__)
 class PosOrder(models.Model):
     _inherit = "pos.order"
 
-    def get_pos_session_concile_type(self):
-        IrConfigParam = self.env['ir.config_parameter']
-        return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_concile_type', 'ticket'))
-
-    def get_pos_session_picking_on_cron(self):
-        IrConfigParam = self.env['ir.config_parameter']
-        return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_picking_on_cron', 'False'))
-
     move_name = fields.Char(size=19)
     fiscal_nif = fields.Char()
     invoice_number = fields.Char(related="invoice_id.number")
     is_service_order = fields.Boolean("Ordenes que no generan picking")
-
-    @api.multi
-    def action_pos_order_paid(self):
-        if not self.get_pos_session_picking_on_cron():
-            return super(PosOrder, self).action_pos_order_paid()
-        else:
-            if not self.test_paid():
-                raise exceptions.UserError(_("Order is not paid."))
-            self.write({'state': 'paid'})
-            return True
 
     def _prepare_invoice(self):
         res = super(PosOrder, self)._prepare_invoice()
@@ -155,37 +135,6 @@ class PosOrder(models.Model):
         super(PosOrder, self).action_pos_order_invoice()
         self.invoice_id.sudo().action_invoice_open()
         self.account_move = self.invoice_id.move_id
-
-    def pos_picking_generate_cron(self, limit=20):
-
-        orders_list_for_picking = []
-        orders_count = self.search_count(
-            [('picking_id', '=', False),
-             ('state', '=', 'invoiced'),
-             ('is_service_order', '=', False)]
-            )
-        orders = self.search(
-            [('picking_id', '=', False),
-             ('state', '=', 'invoiced'),
-             ('is_service_order', '=', False)],
-            limit=limit
-            )
-        _logger.info("========== INICIO del cron para generarcion de los conduces del POS, conduces pendientes {} ==========".format(orders_count))
-        for order in orders:
-            is_not_service_order = [line for line in order.lines if line.product_id.product_tmpl_id.type != "service"]
-            if is_not_service_order:
-                orders_list_for_picking.append(order.id)
-            else:
-                order.is_service_order = True
-
-        orders = self.browse(orders_list_for_picking)
-
-        for order in orders:
-            _logger.info("************ Procesando POS ORDER {} ************".format(order.id))
-            order.create_picking()
-        _logger.info("========== FIN del cron para generarcion de los conduces del POS ==========")
-
-        return True
 
     @api.model
     def order_search_from_ui(self, input_txt):
