@@ -84,6 +84,19 @@ class AccountInvoice(models.Model):
         else:
             return False
 
+    @api.multi
+    def match_origin_lines(self, origin_inv):
+        for idx, line in enumerate(origin_inv.invoice_line_ids):
+            try:
+                # Protect this write, maybe refund invoice doesn't
+                # have the same lines than original one
+                self.invoice_line_ids[idx].write({
+                    'origin_line_ids': [(6, 0, line.ids)],
+                })
+            except:  # pragma: no cover
+                pass
+        return True
+
     shop_id = fields.Many2one("shop.ncf.config", string=u"Sucursal",
                               required=False,
                               default=_default_user_shop,
@@ -158,7 +171,6 @@ class AccountInvoice(models.Model):
 
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate,
                                    currency_field='currency_id')
-
     purchase_type = fields.Selection(
         [("normal", u"Requiere NCF"),
          ("minor", u"Gasto Menor. NCF Generado por el Sistema"),
@@ -256,6 +268,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def finalize_invoice_move_lines(self, move_lines):
+
         return move_lines
 
 
