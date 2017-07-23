@@ -37,22 +37,28 @@
                 </t>
             </div>
             <br/>
-            <strong>Fecha...:</strong>
-            <t t-esc="moment().format('L LT')"/>
-            <br/>
-            <t t-set="client" t-value="order.get('client')"/>
-            <t t-if="client">
-                <strong>Cliente.:</strong>
-                <t t-esc="client.name || ''"/>
-                <br t-if="client.vat"/>
-                <t t-if="client.vat">
-                    <strong>RNC..:</strong>
-                    <t t-esc="client.vat"/>
+        </t>
+        <t t-jquery=".receipt-phone" t-operation="replace">
+            <div class="receipt-phone">
+                <strong>Fecha....:</strong> <t t-esc="moment().format('L LT')"/><br/>
+                <t t-set="client" t-value="order.get('client')"/>
+                <t t-if="client">
+                    <strong>Cliente..:</strong> <t t-esc="client.name || ''"/><br/>
+                    <t t-if="client.vat">
+                        <strong>RNC/Céd..:</strong> <t t-esc="client.vat"/><br/>
+                    </t>
+                    <t t-if="client.barcode">
+                        <strong>Código..:</strong> <t t-esc="client.barcode"/><br/>
+                    </t>
                 </t>
-            </t>
-            <br/>
-            <strong>Sucursal:</strong>
-            <t t-esc="widget.pos.shop.name"/>
+                <strong>Sucursal:</strong> <t t-esc="widget.pos.shop.name"/><br/>
+                <strong>Telefono:</strong> <t t-esc="widget.pos.company.phone || ''"/><br/>
+            </div>
+        </t>
+        <t t-jquery=".receipt-user" t-operation="replace">
+            <div class="receipt-phone">
+                <strong>Cajero/a:</strong> <t t-esc="widget.pos.cashier ? widget.pos.cashier.name : widget.pos.user.name"/><br/>
+            </div>
         </t>
         <t t-jquery=".receipt-orderlines" t-operation="replace">
             <br/>
