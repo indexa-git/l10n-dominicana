@@ -44,9 +44,9 @@ import re
 import calendar
 
 
-# from tools import is_identification, is_ncf
+import logging
 
-
+_logger = logging.getLogger(__name__)
 
 
 class DgiiReport(models.Model):
@@ -158,7 +158,7 @@ class DgiiReport(models.Model):
         invoice_ids = self.env["account.invoice"].search(
             [('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date),
              ('state', 'in', ('open', 'paid', 'cancel'))])
-        # invoice_ids = invoice_ids.filtered(lambda r: r.journal_id.purchase_type == "informal")
+
         invoice_id_set |= invoice_ids
 
         paid_invoice_ids = self.env["account.payment"].search(
@@ -167,6 +167,8 @@ class DgiiReport(models.Model):
             invoice_id_set |= paid_invoice_id.invoice_ids.filtered(lambda r: r.journal_id.purchase_type == "informal")
 
         for invoice_id in invoice_id_set:
+            _logger.info("DGII REPORT READ NCF {}".format(invoice_id.number))
+
 
             if invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in (
                     "import", "others"):

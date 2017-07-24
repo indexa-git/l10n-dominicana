@@ -48,10 +48,8 @@
                 </xpath>
                 <field name="date_invoice" position="after">
                     <field name="date_due" string="Vence"/>
-                    <field name="shop_id" attrs="{'readonly': [('state','!=','draft')], 'required: True}"
-                           options="{'no_quick_create': True,    'no_create_edit' : True}"/>
-                    <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1"
-                           string="Referencia"/>
+                    <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}" attrs="{'readonly':[('state','!=','draft')],'required': True}"/>
+                    <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1" string="Referencia"/>
                 </field>
 
                 <field name="user_id" position="replace"/>
@@ -61,8 +59,6 @@
                     'required': [('ncf_control','=',True)], 'readonly': [('state','!=','draft')]}"/>
                     <field name="user_id" groups="base.group_user"/>
                 </field>
-
-
 
                 <notebook position="inside">
                     <page name="refunds" string="Refunds">
