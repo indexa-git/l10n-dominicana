@@ -165,10 +165,11 @@ class DgiiReport(models.Model):
             [('payment_date', '>=', start_date), ('payment_date', '<=', end_date), ('invoice_ids', '!=', False)])
         for paid_invoice_id in paid_invoice_ids:
             invoice_id_set |= paid_invoice_id.invoice_ids.filtered(lambda r: r.journal_id.purchase_type == "informal")
-
+        select_count = len(invoice_id_set)
+        count = len(invoice_id_set)
         for invoice_id in invoice_id_set:
-            _logger.info("DGII REPORT READ NCF {}".format(invoice_id.number))
-
+            _logger.info("DGII REPORT READ NCF {} / {} de {}".format(invoice_id.number, count, select_count))
+            count -= 1
 
             if invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in (
                     "import", "others"):
@@ -194,23 +195,23 @@ class DgiiReport(models.Model):
 
             ITBIS_RETENIDO = 0
             RETENCION_RENTA = 0
+
             if invoice_id.state == "paid":
-                move_id = self.env["account.move.line"].search(
-                    [("move_id", "=", invoice_id.move_id.id), ('full_reconcile_id', '!=', False)])
-                if move_id:
+                move_id = self.env["account.move.line"].search([("move_id", "=", invoice_id.move_id.id), ('full_reconcile_id', '!=', False)])
+                if invoice_id.journal_id.purchase_type == 'informal':
+                    if move_id:
+                        retentions = self.env["account.move.line"].search(
+                            [('invoice_id', '=', invoice_id.id), ('payment_id', '!=', False), ('tax_line_id', '!=', False)])
+                        if retentions:
+                            for retention in retentions:
+                                if retention.tax_line_id.purchase_tax_type == "ritbis":
+                                    ITBIS_RETENIDO += retention.credit
+                                elif retention.tax_line_id.purchase_tax_type == "isr":
+                                    RETENCION_RENTA += retention.credit
 
-                    retentions = self.env["account.move.line"].search(
-                        [('invoice_id', '=', invoice_id.id), ('payment_id', '!=', False), ('tax_line_id', '!=', False)])
-                    if retentions:
-                        for retention in retentions:
-                            if retention.tax_line_id.purchase_tax_type == "ritbis":
-                                ITBIS_RETENIDO += retention.credit
-                            elif retention.tax_line_id.purchase_tax_type == "isr":
-                                RETENCION_RENTA += retention.credit
-
-                        FECHA_PAGO = retentions[0].date
+                            FECHA_PAGO = retentions[0].date
                 else:
-                    FECHA_PAGO = False
+                    FECHA_PAGO = move_id[0].date
             else:
                 FECHA_PAGO = False
 
