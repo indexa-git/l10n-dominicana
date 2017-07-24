@@ -211,7 +211,8 @@ class DgiiReport(models.Model):
 
                             FECHA_PAGO = retentions[0].date
                 else:
-                    FECHA_PAGO = move_id[0].date
+                    FECHA_PAGO = move_id and move_id[0].date or False
+
             else:
                 FECHA_PAGO = False
 
