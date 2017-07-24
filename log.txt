@@ -1,0 +1,1 @@
+* hide cuerrency button from invoice_form is_company_currency
