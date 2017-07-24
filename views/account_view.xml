@@ -29,6 +29,18 @@
                 <field name="price_include" position="before">
                     <field name="tax_except"/>
                 </field>
+                
+                <notebook>
+                    <page string="Cofiguración declaraciones fiscales">
+                        <group string="Configuración de celdas para los formularios de la DGII en excel">
+                            <field name="base_it1_cels"/>
+                            <field name="tax_it1_cels"/>
+                            <field name="base_ir17_cels"/>
+                            <field name="tax_ir17_cels"/>
+                        </group>
+                        <label string="NOTA: Si el valor o la base del impuesto se coloca en varias celtas debe serarlas por coma sin espacios"/>
+                    </page>
+                </notebook>
 
             </field>
         </record>

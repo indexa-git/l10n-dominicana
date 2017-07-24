@@ -37,10 +37,8 @@
 from . import shop
 from . import account
 from . import account_invoice
-from . import dgii_exterior
-from . import dgii_purchase
-from . import dgii_sale
-from . import dgii_cancel
+from . import account_payment
 from . import res
 from . import res_currency
+from . import dgii_report
 

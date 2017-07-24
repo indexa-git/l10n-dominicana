@@ -46,6 +46,16 @@ import requests
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
+    @api.one
+    @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'currency_id', 'company_id', 'date_invoice','type')
+    def _compute_amount(self):
+        super(AccountInvoice, self)._compute_amount()
+
+        if self.journal_id.purchase_type == 'informal':
+            self.amount_tax = sum(
+                line.amount for line in self.tax_line_ids if not line.tax_id.purchase_tax_type in ("isr", "ritbis"))
+            self.amount_total = self.amount_untaxed + self.amount_tax
+
     @api.model_cr_context
     def _auto_init(self):
         self._sql_constraints = [
@@ -208,12 +218,14 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         msg = False
+        self._compute_amount()
         for rec in self:
             if not rec.partner_id.sale_fiscal_type:
                 rec.sale_fiscal_type = "final"
             if rec.type in ("out_invoice",
                             "out_refund") and rec.sale_fiscal_type != "final" and rec.journal_id.ncf_control and not rec.partner_id.vat:
-                msg = u"El cliente [{}]{} no tiene RNC y es requerido para este tipo de factura.".format(rec.partner_id.id, rec.partner_id.name)
+                msg = u"El cliente [{}]{} no tiene RNC y es requerido para este tipo de factura.".format(
+                    rec.partner_id.id, rec.partner_id.name)
             elif rec.type in (
                     "in_invoice", "in_refund") and rec.journal_id.purchase_type == "normal" and not rec.partner_id.vat:
                 msg = u"El proveedor no tiene RNC y es requerido para este tipo de compra."
@@ -228,13 +240,24 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self)._prepare_refund(invoice, date_invoice=date_invoice,
                                                           date=date, description=description, journal_id=journal_id)
         if self._context.get("credit_note_supplier_ncf", False):
-            res.update({"move_name":  self._context["credit_note_supplier_ncf"]})
+            res.update({"move_name": self._context["credit_note_supplier_ncf"]})
         return res
 
-    @api.multi
-    def finalize_invoice_move_lines(self, move_lines):
+    @api.model
+    def tax_line_move_line_get(self):
+        res = super(AccountInvoice, self).tax_line_move_line_get()
 
-        return move_lines
+        if self.journal_id.type == "purchase" and self.journal_id.purchase_type in ("informal") and not self._context.get("from_payment"):
+            res_without_retention = []
+            tax_ids = [tax["tax_line_id"] for tax in res if tax["tax_line_id"]]
+            tax_ids = self.env["account.tax"].browse(tax_ids)
+            retention_tax = tax_ids.filtered(lambda r: r.purchase_tax_type in ("ritbis", "isr",)).ids
+            for value in res:
+                if not value.get("tax_line_id") in retention_tax:
+                    res_without_retention.append(value)
+            return res_without_retention
+
+        return res
 
 
 class AccountInvoiceLine(models.Model):
@@ -253,5 +276,5 @@ class AccountInvoiceLine(models.Model):
 
 
 
-class AccountInvoiceTax(models.Model):
-    _inherit = "account.invoice.tax"
+    # class AccountInvoiceTax(models.Model):
+    #     _inherit = "account.invoice.tax"
