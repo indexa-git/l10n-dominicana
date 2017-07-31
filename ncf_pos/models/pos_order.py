@@ -40,6 +40,7 @@ import logging
 import time
 
 from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -128,13 +129,22 @@ class PosOrder(models.Model):
 
     @api.multi
     def action_pos_order_invoice(self):
+        for pos_order in self:
+            if not pos_order.partner_id:
+                pos_order.partner_id = pos_order.config_id.default_partner_id.id
+
         for rec in self:
-            if not rec.partner_id:
-                rec.partner_id = rec.config_id.default_partner_id.id
-        self.action_pos_order_paid()
-        super(PosOrder, self).action_pos_order_invoice()
-        self.invoice_id.sudo().action_invoice_open()
-        self.account_move = self.invoice_id.move_id
+            if not rec.invoice_id:
+                super(PosOrder, rec).action_pos_order_invoice()
+                rec.invoice_id.sudo().action_invoice_open()
+                rec.account_move = rec.invoice_id.move_id
+
+    @api.multi
+    def action_pos_order_paid(self):
+        if not self.test_paid() and not self.is_return_order:
+            raise UserError(_("Order is not paid."))
+        self.write({'state': 'paid'})
+        return self.create_picking()
 
     @api.model
     def order_search_from_ui(self, input_txt):
