@@ -102,19 +102,6 @@ class AccountInvoice(models.Model):
                               default=_default_user_shop,
                               domain=lambda s: [('user_ids', '=', [s._uid])])
 
-    @api.multi
-    def match_origin_lines(self, origin_inv):
-        for idx, line in enumerate(origin_inv.invoice_line_ids):
-            try:
-                # Protect this write, maybe refund invoice doesn't
-                # have the same lines than original one
-                self.invoice_line_ids[idx].write({
-                    'origin_line_ids': [(6, 0, line.ids)],
-                })
-            except:  # pragma: no cover
-                pass
-        return True
-
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
@@ -286,7 +273,3 @@ class AccountInvoiceLine(models.Model):
         column2='refund_line_id', string=u"Reembolso de la línea de factura",
         relation='account_invoice_line_refunds_rel',
         help=u"Reembolso de las líneas de factura creadas a partir de esta línea de factura")
-
-
-class AccountInvoiceTax(models.Model):
-    _inherit = "account.invoice.tax"
