@@ -37,10 +37,16 @@
 from odoo import models, api
 
 
-class Sale(models.Model):
-    _inherit = "sale.order"
+class SaleAdvancePaymentInv(models.TransientModel):
+    _inherit = "sale.advance.payment.inv"
 
-    @api.model
-    def create(self, vals):
-        vals['name'] = self.env['ir.sequence'].next_by_code('sale.order')
-        return super(Sale, self).create(vals)
+
+    @api.multi
+    def create_invoices(self):
+        res = super(SaleAdvancePaymentInv, self).create_invoices()
+        sale_orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
+        for sale_order in sale_orders:
+            sale_order.invoice_ids.filtered(lambda x: x.state == "draft")._onchange_partner_id()
+
+        return res
+

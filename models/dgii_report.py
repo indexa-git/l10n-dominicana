@@ -43,7 +43,6 @@ import os
 import re
 import calendar
 
-
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -57,17 +56,45 @@ class DgiiReport(models.Model):
     @api.depends("purchase_report")
     def _purchase_report_totals(self):
         for rec in self:
-            rec.ITBIS_TOTAL = sum([purchase.ITBIS_FACTURADO for purchase in rec.purchase_report])
-            rec.ITBIS_RETENIDO = sum([purchase.ITBIS_RETENIDO for purchase in rec.purchase_report])
-            rec.TOTAL_MONTO_FACTURADO = sum([purchase.MONTO_FACTURADO for purchase in rec.purchase_report])
-            rec.RETENCION_RENTA = sum([purchase.RETENCION_RENTA for purchase in rec.purchase_report])
+            NC_ITBIS_TOTAL = sum([purchase.ITBIS_FACTURADO for purchase in rec.purchase_report if
+                                  purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
+            FAC_ITBIS_TOTAL = sum([purchase.ITBIS_FACTURADO for purchase in rec.purchase_report if
+                                   purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.ITBIS_TOTAL = FAC_ITBIS_TOTAL - NC_ITBIS_TOTAL
+
+            NC_TOTAL_MONTO_FACTURADO = sum([purchase.MONTO_FACTURADO for purchase in rec.purchase_report if
+                                            purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
+            FAC_TOTAL_MONTO_FACTURADO = sum([purchase.MONTO_FACTURADO for purchase in rec.purchase_report if
+                                             purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.TOTAL_MONTO_FACTURADO = FAC_TOTAL_MONTO_FACTURADO - NC_TOTAL_MONTO_FACTURADO
+
+            NC_RETENCION_RENTA = sum([purchase.RETENCION_RENTA for purchase in rec.purchase_report if
+                                      purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
+            FAC_RETENCION_RENTA = sum([purchase.RETENCION_RENTA for purchase in rec.purchase_report if
+                                       purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.RETENCION_RENTA = FAC_RETENCION_RENTA - NC_RETENCION_RENTA
+
+            NC_ITBIS_RETENIDO = sum([purchase.ITBIS_RETENIDO for purchase in rec.purchase_report if
+                                     purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
+            FAC_ITBIS_RETENIDO = sum([purchase.ITBIS_RETENIDO for purchase in rec.purchase_report if
+                                      purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.ITBIS_RETENIDO = FAC_ITBIS_RETENIDO - NC_ITBIS_RETENIDO
 
     @api.multi
     @api.depends("sale_report")
     def _sale_report_totals(self):
         for rec in self:
-            rec.SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report])
-            rec.SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report])
+            NC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if
+                                       sale.NUMERO_COMPROBANTE_MODIFICADO != False])
+            FAC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if
+                                        sale.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.SALE_ITBIS_TOTAL = FAC_SALE_ITBIS_TOTAL - NC_SALE_ITBIS_TOTAL
+
+            NC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
+                                                 sale.NUMERO_COMPROBANTE_MODIFICADO != False])
+            FAC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
+                                                  sale.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.SALE_TOTAL_MONTO_FACTURADO = FAC_SALE_TOTAL_MONTO_FACTURADO - NC_SALE_TOTAL_MONTO_FACTURADO
 
     @api.multi
     @api.depends("purchase_report", "sale_report")
@@ -197,11 +224,13 @@ class DgiiReport(models.Model):
             RETENCION_RENTA = 0
 
             if invoice_id.state == "paid":
-                move_id = self.env["account.move.line"].search([("move_id", "=", invoice_id.move_id.id), ('full_reconcile_id', '!=', False)])
+                move_id = self.env["account.move.line"].search(
+                    [("move_id", "=", invoice_id.move_id.id), ('full_reconcile_id', '!=', False)])
                 if invoice_id.journal_id.purchase_type == 'informal':
                     if move_id:
                         retentions = self.env["account.move.line"].search(
-                            [('invoice_id', '=', invoice_id.id), ('payment_id', '!=', False), ('tax_line_id', '!=', False)])
+                            [('invoice_id', '=', invoice_id.id), ('payment_id', '!=', False),
+                             ('tax_line_id', '!=', False)])
                         if retentions:
                             for retention in retentions:
                                 if retention.tax_line_id.purchase_tax_type == "ritbis":
@@ -283,9 +312,11 @@ class DgiiReport(models.Model):
 
                 if not taxes:
                     if invoice_id.type in ("out_invoice", "out_refund"):
-                        line.write({"invoice_line_tax_ids": [(4, 2, False)]})
+                        line.write({"invoice_line_tax_ids": [
+                            (4, self.env.ref("l10n_do.{}_tax_0_sale".format(self.company_id.id)).id, False)]})
                     else:
-                        line.write({"invoice_line_tax_ids": [(4, 3, False)]})
+                        line.write({"invoice_line_tax_ids": [
+                            (4, self.env.ref("l10n_do.{}_tax_0_purch".format(self.company_id.id)).id, False)]})
                     taxes = line.invoice_line_tax_ids
 
                 account_ids = line.account_id.ids
@@ -301,7 +332,6 @@ class DgiiReport(models.Model):
                 credit = abs(sum([line.credit for line in move_line_ids]))
 
                 if invoice_id.type in ["out_invoice", "in_refund"]:
-
                     amount = credit - debit
                 else:
                     amount = debit - credit

@@ -81,17 +81,19 @@ class Currency(models.Model):
         sheet = workbook[workbook.get_sheet_names()[0]]
 
         for row in sheet.rows:
+            if row[0].row in (1,2,3):
+                continue
             if row[0].value is None:
                 break
             year = str(row[0].value)
             month = month_dict[row[1].value.strip()]
             day = str(row[2].value).zfill(2)
-            name = "{}-{}-{} {}".format(year, month, day, fields.Datetime.now().split(" ")[1])
+            name = u"{}-{}-{} {}".format(year, month, day, fields.Datetime.now().split(" ")[1])
             rate = float(row[4].value)
             self.env["res.currency.rate"].create({"name": name,
                                                   "rate": 1 / rate,
                                                   "currency_id": 3})
-            _logger.info("UDS rate create {}".format(name))
+            _logger.info(u"UDS rate create {}".format(name))
 
 
     @api.multi

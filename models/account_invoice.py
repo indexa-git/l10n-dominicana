@@ -47,7 +47,8 @@ class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
     @api.one
-    @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'currency_id', 'company_id', 'date_invoice','type')
+    @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'currency_id', 'company_id', 'date_invoice',
+                 'type')
     def _compute_amount(self):
         super(AccountInvoice, self)._compute_amount()
 
@@ -247,7 +248,8 @@ class AccountInvoice(models.Model):
     def tax_line_move_line_get(self):
         res = super(AccountInvoice, self).tax_line_move_line_get()
 
-        if self.journal_id.type == "purchase" and self.journal_id.purchase_type in ("informal") and not self._context.get("from_payment"):
+        if self.journal_id.type == "purchase" and self.journal_id.purchase_type in (
+                "informal") and not self._context.get("from_payment"):
             res_without_retention = []
             tax_ids = [tax["tax_line_id"] for tax in res if tax["tax_line_id"]]
             tax_ids = self.env["account.tax"].browse(tax_ids)
@@ -258,6 +260,49 @@ class AccountInvoice(models.Model):
             return res_without_retention
 
         return res
+
+    @api.multi
+    def finalize_invoice_move_lines(self, move_lines):
+        # Monkey patch to calc tax accurate with the base on multixcurrency invoice
+
+        if self.currency_id != self.company_id.currency_id:
+            tax_dict = {}
+            amount_total = 0
+            invoice_line_account_account_id = [line.account_id.id for line in self.invoice_line_ids]
+            for line in move_lines:
+
+                if line[2].get("account_id") in invoice_line_account_account_id:
+                    amount_total += line[2]["debit"] + line[2]["credit"]
+
+                if line[2].get("tax_ids"):
+                    for tax_id in line[2]["tax_ids"]:
+                        tax_id = self.env["account.tax"].browse(tax_id[1])
+                        if not tax_dict.get(tax_id.id):
+                            tax_dict.update(
+                                {tax_id.id: {"amount": line[2]["debit"] + line[2]["credit"],
+                                             "rate": tax_id.amount / 100, "price_include": tax_id.price_include}})
+                        else:
+                            tax_dict[tax_id.id]["amount"] += line[2]["debit"] + line[2]["credit"]
+
+            for line in move_lines:
+                if line[2].get("tax_line_id"):
+                    if line[2]["debit"] > 0:
+                        line[2]["debit"] = tax_dict[line[2]["tax_line_id"]]["amount"] * \
+                                           tax_dict[line[2]["tax_line_id"]]["rate"]
+                        amount_total += line[2]["debit"]
+                    else:
+                        line[2]["credit"] = tax_dict[line[2]["tax_line_id"]]["amount"] * \
+                                            tax_dict[line[2]["tax_line_id"]]["rate"]
+                        amount_total += line[2]["credit"]
+
+            for line in move_lines:
+                if line[2].get("account_id") == self.account_id.id:
+                    if line[2]["debit"] > 0:
+                        line[2]["debit"] = amount_total
+                    else:
+                        line[2]["credit"] = amount_total
+
+        return move_lines
 
 
 class AccountInvoiceLine(models.Model):
@@ -273,8 +318,3 @@ class AccountInvoiceLine(models.Model):
         column2='refund_line_id', string=u"Reembolso de la línea de factura",
         relation='account_invoice_line_refunds_rel',
         help=u"Reembolso de las líneas de factura creadas a partir de esta línea de factura")
-
-
-
-    # class AccountInvoiceTax(models.Model):
-    #     _inherit = "account.invoice.tax"
