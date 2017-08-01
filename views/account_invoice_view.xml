@@ -17,7 +17,7 @@
                 </xpath>
 
                 <field name="date_due" position="replace">
-                    <field name="move_name" invisible="0" groups="account.group_account_manager"/>
+                    <field name="move_name" invisible="0" groups="account.group_account_manager,account.group_account_user"/>
                 </field>
 
                 <xpath expr="//sheet//label" position="before">
