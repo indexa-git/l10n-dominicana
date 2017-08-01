@@ -21,7 +21,7 @@
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'account', 'account_invoice_change_currency',
-                'web_sheet_full_width', 'marcos_api_tools','l10n_do','inputmask_widget'],
+                'web_sheet_full_width', 'marcos_api_tools','l10n_do', 'sale'],
 
     # always loaded
     'data': [
