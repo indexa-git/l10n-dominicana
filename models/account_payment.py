@@ -76,7 +76,9 @@ class AccountPayment(models.Model):
     @api.multi
     def post(self):
         super(AccountPayment, self).post()
-        self.create_retetion_move_line()
+        invoice_type = [inv.type for inv in self.invoice_ids]
+        if invoice_type in ("in_invoice","in_refund"):
+            self.create_retetion_move_line()
 
 
     @api.multi
@@ -113,7 +115,12 @@ class AccountPayment(models.Model):
 
                 reconcile_move_line.remove_move_reconcile()
 
-                move.button_cancel()
+                if not move.journal_id.update_posted:
+                    move.journal_id.sudo().write({"update_posted": True})
+                    move.button_cancel()
+                    move.journal_id.sudo().write({"update_posted": False})
+                else:
+                    move.button_cancel()
 
                 reconcile_invoice_move_line |= aml_obj.browse(reconcile_move_line.id).copy({"debit": rcredit_amount, "name": "{} / {}".format(reconcile_move_line.name, "Retencion")})
                 reconcile_invoice_move_line |= reconcile_move_line
