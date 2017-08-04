@@ -156,7 +156,7 @@ class AccountInvoice(models.Model):
         help=u"Devolución de facturas creadas a partir de esta factura")
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
-    rate_id = fields.Many2one("res.currency.rate", string=u"Tasa", compute=_get_rate)
+    rate_id = fields.Many2one("res.currency.rate", string=u"Tasa", compute=_get_rate, store=True)
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate, currency_field='currency_id')
     purchase_type = fields.Selection([("normal", u"REQUIERE NCF"),
                                       ("minor", u"GASTO MENOR NCF GENERADO POR EL SISTEMA"),
