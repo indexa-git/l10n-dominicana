@@ -490,9 +490,7 @@
                     <t t-esc=" widget.options.title || '' "/>
                 </p>
                 <input type='text' t-att-value="widget.options.value || ''"></input>
-                <p>Lo que debe colocar como número de referencia es.</p>
-                <p><i class="fa fa-credit-card-alt" aria-hidden="true"></i> TARJETA: Numero de aprobación.</p>
-                <p><i class="fa fa-pencil-square-o" aria-hidden="true"></i> CHEQUE: Numero del cheque y banco.</p>
+                <p><i class="fa fa-credit-card-alt" aria-hidden="true"></i> TARJETA: Número de aprobación.</p>
                 <div class="footer">
                     <div class="button confirm">
                         Ok

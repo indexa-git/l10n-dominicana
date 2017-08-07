@@ -1,8 +1,10 @@
 odoo.define('ncf_pos.ncf_ticket', function(require) {
+    "use strict";
     var core = require('web.core');
     var models = require('point_of_sale.models');
     var screens = require('point_of_sale.screens');
     var Model = require('web.DataModel');
+    var PopupWidget = require('point_of_sale.popups');
     var gui = require('point_of_sale.gui');
 
     var SuperOrder = models.Order;
@@ -139,7 +141,7 @@ odoo.define('ncf_pos.ncf_ticket', function(require) {
 
                 if (current_line.length + space_index > MAX_LENGTH) {
                     if (current_line.length) {
-                        current_line = space_pad(current_line,5)
+                        current_line = space_pad(current_line,5);
                         wrapped.push(current_line);
                     }
                     current_line = "";
@@ -150,7 +152,7 @@ odoo.define('ncf_pos.ncf_ticket', function(require) {
             }
 
             if (current_line.length) {
-                current_line = space_pad(current_line,5)
+                current_line = space_pad(current_line,5);
                 wrapped.push(current_line);
             }
 
@@ -217,6 +219,22 @@ odoo.define('ncf_pos.ncf_ticket', function(require) {
     });
 
     screens.PaymentScreenWidget.include({
+
+        order_is_valid: function (force_validation) {
+            var order = this.pos.get_order();
+
+            if (!order.get_client()) {
+                alert();
+            }
+
+            if (order.is_return_order) {
+                return true;
+            } else {
+                return this._super(force_validation);
+            }
+
+        },
+
         validate_client: function() {
             var order = this.pos.get_order();
             var client = order.get_client();
@@ -242,10 +260,11 @@ odoo.define('ncf_pos.ncf_ticket', function(require) {
         validate_order: function(force_validation) {
             var self = this;
             var res = self.validate_client();
+            var currentOrder = this.pos.get_order();
 
             if (res !== true) {
                 self.gui.show_popup('confirm', {
-                    title: _t('Por favor corrija estos los datos'),
+                    title: _t('Por favor corrija estos datos'),
                     body:  _t(res),
                     confirm: function() {
                         self.gui.close_popup();
@@ -259,7 +278,38 @@ odoo.define('ncf_pos.ncf_ticket', function(require) {
                 }
             }
         },
+
+        click_paymentmethods: function (id) {
+            var self = this;
+
+            var cashregister = null;
+            for (var i = 0; i < this.pos.cashregisters.length; i++) {
+                if (this.pos.cashregisters[i].journal_id[0] === id) {
+                    cashregister = this.pos.cashregisters[i];
+                    break;
+                }
+            }
+            var order = self.pos.get_order();
+
+            if (cashregister.journal.type == "bank" && !cashregister.journal.credit) {
+                self.gui.show_popup('payment_screen_text_input', {
+                    title: "Digite un número de referencia",
+                    confirm: function (input) {
+                        cashregister.payment_reference = input;
+                        self.pos.get_order().add_paymentline(cashregister);
+                        self.reset_input();
+                        self.render_paymentlines();
+                    }
+                });
+
+            } else {
+                this.pos.get_order().add_paymentline(cashregister);
+                this.reset_input();
+                this.render_paymentlines();
+            }
+        }
     });
+
 
     var PaymentScreenTextInput = PopupWidget.extend({
         template: 'PaymentScreenTextInput',
