@@ -482,4 +482,27 @@
         <t t-jquery="t[t-if='taxincluded']" t-operation="replace"/>
 
     </t>
+
+    <t t-name="PaymentScreenTextInput">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput">
+                <p class="title">
+                    <t t-esc=" widget.options.title || '' "/>
+                </p>
+                <input type='text' t-att-value="widget.options.value || ''"></input>
+                <p>Lo que debe colocar como número de referencia es.</p>
+                <p><i class="fa fa-credit-card-alt" aria-hidden="true"></i> TARJETA: Numero de aprobación.</p>
+                <p><i class="fa fa-pencil-square-o" aria-hidden="true"></i> CHEQUE: Numero del cheque y banco.</p>
+                <div class="footer">
+                    <div class="button confirm">
+                        Ok
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
 </templates>
