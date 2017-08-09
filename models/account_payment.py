@@ -77,7 +77,8 @@ class AccountPayment(models.Model):
     def post(self):
         super(AccountPayment, self).post()
         invoice_type = [inv.type for inv in self.invoice_ids]
-        if invoice_type in ("in_invoice","in_refund"):
+
+        if "in_invoice" in invoice_type:
             self.create_retetion_move_line()
 
 
