@@ -159,10 +159,12 @@ class ShopJournalConfig(models.Model):
         name = name or u"A01001001"
         branch_office = branch_office or u"Sucursal"
         company_id = company_id or self.env.user.company_id.id
-        journal_names = ['Customer Invoices', 'Facturas de Clientes']
+        journal_names = ['Customer Invoices', 'Facturas de Clientes', 'Facturas de cliente']
         journal_id = journal_id or journal_obj.search(
                         [('type', '=', 'sale'),
-                         ('name', 'in', journal_names)]).id
+                         ('name', 'in', journal_names)]).id or journal_obj.search(
+                        [('type', '=', 'sale')]).id
+
         self.env["account.journal"].sudo().browse(journal_id).write(
                                                         {"ncf_control": True})
 
