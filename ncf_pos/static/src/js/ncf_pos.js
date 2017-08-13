@@ -303,9 +303,7 @@ odoo.define('ncf_pos.ncf_ticket', function(require) {
                 });
 
             } else {
-                this.pos.get_order().add_paymentline(cashregister);
-                this.reset_input();
-                this.render_paymentlines();
+                this._super(id);
             }
         }
     });
