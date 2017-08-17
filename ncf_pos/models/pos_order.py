@@ -78,7 +78,11 @@ class PosOrder(models.Model):
             order_id = self.search([('pos_reference', '=', name)])
 
         if order_id:
-            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+
+
+            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config(
+                order_id.session_id.config_id.invoice_journal_id.id
+            )
             res.update({"id": order_id.id,
                         "rnc": order_id.partner_id.vat,
                         "name": order_id.partner_id.name})
