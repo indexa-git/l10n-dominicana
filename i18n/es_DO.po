@@ -2,3 +2,8 @@
 #: model:ir.ui.view,arch_db:account.invoice_supplier_form
 msgid "Ask Refund"
 msgstr "Aplicar Nota de Crédito o Débito"
+
+#. module: account
+#: model:ir.ui.view,arch_db:account.cash_box_out_form
+msgid "Describe why you take money from the cash register:"
+msgstr "Indique por qué retira dinero de caja:"
