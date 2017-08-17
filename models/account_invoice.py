@@ -78,7 +78,7 @@ class AccountInvoice(models.Model):
 
     def _default_user_shop(self):
 
-        shop_user_config = self.env["shop.ncf.config"].get_user_shop_config()
+        shop_user_config = self.env["shop.ncf.config"].get_user_shop_config(False)
         if shop_user_config:
             return shop_user_config[0]
         else:
