@@ -51,7 +51,6 @@ class Currency(models.Model):
 
     bc_rate_xls = fields.Binary(string="Historico en Excel de tasa banco central")
 
-
     @api.multi
     def update_rate_from_files(self):
         month_dict = {"Ene": "01",
@@ -70,7 +69,6 @@ class Currency(models.Model):
 
         self.env["res.currency.rate"].search([('currency_id', '=', 3)]).unlink()
 
-
         file = self.bc_rate_xls.decode('base64')
         excel_fileobj = TemporaryFile('wb+')
         excel_fileobj.write(file)
@@ -81,7 +79,7 @@ class Currency(models.Model):
         sheet = workbook[workbook.get_sheet_names()[0]]
 
         for row in sheet.rows:
-            if row[0].row in (1,2,3):
+            if row[0].row in (1, 2, 3):
                 continue
             if row[0].value is None:
                 break
