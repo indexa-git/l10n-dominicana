@@ -182,12 +182,6 @@ class DgiiReport(models.Model):
             else:
                 error_list[bad_invoice_id.id].append((bad_invoice_id.type, "Factura sin validar"))
 
-        # invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date),
-        #                                                   ('date_invoice', '<=', end_date),
-        #                                                   ('state', 'in', ('open', 'paid', 'cancel')),
-        #                                                   ('type','in',('in_invoice','in_refund')),
-                                                          # ('number','=','A010010010100089857')
-                                                          # ])
         invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date),('state', 'in', ('open', 'paid', 'cancel'),)])
 
         invoice_id_set |= invoice_ids
