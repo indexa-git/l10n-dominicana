@@ -7,6 +7,11 @@
             <field name="model">account.invoice</field>
             <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
+                <button name="action_invoice_sent" position="attributes">
+                    <attribute name="sttrs"></attribute>
+                    <attribute name="icon">fa-paper-plane</attribute>
+                </button>
+
                 <form>
                     <field name="ncf_control" invisible="1"/>
                     <field name="is_company_currency" invisible="1"/>
@@ -48,8 +53,10 @@
                 </xpath>
                 <field name="date_invoice" position="after">
                     <field name="date_due" string="Vence"/>
-                    <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}" attrs="{'readonly':[('state','!=','draft')],'required': True}"/>
-                    <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1" string="Referencia"/>
+                    <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"
+                           attrs="{'readonly':[('state','!=','draft')],'required': True}"/>
+                    <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1"
+                           string="Referencia"/>
                 </field>
 
                 <field name="user_id" position="replace"/>
