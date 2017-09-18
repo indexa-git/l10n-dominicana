@@ -31,9 +31,11 @@
                                 <field name="COMPRAS_CANTIDAD_REGISTRO"/>
                                 <field name="ITBIS_TOTAL"/>
                                 <field name="ITBIS_TOTAL_NC"/>
-                                <field name="ITBIS_RETENIDO"/>
+                                <field name="ITBIS_TOTAL_PAYMENT"/>
                                 <field name="TOTAL_MONTO_FACTURADO"/>
                                 <field name="TOTAL_MONTO_NC"/>
+                                <field name="TOTAL_MONTO_PAYMENT"/>
+                                <field name="ITBIS_RETENIDO"/>
                                 <field name="RETENCION_RENTA"/>
                                 <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
                             </group>
