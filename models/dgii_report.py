@@ -79,8 +79,8 @@ class DgiiReport(models.Model):
                     rec.RETENCION_RENTA += purchase.RETENCION_RENTA
                     rec.ITBIS_RETENIDO += purchase.ITBIS_RETENIDO
 
-            rec.ITBIS_TOTAL_PAYMENT = rec.ITBIS_TOTAL-rec.ITBIS_TOTAL_NC
-            rec.TOTAL_MONTO_PAYMENT = rec.TOTAL_MONTO_FACTURADO-rec.TOTAL_MONTO_NC
+            rec.ITBIS_TOTAL_PAYMENT = rec.ITBIS_TOTAL - rec.ITBIS_TOTAL_NC
+            rec.TOTAL_MONTO_PAYMENT = rec.TOTAL_MONTO_FACTURADO - rec.TOTAL_MONTO_NC
 
     @api.multi
     @api.depends("sale_report")
@@ -95,18 +95,6 @@ class DgiiReport(models.Model):
                 elif sale.NUMERO_COMPROBANTE_MODIFICADO == False:
                     rec.SALE_ITBIS_TOTAL += sale.ITBIS_FACTURADO
                     rec.SALE_TOTAL_MONTO_FACTURADO += sale.MONTO_FACTURADO
-
-
-
-            # NC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if sale.NUMERO_COMPROBANTE_MODIFICADO != False])
-            # FAC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if sale.NUMERO_COMPROBANTE_MODIFICADO == False])
-            # rec.SALE_ITBIS_TOTAL = FAC_SALE_ITBIS_TOTAL - NC_SALE_ITBIS_TOTAL
-            #
-            # NC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
-            #                                      sale.NUMERO_COMPROBANTE_MODIFICADO != False])
-            # FAC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
-            #                                       sale.NUMERO_COMPROBANTE_MODIFICADO == False])
-            # rec.SALE_TOTAL_MONTO_FACTURADO = FAC_SALE_TOTAL_MONTO_FACTURADO - NC_SALE_TOTAL_MONTO_FACTURADO
 
     @api.multi
     @api.depends("purchase_report", "sale_report")
@@ -133,7 +121,6 @@ class DgiiReport(models.Model):
     ITBIS_TOTAL = fields.Float(u"ITBIS Compras", compute=_purchase_report_totals)
     ITBIS_TOTAL_NC = fields.Float(u"ITBIS Notas de crédito", compute=_purchase_report_totals)
     ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Facturado", compute=_purchase_report_totals)
-
 
     TOTAL_MONTO_FACTURADO = fields.Float(u"Monto compra", compute=_purchase_report_totals)
     TOTAL_MONTO_NC = fields.Float(u"Monto Notas de crédito", compute=_purchase_report_totals)
@@ -192,34 +179,31 @@ class DgiiReport(models.Model):
         purchase_line = 1
         cancel_line = 1
         ext_line = 1
-        invoice_id_set = self.env["account.invoice"]
 
-        bad_invoice_ids = self.env["account.invoice"].search(
-            [('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date), ('state', '=', 'draft')])
-        for bad_invoice_id in bad_invoice_ids:
-            if not error_list.get(bad_invoice_id.id, False):
-                error_list.update({bad_invoice_id.id: [(bad_invoice_id.type, bad_invoice_id.number,"Factura sin validar")]})
-            else:
-                error_list[bad_invoice_id.id].append((bad_invoice_id.type, bad_invoice_id.number, "Factura sin validar"))
+        invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date)])
 
-        invoice_ids = self.env["account.invoice"].search(
-            [('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date),
-             ('state', 'in', ('open', 'paid', 'cancel'))])
-
-        invoice_id_set |= invoice_ids
-
+        draft_invoice_ids_set = invoice_ids.filtered(lambda x: x.state == "draft")
+        invoice_ids_set = invoice_ids.filtered(lambda x: x.state in ('open', 'paid', 'cancel'))
         paid_invoice_ids = self.env["account.payment"].search(
             [('payment_date', '>=', start_date), ('payment_date', '<=', end_date), ('invoice_ids', '!=', False)])
-
         for paid_invoice_id in paid_invoice_ids:
-            invoice_id_set |= paid_invoice_id.invoice_ids.filtered(lambda r: r.journal_id.purchase_type == "informal")
+            invoice_ids_set |= paid_invoice_id.invoice_ids.filtered(lambda r: r.journal_id.purchase_type == "informal")
 
-        select_count = len(invoice_id_set)
-        count = len(invoice_id_set)
+        for draft_invoice_id_set in draft_invoice_ids_set:
+            if not error_list.get(draft_invoice_id_set.id, False):
+                error_list.update(
+                    {draft_invoice_id_set.id: [(draft_invoice_id_set.type, draft_invoice_id_set.number, "Factura sin validar")]})
+            else:
+                error_list[draft_invoice_id_set.id].append(
+                    (draft_invoice_id_set.type, draft_invoice_id_set.number, "Factura sin validar"))
 
-        for invoice_id in invoice_id_set:
-            _logger.info("DGII REPORT READ NCF {} / {} de {}".format(invoice_id.number, count, select_count))
-            count -= 1
+
+        # select_count = len(invoice_ids_set)
+        # count = len(invoice_ids_set)
+
+        for invoice_id in invoice_ids_set:
+            # _logger.info("DGII REPORT READ NCF {} / {} de {}".format(invoice_id.number, count, select_count))
+            # count -= 1
 
             if invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in (
                     "import", "others"):
@@ -277,7 +261,7 @@ class DgiiReport(models.Model):
                     if not api_marcos.is_identification(invoice_id.partner_id.vat):
                         error_msg = u"RNC/Cédula no es valido"
                         if not error_list.get(invoice_id.id, False):
-                            error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number,  error_msg)]})
+                            error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
                         else:
                             error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
 
@@ -290,7 +274,8 @@ class DgiiReport(models.Model):
 
                     if len(invoice_id.origin_invoice_ids) > 1 and invoice_id.type in ("out_refund", "in_refund"):
 
-                        origin_invoice_ids = invoice_id.origin_invoice_ids.filtered(lambda x: x.state in ("paid", "open"))
+                        origin_invoice_ids = invoice_id.origin_invoice_ids.filtered(
+                            lambda x: x.state in ("paid", "open"))
 
                         if len(origin_invoice_ids) > 1:
                             error_msg = u"Afectado por varias notas de credito"
@@ -413,10 +398,11 @@ class DgiiReport(models.Model):
                                             xls_dict["ir17"][xls_cel[0]] += base_amount
                                     elif len(xls_cel) == 2:
                                         if not xls_dict["ir17"].get(xls_cel[0], False):
-                                            xls_dict["ir17"].update({xls_cel[0]: round(base_amount*(float(xls_cel[1])/100), 2)})
+                                            xls_dict["ir17"].update(
+                                                {xls_cel[0]: round(base_amount * (float(xls_cel[1]) / 100), 2)})
                                         else:
-                                            xls_dict["ir17"][xls_cel[0]] += round(base_amount*(float(xls_cel[1])/100),2)
-
+                                            xls_dict["ir17"][xls_cel[0]] += round(
+                                                base_amount * (float(xls_cel[1]) / 100), 2)
 
             if invoice_id.move_id:
                 taxes = []
@@ -458,7 +444,7 @@ class DgiiReport(models.Model):
                                     xls_dict["ir17"][xls_cel] += amount
 
                         if tax.type_tax_use == "sale" or (
-                                tax.type_tax_use == "purchase" and tax.purchase_tax_type == "itbis"):
+                                        tax.type_tax_use == "purchase" and tax.purchase_tax_type == "itbis"):
                             commun_data.update({"ITBIS_FACTURADO": amount})
 
             if invoice_id.type in ("out_invoice", "out_refund") and invoice_id.state != "cancel":
@@ -665,9 +651,34 @@ class DgiiReport(models.Model):
         purchase_file.close()
         purchase_file = open(pruchase_path, 'rb')
         purchase_binary = base64.b64encode(purchase_file.read())
-        purchase_filename = 'DGII_606_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(year),
-                                                          str(month).zfill(2))
+        purchase_filename = 'DGII_606_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(year),str(month).zfill(2))
         self.write({'purchase_binary': purchase_binary, 'purchase_filename': purchase_filename})
+
+        path = '/tmp/608{}.txt'.format(company_fiscal_identificacion)
+        file = open(path, 'w')
+        lines = []
+
+        header = "608"
+        header += company_fiscal_identificacion.zfill(11)
+        header += str(year)
+        header += str(month).zfill(2)
+        lines.append(header)
+
+        for line in self.cancel_report:
+            ln = ""
+            ln += line.NUMERO_COMPROBANTE_FISCAL
+            ln += line.FECHA_COMPROBANTE.replace("-", "")
+            ln += "{}".format(line.TIPO_ANULACION).zfill(2)
+            lines.append(ln)
+
+        for line in lines:
+            file.write(line + "\n")
+
+        file.close()
+        file = open(path, 'rb')
+        report = base64.b64encode(file.read())
+        report_name = 'DGII_608_{}_{}{}.TXT'.format(company_fiscal_identificacion,str(year),str(month).zfill(2))
+        self.write({'cancel_binary': report, 'cancel_filename': report_name})
 
 
 class DgiiReportPurchaseLine(models.Model):
