@@ -118,33 +118,39 @@ class ResPartner(models.Model):
 
     def validate_vat_or_name(self, vals):
         vat_or_name = vals.get("vat", False) or vals.get("name", False)
-
         if vat_or_name:
-            vat_or_name_exist = self.search([('vat', '=', vat_or_name)])
-            if vat_or_name_exist:
-                return vat_or_name_exist[0]
-
             vat = re.sub("[^0-9]", "", vat_or_name)
-
             if vat.isdigit():
-                vat_or_name_exist = self.search([('vat', '=', vat)])
-                if vat_or_name_exist:
-                    return vat_or_name_exist[0]
-                res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
-                if res[0] == 1:
-                    vals.update(res[1])
+                if len(vat) > 9:
+                    partner_id = self.search([('vat', '=', vat)])
+                    if partner_id:
+                        return partner_id
+                    else:
+                        res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
+                        if res[0] == 1:
+                            vals.update(res[1])
+                        else:
+                            return False
         return vals
 
     @api.multi
     def write(self, vals):
-        parent_id = vals.get("parent_id", False) or self.parent_id
-        if not parent_id:
-            validation = self.validate_vat_or_name(vals)
-            if not isinstance(validation, dict) and self:
+        if vals.get("name", False):
+            partner_id = self.search([('name', '=', vals["name"])])
+            if partner_id:
                 raise exceptions.ValidationError(
-                    u"Ya existe un contacto registra    do con esta identificación a nombre de {}!".format(vals.name))
-            elif isinstance(validation, dict) and self:
-                vals = validation
+                    u"Ya existe un contacto registrado con este nombre de {}! incluir otro apellido o informacion"
+                    u"adicional si está seguro que es otro diferente al que ya esxite".format(
+                        vals["name"]))
+
+        for rec in self:
+            if vals.get("parent_id", False) or rec.parent_id:
+                return super(ResPartner, self).write(vals)
+
+        vals = self.validate_vat_or_name(vals)
+        if not vals:
+            raise exceptions.ValidationError(u"EL RNC NO ES VALIDO.")
+
         return super(ResPartner, self).write(vals)
 
     @api.model
@@ -152,7 +158,19 @@ class ResPartner(models.Model):
         if self._context.get("install_mode", False):
             return super(ResPartner, self).create(vals)
 
+        if vals.get("name", False):
+            partner_id = self.search([('name', '=', vals["name"])])
+            if partner_id:
+                raise exceptions.ValidationError(
+                    u"Ya existe un contacto registrado con este nombre de {}! incluir otro apellido o informacion"
+                    u"adicional si está seguro que es otro diferente al que ya esxite".format(
+                        vals["name"]))
+
         vals = self.validate_vat_or_name(vals)
+
+        if not vals:
+            raise exceptions.ValidationError(u"EL RNC NO ES VALIDO.")
+
         if not isinstance(vals, dict):
             return vals
 
@@ -195,4 +213,3 @@ class ResPartner(models.Model):
             result["arch"] = etree.tostring(arch)
 
         return result
-

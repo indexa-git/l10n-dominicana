@@ -56,43 +56,57 @@ class DgiiReport(models.Model):
     @api.depends("purchase_report")
     def _purchase_report_totals(self):
         for rec in self:
-            rec.ITBIS_TOTAL_NC = sum([purchase.ITBIS_FACTURADO for purchase in rec.purchase_report if
-                                      purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
-            rec.ITBIS_TOTAL = sum([purchase.ITBIS_FACTURADO for purchase in rec.purchase_report if
-                                   purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.ITBIS_TOTAL = 0
+            rec.ITBIS_TOTAL_NC = 0
+            rec.ITBIS_TOTAL_PAYMENT = 0
 
-            rec.TOTAL_MONTO_NC = sum([purchase.MONTO_FACTURADO for purchase in rec.purchase_report if
-                                      purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
-            rec.TOTAL_MONTO_FACTURADO = sum([purchase.MONTO_FACTURADO for purchase in rec.purchase_report if
-                                             purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
+            rec.TOTAL_MONTO_FACTURADO = 0
+            rec.TOTAL_MONTO_NC = 0
+            rec.TOTAL_MONTO_PAYMENT = 0
 
-            NC_RETENCION_RENTA = sum([purchase.RETENCION_RENTA for purchase in rec.purchase_report if
-                                      purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
-            FAC_RETENCION_RENTA = sum([purchase.RETENCION_RENTA for purchase in rec.purchase_report if
-                                       purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
-            rec.RETENCION_RENTA = FAC_RETENCION_RENTA - NC_RETENCION_RENTA
+            rec.ITBIS_RETENIDO = 0
+            rec.RETENCION_RENTA = 0
 
-            NC_ITBIS_RETENIDO = sum([purchase.ITBIS_RETENIDO for purchase in rec.purchase_report if
-                                     purchase.NUMERO_COMPROBANTE_MODIFICADO != False])
-            FAC_ITBIS_RETENIDO = sum([purchase.ITBIS_RETENIDO for purchase in rec.purchase_report if
-                                      purchase.NUMERO_COMPROBANTE_MODIFICADO == False])
-            rec.ITBIS_RETENIDO = FAC_ITBIS_RETENIDO - NC_ITBIS_RETENIDO
+            for purchase in rec.purchase_report:
+                if purchase.NUMERO_COMPROBANTE_MODIFICADO != False:
+                    rec.ITBIS_TOTAL_NC += purchase.ITBIS_FACTURADO
+                    rec.TOTAL_MONTO_NC += purchase.MONTO_FACTURADO
+                    rec.RETENCION_RENTA -= purchase.RETENCION_RENTA
+                    rec.ITBIS_RETENIDO -= purchase.ITBIS_RETENIDO
+                elif purchase.NUMERO_COMPROBANTE_MODIFICADO == False:
+                    rec.ITBIS_TOTAL += purchase.ITBIS_FACTURADO
+                    rec.TOTAL_MONTO_FACTURADO += purchase.MONTO_FACTURADO
+                    rec.RETENCION_RENTA += purchase.RETENCION_RENTA
+                    rec.ITBIS_RETENIDO += purchase.ITBIS_RETENIDO
+
+            rec.ITBIS_TOTAL_PAYMENT = rec.ITBIS_TOTAL-rec.ITBIS_TOTAL_NC
+            rec.TOTAL_MONTO_PAYMENT = rec.TOTAL_MONTO_FACTURADO-rec.TOTAL_MONTO_NC
 
     @api.multi
     @api.depends("sale_report")
     def _sale_report_totals(self):
         for rec in self:
-            NC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if
-                                       sale.NUMERO_COMPROBANTE_MODIFICADO != False])
-            FAC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if
-                                        sale.NUMERO_COMPROBANTE_MODIFICADO == False])
-            rec.SALE_ITBIS_TOTAL = FAC_SALE_ITBIS_TOTAL - NC_SALE_ITBIS_TOTAL
+            rec.SALE_ITBIS_TOTAL = 0
+            rec.SALE_TOTAL_MONTO_FACTURADO = 0
+            for sale in rec.sale_report:
+                if sale.NUMERO_COMPROBANTE_MODIFICADO != False:
+                    rec.SALE_ITBIS_TOTAL -= sale.ITBIS_FACTURADO
+                    rec.SALE_TOTAL_MONTO_FACTURADO -= sale.MONTO_FACTURADO
+                elif sale.NUMERO_COMPROBANTE_MODIFICADO == False:
+                    rec.SALE_ITBIS_TOTAL += sale.ITBIS_FACTURADO
+                    rec.SALE_TOTAL_MONTO_FACTURADO += sale.MONTO_FACTURADO
 
-            NC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
-                                                 sale.NUMERO_COMPROBANTE_MODIFICADO != False])
-            FAC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
-                                                  sale.NUMERO_COMPROBANTE_MODIFICADO == False])
-            rec.SALE_TOTAL_MONTO_FACTURADO = FAC_SALE_TOTAL_MONTO_FACTURADO - NC_SALE_TOTAL_MONTO_FACTURADO
+
+
+            # NC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if sale.NUMERO_COMPROBANTE_MODIFICADO != False])
+            # FAC_SALE_ITBIS_TOTAL = sum([sale.ITBIS_FACTURADO for sale in rec.sale_report if sale.NUMERO_COMPROBANTE_MODIFICADO == False])
+            # rec.SALE_ITBIS_TOTAL = FAC_SALE_ITBIS_TOTAL - NC_SALE_ITBIS_TOTAL
+            #
+            # NC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
+            #                                      sale.NUMERO_COMPROBANTE_MODIFICADO != False])
+            # FAC_SALE_TOTAL_MONTO_FACTURADO = sum([sale.MONTO_FACTURADO for sale in rec.sale_report if
+            #                                       sale.NUMERO_COMPROBANTE_MODIFICADO == False])
+            # rec.SALE_TOTAL_MONTO_FACTURADO = FAC_SALE_TOTAL_MONTO_FACTURADO - NC_SALE_TOTAL_MONTO_FACTURADO
 
     @api.multi
     @api.depends("purchase_report", "sale_report")
@@ -116,12 +130,17 @@ class DgiiReport(models.Model):
 
     # 606
     COMPRAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
-    ITBIS_TOTAL = fields.Float(u"Total ITBIS Facturado", compute=_purchase_report_totals)
-    ITBIS_TOTAL_NC = fields.Float(u"Total ITBIS NC", compute=_purchase_report_totals)
-    ITBIS_RETENIDO = fields.Float(u"Total ITBIS Retenido", compute=_purchase_report_totals)
-    TOTAL_MONTO_FACTURADO = fields.Float(u"Total Monto Facturado", compute=_purchase_report_totals)
-    TOTAL_MONTO_NC = fields.Float(u"Total Monto NC", compute=_purchase_report_totals)
-    RETENCION_RENTA = fields.Float(u"Total Retención Renta", compute=_purchase_report_totals)
+    ITBIS_TOTAL = fields.Float(u"ITBIS Compras", compute=_purchase_report_totals)
+    ITBIS_TOTAL_NC = fields.Float(u"ITBIS Notas de crédito", compute=_purchase_report_totals)
+    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Facturado", compute=_purchase_report_totals)
+
+
+    TOTAL_MONTO_FACTURADO = fields.Float(u"Monto compra", compute=_purchase_report_totals)
+    TOTAL_MONTO_NC = fields.Float(u"Monto Notas de crédito", compute=_purchase_report_totals)
+    TOTAL_MONTO_PAYMENT = fields.Float(u"Total monto facturado", compute=_purchase_report_totals)
+
+    ITBIS_RETENIDO = fields.Float(u"ITBIS Retenido", compute=_purchase_report_totals)
+    RETENCION_RENTA = fields.Float(u"Retención Renta", compute=_purchase_report_totals)
 
     purchase_report = fields.One2many(u"dgii.report.purchase.line", "dgii_report_id")
     purchase_filename = fields.Char()
@@ -269,12 +288,16 @@ class DgiiReport(models.Model):
                         else:
                             error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
 
-                    if len(invoice_id.origin_invoice_ids) > 1:
-                        error_msg = u"Afectado por varias notas de credito"
-                        if not error_list.get(invoice_id.id, False):
-                            error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
-                        else:
-                            error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+                    if len(invoice_id.origin_invoice_ids) > 1 and invoice_id.type in ("out_refund", "in_refund"):
+
+                        origin_invoice_ids = invoice_id.origin_invoice_ids.filtered(lambda x: x.state in ("paid", "open"))
+
+                        if len(origin_invoice_ids) > 1:
+                            error_msg = u"Afectado por varias notas de credito"
+                            if not error_list.get(invoice_id.id, False):
+                                error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                            else:
+                                error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
 
                     if invoice_id.type in ("out_refund", "in_refund"):
                         try:
