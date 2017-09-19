@@ -465,7 +465,7 @@ class DgiiReport(models.Model):
                 ext_line += 1
             elif invoice_id.type in ("in_invoice", "in_refund") and invoice_id.state != "cancel":
                 commun_data.update(
-                    {"LINE": purchase_line, "TIPO_BIENES_SERVICIOS_COMPRADOS": invoice_id.purchase_fiscal_type})
+                    {"LINE": purchase_line, "TIPO_BIENES_SERVICIOS_COMPRADOS": invoice_id.expense_type})
                 purchase_report.append(commun_data)
                 purchase_line += 1
             else:
