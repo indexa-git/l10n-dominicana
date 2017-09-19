@@ -116,7 +116,22 @@ class AccountTax(models.Model):
         [('itbis', 'ITBIS Pagado'),
          ('ritbis', 'ITBIS Retenido'),
          ('isr', 'ISR Retenido'),
+         ('rext', 'Remesas al Exterior (Ley  253-12)'),
          ('cost', 'Forma Parte del Gasto'),
          ('none', 'No Deducible')],
         default="itbis", string="Tipo de Impuesto de Compra"
         )
+    tax_except = fields.Boolean(string="Exento de este impuesto")
+    base_it1_cels = fields.Char("Celdas de la base para el IT-1")
+    tax_it1_cels = fields.Char("Celdas del inpuesto para el IT-1")
+    base_ir17_cels = fields.Char("Celdas de la base para el IR-17")
+    tax_ir17_cels = fields.Char("Celdas del inpuesto para el IR-17")
+
+    @api.multi
+    def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None):
+        res = super(AccountTax, self).compute_all(price_unit, currency=currency, quantity=quantity, product=product, partner=partner)
+        for tax in res.get("taxes", False):
+            tax_id = self.browse(tax["id"])
+            if tax_id.tax_except:
+                tax["amount"] = 0
+        return res

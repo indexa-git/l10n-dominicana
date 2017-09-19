@@ -1,0 +1,9 @@
+<odoo>
+    <data>
+        <template id="ncf_managet_assests_backend" name="ncf_managet_assests_backend" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/ncf_manager/static/src/js/marcos.js"></script>
+            </xpath>
+        </template>
+    </data>
+</odoo>
