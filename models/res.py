@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
-#  (<https://marcos.do/>) 
+#  (<https://marcos.do/>)
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
@@ -116,33 +116,37 @@ class ResPartner(models.Model):
 
     def validate_vat_or_name(self, vals):
         vat_or_name = vals.get("vat", False) or vals.get("name", False)
-
         if vat_or_name:
-            vat_or_name_exist = self.search([('vat', '=', vat_or_name)])
-            if vat_or_name_exist:
-                return vat_or_name_exist[0]
-
             vat = re.sub("[^0-9]", "", vat_or_name)
-
             if vat.isdigit():
-                vat_or_name_exist = self.search([('vat', '=', vat)])
-                if vat_or_name_exist:
-                    return vat_or_name_exist[0]
-                res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
-                if res[0] == 1:
-                    vals.update(res[1])
+                if len(vat) >= 9:
+                    partner_id = self.search([('vat', '=', vat)])
+                    if partner_id:
+                        return partner_id
+                    else:
+                        res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
+                        if res[0] == 1:
+                            vals.update(res[1])
+                        else:
+                            return False
         return vals
 
     @api.multi
     def write(self, vals):
-        parent_id = vals.get("parent_id", False) or self.parent_id
-        if not parent_id:
-            validation = self.validate_vat_or_name(vals)
-            if not isinstance(validation, dict) and self:
+        if vals.get("name", False):
+            partner_id = self.search([('name', '=', vals["name"])])
+            if partner_id:
                 raise exceptions.ValidationError(
-                    u"Ya existe un contacto registrado con esta identificación a nombre de {}!".format(vals.name))
-            elif isinstance(validation, dict) and self:
-                vals = validation
+                    u"¡Ya existe un contacto registrado con este nombre -> {}!"
+                    u" Incluir otro apellido o información adicional si está "
+                    u" seguro que es otro contacto diferente al que ya esxite".format(vals["name"]))
+        for rec in self:
+            if vals.get("parent_id", False) or rec.parent_id:
+                return super(ResPartner, self).write(vals)
+
+        vals = self.validate_vat_or_name(vals)
+        if not vals:
+            raise exceptions.ValidationError(u"El RNC/Céd NO es válido.")
         return super(ResPartner, self).write(vals)
 
     @api.model
@@ -150,7 +154,18 @@ class ResPartner(models.Model):
         if self._context.get("install_mode", False):
             return super(ResPartner, self).create(vals)
 
+        if vals.get("name", False):
+            partner_id = self.search([('name', '=', vals["name"])])
+            if partner_id:
+                raise exceptions.ValidationError(
+                    u"¡Ya existe un contacto registrado con este nombre -> {}!"
+                    u" Incluir otro apellido o información adicional si está "
+                    u" seguro que es otro contacto diferente al que ya esxite".format(vals["name"]))
+
         vals = self.validate_vat_or_name(vals)
+        if not vals:
+            raise exceptions.ValidationError(u"El RNC/Céd NO es válido.")
+
         if not isinstance(vals, dict):
             return vals
 
@@ -177,65 +192,3 @@ class ResPartner(models.Model):
     def onchange_sale_fiscal_type(self):
         if self.sale_fiscal_type == "special":
             self.property_account_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
-
-
-class Currency(models.Model):
-    _inherit = "res.currency"
-
-    @api.multi
-    def _compute_current_rate(self):
-        """
-        Orveride native because whan to show rate_id on invoice to be shure
-         and do not search rate by datetime just by date because RD have rate by day
-        :return:
-        """
-        date = self._context.get('date') or fields.Datetime.now()
-        company_id = self._context.get('company_id') or self.env['res.users']._get_company().id
-        # the subquery selects the last rate before 'date' for the given currency/company
-        query = """SELECT c.id, (
-                            SELECT r.rate FROM res_currency_rate r
-                            WHERE r.currency_id = c.id AND r.name::date = %s
-                            AND (r.company_id IS NULL OR r.company_id = %s)
-                            ORDER BY r.company_id, r.name DESC LIMIT 1) AS rate
-                   FROM res_currency c
-                   WHERE c.id IN %s"""
-
-        self._cr.execute(query, (date, company_id, tuple(self.ids)))
-        currency_rates = dict(self._cr.fetchall())
-
-        query = """SELECT r.currency_id, r.id FROM res_currency_rate r
-                    WHERE r.currency_id in %s AND r.name::date = %s
-                    AND (r.company_id IS NULL OR r.company_id = %s)
-                    ORDER BY r.company_id, r.name DESC LIMIT 1"""
-
-        self._cr.execute(query, (tuple(self.ids), date, company_id))
-        rate_ids = dict(self._cr.fetchall())
-
-        for currency in self:
-            currency.rate = currency_rates.get(currency.id) or 1.0
-            currency.res_currency_rate_id = rate_ids.get(currency.id) or False
-
-    res_currency_rate_id = fields.Integer(compute=_compute_current_rate)
-
-
-class CurrencyRate(models.Model):
-    _inherit = "res.currency.rate"
-
-    @api.multi
-    @api.depends("rate")
-    def _get_converted(self):
-        for rec in self:
-            if rec.rate > 0:
-                rec.converted = 1/rec.rate
-
-    @api.multi
-    def name_get(self):
-        result = []
-        for rate in self:
-            result.append((rate.id, "{} | Tasa: {}".format(rate.name,
-                                                           rate.converted)))
-        return result
-
-    rate = fields.Float(digits=(12, 12), help='The rate of the currency to the currency of rate 1')
-    converted = fields.Float(compute=_get_converted, digits=(12, 4))
-

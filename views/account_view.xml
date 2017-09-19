@@ -6,13 +6,11 @@
             <field name="model">account.journal</field>
             <field name="inherit_id" ref="account.view_account_journal_form"/>
             <field name="arch" type="xml">
-
                 <field name="type" position="after">
                     <field name="ncf_control" attrs="{'invisible': [('type','!=','sale')]}"/>
                     <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
                     <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
                 </field>
-
             </field>
         </record>
 
@@ -21,11 +19,24 @@
             <field name="model">account.tax</field>
             <field name="inherit_id" ref="account.view_tax_form"/>
             <field name="arch" type="xml">
-
                 <field name="type_tax_use" position="after">
                     <field name="purchase_tax_type" widget="radio"
                            attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
                 </field>
+                <field name="price_include" position="before">
+                    <field name="tax_except"/>
+                </field>
+                <notebook>
+                    <page string="Cofiguración declaraciones fiscales">
+                        <group string="Configuración de celdas para los formularios de la DGII en excel">
+                            <field name="base_it1_cels"/>
+                            <field name="tax_it1_cels"/>
+                            <field name="base_ir17_cels"/>
+                            <field name="tax_ir17_cels"/>
+                        </group>
+                        <label string="NOTA: Si el valor o la base del impuesto se coloca en varias celdas debe separarlas por coma, sin espacios"/>
+                    </page>
+                </notebook>
             </field>
         </record>
 
@@ -34,14 +45,14 @@
 
         <menuitem id="marcos_account_dgii_file_menu" name="Archivos" parent="marcos_account_dgii_menu" sequence="5"/>
 
-
         <record id="view_move_line_tree" model="ir.ui.view">
             <field name="name">account.move.line.form</field>
             <field name="model">account.move.line</field>
             <field name="inherit_id" ref="account.view_move_line_tree"/>
             <field name="arch" type="xml">
                 <field name="credit" position="after">
-                    <field name="balance" sum="Balance"/>
+                    <field name="balance" sum="Balance" invisible="0"/>
+                    <field name="amount_residual" invisible="1"/>
                 </field>
             </field>
         </record>
@@ -72,7 +83,6 @@
                 </filter>
             </field>
         </record>
-
 
         <record model="ir.ui.view" id="view_move_line_pivot">
             <field name="name">account.move.line.pivot</field>
@@ -107,7 +117,5 @@
 
             </field>
         </record>
-
-
     </data>
 </odoo>

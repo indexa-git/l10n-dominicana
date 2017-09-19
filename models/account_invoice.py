@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
-#  (<https://marcos.do/>) 
+#  (<https://marcos.do/>)
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
@@ -45,6 +45,16 @@ _logger = logging.getLogger(__name__)
 
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
+
+    @api.one
+    @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'currency_id', 'company_id', 'date_invoice',
+                 'type')
+    def _compute_amount(self):
+        super(AccountInvoice, self)._compute_amount()
+        if self.journal_id.purchase_type == 'informal':
+            self.amount_tax = sum(
+                line.amount for line in self.tax_line_ids if not line.tax_id.purchase_tax_type in ("isr", "ritbis"))
+            self.amount_total = self.amount_untaxed + self.amount_tax
 
     @api.model_cr_context
     def _auto_init(self):
@@ -143,18 +153,18 @@ class AccountInvoice(models.Model):
     origin_invoice_ids = fields.Many2many(
         comodel_name='account.invoice', column1='refund_invoice_id',
         column2='original_invoice_id', relation='account_invoice_refunds_rel',
-        string=u"Factura original", readonly=True,
+        string=u"Factura original", readonly=True, states={'draft': [('readonly', False)]},
         help=u"Factura original a la que se remite esta factura de reembolso")
     refund_invoice_ids = fields.Many2many(
         comodel_name='account.invoice', column1='original_invoice_id',
         column2='refund_invoice_id', relation='account_invoice_refunds_rel',
-        string=u"Reembolso de facturas", readonly=True,
+        string=u"Reembolso de facturas", readonly=True, states={'draft': [('readonly', False)]},
         help=u"Devolución de facturas creadas a partir de esta factura")
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
 
     rate_id = fields.Many2one("res.currency.rate", string=u"Tasa",
-                              compute=_get_rate)
+                              compute=_get_rate, store=True)
 
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate,
                                    currency_field='currency_id')
@@ -221,6 +231,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         msg = False
+        self._compute_amount()
         for rec in self:
             if not rec.partner_id.sale_fiscal_type:
                 rec.sale_fiscal_type = "final"
@@ -233,7 +244,6 @@ class AccountInvoice(models.Model):
                 if rec.journal_id.purchase_type in ('normal', 'informal') and not rec.partner_id.vat:
                     msg = (u"¡Para este tipo de Compra el Proveedor"
                            u" debe de tener un RNC/Cédula establecido!")
-
                 res = self.env["marcos.api.tools"].invoice_ncf_validation(rec)
                 if res is not True:
                     raise exceptions.ValidationError(res[2])
@@ -250,11 +260,65 @@ class AccountInvoice(models.Model):
                     invoice, date_invoice=date_invoice, date=date,
                     description=description, journal_id=journal_id)
         if self._context.get("credit_note_supplier_ncf", False):
-            res.update({"move_name":  self._context["credit_note_supplier_ncf"]})
+            res.update({"move_name": self._context["credit_note_supplier_ncf"]})
+        return res
+
+    @api.model
+    def tax_line_move_line_get(self):
+        res = super(AccountInvoice, self).tax_line_move_line_get()
+
+        if self.journal_id.type == "purchase" and self.journal_id.purchase_type in ("informal") and not self._context.get("from_payment"):
+            res_without_retention = []
+            tax_ids = [tax["tax_line_id"] for tax in res if tax["tax_line_id"]]
+            tax_ids = self.env["account.tax"].browse(tax_ids)
+            retention_tax = tax_ids.filtered(lambda r: r.purchase_tax_type in ("ritbis", "isr",)).ids
+            for value in res:
+                if not value.get("tax_line_id") in retention_tax:
+                    res_without_retention.append(value)
+            return res_without_retention
+
         return res
 
     @api.multi
     def finalize_invoice_move_lines(self, move_lines):
+        # Monkey patch to calc tax accurate with the base on multicurrency invoice
+
+        if self.currency_id != self.company_id.currency_id:
+            tax_dict = {}
+            amount_total = 0
+            invoice_line_account_account_id = [line.account_id.id for line in self.invoice_line_ids]
+            for line in move_lines:
+
+                if line[2].get("account_id") in invoice_line_account_account_id:
+                    amount_total += line[2]["debit"] + line[2]["credit"]
+
+                if line[2].get("tax_ids"):
+                    for tax_id in line[2]["tax_ids"]:
+                        tax_id = self.env["account.tax"].browse(tax_id[1])
+                        if not tax_dict.get(tax_id.id):
+                            tax_dict.update(
+                                {tax_id.id: {"amount": line[2]["debit"] + line[2]["credit"],
+                                             "rate": tax_id.amount / 100, "price_include": tax_id.price_include}})
+                        else:
+                            tax_dict[tax_id.id]["amount"] += line[2]["debit"] + line[2]["credit"]
+
+            for line in move_lines:
+                if line[2].get("tax_line_id"):
+                    if line[2]["debit"] > 0:
+                        line[2]["debit"] = tax_dict[line[2]["tax_line_id"]]["amount"] * \
+                                           tax_dict[line[2]["tax_line_id"]]["rate"]
+                        amount_total += line[2]["debit"]
+                    else:
+                        line[2]["credit"] = tax_dict[line[2]["tax_line_id"]]["amount"] * \
+                                            tax_dict[line[2]["tax_line_id"]]["rate"]
+                        amount_total += line[2]["credit"]
+
+            for line in move_lines:
+                if line[2].get("account_id") == self.account_id.id:
+                    if line[2]["debit"] > 0:
+                        line[2]["debit"] = amount_total
+                    else:
+                        line[2]["credit"] = amount_total
 
         return move_lines
 
