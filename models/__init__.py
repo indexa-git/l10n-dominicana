@@ -42,4 +42,3 @@ from . import account_payment
 from . import res
 from . import res_currency
 from . import dgii_report
-from . import sale
