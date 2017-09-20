@@ -333,14 +333,13 @@ class DgiiReport(models.Model):
                             (4, self.env.ref("l10n_do.{}_tax_0_purch".format(self.company_id.id)).id, False)]})
                     taxes = line.invoice_line_tax_ids
 
-                account_ids = line.account_id.ids
-
                 move_line_ids = self.env["account.move.line"].search(
-                    [('move_id', '=', invoice_id.move_id.id), ('name', '=', line.name),
-                     ('account_id', 'in', account_ids)])
+                    [('move_id', '=', invoice_id.move_id.id),
+                    ('name', '=', line.name)])
                 if not move_line_ids:
                     move_line_ids = self.env["account.move.line"].search(
-                        [('move_id', '=', invoice_id.move_id.id), ('product_id', '=', line.product_id.id)])
+                        [('move_id', '=', invoice_id.move_id.id),
+                         ('product_id', '=', line.product_id.id)])
 
                 debit = abs(sum([line.debit for line in move_line_ids]))
                 credit = abs(sum([line.credit for line in move_line_ids]))
