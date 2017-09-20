@@ -273,35 +273,34 @@ class DgiiReport(models.Model):
                         else:
                             error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
 
-                    if len(invoice_id.origin_invoice_ids) > 1 and invoice_id.type in ("out_refund", "in_refund"):
+                if len(invoice_id.origin_invoice_ids) > 1 and invoice_id.type in ("out_refund", "in_refund"):
 
-                        origin_invoice_ids = invoice_id.origin_invoice_ids.filtered(
-                            lambda x: x.state in ("paid", "open"))
+                    origin_invoice_ids = invoice_id.origin_invoice_ids.filtered(lambda x: x.state in ("paid", "open"))
 
-                        if len(origin_invoice_ids) > 1:
-                            error_msg = u"Afectado por varias notas de credito"
-                            if not error_list.get(invoice_id.id, False):
-                                error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
-                            else:
-                                error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
-
-                    if invoice_id.type in ("out_refund", "in_refund"):
-                        try:
-                            NUMERO_COMPROBANTE_MODIFICADO = invoice_id.origin_invoice_ids[0].number
-                            affected_nvoice_id = invoice_id.origin_invoice_ids[0].id
-                        except:
-                            error_msg = u"Falta el comprobante que afecta"
-                            if not error_list.get(invoice_id.id, False):
-                                error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
-                            else:
-                                error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
-
-                    if not invoice_id.number:
-                        error_msg = u"Factura validada con error"
+                    if len(origin_invoice_ids) > 1:
+                        error_msg = u"Afectado por varias notas de credito"
                         if not error_list.get(invoice_id.id, False):
                             error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
                         else:
                             error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+
+                if invoice_id.type in ("out_refund", "in_refund"):
+                    try:
+                        NUMERO_COMPROBANTE_MODIFICADO = invoice_id.origin_invoice_ids[0].number
+                        affected_nvoice_id = invoice_id.origin_invoice_ids[0].id
+                    except:
+                        error_msg = u"Falta el comprobante que afecta"
+                        if not error_list.get(invoice_id.id, False):
+                            error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                        else:
+                            error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+
+                if not invoice_id.number:
+                    error_msg = u"Factura validada con error"
+                    if not error_list.get(invoice_id.id, False):
+                        error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                    else:
+                        error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
 
             commun_data = {
                 "RNC_CEDULA": RNC_CEDULA,
