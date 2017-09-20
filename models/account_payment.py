@@ -110,6 +110,8 @@ class AccountPayment(models.Model):
                     retention_line.append(line)
 
             if retention_line:
+
+
                 move = rec.move_line_ids[0].move_id
 
                 reconcile_move_line = rec.move_line_ids.filtered(lambda r: r.debit > 0)
@@ -123,8 +125,13 @@ class AccountPayment(models.Model):
                 else:
                     move.button_cancel()
 
-                reconcile_invoice_move_line |= aml_obj.browse(reconcile_move_line.id).copy({"debit": rcredit_amount, "name": "{} / {}".format(reconcile_move_line.name, "Retencion")})
+                line_name = "Retenciones facturas "
+                for line in reconcile_move_line:
+                    line_name += line.invoice_id.number + " / "
+
+                reconcile_invoice_move_line |= aml_obj.browse(reconcile_move_line[0].id).copy({"debit": rcredit_amount, "name": "{}".format(line_name)})
                 reconcile_invoice_move_line |= reconcile_move_line
+
                 for ml in retention_line:
                     ml[2].update({"move_id": move.id, "payment_id": rec.id})
                     aml_obj.create(ml[2])
