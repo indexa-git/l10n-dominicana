@@ -264,24 +264,28 @@ class DgiiReport(models.Model):
             else:
                 FECHA_PAGO = False
 
-            if invoice_id.state != "cancel" and (invoice_id.journal_id.ncf_remote_validation or invoice_id.journal_id.ncf_control):
+            if (invoice_id.state != "cancel"
+               and (invoice_id.journal_id.ncf_remote_validation
+                    or invoice_id.journal_id.ncf_control)):
 
-                if invoice_id.type in ("out_invoice", "out_refund", "in_invoice", "in_refund"):
+                if invoice_id.type in ("out_invoice", "out_refund",
+                                       "in_invoice", "in_refund"):
 
-                    if not api_marcos.is_identification(invoice_id.partner_id.vat) and (invoice_id.partner_id.sale_fiscal_type in ("fiscal", "gov", "special") or invoice_id.journal_id.purchase_type in ("normal", "informal")):
+                    if not api_marcos.is_identification(invoice_id.partner_id.vat) and invoice_id.partner_id.sale_fiscal_type in ("fiscal", "gov", "special"):
+                        error_msg = u"RNC/Cédula no es válida"
 
-                        error_msg = u"RNC/Cédula no es valido"
                         if not error_list.get(invoice_id.id, False):
                             error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
                         else:
                             error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
 
                         if not api_marcos.is_ncf(invoice_id.number, invoice_id.type):
-                            error_msg = u"NCF no es valido"
+                            error_msg = u"NCF no es válido"
                             if not error_list.get(invoice_id.id, False):
                                 error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
                             else:
                                 error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+
                         continue
 
                     if len(invoice_id.origin_invoice_ids) > 1 and invoice_id.type in ("out_refund", "in_refund"):
@@ -306,7 +310,7 @@ class DgiiReport(models.Model):
                             else:
                                 error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
                         elif len(NUMERO_COMPROBANTE_MODIFICADO_ID) > 1:
-                            error_msg = u"Nota de crédito no puede afectar dos facturas"
+                            error_msg = u"Nota de Crédito no puede afectar dos facturas"
                             if not error_list.get(invoice_id.id, False):
                                 error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
                             else:
