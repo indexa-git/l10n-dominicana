@@ -87,14 +87,22 @@ class DgiiReport(models.Model):
     def _sale_report_totals(self):
         for rec in self:
             rec.SALE_ITBIS_TOTAL = 0
+            rec.SALE_ITBIS_NC = 0
+            rec.SALE_ITBIS_CHARGED = 0
             rec.SALE_TOTAL_MONTO_FACTURADO = 0
+            rec.SALE_TOTAL_MONTO_NC = 0
+            rec.SALE_TOTAL_MONTO_CHARGED = 0
+
             for sale in rec.sale_report:
-                if sale.NUMERO_COMPROBANTE_MODIFICADO != False:
-                    rec.SALE_ITBIS_TOTAL -= sale.ITBIS_FACTURADO
-                    rec.SALE_TOTAL_MONTO_FACTURADO -= sale.MONTO_FACTURADO
-                elif sale.NUMERO_COMPROBANTE_MODIFICADO == False:
+                if sale.NUMERO_COMPROBANTE_MODIFICADO:
+                    rec.SALE_ITBIS_NC += sale.ITBIS_FACTURADO
+                    rec.SALE_TOTAL_MONTO_NC += sale.MONTO_FACTURADO
+                else:
                     rec.SALE_ITBIS_TOTAL += sale.ITBIS_FACTURADO
                     rec.SALE_TOTAL_MONTO_FACTURADO += sale.MONTO_FACTURADO
+
+            rec.SALE_ITBIS_CHARGED = rec.SALE_ITBIS_TOTAL-rec.SALE_ITBIS_NC
+            rec.SALE_TOTAL_MONTO_CHARGED = rec.SALE_TOTAL_MONTO_FACTURADO-rec.SALE_TOTAL_MONTO_NC
 
     @api.multi
     @api.depends("purchase_report", "sale_report")
@@ -118,9 +126,10 @@ class DgiiReport(models.Model):
 
     # 606
     COMPRAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
+
     ITBIS_TOTAL = fields.Float(u"ITBIS Compras", compute=_purchase_report_totals)
     ITBIS_TOTAL_NC = fields.Float(u"ITBIS Notas de crédito", compute=_purchase_report_totals)
-    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Facturado", compute=_purchase_report_totals)
+    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Pagado", compute=_purchase_report_totals)
 
     TOTAL_MONTO_FACTURADO = fields.Float(u"Monto compra", compute=_purchase_report_totals)
     TOTAL_MONTO_NC = fields.Float(u"Monto Notas de crédito", compute=_purchase_report_totals)
@@ -135,8 +144,15 @@ class DgiiReport(models.Model):
 
     # 607
     VENTAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
-    SALE_ITBIS_TOTAL = fields.Float(u"Total ITBIS Facturado", compute=_sale_report_totals)
-    SALE_TOTAL_MONTO_FACTURADO = fields.Float(u"Total Monto Facturado", compute=_sale_report_totals)
+
+    SALE_ITBIS_TOTAL = fields.Float(u"ITBIS ventas", compute=_sale_report_totals)
+    SALE_ITBIS_NC = fields.Float(u"ITBIS Notas de crédito", compute=_sale_report_totals)
+    SALE_ITBIS_CHARGED = fields.Float(u"ITBIS Cobrado", compute=_sale_report_totals)
+
+    SALE_TOTAL_MONTO_FACTURADO = fields.Float(u"Total Facturado", compute=_sale_report_totals)
+    SALE_TOTAL_MONTO_NC = fields.Float(u"Total Notas de crédito", compute=_sale_report_totals)
+    SALE_TOTAL_MONTO_CHARGED = fields.Float(u"Facturado", compute=_sale_report_totals)
+
     sale_report = fields.One2many("dgii.report.sale.line", "dgii_report_id")
     sale_filename = fields.Char()
     sale_binary = fields.Binary(string=u"Archivo 607 TXT")
@@ -180,7 +196,7 @@ class DgiiReport(models.Model):
         cancel_line = 1
         ext_line = 1
 
-        invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date)])
+        invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date),('number','=','A010010010100166079')])
 
         draft_invoice_ids_set = invoice_ids.filtered(lambda x: x.state == "draft")
         invoice_ids_set = invoice_ids.filtered(lambda x: x.state in ('open', 'paid', 'cancel'))
@@ -197,13 +213,7 @@ class DgiiReport(models.Model):
                 error_list[draft_invoice_id_set.id].append(
                     (draft_invoice_id_set.type, draft_invoice_id_set.number, "Factura sin validar"))
 
-
-        # select_count = len(invoice_ids_set)
-        # count = len(invoice_ids_set)
-
         for invoice_id in invoice_ids_set:
-            # _logger.info("DGII REPORT READ NCF {} / {} de {}".format(invoice_id.number, count, select_count))
-            # count -= 1
 
             if invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in (
                     "import", "others"):
@@ -366,7 +376,6 @@ class DgiiReport(models.Model):
                     base_prevent_repeat.add(base_hash)
 
                 for tax in taxes:
-
                     if tax.type_tax_use in ("purchase", "sale"):
 
                         hash = (tax.id, move_line_ids)
@@ -417,6 +426,8 @@ class DgiiReport(models.Model):
                         taxes.append(tax)
 
             for tax in taxes:
+                print invoice_id.number
+                print tax
 
                 if tax.type_tax_use in ("purchase", "sale"):
                     move_line_ids = self.env["account.move.line"].search(
