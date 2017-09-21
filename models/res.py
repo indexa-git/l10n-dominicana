@@ -57,6 +57,8 @@ class ResCompany(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+
+
     @api.multi
     @api.depends('sale_fiscal_type')
     def _fiscal_info_required(self):
@@ -144,7 +146,10 @@ class ResPartner(models.Model):
             if vals.get("parent_id", False) or rec.parent_id:
                 return super(ResPartner, self).write(vals)
 
-        vals = self.validate_vat_or_name(vals)
+        dgii_vals = self.validate_vat_or_name(vals)
+        if isinstance(dgii_vals, dict):
+            vals = dgii_vals
+
         if not vals:
             raise exceptions.ValidationError(u"El RNC/Céd NO es válido.")
         return super(ResPartner, self).write(vals)
@@ -192,3 +197,19 @@ class ResPartner(models.Model):
     def onchange_sale_fiscal_type(self):
         if self.sale_fiscal_type == "special":
             self.property_account_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
+
+    @api.multi
+    def rewrite_due_date(self):
+        for rec in self:
+            invoice_ids = self.env["account.invoice"].search(
+                [('state','=','open'), ('partner_id','=',self.id)])
+            for inv in invoice_ids:
+                pterm = rec.property_payment_term_id or rec.property_supplier_payment_term_id
+                if pterm:
+                    pterm_list = pterm.with_context(currency_id=inv.company_id.currency_id.id).compute(value=1, date_ref=inv.date_invoice)[0]
+                    date_due = max(line[0] for line in pterm_list)
+                    inv.date_due = date_due
+                    for line in inv.move_id.line_ids:
+                        line.date_maturity = date_due
+                else:
+                    raise exceptions.ValidationError(u"Debe especificar el término de pago del contacto")
