@@ -196,7 +196,7 @@ class DgiiReport(models.Model):
         cancel_line = 1
         ext_line = 1
 
-        invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date),('number','=','A010010010100166079')])
+        invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date)])
 
         draft_invoice_ids_set = invoice_ids.filtered(lambda x: x.state == "draft")
         invoice_ids_set = invoice_ids.filtered(lambda x: x.state in ('open', 'paid', 'cancel'))
@@ -425,9 +425,8 @@ class DgiiReport(models.Model):
                     if tax:
                         taxes.append(tax)
 
+            ITBIS_FACTURADO = 0.0
             for tax in taxes:
-                print invoice_id.number
-                print tax
 
                 if tax.type_tax_use in ("purchase", "sale"):
                     move_line_ids = self.env["account.move.line"].search(
@@ -437,6 +436,7 @@ class DgiiReport(models.Model):
                     if move_line_ids:
 
                         amount = abs(sum([line.debit - line.credit for line in move_line_ids]))
+                        ITBIS_FACTURADO += amount
 
                         if tax.tax_it1_cels:
                             xls_cels = tax.tax_it1_cels.split(",")
@@ -456,7 +456,7 @@ class DgiiReport(models.Model):
 
                         if tax.type_tax_use == "sale" or (
                                         tax.type_tax_use == "purchase" and tax.purchase_tax_type == "itbis"):
-                            commun_data.update({"ITBIS_FACTURADO": amount})
+                            commun_data.update({"ITBIS_FACTURADO": ITBIS_FACTURADO})
 
             if invoice_id.type in ("out_invoice", "out_refund") and invoice_id.state != "cancel":
                 commun_data.update({"LINE": sale_line})
