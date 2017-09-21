@@ -89,14 +89,22 @@ class DgiiReport(models.Model):
     def _sale_report_totals(self):
         for rec in self:
             rec.SALE_ITBIS_TOTAL = 0
+            rec.SALE_ITBIS_NC = 0
+            rec.SALE_ITBIS_CHARGED = 0
             rec.SALE_TOTAL_MONTO_FACTURADO = 0
+            rec.SALE_TOTAL_MONTO_NC = 0
+            rec.SALE_TOTAL_MONTO_CHARGED = 0
+
             for sale in rec.sale_report:
-                if sale.NUMERO_COMPROBANTE_MODIFICADO != False:
-                    rec.SALE_ITBIS_TOTAL -= sale.ITBIS_FACTURADO
-                    rec.SALE_TOTAL_MONTO_FACTURADO -= sale.MONTO_FACTURADO
-                elif sale.NUMERO_COMPROBANTE_MODIFICADO == False:
+                if sale.NUMERO_COMPROBANTE_MODIFICADO:
+                    rec.SALE_ITBIS_NC += sale.ITBIS_FACTURADO
+                    rec.SALE_TOTAL_MONTO_NC += sale.MONTO_FACTURADO
+                else:
                     rec.SALE_ITBIS_TOTAL += sale.ITBIS_FACTURADO
                     rec.SALE_TOTAL_MONTO_FACTURADO += sale.MONTO_FACTURADO
+
+            rec.SALE_ITBIS_CHARGED = rec.SALE_ITBIS_TOTAL-rec.SALE_ITBIS_NC
+            rec.SALE_TOTAL_MONTO_CHARGED = rec.SALE_TOTAL_MONTO_FACTURADO-rec.SALE_TOTAL_MONTO_NC
 
     @api.multi
     @api.depends("purchase_report", "sale_report")
@@ -120,9 +128,10 @@ class DgiiReport(models.Model):
 
     # 606
     COMPRAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
+
     ITBIS_TOTAL = fields.Float(u"ITBIS Compras", compute=_purchase_report_totals)
     ITBIS_TOTAL_NC = fields.Float(u"ITBIS Notas de crédito", compute=_purchase_report_totals)
-    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Facturado", compute=_purchase_report_totals)
+    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Pagado", compute=_purchase_report_totals)
 
     TOTAL_MONTO_FACTURADO = fields.Float(u"Monto compra", compute=_purchase_report_totals)
     TOTAL_MONTO_NC = fields.Float(u"Monto Notas de crédito", compute=_purchase_report_totals)
@@ -137,8 +146,15 @@ class DgiiReport(models.Model):
 
     # 607
     VENTAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
-    SALE_ITBIS_TOTAL = fields.Float(u"Total ITBIS Facturado", compute=_sale_report_totals)
-    SALE_TOTAL_MONTO_FACTURADO = fields.Float(u"Total Monto Facturado", compute=_sale_report_totals)
+
+    SALE_ITBIS_TOTAL = fields.Float(u"ITBIS ventas", compute=_sale_report_totals)
+    SALE_ITBIS_NC = fields.Float(u"ITBIS Notas de crédito", compute=_sale_report_totals)
+    SALE_ITBIS_CHARGED = fields.Float(u"ITBIS Cobrado", compute=_sale_report_totals)
+
+    SALE_TOTAL_MONTO_FACTURADO = fields.Float(u"Total Facturado", compute=_sale_report_totals)
+    SALE_TOTAL_MONTO_NC = fields.Float(u"Total Notas de crédito", compute=_sale_report_totals)
+    SALE_TOTAL_MONTO_CHARGED = fields.Float(u"Facturado", compute=_sale_report_totals)
+
     sale_report = fields.One2many("dgii.report.sale.line", "dgii_report_id")
     sale_filename = fields.Char()
     sale_binary = fields.Binary(string=u"Archivo 607 TXT")
@@ -199,13 +215,7 @@ class DgiiReport(models.Model):
                 error_list[draft_invoice_id_set.id].append(
                     (draft_invoice_id_set.type, draft_invoice_id_set.number, "Factura sin validar"))
 
-
-        # select_count = len(invoice_ids_set)
-        # count = len(invoice_ids_set)
-
         for invoice_id in invoice_ids_set:
-            # _logger.info("DGII REPORT READ NCF {} / {} de {}".format(invoice_id.number, count, select_count))
-            # count -= 1
 
             if invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in (
                     "import", "others"):
@@ -365,7 +375,6 @@ class DgiiReport(models.Model):
                     base_prevent_repeat.add(base_hash)
 
                 for tax in taxes:
-
                     if tax.type_tax_use in ("purchase", "sale"):
 
                         hash = (tax.id, move_line_ids)
@@ -415,6 +424,7 @@ class DgiiReport(models.Model):
                     if tax:
                         taxes.append(tax)
 
+            ITBIS_FACTURADO = 0.0
             for tax in taxes:
 
                 if tax.type_tax_use in ("purchase", "sale"):
@@ -425,6 +435,7 @@ class DgiiReport(models.Model):
                     if move_line_ids:
 
                         amount = abs(sum([line.debit - line.credit for line in move_line_ids]))
+                        ITBIS_FACTURADO += amount
 
                         if tax.tax_it1_cels:
                             xls_cels = tax.tax_it1_cels.split(",")
@@ -444,7 +455,7 @@ class DgiiReport(models.Model):
 
                         if tax.type_tax_use == "sale" or (
                                         tax.type_tax_use == "purchase" and tax.purchase_tax_type == "itbis"):
-                            commun_data.update({"ITBIS_FACTURADO": amount})
+                            commun_data.update({"ITBIS_FACTURADO": ITBIS_FACTURADO})
 
             if invoice_id.type in ("out_invoice", "out_refund") and invoice_id.state != "cancel":
                 commun_data.update({"LINE": sale_line})
@@ -546,11 +557,9 @@ class DgiiReport(models.Model):
                 message += "<li>{}</li><ul>".format(errors[0][1] or "Factura invalida")
                 for error in errors:
                     if error[0] in ("out_invoice", "out_refund"):
-                        message += u"<li><a target='_blank' href='{}'>{}</a></li>".format(out_inovice_url.format(ncf),
-                                                                                          error[2])
+                        message += u"<li><a target='_blank' href='{}'>{}</a></li>".format(out_inovice_url.format(ncf), error[2])
                     else:
-                        message += u"<li><a target='_blank' href='{}'>{}</a></li>".format(in_inovice_url.format(ncf),
-                                                                                          error[2])
+                        message += u"<li><a target='_blank' href='{}'>{}</a></li>".format(in_inovice_url.format(ncf), error[2])
                 message += "</ul>"
             message += "</ul>"
 
