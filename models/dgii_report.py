@@ -393,7 +393,7 @@ class DgiiReport(models.Model):
                     base_prevent_repeat.add(base_hash)
 
                 for tax in taxes:
-                    if tax.type_tax_use in ("purchase", "sale"):
+                    if tax.type_tax_use in ("purchase", "sale") and tax.tax_group_id.name == 'ITBIS':
 
                         hash = (tax.id, move_line_ids)
                         if hash in prevent_repeat:
@@ -434,10 +434,12 @@ class DgiiReport(models.Model):
                 taxes = []
                 for tax_line in invoice_id.tax_line_ids:
                     tax = self.env["account.tax"].search(
-                        [('name', '=', tax_line.name), ('account_id', '=', tax_line.account_id.id)])
+                        [('name', '=', tax_line.name),
+                        ('account_id', '=', tax_line.account_id.id)])
 
                     if not tax:
-                        tax = self.env["account.tax"].search([('name', '=', tax_line.name)])
+                        tax = self.env["account.tax"].search(
+                            [('name', '=', tax_line.name)])
 
                     if tax:
                         taxes.append(tax)
@@ -445,12 +447,12 @@ class DgiiReport(models.Model):
             ITBIS_FACTURADO = 0.0
             for tax in taxes:
 
-                if tax.type_tax_use in ("purchase", "sale"):
+                if tax.type_tax_use in ("purchase", "sale") and tax.tax_group_id.name == 'ITBIS':
                     move_line_ids = self.env["account.move.line"].search(
-                        [('move_id', '=', invoice_id.move_id.id), ('name', '=', tax.name)])
+                        [('move_id', '=', invoice_id.move_id.id),
+                        ('name', '=', tax.name)])
 
                     if move_line_ids:
-
                         amount = abs(sum([line.debit - line.credit for line in move_line_ids]))
                         ITBIS_FACTURADO += amount
 
