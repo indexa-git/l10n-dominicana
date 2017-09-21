@@ -264,42 +264,60 @@ class DgiiReport(models.Model):
             else:
                 FECHA_PAGO = False
 
-            if invoice_id.state != "cancel":
-                if (invoice_id.type in ("out_invoice", "out_refund") and invoice_id.partner_id.sale_fiscal_type in
-                    ("fiscal", "special", False)) or \
-                        (invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in
-                                ("normal", "informal")):
-                    if not api_marcos.is_identification(invoice_id.partner_id.vat):
+            if invoice_id.state != "cancel" and (invoice_id.journal_id.ncf_remote_validation or invoice_id.journal_id.ncf_control):
+
+                if invoice_id.type in ("out_invoice", "out_refund", "in_invoice", "in_refund"):
+
+                    if not api_marcos.is_identification(invoice_id.partner_id.vat) and (invoice_id.partner_id.sale_fiscal_type in ("fiscal", "gov", "special") or invoice_id.journal_id.purchase_type in ("normal", "informal")):
+
                         error_msg = u"RNC/Cédula no es valido"
                         if not error_list.get(invoice_id.id, False):
                             error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
                         else:
                             error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
 
-                    if not api_marcos.is_ncf(invoice_id.number, invoice_id.type):
-                        error_msg = u"NCF no es valido"
-                        if not error_list.get(invoice_id.id, False):
-                            error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                        if not api_marcos.is_ncf(invoice_id.number, invoice_id.type):
+                            error_msg = u"NCF no es valido"
+                            if not error_list.get(invoice_id.id, False):
+                                error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                            else:
+                                error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+                        continue
+
+                    if len(invoice_id.origin_invoice_ids) > 1 and invoice_id.type in ("out_refund", "in_refund"):
+
+                        origin_invoice_ids = invoice_id.origin_invoice_ids.filtered(
+                            lambda x: x.state in ("paid", "open"))
+
+                        if len(origin_invoice_ids) > 1:
+                            error_msg = u"Afectado por varias Notas de Crédito"
+                            if not error_list.get(invoice_id.id, False):
+                                error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                            else:
+                                error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+
+                    if invoice_id.type in ("out_refund", "in_refund"):
+                        NUMERO_COMPROBANTE_MODIFICADO_ID = invoice_id.origin_invoice_ids.filtered(lambda x: x.state in ("open","paid"))
+
+                        if not NUMERO_COMPROBANTE_MODIFICADO_ID:
+                            error_msg = u"Falta el Comprobante que Afecta"
+                            if not error_list.get(invoice_id.id, False):
+                                error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                            else:
+                                error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+                        elif len(NUMERO_COMPROBANTE_MODIFICADO_ID) > 1:
+                            error_msg = u"Nota de crédito no puede afectar dos facturas"
+                            if not error_list.get(invoice_id.id, False):
+                                error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                            else:
+                                error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+
                         else:
-                            error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+                            NUMERO_COMPROBANTE_MODIFICADO = NUMERO_COMPROBANTE_MODIFICADO_ID.number
+                            affected_nvoice_id = NUMERO_COMPROBANTE_MODIFICADO_ID.id
 
-                if len(invoice_id.origin_invoice_ids) > 1 and invoice_id.type in ("out_refund", "in_refund"):
-
-                    origin_invoice_ids = invoice_id.origin_invoice_ids.filtered(lambda x: x.state in ("paid", "open"))
-
-                    if len(origin_invoice_ids) > 1:
-                        error_msg = u"Afectado por varias notas de credito"
-                        if not error_list.get(invoice_id.id, False):
-                            error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
-                        else:
-                            error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
-
-                if invoice_id.type in ("out_refund", "in_refund"):
-                    try:
-                        NUMERO_COMPROBANTE_MODIFICADO = invoice_id.origin_invoice_ids[0].number
-                        affected_nvoice_id = invoice_id.origin_invoice_ids[0].id
-                    except:
-                        error_msg = u"Falta el comprobante que afecta"
+                    if not invoice_id.number:
+                        error_msg = u"Factura validada con error"
                         if not error_list.get(invoice_id.id, False):
                             error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
                         else:
@@ -430,7 +448,6 @@ class DgiiReport(models.Model):
                 if tax.type_tax_use in ("purchase", "sale"):
                     move_line_ids = self.env["account.move.line"].search(
                         [('move_id', '=', invoice_id.move_id.id), ('name', '=', tax.name)])
-                    # move_line_ids = self.env["account.move.line"].search([('move_id', '=', invoice_id.move_id.id), ('name', '=', tax.name),('account_id', '=', tax.account_collected_id.id)])
 
                     if move_line_ids:
 
