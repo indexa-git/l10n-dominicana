@@ -266,7 +266,7 @@ class DgiiReport(models.Model):
 
             if invoice_id.state != "cancel":
                 if (invoice_id.type in ("out_invoice", "out_refund") and invoice_id.partner_id.sale_fiscal_type in
-                    ("fiscal", "special", False)) or
+                    ("fiscal", "special", False)) or \
                         (invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in
                                 ("normal", "informal")):
                     if not api_marcos.is_identification(invoice_id.partner_id.vat):
