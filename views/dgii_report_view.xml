@@ -30,9 +30,11 @@
                                 <field name="ITBIS_TOTAL"/>
                                 <field name="TOTAL_MONTO_NC"/>
                                 <field name="ITBIS_TOTAL_NC"/>
-                                <separator string="Montos del Reporte"/>
-                                <field name="ITBIS_TOTAL_PAYMENT"/>
+                                <separator colspan="2"/>
+                                <separator colspan="2"/>
+                                <separator colspan="2"/>
                                 <field name="TOTAL_MONTO_PAYMENT"/>
+                                <field name="ITBIS_TOTAL_PAYMENT"/>
                                 <field name="ITBIS_RETENIDO"/>
                                 <field name="RETENCION_RENTA"/>
                                 <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
@@ -43,7 +45,9 @@
                                 <field name="SALE_ITBIS_TOTAL"/>
                                 <field name="SALE_TOTAL_MONTO_NC"/>
                                 <field name="SALE_ITBIS_NC"/>
-                                <separator string="Montos del Reporte"/>
+                                <separator colspan="2"/>
+                                <separator colspan="2"/>
+                                <separator colspan="2"/>
                                 <field name="SALE_TOTAL_MONTO_CHARGED"/>
                                 <field name="SALE_ITBIS_CHARGED"/>
                                 <field name="sale_binary" filename="sale_filename" readonly="1"/>
