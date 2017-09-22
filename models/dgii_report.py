@@ -129,13 +129,14 @@ class DgiiReport(models.Model):
     # 606
     COMPRAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
 
+    TOTAL_MONTO_FACTURADO = fields.Float(u"Monto Compras", compute=_purchase_report_totals)
     ITBIS_TOTAL = fields.Float(u"ITBIS Compras", compute=_purchase_report_totals)
-    ITBIS_TOTAL_NC = fields.Float(u"ITBIS Notas de crédito", compute=_purchase_report_totals)
-    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Pagado", compute=_purchase_report_totals)
 
-    TOTAL_MONTO_FACTURADO = fields.Float(u"Monto compra", compute=_purchase_report_totals)
-    TOTAL_MONTO_NC = fields.Float(u"Monto Notas de crédito", compute=_purchase_report_totals)
-    TOTAL_MONTO_PAYMENT = fields.Float(u"Total monto facturado", compute=_purchase_report_totals)
+    TOTAL_MONTO_NC = fields.Float(u"Notas de Crédito", compute=_purchase_report_totals)
+    ITBIS_TOTAL_NC = fields.Float(u"ITBIS Notas de Crédito", compute=_purchase_report_totals)
+
+    TOTAL_MONTO_PAYMENT = fields.Float(u"Total Monto Facturado", compute=_purchase_report_totals)
+    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Facturado", compute=_purchase_report_totals)
 
     ITBIS_RETENIDO = fields.Float(u"ITBIS Retenido", compute=_purchase_report_totals)
     RETENCION_RENTA = fields.Float(u"Retención Renta", compute=_purchase_report_totals)
@@ -147,13 +148,15 @@ class DgiiReport(models.Model):
     # 607
     VENTAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
 
-    SALE_ITBIS_TOTAL = fields.Float(u"ITBIS ventas", compute=_sale_report_totals)
-    SALE_ITBIS_NC = fields.Float(u"ITBIS Notas de crédito", compute=_sale_report_totals)
-    SALE_ITBIS_CHARGED = fields.Float(u"ITBIS Cobrado", compute=_sale_report_totals)
+    SALE_TOTAL_MONTO_FACTURADO = fields.Float(u"Monto Ventas", compute=_sale_report_totals)
+    SALE_ITBIS_TOTAL = fields.Float(u"ITBIS Ventas", compute=_sale_report_totals)
 
-    SALE_TOTAL_MONTO_FACTURADO = fields.Float(u"Total Facturado", compute=_sale_report_totals)
-    SALE_TOTAL_MONTO_NC = fields.Float(u"Total Notas de crédito", compute=_sale_report_totals)
-    SALE_TOTAL_MONTO_CHARGED = fields.Float(u"Facturado", compute=_sale_report_totals)
+    SALE_TOTAL_MONTO_NC = fields.Float(u"Notas de Crédito", compute=_sale_report_totals)
+    SALE_ITBIS_NC = fields.Float(u"ITBIS Notas de Crédito", compute=_sale_report_totals)
+
+    SALE_TOTAL_MONTO_CHARGED = fields.Float(u"Total Monto Facturado", compute=_sale_report_totals)
+    SALE_ITBIS_CHARGED = fields.Float(u"ITBIS Facturado", compute=_sale_report_totals)
+
 
     sale_report = fields.One2many("dgii.report.sale.line", "dgii_report_id")
     sale_filename = fields.Char()
@@ -166,7 +169,8 @@ class DgiiReport(models.Model):
     cancel_binary = fields.Binary(string=u"Archivo 607 TXT")
 
     # 609
-    EXTERIOR_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
+    EXTERIOR_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros",
+                                                compute=_count_records)
     EXTERIOR_TOTAL_MONTO_FACTURADO = fields.Float()
     exterior_report = fields.One2many("dgii.exterior.report.line", "dgii_report_id")
     exterior_filename = fields.Char(u"Total Monto Facturado")
