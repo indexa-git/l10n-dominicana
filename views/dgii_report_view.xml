@@ -26,11 +26,11 @@
                         <group col="4">
                             <group string="606">
                                 <field name="COMPRAS_CANTIDAD_REGISTRO"/>
+                                <field name="TOTAL_MONTO_FACTURADO"/>
                                 <field name="ITBIS_TOTAL"/>
+                                <field name="TOTAL_MONTO_NC"/>
                                 <field name="ITBIS_TOTAL_NC"/>
                                 <field name="ITBIS_TOTAL_PAYMENT"/>
-                                <field name="TOTAL_MONTO_FACTURADO"/>
-                                <field name="TOTAL_MONTO_NC"/>
                                 <field name="TOTAL_MONTO_PAYMENT"/>
                                 <field name="ITBIS_RETENIDO"/>
                                 <field name="RETENCION_RENTA"/>
@@ -38,12 +38,12 @@
                             </group>
                             <group string="607">
                                 <field name="VENTAS_CANTIDAD_REGISTRO"/>
-                                <field name="SALE_ITBIS_TOTAL"/>
-                                <field name="SALE_ITBIS_NC"/>
-                                <field name="SALE_ITBIS_CHARGED"/>
                                 <field name="SALE_TOTAL_MONTO_FACTURADO"/>
+                                <field name="SALE_ITBIS_TOTAL"/>
                                 <field name="SALE_TOTAL_MONTO_NC"/>
+                                <field name="SALE_ITBIS_NC"/>
                                 <field name="SALE_TOTAL_MONTO_CHARGED"/>
+                                <field name="SALE_ITBIS_CHARGED"/>
                                 <field name="sale_binary" filename="sale_filename" readonly="1"/>
                             </group>
                             <group string="608">
