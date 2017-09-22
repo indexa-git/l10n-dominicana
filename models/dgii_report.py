@@ -166,7 +166,7 @@ class DgiiReport(models.Model):
     CANCEL_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros", compute=_count_records)
     cancel_report = fields.One2many("dgii.cancel.report.line", "dgii_report_id")
     cancel_filename = fields.Char()
-    cancel_binary = fields.Binary(string=u"Archivo 607 TXT")
+    cancel_binary = fields.Binary(string=u"Archivo 608 TXT")
 
     # 609
     EXTERIOR_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros",
@@ -174,7 +174,7 @@ class DgiiReport(models.Model):
     EXTERIOR_TOTAL_MONTO_FACTURADO = fields.Float()
     exterior_report = fields.One2many("dgii.exterior.report.line", "dgii_report_id")
     exterior_filename = fields.Char(u"Total Monto Facturado")
-    exterior_binary = fields.Binary(string=u"Archivo 607 TXT")
+    exterior_binary = fields.Binary(string=u"Archivo 609 TXT")
 
     state = fields.Selection([('draft', 'Nuevo'), ('error', 'Con errores'), ('done', 'Validado')], default="draft")
 
