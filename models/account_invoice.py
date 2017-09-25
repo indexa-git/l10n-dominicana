@@ -178,7 +178,7 @@ class AccountInvoice(models.Model):
          ("exterior", u"Pagos al Exterior. NCF Generado por el Sistema"),
          ("import", u"Importaciones. NCF Generado por el Sistema"),
          ("others", u"Otros. No requiere NCF")],
-        string=u"Tipo de Compra", default="normal",
+        string=u"Tipo de Compra",
         related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
