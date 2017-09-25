@@ -36,9 +36,12 @@
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###############################################################################
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, registry, SUPERUSER_ID
 
 import logging
+import threading
+import time
+
 
 _logger = logging.getLogger(__name__)
 
@@ -180,11 +183,45 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
 
+    def swich_sequence_timer(self, dbname, default_journal_sequence, self_journal_sequence, self_journal_id,
+                             default_journal_id):
+        time.sleep(2)
+        db_registry = registry(dbname)
+        with api.Environment.manage(), db_registry.cursor() as cr:
+            env = api.Environment(cr, SUPERUSER_ID, {})
+            self_journal = env['account.journal'].search([('id', '=', self_journal_id)], limit=1)
+            default_journal = env['account.journal'].search([('id', '=', default_journal_id)], limit=1)
+            self_journal.write({'sequence': self_journal_sequence})
+            default_journal.write({'sequence': default_journal_sequence})
+            return {}
+
+    def swich_sequence(self):
+        journal_domain = [
+            ('type', '=', 'purchase'),
+            ('company_id', '=', self.company_id.id),
+            ('currency_id', '=', self.partner_id.property_purchase_currency_id.id),
+        ]
+        purchase_journal = self.env['account.journal'].search(journal_domain, limit=1)
+        if purchase_journal.id != self.journal_id.id:
+            default_journal_sequence = purchase_journal.sequence
+            self_journal_sequence = self.journal_id.sequence
+            self.journal_id.write({'sequence': default_journal_sequence})
+            purchase_journal.write({'sequence': self_journal_sequence})
+            threaded_sending = threading.Thread(target=self.swich_sequence_timer, args=(
+                self.env.cr.dbname,
+                default_journal_sequence,
+                self_journal_sequence,
+                self.journal_id.id,
+                purchase_journal.id
+            ))
+            threaded_sending.start()
+
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
         super(AccountInvoice, self)._onchange_journal_id()
 
         if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+            self.swich_sequence()
             self.partner_id = self.company_id.partner_id.id
 
     @api.onchange('partner_id')
@@ -198,6 +235,7 @@ class AccountInvoice(models.Model):
                 self.expense_type = self.partner_id.expense_type
 
             if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+                self.swich_sequence()
                 self.partner_id = self.company_id.partner_id.id
 
             if self.type in ("out_invoice", "out_refund") and not self.partner_id.customer:
