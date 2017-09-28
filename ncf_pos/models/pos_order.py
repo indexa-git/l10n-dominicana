@@ -58,10 +58,13 @@ class PosOrder(models.Model):
         if self.is_return_order:
             res.update({"type": "out_refund",
                         "origin_invoice_ids": [(4, self.return_order_id.invoice_id.id, _)],
-                        "origin": self.return_order_id.move_name})
+                        "origin": self.return_order_id.move_name
+                        })
         res.update({"move_name": self.move_name})
         if self.fiscal_nif:
             res.update({"fiscal_nif": self.fiscal_nif})
+
+        res.update({'shop_id':self.config_id.shop_id})
 
         return res
 
