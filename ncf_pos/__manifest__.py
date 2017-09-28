@@ -20,8 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'web', 'ncf_manager', 'point_of_sale',
-                'pos_order_return', 'pos_order_notes'],
+    'depends': ['ncf_manager', 'point_of_sale', 'pos_order_return'],
 
     # always loaded
     'data': [
