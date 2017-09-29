@@ -67,6 +67,7 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
+
         res = {"fiscal_type": "none", "fiscal_type_name": u"PRE-CUENTA"}
 
         order_id = False
@@ -80,13 +81,15 @@ class PosOrder(models.Model):
 
         if order_id:
 
-
-            shop_user_config = self.env["shop.ncf.config"].get_user_shop_config(
-                order_id.session_id.config_id.invoice_journal_id.id
-            )
+            order_id.action_pos_order_invoice()
             res.update({"id": order_id.id,
                         "rnc": order_id.partner_id.vat,
-                        "name": order_id.partner_id.name})
+                        "name": order_id.partner_id.name,
+                        "ncf": order_id.invoice_id.number,
+                        "fiscal_type": order_id.partner_id.sale_fiscal_type,
+                        "origin": False
+                        })
+            order_id.move_name = order_id.invoice_id.number
 
             if order_id.is_return_order:
                 res.update({"fiscal_type_name": u"NOTA DE CRÉDITO"})
@@ -101,35 +104,15 @@ class PosOrder(models.Model):
                 elif reference_ncf_type == "15":
                     res.update({"fiscal_type": "special_note"})
                 res.update({"origin": reference_ncf})
-                sequence = shop_user_config.nc_sequence_id
+            else:
+                fiscal_type_names = {
+                    'fiscal': "FACTURA CON VALOR FISCAL",
+                    'final': "FACTURA PARA CONSUMIDOR FINAL",
+                    'gov': "FACTURA GUBERNAMENTAL",
+                    'special': u"FACTURA PARA REGÍMENES ESPECIALES",
+                }
+                res.update({"fiscal_type_name": fiscal_type_names.get(order_id.partner_id.sale_fiscal_type)})
 
-            elif order_id.partner_id.sale_fiscal_type == "fiscal":
-                res.update({"fiscal_type": "fiscal",
-                            "fiscal_type_name": "FACTURA CON VALOR FISCAL",
-                            "origin": False})
-                sequence = shop_user_config.fiscal_sequence_id
-
-            elif order_id.partner_id.sale_fiscal_type == "final":
-                res.update({"fiscal_type": "final",
-                           "fiscal_type_name": "FACTURA PARA CONSUMIDOR FINAL",
-                            "origin": False})
-                sequence = shop_user_config.final_sequence_id
-
-            elif order_id.partner_id.sale_fiscal_type == "gov":
-                res.update({"fiscal_type": "fiscal",
-                            "fiscal_type_name": "FACTURA GUBERNAMENTAL",
-                            "origin": False})
-                sequence = shop_user_config.gov_sequence_id
-
-            elif order_id.partner_id.sale_fiscal_type == "special":
-                res.update({"fiscal_type": "special",
-                           "fiscal_type_name": u"FACTURA PARA REGÍMENES ESPECIALES",
-                            "origin": False})
-                sequence = shop_user_config.special_sequence_id
-            if sequence:
-                order_id.move_name = sequence.with_context(ir_sequence_date=fields.Date.today()).next_by_id()
-                res.update({"ncf": order_id.move_name})
-            order_id.action_pos_order_invoice()
             return res
         else:
             return False
