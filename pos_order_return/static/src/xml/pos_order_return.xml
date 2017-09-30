@@ -71,37 +71,26 @@
                 </t>
             </span>
         </t>
-        <t t-jquery="ul.info-list" t-operation="replace">
-            <ul class="info-list">
-                <t t-if="line.get_quantity_str() !== '1' || line.selected ">
-                    <li class="info">
-                        <t t-if="line.order.is_return_order">
-                            <em>
-                                -<t t-esc="line.get_quantity_str()" />
-                            </em>
-                        </t>
-                        <t t-if="!line.order.is_return_order">
-                            <em>
-                                <t t-esc="line.get_quantity_str()" />
-                            </em>
-                        </t>
-                        <t t-esc="line.get_unit().name" />
-                        at
-                        <t t-esc="widget.format_currency(line.get_unit_display_price(),'Product Price')" />
-                        /
-                        <t t-esc="line.get_unit().name" />
-                    </li>
-                </t>
-                <t t-if="line.get_discount_str() !== '0'">
-                    <li class="info">
-                        With a
+        <t t-jquery="t[t-if*='line.get_quantity_str()']" t-operation="replace">
+            <t t-if="line.get_quantity_str() !== '1' || line.selected ">
+                <li class="info">
+                    <t t-if="line.order.is_return_order">
                         <em>
-                            <t t-esc="line.get_discount_str()" />%
+                            -<t t-esc="line.get_quantity_str()" />
                         </em>
-                        discount
-                    </li>
-                </t>
-            </ul>
+                    </t>
+                    <t t-if="!line.order.is_return_order">
+                        <em>
+                            <t t-esc="line.get_quantity_str()" />
+                        </em>
+                    </t>
+                    <t t-esc="line.get_unit().name" />
+                    at
+                    <t t-esc="widget.format_currency(line.get_unit_display_price(),'Product Price')" />
+                    /
+                    <t t-esc="line.get_unit().name" />
+                </li>
+            </t>
         </t>
     </t>
 
