@@ -12,8 +12,14 @@
                     </t>
                     <input type='file' class='image-uploader'></input>
                 </div>
-                <input class='detail client-name' name='name' t-att-value='partner.name'
-                       placeholder='Nombre, RNC o Cédula'></input>
+                <t t-if="!partner.id">
+                    <input class='detail client-name' name='name' t-att-value='partner.name'
+                           placeholder='Nombre, RNC o Cédula'></input>
+                </t>
+                <t t-if="partner.id">
+                    <input class='detail client-name' name='name' t-att-value='partner.name'
+                           placeholder='Nombre, RNC o Cédula' readonly="readonly"></input>
+                </t>
                 <div class='edit-buttons'>
                     <div class='button undo'>
                         <i class='fa fa-undo'/>
@@ -61,7 +67,7 @@
                     </div>
                     <div class='client-details-right'>
                         <div class='client-detail'>
-                            <span class='label'>Email</span>
+                            <span class='label'>Correo</span>
                             <input class='detail client-email' name='email' type='email'
                                    t-att-value='partner.email || ""'></input>
                         </div>
@@ -71,12 +77,12 @@
                                    t-att-value='partner.phone || ""'></input>
                         </div>
                         <div class='client-detail'>
-                            <span class='label'>Barcode</span>
+                            <span class='label'>Código</span>
                             <input class='detail barcode' name='Código' t-att-value='partner.barcode || ""'></input>
                         </div>
                         <div class='client-detail'>
                             <span class='label'>RNC</span>
-                            <input class='detail vat' name='vat' t-att-value='partner.vat || ""'></input>
+                            <span class='detail vat' t-esc='partner.vat || ""'></span>
                         </div>
                     </div>
                 </div>
