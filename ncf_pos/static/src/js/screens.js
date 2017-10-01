@@ -96,20 +96,6 @@ odoo.define('ncf_pos.screens', function(require) {
 
     screens.PaymentScreenWidget.include({
 
-        order_is_valid: function (force_validation) {
-            var order = this.pos.get_order();
-
-            if (!order.get_client()) {
-                alert();
-            }
-
-            if (order.is_return_order) {
-                return true;
-            } else {
-                return this._super(force_validation);
-            }
-        },
-
         validate_order: function (force_validation) {
             var currentOrder = this.pos.get_order();
 
@@ -121,7 +107,7 @@ odoo.define('ncf_pos.screens', function(require) {
                 return;
             }
 
-            if (this.order_is_valid(force_validation)) {
+            else if (this.order_is_valid(force_validation)) {
                 this.finalize_validation();
             }
         },
