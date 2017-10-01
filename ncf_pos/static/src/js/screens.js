@@ -58,6 +58,42 @@ odoo.define('ncf_pos.screens', function(require) {
         },
     });
 
+    screens.ActionpadWidget.include({
+        renderElement: function () {
+            this._super();
+            var self = this;
+
+            this.$('.pay').bind("click", function () {
+                var client = self.pos.get_order().get_client();
+
+                if (client === null) {
+                    alert("Debe seleccionar un cliente para poder realizar el Pago, o utilizar el Cliente por defecto; de no tener un cliente por defecto, pida ayuda a su Encargado para que lo establezca.");
+                    return;
+                }
+
+                if (client.sale_fiscal_type !== 'final' && (client.vat === false || client.vat === null)) {
+                    self.gui.show_popup('error', {
+                        'title': 'Error: Para el tipo de comprobante',
+                        'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
+                        'cancel': function () {
+                            self.gui.show_screen('products');
+                        }
+                    });
+                }
+
+                if (self.pos.get_order().orderlines.models.length === 0) {
+                    self.gui.show_popup('error', {
+                        'title': 'Error: Factura sin productos',
+                        'body': 'No puede pagar un ticket sin productos',
+                        'cancel': function () {
+                            self.gui.show_screen('products');
+                        }
+                    });
+                }
+            });
+        }
+    });
+
     screens.PaymentScreenWidget.include({
 
         order_is_valid: function (force_validation) {
@@ -72,50 +108,21 @@ odoo.define('ncf_pos.screens', function(require) {
             } else {
                 return this._super(force_validation);
             }
-
         },
 
-        validate_client: function() {
-            var order = this.pos.get_order();
-            var client = order.get_client();
-
-            if (!client) {
-                return "¡Debe seleccionar un cliente para validar la venta!";
-            }
-
-            if (client.sale_fiscal_type !== 'final' && (client.vat === false || client.vat === null)) {
-                self.gui.show_popup('error', {
-                    'title': 'Error: Para el tipo de comprobante',
-                    'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
-                    'cancel': function () {
-                        self.gui.show_screen('products');
-                    }
-                });
-            } else {
-
-            return true;
-            }
-        },
-
-        validate_order: function(force_validation) {
-            var self = this;
-            var res = self.validate_client();
+        validate_order: function (force_validation) {
             var currentOrder = this.pos.get_order();
 
-            if (res !== true) {
-                self.gui.show_popup('confirm', {
-                    title: _t('Por favor corrija estos datos'),
-                    body:  _t(res),
-                    confirm: function() {
-                        self.gui.close_popup();
-                    }
+            if (!currentOrder.get_client()) {
+                this.gui.show_popup('error', {
+                    'title': 'Debe establecer un cliente para completar la venta.',
+                    'body': 'También se puede configurar un cliente por defecto en la confguracion del TPV.'
                 });
-            } else {
-                if (res) {
-                    if (this.order_is_valid(force_validation)) {
-                        this.finalize_validation();
-                        }
-                }
+                return;
+            }
+
+            if (this.order_is_valid(force_validation)) {
+                this.finalize_validation();
             }
         },
 
