@@ -7,6 +7,7 @@ odoo.define('ncf_pos.models', function(require) {
 
     models.load_fields('pos.config', ['default_partner_id']);
     models.load_fields('res.partner', ['sale_fiscal_type']);
+    models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
 
     models.load_models({
         model: 'res.partner',
