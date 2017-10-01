@@ -14,9 +14,11 @@ class ResPartner(models.Model):
         if partner.get('image'):
             partner['image'] = partner['image'].split(',')[1]
         partner_id = partner.pop('id', False)
+
         if partner_id:  # Modifying existing partner
             partner.pop('vat', None)
-            self.browse(partner_id).write(partner)
+            partner.pop('name', None)
+            self.browse(partner_id).with_context(from_pos=True).write(partner)
         else:
-            partner_id = self.create(partner).ids
+            partner_id = self.create(partner).id
         return partner_id
