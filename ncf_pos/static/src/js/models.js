@@ -13,7 +13,8 @@ odoo.define('ncf_pos.models', function(require) {
         model: 'res.partner',
         fields: ['partner_id', 'sale_fiscal_type'],
         loaded: function (self) {
-            self.sale_fiscal_type = [{"code": "final", "name": "Final"},
+            self.sale_fiscal_type = [
+                {"code": "final", "name": "Final"},
                 {"code": "fiscal", "name": "Fiscal"},
                 {"code": "gov", "name": "Gubernamental"},
                 {"code": "special", "name": "Especiales"}];

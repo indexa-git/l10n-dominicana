@@ -71,7 +71,7 @@ odoo.define('ncf_pos.screens', function(require) {
                     return;
                 }
 
-                if (client.sale_fiscal_type !== 'final' && (client.vat === false || client.vat === null)) {
+                if ((client.sale_fiscal_type === 'fiscal' || client.sale_fiscal_type === 'gov' || client.sale_fiscal_type === 'special') && (client.vat === false || client.vat === null)) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Para el tipo de comprobante',
                         'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
