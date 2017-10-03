@@ -199,7 +199,7 @@
                     </t>
                 </tr>
             </table>
-            <t t-if='widget.pos.get_order().is_return_order'>
+            <t t-if='order.is_return_order'>
                 <div>***********************************</div>
                 <div>Devolución Generada por:
                     <t t-esc='receipt.cashier' />
@@ -470,7 +470,7 @@
            <pre>          Cambio  </pre>
         </t>
         <t t-jquery="t[t-if='receipt.total_discount']" t-operation="before">
-            <t t-if='widget.pos.get_order().is_return_order'>
+            <t t-if='order.is_return_order'>
                 <div>************************************************</div>
                 <div>Devolución Generada por:
                     <t t-esc='receipt.cashier' />
