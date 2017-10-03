@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template">
     <t t-extend="PosTicket">
-        <t t-jquery="t[t-esc='moment().format(\'L LT\')']" t-operation="replace"/>
+        <t t-jquery="t[t-esc='order.formatted_validation_date']" t-operation="replace"/>
         <t t-jquery="t[t-esc='order.name']" t-operation="replace"/>
         <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
             <div class="pos-center-align">
@@ -40,7 +40,7 @@
         </t>
         <t t-jquery=".receipt-phone" t-operation="replace">
             <div class="receipt-phone">
-                <strong>Fecha....:</strong> <t t-esc="moment().format('L LT')"/><br/>
+                <strong>Fecha....:</strong> <t t-esc="order.formatted_validation_date"/><br/>
                 <t t-set="client" t-value="order.get('client')"/>
                 <t t-if="client">
                     <strong>Cliente..:</strong> <t t-esc="client.name || ''"/><br/>
@@ -466,7 +466,7 @@
         <!-- Cambio -->
 
         <t t-jquery="right:contains(--------)"  t-operation="replace"/>
-        <t t-jquery="pre:contains(CHANGE)" t-operation="replace">
+        <t t-jquery="pre:contains(        CHANGE)" t-operation="replace">
            <pre>          Cambio  </pre>
         </t>
         <t t-jquery="t[t-if='receipt.total_discount']" t-operation="before">
