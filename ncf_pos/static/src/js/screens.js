@@ -19,13 +19,27 @@ odoo.define('ncf_pos.screens', function(require) {
             order.fiscal_type_name = fiscal_data.fiscal_type_name;
             order.ncf = fiscal_data.ncf;
             order.origin_ncf = fiscal_data.origin;
-            this.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
-                widget: this,
-                order: order,
-                receipt: order.export_for_printing(),
-                orderlines: order.get_orderlines(),
-                paymentlines: order.get_paymentlines(),
-            }));
+            if (!this.pos.config.iface_print_via_proxy) { // browser (html) printing
+                this.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
+                    widget: this,
+                    order: order,
+                    receipt: order.export_for_printing(),
+                    orderlines: order.get_orderlines(),
+                    paymentlines: order.get_paymentlines(),
+                }));
+            } else { // proxy (xml) printing
+                var self = this;
+                var env = {
+                    widget:  this,
+                    pos: this.pos,
+                    order: this.pos.get_order(),
+                    receipt: this.pos.get_order().export_for_printing(),
+                    paymentlines: this.pos.get_order().get_paymentlines()
+                };
+                var receipt = QWeb.render('XmlReceipt',env);
+                self.pos.proxy.print_receipt(receipt);
+                self.pos.get_order()._printed = true;
+            }
         },
         render_receipt: function () {
             var self = this;
@@ -41,17 +55,11 @@ odoo.define('ncf_pos.screens', function(require) {
             });
         },
         print_xml: function () {
-            var env = {
-                pos: this.pos,
-                widget: this,
-                order: this.pos.get_order(),
-                receipt: this.pos.get_order().export_for_printing(),
-                paymentlines: this.pos.get_order().get_paymentlines()
-            };
-            var receipt = QWeb.render('XmlReceipt', env);
-
-            this.pos.proxy.print_receipt(receipt);
-            this.pos.get_order()._printed = true;
+            var self = this;
+            var order = this.pos.get_order();
+            new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
+                self.ncf_render_receipt(fiscal_data);
+            });
         },
     });
 
