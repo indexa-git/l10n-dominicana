@@ -19,7 +19,7 @@ odoo.define('ncf_pos.screens', function(require) {
             order.fiscal_type_name = fiscal_data.fiscal_type_name;
             order.ncf = fiscal_data.ncf;
             order.origin_ncf = fiscal_data.origin;
-            if (!this.pos.config.iface_print_via_proxy) { // browser (html) printing
+            if (!this.pos.config.iface_print_via_proxy && !this.pos.config.iface_print_skip_screen) { // browser (html) printing
                 this.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                     widget: this,
                     order: order,
@@ -34,6 +34,7 @@ odoo.define('ncf_pos.screens', function(require) {
                     pos: this.pos,
                     order: this.pos.get_order(),
                     receipt: this.pos.get_order().export_for_printing(),
+                    orderlines: this.pos.get_order().get_orderlines(),
                     paymentlines: this.pos.get_order().get_paymentlines()
                 };
                 var receipt = QWeb.render('XmlReceipt',env);
