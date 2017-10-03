@@ -315,18 +315,18 @@
     <t t-extend="XmlReceipt">
         <t t-jquery=".total" t-operation="replace">
             <line class='total' size='double-height'>
-                <t t-if='widget.pos.get_order().is_return_order'>
+                <t t-if='order.is_return_order'>
                     <left><pre>   TOTAL DEVUELTO</pre></left>
                     <right><value><t t-esc='receipt.total_with_tax * -1' /></value></right>
                 </t>
-                <t t-if='!widget.pos.get_order().is_return_order'>
+                <t t-if='!order.is_return_order'>
                     <left><pre>        TOTAL</pre></left>
                     <right><value><t t-esc='receipt.total_with_tax' /></value></right>
                 </t>
             </line>
         </t>
         <t t-jquery="receipt " t-operation="append">
-            <t t-if='widget.pos.get_order().is_return_order'>
+            <t t-if='order.is_return_order'>
                 <div>***********************************</div>
                 <div>Recibo de Devolución Generado por:
                     <t t-esc='receipt.cashier' />
