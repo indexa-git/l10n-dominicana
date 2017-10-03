@@ -19,7 +19,7 @@ odoo.define('ncf_pos.screens', function(require) {
             order.fiscal_type_name = fiscal_data.fiscal_type_name;
             order.ncf = fiscal_data.ncf;
             order.origin_ncf = fiscal_data.origin;
-            if (!this.pos.config.iface_print_via_proxy && !this.pos.config.iface_print_skip_screen) { // browser (html) printing
+            if (!this.pos.config.iface_print_via_proxy) { // browser (html) printing
                 this.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                     widget: this,
                     order: order,
@@ -38,29 +38,35 @@ odoo.define('ncf_pos.screens', function(require) {
                     paymentlines: this.pos.get_order().get_paymentlines()
                 };
                 var receipt = QWeb.render('XmlReceipt',env);
-                self.pos.proxy.print_receipt(receipt);
-                self.pos.get_order()._printed = true;
-            }
+                setTimeout(function () {
+                    self.pos.proxy.print_receipt(receipt);
+                    self.pos.get_order()._printed = true;
+                    self.click_next();
+                }, 3000);            }
         },
         render_receipt: function () {
             var self = this;
             var order = this.pos.get_order();
-            $(".pos-sale-ticket").addClass('oe_hidden');
-            $(".button.next.highlight").addClass('oe_hidden');
-            $(".button.print").addClass('oe_hidden');
-            new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
-                self.ncf_render_receipt(fiscal_data);
-                $(".pos-sale-ticket").removeClass('oe_hidden');
-                $(".button.next.highlight").removeClass('oe_hidden');
-                $(".button.print").removeClass('oe_hidden');
-            });
+            if (!this.pos.config.iface_print_via_proxy) {
+                $(".pos-sale-ticket").addClass('oe_hidden');
+                $(".button.next.highlight").addClass('oe_hidden');
+                $(".button.print").addClass('oe_hidden');
+                new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
+                    self.ncf_render_receipt(fiscal_data);
+                    $(".pos-sale-ticket").removeClass('oe_hidden');
+                    $(".button.next.highlight").removeClass('oe_hidden');
+                    $(".button.print").removeClass('oe_hidden');
+                });
+            }
         },
         print_xml: function () {
             var self = this;
             var order = this.pos.get_order();
-            new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
-                self.ncf_render_receipt(fiscal_data);
-            });
+                if (this.pos.config.iface_print_via_proxy) {
+                new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
+                    self.ncf_render_receipt(fiscal_data);
+                });
+            }
         },
     });
 
