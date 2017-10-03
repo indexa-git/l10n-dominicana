@@ -14,8 +14,8 @@ odoo.define('ncf_pos.screens', function(require) {
 
     screens.ReceiptScreenWidget.include({
 
-        ncf_render_receipt: function (fiscal_data) {
-            var order = this.pos.get_order();
+        ncf_render_receipt: function (fiscal_data, order) {
+            console.log(fiscal_data, order);
             order.fiscal_type_name = fiscal_data.fiscal_type_name;
             order.ncf = fiscal_data.ncf;
             order.origin_ncf = fiscal_data.origin;
@@ -32,17 +32,17 @@ odoo.define('ncf_pos.screens', function(require) {
                 var env = {
                     widget:  this,
                     pos: this.pos,
-                    order: this.pos.get_order(),
-                    receipt: this.pos.get_order().export_for_printing(),
-                    orderlines: this.pos.get_order().get_orderlines(),
-                    paymentlines: this.pos.get_order().get_paymentlines()
+                    order: order,
+                    receipt: order.export_for_printing(),
+                    orderlines: order.get_orderlines(),
+                    paymentlines: order.get_paymentlines()
                 };
                 var receipt = QWeb.render('XmlReceipt',env);
                 setTimeout(function () {
                     self.pos.proxy.print_receipt(receipt);
-                    self.pos.get_order()._printed = true;
-                    self.click_next();
-                }, 3000);            }
+                    order._printed = true;
+                }, 3000);
+            }
         },
         render_receipt: function () {
             var self = this;
@@ -52,7 +52,7 @@ odoo.define('ncf_pos.screens', function(require) {
                 $(".button.next.highlight").addClass('oe_hidden');
                 $(".button.print").addClass('oe_hidden');
                 new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
-                    self.ncf_render_receipt(fiscal_data);
+                    self.ncf_render_receipt(fiscal_data, order);
                     $(".pos-sale-ticket").removeClass('oe_hidden');
                     $(".button.next.highlight").removeClass('oe_hidden');
                     $(".button.print").removeClass('oe_hidden');
@@ -64,7 +64,7 @@ odoo.define('ncf_pos.screens', function(require) {
             var order = this.pos.get_order();
                 if (this.pos.config.iface_print_via_proxy) {
                 new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
-                    self.ncf_render_receipt(fiscal_data);
+                    self.ncf_render_receipt(fiscal_data, order);
                 });
             }
         },
