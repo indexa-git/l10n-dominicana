@@ -38,10 +38,8 @@ odoo.define('ncf_pos.screens', function(require) {
                     paymentlines: order.get_paymentlines()
                 };
                 var receipt = QWeb.render('XmlReceipt',env);
-                setTimeout(function () {
-                    self.pos.proxy.print_receipt(receipt);
-                    order._printed = true;
-                }, 3000);
+                this.pos.proxy.print_receipt(receipt);
+                order._printed = true;
             }
         },
         render_receipt: function () {
