@@ -121,7 +121,7 @@ class ResPartner(models.Model):
         if vat_or_name:
             vat = re.sub("[^0-9]", "", vat_or_name)
             if vat.isdigit():
-                if len(vat) >= 9:
+                if len(vat) in (9, 11):
                     partner_id = self.search([('vat', '=', vat)])
                     if partner_id:
                         return partner_id
