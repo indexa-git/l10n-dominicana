@@ -57,8 +57,6 @@ class ResCompany(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-
-
     @api.multi
     @api.depends('sale_fiscal_type')
     def _fiscal_info_required(self):
@@ -135,13 +133,6 @@ class ResPartner(models.Model):
 
     @api.multi
     def write(self, vals):
-        if vals.get("name", False):
-            partner_id = self.search([('name', '=', vals["name"])])
-            if partner_id:
-                raise exceptions.ValidationError(
-                    u"¡Ya existe un contacto registrado con este nombre -> {}!"
-                    u" Incluir otro apellido o información adicional si está "
-                    u" seguro que es otro contacto diferente al que ya esxite".format(vals["name"]))
         for rec in self:
             if vals.get("parent_id", False) or rec.parent_id:
                 return super(ResPartner, self).write(vals)
@@ -158,14 +149,6 @@ class ResPartner(models.Model):
     def create(self, vals):
         if self._context.get("install_mode", False):
             return super(ResPartner, self).create(vals)
-
-        if vals.get("name", False):
-            partner_id = self.search([('name', '=', vals["name"])])
-            if partner_id:
-                raise exceptions.ValidationError(
-                    u"¡Ya existe un contacto registrado con este nombre -> {}!"
-                    u" Incluir otro apellido o información adicional si está "
-                    u" seguro que es otro contacto diferente al que ya esxite".format(vals["name"]))
 
         vals = self.validate_vat_or_name(vals)
         if not vals:
