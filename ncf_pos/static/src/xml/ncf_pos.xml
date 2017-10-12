@@ -396,7 +396,7 @@
             <t t-as="taxdetail" t-foreach="order.get_tax_details()">
                 <div line-ratio='0.1'>
                     <line>
-                        <right><t t-esc='tax.name' /> : <t t-esc='widget.format_currency_no_symbol(taxdetail.amount)'/></right>
+                        <right><t t-esc='taxdetail.name' /> : <t t-esc='widget.format_currency_no_symbol(taxdetail.amount)'/></right>
                     </line>
                 </div>
             </t>
