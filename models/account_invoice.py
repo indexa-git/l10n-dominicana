@@ -59,15 +59,6 @@ class AccountInvoice(models.Model):
                 line.amount for line in self.tax_line_ids if not line.tax_id.purchase_tax_type in ("isr", "ritbis"))
             self.amount_total = self.amount_untaxed + self.amount_tax
 
-    @api.model_cr_context
-    def _auto_init(self):
-        self._sql_constraints = [
-            ('number_uniq',
-             'unique(number, company_id, partner_id, journal_id, type)',
-             'Invoice Number must be unique per Company!'),
-        ]
-
-        super(AccountInvoice, self)._auto_init()
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -182,6 +173,12 @@ class AccountInvoice(models.Model):
         related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
+
+    _sql_constraints = [
+        ('number_uniq',
+         'unique(number, company_id, partner_id, journal_id, type)',
+         'Invoice Number must be unique per Company!'),
+    ]
 
     def swich_sequence_timer(self, dbname, default_journal_sequence, self_journal_sequence, self_journal_id,
                              default_journal_id):
