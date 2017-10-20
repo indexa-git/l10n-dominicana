@@ -44,6 +44,7 @@ import os
 
 import re
 import calendar
+import io
 
 import logging
 
@@ -603,7 +604,7 @@ class DgiiReport(models.Model):
         year = period[1]
 
         sale_path = '/tmp/607{}.txt'.format(company_fiscal_identificacion)
-        sale_file = open(sale_path, 'w')
+        sale_file = io.open(sale_path, 'w', encoding="utf-8", newline='\r\n')
 
         lines = []
 
@@ -645,8 +646,9 @@ class DgiiReport(models.Model):
                                                     str(month).zfill(2))
         self.write({'sale_binary': sale_binary, 'sale_filename': report_name})
 
+        # 606
         pruchase_path = '/tmp/606{}.txt'.format(company_fiscal_identificacion)
-        purchase_file = open(pruchase_path, 'w')
+        purchase_file = io.open(pruchase_path, 'w', encoding="utf-8", newline='\r\n')
         lines = []
 
         CANTIDAD_REGISTRO = "{:.2f}".format(len(self.purchase_report)).zfill(12)
@@ -690,8 +692,9 @@ class DgiiReport(models.Model):
         purchase_filename = 'DGII_606_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(year),str(month).zfill(2))
         self.write({'purchase_binary': purchase_binary, 'purchase_filename': purchase_filename})
 
+        # 608
         path = '/tmp/608{}.txt'.format(company_fiscal_identificacion)
-        file = open(path, 'w')
+        file = io.open(path, 'w', encoding="utf-8", newline='\r\n')
         lines = []
 
         header = "608"
