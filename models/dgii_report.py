@@ -244,16 +244,19 @@ class DgiiReport(models.Model):
 
             FECHA_COMPROBANTE = invoice_id.date_invoice
 
+            FECHA_PAGO = False
+
             ITBIS_RETENIDO = 0
             RETENCION_RENTA = 0
 
             if invoice_id.state == "paid":
                 move_id = self.env["account.move.line"].search(
                     [("move_id", "=", invoice_id.move_id.id), ('full_reconcile_id', '!=', False)])
-                if invoice_id.journal_id.purchase_type == 'informal':
+                if invoice_id.journal_id.purchase_type:
                     if move_id:
                         retentions = self.env["account.move.line"].search(
-                            [('invoice_id', '=', invoice_id.id), ('payment_id', '!=', False),
+                            [('invoice_id', '=', invoice_id.id),
+                             ('payment_id', '!=', False),
                              ('tax_line_id', '!=', False)])
                         if retentions:
                             for retention in retentions:
@@ -262,12 +265,7 @@ class DgiiReport(models.Model):
                                 elif retention.tax_line_id.purchase_tax_type == "isr":
                                     RETENCION_RENTA += retention.credit
 
-                            FECHA_PAGO = retentions[0].date
-                else:
-                    FECHA_PAGO = move_id and move_id[0].date or False
-
-            else:
-                FECHA_PAGO = False
+                    FECHA_PAGO = retentions[0].date if move_id and move_id[0].date else False
 
             if (invoice_id.state != "cancel"
                and (invoice_id.journal_id.ncf_remote_validation
@@ -630,14 +628,12 @@ class DgiiReport(models.Model):
             ln += sale_line.NUMERO_COMPROBANTE_FISCAL.rjust(19)
             ln += sale_line.NUMERO_COMPROBANTE_MODIFICADO or "".rjust(19)
             ln += sale_line.FECHA_COMPROBANTE.replace("-", "")
-            ln += sale_line.FECHA_PAGO.replace("-", "") if sale_line.FECHA_PAGO else "".rjust(8)
             ln += "{:.2f}".format(sale_line.ITBIS_FACTURADO).zfill(12)
             ln += "{:.2f}".format(sale_line.MONTO_FACTURADO).zfill(12)
             lines.append(ln)
 
         for line in lines:
             sale_file.write(line + "\n")
-
 
         sale_file.close()
         sale_file = open(sale_path, 'rb')
@@ -680,7 +676,7 @@ class DgiiReport(models.Model):
             ln += "{:.2f}".format(line.ITBIS_FACTURADO).zfill(12)
             ln += "{:.2f}".format(abs(line.ITBIS_RETENIDO)).zfill(12)
             ln += "{:.2f}".format(line.MONTO_FACTURADO).zfill(12)
-            ln += "{:.2f}".format(line.RETENCION_RENTA).zfill(12)
+            ln += "{:.2f}".format(abs(line.RETENCION_RENTA)).zfill(12)
             lines.append(ln)
 
         for line in lines:
