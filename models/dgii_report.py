@@ -607,7 +607,7 @@ class DgiiReport(models.Model):
 
         lines = []
 
-        CANTIDAD_REGISTRO = str(len(self.sale_report)).zfill(12)
+        CANTIDAD_REGISTRO = "{:.2f}".format(len(self.sale_report)).zfill(12)
         TOTAL_MONTO_FACTURADO_FACTURAS = sum(
             [rec.MONTO_FACTURADO for rec in self.sale_report if rec.NUMERO_COMPROBANTE_MODIFICADO == False])
         TOTAL_MONTO_FACTURADO_NC = sum(
@@ -636,6 +636,7 @@ class DgiiReport(models.Model):
 
         for line in lines:
             sale_file.write(line + "\n")
+
 
         sale_file.close()
         sale_file = open(sale_path, 'rb')
