@@ -265,7 +265,7 @@ class DgiiReport(models.Model):
                                 elif retention.tax_line_id.purchase_tax_type == "isr":
                                     RETENCION_RENTA += retention.credit
 
-                    FECHA_PAGO = retentions[0].date if move_id and move_id[0].date else False
+                            FECHA_PAGO = retentions[0].date if move_id and move_id[0].date else False
 
             if (invoice_id.state != "cancel"
                and (invoice_id.journal_id.ncf_remote_validation
