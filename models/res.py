@@ -125,10 +125,10 @@ class ResPartner(models.Model):
                         return partner_id
                     else:
                         res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
-                        if res[0] == 1:
+                        if res and res[0] == 1:
                             vals.update(res[1])
-                        else:
-                            return False
+                        # else:
+                        #     return vals
         return vals
 
     @api.multi
