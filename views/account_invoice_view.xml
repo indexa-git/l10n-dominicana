@@ -2,6 +2,7 @@
 <odoo>
     <data>
 
+
         <record id="ncf_manager_account_invoice_form" model="ir.ui.view">
             <field name="name">ncf manager account invoice form</field>
             <field name="model">account.invoice</field>
