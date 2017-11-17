@@ -121,9 +121,9 @@ class AccountPayment(models.Model):
                 else:
                     move.button_cancel()
 
-                line_name = "Retenciones facturas "
+                line_name = "Retenciones facturas: "
                 for line in reconcile_move_line:
-                    line_name += line.invoice_id.number + " / "
+                    line_name += str(line.ref) + " / "
 
                 reconcile_invoice_move_line |= aml_obj.browse(reconcile_move_line[0].id).copy({"debit": rcredit_amount, "name": "{}".format(line_name)})
                 reconcile_invoice_move_line |= reconcile_move_line
