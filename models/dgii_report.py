@@ -44,6 +44,7 @@ import os
 
 import re
 import calendar
+import io
 
 import logging
 
@@ -243,16 +244,19 @@ class DgiiReport(models.Model):
 
             FECHA_COMPROBANTE = invoice_id.date_invoice
 
+            FECHA_PAGO = False
+
             ITBIS_RETENIDO = 0
             RETENCION_RENTA = 0
 
             if invoice_id.state == "paid":
                 move_id = self.env["account.move.line"].search(
                     [("move_id", "=", invoice_id.move_id.id), ('full_reconcile_id', '!=', False)])
-                if invoice_id.journal_id.purchase_type == 'informal':
+                if invoice_id.journal_id.purchase_type:
                     if move_id:
                         retentions = self.env["account.move.line"].search(
-                            [('invoice_id', '=', invoice_id.id), ('payment_id', '!=', False),
+                            [('invoice_id', '=', invoice_id.id),
+                             ('payment_id', '!=', False),
                              ('tax_line_id', '!=', False)])
                         if retentions:
                             for retention in retentions:
@@ -261,12 +265,7 @@ class DgiiReport(models.Model):
                                 elif retention.tax_line_id.purchase_tax_type == "isr":
                                     RETENCION_RENTA += retention.credit
 
-                            FECHA_PAGO = retentions[0].date
-                else:
-                    FECHA_PAGO = move_id and move_id[0].date or False
-
-            else:
-                FECHA_PAGO = False
+                            FECHA_PAGO = retentions[0].date if move_id and move_id[0].date else False
 
             if (invoice_id.state != "cancel"
                and (invoice_id.journal_id.ncf_remote_validation
@@ -603,11 +602,11 @@ class DgiiReport(models.Model):
         year = period[1]
 
         sale_path = '/tmp/607{}.txt'.format(company_fiscal_identificacion)
-        sale_file = open(sale_path, 'w')
+        sale_file = io.open(sale_path, 'w', encoding="utf-8", newline='\r\n')
 
         lines = []
 
-        CANTIDAD_REGISTRO = str(len(self.sale_report)).zfill(12)
+        CANTIDAD_REGISTRO = "{:.2f}".format(len(self.sale_report)).zfill(12)
         TOTAL_MONTO_FACTURADO_FACTURAS = sum(
             [rec.MONTO_FACTURADO for rec in self.sale_report if rec.NUMERO_COMPROBANTE_MODIFICADO == False])
         TOTAL_MONTO_FACTURADO_NC = sum(
@@ -629,7 +628,6 @@ class DgiiReport(models.Model):
             ln += sale_line.NUMERO_COMPROBANTE_FISCAL.rjust(19)
             ln += sale_line.NUMERO_COMPROBANTE_MODIFICADO or "".rjust(19)
             ln += sale_line.FECHA_COMPROBANTE.replace("-", "")
-            ln += sale_line.FECHA_PAGO.replace("-", "") if sale_line.FECHA_PAGO else "".rjust(8)
             ln += "{:.2f}".format(sale_line.ITBIS_FACTURADO).zfill(12)
             ln += "{:.2f}".format(sale_line.MONTO_FACTURADO).zfill(12)
             lines.append(ln)
@@ -644,8 +642,9 @@ class DgiiReport(models.Model):
                                                     str(month).zfill(2))
         self.write({'sale_binary': sale_binary, 'sale_filename': report_name})
 
+        # 606
         pruchase_path = '/tmp/606{}.txt'.format(company_fiscal_identificacion)
-        purchase_file = open(pruchase_path, 'w')
+        purchase_file = io.open(pruchase_path, 'w', encoding="utf-8", newline='\r\n')
         lines = []
 
         CANTIDAD_REGISTRO = "{:.2f}".format(len(self.purchase_report)).zfill(12)
@@ -677,7 +676,7 @@ class DgiiReport(models.Model):
             ln += "{:.2f}".format(line.ITBIS_FACTURADO).zfill(12)
             ln += "{:.2f}".format(abs(line.ITBIS_RETENIDO)).zfill(12)
             ln += "{:.2f}".format(line.MONTO_FACTURADO).zfill(12)
-            ln += "{:.2f}".format(line.RETENCION_RENTA).zfill(12)
+            ln += "{:.2f}".format(abs(line.RETENCION_RENTA)).zfill(12)
             lines.append(ln)
 
         for line in lines:
@@ -689,8 +688,9 @@ class DgiiReport(models.Model):
         purchase_filename = 'DGII_606_{}_{}{}.TXT'.format(company_fiscal_identificacion, str(year),str(month).zfill(2))
         self.write({'purchase_binary': purchase_binary, 'purchase_filename': purchase_filename})
 
+        # 608
         path = '/tmp/608{}.txt'.format(company_fiscal_identificacion)
-        file = open(path, 'w')
+        file = io.open(path, 'w', encoding="utf-8", newline='\r\n')
         lines = []
 
         header = "608"
