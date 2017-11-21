@@ -108,7 +108,7 @@ class Currency(models.Model):
         # the subquery selects the last rate before 'date' for the given currency/company
         query = """SELECT c.id, (
             SELECT r.rate FROM res_currency_rate r
-            WHERE r.currency_id = c.id AND r.name::date = %s
+            WHERE r.currency_id = c.id AND r.name::date <= %s
             AND (r.company_id IS NULL OR r.company_id = %s)
             ORDER BY r.company_id, r.name DESC
             LIMIT 1) AS rate
