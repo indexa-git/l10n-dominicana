@@ -451,6 +451,7 @@ class DgiiReport(models.Model):
                         taxes.append(tax)
 
             ITBIS_FACTURADO = 0.0
+<<<<<<< Updated upstream
             for tax in taxes:
 
                 if tax.type_tax_use in ("purchase", "sale") and tax.tax_group_id.name == 'ITBIS':
@@ -482,6 +483,33 @@ class DgiiReport(models.Model):
                         if tax.type_tax_use == "sale" or (
                                         tax.type_tax_use == "purchase" and tax.purchase_tax_type == "itbis"):
                             commun_data.update({"ITBIS_FACTURADO": ITBIS_FACTURADO})
+=======
+            for tax in invoice_id.tax_line_ids:
+                if invoice_id.currency_id != invoice_id.company_id.currency_id and tax.tax_id.tax_group_id.name == 'ITBIS':
+                    ITBIS_FACTURADO += invoice_id.currency_id.compute(
+                        tax.amount, invoice_id.company_id.currency_id)
+                elif tax.tax_id.tax_group_id.name == 'ITBIS':
+                    ITBIS_FACTURADO += tax.amount
+                    
+                # TODO refactoring IR17 and IT1 DGII Report
+                # if tax.tax_it1_cels:
+                #     xls_cels = tax.tax_it1_cels.split(",")
+                #     for xls_cel in xls_cels:
+                #         if not xls_dict["it1"].get(xls_cel, False):
+                #             xls_dict["it1"].update({xls_cel: amount})
+                #         else:
+                #             xls_dict["it1"][xls_cel] += amount
+                #
+                # if tax.tax_ir17_cels:
+                #     xls_cels = tax.tax_ir17_cels.split(",")
+                #     for xls_cel in xls_cels:
+                #         if not xls_dict["ir17"].get(xls_cel, False):
+                #             xls_dict["ir17"].update({xls_cel: amount})
+                #         else:
+                #             xls_dict["ir17"][xls_cel] += amount
+
+            commun_data.update({"ITBIS_FACTURADO": ITBIS_FACTURADO})
+>>>>>>> Stashed changes
 
             if invoice_id.type in ("out_invoice", "out_refund") and invoice_id.state != "cancel":
                 commun_data.update({"LINE": sale_line})
