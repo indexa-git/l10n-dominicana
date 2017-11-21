@@ -149,7 +149,6 @@ class ShopJournalConfig(models.Model):
         else:
             user_shops = self.search([('user_ids', '=', self._uid),
                                       ('journal_id', '=', journal_id)])
-
         if not user_shops:
             raise exceptions.UserError("Su usuario no tiene una sucursal asignada.")
         return user_shops[0]
@@ -157,7 +156,6 @@ class ShopJournalConfig(models.Model):
     @api.model
     def setup_ncf(self, name=False, company_id=False, journal_id=False,
                   user_id=False, shop_id=False, branch_office=False):
-
         journal_obj = self.env['account.journal']
         special_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
 
