@@ -393,13 +393,12 @@ class DgiiReport(models.Model):
                                 self.company_id.id)).id, False)]})
                     taxes = line.invoice_line_tax_ids
 
+                move_line_ids = self.env["account.move.line"].search(
+                     [('move_id', '=', invoice_id.move_id.id),
+                      ('name', '=', line.name)])
+
                 for tax in taxes:
                     if tax.type_tax_use in ("purchase", "sale"): # and tax.tax_group_id.name == 'ITBIS':
-                        hash = (tax.id, move_line_ids)
-                        if hash in prevent_repeat:
-                            continue
-                        else:
-                            prevent_repeat.add(hash)
                         for base_line in move_line_ids:
                             base_amount = abs(base_line.debit - base_line.credit)
                             if tax.base_it1_cels:
