@@ -375,7 +375,6 @@ class DgiiReport(models.Model):
             prevent_repeat = set()
             base_prevent_repeat = set()
 
-
             for line in invoice_id.invoice_line_ids:
                 taxes = line.invoice_line_tax_ids
                 if not taxes:
@@ -470,7 +469,9 @@ class DgiiReport(models.Model):
             ITBIS_FACTURADO = 0.0
             for tax in invoice_id.tax_line_ids:
                 if invoice_id.currency_id != invoice_id.company_id.currency_id and tax.tax_id.tax_group_id.name == 'ITBIS':
-                    ITBIS_FACTURADO += invoice_id.currency_id.compute(
+                    currency_id = invoice_id.currency_id.with_context(
+                                                date=invoice_id.date_invoice)
+                    ITBIS_FACTURADO += currency_id.compute(
                         tax.amount, invoice_id.company_id.currency_id)
                 elif tax.tax_id.tax_group_id.name == 'ITBIS':
                     ITBIS_FACTURADO += tax.amount
