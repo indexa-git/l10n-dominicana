@@ -173,7 +173,7 @@ class DgiiReport(models.Model):
     EXTERIOR_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros",
                                                 compute=_count_records)
     EXTERIOR_TOTAL_MONTO_FACTURADO = fields.Float()
-    exterior_report = fields.One2many("dgii.exterior.report.line", "dgii_report_id")
+    exterior_report = fields.One2many("dgii.exterior.report.line","dgii_report_id")
     exterior_filename = fields.Char(u"Total Monto Facturado")
     exterior_binary = fields.Binary(string=u"Archivo 609 TXT")
 
@@ -471,7 +471,7 @@ class DgiiReport(models.Model):
             for tax in invoice_id.tax_line_ids:
                 if invoice_id.currency_id != invoice_id.company_id.currency_id and tax.tax_id.tax_group_id.name == 'ITBIS':
                     ITBIS_FACTURADO += invoice_id.currency_id.compute(
-                        tax.amount, invoice_id.currency_id)
+                        tax.amount, invoice_id.company_id.currency_id)
                 elif tax.tax_id.tax_group_id.name == 'ITBIS':
                     ITBIS_FACTURADO += tax.amount
 
