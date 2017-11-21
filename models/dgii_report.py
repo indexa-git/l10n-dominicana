@@ -181,9 +181,7 @@ class DgiiReport(models.Model):
 
     @api.multi
     def generate_report(self):
-
         api_marcos = self.env["marcos.api.tools"]
-
         try:
             month, year = self.name.split("/")
             last_day = calendar.monthrange(int(year), int(month))[1]
@@ -203,21 +201,28 @@ class DgiiReport(models.Model):
         cancel_line = 1
         ext_line = 1
 
-        invoice_ids = self.env["account.invoice"].search([('date_invoice', '>=', start_date), ('date_invoice', '<=', end_date)])
-
+        invoice_ids = self.env["account.invoice"].search([
+            ('date_invoice', '>=', start_date),
+            ('date_invoice', '<=', end_date)])
         draft_invoice_ids_set = invoice_ids.filtered(lambda x: x.state == "draft")
-        invoice_ids_set = invoice_ids.filtered(lambda x: x.state in ('open', 'paid', 'cancel'))
-        paid_invoice_ids = self.env["account.payment"].search(
-            [('payment_date', '>=', start_date), ('payment_date', '<=', end_date), ('invoice_ids', '!=', False)])
-        for paid_invoice_id in paid_invoice_ids:
-            invoice_ids_set |= paid_invoice_id.invoice_ids.filtered(lambda r: r.journal_id.purchase_type == "informal")
+        invoice_ids_set = invoice_ids.filtered(
+            lambda x: x.state in ('open', 'paid', 'cancel'))
 
-        for draft_invoice_id_set in draft_invoice_ids_set:
-            if not error_list.get(draft_invoice_id_set.id, False):
+        paid_invoice_ids = self.env["account.payment"].search(
+            [('payment_date', '>=', start_date),
+             ('payment_date', '<=', end_date),
+             ('invoice_ids', '!=', False)])
+
+        for paid_line in paid_invoice_ids:
+            invoice_ids_set |= paid_line.invoice_ids.filtered(
+                lambda r: r.journal_id.purchase_type == "informal")
+
+        for draft_line in draft_invoice_ids_set:
+            if not error_list.get(draft_line.id, False):
                 error_list.update(
-                    {draft_invoice_id_set.id: [(draft_invoice_id_set.type,
-                                                draft_invoice_id_set.number,
-                                                "Factura sin validar")]})
+                    {draft_line.id: [(draft_line.type,
+                                      draft_line.number,
+                                      "Factura sin validar")]})
             else:
                 error_list[draft_invoice_id_set.id].append(
                     (draft_invoice_id_set.type, draft_invoice_id_set.number,
@@ -227,10 +232,15 @@ class DgiiReport(models.Model):
             if invoice_id.type in ("in_invoice", "in_refund") and invoice_id.journal_id.purchase_type in (
                     "import", "others"):
                 continue
+            if not invoice_id.number:
+                continue
+                # error_list[invoice_id.id].append(
+                #     (invoice_id.type, invoice_id.number,
+                #      "Factura sin NCF asignado."))
 
             TIPO_IDENTIFICACION = "3"
-
-            RNC_CEDULA = invoice_id.partner_id.vat and re.sub("[^0-9]", "", invoice_id.partner_id.vat.strip()) or False
+            RNC_CEDULA = invoice_id.partner_id.vat and re.sub(
+                "[^0-9]", "", invoice_id.partner_id.vat.strip()) or False
             if RNC_CEDULA:
                 if len(RNC_CEDULA) == 9:
                     TIPO_IDENTIFICACION = "1"
@@ -240,12 +250,10 @@ class DgiiReport(models.Model):
                     RNC_CEDULA = ""
 
             NUMERO_COMPROBANTE_FISCAL = invoice_id.number
-            NUMERO_COMPROBANTE_MODIFICADO = False
-            affected_nvoice_id = False
-            FECHA_COMPROBANTE = invoice_id.date_invoice
+            NUMERO_COMPROBANTE_MODIFICADO, FACTURA_AFECTADA = False, False
             FECHA_PAGO = False
-            ITBIS_RETENIDO = 0
-            RETENCION_RENTA = 0
+            FECHA_COMPROBANTE = invoice_id.date_invoice
+            ITBIS_RETENIDO, RETENCION_RENTA = 0, 0
 
             if invoice_id.state == "paid":
                 move_id = self.env["account.move.line"].search(
@@ -270,7 +278,8 @@ class DgiiReport(models.Model):
                     or invoice_id.journal_id.ncf_control)):
                 if invoice_id.type in ("out_invoice", "out_refund",
                                        "in_invoice", "in_refund"):
-                    if not api_marcos.is_identification(invoice_id.partner_id.vat) and invoice_id.partner_id.sale_fiscal_type in ("fiscal", "gov", "special"):
+                    if not api_marcos.is_identification(
+                        invoice_id.partner_id.vat) and invoice_id.partner_id.sale_fiscal_type in ("fiscal", "gov", "special"):
                         error_msg = u"RNC/Cédula no es válida"
                         if not error_list.get(invoice_id.id, False):
                             error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
@@ -328,7 +337,7 @@ class DgiiReport(models.Model):
 
                         else:
                             NUMERO_COMPROBANTE_MODIFICADO = NUMERO_COMPROBANTE_MODIFICADO_ID.number
-                            affected_nvoice_id = NUMERO_COMPROBANTE_MODIFICADO_ID.id
+                            FACTURA_AFECTADA = NUMERO_COMPROBANTE_MODIFICADO_ID.id
 
                     if not invoice_id.number:
                         error_msg = u"Factura validada con error"
@@ -357,23 +366,27 @@ class DgiiReport(models.Model):
                 "FECHA_PAGO": FECHA_PAGO,
                 "invoice_id": invoice_id.id,
                 "inv_partner": invoice_id.partner_id.id,
-                "affected_nvoice_id": affected_nvoice_id,
-                "nc": True if affected_nvoice_id else False,
+                "affected_nvoice_id": FACTURA_AFECTADA,
+                "nc": True if FACTURA_AFECTADA else False,
                 "ITBIS_RETENIDO": ITBIS_RETENIDO,
                 "RETENCION_RENTA": RETENCION_RENTA
             }
 
             prevent_repeat = set()
             base_prevent_repeat = set()
+
+
             for line in invoice_id.invoice_line_ids:
                 taxes = line.invoice_line_tax_ids
                 if not taxes:
                     if invoice_id.type in ("out_invoice", "out_refund"):
                         line.write({"invoice_line_tax_ids": [
-                            (4, self.env.ref("l10n_do.{}_tax_0_sale".format(self.company_id.id)).id, False)]})
+                            (4, self.env.ref("l10n_do.{}_tax_0_sale".format(
+                                self.company_id.id)).id, False)]})
                     else:
                         line.write({"invoice_line_tax_ids": [
-                            (4, self.env.ref("l10n_do.{}_tax_0_purch".format(self.company_id.id)).id, False)]})
+                            (4, self.env.ref("l10n_do.{}_tax_0_purch".format(
+                                self.company_id.id)).id, False)]})
                     taxes = line.invoice_line_tax_ids
                 move_line_ids = self.env["account.move.line"].search(
                     [('move_id', '=', invoice_id.move_id.id),
@@ -392,9 +405,13 @@ class DgiiReport(models.Model):
                 if not line.name:
                     error_msg = u"La factura tiene lineas sin descripción"
                     if not error_list.get(invoice_id.id, False):
-                        error_list.update({invoice_id.id: [(invoice_id.type, invoice_id.number, error_msg)]})
+                        error_list.update({invoice_id.id: [(invoice_id.type,
+                                                            invoice_id.number,
+                                                            error_msg)]})
                     else:
-                        error_list[invoice_id.id].append((invoice_id.type, invoice_id.number, error_msg))
+                        error_list[invoice_id.id].append((invoice_id.type,
+                                                          invoice_id.number,
+                                                          error_msg))
                 base_hash = move_line_ids
                 if base_hash in base_prevent_repeat:
                     pass
@@ -451,37 +468,31 @@ class DgiiReport(models.Model):
                         taxes.append(tax)
 
             ITBIS_FACTURADO = 0.0
-            for tax in taxes:
+            for tax in invoice_id.tax_line_ids:
+                if invoice_id.currency_id != invoice_id.company_id.currency_id and tax.tax_id.tax_group_id.name == 'ITBIS':
+                    ITBIS_FACTURADO += invoice_id.currency_id.compute(
+                        tax.amount, invoice_id.currency_id)
+                elif tax.tax_id.tax_group_id.name == 'ITBIS':
+                    ITBIS_FACTURADO += tax.amount
 
-                if tax.type_tax_use in ("purchase", "sale") and tax.tax_group_id.name == 'ITBIS':
-                    move_line_ids = self.env["account.move.line"].search(
-                        [('move_id', '=', invoice_id.move_id.id),
-                        ('name', '=', tax.name)])
+                # TODO refactoring IR17 and IT1 DGII Report
+                # if tax.tax_it1_cels:
+                #     xls_cels = tax.tax_it1_cels.split(",")
+                #     for xls_cel in xls_cels:
+                #         if not xls_dict["it1"].get(xls_cel, False):
+                #             xls_dict["it1"].update({xls_cel: amount})
+                #         else:
+                #             xls_dict["it1"][xls_cel] += amount
+                #
+                # if tax.tax_ir17_cels:
+                #     xls_cels = tax.tax_ir17_cels.split(",")
+                #     for xls_cel in xls_cels:
+                #         if not xls_dict["ir17"].get(xls_cel, False):
+                #             xls_dict["ir17"].update({xls_cel: amount})
+                #         else:
+                #             xls_dict["ir17"][xls_cel] += amount
 
-                    if move_line_ids:
-                        amount = abs(sum([
-                            line.debit - line.credit for line in move_line_ids]))
-                        ITBIS_FACTURADO += amount
-
-                        if tax.tax_it1_cels:
-                            xls_cels = tax.tax_it1_cels.split(",")
-                            for xls_cel in xls_cels:
-                                if not xls_dict["it1"].get(xls_cel, False):
-                                    xls_dict["it1"].update({xls_cel: amount})
-                                else:
-                                    xls_dict["it1"][xls_cel] += amount
-
-                        if tax.tax_ir17_cels:
-                            xls_cels = tax.tax_ir17_cels.split(",")
-                            for xls_cel in xls_cels:
-                                if not xls_dict["ir17"].get(xls_cel, False):
-                                    xls_dict["ir17"].update({xls_cel: amount})
-                                else:
-                                    xls_dict["ir17"][xls_cel] += amount
-
-                        if tax.type_tax_use == "sale" or (
-                                        tax.type_tax_use == "purchase" and tax.purchase_tax_type == "itbis"):
-                            commun_data.update({"ITBIS_FACTURADO": ITBIS_FACTURADO})
+            commun_data.update({"ITBIS_FACTURADO": ITBIS_FACTURADO})
 
             if invoice_id.type in ("out_invoice", "out_refund") and invoice_id.state != "cancel":
                 commun_data.update({"LINE": sale_line})
@@ -537,6 +548,7 @@ class DgiiReport(models.Model):
             if not purchase["invoice_id"] in error_ids:
                 new_purchase_lines.append((0, 0, purchase))
         self.write({"purchase_report": new_purchase_lines})
+
         self.generate_txt()
 
         # fill IT-1 excel file
