@@ -366,14 +366,19 @@ class DgiiReport(models.Model):
                 "FECHA_PAGO": FECHA_PAGO,
                 "invoice_id": invoice_id.id,
                 "inv_partner": invoice_id.partner_id.id,
+                "MONTO_FACTURADO": False,
                 "affected_nvoice_id": FACTURA_AFECTADA,
                 "nc": True if FACTURA_AFECTADA else False,
                 "ITBIS_RETENIDO": ITBIS_RETENIDO,
                 "RETENCION_RENTA": RETENCION_RENTA
             }
 
-            prevent_repeat = set()
-            base_prevent_repeat = set()
+            # if not commun_data.get("MONTO_FACTURADO", False):
+            #     commun_data.update(
+            #         {})
+            # else:
+
+            commun_data["MONTO_FACTURADO"] += invoice_id.amount_untaxed_signed
 
             for line in invoice_id.invoice_line_ids:
                 taxes = line.invoice_line_tax_ids
@@ -387,39 +392,6 @@ class DgiiReport(models.Model):
                             (4, self.env.ref("l10n_do.{}_tax_0_purch".format(
                                 self.company_id.id)).id, False)]})
                     taxes = line.invoice_line_tax_ids
-                move_line_ids = self.env["account.move.line"].search(
-                    [('move_id', '=', invoice_id.move_id.id),
-                    ('name', '=', line.name)])
-                if not move_line_ids:
-                    move_line_ids = self.env["account.move.line"].search(
-                        [('move_id', '=', invoice_id.move_id.id),
-                         ('product_id', '=', line.product_id.id)])
-                debit = abs(sum([line.debit for line in move_line_ids]))
-                credit = abs(sum([line.credit for line in move_line_ids]))
-
-                if invoice_id.type in ["out_invoice", "in_refund"]:
-                    amount = credit - debit
-                else:
-                    amount = debit - credit
-                if not line.name:
-                    error_msg = u"La factura tiene lineas sin descripción"
-                    if not error_list.get(invoice_id.id, False):
-                        error_list.update({invoice_id.id: [(invoice_id.type,
-                                                            invoice_id.number,
-                                                            error_msg)]})
-                    else:
-                        error_list[invoice_id.id].append((invoice_id.type,
-                                                          invoice_id.number,
-                                                          error_msg))
-                base_hash = move_line_ids
-                if base_hash in base_prevent_repeat:
-                    pass
-                else:
-                    if not commun_data.get("MONTO_FACTURADO", False):
-                        commun_data.update({"MONTO_FACTURADO": amount})
-                    else:
-                        commun_data["MONTO_FACTURADO"] += amount
-                    base_prevent_repeat.add(base_hash)
 
                 for tax in taxes:
                     if tax.type_tax_use in ("purchase", "sale"): # and tax.tax_group_id.name == 'ITBIS':
