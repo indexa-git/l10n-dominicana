@@ -224,8 +224,8 @@ class DgiiReport(models.Model):
                                       draft_line.number,
                                       "Factura sin validar")]})
             else:
-                error_list[draft_invoice_id_set.id].append(
-                    (draft_invoice_id_set.type, draft_invoice_id_set.number,
+                error_list[draft_line.id].append(
+                    (draft_line.type, draft_line.number,
                      "Factura sin validar"))
 
         for invoice_id in invoice_ids_set:
