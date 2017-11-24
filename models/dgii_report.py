@@ -653,6 +653,11 @@ class DgiiReport(models.Model):
         lines.append(header)
 
         for line in self.purchase_report:
+            if not line.RNC_CEDULA:
+                raise exceptions.ValidationError(
+                "Por favor verifique la cédula/RNC de esta factura: {}".format(
+                    line.NUMERO_COMPROBANTE_FISCAL))
+
             ln = ""
             ln += line.RNC_CEDULA.rjust(11)
             ln += line.TIPO_IDENTIFICACION
