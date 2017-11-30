@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+ 	<record id="view_pos_config_form_inherit" model="ir.ui.view">
+		<field name="name">POS configuration</field>
+		<field name="model">pos.config</field>
+		<field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//group[@name='features']" position="after">
+				<group	string="POS All Orders List">
+					<group>
+						<field name="order_loading_options" widget="radio"/>
+					</group>
+					<group>
+						<field name="number_of_days" attrs="{'invisible': [('order_loading_options', '=', 'current_session')]}"/>
+					</group>
+				</group>
+ 			</xpath>
+		</field>
+	</record>
+</odoo>
