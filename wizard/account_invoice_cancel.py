@@ -35,17 +35,12 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###############################################################################
-from odoo import models, api, fields
+from odoo import models, api, fields, _
+from odoo.exceptions import UserError
 
 
 class AccountInvoiceCancel(models.TransientModel):
-    """
-    This wizard will cancel the all the selected invoices.
-    If in the journal, the option allow cancelling entry is not selected then it will give warning message.
-    """
-
     _inherit = "account.invoice.cancel"
-    _description = "Cancel the Selected Invoices"
 
     anulation_type = fields.Selection(
         [("01", u"01 - Deterioro de Factura Pre-impresa"),
@@ -57,12 +52,17 @@ class AccountInvoiceCancel(models.TransientModel):
          ("07", u"07 - Devolución de Productos"),
          ("08", u"08 - Omisión de Productos"),
          ("09", u"09 - Errores en Secuencia de NCF")],
-        string=u"Tipo de anulación", requiered=True)
+        string=u"Tipo de anulación", required=True)
 
     @api.multi
+    # TODO Do not overwrite invoice_cancel
     def invoice_cancel(self):
-        active_id = self._context.get("active_id", False)
-        if active_id:
-            invoice_id = self.env['account.invoice'].browse(active_id)
-            invoice_id.anulation_type = self.anulation_type
-            return invoice_id.action_invoice_cancel()
+        context = dict(self._context or {})
+        active_ids = context.get('active_ids', []) or []
+
+        for record in self.env['account.invoice'].browse(active_ids):
+            if record.state in ('cancel', 'paid'):
+                raise UserError(_("Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Done' state."))
+            record.anulation_type = self.anulation_type
+            record.action_invoice_cancel()
+        return {'type': 'ir.actions.act_window_close'}

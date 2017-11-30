@@ -38,8 +38,6 @@
 
 from odoo import models, fields, api, exceptions
 
-import requests
-
 
 class UpdateRateWizard(models.TransientModel):
     _name = "update.rate.wizard"
@@ -88,7 +86,6 @@ class UpdateRateWizard(models.TransientModel):
         if invoice_id.state != "draft":
             raise exceptions.UserError(u"No puede cambiar la tasa porque la factura no está en estado borrador!")
         return super(UpdateRateWizard, self).default_get(fields)
-
 
     bank_rates = fields.Selection(_get_bank_rates, string="Tasa en bancos")
     custom_rate = fields.Boolean("Digitar tasa manualmente", default=True)
