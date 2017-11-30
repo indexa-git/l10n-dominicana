@@ -21,7 +21,7 @@
 
     # any module necessary for this one to work correctly
     'depends': ['account', 'account_invoice_change_currency',
-                'marcos_api_tools', 'l10n_do'],
+                'marcos_api_tools', 'l10n_do', 'account_cancel'],
     # always loaded
     'data': [
         'data/data.xml',
