@@ -1,23 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <record id="view_pos_session_form" model="ir.ui.view">
+        <field name="name">pos.session.form.view</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
 
-        <!-- Inherit Form View to Modify it -->
-        <record id="view_pos_session_form" model="ir.ui.view">
-            <field name="name">pos.session.form.view</field>
-            <field name="model">pos.session</field>
-            <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
-            <field name="arch" type="xml">
+            <form>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
 
-                <form>
-                    <div class="oe_chatter">
-                        <field name="message_follower_ids" widget="mail_followers"/>
-                        <field name="message_ids" widget="mail_thread"/>
-                    </div>
-                </form>
-
-            </field>
-        </record>
-
-    </data>
+        </field>
+    </record>
 </odoo>
