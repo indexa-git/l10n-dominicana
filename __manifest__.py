@@ -20,7 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'account', 'account_invoice_change_currency',
+    'depends': ['account', 'account_invoice_change_currency',
                 'marcos_api_tools', 'l10n_do'],
     # always loaded
     'data': [
