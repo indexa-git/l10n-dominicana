@@ -45,10 +45,6 @@
                 <field name="move_name" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
             </field>
 
-            <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
-                <button name="%(account.action_account_invoice_cancel)d" type='action' states="draft,proforma2,open"
-                        string="Cancel Invoice" groups="account.group_account_user"/>
-            </xpath>
             <field name="date_invoice" position="after">
                 <field name="date_due" string="Vence"/>
                 <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"
