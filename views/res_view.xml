@@ -13,18 +13,15 @@
     <record id="run_dgii_update_partner_name_server_action" model="ir.values">
         <field name="name">Actualizar razon social</field>
         <field name="model_id" ref="model_res_partner"/>
+        <field name="model">model_res_partner</field>
         <field name="key2">client_action_multi</field>
         <field name="key">action</field>
+        <field name="value" eval="'ir.actions.server,' +str(ref('ncf_manager.dgii_update_partner_name_server_action'))"/>
     </record>
 
     <record id="dgii_update_partner_name_server_action" model="ir.actions.server">
         <field name="menu_ir_values_id" ref="ncf_manager.run_dgii_update_partner_name_server_action"/>
     </record>
-    <record id="run_dgii_update_partner_name_server_action" model="ir.values">
-        <field name="value"
-               eval="'ir.actions.server,' +str(ref('ncf_manager.dgii_update_partner_name_server_action'))"/>
-    </record>
-
 
     <!-- Inherit Form View to Modify it -->
     <record id="view_company_form" model="ir.ui.view">
