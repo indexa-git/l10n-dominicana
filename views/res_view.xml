@@ -11,10 +11,10 @@
     </record>
 
     <record id="run_dgii_update_partner_name_server_action" model="ir.values">
-        <field name="name">Actulizar razón social</field>
+        <field name="name">Actualizar razon social</field>
+        <field name="model_id" ref="model_res_partner"/>
         <field name="key2">client_action_multi</field>
         <field name="key">action</field>
-        <field name="model">model_res_partner</field>
     </record>
 
     <record id="dgii_update_partner_name_server_action" model="ir.actions.server">
