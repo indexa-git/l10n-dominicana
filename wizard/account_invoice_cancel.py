@@ -39,8 +39,15 @@ from odoo import models, api, fields, _
 from odoo.exceptions import UserError
 
 
+# TODO Do not overwrite AccountInvoiceCancel
 class AccountInvoiceCancel(models.TransientModel):
-    _inherit = "account.invoice.cancel"
+    """
+    This wizard will cancel the all the selected invoices.
+    If in the journal, the option allow cancelling entry is not selected then it will give warning message.
+    """
+
+    _name = "account.invoice.cancel"
+    _description = "Cancel the Selected Invoices"
 
     anulation_type = fields.Selection(
         [("01", u"01 - Deterioro de Factura Pre-impresa"),
@@ -55,7 +62,6 @@ class AccountInvoiceCancel(models.TransientModel):
         string=u"Tipo de anulación", required=True)
 
     @api.multi
-    # TODO Do not overwrite invoice_cancel
     def invoice_cancel(self):
         context = dict(self._context or {})
         active_ids = context.get('active_ids', []) or []

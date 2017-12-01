@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inherit Form View to Modify it -->
-    <record id="ncf_manager_account_invoice_cancel_view" model="ir.ui.view">
-        <field name="name">ncf manager account invoice view</field>
+    <record id="account_invoice_cancel_view" model="ir.ui.view">
+        <field name="name">account.invoice.cancel.form</field>
         <field name="model">account.invoice.cancel</field>
-        <field name="inherit_id" ref="account.account_invoice_cancel_view"/>
         <field name="arch" type="xml">
-
-            <xpath expr="//footer" position="before">
+            <form string="Cancel Selected Invoices">
                 <group>
-                <field name="anulation_type"/>
+                    <field name="anulation_type"/>
                 </group>
-            </xpath>
-
+                <footer>
+                    <button string="Cancel Invoices" name="invoice_cancel" type="object" default_focus="1" class="btn-primary"/>
+                    <button string="Cancel" class="btn-default" special="cancel"/>
+                </footer>
+            </form>
         </field>
     </record>
 </odoo>
