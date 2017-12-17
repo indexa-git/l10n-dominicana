@@ -209,7 +209,7 @@ class AccountInvoice(models.Model):
         if self.type in ("in_invoice", "in_refund") and self.move_name is not False:
             res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
             if res is not True:
-                raise UserError(res[2])
+                _logger.warning(res)
 
     @api.multi
     def action_invoice_open(self):
