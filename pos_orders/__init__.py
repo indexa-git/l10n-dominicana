@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 ##########################################################################
 #
-#    Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>)
+#    Copyright (c) 2015-Present Webkul Software Pvt. Ltd.
+#    (<https://webkul.com/>)
 #
 ##########################################################################
-import models
+from . import models
 
 
 def pre_init_check(cr):
