@@ -22,10 +22,13 @@ class PosOrder(models.Model):
             order.update({"to_invoice": True})
 
         submitted_references = [o['data']['name'] for o in orders]
-        pos_order = self.search([('pos_reference', 'in', submitted_references)])
+        pos_order = self.search(
+            [('pos_reference', 'in', submitted_references)])
         existing_orders = pos_order.read(['pos_reference'])
-        existing_references = set([o['pos_reference'] for o in existing_orders])
-        orders_to_save = [o for o in orders if o['data']['name'] not in existing_references]
+        existing_references = set([o['pos_reference']
+                                   for o in existing_orders])
+        orders_to_save = [o for o in orders if o['data']
+                          ['name'] not in existing_references]
         order_ids = []
 
         for tmp_order in orders_to_save:
@@ -42,7 +45,8 @@ class PosOrder(models.Model):
                 # do not hide transactional errors, the order(s) won't be saved!
                 raise
             except Exception as e:
-                _logger.error('Could not fully process the POS Order: %s', tools.ustr(e))
+                _logger.error(
+                    'Could not fully process the POS Order: %s', tools.ustr(e))
 
         order_objs = self.env['pos.order'].browse(order_ids)
         result = {}
