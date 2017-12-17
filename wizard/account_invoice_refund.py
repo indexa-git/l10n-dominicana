@@ -11,22 +11,17 @@ class AccountInvoiceRefund(models.TransientModel):
     _inherit = "account.invoice.refund"
 
     filter_refund = fields.Selection(
-        [('refund', u'Crear'),
-         ('cancel', u'Cancelar'),
-         ('modify', u'Modificar'),
-         ('discount', u'Descuento'),
-         ('nd', u'Nota de débido')
-         ], default='refund', string='Opciones', required=True,
-        help='Refund base on this type. You can not Modify and Cancel if the invoice is already reconciled')
-    amount = fields.Float(u"Monto")
-    account_id = fields.Many2one(u"account.account", string=u"Cuenta contable")
-    supplier_ncf = fields.Char(string=u"NCF nota de crédito", size=19)
+        selection_add=[('discount', 'Descuento'),
+                       ('debit', u'Nota de Débito')])
+
+    amount = fields.Float("Monto")
+    account_id = fields.Many2one("account.account", string="Cuenta contable")
+    supplier_ncf = fields.Char(string="NCF", size=19)
     invoice_type = fields.Char(default=lambda s: s._context.get("type", False))
 
     @api.onchange("filter_refund")
     def onchange_filter_refund(self):
         self.supplier_ncf = False
-        self.amount = False
         self.account_id = False
 
     @api.multi
@@ -53,13 +48,11 @@ class AccountInvoiceRefund(models.TransientModel):
             description = self[0].description or ''
             for idx, refund_id in enumerate(created_inv):
                 origin_inv_id = active_ids[idx]
+                origin_inv = self.env['account.invoice'].browse(origin_inv_id)
                 refund = self.env['account.invoice'].browse(refund_id)
-                vals = {
-                    'refund_reason': description
-                }
+                vals = {'refund_reason': description}
 
-                if mode in ("nd", "discount"):
-
+                if mode in ("debit", "discount"):
                     new_line = refund.invoice_line_ids[0].copy(
                         {"product_id": False,
                          "name": self.description,
@@ -69,20 +62,18 @@ class AccountInvoiceRefund(models.TransientModel):
                     vals.update({"invoice_line_ids": [(6, False,
                                                        [new_line.id])]})
 
-                    if mode == "nd":
+                    if mode == "debit":
                         vals.update({"is_nd": True})
 
                         if refund.type == "out_refund":
                             vals.update({"type": "out_invoice"})
 
                         if refund.type == "in_refund":
-                            vals.update({"type": "in_invoice"})
+                            vals.update({"type": "in_invoice",
+                                         "expense_type": origin_inv.expense_type})
 
-                origin_inv = self.env['account.invoice'].browse(origin_inv_id)
-
-                if self.supplier_ncf:
-                    vals.update({"is_nd": self.supplier_ncf,
-                                 "expense_type": origin_inv.expense_type})
+                            if self.supplier_ncf:
+                                vals.update({"credit_note_supplier_ncf": self.supplier_ncf})
 
                 refund.write(vals)
 
@@ -95,7 +86,7 @@ class AccountInvoiceRefund(models.TransientModel):
             invoice = self.env["account.invoice"].browse(active_id)
 
             if self.supplier_ncf:
-                if self.filter_refund == 'nd' and self.supplier_ncf[9:11] != "03":
+                if self.filter_refund == 'debit' and self.supplier_ncf[9:11] != "03":
                     raise ValidationError(u"Las Notas de Débito deben ser tipo 03, este NCF no es de este tipo.")
                 elif self.supplier_ncf[9:11] != "04":
                     raise ValidationError(u"Las Notas de Crédito deben ser tipo 04, este NCF no es de este tipo.")
