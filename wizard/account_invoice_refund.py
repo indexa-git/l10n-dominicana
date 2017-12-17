@@ -110,7 +110,7 @@ class AccountInvoiceRefund(models.TransientModel):
                             u"proveedor estén correctamente "
                             u"digitados, o si los números de ese NCF se "
                              "le agotaron al proveedor".format(
-                                invoice.move_name,
+                                self.supplier_ncf,
                                 invoice.partner_id.name)))
 
         return super(AccountInvoiceRefund, self).invoice_refund()
