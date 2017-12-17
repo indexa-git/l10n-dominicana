@@ -40,20 +40,21 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
+
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
     purchase_type = fields.Selection(
-        [("normal", u"Requiere NCF"),
-         ("minor", u"Gasto Menor. NCF Generado por el Sistema"),
-         ("informal", u"Proveedores Informales. NCF Generado por el Sistema"),
-         ("exterior", u"Pagos al Exterior. NCF Generado por el Sistema"),
-         ("import", u"Importaciones. NCF Generado por el Sistema"),
-         ("others", u"Otros. No requiere NCF")],
-        string=u"Tipo de Compra", default="others")
+        [("normal", "Requiere NCF"),
+         ("minor", "Gasto Menor. NCF Generado por el Sistema"),
+         ("informal", "Proveedores Informales. NCF Generado por el Sistema"),
+         ("exterior", "Pagos al Exterior. NCF Generado por el Sistema"),
+         ("import", "Importaciones. NCF Generado por el Sistema"),
+         ("others", "Otros. No requiere NCF")],
+        string="Tipo de Compra", default="others")
 
     ncf_control = fields.Boolean("Control de NCF", default=False)
-    ncf_remote_validation = fields.Boolean(u"Validar con DGII", default=False)
+    ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
 
 
 class AccountMove(models.Model):
@@ -96,7 +97,7 @@ class AccountMove(models.Model):
                         active_sequence = invoice.shop_id.special_active
 
                     if not active_sequence:
-                        raise ValidationError(u"Este tipo de NCF para {} no esta activado.".format(invoice.sale_fiscal_type))
+                        raise ValidationError(u"Los NCF para **{}** no están activados.".format(invoice.sale_fiscal_type))
 
                     invoice.shop_id.check_max(invoice.sale_fiscal_type,
                                               invoice)

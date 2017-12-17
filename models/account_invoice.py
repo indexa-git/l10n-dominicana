@@ -101,7 +101,7 @@ class AccountInvoice(models.Model):
         else:
             return False
 
-    shop_id = fields.Many2one("shop.ncf.config", string=u"Sucursal",
+    shop_id = fields.Many2one("shop.ncf.config", string="Sucursal",
                               required=False,
                               default=_default_user_shop,
                               domain=lambda s: [('user_ids', '=', [s._uid])])
@@ -110,37 +110,37 @@ class AccountInvoice(models.Model):
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
     sale_fiscal_type = fields.Selection(
-        [("final", u"Consumidor final"),
-         ("fiscal", u"Para credito fiscal"),
-         ("gov", u"Gubernamental"),
-         ("special", u"Regimenes especiales"),
-         ("unico", u"Unico ingreso")],
+        [("final", "Consumidor Final"),
+         ("fiscal", u"Crédito Fiscal"),
+         ("gov", "Gubernamental"),
+         ("special", u"Regímenes Especiales"),
+         ("unico", u"Único ingreso")],
         string="NCF para")
 
     expense_type = fields.Selection(
-        [('01', u'01 - Gastos de Personal'),
-         ('02', u'02 - Gastos por Trabajo, Suministros y Servicios'),
-         ('03', u'03 - Arrendamientos'),
-         ('04', u'04 - Gastos de Activos Fijos'),
+        [('01', '01 - Gastos de Personal'),
+         ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
+         ('03', '03 - Arrendamientos'),
+         ('04', '04 - Gastos de Activos Fijos'),
          ('05', u'05 - Gastos de Representación'),
-         ('06', u'06 - Otras Deducciones Admitidas'),
-         ('07', u'07 - Gastos Financieros'),
-         ('08', u'08 - Gastos Extraordinarios'),
-         ('09', u'09 - Compras y Gastos que forman parte del Costo de Venta'),
-         ('10', u'10 - Adquisiciones de Activos'),
-         ('11', u'11 - Gastos de Seguro')],
-        string=u"Tipo de gasto")
+         ('06', '06 - Otras Deducciones Admitidas'),
+         ('07', '07 - Gastos Financieros'),
+         ('08', '08 - Gastos Extraordinarios'),
+         ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
+         ('10', '10 - Adquisiciones de Activos'),
+         ('11', '11 - Gastos de Seguro')],
+        string="Tipo de gasto")
 
     anulation_type = fields.Selection(
-        [("01", u"01 - Deterioro de Factura Pre-impresa"),
+        [("01", "01 - Deterioro de Factura Pre-impresa"),
          ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
-         ("04", u"04 - Duplicidad de Factura"),
+         ("04", "04 - Duplicidad de Factura"),
          ("05", u"05 - Corrección de La Información"),
-         ("06", u"06 - Cambio de Productos"),
+         ("06", "06 - Cambio de Productos"),
          ("07", u"07 - Devolución de Productos"),
          ("08", u"08 - Omisión de Productos"),
-         ("09", u"09 - Errores en Secuencia de NCF")],
+         ("09", "09 - Errores en Secuencia de NCF")],
         string=u"Tipo de anulación", copy=False)
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
@@ -148,13 +148,13 @@ class AccountInvoice(models.Model):
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate,
                                    currency_field='currency_id')
     purchase_type = fields.Selection(
-        [("normal", u"Requiere NCF"),
-         ("minor", u"Gasto Menor. NCF Generado por el Sistema"),
-         ("informal", u"Proveedores Informales. NCF Generado por el Sistema"),
-         ("exterior", u"Pagos al Exterior. NCF Generado por el Sistema"),
-         ("import", u"Importaciones. NCF Generado por el Sistema"),
-         ("others", u"Otros. No requiere NCF")],
-        string=u"Tipo de Compra",
+        [("normal", "Requiere NCF"),
+         ("minor", "Gasto Menor. NCF Generado por el Sistema"),
+         ("informal", "Proveedores Informales. NCF Generado por el Sistema"),
+         ("exterior", "Pagos al Exterior. NCF Generado por el Sistema"),
+         ("import", "Importaciones. NCF Generado por el Sistema"),
+         ("others", "Otros. No requiere NCF")],
+        string="Tipo de Compra",
         related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
@@ -218,7 +218,7 @@ class AccountInvoice(models.Model):
                 rec.sale_fiscal_type = "final"
             if rec.type == "out_invoice" and rec.sale_fiscal_type in ("fiscal", "gov", "special") and rec.journal_id.ncf_control and not rec.partner_id.vat:
                 raise UserError(_(
-                    "El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
+                    u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
                     "para este tipo de factura.".format(rec.partner_id.id,
                                                         rec.partner_id.name)))
 

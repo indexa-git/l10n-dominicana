@@ -67,26 +67,26 @@ class ResPartner(models.Model):
                 rec.fiscal_info_required = False
 
     sale_fiscal_type = fields.Selection(
-        [("final", u"Consumidor Final"),
-         ("fiscal", u"Para Crédito Fiscal"),
-         ("gov", u"Gubernamental"),
+        [("final", "Consumidor Final"),
+         ("fiscal", u"Crédito Fiscal"),
+         ("gov", "Gubernamental"),
          ("special", u"Regímenes Especiales"),
          ("unico", u"Único Ingreso")],
         string="Tipo de comprobante", default="final")
 
     expense_type = fields.Selection(
-        [('01', u'01 - Gastos de Personal'),
-         ('02', u'02 - Gastos por Trabajo, Suministros y Servicios'),
-         ('03', u'03 - Arrendamientos'),
-         ('04', u'04 - Gastos de Activos Fijos'),
+        [('01', '01 - Gastos de Personal'),
+         ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
+         ('03', '03 - Arrendamientos'),
+         ('04', '04 - Gastos de Activos Fijos'),
          ('05', u'05 - Gastos de Representación'),
-         ('06', u'06 - Otras Deducciones Admitidas'),
-         ('07', u'07 - Gastos Financieros'),
-         ('08', u'08 - Gastos Extraordinarios'),
-         ('09', u'09 - Compras y Gastos que forman parte del Costo de Venta'),
-         ('10', u'10 - Adquisiciones de Activos'),
-         ('11', u'11 - Gastos de Seguro')],
-        string=u"Tipo de gasto")
+         ('06', '06 - Otras Deducciones Admitidas'),
+         ('07', '07 - Gastos Financieros'),
+         ('08', '08 - Gastos Extraordinarios'),
+         ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
+         ('10', '10 - Adquisiciones de Activos'),
+         ('11', '11 - Gastos de Seguro')],
+        string="Tipo de gasto")
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
