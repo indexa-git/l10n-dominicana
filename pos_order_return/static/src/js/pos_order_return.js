@@ -6,6 +6,7 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
     var QWeb = core.qweb;
     var screens = require('point_of_sale.screens');
     var models = require('point_of_sale.models');
+    var utils = require('web.utils');
     var PopupWidget = require('point_of_sale.popups');
     var _t = core._t;
     var SuperOrder = models.Order;
