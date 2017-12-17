@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
-#  (<https://marcos.do/>) 
+#  (<https://marcos.do/>)
+
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
@@ -64,7 +65,7 @@ class PosOrder(models.Model):
         if self.fiscal_nif:
             res.update({"fiscal_nif": self.fiscal_nif})
 
-        res.update({'shop_id':self.config_id.shop_id})
+        res.update({'shop_id': self.config_id.shop_id})
 
         return res
 
@@ -114,23 +115,12 @@ class PosOrder(models.Model):
                     'gov': "FACTURA GUBERNAMENTAL",
                     'special': u"FACTURA PARA REGÍMENES ESPECIALES",
                 }
-                res.update({"fiscal_type_name": fiscal_type_names.get(order_id.partner_id.sale_fiscal_type)})
+                res.update({"fiscal_type_name": fiscal_type_names.get(
+                    order_id.partner_id.sale_fiscal_type)})
 
             return res
         else:
             return False
-
-    @api.multi
-    def action_pos_order_invoice(self):
-        for pos_order in self:
-            if not pos_order.partner_id:
-                pos_order.partner_id = pos_order.config_id.default_partner_id.id
-
-        for rec in self:
-            if not rec.invoice_id:
-                super(PosOrder, rec).action_pos_order_invoice()
-                rec.invoice_id.sudo().action_invoice_open()
-                rec.account_move = rec.invoice_id.move_id
 
     @api.multi
     def action_pos_order_paid(self):
