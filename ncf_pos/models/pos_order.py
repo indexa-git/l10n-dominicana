@@ -70,7 +70,7 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-        res = {"fiscal_type": "none", "fiscal_type_name": u"PRE-CUENTA"}
+        res = {"fiscal_type": "none", "fiscal_type_name": "PRE-CUENTA"}
 
         order_id = False
         timeout = time.time() + 60 * 0.5  # 5 minutes from now
