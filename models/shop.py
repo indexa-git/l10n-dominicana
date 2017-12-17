@@ -46,7 +46,7 @@ class ShopJournalConfig(models.Model):
 
     company_id = fields.Many2one("res.company", required=True,
                                  default=lambda s: s.env.user.company_id.id,
-                                 string=u"Compañia")
+                                 string=u"Compañía")
     name = fields.Char("Prefijo NCF", size=9, copy=False)
 
     branch_office = fields.Char(string="Sucursal", required=True,
@@ -56,32 +56,32 @@ class ShopJournalConfig(models.Model):
     ncf_control = fields.Boolean(string="", related='journal_id.ncf_control')
 
     final_active = fields.Boolean("Activo", default=True)
-    final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia")
+    final_sequence_id = fields.Many2one("ir.sequence", string="Secuencia")
     final_number_next_actual = fields.Integer(
         string=u"Próximo número", related="final_sequence_id.number_next_actual")
     final_max = fields.Integer(string=u"Número máximo")
 
     fiscal_active = fields.Boolean("Activo")
     fiscal_sequence_id = fields.Many2one("ir.sequence",
-                                         string=u"Credito fiscal")
+                                         string=u"Crédito fiscal")
     fiscal_number_next_actual = fields.Integer(string=u"Próximo número",
                                                related="fiscal_sequence_id.number_next_actual")
     fiscal_max = fields.Integer(string=u"Número máximo")
 
     gov_active = fields.Boolean("Activo")
-    gov_sequence_id = fields.Many2one("ir.sequence", string=u"Gubernamental")
+    gov_sequence_id = fields.Many2one("ir.sequence", string="Gubernamental")
     gov_number_next_actual = fields.Integer(string=u"Próximo número",
                                             related="gov_sequence_id.number_next_actual")
     gov_max = fields.Integer(string=u"Número máximo")
 
     special_active = fields.Boolean("Activo")
-    special_sequence_id = fields.Many2one("ir.sequence", string=u"Especiales")
+    special_sequence_id = fields.Many2one("ir.sequence", string="Especiales")
     special_number_next_actual = fields.Integer(string=u"Próximo número",
                                                 related="special_sequence_id.number_next_actual")
     special_max = fields.Integer(string=u"Número máximo")
 
     unico_active = fields.Boolean("Activo")
-    unico_sequence_id = fields.Many2one("ir.sequence", string=u"Especiales")
+    unico_sequence_id = fields.Many2one("ir.sequence", string="Especiales")
     unico_number_next_actual = fields.Integer(string=u"Próximo número",
                                               related="unico_sequence_id.number_next_actual")
     unico_max = fields.Integer(string=u"Número máximo")
@@ -99,12 +99,12 @@ class ShopJournalConfig(models.Model):
     nd_max = fields.Integer(string=u"Número máximo")
 
     user_ids = fields.Many2many("res.users",
-                                string=u"Usuarios que pueden usar estas secuencias")
+                                string="Usuarios que pueden usar estas secuencias")
 
     _sql_constraints = [
         ('shop_ncf_config_name_uniq',
          'unique(name, company_id)',
-         u'El Prefijo NCF de la sucursal debe de ser unico!'),
+         u'¡El Prefijo NCF de la sucursal debe de ser único!'),
     ]
 
     @api.onchange("journal_id")
@@ -133,23 +133,25 @@ class ShopJournalConfig(models.Model):
                          "name": "Facturas Especiales {}".format(self.name)})
                     self.unico_sequence_id.write(
                         {"prefix": self.name + "12",
-                         "name": "Facturas de Unico Ingreso {}".format(self.name)})
+                         "name": u"Facturas de Único Ingreso {}".format(self.name)})
                     self.nc_sequence_id.write(
                         {"prefix": self.name + "04",
-                         "name": "Notas de Credito {}".format(self.name)})
+                         "name": u"Notas de Crédito {}".format(self.name)})
                     self.nd_sequence_id.write(
                         {"prefix": self.name + "03",
-                         "name": "Notas de Debito {}".format(self.name)})
+                         "name": u"Notas de Débito {}".format(self.name)})
                 else:
-                    self.setup_ncf(name=self.name, company_id=self.company_id.id, journal_id=self.journal_id.id, shop_id=self,
+                    self.setup_ncf(name=self.name,
+                                   company_id=self.company_id.id,
+                                   journal_id=self.journal_id.id, shop_id=self,
                                    branch_office=self.branch_office)
 
     @api.model
     def setup_ncf(self, name=False, company_id=False, journal_id=False,
                   user_id=False, shop_id=False, branch_office=False):
 
-        name = name or u"A01001001"
-        branch_office = branch_office or u"Sucursal"
+        name = name or "A01001001"
+        branch_office = branch_office.encode('utf-8') or "Sucursal"
         user = self.env.user
         company_id = company_id or user.company_id.id
 
@@ -161,13 +163,13 @@ class ShopJournalConfig(models.Model):
 
         user_id = 1
 
-        final_prefix = name + u"02"
-        fiscal_prefix = name + u"01"
-        gov_prefix = name + u"15"
-        esp_prefix = name + u"14"
-        nc_prefix = name + u"04"
-        nd_prefix = name + u"03"
-        unico_prefix = name + u"12"
+        final_prefix = name + "02"
+        fiscal_prefix = name + "01"
+        gov_prefix = name + "15"
+        esp_prefix = name + "14"
+        nc_prefix = name + "04"
+        nd_prefix = name + "03"
+        unico_prefix = name + "12"
 
         if self.search_count(
                 [('company_id', '=', company_id),
@@ -180,27 +182,27 @@ class ShopJournalConfig(models.Model):
                                     "journal_id": journal_id,
                                     "user_ids": [(4, user_id, False)],
                                     "company_id": company_id,
-                                    u'final_max': 10000000,
-                                    u'fiscal_max': 10000000,
-                                    u'gov_max': 10000000,
-                                    u'special_max': 10000000,
-                                    u'nc_max': 10000000,
-                                    u'nd_max': 10000000,
-                                    u'unico_max': 10000000
+                                    'final_max': 10000000,
+                                    'fiscal_max': 10000000,
+                                    'gov_max': 10000000,
+                                    'special_max': 10000000,
+                                    'nc_max': 10000000,
+                                    'nd_max': 10000000,
+                                    'unico_max': 10000000
                                     })
 
-            seq_values = {u'padding': 8,
-                          u'code': False,
-                          u'name': u'Facturas de cliente final',
-                          u'implementation': u'standard',
-                          u'company_id': 1,
-                          u'use_date_range': False,
-                          u'number_increment': 1,
-                          u'prefix': u'A0100100102',
-                          u'date_range_ids': [],
-                          u'number_next_actual': 1,
-                          u'active': True,
-                          u'suffix': False
+            seq_values = {'padding': 8,
+                          'code': False,
+                          'name': 'Facturas de cliente final',
+                          'implementation': 'standard',
+                          'company_id': 1,
+                          'use_date_range': False,
+                          'number_increment': 1,
+                          'prefix': 'A0100100102',
+                          'date_range_ids': [],
+                          'number_next_actual': 1,
+                          'active': True,
+                          'suffix': False
                           }
 
             seq_values["prefix"] = final_prefix

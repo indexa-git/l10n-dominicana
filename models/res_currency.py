@@ -96,7 +96,7 @@ class Currency(models.Model):
             self.env["res.currency.rate"].create({"name": name,
                                                   "rate": 1 / rate,
                                                   "currency_id": 3})
-            _logger.info(u"USD rate created {}".format(name))
+            _logger.info("USD rate created {}".format(name))
 
     @api.multi
     def _compute_current_rate(self):

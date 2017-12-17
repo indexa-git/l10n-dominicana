@@ -123,22 +123,22 @@ class DgiiReport(models.Model):
 
     company_id = fields.Many2one('res.company', 'Company', required=False,
                                  default=lambda self: self.env.user.company_id)
-    name = fields.Char(string=u"Periodo mes/año", required=True)
-    positive_balance = fields.Float(u"SALDO A FAVOR ANTERIOR", required=True)
+    name = fields.Char(string="Periodo MM/YYYY", required=True)
+    positive_balance = fields.Float("SALDO A FAVOR ANTERIOR", required=True)
 
     it_filename = fields.Char()
-    it_binary = fields.Binary(string=u"Archivo excel IT-1")
+    it_binary = fields.Binary(string="Archivo excel IT-1")
 
     ir17_filename = fields.Char()
-    ir17_binary = fields.Binary(string=u"Archivo excel IR-17")
+    ir17_binary = fields.Binary(string="Archivo excel IR-17")
 
     # 606
-    COMPRAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros",
+    COMPRAS_CANTIDAD_REGISTRO = fields.Integer("Cantidad de registros",
                                                compute=_count_records)
 
-    TOTAL_MONTO_FACTURADO = fields.Float(u"Monto Compras",
+    TOTAL_MONTO_FACTURADO = fields.Float("Monto Compras",
                                          compute=_purchase_report_totals)
-    ITBIS_TOTAL = fields.Float(u"ITBIS Compras",
+    ITBIS_TOTAL = fields.Float("ITBIS Compras",
                                compute=_purchase_report_totals)
 
     TOTAL_MONTO_NC = fields.Float(u"Notas de Crédito",
@@ -146,28 +146,28 @@ class DgiiReport(models.Model):
     ITBIS_TOTAL_NC = fields.Float(u"ITBIS Notas de Crédito",
                                   compute=_purchase_report_totals)
 
-    TOTAL_MONTO_PAYMENT = fields.Float(u"Total Monto Facturado",
+    TOTAL_MONTO_PAYMENT = fields.Float("Total Monto Facturado",
                                        compute=_purchase_report_totals)
-    ITBIS_TOTAL_PAYMENT = fields.Float(u"ITBIS Facturado",
+    ITBIS_TOTAL_PAYMENT = fields.Float("ITBIS Facturado",
                                        compute=_purchase_report_totals)
 
-    ITBIS_RETENIDO = fields.Float(u"ITBIS Retenido",
+    ITBIS_RETENIDO = fields.Float("ITBIS Retenido",
                                   compute=_purchase_report_totals)
     RETENCION_RENTA = fields.Float(u"Retención Renta",
                                    compute=_purchase_report_totals)
 
-    purchase_report = fields.One2many(u"dgii.report.purchase.line",
+    purchase_report = fields.One2many("dgii.report.purchase.line",
                                       "dgii_report_id")
     purchase_filename = fields.Char()
-    purchase_binary = fields.Binary(string=u"Archivo 606 TXT")
+    purchase_binary = fields.Binary(string="Archivo 606 TXT")
 
     # 607
-    VENTAS_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros",
+    VENTAS_CANTIDAD_REGISTRO = fields.Integer("Cantidad de registros",
                                               compute=_count_records)
 
-    SALE_TOTAL_MONTO_FACTURADO = fields.Float(u"Monto Ventas",
+    SALE_TOTAL_MONTO_FACTURADO = fields.Float("Monto Ventas",
                                               compute=_sale_report_totals)
-    SALE_ITBIS_TOTAL = fields.Float(u"ITBIS Ventas",
+    SALE_ITBIS_TOTAL = fields.Float("ITBIS Ventas",
                                     compute=_sale_report_totals)
 
     SALE_TOTAL_MONTO_NC = fields.Float(u"Notas de Crédito",
@@ -175,31 +175,31 @@ class DgiiReport(models.Model):
     SALE_ITBIS_NC = fields.Float(u"ITBIS Notas de Crédito",
                                  compute=_sale_report_totals)
 
-    SALE_TOTAL_MONTO_CHARGED = fields.Float(u"Total Monto Facturado",
+    SALE_TOTAL_MONTO_CHARGED = fields.Float("Total Monto Facturado",
                                             compute=_sale_report_totals)
-    SALE_ITBIS_CHARGED = fields.Float(u"ITBIS Facturado",
+    SALE_ITBIS_CHARGED = fields.Float("ITBIS Facturado",
                                       compute=_sale_report_totals)
 
     sale_report = fields.One2many("dgii.report.sale.line", "dgii_report_id")
     sale_filename = fields.Char()
-    sale_binary = fields.Binary(string=u"Archivo 607 TXT")
+    sale_binary = fields.Binary(string="Archivo 607 TXT")
 
     # 608
-    CANCEL_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros",
+    CANCEL_CANTIDAD_REGISTRO = fields.Integer("Cantidad de registros",
                                               compute=_count_records)
     cancel_report = fields.One2many("dgii.cancel.report.line",
                                     "dgii_report_id")
     cancel_filename = fields.Char()
-    cancel_binary = fields.Binary(string=u"Archivo 608 TXT")
+    cancel_binary = fields.Binary(string="Archivo 608 TXT")
 
     # 609
-    EXTERIOR_CANTIDAD_REGISTRO = fields.Integer(u"Cantidad de registros",
+    EXTERIOR_CANTIDAD_REGISTRO = fields.Integer("Cantidad de registros",
                                                 compute=_count_records)
     EXTERIOR_TOTAL_MONTO_FACTURADO = fields.Float()
     exterior_report = fields.One2many("dgii.exterior.report.line",
                                       "dgii_report_id")
-    exterior_filename = fields.Char(u"Total Monto Facturado")
-    exterior_binary = fields.Binary(string=u"Archivo 609 TXT")
+    exterior_filename = fields.Char("Total Monto Facturado")
+    exterior_binary = fields.Binary(string="Archivo 609 TXT")
 
     state = fields.Selection(
         [('draft', 'Nuevo'),
@@ -340,7 +340,7 @@ class DgiiReport(models.Model):
                             )
 
                         if not NUMERO_COMPROBANTE_MODIFICADO_ID:
-                            error_msg = u"Falta el Comprobante que Afecta"
+                            error_msg = "Falta el Comprobante que Afecta"
                             if not error_list.get(invoice.id, False):
                                 error_list.update({invoice.id: [
                                     (invoice.type, invoice.number,
@@ -353,7 +353,7 @@ class DgiiReport(models.Model):
                             FACTURA_AFECTADA = NUMERO_COMPROBANTE_MODIFICADO_ID.id
 
                     if not invoice.number:
-                        error_msg = u"Factura validada con error"
+                        error_msg = "Factura validada con error"
                         if not error_list.get(invoice.id, False):
                             error_list.update({invoice.id: [
                                 (invoice.type, invoice.number, error_msg)]})
@@ -362,7 +362,7 @@ class DgiiReport(models.Model):
                                 (invoice.type, invoice.number, error_msg))
 
                 if not invoice.number:
-                    error_msg = u"Factura validada con error"
+                    error_msg = "Factura validada con error"
                     if not error_list.get(invoice.id, False):
                         error_list.update({invoice.id: [
                             (invoice.type, invoice.number, error_msg)]})
@@ -425,9 +425,9 @@ class DgiiReport(models.Model):
                                     else:
                                         xls_dict["it1"][xls_cel] += base_amount
                             if tax.base_ir17_cels:
-                                xls_cels = tax.base_ir17_cels.split(u",")
+                                xls_cels = tax.base_ir17_cels.split(",")
                                 for xls_cel in xls_cels:
-                                    xls_cel = xls_cel.split(u"%")
+                                    xls_cel = xls_cel.split("%")
                                     if len(xls_cel) == 1:
                                         if not xls_dict["ir17"].get(xls_cel[0], False):
                                             xls_dict["ir17"].update(
@@ -614,10 +614,10 @@ class DgiiReport(models.Model):
                     errors[0][1] or "Factura invalida")
                 for error in errors:
                     if error[0] in ("out_invoice", "out_refund"):
-                        message += u"<li><a target='_blank' href='{}'>{}</a></li>".format(
+                        message += "<li><a target='_blank' href='{}'>{}</a></li>".format(
                             out_inovice_url.format(ncf), error[2])
                     else:
-                        message += u"<li><a target='_blank' href='{}'>{}</a></li>".format(
+                        message += "<li><a target='_blank' href='{}'>{}</a></li>".format(
                             in_inovice_url.format(ncf), error[2])
                 message += "</ul>"
             message += "</ul>"
@@ -676,7 +676,7 @@ class DgiiReport(models.Model):
             lines.append(ln)
 
         for line in lines:
-            sale_file.write(unicode(line) + u"\n")
+            sale_file.write(unicode(line) + "\n")
 
         sale_file.close()
         sale_file = open(sale_path, 'rb')
@@ -735,7 +735,7 @@ class DgiiReport(models.Model):
             lines.append(ln)
 
         for line in lines:
-            purchase_file.write(unicode(line) + u"\n")
+            purchase_file.write(unicode(line) + "\n")
 
         purchase_file.close()
         purchase_file = open(pruchase_path, 'rb')
@@ -768,7 +768,7 @@ class DgiiReport(models.Model):
             lines.append(ln)
 
         for line in lines:
-            file.write(unicode(line) + u"\n")
+            file.write(unicode(line) + "\n")
 
         file.close()
         file = open(path, 'rb')
@@ -783,7 +783,7 @@ class DgiiReportPurchaseLine(models.Model):
 
     dgii_report_id = fields.Many2one("dgii.report")
     LINE = fields.Integer("Linea")
-    RNC_CEDULA = fields.Char(u"RNC", size=11)
+    RNC_CEDULA = fields.Char("RNC", size=11)
     TIPO_IDENTIFICACION = fields.Char("Tipo ID", size=1)
     NUMERO_COMPROBANTE_FISCAL = fields.Char("NCF", size=19)
     NUMERO_COMPROBANTE_MODIFICADO = fields.Char("Afecta", size=19)
@@ -810,7 +810,7 @@ class DgiiReportSaleLine(models.Model):
 
     dgii_report_id = fields.Many2one("dgii.report")
     LINE = fields.Integer("Linea")
-    RNC_CEDULA = fields.Char(u"RNC", size=11)
+    RNC_CEDULA = fields.Char("RNC", size=11)
     TIPO_IDENTIFICACION = fields.Char("Tipo ID", size=1)
     NUMERO_COMPROBANTE_FISCAL = fields.Char("NCF", size=19)
     NUMERO_COMPROBANTE_MODIFICADO = fields.Char("Afecta", size=19)
