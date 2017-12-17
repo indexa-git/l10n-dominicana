@@ -151,7 +151,7 @@ class ShopJournalConfig(models.Model):
                   user_id=False, shop_id=False, branch_office=False):
 
         name = name or "A01001001"
-        branch_office = branch_office.encode('utf-8') or "Sucursal"
+        branch_office = branch_office or "Sucursal"
         user = self.env.user
         company_id = company_id or user.company_id.id
 
@@ -178,8 +178,8 @@ class ShopJournalConfig(models.Model):
                 shop = shop_id
             else:
                 shop = self.create({"name": name,
-                                    "branch_office": branch_office,
-                                    "journal_id": journal_id,
+                                    u"branch_office": branch_office,
+                                    u"journal_id": journal_id,
                                     "user_ids": [(4, user_id, False)],
                                     "company_id": company_id,
                                     'final_max': 10000000,
