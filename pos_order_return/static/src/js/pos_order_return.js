@@ -18,11 +18,18 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 	var order_line_model = null;
 	var model_list = models.PosModel.prototype.models;
 	for(var i = 0,len = model_list.length;i<len;i++){
-		if(model_list[i].model == "pos.order")
-			order_model = model_list[i];
-		else if(model_list[i].model == "pos.order.line")
-			order_line_model = model_list[i];
-	}
+        if(model_list[i].model == "pos.order"){
+            order_model = model_list[i];
+            if (order_line_model)
+                break;
+        }
+
+        else if(model_list[i].model == "pos.order.line"){
+            order_line_model = model_list[i];
+            if (order_model)
+                break;
+        }
+    }
 	order_model.fields.push('return_order_id','statement_ids','is_return_order','return_status','amount_total');
 	order_model.domain = function(self){
 		var domain_list = [];
@@ -31,11 +38,25 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 			var validation_date = new Date(today.setDate(today.getDate()-self.config.number_of_days)).toISOString();
 			domain_list = [['date_order','>',validation_date],['state', 'not in', ['draft', 'cancel']], ['is_return_order','=',false]]
 		}
-		else
-			domain_list = [['session_id', '=', self.pos_session.name], ['state', 'not in', ['draft', 'cancel']], ['is_return_order','=',false]]
-		return domain_list;
-	};
+        else if(self.config.order_loading_options == 'current_session')
+            domain_list = [['session_id', '=', self.pos_session.name], ['state', 'not in', ['draft', 'cancel']], ['is_return_order','=',false]];
+        else
+            domain_list = [['state', 'not in', ['draft', 'cancel']], ['is_return_order','=',false]]
+        return domain_list;
+    };
 	order_line_model.fields.push('line_qty_returned');
+
+    models.load_models([{
+        model: 'account.bank.statement.line',
+        fields: ['id','journal_id','amount'],
+        loaded: function(self, statements) {
+            self.db.all_statements = statements;
+            self.db.statement_by_id = {};
+            statements.forEach(function(statement) {
+                self.db.statement_by_id[statement.id] = statement;
+            });
+        },
+    }]);
 
 	var MyMessagePopup = PopupWidget.extend({
 		template: 'MyMessagePopup'
@@ -100,6 +121,7 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 			if(Object.keys(return_dict).length > 0){
 				self.chrome.widget.order_selector.neworder_click_handler();
 				var refund_order = self.pos.get_order();
+				refund_order.is_return_order = true;
 				refund_order.set_client(self.pos.db.get_partner_by_id(order.partner_id[0]));
 				Object.keys(return_dict).forEach(function(line_id){
 					var line = self.pos.db.line_by_id[line_id];
@@ -116,7 +138,6 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 					refund_order.return_order_id = order.id;
 					refund_order.is_return_order = true;
 				}
-				self.pos.set_order(current_order);
 				self.pos.set_order(refund_order);
 				self.gui.show_screen('payment');
 			}
@@ -157,18 +178,6 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 	});
 	gui.define_popup({ name: 'return_products_popup', widget: OrderReturnPopup });
 
-	models.load_models([{
-		model: 'account.bank.statement.line',
-		fields: ['id','journal_id','amount'],
-		loaded: function(self, statements) {
-			self.db.all_statements = statements;
-			self.db.statement_by_id = {};
-			statements.forEach(function(statement) {
-				self.db.statement_by_id[statement.id] = statement;
-			});
-		},
-	}]);
-
 	screens.OrderWidget.include({
 		update_summary: function(){
 			this._super();
@@ -197,67 +206,61 @@ odoo.define('pos_order_return.pos_order_return', function (require) {
 			}
 		}
 	});
-	screens.PaymentScreenWidget.include({
-		payment_input: function(input) {
-			var newbuf = this.gui.numpad_input(this.inputbuffer, input, {'firstinput': this.firstinput});
 
-			this.firstinput = (newbuf.length === 0);
-			if (this.gui.has_popup()) {
-				return;
-			}
+    var SuperPaymentScreenWidget = screens.PaymentScreenWidget.prototype.payment_input
+    screens.PaymentScreenWidget.include({
+        payment_input: function(input) {
+            var self = this;
+            self._super(input);
+            var order = self.pos.get_order()
+            var change = order.get_change();
+            var buffer_amount = parseFloat(this.inputbuffer);
+            if(order.is_return_order && change>0){
+                var amount = (buffer_amount - change);
+                this.inputbuffer = amount.toString();
+                amount = field_utils.parse.float(this.inputbuffer);
+                order.selected_paymentline.set_amount(amount);
+                this.order_changes();
+                this.render_paymentlines();
+                this.$('.paymentline.selected .edit').text(this.format_currency_no_symbol(amount));
+            }
+        },
+        show:function(){
+            var self = this;
+            self._super();
+            if(self.pos.get_order() && self.pos.get_order().is_return_order )
+                this.el.querySelector('.payment-screen h1').textContent = 'Refund';
+        }
+    });
 
-			if (newbuf !== this.inputbuffer) {
-				this.inputbuffer = newbuf;
-				var order = this.pos.get_order();
-				if (order.selected_paymentline) {
-					var amount = this.inputbuffer;
-
-					if (this.inputbuffer !== "-") {
-						amount = formats.parse_value(this.inputbuffer, {type: "float"}, 0.0);
-					}
-					var due_amount = parseFloat( this.$('.paymentline.selected .col-due').text().replace(',',''));
-					if(amount > due_amount && order.is_return_order){
-						this.inputbuffer = due_amount.toString();
-						order.selected_paymentline.set_amount(due_amount);
-						this.order_changes();
-						this.render_paymentlines();
-						this.$('.paymentline.selected .edit').text(this.format_currency_no_symbol(due_amount));
-					}
-					else{
-						order.selected_paymentline.set_amount(amount);
-						this.order_changes();
-						this.render_paymentlines();
-						this.$('.paymentline.selected .edit').text(this.format_currency_no_symbol(amount));
-					}
-				}
-			}
-		},
-	});
-
-	screens.ProductScreenWidget.include({
-		show: function(){
-			var self = this;
-			var current_order = self.pos.get_order();
-			$("#cancel_refund_order").on("click", function(){
-				$(".deleteorder-button").trigger("click");
-			});
-			this._super();
-			if(current_order != null && current_order.is_return_order){
-				$('.product').css("pointer-events","none");
-				$('.product').css("opacity","0.4");
-				$('#refund_order_notify').show();
-				$('#cancel_refund_order').show();
-				self.$('.numpad-backspace').css("pointer-events","none");
-			}
-			else{
-				$('.product').css("pointer-events","");
-				$('.product').css("opacity","");
-				$('#refund_order_notify').hide();
-				$('#cancel_refund_order').hide();
-				self.$('.numpad-backspace').css("pointer-events","");
-			}
-		}
-	});
+    screens.ProductScreenWidget.include({
+        show: function(reset){
+            var self = this;
+            var current_order = self.pos.get_order();
+            $("#cancel_refund_order").on("click", function(){
+                $(".deleteorder-button").trigger("click");
+            });
+            this._super(reset);
+            if(current_order != null && current_order.is_return_order){
+                $('.product').css("pointer-events","none");
+                $('.product').css("opacity","0.4");
+                $('.header-cell').css("pointer-events","none");
+                $('.header-cell').css("opacity","0.4");
+                $('#refund_order_notify').show();
+                $('#cancel_refund_order').show();
+                self.$('.numpad-backspace').css("pointer-events","none");
+            }
+            else{
+                $('.product').css("pointer-events","");
+                $('.product').css("opacity","");
+                $('.header-cell').css("pointer-events","");
+                $('.header-cell').css("opacity","");
+                $('#refund_order_notify').hide();
+                $('#cancel_refund_order').hide();
+                self.$('.numpad-backspace').css("pointer-events","");
+            }
+        }
+    });
 
 	models.Orderline = models.Orderline.extend({
 		initialize: function(attr,options){
