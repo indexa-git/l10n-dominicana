@@ -18,7 +18,6 @@
     "summary": "POS All Orders List model display all old orders and this model linked with POS order reprint and POS Reorder.",
     "category": "point_of_sale",
     "version": "3.3",
-    "sequence": 1,
     "author": "Webkul Software Pvt. Ltd.",
     "website": "https://store.webkul.com/Odoo-POS-All-Orders-List.html",
     "description": "Pos All Orders List",

@@ -18,7 +18,6 @@
     "summary": "This module is use to Return orders in running point of sale session.",
     "category": "Point Of Sale",
     "version": "3.4",
-    "sequence": 1,
     "author": "Webkul Software Pvt. Ltd.",
     "website": "https://store.webkul.com/Odoo-POS-Order-Return.html",
     "description": "http://webkul.com/blog/pos-order-return/",
