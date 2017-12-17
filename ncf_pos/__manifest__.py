@@ -20,7 +20,8 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['ncf_manager', 'point_of_sale', 'pos_order_return'],
+    'depends': ['ncf_manager', 'point_of_sale', 'pos_order_return',
+                'pos_orders'],
 
     # always loaded
     'data': [
@@ -32,10 +33,6 @@
         'data/data.xml',
         'views/templates.xml',
 
-    ],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
     ],
     'qweb': [
         'static/src/xml/ncf_pos.xml',

@@ -42,7 +42,8 @@ from odoo import models, fields
 class PosConfig(models.Model):
     _inherit = 'pos.config'
 
-    user_ids = fields.Many2many("res.users", string=u"Acceso para usuarios")
-    shop_id = fields.Many2one(comodel_name="shop.ncf.config", string="Sucursal", required=True, default=1)
+    user_ids = fields.Many2many("res.users", string="Acceso para usuarios")
+    shop_id = fields.Many2one(comodel_name="shop.ncf.config",
+                              string="Sucursal", required=True, default=1)
     default_partner_id = fields.Many2one("res.partner",
-                                         string=u"Cliente de contado")
+                                         string="Cliente de contado")
