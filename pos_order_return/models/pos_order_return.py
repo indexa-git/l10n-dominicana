@@ -34,7 +34,7 @@ class PosOrder(models.Model):
             pos_order['pos_session_id'])
         if pos_session.state == 'closing_control' or pos_session.state == 'closed':
             pos_order['pos_session_id'] = self._get_valid_session(pos_order).id
-        if pos_order['is_return_order']:
+        if pos_order.get('is_return_order', False):
             pos_order['amount_paid'] = 0
             for line in pos_order['lines']:
                 line_dict = line[2]
