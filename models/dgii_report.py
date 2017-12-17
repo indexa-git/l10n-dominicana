@@ -77,7 +77,7 @@ class DgiiReport(models.Model):
                     rec.TOTAL_MONTO_NC += purchase.MONTO_FACTURADO
                     rec.RETENCION_RENTA -= purchase.RETENCION_RENTA
                     rec.ITBIS_RETENIDO -= purchase.ITBIS_RETENIDO
-                elif purchase.NUMERO_COMPROBANTE_MODIFICADO is False:
+                else:
                     rec.ITBIS_TOTAL += purchase.ITBIS_FACTURADO
                     rec.TOTAL_MONTO_FACTURADO += purchase.MONTO_FACTURADO
                     rec.RETENCION_RENTA += purchase.RETENCION_RENTA
@@ -123,7 +123,7 @@ class DgiiReport(models.Model):
 
     company_id = fields.Many2one('res.company', 'Company', required=False,
                                  default=lambda self: self.env.user.company_id)
-    name = fields.Char(string="Periodo MM/YYYY", required=True)
+    name = fields.Char(string="Periodo MM/YYYY", required=True, size=7)
     positive_balance = fields.Float("SALDO A FAVOR ANTERIOR", required=True)
 
     it_filename = fields.Char()
@@ -313,11 +313,12 @@ class DgiiReport(models.Model):
                 if invoice.type in ("out_invoice", "out_refund",
                                        "in_invoice", "in_refund"):
                     if not api_marcos.is_identification(
-                            invoice.partner_id.vat) and invoice.partner_id.sale_fiscal_type in ("fiscal", "gov", "special"):
+                        invoice.partner_id.vat) and invoice.partner_id.sale_fiscal_type in ("fiscal", "gov", "special"):
                         error_msg = u"RNC/Cédula no es válida"
                         if not error_list.get(invoice.id, False):
                             error_list.update(
-                                {invoice.id: [(invoice.type, invoice.number, error_msg)]})
+                                {invoice.id: [(invoice.type, invoice.number,
+                                               error_msg)]})
                         else:
                             error_list[invoice.id].append(
                                 (invoice.type, invoice.number,
@@ -386,12 +387,7 @@ class DgiiReport(models.Model):
                 "RETENCION_RENTA": 0
             }
 
-            # if not commun_data.get("MONTO_FACTURADO", False):
-            #     commun_data.update(
-            #         {})
-            # else:
-
-            commun_data["MONTO_FACTURADO"] += invoice.amount_untaxed_signed
+            commun_data["MONTO_FACTURADO"] += abs(invoice.amount_untaxed_signed)
 
             for line in invoice.invoice_line_ids:
                 taxes = line.invoice_line_tax_ids
@@ -411,11 +407,10 @@ class DgiiReport(models.Model):
                      ('name', '=', line.name)])
 
                 for tax in taxes:
-                    # and tax.tax_group_id.name == 'ITBIS':
-                    if tax.type_tax_use in ("purchase", "sale"):
+                    if tax.type_tax_use in ("purchase", "sale"): # and tax.tax_group_id.name == 'ITBIS':
                         for base_line in move_line_ids:
-                            base_amount = abs(
-                                base_line.debit - base_line.credit)
+                            base_amount = abs(base_line.debit -
+                                              base_line.credit)
                             if tax.base_it1_cels:
                                 xls_cels = tax.base_it1_cels.split(",")
                                 for xls_cel in xls_cels:
@@ -433,8 +428,7 @@ class DgiiReport(models.Model):
                                             xls_dict["ir17"].update(
                                                 {xls_cel[0]: base_amount})
                                         else:
-                                            xls_dict["ir17"][xls_cel[0]
-                                                             ] += base_amount
+                                            xls_dict["ir17"][xls_cel[0]] += base_amount
                                     elif len(xls_cel) == 2:
                                         if not xls_dict["ir17"].get(xls_cel[0], False):
                                             xls_dict["ir17"].update(
@@ -590,8 +584,8 @@ class DgiiReport(models.Model):
             })
 
         # fill IR-17 excel file
-        cwf = os.path.join(os.path.dirname(
-            os.path.abspath(__file__)), "IR-17-2015.xlsx")
+        cwf = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "IR-17-2015.xlsx")
         wb = load_workbook(cwf)
         ws1 = wb.get_sheet_by_name("IR17")  # Get sheet 1 in writeable copy
         for k, v in xls_dict["ir17"].iteritems():
@@ -629,8 +623,8 @@ class DgiiReport(models.Model):
             self.state = "done"
 
     def generate_txt(self):
-        company_fiscal_identificacion = re.sub(
-            "[^0-9]", "", self.company_id.vat)
+        company_fiscal_identificacion = re.sub("[^0-9]", "",
+                                               self.company_id.vat)
         period = self.name.split("/")
         month = period[0]
         year = period[1]
@@ -665,8 +659,7 @@ class DgiiReport(models.Model):
                         sale_line.NUMERO_COMPROBANTE_FISCAL, sale_line.FECHA_COMPROBANTE)))
 
             ln = ""
-            ln += sale_line.RNC_CEDULA and sale_line.RNC_CEDULA.rjust(
-                11) or "".rjust(11)
+            ln += sale_line.RNC_CEDULA and sale_line.RNC_CEDULA.rjust(11) or "".rjust(11)
             ln += sale_line.TIPO_IDENTIFICACION
             ln += sale_line.NUMERO_COMPROBANTE_FISCAL.rjust(19)
             ln += sale_line.NUMERO_COMPROBANTE_MODIFICADO or "".rjust(19)
@@ -687,8 +680,8 @@ class DgiiReport(models.Model):
 
         # 606
         pruchase_path = '/tmp/606{}.txt'.format(company_fiscal_identificacion)
-        purchase_file = io.open(
-            pruchase_path, 'w', encoding="utf-8", newline='\r\n')
+        purchase_file = io.open(pruchase_path, 'w', encoding="utf-8",
+                                newline='\r\n')
         lines = []
 
         CANTIDAD_REGISTRO = "{:.2f}".format(
