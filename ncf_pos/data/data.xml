@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-
-        <record id="user_pos_config_rule" model="ir.rule">
-            <field name="name">Pos config user rule</field>
-            <field name="model_id" ref="model_pos_config"/>
-            <field name="domain_force">[('user_ids','child_of',[user.id])]</field>
-            <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="False"/>
-            <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
-            <field name="groups" eval="[(4, ref('point_of_sale.group_pos_user'))]"/>
-        </record>
-
-    </data>
+    <record id="user_pos_config_rule" model="ir.rule">
+        <field name="name">Pos config user rule</field>
+        <field name="model_id" ref="model_pos_config"/>
+        <field name="domain_force">[('user_ids','child_of',[user.id])]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="groups" eval="[(4, ref('point_of_sale.group_pos_user'))]"/>
+    </record>
 </odoo>

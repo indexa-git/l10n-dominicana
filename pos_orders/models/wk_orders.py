@@ -117,4 +117,4 @@ class PosConfig(models.Model):
         if self.order_loading_options == 'n_days':
             if not self.number_of_days or self.number_of_days < 0:
                 raise ValidationError(
-                    u"Por favor provea un valir válido para el campo 'Cantida de Días Anteriores'!!!")
+                    u"Por favor provea un valir válido para el campo 'Cantidad de Días Anteriores'!!!")
