@@ -22,9 +22,6 @@
                 <field name="purchase_tax_type" widget="radio"
                        attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
             </field>
-            <field name="price_include" position="before">
-                <field name="tax_except"/>
-            </field>
             <notebook>
                 <page string="Cofiguración declaraciones fiscales">
                     <group string="Configuración de celdas para los formularios de la DGII en excel">
@@ -116,4 +113,20 @@
 
         </field>
     </record>
+
+    <record id="ncf_action_invoice_refund" model="ir.actions.act_window">
+        <field name="name">Refund Invoice</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">account.invoice</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account.invoice_form"/>
+        <field name="context">{'default_type': 'out_refund'}</field>
+    </record>
+
+    <menuitem id="ncf_manager.menu_refund_invoice_menu"
+        name="Nota de Crédito"
+        parent="account.menu_finance_receivables"
+        action="ncf_action_invoice_refund"
+        groups="account.group_account_manager,account.group_account_user" />
 </odoo>

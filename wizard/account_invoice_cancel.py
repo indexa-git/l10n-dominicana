@@ -52,7 +52,8 @@ class AccountInvoiceCancel(models.TransientModel):
          ("07", u"07 - Devolución de Productos"),
          ("08", u"08 - Omisión de Productos"),
          ("09", u"09 - Errores en Secuencia de NCF")],
-        string=u"Tipo de anulación", required=True)
+        string=u"Tipo de anulación", required=True,
+        default=lambda self: self._context.get('anulation_type', '05'))
 
     @api.multi
     # TODO Do not overwrite invoice_cancel

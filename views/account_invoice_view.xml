@@ -19,10 +19,6 @@
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
 
-            <field name="date_due" position="replace">
-                <field name="move_name" invisible="0" groups="account.group_account_manager,account.group_account_user"/>
-            </field>
-
             <xpath expr="//sheet//label" position="before">
                 <div class="oe_button_box" name="button_box">
                     <button name="%(update_rate_wizard_action)d"
@@ -35,82 +31,39 @@
                 </div>
             </xpath>
 
-            <field name="currency_id" position="after">
-                <field name="rate_id" attrs="{'invisible': [('rate_id','!=',False)]}"/>
+            <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
+                <button name="%(account.action_account_invoice_cancel)d" type='action'
+                        string="Cancelar Factura"
+                        states="proforma2,open" groups="account.group_account_user"/>
+            </xpath>
+
+            <field name="partner_id" position="after">
+                <field name="sale_fiscal_type" attrs="{
+                    'invisible':[('type','=','out_refund')],
+                    'required': [('ncf_control','=',True),('type','=','out_invoice')],
+                    'readonly': [('state','!=','draft')]}"/>
+            </field>
+
+            <field name="date_invoice" position="after">
+                <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"
+                       attrs="{'readonly':[('state','!=','draft')],'required': True}"/>
             </field>
 
             <field name="number" position="before">
                 <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
                 <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
-                <field name="move_name" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
             </field>
 
-            <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
-                <button name="%(account.action_account_invoice_cancel)d" type='action' states="draft,proforma2,open"
-                        string="Cancel Invoice" groups="account.group_account_user"/>
+            <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace">
+                <field name="origin" groups="base.group_user"/>
             </xpath>
-            <field name="date_invoice" position="after">
-                <field name="date_due" string="Vence"/>
-                <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"
-                       attrs="{'readonly':[('state','!=','draft')],'required': True}"/>
-                <field name="reference" attrs="{'invisible':[('reference','=',False)]}" readonly="1"
-                       string="Referencia"/>
+
+            <field name="partner_shipping_id" position="after">
+                <field name="origin" string="Afecta a" groups="base.group_user"
+                    attrs="{'invisible': [('type', '!=','out_refund')],
+                            'readonly': [('origin', '=', False)]}"/>
             </field>
-
-            <field name="user_id" position="replace"/>
-
-            <field name="fiscal_position_id" position="replace"/>
-            <field name="partner_id" position="after">
-                <field name="sale_fiscal_type" attrs="{'invisible':[('ncf_control','=',False)],
-                'required': [('ncf_control','=',True)], 'readonly': [('state','!=','draft')]}"/>
-                <field name="fiscal_position_id" options="{'no_create': True}"/>
-                <field name="user_id" groups="base.group_user"/>
-            </field>
-
-            <notebook position="inside">
-                <page name="refunds" string="Refunds">
-                    <group attrs="{'invisible':[('type', 'not in', ['in_refund', 'out_refund'])]}">
-                        <separator string="Description" colspan="4"/>
-                        <field name="refund_reason" nolabel="1"/>
-                        <separator string="Original invoice" colspan="4"/>
-                        <field name="origin_invoice_ids" nolabel="1">
-                            <tree decoration-info="state == 'draft'"
-                                  decoration-muted="state == 'cancel'"
-                                  string="Original invoice">
-                                <field name="partner_id" string="Customer"/>
-                                <field name="date_invoice" string="Bill date"/>
-                                <field name="date_due" string="Due date"/>
-                                <field name="number" string="Number"/>
-                                <field name="reference" string="Reference"/>
-                                <field name="origin" string="Source"/>
-                                <field name="amount_total_signed" string="Total"/>
-                                <field name="residual_signed" string="Due"/>
-                                <field name="state" string="Status"/>
-                            </tree>
-                        </field>
-                    </group>
-                    <group attrs="{'invisible':[('type', 'not in', ['in_invoice', 'out_invoice'])]}">
-                        <separator string="Refund invoices" colspan="4"/>
-                        <field name="refund_invoice_ids" nolabel="1">
-                            <tree decoration-info="state == 'draft'"
-                                  decoration-muted="state == 'cancel'"
-                                  string="Refund invoices">
-                                <field name="partner_id" string="Customer"/>
-                                <field name="date_invoice" string="Bill date"/>
-                                <field name="number" string="Number"/>
-                                <field name="reference" string="Reference"/>
-                                <field name="origin" string="Source"/>
-                                <field name="refund_reason" string="Refund reason"/>
-                                <field name="amount_total" string="Total"/>
-                                <field name="state" string="Status"/>
-                            </tree>
-                        </field>
-                    </group>
-                </page>
-            </notebook>
-
         </field>
-
     </record>
 
 
@@ -124,17 +77,10 @@
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
 
+            <field name="origin" position="replace"/>
+
             <field name="number" position="after">
                 <field name="is_company_currency" invisible="1"/>
-            </field>
-
-            <field name="fiscal_position_id" position="replace"/>
-            <field name="partner_id" position="replace">
-                <field name="purchase_type" invisible="1"/>
-                <field name="partner_id"
-                       context="{'default_customer': 0, 'search_default_supplier': 1, 'default_supplier': 1}"
-                       domain="[('supplier', '=', True)]}"/>
-                <field name="fiscal_position_id" options="{'no_create': True}"/>
             </field>
 
             <xpath expr="//sheet//label" position="before">
@@ -148,61 +94,23 @@
                     </button>
                 </div>
             </xpath>
-            <field name="currency_id" position="after">
-                <field name="rate_id" attrs="{'invisible': [('rate_id','=',False)]}"/>
-            </field>
+
             <field name="journal_id" position="replace"/>
             <field name="move_name" position="replace"/>
             <field name="reference" position="before">
                 <field name="purchase_type" invisible="1"/>
-                <field name="journal_id" groups="account.group_account_user" options="{'no_create': True}"
+                <field name="journal_id" groups="account.group_account_user"
+                       options="{'no_create': True}"
                        attrs="{'readonly':[('move_name','!=',False)]}"/>
-                <field name="expense_type" attrs="{'invisible':[('purchase_type','not in',['normal','minor','informal'])],
-                'required': [('purchase_type','in',['normal','minor','informal'])],'readonly': [('state','!=','draft')]}"/>
+                <field name="expense_type" attrs="{
+                       'invisible':[('purchase_type','not in',['normal','minor','informal'])],
+                       'required': [('purchase_type','in',['normal','minor','informal'])], 'readonly': [('state','!=','draft')]}"/>
                 <field name="move_name" string="NCF"
-                       attrs="{'size': 19,'invisible': [('purchase_type','!=','normal')],'required': [('purchase_type','=','normal')],'readonly': [('state','!=','draft')]}"/>
+                       attrs="{'size': 19,
+                       'invisible': [('purchase_type','!=','normal')],
+                       'required': [('purchase_type','=','normal')],
+                       'readonly': [('state','!=','draft')]}"/>
             </field>
-            <notebook position="inside">
-                <page name="refunds" string="Refunds">
-                    <group attrs="{'invisible':[('type', 'not in', ['in_refund', 'out_refund'])]}">
-                        <separator string="Description" colspan="4"/>
-                        <field name="refund_reason" nolabel="1"/>
-                        <separator string="Original invoice" colspan="4"/>
-                        <field name="origin_invoice_ids" nolabel="1">
-                            <tree decoration-info="state == 'draft'"
-                                  decoration-muted="state == 'cancel'"
-                                  string="Original invoice">
-                                <field name="partner_id" string="Supplier"/>
-                                <field name="date_invoice" string="Bill date"/>
-                                <field name="date_due" string="Due date"/>
-                                <field name="number" string="Number"/>
-                                <field name="reference" string="Reference"/>
-                                <field name="origin" string="Source"/>
-                                <field name="amount_total_signed" string="Total"/>
-                                <field name="residual_signed" string="Due"/>
-                                <field name="state" string="Status"/>
-                            </tree>
-                        </field>
-                    </group>
-                    <group attrs="{'invisible':[('type', 'not in', ['in_invoice', 'out_invoice'])]}">
-                        <separator string="Refund invoices" colspan="4"/>
-                        <field name="refund_invoice_ids" nolabel="1">
-                            <tree decoration-info="state == 'draft'"
-                                  decoration-muted="state == 'cancel'"
-                                  string="Refund invoices">
-                                <field name="partner_id" string="Supplier"/>
-                                <field name="date_invoice" string="Bill date"/>
-                                <field name="number" string="Number"/>
-                                <field name="reference" string="Reference"/>
-                                <field name="origin" string="Source"/>
-                                <field name="refund_reason" string="Refund reason"/>
-                                <field name="amount_total" string="Total"/>
-                                <field name="state" string="Status"/>
-                            </tree>
-                        </field>
-                    </group>
-                </page>
-            </notebook>
         </field>
     </record>
 </odoo>

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
-#  (<https://marcos.do/>) 
+#  (<https://marcos.do/>)
+
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
@@ -39,7 +40,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
-
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
@@ -50,10 +50,10 @@ class AccountJournal(models.Model):
          ("exterior", u"Pagos al Exterior. NCF Generado por el Sistema"),
          ("import", u"Importaciones. NCF Generado por el Sistema"),
          ("others", u"Otros. No requiere NCF")],
-        string=u"Tipo de Compra", default="normal")
+        string=u"Tipo de Compra", default="others")
 
-    ncf_control = fields.Boolean("Control de NCF")
-    ncf_remote_validation = fields.Boolean(u"Validar con DGII", default=True)
+    ncf_control = fields.Boolean("Control de NCF", default=False)
+    ncf_remote_validation = fields.Boolean(u"Validar con DGII", default=False)
 
 
 class AccountMove(models.Model):
@@ -63,48 +63,45 @@ class AccountMove(models.Model):
     def post(self):
         invoice = self._context.get('invoice', False)
         self._post_validate()
+        for move in self:
+            if invoice and invoice.type == 'out_invoice' and not invoice.journal_id.ncf_control:
+                return super(AccountMove, self).post()
 
-        if invoice and invoice.type in ['out_invoice', 'out_refund'] and invoice.journal_id.ncf_control:
-            if not invoice.sale_fiscal_type:
-                raise ValidationError(u"Debe especificar el tipo de"
-                                      " comprobante para la venta.")
+            if invoice and invoice.type == 'out_invoice' and invoice.journal_id.ncf_control:
+                if not invoice.sale_fiscal_type:
+                    return super(AccountMove, self).post()
 
-            if not invoice.move_name:
-                if invoice.is_nd:
-                    sequence = invoice.shop_id.nd_sequence_id
-                    active_sequence = invoice.shop_id.nd_active
-                    sequence_type = u"Nota de débito"
-                elif invoice.type == "out_refund":
-                    sequence = invoice.shop_id.nc_sequence_id
-                    active_sequence = invoice.shop_id.nc_active
-                    sequence_type = u"Nota de crédito"
-                elif invoice.sale_fiscal_type == "final":
-                    sequence = invoice.shop_id.final_sequence_id
-                    active_sequence = invoice.shop_id.final_active
-                    sequence_type = u"Cosumidor final"
-                elif invoice.sale_fiscal_type == "fiscal":
-                    sequence = invoice.shop_id.fiscal_sequence_id
-                    active_sequence = invoice.shop_id.fiscal_active
-                    sequence_type = u"crédito fiscal"
-                elif invoice.sale_fiscal_type == "gov":
-                    sequence = invoice.shop_id.gov_sequence_id
-                    active_sequence = invoice.shop_id.gov_active
-                    sequence_type = u"Gubernamental"
-                elif invoice.sale_fiscal_type == "special":
-                    sequence = invoice.shop_id.special_sequence_id
-                    active_sequence = invoice.shop_id.special_active
-                    sequence_type = u"Regimenes especiales"
-                elif invoice.sale_fiscal_type == "unico":
-                    sequence = invoice.shop_id.special_sequence_id
-                    active_sequence = invoice.shop_id.special_active
-                    sequence_type = u"Unico ingreso"
+                if not invoice.move_name:
+                    active_sequence = False
+                    if invoice.is_nd:
+                        sequence = invoice.shop_id.nd_sequence_id
+                        active_sequence = invoice.shop_id.nd_active
+                    elif invoice.type == "out_refund":
+                        sequence = invoice.shop_id.nc_sequence_id
+                        active_sequence = invoice.shop_id.nc_active
+                    elif invoice.sale_fiscal_type == "final":
+                        sequence = invoice.shop_id.final_sequence_id
+                        active_sequence = invoice.shop_id.final_active
+                    elif invoice.sale_fiscal_type == "fiscal":
+                        sequence = invoice.shop_id.fiscal_sequence_id
+                        active_sequence = invoice.shop_id.fiscal_active
+                    elif invoice.sale_fiscal_type == "gov":
+                        sequence = invoice.shop_id.gov_sequence_id
+                        active_sequence = invoice.shop_id.gov_active
+                    elif invoice.sale_fiscal_type == "special":
+                        sequence = invoice.shop_id.special_sequence_id
+                        active_sequence = invoice.shop_id.special_active
+                    elif invoice.sale_fiscal_type == "unico":
+                        sequence = invoice.shop_id.special_sequence_id
+                        active_sequence = invoice.shop_id.special_active
 
-                if not active_sequence:
-                    raise ValidationError(u"El NCF para {} no está activado.".format(sequence_type))
+                    if not active_sequence:
+                        raise ValidationError(u"Este tipo de NCF para {} no esta activado.".format(invoice.sale_fiscal_type))
 
-                invoice.shop_id.check_max(invoice.sale_fiscal_type, invoice)
-                invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
-                invoice.reference = invoice.journal_id.sequence_id.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
+                    invoice.shop_id.check_max(invoice.sale_fiscal_type,
+                                              invoice)
+                    invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
+                    invoice.reference = invoice.journal_id.sequence_id.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
 
         return super(AccountMove, self).post()
 
@@ -117,21 +114,10 @@ class AccountTax(models.Model):
          ('ritbis', 'ITBIS Retenido'),
          ('isr', 'ISR Retenido'),
          ('rext', 'Remesas al Exterior (Ley  253-12)'),
-         ('cost', 'Forma Parte del Gasto'),
          ('none', 'No Deducible')],
-        default="itbis", string="Tipo de Impuesto de Compra"
-        )
-    tax_except = fields.Boolean(string="Exento de este impuesto")
+        default="none", string="Tipo de Impuesto de Compra"
+    )
     base_it1_cels = fields.Char("Celdas de la base para el IT-1")
     tax_it1_cels = fields.Char("Celdas del inpuesto para el IT-1")
     base_ir17_cels = fields.Char("Celdas de la base para el IR-17")
     tax_ir17_cels = fields.Char("Celdas del inpuesto para el IR-17")
-
-    @api.multi
-    def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None):
-        res = super(AccountTax, self).compute_all(price_unit, currency=currency, quantity=quantity, product=product, partner=partner)
-        for tax in res.get("taxes", False):
-            tax_id = self.browse(tax["id"])
-            if tax_id.tax_except:
-                tax["amount"] = 0
-        return res

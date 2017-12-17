@@ -3,9 +3,8 @@
 # Copyright 2014 Pedro M. Baeza <pedro.baeza@serviciosbaeza.com>
 # Copyright 2016 Antonio Espinosa <antonio.espinosa@tecnativa.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-import requests
-
-from odoo import models, api, fields, exceptions
+from odoo import models, api, fields
+from odoo.exceptions import UserError, ValidationError
 
 
 class AccountInvoiceRefund(models.TransientModel):
@@ -56,11 +55,10 @@ class AccountInvoiceRefund(models.TransientModel):
                 origin_inv_id = active_ids[idx]
                 refund = self.env['account.invoice'].browse(refund_id)
                 vals = {
-                    'origin_invoice_ids': [(6, 0, [origin_inv_id])],
-                    'refund_reason': description,
+                    'refund_reason': description
                 }
 
-                if mode in ("nd","discount"):
+                if mode in ("nd", "discount"):
 
                     new_line = refund.invoice_line_ids[0].copy(
                         {"product_id": False,
@@ -88,9 +86,6 @@ class AccountInvoiceRefund(models.TransientModel):
 
                 refund.write(vals)
 
-                # Try to match refund invoice lines with original invoice lines
-                refund.match_origin_lines(origin_inv)
-
         return result
 
     @api.multi
@@ -99,33 +94,15 @@ class AccountInvoiceRefund(models.TransientModel):
         if active_id:
             invoice = self.env["account.invoice"].browse(active_id)
 
-            if invoice.state == "paid" and invoice.type in ('out_invoice', 'in_invoice') and self.filter_refund not in ('nd'):
-                raise exceptions.ValidationError(u"No puede aplicar notas de crédito a una factura pagada.")
-
             if self.supplier_ncf:
-                if self.filter_refund == 'nd' and self.supplier_ncf[9:-8] != "03":
-                    raise exceptions.ValidationError(u"El NCF digitado no es válido para notas de débito.")
-                elif self.supplier_ncf[9:-8] != "04":
-                    raise exceptions.ValidationError(u"El NCF digitado no es válido para notas de crédito.")
+                if self.filter_refund == 'nd' and self.supplier_ncf[9:11] != "03":
+                    raise ValidationError(u"Las Notas de Débito deben ser tipo 03, este NCF no es de este tipo.")
+                elif self.supplier_ncf[9:11] != "04":
+                    raise ValidationError(u"Las Notas de Crédito deben ser tipo 04, este NCF no es de este tipo.")
 
             if self.supplier_ncf and invoice.journal_id.ncf_remote_validation:
-                    request_params = self.env["marcos.api.tools"].get_marcos_api_request_params()
-                    if request_params[0] == 1:
-                        res = requests.get('{}/ncf/{}/{}'.format(
-                                request_params[1],
-                                invoice.partner_id.vat,
-                                self.supplier_ncf),
-                         proxies=request_params[2])
-                        if res.status_code == 200 and not res.json().get("valid", False) is True:
-                            return (
-                                500, u"NCF Inválido",
-                                u"¡El número de comprobante {} del proveedor"
-                                u" {} no es válido! No pasó la validación en"
-                                " DGII. Verifique que el NCF y el RNC del"
-                                u" proveedor estén correctamente"
-                                u" digitados, o si los números de ese NCF se"
-                                " le agotaron al proveedor".format(
-                                                    invoice.move_name,
-                                                    invoice.partner_id.name)
-                            )
+                res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
+                if res is not True:
+                    raise UserError(res[2])
+
         return super(AccountInvoiceRefund, self).invoice_refund()
