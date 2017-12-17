@@ -70,7 +70,8 @@ class AccountMove(models.Model):
 
             if invoice and invoice.type == 'out_invoice' and invoice.journal_id.ncf_control:
                 if not invoice.sale_fiscal_type:
-                    return super(AccountMove, self).post()
+                    raise ValidationError("Debe especificar el tipo de"
+                                          " comprobante para la venta.")
 
                 if not invoice.move_name:
                     active_sequence = False
