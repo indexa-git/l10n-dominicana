@@ -25,7 +25,12 @@ class PosOrder(models.Model):
     is_return_order = fields.Boolean(string='Devolver Orden', copy=False)
     return_order_id = fields.Many2one(
         'pos.order', 'Devolver Orden de', readonly=True, copy=False)
-    return_status = fields.Selection([('-', 'No Devuelta'), ('Fully-Returned', 'Totalmente Devuelta'), ('Partially-Returned', 'Parcialmente Devuelta'), ('Non-Returnable', 'No Retornable')], default='-', copy=False, string=u'Estatus de Devolución')
+    return_status = fields.Selection(
+        [('-', 'No Devuelta'),
+         ('Fully-Returned', 'Totalmente Devuelta'),
+         ('Partially-Returned', 'Parcialmente Devuelta'),
+         ('Non-Returnable', 'No Retornable')],
+        default='-', copy=False, string=u'Estatus de Devolución')
 
     @api.model
     def _process_order(self, pos_order):
@@ -52,7 +57,8 @@ class PosOrder(models.Model):
         order = self.create(self._order_fields(pos_order))
         journal_ids = set()
         for payments in pos_order['statement_ids']:
-            if not float_is_zero(payments[2]['amount'], precision_digits=prec_acc):
+            if not float_is_zero(payments[2]['amount'],
+                                 precision_digits=prec_acc):
                 order.add_payment(self._payment_fields(payments[2]))
             journal_ids.add(payments[2]['journal_id'])
 
@@ -88,6 +94,77 @@ class PosOrder(models.Model):
                 'journal': cash_journal_id,
             })
         return order
+
+    @api.multi
+    def action_pos_order_invoice(self):
+        Invoice = self.env['account.invoice']
+        for order in self:
+            if not order.is_return_order:
+                super(PosOrder, order).action_pos_order_invoice()
+            else:
+                local_context = dict(
+                    self.env.context, force_company=order.company_id.id,
+                    company_id=order.company_id.id)
+                if order.invoice_id:
+                    Invoice += order.invoice_id
+                    continue
+
+                if not order.partner_id:
+                    raise UserError(
+                        _('Please provide a partner for the sale.'))
+                invoice_data = {
+                    'name': order.name,
+                    'origin': order.name,
+                    'account_id': order.partner_id.property_account_receivable_id.id,
+                    'journal_id': order.session_id.config_id.invoice_journal_id.id,
+                    'company_id': order.company_id.id,
+                    'type': 'out_refund',
+                    'reference': order.name,
+                    'partner_id': order.partner_id.id,
+                    'comment': order.note or '',
+                    'currency_id': order.pricelist_id.currency_id.id,
+                    'user_id': order.env.uid,
+                }
+
+                invoice = Invoice.new(invoice_data)
+                invoice._onchange_partner_id()
+                invoice.fiscal_position_id = order.fiscal_position_id
+
+                inv = invoice._convert_to_write(
+                    {name: invoice[name] for name in invoice._cache})
+                new_invoice = Invoice.with_context(
+                    local_context).sudo().create(inv)
+                message = _(
+                    "This invoice has been created from the point of sale session: <a href=# data-oe-model=pos.order data-oe-id=%d>%s</a>") % (order.id, order.name)
+                new_invoice.message_post(body=message)
+                order.write(
+                    {'invoice_id': new_invoice.id, 'state': 'invoiced'})
+                Invoice += new_invoice
+
+                for line in order.lines:
+                    line.qty = abs(line.qty)
+                    self.with_context(local_context)._action_create_invoice_line(
+                        line, new_invoice.id)
+                    line.qty = -1 * line.qty
+
+                new_invoice.with_context(local_context).sudo().compute_taxes()
+                order.sudo().write({'state': 'invoiced'})
+
+            if not Invoice:
+                return {}
+
+            return {
+                'name': _('Customer Invoice'),
+                'view_type': 'form',
+                'view_mode': 'form',
+                'view_id': self.env.ref('account.invoice_form').id,
+                'res_model': 'account.invoice',
+                'context': "{'type':'out_refund'}",
+                'type': 'ir.actions.act_window',
+                'nodestroy': True,
+                'target': 'current',
+                'res_id': Invoice and Invoice.ids[0] or False,
+            }
 
     @api.model
     def _order_fields(self, ui_order):

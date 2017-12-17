@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 ##########################################################################
 #
-#    Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>)
+#    Copyright (c) 2015-Present Webkul Software Pvt. Ltd.
+#    (<https://webkul.com/>)
 #
 ##########################################################################
-import pos_order_return
+from . import pos_order_return
