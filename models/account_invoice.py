@@ -230,3 +230,15 @@ class AccountInvoice(models.Model):
                 self.env["marcos.api.tools"].invoice_ncf_validation(rec)
 
         return super(AccountInvoice, self).action_invoice_open()
+
+    @api.model
+    def _prepare_refund(self, invoice, date_invoice=None, date=None,
+                        description=None, journal_id=None):
+        res = super(AccountInvoice, self)._prepare_refund(
+            invoice, date_invoice=date_invoice, date=date,
+            description=description, journal_id=journal_id)
+
+        if self._context.get("credit_note_supplier_ncf", False):
+            res.update({"move_name": self._context["credit_note_supplier_ncf"]
+                        })
+        return res
