@@ -65,10 +65,8 @@ class AccountMove(models.Model):
         invoice = self._context.get('invoice', False)
         self._post_validate()
         for move in self:
-            if invoice and invoice.type == 'out_invoice' and not invoice.journal_id.ncf_control:
-                return super(AccountMove, self).post()
+            if invoice and invoice.type in ['out_invoice', 'out_refund'] and invoice.journal_id.ncf_control:
 
-            if invoice and invoice.type == 'out_invoice' and invoice.journal_id.ncf_control:
                 if not invoice.sale_fiscal_type:
                     raise ValidationError("Debe especificar el tipo de"
                                           " comprobante para la venta.")
