@@ -3,7 +3,9 @@
 # Copyright 2014 Pedro M. Baeza <pedro.baeza@serviciosbaeza.com>
 # Copyright 2016 Antonio Espinosa <antonio.espinosa@tecnativa.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import models, api, fields
+import requests
+
+from odoo import models, api, fields, _
 from odoo.exceptions import UserError, ValidationError
 
 
@@ -92,8 +94,23 @@ class AccountInvoiceRefund(models.TransientModel):
                     raise ValidationError(u"Las Notas de Crédito deben ser tipo 04, este NCF no es de este tipo.")
 
             if self.supplier_ncf and invoice.journal_id.ncf_remote_validation:
-                res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
-                if res is not True:
-                    raise UserError(res[2])
+                request_params = self.env["marcos.api.tools"].get_marcos_api_request_params()
+                if request_params[0] == 1:
+                    res = requests.get('{}/ncf/{}/{}'.format(
+                        request_params[1],
+                        invoice.partner_id.vat,
+                        self.supplier_ncf),
+                        proxies=request_params[2])
+                    if res.status_code == 200 and res.json().get("valid", False) is False:
+                        raise UserError(_(
+                            u"NCF NO pasó validación en DGII\n\n"
+                            u"¡El número de comprobante *{}* del proveedor "
+                            u"*{}* no pasó la validación en "
+                             "DGII! Verifique que el NCF y el RNC del "
+                            u"proveedor estén correctamente "
+                            u"digitados, o si los números de ese NCF se "
+                             "le agotaron al proveedor".format(
+                                invoice.move_name,
+                                invoice.partner_id.name)))
 
         return super(AccountInvoiceRefund, self).invoice_refund()
