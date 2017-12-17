@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
 #  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
-#  (<https://marcos.do/>) 
+#  (<https://marcos.do/>)
+
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
@@ -36,7 +37,7 @@
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###############################################################################
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api
 
 
 class ShopJournalConfig(models.Model):
@@ -48,15 +49,16 @@ class ShopJournalConfig(models.Model):
                                  string=u"Compañia")
     name = fields.Char("Prefijo NCF", size=9, copy=False)
 
-    branch_office = fields.Char(string="Sucursal", required=True, default=lambda obj:obj.env['ir.sequence'].next_by_code('branch.office'))
+    branch_office = fields.Char(string="Sucursal", required=True,
+                                default=lambda obj: obj.env['ir.sequence'].next_by_code('branch.office'))
 
-    journal_id = fields.Many2one("account.journal", string="Diario",
-                                 required=True)
+    journal_id = fields.Many2one("account.journal", string="Diario")
     ncf_control = fields.Boolean(string="", related='journal_id.ncf_control')
 
-    final_active = fields.Boolean("Activo")
+    final_active = fields.Boolean("Activo", default=True)
     final_sequence_id = fields.Many2one("ir.sequence", string=u"Secuencia")
-    final_number_next_actual = fields.Integer(string=u"Próximo número", related="final_sequence_id.number_next_actual")
+    final_number_next_actual = fields.Integer(
+        string=u"Próximo número", related="final_sequence_id.number_next_actual")
     final_max = fields.Integer(string=u"Número máximo")
 
     fiscal_active = fields.Boolean("Activo")
@@ -109,7 +111,8 @@ class ShopJournalConfig(models.Model):
     def onchange_name(self):
         if not self.ncf_control:
 
-            self.name = lambda obj:obj.env['ir.sequence'].next_by_code('name.shop')
+            self.name = lambda obj: obj.env['ir.sequence'].next_by_code(
+                'name.shop')
 
     @api.onchange("name")
     def onchange_name(self):
@@ -117,64 +120,46 @@ class ShopJournalConfig(models.Model):
             if self.journal_id.ncf_control:
                 if self.final_sequence_id:
                     self.final_sequence_id.write(
-                        {"prefix": self.name+"02",
+                        {"prefix": self.name + "02",
                          "name": "Facturas Cliente Final {}".format(self.name)})
                     self.fiscal_sequence_id.write(
-                        {"prefix": self.name+"01",
+                        {"prefix": self.name + "01",
                          "name": "Facturas Valor Fiscal {}".format(self.name)})
                     self.gov_sequence_id.write(
-                        {"prefix": self.name+"15",
+                        {"prefix": self.name + "15",
                          "name": "Facturas Gubernamentales {}".format(self.name)})
                     self.special_sequence_id.write(
-                        {"prefix": self.name+"14",
+                        {"prefix": self.name + "14",
                          "name": "Facturas Especiales {}".format(self.name)})
                     self.unico_sequence_id.write(
-                        {"prefix": self.name+"12",
+                        {"prefix": self.name + "12",
                          "name": "Facturas de Unico Ingreso {}".format(self.name)})
                     self.nc_sequence_id.write(
-                        {"prefix": self.name+"04",
+                        {"prefix": self.name + "04",
                          "name": "Notas de Credito {}".format(self.name)})
                     self.nd_sequence_id.write(
-                        {"prefix": self.name+"03",
+                        {"prefix": self.name + "03",
                          "name": "Notas de Debito {}".format(self.name)})
                 else:
-                    self.setup_ncf(name=self.name,company_id=self.company_id.id,
-                                   journal_id=self.journal_id.id, shop_id=self,
+                    self.setup_ncf(name=self.name, company_id=self.company_id.id, journal_id=self.journal_id.id, shop_id=self,
                                    branch_office=self.branch_office)
-
-    @api.model
-    def get_user_shop_config(self,journal_id):
-        if journal_id == False:
-            user_shops = self.search([('user_ids', '=', self._uid)])
-        else:
-            user_shops = self.search([('user_ids', '=', self._uid),
-                                      ('journal_id', '=', journal_id)])
-        if not user_shops:
-            raise exceptions.UserError("Su usuario no tiene una sucursal asignada.")
-        return user_shops[0]
 
     @api.model
     def setup_ncf(self, name=False, company_id=False, journal_id=False,
                   user_id=False, shop_id=False, branch_office=False):
-        journal_obj = self.env['account.journal']
-        special_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
 
         name = name or u"A01001001"
         branch_office = branch_office or u"Sucursal"
         user = self.env.user
         company_id = company_id or user.company_id.id
-        journal_names = ['Customer Invoices', 'Facturas de Clientes', 'Facturas de cliente']
-        journal_id = journal_id or journal_obj.search(
-                        [('company_id', '=', company_id),
-                         ('type', '=', 'sale'),
-                         ('name', 'in', journal_names)]).id or journal_obj.search(
-                        [('company_id', '=', company_id),
-                         ('type', '=', 'sale')])
 
-        self.env["account.journal"].sudo().browse(journal_id).write(
-                                                        {"ncf_control": True})
+        journal_obj = self.env['account.journal'].search(
+                                            [('company_id', '=', company_id),
+                                             ('type', '=', 'sale')], limit=1)
 
-        user_id = user_id or 1
+        journal_id = journal_id if journal_id else [journal for journal in journal_obj][0].id
+
+        user_id = 1
 
         final_prefix = name + u"02"
         fiscal_prefix = name + u"01"
@@ -218,9 +203,6 @@ class ShopJournalConfig(models.Model):
                           u'suffix': False
                           }
 
-            sale_journal = self.env["account.journal"].browse(journal_id)
-            sale_journal.ncf_control = True
-
             seq_values["prefix"] = final_prefix
             seq_values["name"] = "Facturas de cliente final {}".format(name)
             final_id = self.env["ir.sequence"].create(seq_values)
@@ -232,12 +214,14 @@ class ShopJournalConfig(models.Model):
             shop.fiscal_sequence_id = fiscal_id.id
 
             seq_values["prefix"] = gov_prefix
-            seq_values["name"] = "Facturas de cliente gubernamental {}".format(name)
+            seq_values["name"] = "Facturas de cliente gubernamental {}".format(
+                name)
             gov_id = self.env["ir.sequence"].create(seq_values)
             shop.gov_sequence_id = gov_id.id
 
             seq_values["prefix"] = esp_prefix
-            seq_values["name"] = "Facturas de cliente especiales {}".format(name)
+            seq_values["name"] = "Facturas de cliente especiales {}".format(
+                name)
             esp_id = self.env["ir.sequence"].create(seq_values)
             shop.special_sequence_id = esp_id.id
 

@@ -20,11 +20,9 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['account', 'account_invoice_change_currency',
-                'marcos_api_tools', 'l10n_do'],
+    'depends': ['account', 'marcos_api_tools', 'l10n_do', 'sale'],
     # always loaded
     'data': [
-        'data/data.xml',
         'security/ir.model.access.csv',
         'security/ncf_manager_security.xml',
         'wizard/account_invoice_cancel_view.xml',

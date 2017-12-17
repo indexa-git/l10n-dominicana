@@ -70,7 +70,8 @@ class Currency(models.Model):
                       "Dic": "12"
                       }
 
-        self.env["res.currency.rate"].search([('currency_id', '=', 3)]).unlink()
+        self.env["res.currency.rate"].search(
+            [('currency_id', '=', 3)]).unlink()
 
         file = self.bc_rate_xls.decode('base64')
         excel_fileobj = TemporaryFile('wb+')
@@ -89,7 +90,8 @@ class Currency(models.Model):
             year = str(row[0].value)
             month = month_dict[row[1].value.strip()]
             day = str(row[2].value).zfill(2)
-            name = u"{}-{}-{} {}".format(year, month, day, fields.Datetime.now().split(" ")[1])
+            name = u"{}-{}-{} {}".format(year, month,
+                                         day, fields.Datetime.now().split(" ")[1])
             rate = float(row[4].value)
             self.env["res.currency.rate"].create({"name": name,
                                                   "rate": 1 / rate,
@@ -104,7 +106,8 @@ class Currency(models.Model):
         :return:
         """
         date = self._context.get('date') or fields.Datetime.now()
-        company_id = self._context.get('company_id') or self.env['res.users']._get_company().id
+        company_id = self._context.get(
+            'company_id') or self.env['res.users']._get_company().id
         # the subquery selects the last rate before 'date' for the given currency/company
         query = """SELECT c.id, (
             SELECT r.rate FROM res_currency_rate r
@@ -148,8 +151,10 @@ class CurrencyRate(models.Model):
     def name_get(self):
         result = []
         for rate in self:
-            result.append((rate.id, "{} | Tasa: {}".format(rate.name, rate.converted)))
+            result.append(
+                (rate.id, "{} | Tasa: {}".format(rate.name, rate.converted)))
         return result
 
-    rate = fields.Float(digits=(12, 12), help='The rate of the currency to the currency of rate 1')
+    rate = fields.Float(
+        digits=(12, 12), help='The rate of the currency to the currency of rate 1')
     converted = fields.Float(compute=_get_converted, digits=(12, 4))

@@ -35,8 +35,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###############################################################################
-from odoo import models, fields, api, exceptions
-
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 import re
 
 import logging
@@ -110,7 +110,8 @@ class ResPartner(models.Model):
     def update_partner_name_from_dgii(self):
         for rec in self:
             if rec.vat:
-                res = self.env["marcos.api.tools"].rnc_cedula_validation(self.vat)
+                res = self.env["marcos.api.tools"].rnc_cedula_validation(
+                    self.vat)
                 if res[0] == 1:
                     self.write({"name": res[1]["name"]})
 
@@ -118,17 +119,15 @@ class ResPartner(models.Model):
         vat_or_name = vals.get("vat", False) or vals.get("name", False)
         if vat_or_name:
             vat = re.sub("[^0-9]", "", vat_or_name)
-            if vat.isdigit():
-                if len(vat) in (9, 11):
-                    partner_id = self.search([('vat', '=', vat)])
-                    if partner_id:
-                        return partner_id
-                    else:
-                        res = self.env["marcos.api.tools"].rnc_cedula_validation(vat)
-                        if res and res[0] == 1:
-                            vals.update(res[1])
-                        # else:
-                        #     return vals
+            if vat.isdigit() and len(vat) in (9, 11):
+                partner_id = self.search([('vat', '=', vat)])
+                if partner_id:
+                    return partner_id
+                else:
+                    res = self.env["marcos.api.tools"].rnc_cedula_validation(
+                        vat)
+                    if res and res[0] == 1:
+                        vals.update(res[1])
         return vals
 
     @api.multi
@@ -142,7 +141,7 @@ class ResPartner(models.Model):
             vals = dgii_vals
 
         if not vals:
-            raise exceptions.ValidationError(u"El RNC/Céd NO es válido.")
+            raise UserError(_(u"El RNC/Céd NO es válido."))
         return super(ResPartner, self).write(vals)
 
     @api.model
@@ -152,7 +151,7 @@ class ResPartner(models.Model):
 
         vals = self.validate_vat_or_name(vals)
         if not vals:
-            raise exceptions.ValidationError(u"El RNC/Céd NO es válido.")
+            raise UserError(_(u"El RNC/Céd NO es válido."))
 
         if not isinstance(vals, dict):
             return vals
@@ -179,20 +178,23 @@ class ResPartner(models.Model):
     @api.onchange("sale_fiscal_type")
     def onchange_sale_fiscal_type(self):
         if self.sale_fiscal_type == "special":
-            self.property_account_position_id = self.env.ref("ncf_manager.ncf_manager_special_fiscal_position")
+            self.property_account_position_id = self.env.ref(
+                "ncf_manager.ncf_manager_special_fiscal_position")
 
     @api.multi
     def rewrite_due_date(self):
         for rec in self:
             invoice_ids = self.env["account.invoice"].search(
-                [('state','=','open'), ('partner_id','=',self.id)])
+                [('state', '=', 'open'), ('partner_id', '=', self.id)])
             for inv in invoice_ids:
                 pterm = rec.property_payment_term_id or rec.property_supplier_payment_term_id
                 if pterm:
-                    pterm_list = pterm.with_context(currency_id=inv.company_id.currency_id.id).compute(value=1, date_ref=inv.date_invoice)[0]
+                    pterm_list = pterm.with_context(currency_id=inv.company_id.currency_id.id).compute(
+                        value=1, date_ref=inv.date_invoice)[0]
                     date_due = max(line[0] for line in pterm_list)
                     inv.date_due = date_due
                     for line in inv.move_id.line_ids:
                         line.date_maturity = date_due
                 else:
-                    raise exceptions.ValidationError(u"Debe especificar el término de pago del contacto")
+                    raise UserError(
+                        _(u"Debe especificar el término de pago del contacto"))
