@@ -58,9 +58,8 @@ class PosOrder(models.Model):
         res = super(PosOrder, self)._prepare_invoice()
         if self.is_return_order:
             res.update({"type": "out_refund",
-                        "origin_invoice_ids": [(4, self.return_order_id.invoice_id.id, _)],
-                        "origin": self.return_order_id.move_name
-                        })
+                        "origin": self.return_order_id.move_name}
+                       )
         res.update({"move_name": self.move_name})
         if self.fiscal_nif:
             res.update({"fiscal_nif": self.fiscal_nif})
@@ -71,7 +70,6 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-
         res = {"fiscal_type": "none", "fiscal_type_name": u"PRE-CUENTA"}
 
         order_id = False
@@ -84,7 +82,6 @@ class PosOrder(models.Model):
             order_id = self.search([('pos_reference', '=', name)])
 
         if order_id:
-
             order_id.action_pos_order_invoice()
             res.update({"id": order_id.id,
                         "rnc": order_id.partner_id.vat,

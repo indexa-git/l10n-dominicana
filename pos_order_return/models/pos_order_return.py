@@ -112,21 +112,8 @@ class PosOrder(models.Model):
                 if not order.partner_id:
                     raise UserError(
                         _('Please provide a partner for the sale.'))
-                invoice_data = {
-                    'name': order.name,
-                    'origin': order.name,
-                    'account_id': order.partner_id.property_account_receivable_id.id,
-                    'journal_id': order.session_id.config_id.invoice_journal_id.id,
-                    'company_id': order.company_id.id,
-                    'type': 'out_refund',
-                    'reference': order.name,
-                    'partner_id': order.partner_id.id,
-                    'comment': order.note or '',
-                    'currency_id': order.pricelist_id.currency_id.id,
-                    'user_id': order.env.uid,
-                }
 
-                invoice = Invoice.new(invoice_data)
+                invoice = Invoice.new(order._prepare_invoice())
                 invoice._onchange_partner_id()
                 invoice.fiscal_position_id = order.fiscal_position_id
 
@@ -143,8 +130,7 @@ class PosOrder(models.Model):
 
                 for line in order.lines:
                     line.qty = abs(line.qty)
-                    self.with_context(local_context)._action_create_invoice_line(
-                        line, new_invoice.id)
+                    self.with_context(local_context)._action_create_invoice_line(line, new_invoice.id)
                     line.qty = -1 * line.qty
 
                 new_invoice.with_context(local_context).sudo().compute_taxes()
