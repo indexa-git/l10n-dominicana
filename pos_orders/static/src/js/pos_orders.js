@@ -1,10 +1,8 @@
 odoo.define('pos_orders.pos_orders', function(require) {
     "use strict";
-    var Model = require('web.DataModel');
     var screens = require('point_of_sale.screens');
     var gui = require('point_of_sale.gui');
     var models = require('point_of_sale.models');
-    var utils = require('web.utils');
     var core = require('web.core');
     var QWeb = core.qweb;
     var SuperPosModel = models.PosModel.prototype;
@@ -45,7 +43,7 @@ odoo.define('pos_orders.pos_orders', function(require) {
             var order_lines = [];
             var orders = self.db.pos_all_orders;
             for (var i = 0; i < orders.length; i++) {
-                order_lines = order_lines.concat(orders[i]['lines']);
+                order_lines = order_lines.concat(orders[i].lines);
             }
             return [
                 ['id', 'in', order_lines]
@@ -169,7 +167,7 @@ odoo.define('pos_orders.pos_orders', function(require) {
                 var new_order_data = [];
                 var search_text = input_txt.toLowerCase();
                 for (var i = 0; i < order.length; i++) {
-                    if (order[i].partner_id === '') {
+                    if (order[i].partner_id == '') {
                         order[i].partner_id = [0, '-'];
                     }
                     if (((order[i].name.toLowerCase()).indexOf(search_text) != -1) || ((order[i].partner_id[1].toLowerCase()).indexOf(search_text) != -1)) {
@@ -215,6 +213,7 @@ odoo.define('pos_orders.pos_orders', function(require) {
         name: 'wk_order',
         widget: OrdersScreenWidget
     });
+
     screens.ProductScreenWidget.include({
         show: function() {
             var self = this;
