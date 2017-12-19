@@ -637,7 +637,7 @@ class DgiiReport(models.Model):
         CANTIDAD_REGISTRO = "{:.2f}".format(len(self.sale_report)).zfill(12)
         TOTAL_MONTO_FACTURADO_FACTURAS = sum(
             [rec.MONTO_FACTURADO for rec in self.sale_report
-             if rec.NUMERO_COMPROBANTE_MODIFICADO is not False])
+             if rec.NUMERO_COMPROBANTE_MODIFICADO is False])
         TOTAL_MONTO_FACTURADO_NC = sum(
             [rec.MONTO_FACTURADO for rec in self.sale_report
              if rec.NUMERO_COMPROBANTE_MODIFICADO is not False])
