@@ -47,12 +47,11 @@ class AccountInvoiceRefund(models.TransientModel):
             del created_inv[1::2]
 
         if created_inv:
-            description = self[0].description or ''
             for idx, refund_id in enumerate(created_inv):
                 origin_inv_id = active_ids[idx]
                 origin_inv = self.env['account.invoice'].browse(origin_inv_id)
                 refund = self.env['account.invoice'].browse(refund_id)
-                vals = {'refund_reason': description}
+                vals = {}
 
                 if mode in ("debit", "discount"):
                     new_line = refund.invoice_line_ids[0].copy(
