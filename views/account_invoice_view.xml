@@ -14,8 +14,7 @@
                 <field name="ncf_control" invisible="1"/>
                 <field name="is_company_currency" invisible="1"/>
             </form>
-
-            <xpath expr="//button[9]" position="attributes">
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
 
@@ -73,7 +72,7 @@
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//button[3]" position="attributes">
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
 
