@@ -27,7 +27,6 @@
     'data': [
         # 'security/ir.model.access.csv',
         'views/pos_view.xml',
-        'views/res_config.xml',
         'views/pos_sesion_view.xml',
         'views/pos_config_view.xml',
         'data/data.xml',
