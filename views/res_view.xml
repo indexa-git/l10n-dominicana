@@ -1,26 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="dgii_update_partner_name_server_action" model="ir.actions.server">
-        <field name="name">Actulizar razón social desde DGII</field>
+        <field name="name">Actualizar razón social desde DGII</field>
+        <field name="type">ir.actions.server</field>
         <field name="model_id" ref="model_res_partner"/>
+        <field name="binding_model_id" ref="model_res_partner"/>
         <field name="state">code</field>
         <field name="code">
             if records:
                 records.update_partner_name_from_dgii()
         </field>
-    </record>
-
-    <record id="run_dgii_update_partner_name_server_action" model="ir.values">
-        <field name="name">Actualizar razon social</field>
-        <field name="model_id" ref="base.model_res_partner"/>
-        <field name="model">model_res_partner</field>
-        <field name="key2">client_action_multi</field>
-        <field name="key">action</field>
-        <field name="value" eval="'ir.actions.server,' +str(ref('ncf_manager.dgii_update_partner_name_server_action'))"/>
-    </record>
-
-    <record id="dgii_update_partner_name_server_action" model="ir.actions.server">
-        <field name="menu_ir_values_id" ref="ncf_manager.run_dgii_update_partner_name_server_action"/>
     </record>
 
     <!-- Inherit Form View to Modify it -->
