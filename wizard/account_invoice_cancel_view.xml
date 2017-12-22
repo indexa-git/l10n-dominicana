@@ -24,3 +24,4 @@
             <field name="view_id" ref="account_invoice_cancel_view"/>
             <field name="target">new</field>
         </record>
+</odoo>
