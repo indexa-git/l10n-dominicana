@@ -56,11 +56,6 @@
         </t>
     </t>
     <t t-extend="Orderline">
-        <t t-jquery="li" t-operation="append">
-            <t t-if="line.get_product().not_returnable">
-                <span style="color:#888;font-size:10px;float:right;margin-top: -5px;">No Retornable</span>
-            </t>
-        </t>
         <t t-jquery="span.price" t-operation="replace">
             <span class="price">
                 <t t-if="line.order.is_return_order">
@@ -71,25 +66,39 @@
                 </t>
             </span>
         </t>
-        <t t-jquery="t[t-if*='line.get_quantity_str()']" t-operation="replace">
-            <t t-if="line.get_quantity_str() !== '1' || line.selected ">
-                <li class="info">
-                    <t t-if="line.order.is_return_order">
+        <t t-jquery="ul.info-list" t-operation="replace">
+            <ul class="info-list">
+                <t t-if="line.get_quantity_str() !== '1' || line.selected ">
+                    <li class="info">
+                        <t t-if="line.order.is_return_order">
+                            <em>
+                                -<t t-esc="line.get_quantity_str()" />
+                            </em>
+                        </t>
+                        <t t-if="!line.order.is_return_order">
+                            <em>
+                                <t t-esc="line.get_quantity_str()" />
+                            </em>
+                        </t>
+                        <t t-esc="line.get_unit().name" />
+                        at
+                        <t t-esc="widget.format_currency(line.get_unit_display_price(),'Product Price')" />
+                        /
+                        <t t-esc="line.get_unit().name" />
+                    </li>
+                </t>
+                <t t-if="line.get_discount_str() !== '0'">
+                    <li class="info">
+                        With a
                         <em>
-                            -<t t-esc="line.get_quantity_str()" />
+                            <t t-esc="line.get_discount_str()" />%
                         </em>
-                    </t>
-                    <t t-if="!line.order.is_return_order">
-                        <em>
-                            <t t-esc="line.get_quantity_str()" />
-                        </em>
-                    </t>
-                    <t t-esc="line.get_unit().name" />
-                    at
-                    <t t-esc="widget.format_currency(line.get_unit_display_price(),'Product Price')" />
-                    /
-                    <t t-esc="line.get_unit().name" />
-                </li>
+                        discount
+                    </li>
+                </t>
+            </ul>
+            <t t-if="line.get_product().not_xble">
+                <span style="color:#888;font-size:10px;float:right;margin-top: -5px;">No Retornable</span>
             </t>
         </t>
     </t>
@@ -125,7 +134,7 @@
                     <div class='container_div'>
                         <table border="1" frame="void" rules="rows" class="return_popup_table">
                             <tr class="return_popup_tr">
-                                <th class="table_data_cells"><p>ProductO (<span style="color:#2f6e75">Cant.</span>.)</p></th>
+                                <th class="table_data_cells"><p>Producto (<span style="color:#2f6e75">Cant.</span>.)</p></th>
                                 <th class="table_data_cells">Cant. devuelta.</th>
                             </tr>
 
@@ -141,7 +150,7 @@
                 </div>
                 <div class="footer">
                     <div class="button" id="return_order" style="background-color: rgb(94, 191, 143);color: white;">
-                        Devolución
+                        Devolver
                     </div>
                     <div class="button cancel">
                         Cancel
