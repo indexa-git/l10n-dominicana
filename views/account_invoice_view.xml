@@ -53,15 +53,18 @@
                 <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
             </field>
 
-            <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace">
-                <field name="origin" groups="base.group_user"/>
-            </xpath>
+            <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace"/>
 
-            <field name="partner_shipping_id" position="after">
-                <field name="origin" string="Afecta a" groups="base.group_user"
-                    attrs="{'invisible': [('type', '!=','out_refund')],
-                            'readonly': [('origin', '=', False)]}"/>
+            <field name="partner_id" position="after">
+                <field name="origin_out" groups="base.group_user"
+                       attrs="{'invisible': [('type', '!=', 'out_refund')], 'readonly': [('origin_out', '!=', False)]}"/>
             </field>
+
+            <field name="move_id" position="before">
+                <field name="origin" groups="base.group_user" attrs="{'invisible': [('type', '=', 'out_refund')]}"/>
+            </field>
+
+
         </field>
     </record>
 

@@ -158,6 +158,7 @@ class AccountInvoice(models.Model):
         related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
+    origin_out = fields.Char(u"Afecta a", related="origin")
 
     _sql_constraints = [
         ('number_uniq',
