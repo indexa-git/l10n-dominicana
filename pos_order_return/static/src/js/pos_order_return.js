@@ -6,13 +6,12 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
     var QWeb = core.qweb;
     var screens = require('point_of_sale.screens');
     var models = require('point_of_sale.models');
-    var utils = require('web.utils');
     var PopupWidget = require('point_of_sale.popups');
     var _t = core._t;
     var SuperOrder = models.Order;
     var SuperOrderline = models.Orderline.prototype;
     var SuperPosModel = models.PosModel.prototype;
-    var formats = require('web.formats');
+    var field_utils = require('web.field_utils');
 
     models.load_fields('product.product', 'not_returnable');
     var order_model = null;
@@ -148,11 +147,9 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
                 if (self.options.is_partial_return) {
                     refund_order.return_status = 'Partially-Returned';
                     refund_order.return_order_id = order.id;
-                    refund_order.is_return_order = true;
                 } else {
                     refund_order.return_status = 'Fully-Returned';
                     refund_order.return_order_id = order.id;
-                    refund_order.is_return_order = true;
                 }
                 self.pos.set_order(refund_order);
                 self.gui.show_screen('payment');

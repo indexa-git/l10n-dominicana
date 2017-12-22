@@ -169,8 +169,9 @@ class PosOrderLine(models.Model):
     original_line_id = fields.Many2one('pos.order.line', u"Línea Original")
 
     @api.model
-    def _order_line_fields(self, line):
-        fields_return = super(PosOrderLine, self)._order_line_fields(line)
+    def _order_line_fields(self, line, session_id=None):
+        fields_return = super(
+            PosOrderLine, self)._order_line_fields(line, session_id)
         fields_return[2].update(
             {'line_qty_returned': line[2].get('line_qty_returned', '')})
         fields_return[2].update(
