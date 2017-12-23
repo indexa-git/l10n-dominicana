@@ -90,9 +90,9 @@ class AccountInvoice(models.Model):
         shop_user_config = False
 
         if not self.journal_id:
-            shop_user_config = Shop.search([('user_ids', 'in', self._uid)])
+            shop_user_config = Shop.sudo().search([('user_ids', 'in', self._uid)])
         else:
-            shop_user_config = Shop.search([
+            shop_user_config = Shop.sudo().search([
                 ('user_ids', 'in', self._uid),
                 ('journal_id', '=', self.journal_id.id)])
 
