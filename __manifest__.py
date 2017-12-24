@@ -34,7 +34,6 @@
         'views/account_view.xml',
         'views/res_currency_view.xml',
         'data/sequences.xml',
-        'views/templates.xml',
         'views/res_view.xml',
         'views/dgii_report_view.xml',
         'data/setup_ncf.xml'
