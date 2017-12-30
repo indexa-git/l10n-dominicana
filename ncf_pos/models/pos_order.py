@@ -70,7 +70,7 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-        res = {"fiscal_type": "none", "fiscal_type_name": "PRE-CUENTA"}
+        res = {"fiscal_type": "none", "fiscal_type_name": "FACTURA"}
 
         order_id = False
         timeout = time.time() + 60 * 0.5  # 5 minutes from now
@@ -82,15 +82,22 @@ class PosOrder(models.Model):
             order_id = self.search([('pos_reference', '=', name)])
 
         if order_id:
-            order_id.action_pos_order_invoice()
             res.update({"id": order_id.id,
-                        "rnc": order_id.partner_id.vat,
-                        "name": order_id.partner_id.name,
-                        "ncf": order_id.invoice_id.number,
-                        "fiscal_type": order_id.partner_id.sale_fiscal_type,
-                        "origin": False
+                        "rnc": order_id.get('partner_id.vat') or False,
+                        "name": order_id.get('partner_id.name') or False,
+                        "ncf": order_id.get('partner_id.number') or False,
+                        "origin": order_id.get('return_order_id.move_name') or False
                         })
-            order_id.move_name = order_id.invoice_id.number
+            if order_id.to_invoice is True:
+                order_id.action_pos_order_invoice()
+                res.update({"id": order_id.id,
+                            "rnc": order_id.get('partner_id.vat') or False,
+                            "name": order_id.get('partner_id.name') or False,
+                            "ncf": order_id.get('partner_id.number') or False,
+                            "fiscal_type": order_id.get('partner_id.sale_fiscal_type') or False,
+                            "origin": False
+                            })
+                order_id.move_name = order_id.invoice_id.number
 
             if order_id.is_return_order:
                 res.update({"fiscal_type_name": u"NOTA DE CRÉDITO"})
