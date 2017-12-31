@@ -40,18 +40,6 @@
                             <input class='detail client-address-city' name='city' t-att-value='partner.city || ""'
                                    placeholder='City'></input>
                         </div>
-                        <div class='client-detail'>
-                            <span class='label'>Factura</span>
-                            <select class='detail client-sale_fiscal_type needsclick' name='sale_fiscal_type'>
-                                <option value=''>None</option>
-                                <t t-foreach='widget.pos.sale_fiscal_type' t-as='sale_fiscal_type'>
-                                    <option t-att-value='sale_fiscal_type.code'
-                                            t-att-selected="partner.sale_fiscal_type ? ((sale_fiscal_type.code === partner.sale_fiscal_type) ? true : undefined) : undefined">
-                                        <t t-esc='sale_fiscal_type.name'/>
-                                    </option>
-                                </t>
-                            </select>
-                        </div>
                     </div>
                     <div class='client-details-right'>
                         <div class='client-detail'>
