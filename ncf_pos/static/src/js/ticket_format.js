@@ -2,7 +2,6 @@ odoo.define('ncf_pos.ticket_format', function(require) {
     "use strict";
 
     var models = require('point_of_sale.models');
-    var Model = require('web.DataModel');
 
     function space_pad(num,size){
         var s = ""+num;
