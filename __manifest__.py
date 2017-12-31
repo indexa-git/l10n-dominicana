@@ -20,8 +20,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['account', 'marcos_api_tools', 'l10n_do', 'sale',
-                'account_cancel'],
+    'depends': ['account', 'marcos_api_tools', 'l10n_do', 'account_cancel'],
     # always loaded
     'data': [
         'security/ir.model.access.csv',
