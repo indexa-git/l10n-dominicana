@@ -83,9 +83,15 @@ odoo.define('ncf_pos.screens', function(require) {
                 var client = self.pos.get_order().get_client();
 
                 if (client == null) {
-                    alert("Debe seleccionar un cliente para poder realizar el Pago, o utilizar el Cliente por defecto; de no tener un cliente por defecto, pida ayuda a su Encargado para que lo establezca.");
-                    return;
+                    self.gui.show_popup('error', {
+                        'title': 'Error: Factura sin Cliente',
+                        'body': 'Debe seleccionar un cliente para poder realizar el Pago, o utilizar el Cliente por defecto; de no tener un cliente por defecto, pida ayuda a su Encargado para que lo establezca.',
+                        'cancel': function () {
+                            self.gui.show_screen('products');
+                            }
+                    });
                 }
+
 
                 if ((client.sale_fiscal_type == 'fiscal' || client.sale_fiscal_type == 'gov' || client.sale_fiscal_type == 'special') && (client.vat == false || client.vat == null)) {
                     self.gui.show_popup('error', {
