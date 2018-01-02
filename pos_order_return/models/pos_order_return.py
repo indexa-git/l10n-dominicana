@@ -105,6 +105,14 @@ class PosOrder(models.Model):
         })
         return fields_return
 
+    def _action_create_invoice_line(self, line=False, invoice_id=False):
+        if self.is_return_order:
+            inv_fields = super(PosOrder, self)._action_create_invoice_line(line, invoice_id)
+            line.qty = abs(line.qty)
+            inv_fields.update({'quantity': line.qty})
+            return inv_fields
+        super(PosOrder, self)._action_create_invoice_line(line, invoice_id)
+
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
