@@ -30,7 +30,7 @@
     "qweb": ['static/src/xml/pos_orders.xml'],
     "images": ['static/description/Banner.png'],
     "application": True,
-    "installable": False,
+    "installable": True,
     "auto_install": False,
     "price": 27,
     "currency": "EUR",
