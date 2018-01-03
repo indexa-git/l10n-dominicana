@@ -52,7 +52,7 @@ odoo.define('ncf_pos.screens', function(require) {
                 rpc.query({
                     model: 'pos.order',
                     method: 'get_fiscal_data',
-                    args: [{'order': order.name,}]}).then(function (fiscal_data) {
+                    args: [order.name]}).then(function (fiscal_data) {
                     self.ncf_render_receipt(fiscal_data, order);
                     $(".pos-sale-ticket").removeClass('oe_hidden');
                     $(".button.next.highlight").removeClass('oe_hidden');
@@ -67,7 +67,7 @@ odoo.define('ncf_pos.screens', function(require) {
                 rpc.query({
                     model: 'pos.order',
                     method: 'get_fiscal_data',
-                    args: [{'order': order.name,}]}).then(function (fiscal_data) {
+                    args: [order.name]}).then(function (fiscal_data) {
                     self.ncf_render_receipt(fiscal_data, order);
                 });
             }
