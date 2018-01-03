@@ -73,7 +73,7 @@ class PosOrder(models.Model):
         res = {"fiscal_type": "none", "fiscal_type_name": "FACTURA"}
 
         order_id = False
-        timeout = time.time() + 60 * 0.5  # 5 minutes from now
+        timeout = time.time() + 5  # 5 seconds from now
         while not order_id:
             time.sleep(1)
             if time.time() > timeout:
