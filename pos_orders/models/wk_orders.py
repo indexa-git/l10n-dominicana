@@ -17,6 +17,8 @@ class PosOrder(models.Model):
 
     @api.model
     def create_from_ui(self, orders):
+        for order in orders:
+            order.update({"to_invoice": True})
         order_ids = super(PosOrder, self).create_from_ui(orders)
         order_objs = self.env['pos.order'].browse(order_ids)
         result = {}
