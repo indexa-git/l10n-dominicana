@@ -82,7 +82,6 @@ class PosOrder(models.Model):
             order_id = self.search([('pos_reference', '=', name)])
 
         if order_id:
-            order_id.action_pos_order_invoice()
             res.update({"id": order_id.id,
                         "rnc": order_id.partner_id.vat,
                         "name": order_id.partner_id.name,
