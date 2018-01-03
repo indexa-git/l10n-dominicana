@@ -88,7 +88,10 @@ class PosOrder(models.Model):
                         "ncf": order_id.invoice_id.number,
                         "origin": False
                         })
-            if order_id.to_invoice is True:
+
+            to_invoice = order_id['to_invoice']
+
+            if to_invoice:
                 order_id.action_pos_order_invoice()
                 res.update({"id": order_id.id,
                             "rnc": order_id.partner_id.vat,
