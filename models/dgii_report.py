@@ -599,8 +599,8 @@ class DgiiReport(models.Model):
                 'ir17_filename': FILENAME,
                 'ir17_binary': base64.b64encode(xls_file.read())
             })
-        out_inovice_url = "/web#id={}&view_type=form&model=account.invoice&action=196"
-        in_inovice_url = "/web#id={}&view_type=form&model=account.invoice&menu_id=119&action=197"
+        out_inovice_url = "/web#id={}&view_type=form&model=account.invoice&action=203&menu_id=107"
+        in_inovice_url = "/web#id={}&view_type=form&model=account.invoice&action=204&menu_id=107"
         if error_list:
             message = "<ul>"
             for ncf, errors in error_list.iteritems():
