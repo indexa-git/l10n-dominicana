@@ -76,12 +76,15 @@ odoo.define('ncf_pos.screens', function(require) {
             this.$('.pay').bind("click", function () {
                 var client = self.pos.get_order().get_client();
 
-                if (client === null) {
-                    alert("Debe seleccionar un cliente para poder realizar el Pago, o utilizar el Cliente por defecto; de no tener un cliente por defecto, pida ayuda a su Encargado para que lo establezca.");
-                    return;
-                }
-
-                if ((client.sale_fiscal_type === 'fiscal' || client.sale_fiscal_type === 'gov' || client.sale_fiscal_type === 'special') && (client.vat === false || client.vat === null)) {
+                if (client == null) {
+                    self.gui.show_popup('error', {
+                        'title': 'Error: Factura sin Cliente',
+                        'body': 'Debe seleccionar un cliente para poder realizar el Pago, o utilizar el Cliente por defecto; de no tener un cliente por defecto, pida ayuda a su Encargado para que lo establezca.',
+                        'cancel': function () {
+                            self.gui.show_screen('products');
+                            }
+                    });
+                } else if ((client.sale_fiscal_type == 'fiscal' || client.sale_fiscal_type == 'gov' || client.sale_fiscal_type == 'special') && (client.vat == false || client.vat == null)) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Para el tipo de comprobante',
                         'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
@@ -91,7 +94,7 @@ odoo.define('ncf_pos.screens', function(require) {
                     });
                 }
 
-                if (self.pos.get_order().orderlines.models.length === 0) {
+                if (self.pos.get_order().orderlines.models.length == 0) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Factura sin productos',
                         'body': 'No puede pagar un ticket sin productos',
@@ -127,7 +130,7 @@ odoo.define('ncf_pos.screens', function(require) {
 
             var cashregister = null;
             for (var i = 0; i < this.pos.cashregisters.length; i++) {
-                if (this.pos.cashregisters[i].journal_id[0] === id) {
+                if (this.pos.cashregisters[i].journal_id[0] == id) {
                     cashregister = this.pos.cashregisters[i];
                     break;
                 }
