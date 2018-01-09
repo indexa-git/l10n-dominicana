@@ -179,8 +179,9 @@ class AccountInvoice(models.Model):
                 self.partner_id.write(
                     {'sale_fiscal_type': self.sale_fiscal_type})
                 if self.sale_fiscal_type == "special":
-                    self.fiscal_position_id = self.env.ref(
-                        "ncf_manager.ncf_manager_special_fiscal_position")
+                    pass
+                    # self.fiscal_position_id = self.env.ref(
+                    #     "ncf_manager.ncf_manager_special_fiscal_position")
             if self.type == 'in_invoice':
                 self.partner_id.write({'expense_type': self.expense_type})
 
