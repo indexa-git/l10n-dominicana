@@ -2,6 +2,7 @@
 ###############################################################################
 #  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
 #  (<https://marcos.do/>)
+
 #  Write by Eneldo Serrata (eneldo@marcos.do)
 #  See LICENSE file for full copyright and licensing details.
 #
@@ -44,23 +45,6 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-class SaleOrder(models.Model):
-    _inherit = "sale.order"
-
-    @api.multi
-    def _prepare_invoice(self):
-        """
-        Prepare the dict of values to create the new invoice for a sales order. This method may be
-        overridden to implement custom invoice generation (making sure to call super() to establish
-        a clean extension chain).
-        """
-        self.ensure_one()
-        invoice_vals = super(SaleOrder, self)._prepare_invoice()
-        invoice_vals['sale_fiscal_type'] = self.partner_id.sale_fiscal_type
-
-        return invoice_vals
-
-
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
@@ -90,9 +74,9 @@ class AccountInvoice(models.Model):
         shop_user_config = False
 
         if not self.journal_id:
-            shop_user_config = Shop.search([('user_ids', 'in', self._uid)])
+            shop_user_config = Shop.sudo().search([('user_ids', 'in', self._uid)])
         else:
-            shop_user_config = Shop.search([
+            shop_user_config = Shop.sudo().search([
                 ('user_ids', 'in', self._uid),
                 ('journal_id', '=', self.journal_id.id)])
 
@@ -158,6 +142,7 @@ class AccountInvoice(models.Model):
         related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
+    origin_out = fields.Char(u"Afecta a", related="origin")
 
     _sql_constraints = [
         ('number_uniq',
@@ -193,6 +178,12 @@ class AccountInvoice(models.Model):
             if self.type == 'out_invoice':
                 self.partner_id.write(
                     {'sale_fiscal_type': self.sale_fiscal_type})
+                
+                if self.sale_fiscal_type == "special":
+                    pass
+                    # self.fiscal_position_id = self.env.ref(
+                    #     "ncf_manager.ncf_manager_special_fiscal_position")
+
             if self.type == 'in_invoice':
                 self.partner_id.write({'expense_type': self.expense_type})
 

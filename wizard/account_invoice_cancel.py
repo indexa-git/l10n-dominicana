@@ -40,23 +40,28 @@ from odoo.exceptions import UserError
 
 
 class AccountInvoiceCancel(models.TransientModel):
-    _inherit = "account.invoice.cancel"
+    """
+    This wizard will cancel the all the selected invoices.
+    If in the journal, the option allow cancelling entry is not selected then it will give warning message.
+    """
+
+    _name = "account.invoice.cancel"
+    _description = "Cancel the Selected Invoices"
 
     anulation_type = fields.Selection(
-        [("01", u"01 - Deterioro de Factura Pre-impresa"),
-         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
-         ("03", u"03 - Impresión Defectuosa"),
-         ("04", u"04 - Duplicidad de Factura"),
-         ("05", u"05 - Corrección de La Información"),
-         ("06", u"06 - Cambio de Productos"),
-         ("07", u"07 - Devolución de Productos"),
-         ("08", u"08 - Omisión de Productos"),
-         ("09", u"09 - Errores en Secuencia de NCF")],
-        string=u"Tipo de anulación", required=True,
+        [("01", "01 - Deterioro de Factura Pre-impresa"),
+         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("03", "03 - Impresión Defectuosa"),
+         ("04", "04 - Duplicidad de Factura"),
+         ("05", "05 - Corrección de La Información"),
+         ("06", "06 - Cambio de Productos"),
+         ("07", "07 - Devolución de Productos"),
+         ("08", "08 - Omisión de Productos"),
+         ("09", "09 - Errores en Secuencia de NCF")],
+        string="Tipo de anulación", required=True,
         default=lambda self: self._context.get('anulation_type', '05'))
 
     @api.multi
-    # TODO Do not overwrite invoice_cancel
     def invoice_cancel(self):
         context = dict(self._context or {})
         active_ids = context.get('active_ids', []) or []
@@ -64,6 +69,5 @@ class AccountInvoiceCancel(models.TransientModel):
         for record in self.env['account.invoice'].browse(active_ids):
             if record.state in ('cancel', 'paid'):
                 raise UserError(_("Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Done' state."))
-            record.anulation_type = self.anulation_type
             record.action_invoice_cancel()
         return {'type': 'ir.actions.act_window_close'}
