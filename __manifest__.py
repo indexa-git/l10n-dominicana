@@ -20,7 +20,8 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['account', 'marcos_api_tools', 'l10n_do', 'sale'],
+    'depends': ['account_invoicing', 'l10n_do', 'marcos_api_tools',
+                'account_cancel'],
     # always loaded
     'data': [
         'security/ir.model.access.csv',
@@ -33,7 +34,6 @@
         'views/account_view.xml',
         'views/res_currency_view.xml',
         'data/sequences.xml',
-        'views/templates.xml',
         'views/res_view.xml',
         'views/dgii_report_view.xml',
         'data/setup_ncf.xml'
