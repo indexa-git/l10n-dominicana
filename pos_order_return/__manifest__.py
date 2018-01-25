@@ -17,11 +17,11 @@
     "name": "Pos Order Return",
     "summary": "This module is use to Return orders in running point of sale session.",
     "category": "Point Of Sale",
-    "version": "3.4",
+    "version": "1.0.1",
     "author": "Webkul Software Pvt. Ltd.",
     "website": "https://store.webkul.com/Odoo-POS-Order-Return.html",
     "description": "http://webkul.com/blog/pos-order-return/",
-    "live_test_url": "http://odoodemo.webkul.com/?module=pos_order_return&version=10.0",
+    "live_test_url": "http://odoodemo.webkul.com/?module=pos_order_return&version=11.0",
     "depends": ['pos_orders'],
     "data": [
         'views/pos_order_return_view.xml',

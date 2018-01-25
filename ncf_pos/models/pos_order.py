@@ -70,10 +70,10 @@ class PosOrder(models.Model):
 
     @api.model
     def get_fiscal_data(self, name):
-        res = {"fiscal_type": "none", "fiscal_type_name": "PRE-CUENTA"}
+        res = {"fiscal_type": "none", "fiscal_type_name": "FACTURA"}
 
         order_id = False
-        timeout = time.time() + 60 * 0.5  # 5 minutes from now
+        timeout = time.time() + 5  # 5 seconds from now
         while not order_id:
             time.sleep(1)
             if time.time() > timeout:
@@ -82,7 +82,6 @@ class PosOrder(models.Model):
             order_id = self.search([('pos_reference', '=', name)])
 
         if order_id:
-            order_id.action_pos_order_invoice()
             res.update({"id": order_id.id,
                         "rnc": order_id.partner_id.vat,
                         "name": order_id.partner_id.name,

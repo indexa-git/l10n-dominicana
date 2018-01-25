@@ -5,7 +5,7 @@ odoo.define('ncf_pos.screens', function(require) {
     var screens = require('point_of_sale.screens');
     var gui = require('point_of_sale.gui');
     var models = require('point_of_sale.models');
-    var Model = require('web.DataModel');
+    var rpc = require('web.rpc');
     var PopupWidget = require('point_of_sale.popups');
 
     var SuperOrder = models.Order;
@@ -49,7 +49,10 @@ odoo.define('ncf_pos.screens', function(require) {
                 $(".pos-sale-ticket").addClass('oe_hidden');
                 $(".button.next.highlight").addClass('oe_hidden');
                 $(".button.print").addClass('oe_hidden');
-                new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
+                rpc.query({
+                    model: 'pos.order',
+                    method: 'get_fiscal_data',
+                    args: [order.name]}).then(function (fiscal_data) {
                     self.ncf_render_receipt(fiscal_data, order);
                     $(".pos-sale-ticket").removeClass('oe_hidden');
                     $(".button.next.highlight").removeClass('oe_hidden');
@@ -61,7 +64,10 @@ odoo.define('ncf_pos.screens', function(require) {
             var self = this;
             var order = this.pos.get_order();
                 if (this.pos.config.iface_print_via_proxy) {
-                new Model('pos.order').call("get_fiscal_data", [order.name]).then(function (fiscal_data) {
+                rpc.query({
+                    model: 'pos.order',
+                    method: 'get_fiscal_data',
+                    args: [order.name]}).then(function (fiscal_data) {
                     self.ncf_render_receipt(fiscal_data, order);
                 });
             }
