@@ -41,6 +41,7 @@ import re
 import openpyxl
 from odoo import api, fields, models
 from tempfile import TemporaryFile
+import base64
 
 import logging
 
@@ -74,7 +75,7 @@ class Currency(models.Model):
         self.env["res.currency.rate"].search(
             [('currency_id', '=', 3)]).unlink()
 
-        file = self.bc_rate_xls.decode('base64')
+        file = self.bc_rate_xls.base64.b64encode()
         excel_fileobj = TemporaryFile('wb+')
         excel_fileobj.write(file)
         excel_fileobj.seek(0)
