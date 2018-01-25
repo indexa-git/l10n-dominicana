@@ -1,7 +1,6 @@
 odoo.define('ncf_pos.models', function(require) {
     "use strict";
     var models = require('point_of_sale.models');
-    var Model = require('web.DataModel');
 
     var SuperOrder = models.Order;
 
