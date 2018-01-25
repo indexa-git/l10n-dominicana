@@ -670,7 +670,7 @@ class DgiiReport(models.Model):
             lines.append(ln)
 
         for line in lines:
-            sale_file.write(unicode(line) + "\n")
+            sale_file.write(str(line) + "\n")
 
         sale_file.close()
         sale_file = open(sale_path, 'rb')
@@ -729,7 +729,7 @@ class DgiiReport(models.Model):
             lines.append(ln)
 
         for line in lines:
-            purchase_file.write(unicode(line) + "\n")
+            purchase_file.write(str(line) + "\n")
 
         purchase_file.close()
         purchase_file = open(pruchase_path, 'rb')
@@ -762,7 +762,7 @@ class DgiiReport(models.Model):
             lines.append(ln)
 
         for line in lines:
-            file.write(unicode(line) + "\n")
+            file.write(str(line) + "\n")
 
         file.close()
         file = open(path, 'rb')
