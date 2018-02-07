@@ -22,7 +22,7 @@
     </record>
 
     <act_window id="update_rate_wizard_action"
-        name="Actualizacion de tasa de comabio"
+        name="Actualización de tasa de cambio"
         src_model="account.invoice"
         res_model="update.rate.wizard"
         view_mode="form"
