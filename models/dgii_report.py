@@ -570,10 +570,10 @@ class DgiiReport(models.Model):
         cwf = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            "IT-1-2017.xlsx")
         wb = load_workbook(cwf)
-        ws1 = wb.get_sheet_by_name("IT-1")  # Get sheet 1 in writeable copy
-        xls_dict["it1"].update({"S43": self.positive_balance})
-        for k, v in xls_dict["it1"].iteritems():
-            ws1[k] = v
+        # ws1 = wb.get_sheet_by_name("IT-1")  # Get sheet 1 in writeable copy
+        # xls_dict["it1"].update({"S43": self.positive_balance})
+        # for k, v in xls_dict["it1"].iteritems():
+        #     ws1[k] = v
 
         period = self.name.split("/")
         FILENAME = "IT-1-{}-{}.xlsx".format(period[0], period[1])
@@ -588,9 +588,9 @@ class DgiiReport(models.Model):
         cwf = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            "IR-17-2015.xlsx")
         wb = load_workbook(cwf)
-        ws1 = wb.get_sheet_by_name("IR17")  # Get sheet 1 in writeable copy
-        for k, v in xls_dict["ir17"].iteritems():
-            ws1[k] = v
+        # ws1 = wb.get_sheet_by_name("IR17")  # Get sheet 1 in writeable copy
+        # for k, v in xls_dict["ir17"].iteritems():
+        #     ws1[k] = v
 
         period = self.name.split("/")
         FILENAME = "IR-17-{}-{}.xlsx".format(period[0], period[1])
