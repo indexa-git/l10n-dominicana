@@ -602,26 +602,26 @@ class DgiiReport(models.Model):
             })
         out_inovice_url = "/web#id={}&view_type=form&model=account.invoice&action=203&menu_id=107"
         in_inovice_url = "/web#id={}&view_type=form&model=account.invoice&action=204&menu_id=107"
-        if error_list:
-            message = "<ul>"
-            for ncf, errors in error_list.iteritems():
-                message += "<li>{}</li><ul>".format(
-                    errors[0][1] or "Factura invalida")
-                for error in errors:
-                    if error[0] in ("out_invoice", "out_refund"):
-                        message += "<li><a target='_blank' href='{}'>{}</a></li>".format(
-                            out_inovice_url.format(ncf), error[2])
-                    else:
-                        message += "<li><a target='_blank' href='{}'>{}</a></li>".format(
-                            in_inovice_url.format(ncf), error[2])
-                message += "</ul>"
-            message += "</ul>"
+        # if error_list:
+        #     message = "<ul>"
+        #     for ncf, errors in error_list.iteritems():
+        #         message += "<li>{}</li><ul>".format(
+        #             errors[0][1] or "Factura invalida")
+        #         for error in errors:
+        #             if error[0] in ("out_invoice", "out_refund"):
+        #                 message += "<li><a target='_blank' href='{}'>{}</a></li>".format(
+        #                     out_inovice_url.format(ncf), error[2])
+        #             else:
+        #                 message += "<li><a target='_blank' href='{}'>{}</a></li>".format(
+        #                     in_inovice_url.format(ncf), error[2])
+        #         message += "</ul>"
+        #     message += "</ul>"
 
-            self.message_post(body=message)
-            self.state = "error"
-        else:
-            self.message_post(body="Generado correctamente")
-            self.state = "done"
+        #     self.message_post(body=message)
+        #     self.state = "error"
+        # else:
+        #     self.message_post(body="Generado correctamente")
+        #     self.state = "done"
 
     def generate_txt(self):
         company_fiscal_identificacion = re.sub("[^0-9]", "",
