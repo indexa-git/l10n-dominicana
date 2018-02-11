@@ -26,3 +26,4 @@ from . import account
 from . import account_invoice
 from . import res
 from . import res_currency
+from . import dgii_tools
