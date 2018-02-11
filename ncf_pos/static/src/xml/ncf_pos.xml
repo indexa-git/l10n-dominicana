@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template">
+    <t t-extend="PosTicket">
+        <t t-jquery="t[t-esc='order.formatted_validation_date']" t-operation="replace"/>
+        <t t-jquery="t[t-esc='order.name']" t-operation="replace"/>
+        <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
+            <div class="pos-center-align">
+                <t t-if="widget.pos.company">
+                    <t t-esc="order.pos.company.name"/>
+                    <br/>
+                </t>
+                <t t-if="widget.pos.company.street">
+                    <t t-esc="widget.pos.company.street"/>,</t>
+                <t t-if="widget.pos.company.street2">
+                    <t t-esc="widget.pos.company.street2"/>
+                </t>
+                <t t-if="widget.pos.company.vat">
+                    <br/>
+                    <strong>RNC:</strong>
+                    <t t-esc="widget.pos.company.vat"/>
+                    <br/>
+                </t>
+                <br/>
+                <t t-esc="order.name"/>
+                <br/>
+                <strong>
+                    <t t-esc="order.fiscal_type_name"/>
+                    <br/>
+                </strong>
+                <strong>
+                    <t t-esc="order.ncf"/>
+                    <br/>
+                </strong>
+                <t t-if="order.origin_ncf">
+                    <strong>Afecta: </strong>
+                    <span t-esc="order.origin_ncf"/>
+                </t>
+            </div>
+            <br/>
+        </t>
+        <t t-jquery=".receipt-phone" t-operation="replace">
+            <div class="receipt-phone">
+                <strong>Fecha....:</strong> <t t-esc="order.formatted_validation_date"/><br/>
+                <t t-set="client" t-value="order.get('client')"/>
+                <t t-if="client">
+                    <strong>Cliente..:</strong> <t t-esc="client.name || ''"/><br/>
+                    <t t-if="client.vat">
+                        <strong>RNC/Céd..:</strong> <t t-esc="client.vat"/><br/>
+                    </t>
+                    <t t-if="client.barcode">
+                        <strong>Código..:</strong> <t t-esc="client.barcode"/><br/>
+                    </t>
+                </t>
+                <strong>Sucursal:</strong> <t t-esc="widget.pos.shop.name"/><br/>
+                <strong>Telefono:</strong> <t t-esc="widget.pos.company.phone || ''"/><br/>
+            </div>
+        </t>
+        <t t-jquery=".receipt-user" t-operation="replace">
+            <div class="receipt-phone">
+                <strong>Cajero/a:</strong> <t t-esc="widget.pos.cashier ? widget.pos.cashier.name : widget.pos.user.name"/><br/>
+            </div>
+        </t>
+        <t t-jquery=".receipt-orderlines" t-operation="replace">
+            <br/>
+            <div style="border-bottom: 1px solid black;"/>
+            <table class="receipt-orderlines">
+                <thead>
+                    <tr>
+                        <th class="pos-center-align" width="15%">
+                            <strong>Cant.</strong>
+                        </th>
+                        <th width="40%">
+                            <strong>Producto</strong>
+                        </th>
+                        <th width="20%">
+                            <strong>$/Und.</strong>
+                        </th>
+                        <th class="pos-right-align" width="25%">
+                            <strong>Valor($)</strong>
+                        </th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                </tr>
+                <tr t-as="orderline" t-foreach="orderlines">
+                    <td class="pos-center-align" width="15%">
+                        <t t-esc="orderline.get_quantity_str_with_unit()"/>
+                    </td>
+                    <td width="40%">
+                        <t t-esc="orderline.get_product().display_name"/>
+                        <t t-if="widget.pos.config.on_product_line">
+                            <div class="pos-disc-font">
+                                <t t-esc="orderline.get_order_line_comment()" />
+                            </div>
+                        </t>
+                        <t t-if="orderline.get_discount() &gt;0">
+                            <div class="pos-disc-font">With a
+
+                                <t t-esc="orderline.get_discount()"/>
+                                % discount</div>
+                        </t>
+                    </td>
+                    <td width="20%">
+                        <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>
+                    </td>
+                    <td class="pos-right-align" width="25%">
+                        <t t-esc="widget.format_currency_no_symbol(orderline.get_display_price())"/>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <br/>
+                <div style="border-bottom: 1px dashed black"/>
+            </table>
+        </t>
+        <t t-jquery=".receipt-total" t-operation="replace">
+            <table class="receipt-total">
+                <tr width="100%">
+                    <td class="pos-right-align" width="75%">SubTotal:</td>
+                    <td class="pos-right-align" width="25%">
+                        <t t-esc="widget.format_currency_no_symbol(order.get_total_without_tax())"/>
+                    </td>
+                </tr>
+                <t t-as="taxdetail" t-foreach="order.get_tax_details()">
+                    <tr>
+                        <td class="pos-right-align" width="75%">
+                            <t t-esc="taxdetail.name"/>:</td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-esc="widget.format_currency_no_symbol(taxdetail.amount)"/>
+                        </td>
+                    </tr>
+                </t>
+                <tr width="100%">
+                    <t t-if="order.get_total_discount() &gt;0">
+                        <td class="pos-right-align" width="75%">Descuento:</td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-esc="widget.format_currency_no_symbol(order.get_total_discount())"/>
+                        </td>
+                    </t>
+                </tr>
+            </table>
+            <table>
+                <tr class="emph" width="100%">
+                    <td class="pos-right-align" t-if="order.is_return_order" width="50%">Reembolso:</td>
+                    <td class="pos-right-align" t-else="" width="50%"><strong>Total:</strong></td>
+                    <td class="pos-right-align" width="50%">
+                        <t t-if="order.is_return_order">
+                             <strong><t t-esc="widget.format_currency(order.get_total_with_tax()* -1)"/></strong>
+                        </t>
+                        <t t-else="">
+                            <strong><t t-esc="widget.format_currency(order.get_total_with_tax())"/></strong>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+        </t>
+        <t t-jquery=".receipt-paymentlines" t-operation="replace">
+            <table class="receipt-paymentlines">
+                <t t-as="line" t-foreach="paymentlines">
+                    <tr width="100%">
+                        <td class="pos-right-align" width="75%">
+                            <t t-esc="line.name"/>:</td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-if="order.is_return_order">
+                                <t t-esc="widget.format_currency_no_symbol(line.get_amount()* -1)"/>
+                            </t>
+                            <t t-else="">
+                                <t t-if="line.get_amount() &gt;0">
+                                    <t t-esc="widget.format_currency_no_symbol(line.get_amount())"/>
+                                </t>
+                            </t>
+                        </td>
+                    </tr>
+                </t>
+            </table>
+        </t>
+        <t t-jquery=".receipt-change" t-operation="replace">
+            <table class="receipt-change">
+                <tr width="100%">
+                    <t t-if="order.get_change() &gt;0">
+                        <td class="pos-right-align" width="75%">
+                            <strong>Cambio:</strong>
+                        </td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-esc="widget.format_currency_no_symbol(order.get_change())"/>
+                        </td>
+                    </t>
+                </tr>
+            </table>
+            <t t-if='order.is_return_order'>
+                <div>***********************************</div>
+                <div>Devolución Generada por:
+                    <t t-esc='receipt.cashier' />
+                </div>
+                <div>***********************************</div>
+            </t>
+        </t>
+    </t>
+    <t t-name="XmlReceiptWrappedQuantityStr">
+        <t t-foreach="orderline.generate_wrapped_quantity_str().slice(1)" t-as="wrapped_line">
+            <line>
+                <left>
+                    <pre><t t-esc="wrapped_line"/></pre>
+                </left>
+            </line>
+        </t>
+    </t>
+
+    <t t-name="XmlReceiptWrappedProductNameOrderLines">
+        <t t-foreach="orderline.generate_wrapped_orderline_product_name().slice(1)" t-as="wrapped_line">
+            <line>
+                <left>
+                    <t t-if="orderline.generate_wrapped_quantity_str()[wrapped_line_index + 1]">
+                        <pre><t t-esc="orderline.generate_wrapped_quantity_str()[wrapped_line_index + 1]"/></pre>
+                        <t t-esc="wrapped_line"/>
+                    </t>
+                    <t t-if="! orderline.generate_wrapped_quantity_str()[wrapped_line_index + 1]">
+                        <pre>     </pre><t t-esc="wrapped_line"/>
+                    </t>
+                </left>
+            </line>
+        </t>
+        <t t-if="orderline.generate_wrapped_orderline_product_name().slice(1).length != 0">
+            <t t-foreach="orderline.generate_wrapped_quantity_str().slice(orderline.generate_wrapped_orderline_product_name().length)" t-as="wrapped_line">
+                <line>
+                    <left>
+                        <pre><t t-esc="wrapped_line"/></pre>
+                    </left>
+                </line>
+            </t>
+        </t>
+        <t t-if="orderline.generate_wrapped_orderline_product_name().slice(1).length == 0">
+            <t t-call="XmlReceiptWrappedQuantityStr"/>
+        </t>
+    </t>
+
+    <t t-extend="XmlReceipt">
+        <t t-jquery="line:eq(0)" t-operation="replace"/>
+        <t t-jquery="receipt line:eq(4)" t-operation="replace"/>
+        <t t-jquery="line:eq()" t-operation="replace"/>
+        <t t-jquery="line:eq(6)" t-operation="replace"/>
+
+        <t t-jquery="t[t-if='receipt.company.logo']" t-operation="replace"/>
+        <t t-jquery="t[t-if='!receipt.company.logo']" t-operation="replace">
+            <t t-if='receipt.company.name'>
+                <h1><t t-esc='receipt.company.name' /></h1>
+                <br/>
+            </t>
+        </t>
+        <t t-jquery="t[t-if='receipt.company.contact_address']" t-operation="replace">
+            <div font='a'>
+                <t t-if="widget.pos.company.street">
+                    <div><t t-esc="widget.pos.company.street"/>,</div>
+                </t>
+                <t t-if="widget.pos.company.street2">
+                    <div><t t-esc="widget.pos.company.street2"/></div>
+                </t>
+            </div>
+        </t>
+        <t t-jquery="t[t-if='receipt.company.phone']" t-operation="replace">
+            <div font='a'>
+                <div>Tel:<t t-esc='receipt.company.phone' /></div>
+            </div>
+        </t>
+        <t t-jquery="t[t-esc='receipt.name']" t-operation="replace"/>
+        <t t-jquery="t[t-esc='receipt.date.localestring']" t-operation="replace"/>
+        <t t-jquery="t[t-if='receipt.company.vat']" t-operation="replace">
+            <div font='a'>
+                <t t-if='receipt.company.vat'>
+                    <div><b>RNC:</b><t t-esc='receipt.company.vat' /></div>
+                </t>
+                <br/>
+                <div><t t-esc='order.name'/></div>
+                <div><t t-esc='receipt.date.localestring' /></div>
+                <br/>
+                <t t-if="order.fiscal_type_name">
+                    <div><b><t t-esc="order.fiscal_type_name"/></b></div>
+                </t>
+                <t t-if="order.ncf">
+                    <div><b><t t-esc="order.ncf"/></b></div>
+                </t>
+                <t t-if="order.origin_ncf">
+                    <div><b>Afecta: </b> <t t-esc="order.origin_ncf"/></div>
+                </t>
+            </div>
+        </t>
+        <t t-jquery="t[t-if='receipt.company.email']" t-operation="replace"/>
+        <t t-jquery="t[t-if='receipt.company.website']" t-operation="replace"/>
+        <t t-jquery=".cashier" t-operation="replace"/>
+        <t t-jquery=".orderlines" t-operation="before">
+            <!-- Client Details -->
+            <div  line-ratio='1.9' font='a'>
+                <t t-set="client" t-value="order.get('client')"/>
+                <t t-if="client">
+                    <line>
+                        <left><div><b>Cliente..: </b><t t-esc="receipt.client"/></div></left>
+                    </line>
+                    <t t-if="client.vat">
+                        <line>
+                            <left><div><b>RNC/Céd..: </b><t t-esc="client.vat"/></div></left>
+                        </line>
+                    </t>
+                    <t t-if="client.barcode">
+                        <line>
+                            <left><div><b>Código...: </b><t t-esc="client.barcode"/></div></left>
+                        </line>
+                    </t>
+                </t>
+                <br/>
+                <t t-if='receipt.shop.name'>
+                    <line>
+                        <left><div><b>Sucursal : </b><t t-esc='receipt.shop.name'/></div></left>
+                    </line>
+                </t>
+                <line>
+                    <left><div><b>Cajero/a : </b><t t-esc="receipt.cashier"/></div></left>
+                </line>
+            </div>
+        </t>
+
+         <!-- Orderlines -->
+
+         <t t-jquery=".orderlines" t-operation="replace">
+             <div class='orderlines' line-ratio='0.6'>
+                 <line>
+                     <left>
+                         <t t-esc="'________________________'"/>
+                     </left>
+                     <right>
+                         <t t-esc="'________________________'"/>
+                     </right>
+                 </line>
+                 <line bold="on">
+                     <left>
+                         <div><t t-esc="'Cant.  '"/></div>
+                         <div><t t-esc="'Producto'" /></div>
+                     </left>
+                    <right>
+                        <t t-esc="'$/Und.'"/>
+                        <t t-esc="'Valor($)'"/>
+                    </right>
+                </line>
+                <line>
+                    <left>
+                        <t t-esc="'________________________'"/>
+                    </left>
+                    <right>
+                        <t t-esc="'________________________'"/>
+                    </right>
+                </line>
+                <t t-as="orderline" t-foreach="orderlines">
+                    <line>
+                        <left>
+                            <t t-esc="orderline.generate_wrapped_quantity_str()[0]"/>
+                            <t t-esc='orderline.generate_wrapped_orderline_product_name()[0]' />
+                        </left>
+                        <right >
+                            <value value-width="6" t-att-value-decimals='pos.currency.decimals'> <t t-esc="orderline.price"/></value>
+                            <value value-width="6" t-att-value-decimals='pos.currency.decimals'><t t-esc="orderline.get_display_price()"/> </value>
+                        </right>
+                    </line>
+                    <t t-call="XmlReceiptWrappedProductNameOrderLines"/>
+                </t>
+                <line>
+                    <left>
+                        <t t-esc="'------------------------'"/>
+                    </left>
+                    <right>
+                        <t t-esc="'------------------------'"/>
+                    </right>
+                </line>
+            </div>
+        </t>
+
+        <!-- Subtotal -->
+
+
+        <t t-jquery="t[t-if='!taxincluded']" t-operation="replace">
+            <div line-ratio='0.1'>
+                <line>
+                    <right>Subtotal : <t t-esc="widget.format_currency_no_symbol(order.get_total_without_tax())"/></right>
+                </line>
+            </div>
+            <t t-as="taxdetail" t-foreach="order.get_tax_details()">
+                <div line-ratio='0.1'>
+                    <line>
+                        <right><t t-esc='taxdetail.name' /> : <t t-esc='widget.format_currency_no_symbol(taxdetail.amount)'/></right>
+                    </line>
+                </div>
+            </t>
+            <t t-if="order.get_total_discount() &gt;0">
+                <div line-ratio='0.1'>
+                    <line>
+                        <right>Descuento : <t t-esc='widget.format_currency_no_symbol(order.get_total_discount())'/></right>
+                    </line>
+                </div>
+            </t>
+            <line>
+                <right>
+                    <t t-esc="'------------------------'"/>
+                </right>
+            </line>
+        </t>
+
+        <!-- Total -->
+
+        <t t-jquery=".total" t-operation="replace">
+            <br/>
+            <t t-if="order.is_return_order">
+                <div line-ratio='0.1'>
+                    <line size='double-height'>
+                        <right><b>Reembolso : <t t-esc="widget.format_currency(order.get_total_with_tax() * -1)"/></b></right>
+                    </line>
+                </div>
+            </t>
+            <t t-if="!order.is_return_order">
+                <div line-ratio='0.1' bold="on">
+                    <line size='double-height'>
+                        <right><b>Total : <t t-esc="widget.format_currency(order.get_total_with_tax())"/></b></right>
+                    </line>
+                </div>
+            </t>
+        </t>
+
+        <!-- Payment Lines -->
+
+        <t t-jquery="t[t-foreach='paymentlines']" t-operation="replace">
+            <t t-foreach='paymentlines' t-as='line'>
+                <t t-if="order.is_return_order">
+                    <div line-ratio='0.1'>
+                        <line >
+                            <right>
+                                <b>
+                                    <t t-esc='line.name' /> : <t t-esc="widget.format_currency_no_symbol(line.get_amount()* -1)"/>
+                                </b>
+                            </right>
+                        </line>
+                   </div>
+                </t>
+                <t t-if="!order.is_return_order">
+                    <div line-ratio='0.1'>
+                        <line >
+                            <right>
+                                <b>
+                                    <t t-esc='line.name' /> : <t t-esc="widget.format_currency_no_symbol(line.get_amount())"/>
+                                </b>
+                            </right>
+                        </line>
+                   </div>
+                </t>
+            </t>
+        </t>
+
+        <!-- Cambio -->
+
+        <t t-jquery="right:contains(--------)"  t-operation="replace"/>
+        <t t-jquery="pre:contains(        CHANGE)" t-operation="replace">
+           <pre>          Cambio  </pre>
+        </t>
+        <t t-jquery="t[t-if='receipt.total_discount']" t-operation="before">
+            <t t-if='order.is_return_order'>
+                <div>************************************************</div>
+                <div>Devolución Generada por:
+                    <t t-esc='receipt.cashier' />
+                </div>
+                <div>************************************************</div>
+            </t>
+        </t>
+        <t t-jquery="t[t-if='receipt.total_discount']" t-operation="replace"/>
+        <t t-jquery="t[t-if='taxincluded']" t-operation="replace"/>
+
+    </t>
+
+    <t t-name="PaymentScreenTextInput">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput">
+                <p class="title">
+                    <t t-esc=" widget.options.title || '' "/>
+                </p>
+                <input type='text' t-att-value="widget.options.value || ''"></input>
+                <p><i class="fa fa-credit-card-alt" aria-hidden="true"></i> TARJETA: Número de aprobación.</p>
+                <div class="footer">
+                    <div class="button confirm">
+                        Ok
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>
