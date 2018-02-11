@@ -233,7 +233,7 @@ class AccountInvoice(models.Model):
     @api.onchange("move_name")
     def onchange_ncf(self):
         if self.type in ("in_invoice", "in_refund") and self.move_name is not False:
-            res = self.invoice_ncf_validation(self)
+            res = self.invoice_ncf_validation()
             if res is not True:
                 _logger.warning(res)
 
@@ -253,7 +253,7 @@ class AccountInvoice(models.Model):
                     raise UserError(_(
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
-                self.invoice_ncf_validation(rec)
+                self.invoice_ncf_validation()
 
         return super(AccountInvoice, self).action_invoice_open()
 
