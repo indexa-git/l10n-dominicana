@@ -23,7 +23,6 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-import re
 
 import logging
 
@@ -91,60 +90,6 @@ class ResPartner(models.Model):
             if partners:
                 res = partners.name_get()
         return res
-
-    @api.multi
-    def update_partner_name_from_dgii(self):
-        for rec in self:
-            if rec.vat:
-                res = self.env["marcos.api.tools"].rnc_cedula_validation(
-                    self.vat)
-                if res[0] == 1:
-                    self.write({"name": res[1]["name"]})
-
-    def validate_vat_or_name(self, vals):
-        vat_or_name = vals.get("vat", False) or vals.get("name", False)
-        if vat_or_name:
-            vat = re.sub("[^0-9]", "", vat_or_name)
-            if vat.isdigit() and len(vat) in (9, 11):
-                partner_id = self.search([('vat', '=', vat)])
-                if partner_id:
-                    return partner_id
-                else:
-                    res = self.env["marcos.api.tools"].rnc_cedula_validation(
-                        vat)
-                    if res and res[0] == 1:
-                        vals.update(res[1])
-        return vals
-
-    @api.multi
-    def write(self, vals):
-        for rec in self:
-            if vals.get("parent_id", False) or rec.parent_id:
-                return super(ResPartner, self).write(vals)
-
-        dgii_vals = self.validate_vat_or_name(vals)
-        if isinstance(dgii_vals, dict):
-            vals = dgii_vals
-
-        if not vals:
-            raise UserError(_(u"El RNC/Céd NO es válido."))
-        return super(ResPartner, self).write(vals)
-
-    @api.model
-    def create(self, vals):
-        if self._context.get("install_mode", False):
-            return super(ResPartner, self).create(vals)
-
-        vals = self.validate_vat_or_name(vals)
-        if not vals:
-            raise UserError(_(u"El RNC/Céd NO es válido."))
-
-        if not isinstance(vals, dict):
-            return vals
-
-        if vals.get("vat", False):
-            vals.update({"sale_fiscal_type": "fiscal", "is_company": True})
-        return super(ResPartner, self).create(vals)
 
     @api.model
     def name_create(self, name):

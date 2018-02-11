@@ -23,6 +23,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from dgii_tools import is_ncf, is_identification
 
 import logging
 
@@ -31,6 +32,12 @@ _logger = logging.getLogger(__name__)
 
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
+
+    def is_identification(self, value):
+        return is_identification(value)
+
+    def is_ncf(self, value, type):
+        return is_ncf(value, type)
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -134,6 +141,53 @@ class AccountInvoice(models.Model):
          'Invoice Number must be unique per Company!'),
     ]
 
+    def invoice_ncf_validation(self):
+        if not self.journal_id.ncf_remote_validation:
+            return True
+
+        if not is_ncf(self.move_name, self.type):
+            raise UserError(_(
+                u"NCF Mal Digitado o Inválido\n\n"
+                u"El comprobante *{}* no es válido. Verifique "
+                 "si lo ha digitado correctamente y que no sea un "
+                 "Comprobante Consumidor Final (02)".format(self.move_name))
+            )
+
+        elif self.journal_id.purchase_type not in ['exterior', 'import',
+                                                      'others'] and self.journal_id.type == "purchase":
+
+            if self.id:
+                inv_in_draft = self.search_count(
+                    [('id', '!=', self.id),
+                     ('partner_id', '=', self.partner_id.id),
+                     ('move_name', '=', self.move_name),
+                     ('state', 'in', ('draft', 'cancel'))])
+            else:
+                inv_in_draft = self.search_count(
+                    [('partner_id', '=', self.partner_id.id),
+                     ('move_name', '=', self.move_name),
+                     ('state', 'in', ('draft', 'cancel'))])
+
+            if inv_in_draft:
+                raise UserError(_(
+                     "NCF Duplicado\n\n"
+                     "El comprobante *{}* ya se encuentra "
+                     "registrado con este mismo proveedor en una factura "
+                     "en borrador o cancelada".format(self.move_name)))
+
+            inv_exist = self.search_count(
+                [('partner_id', '=', self.partner_id.id),
+                 ('number', '=', self.move_name),
+                 ('state', 'in', ('open', 'paid'))])
+            if inv_exist:
+                raise UserError(_(
+                     "NCF Duplicado\n\n"
+                     "El comprobante *{}* ya se encuentra registrado con el "
+                     "mismo proveedor en otra factura".format(
+                        self.move_name)))
+        return True
+
+
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
         super(AccountInvoice, self)._onchange_journal_id()
@@ -179,7 +233,7 @@ class AccountInvoice(models.Model):
     @api.onchange("move_name")
     def onchange_ncf(self):
         if self.type in ("in_invoice", "in_refund") and self.move_name is not False:
-            res = self.env["marcos.api.tools"].invoice_ncf_validation(self)
+            res = self.invoice_ncf_validation(self)
             if res is not True:
                 _logger.warning(res)
 
@@ -199,7 +253,7 @@ class AccountInvoice(models.Model):
                     raise UserError(_(
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
-                self.env["marcos.api.tools"].invoice_ncf_validation(rec)
+                self.invoice_ncf_validation(rec)
 
         return super(AccountInvoice, self).action_invoice_open()
 
