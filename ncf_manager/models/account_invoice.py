@@ -23,7 +23,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from . import is_ncf, is_identification
+from . import dgii_tools
 
 import logging
 
@@ -34,10 +34,10 @@ class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
     def is_identification(self, value):
-        return is_identification(value)
+        return dgii_tools.is_identification(value)
 
     def is_ncf(self, value, type):
-        return is_ncf(value, type)
+        return dgii_tools.is_ncf(value, type)
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -65,7 +65,8 @@ class AccountInvoice(models.Model):
         shop_user_config = False
 
         if not self.journal_id:
-            shop_user_config = Shop.sudo().search([('user_ids', 'in', self._uid)])
+            shop_user_config = Shop.sudo().search(
+                [('user_ids', 'in', self._uid)])
         else:
             shop_user_config = Shop.sudo().search([
                 ('user_ids', 'in', self._uid),
@@ -145,16 +146,16 @@ class AccountInvoice(models.Model):
         if not self.journal_id.ncf_remote_validation:
             return True
 
-        if not is_ncf(self.move_name, self.type):
+        if not dgii_tools.is_ncf(self.move_name, self.type):
             raise UserError(_(
                 u"NCF Mal Digitado o Inválido\n\n"
                 u"El comprobante *{}* no es válido. Verifique "
-                 "si lo ha digitado correctamente y que no sea un "
-                 "Comprobante Consumidor Final (02)".format(self.move_name))
+                "si lo ha digitado correctamente y que no sea un "
+                "Comprobante Consumidor Final (02)".format(self.move_name))
             )
 
         elif self.journal_id.purchase_type not in ['exterior', 'import',
-                                                      'others'] and self.journal_id.type == "purchase":
+                                                   'others'] and self.journal_id.type == "purchase":
 
             if self.id:
                 inv_in_draft = self.search_count(
@@ -170,10 +171,10 @@ class AccountInvoice(models.Model):
 
             if inv_in_draft:
                 raise UserError(_(
-                     "NCF Duplicado\n\n"
-                     "El comprobante *{}* ya se encuentra "
-                     "registrado con este mismo proveedor en una factura "
-                     "en borrador o cancelada".format(self.move_name)))
+                    "NCF Duplicado\n\n"
+                    "El comprobante *{}* ya se encuentra "
+                    "registrado con este mismo proveedor en una factura "
+                    "en borrador o cancelada".format(self.move_name)))
 
             inv_exist = self.search_count(
                 [('partner_id', '=', self.partner_id.id),
@@ -181,12 +182,11 @@ class AccountInvoice(models.Model):
                  ('state', 'in', ('open', 'paid'))])
             if inv_exist:
                 raise UserError(_(
-                     "NCF Duplicado\n\n"
-                     "El comprobante *{}* ya se encuentra registrado con el "
-                     "mismo proveedor en otra factura".format(
+                    "NCF Duplicado\n\n"
+                    "El comprobante *{}* ya se encuentra registrado con el "
+                    "mismo proveedor en otra factura".format(
                         self.move_name)))
         return True
-
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
