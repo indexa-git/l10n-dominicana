@@ -23,7 +23,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from ncf_manager.dgii_tools import is_ncf, is_identification
+from . import is_ncf, is_identification
 
 import logging
 
