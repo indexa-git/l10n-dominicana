@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ncf_manager_account_invoice_form" model="ir.ui.view">
+        <field name="name">ncf manager account invoice form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+            <button name="action_invoice_sent" position="attributes">
+                <attribute name="attrs"></attribute>
+                <attribute name="icon">fa-paper-plane</attribute>
+            </button>
+
+            <form>
+                <field name="ncf_control" invisible="1"/>
+                <field name="is_company_currency" invisible="1"/>
+            </form>
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="string">Aplicar NC o ND</attribute>
+            </xpath>
+
+            <xpath expr="//sheet//label" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="%(update_rate_wizard_action)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            attrs="{'invisible': [('is_company_currency', '=', True)]}">
+                        <field name="invoice_rate" widget="monetary" string="Tasa"/>
+                    </button>
+                </div>
+            </xpath>
+
+            <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
+                <button name="%(ncf_manager.action_account_invoice_cancel)d" type='action'
+                        string="Cancelar Factura"
+                        states="proforma2,open" groups="account.group_account_user"/>
+            </xpath>
+
+            <field name="partner_id" position="after">
+                <field name="sale_fiscal_type" attrs="{
+                    'invisible':[('type','=','out_refund')],
+                    'required': [('ncf_control','=',True),('type','=','out_invoice')],
+                    'readonly': [('state','!=','draft')]}"/>
+            </field>
+
+            <field name="date_invoice" position="after">
+                <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"
+                       attrs="{'readonly':[('state','!=','draft')],'required': True}"/>
+            </field>
+
+            <field name="number" position="before">
+                <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
+                <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
+            </field>
+
+            <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace"/>
+
+            <field name="partner_id" position="after">
+                <field name="origin_out" groups="base.group_user"
+                       attrs="{'invisible': [('type', '!=', 'out_refund')], 'readonly': [('origin_out', '!=', False)]}"/>
+            </field>
+
+            <field name="move_id" position="before">
+                <field name="origin" groups="base.group_user" attrs="{'invisible': [('type', '=', 'out_refund')]}"/>
+            </field>
+
+
+        </field>
+    </record>
+
+
+    <record id="ncf_manager_supplier_account_invoice_form" model="ir.ui.view">
+        <field name="name">ncf manager supplier account invoice form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="string">Aplicar NC o ND</attribute>
+            </xpath>
+
+            <field name="origin" position="replace"/>
+
+            <field name="number" position="after">
+                <field name="is_company_currency" invisible="1"/>
+            </field>
+
+            <xpath expr="//sheet//label" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="%(update_rate_wizard_action)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            attrs="{'invisible': [('is_company_currency', '=', True)]}">
+                        <field name="invoice_rate" widget="monetary" string="Tasa"/>
+                    </button>
+                </div>
+            </xpath>
+
+            <field name="journal_id" position="replace"/>
+            <field name="move_name" position="replace"/>
+            <field name="reference" position="before">
+                <field name="purchase_type" invisible="1"/>
+                <field name="journal_id" groups="account.group_account_user"
+                       options="{'no_create': True}"
+                       attrs="{'readonly':[('move_name','!=',False)]}"/>
+                <field name="expense_type" attrs="{
+                       'invisible':[('purchase_type','not in',['normal','minor','informal'])],
+                       'required': [('purchase_type','in',['normal','minor','informal'])], 'readonly': [('state','!=','draft')]}"/>
+                <field name="move_name" string="NCF"
+                       attrs="{'size': 19,
+                       'invisible': [('purchase_type','!=','normal')],
+                       'required': [('purchase_type','=','normal')],
+                       'readonly': [('state','!=','draft')]}"/>
+            </field>
+        </field>
+    </record>
+</odoo>
