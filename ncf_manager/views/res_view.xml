@@ -13,25 +13,6 @@
     </record>
 
     <!-- Inherit Form View to Modify it -->
-    <record id="view_company_form" model="ir.ui.view">
-        <field name="name">res.company.form</field>
-        <field name="model">res.company</field>
-        <field name="inherit_id" ref="base.view_company_form"/>
-        <field name="arch" type="xml">
-
-            <notebook>
-                <page name="parameters" string="Parametros">
-                    <group>
-                        <field name="payment_tax_on_606"></field>
-                    </group>
-                </page>
-            </notebook>
-
-        </field>
-    </record>
-
-
-    <!-- Inherit Form View to Modify it -->
     <record id="view_partner_form" model="ir.ui.view">
         <field name="name">ncf.res.partner.form</field>
         <field name="model">res.partner</field>
