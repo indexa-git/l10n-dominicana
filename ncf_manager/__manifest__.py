@@ -25,11 +25,14 @@
     'name': "Gestor de Comprobantes Fiscales (NCF Manager)",
     'version': '11.0.1.0.0',
     'summary': """
-        Módulo para la administración y configuración de los NCF autorizados a la empresa por la DGII.
+        Módulo para la administración y configuración de los NCF autorizados
+         a la empresa por la DGII.
     """,
 
     'description': """
-        Este módulo implementa la administración y gestión de los números de comprobantes fiscales para el cumplimento de la norma 06-18 de la Dirección de Impuestos Internos en la República Dominicana.
+        Este módulo implementa la administración y gestión de los números de
+         comprobantes fiscales para el cumplimento de la norma 06-18 de la
+         Dirección de Impuestos Internos en la República Dominicana.
     """,
 
     'author': "Marcos Organizador de Negocios SRL, "
@@ -38,8 +41,7 @@
     'category': 'Localization',
 
     # any module necessary for this one to work correctly
-    'depends': ['account_invoicing', 'l10n_do', 'marcos_api_tools',
-                'account_cancel'],
+    'depends': ['account_invoicing', 'l10n_do', 'account_cancel'],
 
     'data': [
         'security/ir.model.access.csv',
