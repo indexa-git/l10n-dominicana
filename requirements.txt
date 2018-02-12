@@ -1,0 +1,4 @@
+openpyxl
+simplejson
+xlsxwriter
+zeep
