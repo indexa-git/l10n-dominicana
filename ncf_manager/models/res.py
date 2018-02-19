@@ -140,8 +140,7 @@ class ResPartner(models.Model):
                 elif len(number) == 9:
                     dgii_vals = cedula.check_dgii(number)
                 if dgii_vals:
-                    self.name = dgii_vals.get("name", False) or
-                        dgii_vals.get("commercial_name", "")
+                    self.name = dgii_vals.get("name", False) or dgii_vals.get("commercial_name", "")
                     self.vat = dgii_vals["rnc"]
 
     @api.onchange("vat")
@@ -157,8 +156,7 @@ class ResPartner(models.Model):
                 elif len(number) == 9:
                     dgii_vals = cedula.check_dgii(number)
                 if dgii_vals:
-                    self.name = dgii_vals.get("name", False) or
-                        dgii_vals.get("commercial_name", "")
+                    self.name = dgii_vals.get("name", False) or dgii_vals.get("commercial_name", "")
                     self.vat = dgii_vals["rnc"]
 
     @api.multi
