@@ -103,11 +103,11 @@ class ResPartner(models.Model):
         if vals.get("name", False).isdigit():
             dgii_vals = False
             number = vals["name"]
-            if len(number) == 11:
+            if len(number) == 9:
                 dgii_vals = rnc.check_dgii(number)
                 vals.update({"is_company": True,
                              "sale_fiscal_type": "fiscal"})
-            elif len(number) == 9:
+            elif len(number) == 11:
                 pass
                 # dgii_vals = cedula.validate(number)
             if dgii_vals:
@@ -134,11 +134,11 @@ class ResPartner(models.Model):
             if self.name.isdigit():
                 dgii_vals = False
                 number = self.name
-                if len(number) == 11:
+                if len(number) == 9:
                     dgii_vals = rnc.check_dgii(number)
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
-                elif len(number) == 9:
+                elif len(number) == 11:
                     pass
                     # dgii_vals = cedula.validate(number)
                 if dgii_vals:
@@ -151,11 +151,11 @@ class ResPartner(models.Model):
             if self.vat.isdigit():
                 dgii_vals = False
                 number = self.vat
-                if len(number) == 11:
+                if len(number) == 9:
                     dgii_vals = rnc.check_dgii(number)
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
-                elif len(number) == 9:
+                elif len(number) == 11:
                     pass
                     # dgii_vals = cedula.validate(number)
                 if dgii_vals:
