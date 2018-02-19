@@ -81,8 +81,6 @@ class ResPartner(models.Model):
                                          "Fill it if the company is subjected to taxes. "
                                          "Used by the some of the legal statements.", index=True)
 
-
-
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         res = super(ResPartner, self).name_search(name, args=args,
@@ -113,11 +111,12 @@ class ResPartner(models.Model):
                 dgii_vals = cedula.check_dgii(number)
             if dgii_vals:
                 if dgii_vals.get("status", False) == '1':
-                    raise ValidationError(_("Esta empresa no se encuentra activa en la DGII"))
+                    raise ValidationError(
+                        _("Esta empresa no se encuentra activa en la DGII"))
                 else:
                     vals.update(
                         {"name": dgii_vals.get("name", False) or
-                          dgii_vals.get("commercial_name", ""),
+                         dgii_vals.get("commercial_name", ""),
                          "vat": dgii_vals["rnc"]})
 
         return super(ResPartner, self).create(vals)
@@ -142,7 +141,7 @@ class ResPartner(models.Model):
                     dgii_vals = cedula.check_dgii(number)
                 if dgii_vals:
                     self.name = dgii_vals.get("name", False) or
-                     dgii_vals.get("commercial_name", "")
+                        dgii_vals.get("commercial_name", "")
                     self.vat = dgii_vals["rnc"]
 
     @api.onchange("vat")
@@ -159,7 +158,7 @@ class ResPartner(models.Model):
                     dgii_vals = cedula.check_dgii(number)
                 if dgii_vals:
                     self.name = dgii_vals.get("name", False) or
-                     dgii_vals.get("commercial_name", "")
+                        dgii_vals.get("commercial_name", "")
                     self.vat = dgii_vals["rnc"]
 
     @api.multi
