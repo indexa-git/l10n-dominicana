@@ -97,28 +97,22 @@ class ResPartner(models.Model):
 
     @api.model
     def create(self, vals):
-        if self._context.get("install_mode", False):
+        if self._context.get("install_mode", False) or not vals.get("name", False).isdigit():
             return super(ResPartner, self).create(vals)
 
-        if vals.get("name", False).isdigit():
-            dgii_vals = False
-            number = vals["name"]
-            if len(number) == 9:
-                dgii_vals = rnc.check_dgii(number)
+        number = vals["name"]
+        if len(number) in (9, 11):
+            dgii_vals = rnc.check_dgii(number)
+            if len(number) == 11:
                 vals.update({"is_company": True,
                              "sale_fiscal_type": "fiscal"})
-            elif len(number) == 11:
-                pass
-                # dgii_vals = cedula.validate(number)
-            if dgii_vals:
-                if dgii_vals.get("status", False) == '1':
-                    raise ValidationError(
-                        _("Esta empresa no se encuentra activa en la DGII"))
-                else:
-                    vals.update(
-                        {"name": dgii_vals.get("name", False) or
-                         dgii_vals.get("commercial_name", ""),
-                         "vat": dgii_vals["rnc"]})
+
+        if dgii_vals.get("status", False) == '1':
+            raise ValidationError(
+                _("Esta empresa no se encuentra activa en la DGII"))
+
+        vals.update({"name": dgii_vals.get("name", False) or dgii_vals.get(
+            "commercial_name", ""), "vat": dgii_vals["rnc"]})
 
         return super(ResPartner, self).create(vals)
 
@@ -130,37 +124,31 @@ class ResPartner(models.Model):
 
     @api.onchange("name")
     def onchange_partner_name(self):
-        if self.name:
-            if self.name.isdigit():
-                dgii_vals = False
-                number = self.name
-                if len(number) == 9:
-                    dgii_vals = rnc.check_dgii(number)
+        if self.name and self.name.isdigit():
+            number = self.name
+            if len(number) in (9, 11):
+                dgii_vals = rnc.check_dgii(number)
+                if len(number) == 11:
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
-                elif len(number) == 11:
-                    pass
-                    # dgii_vals = cedula.validate(number)
-                if dgii_vals:
-                    self.name = dgii_vals.get("name", False) or dgii_vals.get("commercial_name", "")
-                    self.vat = dgii_vals["rnc"]
+
+            self.name = dgii_vals.get(
+                "name", False) or dgii_vals.get("commercial_name", "")
+            self.vat = dgii_vals["rnc"]
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
-        if self.name:
-            if self.vat.isdigit():
-                dgii_vals = False
-                number = self.vat
-                if len(number) == 9:
-                    dgii_vals = rnc.check_dgii(number)
+        if self.name and self.vat.isdigit():
+            number = self.vat
+            if len(number) in (9, 11):
+                dgii_vals = rnc.check_dgii(number)
+                if len(number) == 11:
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
-                elif len(number) == 11:
-                    pass
-                    # dgii_vals = cedula.validate(number)
-                if dgii_vals:
-                    self.name = dgii_vals.get("name", False) or dgii_vals.get("commercial_name", "")
-                    self.vat = dgii_vals["rnc"]
+
+            self.name = dgii_vals.get(
+                "name", False) or dgii_vals.get("commercial_name", "")
+            self.vat = dgii_vals["rnc"]
 
     @api.multi
     def rewrite_due_date(self):
