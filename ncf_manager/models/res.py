@@ -108,7 +108,8 @@ class ResPartner(models.Model):
                 vals.update({"is_company": True,
                              "sale_fiscal_type": "fiscal"})
             elif len(number) == 9:
-                dgii_vals = cedula.check_dgii(number)
+                pass
+                # dgii_vals = cedula.validate(number)
             if dgii_vals:
                 if dgii_vals.get("status", False) == '1':
                     raise ValidationError(
@@ -138,7 +139,8 @@ class ResPartner(models.Model):
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
                 elif len(number) == 9:
-                    dgii_vals = cedula.check_dgii(number)
+                    pass
+                    # dgii_vals = cedula.validate(number)
                 if dgii_vals:
                     self.name = dgii_vals.get("name", False) or dgii_vals.get("commercial_name", "")
                     self.vat = dgii_vals["rnc"]
@@ -154,7 +156,8 @@ class ResPartner(models.Model):
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
                 elif len(number) == 9:
-                    dgii_vals = cedula.check_dgii(number)
+                    pass
+                    # dgii_vals = cedula.validate(number)
                 if dgii_vals:
                     self.name = dgii_vals.get("name", False) or dgii_vals.get("commercial_name", "")
                     self.vat = dgii_vals["rnc"]
