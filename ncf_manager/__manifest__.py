@@ -55,7 +55,6 @@
         'views/res_currency_view.xml',
         'data/sequences.xml',
         'views/res_view.xml',
-        'views/templates.xml',
         'data/setup_ncf.xml'
     ],
 }
