@@ -118,7 +118,13 @@ class ResPartner(models.Model):
                     vals.update(
                         {"name": dgii_vals.get("name", False) or
                          dgii_vals.get("commercial_name", ""),
-                         "vat": dgii_vals["rnc"]})
+                         "vat": dgii_vals["rnc"]
+                        "comment": "Nombre Comercial: {}, Régimen de Pago: {}, Estatus: {}, Categoría: {}".format(
+                        dgii_vals['comercial_name'],
+                        dgii_vals.get('payment_regimen', ""),
+                        dgii_vals['status'],
+                        dgii_vals['category'])}
+                    )
 
         return super(ResPartner, self).create(vals)
 
