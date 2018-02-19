@@ -9,9 +9,10 @@
             <field name="name" position="replace">
                 <field name="name" default_focus="1" placeholder="Nombre, RNC o Cédula" attrs="{'required': [('type', '=', 'contact')]}"/>
             </field>
+            <field name="vat" position="replace"></field>
             <xpath expr="//div[hasclass('o_row')]">
                 <field name="fiscal_info_required" invisible="1"/>
-                <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)]}"/>
+                <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)],'readonly': [('id','>',0)]}"/>
             </xpath>
         </field>
     </record>
