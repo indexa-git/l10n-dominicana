@@ -126,14 +126,14 @@ class Currency(models.Model):
 class CurrencyRate(models.Model):
     _inherit = "res.currency.rate"
 
-    converted = fields.Float(compute=_get_converted, digits=(12, 4))
-
     @api.multi
     @api.depends("rate")
     def _get_converted(self):
         for rec in self:
             if rec.rate > 0:
                 rec.converted = 1 / rec.rate
+
+    converted = fields.Float(compute=_get_converted, digits=(12, 4))
 
     @api.multi
     def name_get(self):
