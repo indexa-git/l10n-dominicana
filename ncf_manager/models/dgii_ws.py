@@ -26,27 +26,26 @@ from zeep import Client
 import json
 from stdnum import get_cc_module
 from stdnum.do import rnc
-from stdnum.do import cedula
-from stdnum.do import ncf
 from stdnum.exceptions import InvalidFormat, InvalidChecksum, InvalidLength, InvalidComponent
 
+"""
+get_cc_module("do", "vat").validate("101733934")
+get_cc_module("do", "cedula").validate("00111616876")
+get_cc_module("do", "ncf").validate("A010010010100000001")
 
-# get_cc_module("do", "vat").validate("101733934")
-# get_cc_module("do", "cedula").validate("00111616876")
-# get_cc_module("do", "ncf").validate("A010010010100000001")
+do.cedula Cedula (Dominican Republic national identification number).
 
-# do.cedula Cedula (Dominican Republic national identification number).
+do.ncf 	NCF (Números de Comprobante Fiscal, Dominican Republic receipt number).
+do.rnc 	RNC (Registro Nacional del Contribuyente, Dominican Republic tax number).
 
-# do.ncf 	NCF (Números de Comprobante Fiscal, Dominican Republic receipt number).
-# do.rnc 	RNC (Registro Nacional del Contribuyente, Dominican Republic tax number).
-
-# The ncf and rnc modules also have a check_dgii() function that can be
-# used to validate the number using the DGII online web service and
-# return extra information on the number.
-# rnc.check_dgii("00111616876")
-# rnc.check_dgii("101733934")
-# from stdnum.do import ncf
-# ncf.check_dgii("101733934", "A010010010100000001")
+The ncf and rnc modules also have a check_dgii() function that can be
+used to validate the number using the DGII online web service and
+return extra information on the number.
+rnc.check_dgii("00111616876")
+rnc.check_dgii("101733934")
+from stdnum.do import ncf
+ncf.check_dgii("101733934", "A010010010100000001")
+"""
 
 
 class DgiiWs(models.TransientModel):
