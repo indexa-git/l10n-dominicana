@@ -148,7 +148,6 @@ class ResPartner(models.Model):
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.name:
-        if self.name:
             if self.vat.isdigit():
                 dgii_vals = False
                 number = self.vat
