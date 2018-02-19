@@ -18,12 +18,12 @@ odoo.define('web.ncf_manager', function (require) {
             if (this.name === "partner_id") {
                 return this._rpc({
                     "model": "dgii.ws",
-                    "method": "GetContribuyentes",
-                    "args": [[context.default_name]]
+                    "method": "vat_check",
+                    "args": [context.default_name]
                 }).then(function (result) {
                     if (result !== 0) {
-                        context.default_name = result["NOMBRE_COMERCIAL"] !== "" ? result["NOMBRE_COMERCIAL"] : result["RGE_NOMBRE"];
-                        context.default_vat = result["RGE_RUC"];
+                        context.default_name = result["name"] === "" ? result["commercial_name"] : result["name"];
+                        context.default_vat = result["rnc"];
                         context.default_is_company = true;
                     }
                 }).done(function () {
