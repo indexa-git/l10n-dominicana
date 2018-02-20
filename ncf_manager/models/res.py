@@ -139,7 +139,7 @@ class ResPartner(models.Model):
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
-        if self.name:
+        if self.vat:
             if self.vat.isdigit():
                 number = self.vat
                 if len(number) in (9, 11):
