@@ -103,6 +103,8 @@ class ResPartner(models.Model):
         number = vals["name"]
         if len(number) in (9, 11):
             dgii_vals = rnc.check_dgii(number)
+            if dgii_vals is None:
+                raise UserError("Identificación inválida")
             if len(number) == 11:
                 vals.update({"is_company": True,
                              "sale_fiscal_type": "fiscal"})
@@ -129,6 +131,8 @@ class ResPartner(models.Model):
                 number = self.name
                 if len(number) in (9, 11):
                     dgii_vals = rnc.check_dgii(number)
+                    if dgii_vals is None:
+                        raise UserError("Identificación inválida")
                     if len(number) == 11:
                         self.is_company = True,
                         self.sale_fiscal_type = "fiscal"
@@ -144,6 +148,8 @@ class ResPartner(models.Model):
                 number = self.vat
                 if len(number) in (9, 11):
                     dgii_vals = rnc.check_dgii(number)
+                    if dgii_vals is None:
+                        raise UserError("Identificación inválida")
                     if len(number) == 11:
                         self.is_company = True,
                         self.sale_fiscal_type = "fiscal"
