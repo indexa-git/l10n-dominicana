@@ -128,7 +128,7 @@ class ResPartner(models.Model):
             number = self.name
             is_rnc = len(number) == 9
             try:
-                rnc.validate(number) if is_rnc else rnc.validate(number)
+                rnc.validate(number) if is_rnc else cedula.validate(number)
             except Exception as e:
                 raise ValidationError(_("RNC/Ced Inválido"))
 
