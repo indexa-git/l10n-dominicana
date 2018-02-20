@@ -132,9 +132,9 @@ class ResPartner(models.Model):
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
 
-            self.name = dgii_vals.get(
-                "name", False) or dgii_vals.get("commercial_name", "")
-            self.vat = dgii_vals["rnc"]
+                self.name = dgii_vals.get(
+                    "name", False) or dgii_vals.get("commercial_name", "")
+                self.vat = dgii_vals["rnc"]
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
@@ -146,9 +146,9 @@ class ResPartner(models.Model):
                     self.is_company = True,
                     self.sale_fiscal_type = "fiscal"
 
-            self.name = dgii_vals.get(
-                "name", False) or dgii_vals.get("commercial_name", "")
-            self.vat = dgii_vals["rnc"]
+                self.name = dgii_vals.get(
+                    "name", False) or dgii_vals.get("commercial_name", "")
+                self.vat = dgii_vals["rnc"]
 
     @api.multi
     def rewrite_due_date(self):
