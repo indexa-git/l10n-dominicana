@@ -122,35 +122,39 @@ class ResPartner(models.Model):
             self.property_account_position_id = self.env.ref(
                 "ncf_manager.ncf_manager_special_fiscal_position")
 
+    @api.model
+    def vat_check(self):
+        if self.name.isdigit() and len(self.name) in (9, 11):
+            number = self.name
+            is_rnc = len(number) == 9
+            try:
+                rnc.validate(number) if is_rnc else rnc.validate(number)
+            except Exception as e:
+                raise ValidationError(_("RNC/Ced Inválido"))
+
+            dgii_vals = rnc.check_dgii(number)
+
+            if dgii_vals is None:
+                if is_rnc:
+                    raise ValidationError(_("RNC no disponible en DGII"))
+                self.vat = number
+            else:
+                self.name = dgii_vals.get(
+                    "name", False) or dgii_vals.get("commercial_name", "")
+                self.vat = dgii_vals["rnc"]
+                if is_rnc:
+                    self.is_company = True,
+                    self.sale_fiscal_type = "fiscal"
+
     @api.onchange("name")
     def onchange_partner_name(self):
         if self.name:
-            if self.name.isdigit():
-                number = self.name
-                if len(number) in (9, 11):
-                    dgii_vals = rnc.check_dgii(number)
-                    if len(number) == 11:
-                        self.is_company = True,
-                        self.sale_fiscal_type = "fiscal"
-
-                    self.name = dgii_vals.get(
-                        "name", False) or dgii_vals.get("commercial_name", "")
-                    self.vat = dgii_vals["rnc"]
+            self.vat_check()
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.vat:
-            if self.vat.isdigit():
-                number = self.vat
-                if len(number) in (9, 11):
-                    dgii_vals = rnc.check_dgii(number)
-                    if len(number) == 11:
-                        self.is_company = True,
-                        self.sale_fiscal_type = "fiscal"
-
-                    self.name = dgii_vals.get(
-                        "name", False) or dgii_vals.get("commercial_name", "")
-                    self.vat = dgii_vals["rnc"]
+            self.vat_check()
 
     @api.multi
     def rewrite_due_date(self):
