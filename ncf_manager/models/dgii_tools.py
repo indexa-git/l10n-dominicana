@@ -20,6 +20,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+from odoo import models, api, exceptions
+from zeep import Client
+import json
 
 excepcionesCedulas = ['00208430205', '00101118022', '00167311001',
                       '00102025201', '02755972001', '01038813907',
@@ -275,3 +278,33 @@ def is_ncf(value, type):
                                                          '12', '14', '15')):
             return True
     return False
+
+class DgiiWs(models.TransientModel):
+    _name = "dgii.ws"
+
+    dgii_wsdl = "http://www.dgii.gov.do/wsMovilDGII/WSMovilDGII.asmx?WSDL"
+
+    @api.model
+    def GetContribuyentes(self, value, patronBusqueda=0, inicioFilas=0, filaFilas=100, IMEI="public"):
+        client = Client(self.dgii_ws)
+        res = client.service.GetContribuyentes(value[0],
+            patronBusqueda=patronBusqueda, inicioFilas=inicioFilas,
+            filaFilas=filaFilas, IMEI=IMEI)
+        return json.loads(res)
+
+    def GetContribuyentesCount(self, value, IMEI="public"):
+        res = self.client.GetContribuyentesCount(value, IMEI=IMEI)
+        return json.loads(res)
+
+    def GetDocumento(self, codigoBusqueda, patronBusqueda=0, IMEI="public"):
+        res = self.service.client(
+            codigoBusqueda, patronBusqueda=patronBusqueda, IMEI=IMEI)
+        return json.loads(res)
+
+    def GetPlaca(self, RNC, Placa, IMEI="public"):
+        res = self.service.client.GetPlaca(RNC, Placa, IMEI=IMEI)
+        return json.loads(res)
+
+    def GetVehiculoPorDATAMATRIX(self, value, IMEI="public"):
+        res = self.service.client.GetVehiculoPorDATAMATRIX(value, IMEI=IMEI)
+        return json.loads(res)

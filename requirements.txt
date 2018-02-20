@@ -2,3 +2,4 @@ openpyxl
 simplejson
 xlsxwriter
 zeep
+python-stdnum>=1.8.1

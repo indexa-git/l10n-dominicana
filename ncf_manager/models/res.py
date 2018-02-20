@@ -22,7 +22,8 @@
 # ######################################################################
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from stdnum.do import rnc, cedula
 
 import logging
 
@@ -75,7 +76,10 @@ class ResPartner(models.Model):
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
-                                 ondelete='restrict', default=62)
+                                 ondelete='restrict', default=61)
+    vat = fields.Char(string='TIN', help="Tax Identification Number. "
+                                         "Fill it if the company is subjected to taxes. "
+                                         "Used by the some of the legal statements.", index=True)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -92,25 +96,61 @@ class ResPartner(models.Model):
         return res
 
     @api.model
-    def name_create(self, name):
-        if self._context.get("install_mode", False):
-            return super(ResPartner, self).name_create(name)
-        if self._rec_name:
-            if name.isdigit():
-                partner = self.search([('vat', '=', name)])
-                if partner:
-                    return partner.name_get()[0]
-                else:
-                    new_partner = self.create({"vat": name})
-                    return new_partner.name_get()[0]
-            else:
-                return super(ResPartner, self).name_create(name)
+    def create(self, vals):
+        if self._context.get("install_mode", False) or not vals.get("name", False).isdigit():
+            return super(ResPartner, self).create(vals)
+
+        number = vals["name"]
+        if len(number) in (9, 11):
+            dgii_vals = rnc.check_dgii(number)
+            if len(number) == 11:
+                vals.update({"is_company": True,
+                             "sale_fiscal_type": "fiscal"})
+
+        if dgii_vals.get("status", False) == '1':
+            raise ValidationError(
+                _("Esta empresa no se encuentra activa en la DGII"))
+
+        vals.update({"name": dgii_vals.get("name", False) or dgii_vals.get(
+            "commercial_name", ""), "vat": dgii_vals["rnc"]})
+
+        return super(ResPartner, self).create(vals)
 
     @api.onchange("sale_fiscal_type")
     def onchange_sale_fiscal_type(self):
         if self.sale_fiscal_type == "special":
             self.property_account_position_id = self.env.ref(
                 "ncf_manager.ncf_manager_special_fiscal_position")
+
+    @api.onchange("name")
+    def onchange_partner_name(self):
+        if self.name:
+            if self.name.isdigit():
+                number = self.name
+                if len(number) in (9, 11):
+                    dgii_vals = rnc.check_dgii(number)
+                    if len(number) == 11:
+                        self.is_company = True,
+                        self.sale_fiscal_type = "fiscal"
+
+                    self.name = dgii_vals.get(
+                        "name", False) or dgii_vals.get("commercial_name", "")
+                    self.vat = dgii_vals["rnc"]
+
+    @api.onchange("vat")
+    def onchange_partner_vat(self):
+        if self.vat:
+            if self.vat.isdigit():
+                number = self.vat
+                if len(number) in (9, 11):
+                    dgii_vals = rnc.check_dgii(number)
+                    if len(number) == 11:
+                        self.is_company = True,
+                        self.sale_fiscal_type = "fiscal"
+
+                    self.name = dgii_vals.get(
+                        "name", False) or dgii_vals.get("commercial_name", "")
+                    self.vat = dgii_vals["rnc"]
 
     @api.multi
     def rewrite_due_date(self):

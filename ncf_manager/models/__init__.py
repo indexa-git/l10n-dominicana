@@ -23,7 +23,7 @@
 
 from . import shop
 from . import account
+from . import res_currency
 from . import account_invoice
 from . import res
-from . import res_currency
 from . import dgii_tools

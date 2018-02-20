@@ -133,6 +133,8 @@ class CurrencyRate(models.Model):
             if rec.rate > 0:
                 rec.converted = 1 / rec.rate
 
+    converted = fields.Float(compute=_get_converted, digits=(12, 4))
+
     @api.multi
     def name_get(self):
         result = []
@@ -143,4 +145,3 @@ class CurrencyRate(models.Model):
 
     rate = fields.Float(
         digits=(12, 12), help='The rate of the currency to the currency of rate 1')
-    converted = fields.Float(compute=_get_converted, digits=(12, 4))
