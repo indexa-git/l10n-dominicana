@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##########################################################################
 # Author      : Webkul Software Pvt. Ltd. (<https://webkul.com/>)
 # Copyright(c): 2015-Present Webkul Software Pvt. Ltd.
@@ -11,8 +10,7 @@
 #
 #
 # You should have received a copy of the License along with this program.
-# If not, see <https://store.webkul.com/license.html/>
-##########################################################################
+# If not, see <https://store.webkul.com/license.html/>##########################################################################
 {
     "name": "Pos All Orders List",
     "summary": "POS All Orders List model display all old orders and this model linked with POS order reprint and POS Reorder.",

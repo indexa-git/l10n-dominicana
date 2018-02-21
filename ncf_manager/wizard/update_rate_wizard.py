@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -21,7 +20,7 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, _
 
 
 class UpdateRateWizard(models.TransientModel):
@@ -67,9 +66,9 @@ class UpdateRateWizard(models.TransientModel):
         active_id = self._context.get("active_id", False)
         invoice_id = self.env["account.invoice"].browse(active_id)
         if not invoice_id.date_invoice:
-            raise exceptions.ValidationError(u"Debe de especificar la fecha de la factura primero.")
+            raise exceptions.ValidationError(_(u"Debe de especificar la fecha de la factura primero."))
         if invoice_id.state != "draft":
-            raise exceptions.UserError(u"No puede cambiar la tasa porque la factura no está en estado borrador!")
+            raise exceptions.UserError(_(u"No puede cambiar la tasa porque la factura no está en estado borrador!"))
         return super(UpdateRateWizard, self).default_get(fields)
 
     bank_rates = fields.Selection(_get_bank_rates, string="Tasa en bancos")
@@ -85,7 +84,7 @@ class UpdateRateWizard(models.TransientModel):
 
         if not self.custom_rate:
             if invoice_id.date_invoice != fields.Date.today():
-                raise exceptions.ValidationError(u"Solo puede usar las [Tasas de cambio para el día de hoy] si la factura es de hoy de lo contrario debe digitar tasa manualmente.")
+                raise exceptions.ValidationError(_(u"Solo puede usar las [Tasas de cambio para el día de hoy] si la factura es de hoy de lo contrario debe digitar tasa manualmente."))
             bank, cur, rate = self.bank_rates.split("-")
 
             self.env["res.currency.rate"].create({"name": fields.Datetime.now(),

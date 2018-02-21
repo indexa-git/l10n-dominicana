@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -22,7 +21,6 @@
 # ######################################################################
 
 import re
-import openpyxl
 from odoo import api, fields, models
 from tempfile import TemporaryFile
 import base64
@@ -30,6 +28,11 @@ import base64
 import logging
 
 _logger = logging.getLogger(__name__)
+
+try:
+    import openpyxl
+except(ImportError, IOError) as err:
+    _logger.debug(err)
 
 CURRENCY_DISPLAY_PATTERN = re.compile(r'(\w+)\s*(?:\((.*)\))?')
 
