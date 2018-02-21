@@ -25,18 +25,55 @@ from odoo.exceptions import UserError, ValidationError
 from stdnum.do import rnc, cedula
 
 import logging
-
 _logger = logging.getLogger(__name__)
+
+RNC_MESSAGE = u"RNC no disponible en DGII"
+CEDULA_MESSAGE = u"La cédula introducida no es válida"
+INVALID_MESSAGE = u"RNC/Cédula, contiene caracteres inválidos"
+
+def validate_rnc_cedula(number):
+    if not number.isdigit():
+        raise exceptions.ValidationError(_(INVALID_MESSAGE))
+    if len(number) > 9:
+        if not cedula.is_valid(number):
+            raise exceptions.ValidationError(_(CEDULA_MESSAGE))
+
+    if not rnc.is_valid(number) and len(number)  == 9:
+        raise exceptions.ValidationError(_(RNC_MESSAGE))
+
+    dgii_vals = rnc.check_dgii(number)
+    if not dgii_vals:
+        return {}
+
+    return {
+        'name': dgii_vals.get('name', False) or dgii_vals.get(
+            'commercial_name', ""),
+        'is_company': True if len(number) == 9 else False,
+        'sale_fiscal_type': "fiscal" if len(number) == 9 else "final",
+        'vat': dgii_vals.get('rnc'),
+        'status': dgii_vals.get('status'),
+    }
 
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
     payment_tax_on_606 = fields.Boolean("Reportar retenciones del 606 al pago")
-
     country_id = fields.Many2one('res.country', compute='_compute_address',
                                  inverse='_inverse_country',
                                  string="Country", default=62)
+
+    @api.onchange("vat")
+    def onchange_vat(self):
+        if self.vat:
+            values = validate_rnc_cedula(self.vat)
+            self.name = values.get('name')
+
+    @api.multi
+    def write(self, values):
+        if values.get('vat'):
+            dgii_info = validate_rnc_cedula(values.get('vat'))
+            values['name'] = dgii_info.get('name')
 
 
 class ResPartner(models.Model):
@@ -100,19 +137,14 @@ class ResPartner(models.Model):
             return super(ResPartner, self).create(vals)
 
         number = vals["name"]
-        if len(number) in (9, 11):
-            dgii_vals = rnc.check_dgii(number)
-            if len(number) == 11:
-                vals.update({"is_company": True,
-                             "sale_fiscal_type": "fiscal"})
+        if number.isdigit():
+            dgii_vals = validate_rnc_cedula(number)
 
         if dgii_vals.get("status", False) == '1':
             raise ValidationError(
                 _("Esta empresa no se encuentra activa en la DGII"))
 
-        vals.update({"name": dgii_vals.get("name", False) or dgii_vals.get(
-            "commercial_name", ""), "vat": dgii_vals["rnc"]})
-
+        vals.update(dgii_vals)
         return super(ResPartner, self).create(vals)
 
     @api.onchange("sale_fiscal_type")
@@ -121,39 +153,23 @@ class ResPartner(models.Model):
             self.property_account_position_id = self.env.ref(
                 "ncf_manager.ncf_manager_special_fiscal_position")
 
-    @api.model
-    def vat_check(self):
-        if self.name.isdigit() and len(self.name) in (9, 11):
-            number = self.name
-            is_rnc = len(number) == 9
-            try:
-                rnc.validate(number) if is_rnc else cedula.validate(number)
-            except Exception as e:
-                raise ValidationError(_("RNC/Ced Inválido"))
-
-            dgii_vals = rnc.check_dgii(number)
-
-            if dgii_vals is None:
-                if is_rnc:
-                    raise ValidationError(_("RNC no disponible en DGII"))
-                self.vat = number
-            else:
-                self.name = dgii_vals.get(
-                    "name", False) or dgii_vals.get("commercial_name", "")
-                self.vat = dgii_vals["rnc"]
-                if is_rnc:
-                    self.is_company = True,
-                    self.sale_fiscal_type = "fiscal"
-
     @api.onchange("name")
     def onchange_partner_name(self):
         if self.name:
-            self.vat_check()
+            rnc_cedula = self.name
+            dgii_vals = validate_rnc_cedula(rnc_cedula)
+            self.name = dgii_vals.get('name')
+            self.is_company = dgii_vals.get('is_company')
+            self.sale_fiscal_type = dgii_vals.get('sale_fiscal_type')
+            self.vat = dgii_vals.get('vat')
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.vat:
-            self.vat_check()
+            dgii_vals = validate_rnc_cedula(self.vat)
+            self.name = dgii_vals.get('name')
+            self.is_company = dgii_vals.get('is_company')
+            self.sale_fiscal_type = dgii_vals.get('sale_fiscal_type')
 
     @api.multi
     def rewrite_due_date(self):
