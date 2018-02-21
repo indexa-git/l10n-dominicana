@@ -20,9 +20,14 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
-from odoo import models, api, exceptions
+from odoo import models, api, exceptions, _
 from zeep import Client
 import json
+from stdnum.do import rnc, cedula
+
+
+RNC_MESSAGE = u"El RNC introducido no es válido"
+CEDULA_MESSAGE = u"La cédula introducida no es válida"
 
 excepcionesCedulas = ['00208430205', '00101118022', '00167311001',
                       '00102025201', '02755972001', '01038813907',
@@ -278,6 +283,27 @@ def is_ncf(value, type):
                                                          '12', '14', '15')):
             return True
     return False
+
+def validate_rnc_cedula(number):
+    if len(number) > 9:
+        if not cedula.is_valid(number):
+            raise exceptions.ValidationError(_(CEDULA_MESSAGE))
+
+    if not rnc.is_valid(number) and len(number)  == 9:
+        raise exceptions.ValidationError(_(RNC_MESSAGE))
+
+    dgii_vals = rnc.check_dgii(number)
+    if not dgii_vals:
+        return {}
+
+    return {
+        'name': dgii_vals.get('name', False) or dgii_vals.get(
+            'commercial_name', ""),
+        'is_company': True if len(number) == 9 else False,
+        'sale_fiscal_type': "fiscal" if len(number) == 9 else "final",
+        'vat': dgii_vals.get('rnc'),
+        'status': dgii_vals.get('status'),
+    }
 
 class DgiiWs(models.TransientModel):
     _name = "dgii.ws"
