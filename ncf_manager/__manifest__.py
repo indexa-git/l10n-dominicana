@@ -52,8 +52,12 @@
         'views/account_invoice_view.xml',
         'views/account_view.xml',
         'views/res_currency_view.xml',
+        'views/assets_backend.xml',
         'data/sequences.xml',
         'views/res_view.xml',
         'data/setup_ncf.xml'
     ],
+    'qweb': [
+        'static/src/xml/ncf_manager.xml'
+    ]
 }
