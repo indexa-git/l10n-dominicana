@@ -18,7 +18,6 @@
     "version": "1.0.1",
     "author": "Webkul Software Pvt. Ltd.",
     "website": "https://store.webkul.com/Odoo-POS-Order-Return.html",
-    "description": "http://webkul.com/blog/pos-order-return/",
     "live_test_url": "http://odoodemo.webkul.com/?module=pos_order_return&version=11.0",
     "depends": ['pos_orders'],
     "data": [

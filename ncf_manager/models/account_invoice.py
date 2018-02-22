@@ -22,11 +22,15 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from stdnum.do import ncf
 
 import logging
 
 _logger = logging.getLogger(__name__)
+
+try:
+    from stdnum.do import ncf
+except(ImportError, IOError) as err:
+    _logger.debug(err)
 
 
 class AccountInvoice(models.Model):
