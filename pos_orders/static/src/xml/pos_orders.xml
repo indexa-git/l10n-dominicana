@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
 
-	<t t-extend="ActionpadWidget">
-		<t t-jquery=".actionpad" t-operation="before">
-			<span class="control-button" id="all_orders" style="width: 384px;margin-right: 5px;margin-top: 3px;margin-bottom: -7px;">
-				Todas las Órdenes
-			</span>
-		</t>
-	</t>
+    <t t-extend="ActionpadWidget">
+        <t t-jquery=".actionpad" t-operation="before">
+            <span class="control-button" id="all_orders" style="width: 384px;margin-right: 5px;margin-top: 3px;margin-bottom: -7px;">
+                Todas las Órdenes
+            </span>
+        </t>
+    </t>
 
-	<t t-name="OrdersScreenWidget">
-    	<div class="clientlist-screen screen">
+    <t t-name="OrdersScreenWidget">
+        <div class="clientlist-screen screen">
             <div class="orders-screen-content">
                 <section class="top-content">
                     <span class='button back'>
@@ -62,18 +62,17 @@
             <td><t t-esc='order.date_order' /></td>
         </tr>
     </t>
-	<t t-extend='ClientListScreenWidget'>
-		<t t-jquery='.client-list thead tr' t-operation='append'>
-			<th>Ordenes</th>
-		</t>
-	</t>
+    <t t-extend='ClientListScreenWidget'>
+        <t t-jquery='.client-list thead tr' t-operation='append'>
+            <th>Ordenes</th>
+        </t>
+    </t>
 
-	<t t-extend='ClientLine'>
-		<t t-jquery='.client-line' t-operation='append'>
-			<td>
-				<button class="view_all_order" t-att-id='partner.id'><i class="fa fa-filter"></i> Ver ordenes</button>
-			</td>
-		</t>
-	</t>
-
+    <t t-extend='ClientLine'>
+        <t t-jquery='.client-line' t-operation='append'>
+            <td>
+                <button class="view_all_order" t-att-id='partner.id'><i class="fa fa-filter"></i> Ver ordenes</button>
+            </td>
+        </t>
+    </t>
 </templates>
