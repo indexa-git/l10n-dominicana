@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <field name="name" position="replace">
-                <field name="name" default_focus="1" placeholder="Nombre, RNC o Cédula" attrs="{'required': [('type', '=', 'contact')]}"/>
+                <field name="name" default_focus="1" placeholder="Nombre, RNC o Cédula" attrs="{'required': [('type', '=', 'contact')]}" widget="dgii_autocomplete"/>
             </field>
             <field name="vat" position="replace"></field>
             <xpath expr="//div[hasclass('o_row')]">
