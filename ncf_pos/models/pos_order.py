@@ -61,7 +61,6 @@ class PosOrder(models.Model):
             time.sleep(1)
             if time.time() > timeout:
                 break
-            self._cr.commit()
             order_id = self.search([('pos_reference', '=', name)])
 
         if order_id:
