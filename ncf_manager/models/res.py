@@ -98,27 +98,6 @@ class ResPartner(models.Model):
                 res = partners.name_get()
         return res
 
-    @api.model
-    def create(self, vals):
-        if self._context.get("install_mode", False) or not vals.get("name", False).isdigit():
-            return super(ResPartner, self).create(vals)
-
-        number = vals["name"]
-        if len(number) in (9, 11):
-            dgii_vals = rnc.check_dgii(number)
-            if len(number) == 11:
-                vals.update({"is_company": True,
-                             "sale_fiscal_type": "fiscal"})
-
-        if dgii_vals.get("status", False) == '1':
-            raise ValidationError(
-                _("Esta empresa no se encuentra activa en la DGII"))
-
-        vals.update({"name": dgii_vals.get("name", False) or dgii_vals.get(
-            "commercial_name", ""), "vat": dgii_vals["rnc"]})
-
-        return super(ResPartner, self).create(vals)
-
     @api.onchange("sale_fiscal_type")
     def onchange_sale_fiscal_type(self):
         if self.sale_fiscal_type == "special":
