@@ -3,6 +3,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2017-2018 Neotecnology Cyber City SRL. (http://neotec.do/)
+#             Yasmany Castillo <yasmany003@gmail.com>
 
 # This file is part of NCF Manager.
 
