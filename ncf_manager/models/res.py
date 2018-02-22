@@ -3,6 +3,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2017-2018 Neotecnology Cyber City SRL. (http://neotec.do/)
+#             Yasmany Castillo <yasmany003@gmail.com>
 
 # This file is part of NCF Manager.
 
@@ -42,6 +44,16 @@ class ResCompany(models.Model):
                                  inverse='_inverse_country',
                                  string="Country", default=62)
 
+    @api.onchange("name")
+    def onchange_company_name(self):
+        if self.name:
+            self.env["res.partner"].validate_rnc_cedula()
+
+    @api.onchange("vat")
+    def onchange_company_vat(self):
+        if self.vat:
+            self.env["res.partner"].validate_rnc_cedula()
+
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -80,9 +92,11 @@ class ResPartner(models.Model):
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
                                  ondelete='restrict', default=61)
-    vat = fields.Char(string='TIN', help="Tax Identification Number. "
-                                         "Fill it if the company is subjected to taxes. "
-                                         "Used by the some of the legal statements.", index=True)
+    vat = fields.Char(string='TIN',
+                      help="Tax Identification Number. "
+                           "Fill it if the company is subjected to taxes. "
+                           "Used by the some of the legal statements.",
+                      index=True)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -98,27 +112,6 @@ class ResPartner(models.Model):
                 res = partners.name_get()
         return res
 
-    @api.model
-    def create(self, vals):
-        if self._context.get("install_mode", False) or not vals.get("name", False).isdigit():
-            return super(ResPartner, self).create(vals)
-
-        number = vals["name"]
-        if len(number) in (9, 11):
-            dgii_vals = rnc.check_dgii(number)
-            if len(number) == 11:
-                vals.update({"is_company": True,
-                             "sale_fiscal_type": "fiscal"})
-
-        if dgii_vals.get("status", False) == '1':
-            raise ValidationError(
-                _("Esta empresa no se encuentra activa en la DGII"))
-
-        vals.update({"name": dgii_vals.get("name", False) or dgii_vals.get(
-            "commercial_name", ""), "vat": dgii_vals["rnc"]})
-
-        return super(ResPartner, self).create(vals)
-
     @api.onchange("sale_fiscal_type")
     def onchange_sale_fiscal_type(self):
         if self.sale_fiscal_type == "special":
@@ -126,7 +119,7 @@ class ResPartner(models.Model):
                 "ncf_manager.ncf_manager_special_fiscal_position")
 
     @api.model
-    def vat_check(self):
+    def validate_rnc_cedula(self):
         if self.name.isdigit() and len(self.name) in (9, 11):
             number = self.name
             is_rnc = len(number) == 9
@@ -144,20 +137,19 @@ class ResPartner(models.Model):
             else:
                 self.name = dgii_vals.get(
                     "name", False) or dgii_vals.get("commercial_name", "")
-                self.vat = dgii_vals["rnc"]
-                if is_rnc:
-                    self.is_company = True,
-                    self.sale_fiscal_type = "fiscal"
+                self.vat = dgii_vals.get('rnc')
+                self.is_company = True if is_rnc else False,
+                self.sale_fiscal_type = "fiscal" if is_rnc else "final"
 
     @api.onchange("name")
     def onchange_partner_name(self):
         if self.name:
-            self.vat_check()
+            self.validate_rnc_cedula()
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.vat:
-            self.vat_check()
+            self.validate_rnc_cedula()
 
     @api.multi
     def rewrite_due_date(self):
