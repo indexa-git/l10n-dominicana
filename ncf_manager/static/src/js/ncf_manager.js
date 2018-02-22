@@ -4,20 +4,9 @@ odoo.define('ncf_manager.ncf_manager', function (require) {
     var field_registry = require('web.field_registry');
     var FieldChar = field_registry.get('char');
 
-    var basic_fields = require('web.basic_fields');
-    var DebouncedField = basic_fields.DebouncedField;
-
-
     var FieldDgiiAutoComplete = FieldChar.extend({
-        // template: "FieldDgiiAutoComplete",
-        // events: {},
-        // events: _.extend({}, DebouncedField.prototype.events, {
-        // 'input': none,
-        // 'change': none
-        // }),
-        // DEBOUNCE: false,
         _prepareInput: function ($input) {
-
+            var self = this;
             this.$input = $input || $("<input/>");
             this.$input.addClass('o_input');
             this.$input.attr({
@@ -26,10 +15,18 @@ odoo.define('ncf_manager.ncf_manager', function (require) {
             this.$input.val(this._formatValue(this.value));
 
             this.$input.autocomplete({
-                source: "/dgii_ws/"+this.$input.val()
+                source: "/dgii_ws/",
+                select: function (event, ui) {
+                    var selected = ui.item.value.split("||");
+                    self.$input.val(selected[1]);
+                    var rnc = $('input[name$=\'vat\']');
+                    rnc.val(selected[0]);
+                    rnc.trigger('change');
+                    return false;
+                }
             });
-
             return this.$input;
+
 
         }
     });

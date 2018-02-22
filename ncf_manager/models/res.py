@@ -168,7 +168,3 @@ class ResPartner(models.Model):
                 else:
                     raise UserError(
                         _(u"Debe especificar el término de pago del contacto"))
-
-    @api.model
-    def dgii_autocomplete(self):
-        return self.search_read([],['name'])
