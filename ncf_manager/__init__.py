@@ -20,5 +20,6 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
+from . import controllers
 from . import wizard
 from . import models

@@ -4,25 +4,40 @@ odoo.define('ncf_manager.ncf_manager', function (require) {
     var field_registry = require('web.field_registry');
     var FieldChar = field_registry.get('char');
 
+    var basic_fields = require('web.basic_fields');
+    var DebouncedField = basic_fields.DebouncedField;
+
 
     var FieldDgiiAutoComplete = FieldChar.extend({
-        // template: "FieldDgiiAutoComplete"
-        attributes: {"autocomplete":"off"},
-        className: "typeahead",
-        start: function () {
-            this._super.apply(this, arguments);
-            var typeaheadSource = ['John', 'Alex', 'Terry'];
+        // template: "FieldDgiiAutoComplete",
+        // events: {},
+        // events: _.extend({}, DebouncedField.prototype.events, {
+        // 'input': none,
+        // 'change': none
+        // }),
+        // DEBOUNCE: false,
+        _prepareInput: function ($input) {
 
-            this.$('input').typeahead({
-                source: typeaheadSource
+            this.$input = $input || $("<input/>");
+            this.$input.addClass('o_input');
+            this.$input.attr({
+                placeholder: this.attrs.placeholder || "",
             });
-            console.log(this.$('input'))
+            this.$input.val(this._formatValue(this.value));
+
+            this.$input.autocomplete({
+                source: "/dgii_ws/"+this.$input.val()
+            });
+
+            return this.$input;
 
         }
-
     });
 
     field_registry.add('dgii_autocomplete', FieldDgiiAutoComplete);
 
+    return {
+        FieldDgiiAutoComplete: FieldDgiiAutoComplete
+    };
 
 });

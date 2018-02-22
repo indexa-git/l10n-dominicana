@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="assets_backend" name="web_widget_color assets" inherit_id="web.assets_backend">
+    <template id="assets_backend" name="web_widget_ncf_manager assets" inherit_id="web.assets_backend">
         <xpath expr="." position="inside">
-            <link rel="stylesheet" href="/web_widget_color/static/src/css/widget.css"/>
             <script src="/ncf_manager/static/src/lib/bootstrap-typeahead.js" type="text/javascript"></script>
             <script src="/ncf_manager/static/src/js/ncf_manager.js" type="text/javascript"></script>
         </xpath>
