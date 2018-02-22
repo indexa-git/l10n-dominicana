@@ -80,9 +80,11 @@ class ResPartner(models.Model):
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
                                  ondelete='restrict', default=61)
-    vat = fields.Char(string='TIN', help="Tax Identification Number. "
-                                         "Fill it if the company is subjected to taxes. "
-                                         "Used by the some of the legal statements.", index=True)
+    vat = fields.Char(string='TIN',
+                      help="Tax Identification Number. "
+                           "Fill it if the company is subjected to taxes. "
+                           "Used by the some of the legal statements.",
+                      index=True)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -105,7 +107,7 @@ class ResPartner(models.Model):
                 "ncf_manager.ncf_manager_special_fiscal_position")
 
     @api.model
-    def vat_check(self):
+    def validate_rnc_cedula(self):
         if self.name.isdigit() and len(self.name) in (9, 11):
             number = self.name
             is_rnc = len(number) == 9
@@ -123,20 +125,19 @@ class ResPartner(models.Model):
             else:
                 self.name = dgii_vals.get(
                     "name", False) or dgii_vals.get("commercial_name", "")
-                self.vat = dgii_vals["rnc"]
-                if is_rnc:
-                    self.is_company = True,
-                    self.sale_fiscal_type = "fiscal"
+                self.vat = dgii_vals.get('rnc')
+                self.is_company = True if is_rnc else False,
+                self.sale_fiscal_type = "fiscal" if is_rnc else "final"
 
     @api.onchange("name")
     def onchange_partner_name(self):
         if self.name:
-            self.vat_check()
+            self.validate_rnc_cedula()
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.vat:
-            self.vat_check()
+            self.validate_rnc_cedula()
 
     @api.multi
     def rewrite_due_date(self):
