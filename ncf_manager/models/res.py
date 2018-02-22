@@ -22,11 +22,15 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-from stdnum.do import rnc, cedula
 
 import logging
 
 _logger = logging.getLogger(__name__)
+
+try:
+    from stdnum.do import rnc, cedula
+except(ImportError, IOError) as err:
+    _logger.debug(err)
 
 
 class ResCompany(models.Model):

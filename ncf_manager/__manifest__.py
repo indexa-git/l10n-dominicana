@@ -39,6 +39,12 @@
               "Odoo Dominicana (ODOM) ",
     'category': 'Localization',
 
+    'external_dependencies': {
+        'python': [
+            'stdnum.do',
+        ],
+    },
+
     # any module necessary for this one to work correctly
     'depends': ['account_invoicing', 'l10n_do', 'account_cancel'],
 
