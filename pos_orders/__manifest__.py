@@ -18,7 +18,6 @@
     "version": "1.1",
     "author": "Webkul Software Pvt. Ltd.",
     "website": "https://store.webkul.com/Odoo-POS-All-Orders-List.html",
-    "description": "Pos All Orders List",
     "live_test_url": "http://odoodemo.webkul.com/?module=pos_orders&version=10.0",
     "depends": ['point_of_sale'],
     "data": [

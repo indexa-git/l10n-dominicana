@@ -27,9 +27,6 @@
         Incorpora funcionalidades de facturación con NCF al POS
         """,
 
-    'description': """
-    - Uso de comprobantes fiscales y Notas de Créditos
-    """,
     'author': "Marcos Organizador de Negocios SRL, "
               "iterativo SRL, "
               "Odoo Dominicana (ODOM) ",
