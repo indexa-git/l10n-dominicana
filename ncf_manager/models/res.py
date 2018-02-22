@@ -42,6 +42,16 @@ class ResCompany(models.Model):
                                  inverse='_inverse_country',
                                  string="Country", default=62)
 
+    @api.onchange("name")
+    def onchange_company_name(self):
+        if self.name:
+            self.env["res.partner"].validate_rnc_cedula()
+
+    @api.onchange("vat")
+    def onchange_company_vat(self):
+        if self.vat:
+            self.env["res.partner"].validate_rnc_cedula()
+
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
