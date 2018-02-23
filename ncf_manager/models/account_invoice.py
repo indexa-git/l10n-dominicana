@@ -209,6 +209,20 @@ class AccountInvoice(models.Model):
                     "El comprobante *{}* ya se encuentra registrado con el "
                     "mismo proveedor en otra factura".format(
                         self.move_name)))
+
+            if self.journal_id.ncf_remote_validation:
+                is_valid = ncf.check_dgii(self.partner_id.vat, self.move_name)
+                if not is_valid:
+                    raise UserError(_(
+                        u"NCF NO pasó validación en DGII\n\n"
+                        u"¡El número de comprobante *{}* del proveedor "
+                        u"*{}* no pasó la validación en "
+                        "DGII! Verifique que el NCF y el RNC del "
+                        u"proveedor estén correctamente "
+                        u"digitados, o si los números de ese NCF se "
+                        "le agotaron al proveedor".format(
+                            self.move_name,
+                            self.partner_id.name)))
         return True
 
     @api.onchange('journal_id')
@@ -255,10 +269,8 @@ class AccountInvoice(models.Model):
 
     @api.onchange("move_name")
     def onchange_ncf(self):
-        if self.type in ("in_invoice", "in_refund") and self.move_name is not False:
-            res = self.invoice_ncf_validation()
-            if res is not True:
-                _logger.warning(res)
+        if self.type in ("in_invoice", "in_refund") and self.move_name:
+            self.invoice_ncf_validation(self)
 
     @api.multi
     def action_invoice_open(self):
