@@ -15,11 +15,11 @@ odoo.define('ncf_pos.screens', function(require) {
     screens.ReceiptScreenWidget.include({
 
         ncf_render_receipt: function (fiscal_data, order) {
-            console.log(fiscal_data, order);
             order.fiscal_type_name = fiscal_data.fiscal_type_name;
             order.ncf = fiscal_data.ncf;
             order.origin_ncf = fiscal_data.origin;
-            if (!this.pos.config.iface_print_via_proxy) { // browser (html) printing
+            // browser (html) printin
+            if (!this.pos.config.iface_print_via_proxy) {
                 this.$('.pos-receipt-container').html(QWeb.render('PosTicket', {
                     widget: this,
                     order: order,
@@ -27,8 +27,8 @@ odoo.define('ncf_pos.screens', function(require) {
                     orderlines: order.get_orderlines(),
                     paymentlines: order.get_paymentlines(),
                 }));
-            } else { // proxy (xml) printing
-                var self = this;
+            // proxy (xml) printing
+            } else {
                 var env = {
                     widget:  this,
                     pos: this.pos,
@@ -141,7 +141,6 @@ odoo.define('ncf_pos.screens', function(require) {
                     break;
                 }
             }
-            var order = self.pos.get_order();
 
             if (cashregister.journal.type == "bank" && !cashregister.journal.credit) {
                 self.gui.show_popup('payment_screen_text_input', {

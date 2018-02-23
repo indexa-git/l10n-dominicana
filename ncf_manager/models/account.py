@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -21,7 +20,7 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
@@ -52,8 +51,8 @@ class AccountMove(models.Model):
             if invoice and invoice.type in ['out_invoice', 'out_refund'] and invoice.journal_id.ncf_control:
 
                 if invoice.type == 'out_invoice' and not invoice.sale_fiscal_type:
-                    raise ValidationError("Debe especificar el tipo de"
-                                          " comprobante para la venta.")
+                    raise ValidationError(_("Debe especificar el tipo de"
+                                          " comprobante para la venta."))
 
                 if not invoice.move_name:
                     active_sequence = False
@@ -80,7 +79,7 @@ class AccountMove(models.Model):
                         active_sequence = invoice.shop_id.special_active
 
                     if not active_sequence:
-                        raise ValidationError(u"Los NCF para **{}** no están activados.".format(invoice.sale_fiscal_type))
+                        raise ValidationError(_(u"Los NCF para **{}** no están activados.".format(invoice.sale_fiscal_type)))
 
                     invoice.shop_id.check_max(invoice.sale_fiscal_type,
                                               invoice)

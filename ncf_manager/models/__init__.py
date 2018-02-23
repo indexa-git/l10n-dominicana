@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -26,4 +25,3 @@ from . import account
 from . import res_currency
 from . import account_invoice
 from . import res
-from . import dgii_tools

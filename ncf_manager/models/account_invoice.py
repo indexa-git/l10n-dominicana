@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -23,21 +22,45 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from . import dgii_tools
 
 import logging
 
 _logger = logging.getLogger(__name__)
 
+try:
+    from stdnum.do import ncf
+except(ImportError, IOError) as err:
+    _logger.debug(err)
+
 
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
-    def is_identification(self, value):
-        return dgii_tools.is_identification(value)
+    def is_ncf(value, inv):
+        """
+        Valida estructura del Número de Comprobante Fiscal (NCF)
+        para República Dominicana.
 
-    def is_ncf(self, value, type):
-        return dgii_tools.is_ncf(value, type)
+        :param value: string con NCF
+
+        :returns: True when the structure is OK, False if is not; according
+         to the type of invoice.
+        """
+        if not value:
+            return False
+
+        if ncf.is_valid(value):
+            if (type in ("in_refund", "out_refund") and value[9:11] in ('03',
+                                                                        '04')
+                or type == "in_invoice" and value[9:11] in ('01', '03', '11',
+                                                            '12', '13', '14',
+                                                            '15')
+                or type == "out_invoice" and value[9:11] in ('01', '02', '03',
+                                                             '12', '14',
+                                                             '15')):
+                return True
+
+            return False
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -146,7 +169,7 @@ class AccountInvoice(models.Model):
         if not self.journal_id.ncf_remote_validation:
             return True
 
-        if not dgii_tools.is_ncf(self.move_name, self.type):
+        if not self.is_ncf(self.move_name, self.type):
             raise UserError(_(
                 u"NCF Mal Digitado o Inválido\n\n"
                 u"El comprobante *{}* no es válido. Verifique "

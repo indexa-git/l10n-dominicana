@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 ##########################################################################
 #
 #    Copyright (c) 2015-Present Webkul Software Pvt. Ltd.
 #    (<https://webkul.com/>)
-#
-##########################################################################
+###########################################################################
 from odoo.tools.translate import _
 import logging
 from odoo.tools import float_is_zero

@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
 ##########################################################################
 #
 #   Copyright (c) 2015-Present Webkul Software Pvt. Ltd.
 #   (<https://webkul.com/>)
-#
-##########################################################################
+###########################################################################
 import logging
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
@@ -114,5 +112,5 @@ class PosConfig(models.Model):
     def number_of_days_validation(self):
         if self.order_loading_options == 'n_days':
             if not self.number_of_days or self.number_of_days < 0:
-                raise ValidationError(
-                    u"Por favor provea un valir válido para el campo 'Cantidad de Días Anteriores'!!!")
+                raise ValidationError(_(
+                    u"Por favor provea un valir válido para el campo 'Cantidad de Días Anteriores'!!!"))

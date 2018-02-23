@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##########################################################################
 # Author      : Webkul Software Pvt. Ltd. (<https://webkul.com/>)
 # Copyright(c): 2015-Present Webkul Software Pvt. Ltd.
@@ -11,8 +10,7 @@
 #
 #
 # You should have received a copy of the License along with this program.
-# If not, see <https://store.webkul.com/license.html/>
-##########################################################################
+# If not, see <https://store.webkul.com/license.html/>##########################################################################
 {
     "name": "Pos Order Return",
     "summary": "This module is use to Return orders in running point of sale session.",
@@ -20,7 +18,6 @@
     "version": "1.0.1",
     "author": "Webkul Software Pvt. Ltd.",
     "website": "https://store.webkul.com/Odoo-POS-Order-Return.html",
-    "description": "http://webkul.com/blog/pos-order-return/",
     "live_test_url": "http://odoodemo.webkul.com/?module=pos_order_return&version=11.0",
     "depends": ['pos_orders'],
     "data": [

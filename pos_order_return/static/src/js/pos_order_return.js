@@ -20,12 +20,14 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
     for (var i = 0, len = model_list.length; i < len; i++) {
         if (model_list[i].model == "pos.order") {
             order_model = model_list[i];
-            if (order_line_model)
+            if (order_line_model) {
                 break;
+            }
         } else if (model_list[i].model == "pos.order.line") {
             order_line_model = model_list[i];
-            if (order_model)
+            if (order_model) {
                 break;
+            }
         }
     }
     order_model.fields.push('return_order_id', 'statement_ids', 'is_return_order', 'return_status', 'amount_total');
@@ -39,13 +41,13 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
                 ['state', 'not in', ['draft', 'cancel']],
                 ['is_return_order', '=', false]
             ];
-        } else if (self.config.order_loading_options == 'current_session')
+        } else if (self.config.order_loading_options == 'current_session') {
             domain_list = [
                 ['session_id', '=', self.pos_session.name],
                 ['state', 'not in', ['draft', 'cancel']],
                 ['is_return_order', '=', false]
             ];
-        else
+        } else
             domain_list = [
                 ['state', 'not in', ['draft', 'cancel']],
                 ['is_return_order', '=', false]
@@ -111,18 +113,22 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
                     }, 500);
                 }
 
-                if (qty_input == 0 && line_quantity_remaining != 0 && !self.options.is_partial_return)
+                if (qty_input == 0 && line_quantity_remaining != 0 && !self.options.is_partial_return) {
                     self.options.is_partial_return = true;
+                }
                 else if (qty_input > 0) {
                     return_dict[line_id] = qty_input;
-                    if (line_quantity_remaining != qty_input && !self.options.is_partial_return)
+                    if (line_quantity_remaining != qty_input && !self.options.is_partial_return) {
                         self.options.is_partial_return = true;
-                    else if (!self.options.is_partial_return)
+                    }
+                    else if (!self.options.is_partial_return) {
                         self.options.is_partial_return = false;
+                    }
                 }
             });
-            if (return_entries_ok)
+            if (return_entries_ok) {
                 self.create_return_order(return_dict);
+            }
         },
         create_return_order: function(return_dict) {
             var self = this;
@@ -243,8 +249,9 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
         show: function() {
             var self = this;
             self._super();
-            if (self.pos.get_order() && self.pos.get_order().is_return_order)
+            if (self.pos.get_order() && self.pos.get_order().is_return_order) {
                 this.el.querySelector('.payment-screen h1').textContent = 'Refund';
+            }
         }
     });
 
@@ -316,13 +323,15 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
     screens.NumpadWidget.include({
         clickAppendNewChar: function(event) {
             var self = this;
-            if (!self.pos.get_order().is_return_order)
+            if (!self.pos.get_order().is_return_order) {
                 this._super(event);
+            }
         },
         clickSwitchSign: function() {
             var self = this;
-            if (!self.pos.get_order().is_return_order)
+            if (!self.pos.get_order().is_return_order) {
                 this._super();
+            }
         },
     });
 
@@ -418,8 +427,9 @@ odoo.define('pos_order_return.pos_order_return', function(require) {
                             } else if (product.not_returnable) {
                                 non_returnable_products = true;
                                 message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
-                            } else if (line.qty - line.line_qty_returned > 0)
+                            } else if (line.qty - line.line_qty_returned > 0) {
                                 original_orderlines.push(line);
+                            }
                         });
                         if (original_orderlines.length == 0) {
                             self.gui.show_popup('my_message', {

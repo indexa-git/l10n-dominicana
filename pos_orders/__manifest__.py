@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##########################################################################
 # Author      : Webkul Software Pvt. Ltd. (<https://webkul.com/>)
 # Copyright(c): 2015-Present Webkul Software Pvt. Ltd.
@@ -11,8 +10,7 @@
 #
 #
 # You should have received a copy of the License along with this program.
-# If not, see <https://store.webkul.com/license.html/>
-##########################################################################
+# If not, see <https://store.webkul.com/license.html/>##########################################################################
 {
     "name": "Pos All Orders List",
     "summary": "POS All Orders List model display all old orders and this model linked with POS order reprint and POS Reorder.",
@@ -20,7 +18,6 @@
     "version": "1.1",
     "author": "Webkul Software Pvt. Ltd.",
     "website": "https://store.webkul.com/Odoo-POS-All-Orders-List.html",
-    "description": "Pos All Orders List",
     "live_test_url": "http://odoodemo.webkul.com/?module=pos_orders&version=10.0",
     "depends": ['point_of_sale'],
     "data": [

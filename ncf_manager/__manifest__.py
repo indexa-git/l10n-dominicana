@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -25,20 +24,20 @@
     'name': "Gestor de Comprobantes Fiscales (NCF Manager)",
     'version': '11.0.1.0.0',
     'summary': """
-        Módulo para la administración y configuración de los NCF autorizados
-         a la empresa por la DGII.
-    """,
-
-    'description': """
         Este módulo implementa la administración y gestión de los números de
          comprobantes fiscales para el cumplimento de la norma 06-18 de la
-         Dirección de Impuestos Internos en la República Dominicana.
+         Dirección de Impuestos Internos en la República Dominicana
     """,
-
     'author': "Marcos Organizador de Negocios SRL, "
               "iterativo SRL, "
               "Odoo Dominicana (ODOM) ",
     'category': 'Localization',
+
+    'external_dependencies': {
+        'python': [
+            'stdnum.do',
+        ],
+    },
 
     # any module necessary for this one to work correctly
     'depends': ['account_invoicing', 'l10n_do', 'account_cancel'],
@@ -53,8 +52,12 @@
         'views/account_invoice_view.xml',
         'views/account_view.xml',
         'views/res_currency_view.xml',
+        'views/assets_backend.xml',
         'data/sequences.xml',
         'views/res_view.xml',
         'data/setup_ncf.xml'
     ],
+    'qweb': [
+        'static/src/xml/ncf_manager.xml'
+    ]
 }

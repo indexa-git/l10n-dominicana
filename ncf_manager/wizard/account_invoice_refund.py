@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -106,9 +105,9 @@ class AccountInvoiceRefund(models.TransientModel):
 
             if self.supplier_ncf:
                 if self.filter_refund == 'debit' and self.supplier_ncf[9:11] != "03":
-                    raise ValidationError(u"Las Notas de Débito deben ser tipo 03, este NCF no es de este tipo.")
+                    raise ValidationError(_(u"Las Notas de Débito deben ser tipo 03, este NCF no es de este tipo."))
                 elif self.filter_refund != 'debit' and self.supplier_ncf[9:11] != "04":
-                    raise ValidationError(u"Las Notas de Crédito deben ser tipo 04, este NCF no es de este tipo.")
+                    raise ValidationError(_(u"Las Notas de Crédito deben ser tipo 04, este NCF no es de este tipo."))
 
             if self.supplier_ncf and invoice.journal_id.ncf_remote_validation:
                 request_params = self.env["marcos.api.tools"].get_marcos_api_request_params()

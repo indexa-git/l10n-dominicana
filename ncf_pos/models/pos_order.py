@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -62,7 +61,6 @@ class PosOrder(models.Model):
             time.sleep(1)
             if time.time() > timeout:
                 break
-            self._cr.commit()
             order_id = self.search([('pos_reference', '=', name)])
 
         if order_id:
