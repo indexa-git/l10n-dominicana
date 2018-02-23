@@ -141,6 +141,9 @@ class AccountInvoice(models.Model):
     ]
 
     def invoice_ncf_validation(self):
+        if not self.journal_id.ncf_control or self.journal_id.ncf_remote_validation:
+            return
+
         number = self.move_name if self.move_name else None
 
         if not ncf.is_valid(self.move_name):
@@ -158,14 +161,14 @@ class AccountInvoice(models.Model):
                 "Comprobante de Nota de Crédito o Débito".format(number[9:11]))
             )
 
-        elif self.type == "out_invoice" and self.journal_id.ncf_control and number[9:11] in ('01', '02', '03', '12', '14', '15'):
+        elif self.type == "out_invoice" and number[9:11] in ('01', '02', '03', '12', '14', '15'):
             raise ValidationError(_(
                 u"NCF {} NO corresponde con el tipo de Documento\n\n"
                 u"Verifique si lo ha digitado correctamente y que no sea un "
                 "Comprobante Consumidor Final (02)".format(number[9:11]))
             )
 
-        elif self.type == "in_invoice" and self.journal_id.ncf_remote_validation:
+        elif self.type == "in_invoice":
             if number[9:11] in ('01', '03', '11', '12', '13', '14', '15'):
                 raise ValidationError(_(
                     u"NCF NO corresponde con el tipo de Documento\n\n"
@@ -188,7 +191,7 @@ class AccountInvoice(models.Model):
 
                 if inv_in_draft:
                     raise UserError(_(
-                        "NCF Duplicado\n\n"
+                        "NCF en Factura Borrador o Cancelada\n\n"
                         "El comprobante *{}* ya se encuentra "
                         "registrado con este mismo proveedor en una factura "
                         "en borrador o cancelada".format(self.move_name)))
@@ -204,20 +207,18 @@ class AccountInvoice(models.Model):
                         " mismo proveedor en otra factura".format(
                             self.move_name)))
 
-                if self.journal_id.ncf_remote_validation:
-                    is_valid = ncf.check_dgii(
-                        self.partner_id.vat, self.move_name)
-                    if not is_valid:
-                        raise UserError(_(
-                            u"NCF NO pasó validación en DGII\n\n"
-                            u"¡El número de comprobante *{}* del proveedor "
-                            u"*{}* no pasó la validación en "
-                            "DGII! Verifique que el NCF y el RNC del "
-                            u"proveedor estén correctamente "
-                            u"digitados, o si los números de ese NCF se "
-                            "le agotaron al proveedor".format(
-                                self.move_name,
-                                self.partner_id.name)))
+                is_valid = ncf.check_dgii(self.partner_id.vat, self.move_name)
+                if not is_valid:
+                    raise UserError(_(
+                        u"NCF NO pasó validación en DGII\n\n"
+                        u"¡El número de comprobante *{}* del proveedor "
+                        u"*{}* no pasó la validación en "
+                        "DGII! Verifique que el NCF y el RNC del "
+                        u"proveedor estén correctamente "
+                        u"digitados, o si los números de ese NCF se "
+                        "le agotaron al proveedor".format(
+                            self.move_name,
+                            self.partner_id.name)))
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
