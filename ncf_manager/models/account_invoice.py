@@ -140,85 +140,60 @@ class AccountInvoice(models.Model):
          'Invoice Number must be unique per Company!'),
     ]
 
-    def invoice_ncf_validation(self):
-        if not self.journal_id.ncf_control or self.journal_id.ncf_remote_validation:
+    def purchase_ncf_validate(self):
+        if not self.journal_id.purchase_type == 'normal':
             return
 
         number = self.move_name if self.move_name else None
 
-        if not ncf.is_valid(self.move_name):
+        if not ncf.is_valid(number):
             raise UserError(_(
-                u"NCF Mal Digitado\n\n"
+                u"NCF mal digitado\n\n"
                 u"El comprobante *{}* no tiene la estructura correcta "
-                "si lo ha digitado correctamente y que no sea un "
-                "Comprobante Consumidor Final (02)".format(self.move_name))
+                " valide si lo ha digitado correctamente".format(number))
             )
 
-        if self.type in ("in_refund", "out_refund") and number[9:11] in ('03', '04'):
+        if number[9:11] not in (
+                '01', '03', '04', '11', '12', '13', '14', '15'):
             raise ValidationError(_(
-                u"NCF {} NO corresponde con el tipo de Documento\n\n"
-                u"Verifique si lo ha digitado correctamente y que sea un "
-                "Comprobante de Nota de Crédito o Débito".format(number[9:11]))
+                u"NCF NO corresponde con el tipo de documento\n\n"
+                u"Verifique lo ha digitado correctamente y que no sea un "
+                "Comprobante Consumidor Final (02)".format(number))
             )
 
-        elif self.type == "out_invoice" and number[9:11] in ('01', '02', '03', '12', '14', '15'):
-            raise ValidationError(_(
-                u"NCF {} NO corresponde con el tipo de Documento\n\n"
-                u"Verifique si lo ha digitado correctamente y que no sea un "
-                "Comprobante Consumidor Final (02)".format(number[9:11]))
-            )
+        ncf_in_draft = self.search_count(
+            [('partner_id', '=', self.partner_id.id),
+             ('move_name', '=', number),
+             ('state', 'in', ('draft', 'cancel'))])
 
-        elif self.type == "in_invoice":
-            if number[9:11] in ('01', '03', '11', '12', '13', '14', '15'):
-                raise ValidationError(_(
-                    u"NCF NO corresponde con el tipo de Documento\n\n"
-                    u"Verifique lo ha digitado correctamente y que no sea un "
-                    "Comprobante Consumidor Final (02)".format(self.move_name))
-                )
+        if ncf_in_draft:
+            raise UserError(_(
+                "NCF en Factura Borrador o Cancelada\n\n"
+                "El comprobante *{}* ya se encuentra "
+                "registrado con este mismo proveedor en una factura "
+                "en borrador o cancelada".format(number)))
 
-            if self.journal_id.purchase_type == 'normal':
-                if self.id:
-                    inv_in_draft = self.search_count(
-                        [('id', '!=', self.id),
-                         ('partner_id', '=', self.partner_id.id),
-                         ('move_name', '=', self.move_name),
-                         ('state', 'in', ('draft', 'cancel'))])
-                else:
-                    inv_in_draft = self.search_count(
-                        [('partner_id', '=', self.partner_id.id),
-                         ('move_name', '=', self.move_name),
-                         ('state', 'in', ('draft', 'cancel'))])
+        ncf_exist = self.search_count(
+            [('partner_id', '=', self.partner_id.id),
+             ('number', '=', number),
+             ('state', 'in', ('open', 'paid'))])
+        if ncf_exist:
+            raise UserError(_(
+                "NCF Duplicado\n\n"
+                "El comprobante *{}* ya se encuentra registrado con el"
+                " mismo proveedor en otra factura".format(number)))
 
-                if inv_in_draft:
-                    raise UserError(_(
-                        "NCF en Factura Borrador o Cancelada\n\n"
-                        "El comprobante *{}* ya se encuentra "
-                        "registrado con este mismo proveedor en una factura "
-                        "en borrador o cancelada".format(self.move_name)))
-
-                inv_exist = self.search_count(
-                    [('partner_id', '=', self.partner_id.id),
-                     ('number', '=', self.move_name),
-                     ('state', 'in', ('open', 'paid'))])
-                if inv_exist:
-                    raise UserError(_(
-                        "NCF Duplicado\n\n"
-                        "El comprobante *{}* ya se encuentra registrado con el"
-                        " mismo proveedor en otra factura".format(
-                            self.move_name)))
-
-                is_valid = ncf.check_dgii(self.partner_id.vat, self.move_name)
-                if not is_valid:
-                    raise UserError(_(
-                        u"NCF NO pasó validación en DGII\n\n"
-                        u"¡El número de comprobante *{}* del proveedor "
-                        u"*{}* no pasó la validación en "
-                        "DGII! Verifique que el NCF y el RNC del "
-                        u"proveedor estén correctamente "
-                        u"digitados, o si los números de ese NCF se "
-                        "le agotaron al proveedor".format(
-                            self.move_name,
-                            self.partner_id.name)))
+        if self.journal_id.ncf_remote_validation and not ncf.check_dgii(self.partner_id.vat, number):
+            raise UserError(_(
+                u"NCF NO pasó validación en DGII\n\n"
+                u"¡El número de comprobante *{}* del proveedor "
+                u"*{}* no pasó la validación en "
+                "DGII! Verifique que el NCF y el RNC del "
+                u"proveedor estén correctamente "
+                u"digitados, o si los números de ese NCF se "
+                "le agotaron al proveedor".format(number,
+                                                  self.partner_id.name)
+                ))
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
@@ -265,7 +240,7 @@ class AccountInvoice(models.Model):
     @api.onchange("move_name")
     def onchange_ncf(self):
         if self.type in ("in_invoice", "in_refund") and self.move_name:
-            self.invoice_ncf_validation()
+            self.purchase_ncf_validate()
 
     @api.multi
     def action_invoice_open(self):
@@ -283,7 +258,7 @@ class AccountInvoice(models.Model):
                     raise UserError(_(
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
-                self.invoice_ncf_validation()
+                self.purchase_ncf_validate()
 
         return super(AccountInvoice, self).action_invoice_open()
 
