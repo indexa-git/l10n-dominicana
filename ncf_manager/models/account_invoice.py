@@ -161,10 +161,18 @@ class AccountInvoice(models.Model):
                 "Comprobante Consumidor Final (02)".format(number))
             )
 
-        ncf_in_draft = self.search_count(
-            [('partner_id', '=', self.partner_id.id),
-             ('move_name', '=', number),
-             ('state', 'in', ('draft', 'cancel'))])
+        if self.id:
+            ncf_in_draft = self.search_count(
+                [('id', '!=', self.id),
+                 ('partner_id', '=', self.partner_id.id),
+                 ('move_name', '=', number),
+                 ('state', 'in', ('draft', 'cancel'))])
+
+        else:
+            ncf_in_draft = self.search_count(
+                [('partner_id', '=', self.partner_id.id),
+                 ('move_name', '=', number),
+                 ('state', 'in', ('draft', 'cancel'))])
 
         if ncf_in_draft:
             raise UserError(_(
