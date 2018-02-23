@@ -270,7 +270,7 @@ class AccountInvoice(models.Model):
     @api.onchange("move_name")
     def onchange_ncf(self):
         if self.type in ("in_invoice", "in_refund") and self.move_name:
-            self.invoice_ncf_validation(self)
+            self.invoice_ncf_validation()
 
     @api.multi
     def action_invoice_open(self):
