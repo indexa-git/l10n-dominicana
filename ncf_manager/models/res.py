@@ -21,6 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+from zeep import Client, helpers
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
@@ -33,6 +34,8 @@ try:
     from stdnum.do import rnc, cedula
 except(ImportError, IOError) as err:
     _logger.debug(err)
+
+DGII_WSDL = "http://www.dgii.gov.do/wsMovilDGII/WSMovilDGII.asmx?WSDL"
 
 
 class ResCompany(models.Model):
@@ -140,6 +143,11 @@ class ResPartner(models.Model):
                 self.vat = dgii_vals.get('rnc')
                 self.is_company = True if is_rnc else False,
                 self.sale_fiscal_type = "fiscal" if is_rnc else "final"
+        else:
+            res = rnc.search_dgii(self.name, end_at=1, start_at=1)
+            if res:
+                self.vat = res[0].get('rnc')
+
 
     @api.onchange("name")
     def onchange_partner_name(self):
