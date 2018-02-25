@@ -120,26 +120,27 @@ class ResPartner(models.Model):
 
     @api.model
     def validate_rnc_cedula(self):
-        if self.name.isdigit() and len(self.name) in (9, 11):
-            number = self.name
-            is_rnc = len(number) == 9
-            try:
-                rnc.validate(number) if is_rnc else cedula.validate(number)
-            except Exception as e:
-                raise ValidationError(_("RNC/Ced Inválido"))
+        if self.name:
+            if self.name.isdigit() and len(self.name) in (9, 11):
+                number = self.name
+                is_rnc = len(number) == 9
+                try:
+                    rnc.validate(number) if is_rnc else cedula.validate(number)
+                except Exception as e:
+                    raise ValidationError(_("RNC/Ced Inválido"))
 
-            dgii_vals = rnc.check_dgii(number)
+                dgii_vals = rnc.check_dgii(number)
 
-            if dgii_vals is None:
-                if is_rnc:
-                    raise ValidationError(_("RNC no disponible en DGII"))
-                self.vat = number
-            else:
-                self.name = dgii_vals.get(
-                    "name", False) or dgii_vals.get("commercial_name", "")
-                self.vat = dgii_vals.get('rnc')
-                self.is_company = True if is_rnc else False,
-                self.sale_fiscal_type = "fiscal" if is_rnc else "final"
+                if dgii_vals is None:
+                    if is_rnc:
+                        raise ValidationError(_("RNC no disponible en DGII"))
+                    self.vat = number
+                else:
+                    self.name = dgii_vals.get(
+                        "name", False) or dgii_vals.get("commercial_name", "")
+                    self.vat = dgii_vals.get('rnc')
+                    self.is_company = True if is_rnc else False,
+                    self.sale_fiscal_type = "fiscal" if is_rnc else "final"
 
     @api.onchange("name")
     def onchange_partner_name(self):
