@@ -46,6 +46,14 @@ class AccountMove(models.Model):
     @api.multi
     def post(self):
 
+        invoice = self._context.get('invoice', False)
+        if invoice:
+            ctx = dict(self._context)
+            ctx.update({"sale_fiscal_type": invoice.sale_fiscal_type,
+                        "ir_sequence_date": invoice.date})
+
+        return super(AccountMove, self.with_context(ctx)).post()
+
         self._post_validate()
         for move in self:
             move.line_ids.create_analytic_lines()
