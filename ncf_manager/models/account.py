@@ -21,7 +21,7 @@
 # ######################################################################
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 class AccountJournal(models.Model):
@@ -45,48 +45,35 @@ class AccountMove(models.Model):
 
     @api.multi
     def post(self):
-        invoice = self._context.get('invoice', False)
+
         self._post_validate()
         for move in self:
-            if invoice and invoice.type in ['out_invoice', 'out_refund'] and invoice.journal_id.ncf_control:
+            move.line_ids.create_analytic_lines()
+            if move.name == '/':
+                new_name = False
+                journal = move.journal_id
 
-                if invoice.type == 'out_invoice' and not invoice.sale_fiscal_type:
-                    raise ValidationError(_("Debe especificar el tipo de"
-                                          " comprobante para la venta."))
+                if invoice and invoice.move_name and invoice.move_name != '/':
+                    new_name = invoice.move_name
+                else:
+                    if journal.sequence_id:
+                        # If invoice is actually refund and journal has a refund_sequence then use that one or use the regular one
+                        sequence = journal.sequence_id
+                        if invoice and invoice.type in ['out_refund', 'in_refund'] and journal.refund_sequence:
+                            if not journal.refund_sequence_id:
+                                raise UserError(_('Please define a sequence for the credit notes'))
+                            sequence = journal.refund_sequence_id
 
-                if not invoice.move_name:
-                    active_sequence = False
-                    if invoice.is_nd:
-                        sequence = invoice.shop_id.nd_sequence_id
-                        active_sequence = invoice.shop_id.nd_active
-                    elif invoice.type == "out_refund":
-                        sequence = invoice.shop_id.nc_sequence_id
-                        active_sequence = invoice.shop_id.nc_active
-                    elif invoice.sale_fiscal_type == "final":
-                        sequence = invoice.shop_id.final_sequence_id
-                        active_sequence = invoice.shop_id.final_active
-                    elif invoice.sale_fiscal_type == "fiscal":
-                        sequence = invoice.shop_id.fiscal_sequence_id
-                        active_sequence = invoice.shop_id.fiscal_active
-                    elif invoice.sale_fiscal_type == "gov":
-                        sequence = invoice.shop_id.gov_sequence_id
-                        active_sequence = invoice.shop_id.gov_active
-                    elif invoice.sale_fiscal_type == "special":
-                        sequence = invoice.shop_id.special_sequence_id
-                        active_sequence = invoice.shop_id.special_active
-                    elif invoice.sale_fiscal_type == "unico":
-                        sequence = invoice.shop_id.special_sequence_id
-                        active_sequence = invoice.shop_id.special_active
+                        ctx = dict(self._context)
+                        ctx.update({"sale_fiscal_type": invoice.sale_fiscal_type,
+                                    "ir_sequence_date": invoice.date})
+                        new_name = sequence.with_context(ctx).next_by_id()
+                    else:
+                        raise UserError(_('Please define a sequence on the journal.'))
 
-                    if not active_sequence:
-                        raise ValidationError(_(u"Los NCF para **{}** no están activados.".format(invoice.sale_fiscal_type)))
-
-                    invoice.shop_id.check_max(invoice.sale_fiscal_type,
-                                              invoice)
-                    invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
-                    invoice.reference = invoice.journal_id.sequence_id.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
-
-        return super(AccountMove, self).post()
+                if new_name:
+                    move.name = new_name
+        return self.write({'state': 'posted'})
 
 
 class AccountTax(models.Model):
