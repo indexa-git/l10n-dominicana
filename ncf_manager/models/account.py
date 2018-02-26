@@ -43,17 +43,10 @@ class AccountJournal(models.Model):
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
+
     @api.multi
     def post(self):
-
         invoice = self._context.get('invoice', False)
-        if invoice:
-            ctx = dict(self._context)
-            ctx.update({"sale_fiscal_type": invoice.sale_fiscal_type,
-                        "ir_sequence_date": invoice.date})
-
-        return super(AccountMove, self.post())
-
         self._post_validate()
         for move in self:
             move.line_ids.create_analytic_lines()
@@ -61,6 +54,9 @@ class AccountMove(models.Model):
                 new_name = False
                 journal = move.journal_id
 
+                if invoice and journal.ncf_control and not invoice.sale_fiscal_type:
+                    raise ValidationError("Debe especificar el tipo de"
+                                          " comprobante para la venta.")
                 if invoice and invoice.move_name and invoice.move_name != '/':
                     new_name = invoice.move_name
                 else:
@@ -71,11 +67,7 @@ class AccountMove(models.Model):
                             if not journal.refund_sequence_id:
                                 raise UserError(_('Please define a sequence for the credit notes'))
                             sequence = journal.refund_sequence_id
-
-                        ctx = dict(self._context)
-                        ctx.update({"sale_fiscal_type": invoice.sale_fiscal_type,
-                                    "ir_sequence_date": invoice.date})
-                        new_name = sequence.with_context(ctx).next_by_id()
+                        new_name = sequence.with_context(ir_sequence_date=move.date, sale_fiscal_type=invoice.sale_fiscal_type).next_by_id()
                     else:
                         raise UserError(_('Please define a sequence on the journal.'))
 
