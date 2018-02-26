@@ -20,5 +20,6 @@ class Odoojs(http.Controller):
         if kwargs.get("term", False):
             result = rnc.search_dgii(kwargs["term"], end_at=20, start_at=1)
             if not result is None:
-                result = ["{}||{}".format(d["rnc"], d["name"]) for d in result]
+                for d in result:
+                	d["label"] = "{} - {}".format(d["rnc"], d["name"])
                 return json.dumps(result)
