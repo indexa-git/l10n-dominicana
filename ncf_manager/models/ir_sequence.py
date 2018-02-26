@@ -1,4 +1,4 @@
-from odoo import models, fields, api, _
+from odoo import models, fields, _
 from odoo.exceptions import UserError
 from datetime import datetime
 import pytz
@@ -15,7 +15,6 @@ class IrSequence(models.Model):
                 return (s % d) if s else ''
 
             def _interpolation_dict():
-
                 now = range_date = effective_date = datetime.now(pytz.timezone(self._context.get('tz') or 'UTC'))
                 if self._context.get('ir_sequence_date'):
                     effective_date = datetime.strptime(self._context.get('ir_sequence_date'), '%Y-%m-%d')
@@ -25,12 +24,12 @@ class IrSequence(models.Model):
                 sequences = {
                     'year': '%Y', 'month': '%m', 'day': '%d', 'y': '%y', 'doy': '%j', 'woy': '%W',
                     'weekday': '%w', 'h24': '%H', 'h12': '%I', 'min': '%M', 'sec': '%S',
-                    'sale_fiscal_type': '%sale_fiscal_type'
+                    'sale_fiscal_type': '%type'
                 }
 
                 res = {}
                 for key, format in sequences.items():
-                    if key == "sale_fiscal_type":
+                    if key == 'sale_fiscal_type':
                         res[key] = sale_fiscal_type
                     else:
                         res[key] = effective_date.strftime(format)
@@ -47,7 +46,7 @@ class IrSequence(models.Model):
                 raise UserError(_('Invalid prefix or suffix for sequence \'%s\'') % (self.get('name')))
             return interpolated_prefix, interpolated_suffix
         else:
-            return super(IrSequence, self)._interpolation_dict()
+            return super(IrSequence, self)._get_prefix_suffix()
 
     def _next(self):
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)
