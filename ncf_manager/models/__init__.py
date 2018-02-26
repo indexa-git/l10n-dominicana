@@ -22,6 +22,7 @@
 
 from . import shop
 from . import account
+from . import account_move
 from . import res_currency
 from . import account_invoice
 from . import res

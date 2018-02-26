@@ -19,30 +19,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 
-
-class AccountJournal(models.Model):
-    _inherit = "account.journal"
-
-    purchase_type = fields.Selection(
-        [("normal", "Requiere NCF"),
-         ("minor", "Gasto Menor. NCF Generado por el Sistema"),
-         ("informal", "Proveedores Informales. NCF Generado por el Sistema"),
-         ("exterior", "Pagos al Exterior. NCF Generado por el Sistema"),
-         ("import", "Importaciones. NCF Generado por el Sistema"),
-         ("others", "Otros. No requiere NCF")],
-        string="Tipo de Compra", default="others")
-
-    ncf_control = fields.Boolean("Control de NCF", default=False)
-    ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
-
-
 class AccountMove(models.Model):
     _inherit = 'account.move'
-
     @api.multi
     def post(self):
         invoice = self._context.get('invoice', False)
@@ -54,8 +35,8 @@ class AccountMove(models.Model):
                 journal = move.journal_id
 
                 if invoice and journal.ncf_control and not invoice.sale_fiscal_type:
-                    raise ValidationError("Debe especificar el tipo de"
-                                          " comprobante para la venta.")
+                    raise ValidationError(_("Debe especificar el tipo de"
+                                          " comprobante para la venta."))
                 if invoice and invoice.move_name and invoice.move_name != '/':
                     new_name = invoice.move_name
                 else:
@@ -76,16 +57,3 @@ class AccountMove(models.Model):
                 if new_name:
                     move.name = new_name
         return self.write({'state': 'posted'})
-
-
-class AccountTax(models.Model):
-    _inherit = 'account.tax'
-
-    purchase_tax_type = fields.Selection(
-        [('itbis', 'ITBIS Pagado'),
-         ('ritbis', 'ITBIS Retenido'),
-         ('isr', 'ISR Retenido'),
-         ('rext', 'Remesas al Exterior (Ley  253-12)'),
-         ('none', 'No Deducible')],
-        default="none", string="Tipo de Impuesto de Compra"
-    )
