@@ -24,7 +24,7 @@ class IrSequence(models.Model):
                 sequences = {
                     'year': '%Y', 'month': '%m', 'day': '%d', 'y': '%y', 'doy': '%j', 'woy': '%W',
                     'weekday': '%w', 'h24': '%H', 'h12': '%I', 'min': '%M', 'sec': '%S',
-                    'sale_fiscal_type': '%type'
+                    'sale_fiscal_type': '%sale_fiscal_type'
                 }
 
                 res = {}
