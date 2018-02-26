@@ -52,7 +52,7 @@ class AccountMove(models.Model):
             ctx.update({"sale_fiscal_type": invoice.sale_fiscal_type,
                         "ir_sequence_date": invoice.date})
 
-        return super(AccountMove, self.with_context(ctx)).post()
+        return super(AccountMove, self.post())
 
         self._post_validate()
         for move in self:
