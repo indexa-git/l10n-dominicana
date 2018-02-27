@@ -72,10 +72,8 @@ class IrSequence(models.Model):
 class IrSequenceDateRange(models.Model):
     _inherit = 'ir.sequence.date_range'
 
-    sale_fiscal_type = fields.Selection(
-        [("02", "Consumidor Final"),
-         ("01", u"Crédito Fiscal"),
-         ("15", "Gubernamental"),
-         ("14", u"Regímenes Especiales"),
-         ("13", u"Único ingreso")],
-        string="NCF para")
+    def get_sale_fiscal_type_from_partner(self):
+        return self.env["res.partner"]._fields['sale_fiscal_type'].selection
+
+    sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
+                                        string="NCF para")
