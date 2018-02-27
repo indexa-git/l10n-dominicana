@@ -72,9 +72,9 @@ class IrSequenceDateRange(models.Model):
     _inherit = 'ir.sequence.date_range'
 
     sale_fiscal_type = fields.Selection(
-        [("final", "Consumidor Final"),
-         ("fiscal", u"Crédito Fiscal"),
-         ("gov", "Gubernamental"),
-         ("special", u"Regímenes Especiales"),
-         ("unico", u"Único ingreso")],
+        [("02", "Consumidor Final"),
+         ("01", u"Crédito Fiscal"),
+         ("15", "Gubernamental"),
+         ("14", u"Regímenes Especiales"),
+         ("13", u"Único ingreso")],
         string="NCF para")

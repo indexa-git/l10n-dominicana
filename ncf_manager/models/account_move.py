@@ -19,11 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
-from odoo import models, fields, api, _
+from odoo import models, api, _
 from odoo.exceptions import ValidationError, UserError
+
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
+
     @api.multi
     def post(self):
         invoice = self._context.get('invoice', False)
