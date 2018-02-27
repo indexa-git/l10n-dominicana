@@ -7,10 +7,9 @@ import pytz
 class IrSequence(models.Model):
     _inherit = 'ir.sequence'
 
-
+    ncf_control = fields.Boolean("Control de NCF", default=False)
 
     def _get_prefix_suffix(self):
-
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)
         if sale_fiscal_type:
             def _interpolate(s, d):

@@ -36,8 +36,11 @@ class AccountJournal(models.Model):
          ("others", "Otros. No requiere NCF")],
         string="Tipo de Compra", default="others")
 
-    ncf_control = fields.Boolean("Control de NCF", default=False)
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
+
+    ncf_control = fields.Boolean(related="sequence_id.ncf_control")
+    prefix = fields.Char(related="sequence_id.prefix")
+    date_range_ids = fields.One2many(related="sequence_id.date_range_ids")
 
 
 class AccountMove(models.Model):

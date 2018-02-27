@@ -83,13 +83,7 @@ class AccountInvoice(models.Model):
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
-    sale_fiscal_type = fields.Selection(
-        [("final", "Consumidor Final"),
-         ("fiscal", u"Crédito Fiscal"),
-         ("gov", "Gubernamental"),
-         ("special", u"Regímenes Especiales"),
-         ("unico", u"Único ingreso")],
-        string="NCF para", related="partner_id.sale_fiscal_type", readonly=True)
+    sale_fiscal_type = fields.Selection(related="partner_id.sale_fiscal_type", readonly=True)
 
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
