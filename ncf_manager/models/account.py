@@ -53,13 +53,15 @@ class AccountJournal(models.Model):
             # this method read Selection values from res.partner sale_fiscal_type fields
             selection = self.env["res.partner"]._fields['sale_fiscal_type'].selection
             for sale_fiscal_type in selection:
-                print(sale_fiscal_type)
-                self.sequence_id.date_range_ids.sudo().create({
-                    'date_from': date_from,
-                    'date_to': date_to,
-                    'sale_fiscal_type': sale_fiscal_type[0],
-                    'sequence_id': self.sequence_id.id,
-                })
+                self._cr.execute("""INSERT INTO ir_sequence_date_range (date_from,date_to,sale_fiscal_type,sequence_id,number_next) VALUES ('{}','{}','{}',{},{})""".format(date_from, date_to, sale_fiscal_type[0], self.sequence_id.id, 1))
+
+                # self.sequence_id.date_range_ids.sudo().create({
+                #     'date_from': date_from,
+                #     'date_to': date_to,
+                #     'sale_fiscal_type': sale_fiscal_type[0],
+                #     'sequence_id': self.sequence_id.id,
+                #     'number_next': 1
+                # })
 
 
 class AccountTax(models.Model):
