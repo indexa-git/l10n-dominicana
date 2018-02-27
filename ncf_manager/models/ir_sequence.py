@@ -7,6 +7,8 @@ import pytz
 class IrSequence(models.Model):
     _inherit = 'ir.sequence'
 
+
+
     def _get_prefix_suffix(self):
 
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)

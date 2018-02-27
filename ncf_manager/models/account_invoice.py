@@ -89,7 +89,7 @@ class AccountInvoice(models.Model):
          ("gov", "Gubernamental"),
          ("special", u"Regímenes Especiales"),
          ("unico", u"Único ingreso")],
-        string="NCF para")
+        string="NCF para", related="partner_id.sale_fiscal_type", readonly=True)
 
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
