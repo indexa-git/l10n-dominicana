@@ -45,23 +45,12 @@ class AccountJournal(models.Model):
     @api.onchange("ncf_control")
     def onchange_ncf_control(self):
 
-        if self.ncf_control and len(self.sequence_id.date_range_ids) <= 1:
-            year = fields.Date.from_string(fields.Date.today()).strftime('%Y')
-            date_from = '{}-01-01'.format(year)
-            date_to = '{}-12-31'.format(year)
-
+        if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
             # this method read Selection values from res.partner sale_fiscal_type fields
             selection = self.env["res.partner"]._fields['sale_fiscal_type'].selection
-            for sale_fiscal_type in selection:
-                self._cr.execute("""INSERT INTO ir_sequence_date_range (date_from,date_to,sale_fiscal_type,sequence_id,number_next) VALUES ('{}','{}','{}',{},{})""".format(date_from, date_to, sale_fiscal_type[0], self.sequence_id.id, 1))
 
-                # self.sequence_id.date_range_ids.sudo().create({
-                #     'date_from': date_from,
-                #     'date_to': date_to,
-                #     'sale_fiscal_type': sale_fiscal_type[0],
-                #     'sequence_id': self.sequence_id.id,
-                #     'number_next': 1
-                # })
+            for sale_fiscal_type in selection:
+                self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
 
 
 class AccountTax(models.Model):

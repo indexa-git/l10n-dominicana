@@ -9,7 +9,8 @@
            <field name="inherit_id" ref="base.sequence_view"/>
            <field name="arch" type="xml">
 
-               <xpath expr="//field[@name='date_to']" position="after">
+               <xpath expr="//tree//field[@name='number_next_actual']" position="after">
+                   <field name="max_number_next"/>
                    <field name="sale_fiscal_type"/>
                </xpath>
 

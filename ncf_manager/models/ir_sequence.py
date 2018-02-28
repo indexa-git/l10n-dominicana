@@ -75,5 +75,6 @@ class IrSequenceDateRange(models.Model):
     def get_sale_fiscal_type_from_partner(self):
         return self.env["res.partner"]._fields['sale_fiscal_type'].selection
 
+    max_number_next = fields.Integer("Número Máximo", default=100)
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
