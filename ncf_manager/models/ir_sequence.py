@@ -1,7 +1,5 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError
-from datetime import datetime
-import pytz
 
 
 class IrSequence(models.Model):

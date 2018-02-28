@@ -20,7 +20,7 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-# from . import shop deprecate
+from . import shop
 from . import account
 from . import account_move
 from . import res_currency
