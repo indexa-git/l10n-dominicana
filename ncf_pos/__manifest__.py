@@ -34,11 +34,12 @@
     'version': '11.0.1.0.0',
 
     # any module necessary for this one to work correctly
-    # 'depends': [''],
+    'depends': ['point_of_sale'],
 
     # always loaded
-    # 'data': [
-    #     # 'security/ir.model.access.csv',
+    'data': [
+        # 'security/ir.model.access.csv',
+        'views/templates.xml',
  
-    #     ]
+        ]
 }
