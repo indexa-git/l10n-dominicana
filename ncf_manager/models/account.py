@@ -27,6 +27,11 @@ from odoo.exceptions import ValidationError, UserError
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
+    @api.depends("ncf_control")
+    @api.one
+    def check_ncf_ready(self):
+        self.ncf_ready = len(self.date_range_ids) > 1
+
     purchase_type = fields.Selection(
         [("normal", "Requiere NCF"),
          ("minor", "Gasto Menor. NCF Generado por el Sistema"),
@@ -41,16 +46,18 @@ class AccountJournal(models.Model):
     ncf_control = fields.Boolean(related="sequence_id.ncf_control")
     prefix = fields.Char(related="sequence_id.prefix")
     date_range_ids = fields.One2many(related="sequence_id.date_range_ids")
+    ncf_ready = fields.Boolean(compute=check_ncf_ready)
 
-    @api.onchange("ncf_control")
-    def onchange_ncf_control(self):
+    @api.multi
+    def create_ncf_sequence(self):
 
         if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
             # this method read Selection values from res.partner sale_fiscal_type fields
-            selection = self.env["res.partner"]._fields['sale_fiscal_type'].selection
-
+            selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
             for sale_fiscal_type in selection:
                 self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
+
+            self.sequence_id.date_range_ids.invalidate_cache()
 
 
 class AccountTax(models.Model):

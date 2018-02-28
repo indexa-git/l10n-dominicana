@@ -73,7 +73,8 @@ class IrSequenceDateRange(models.Model):
     _inherit = 'ir.sequence.date_range'
 
     def get_sale_fiscal_type_from_partner(self):
-        return self.env["res.partner"]._fields['sale_fiscal_type'].selection
+        return self.env["res.partner"]._fields['sale_fiscal_type'].selection + [("nc", "Nota de Crédito"),
+                                                                                ("nd", "Nota de Débito")]
 
     max_number_next = fields.Integer("Número Máximo", default=100)
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",

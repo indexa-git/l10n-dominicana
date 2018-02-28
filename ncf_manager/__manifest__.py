@@ -56,7 +56,7 @@
         'views/ir_sequence_view.xml',
         'data/sequences.xml',
         'views/res_view.xml',
-        'data/setup_ncf.xml'
+        # 'data/setup_ncf.xml' deprecate
     ],
     'qweb': [
         'static/src/xml/ncf_manager.xml'
