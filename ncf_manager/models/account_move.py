@@ -29,8 +29,10 @@ class AccountMove(models.Model):
     @api.multi
     def post(self):
         invoice = self._context.get('invoice', False)
-        if self._context.get("type", False) in ["out_invoice","out_refund"] and invoice:
+        if invoice and invoice.type == "out_invoice":
             return super(AccountMove, self.with_context(sale_fiscal_type=invoice.sale_fiscal_type)).post()
+        elif invoice and invoice.type == "out_refund":
+            return super(AccountMove, self.with_context(sale_fiscal_type="credit_note")).post()
         else:
             return super(AccountMove, self).post()
 
