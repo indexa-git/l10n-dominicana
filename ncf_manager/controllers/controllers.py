@@ -2,6 +2,7 @@
 from odoo import http
 import json
 import requests
+import re
 
 import logging
 
@@ -14,12 +15,29 @@ except(ImportError, IOError) as err:
 
 
 class Odoojs(http.Controller):
+    
+
 
     @http.route('/dgii_ws', auth='public')
     def index(self, **kwargs):
+        """
+        Look for clients in the web service of the DGII
+            :param self: 
+            :param **kwargs dict :the parameters received
+            :param term string : the character of the client or his rnc /
+        """
         if kwargs.get("term", False):
-            result = rnc.search_dgii(kwargs["term"], end_at=20, start_at=1)
+            if kwargs["term"].isdigit():
+                result = rnc.check_dgii(kwargs["term"])
+
+            else:
+                result = rnc.search_dgii(kwargs["term"], end_at=20, start_at=1)
+   
             if not result is None:
+                if not isinstance(result, list):
+                    result = [result]
+
                 for d in result:
-                	d["label"] = "{} - {}".format(d["rnc"], d["name"])
+                
+                    d["label"] = "{} - {}".format(d["rnc"], d["name"])
                 return json.dumps(result)
