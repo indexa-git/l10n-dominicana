@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="ClientListScreenWidget">
+        <t t-jquery="table.client-list>thead>tr" t-operation="replace">
+            <th>Tax ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+        </t>
+    </t>
+    <t t-extend="ClientLine">
+        <t t-jquery=".client-line" t-operation="replace">
+            <td><t t-if="partner.vat"><t t-esc='partner.vat'/></t></td>
+            <td><t t-esc='partner.name'/></td>
+            <td><t t-esc='partner.phone or partner.mobile or ""'/></td>
+        </t>
+    </t>
+</templates>
