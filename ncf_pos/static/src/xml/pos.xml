@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="ClientDetailsEdit">
+        <t t-jquery=".client-details-left" t-operation="append">
+            <div class='client-detail'>
+                <span class='label'>Factura</span>
+                <select>
+                    <option value='final'>Final</option>
+                    <option value="fiscal">Fiscal</option>
+                    <option value="gov">Gubernamental</option>
+                 <option value="special">Especiales</option>
+                </select>
+            </div>
+        </t>
+    </t>
+
+</templates>
