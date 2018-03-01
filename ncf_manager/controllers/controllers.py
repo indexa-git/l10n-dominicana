@@ -38,6 +38,6 @@ class Odoojs(http.Controller):
                     result = [result]
 
                 for d in result:
-                
+                    d["name"] = " ".join(re.split("\s+", d["name"], flags=re.UNICODE))  #remove all duplicate white space from the name
                     d["label"] = "{} - {}".format(d["rnc"], d["name"])
                 return json.dumps(result)
