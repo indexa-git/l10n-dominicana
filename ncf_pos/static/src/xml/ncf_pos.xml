@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="ClientDetailsEdit">
+        <t t-jquery=".client-name" t-operation="replace">
+          <input class='detail client-name dgiiws' name='name' t-att-value='partner.name'  placeholder='Name'></input>
+        </t>
+   
+    </t>
+</templates>
