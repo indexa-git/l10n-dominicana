@@ -2,9 +2,10 @@
 <odoo>
     <template id="assets_ncf_pos" inherit_id="point_of_sale.assets">
         <xpath expr="." position="inside">
-           <link rel="stylesheet" href="/ncf_pos/static/src/libs/jquery-autocomplete-ui.css"/>
-           <script type="text/javascript" src="/ncf_pos/static/src/js/screens.js"></script>
-           <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
+            <link rel="stylesheet" href="/ncf_pos/static/src/libs/jquery-autocomplete-ui.css"/>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/models.js"></script>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/screens.js"></script>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
         </xpath>
     </template>
 </odoo>
