@@ -9,9 +9,11 @@
     </t>
     <t t-extend="ClientLine">
         <t t-jquery=".client-line" t-operation="replace">
-            <td><t t-if="partner.vat"><t t-esc='partner.vat'/></t></td>
-            <td><t t-esc='partner.name'/></td>
-            <td><t t-esc='partner.phone or partner.mobile or ""'/></td>
+            <tr class='client-line' t-att-data-id='partner.id'>
+                <td><t t-if="partner.vat"><t t-esc='partner.vat'/></t></td>
+                <td><t t-esc='partner.name'/></td>
+                <td><t t-esc='partner.phone or partner.mobile or ""'/></td>
+            </tr>
         </t>
     </t>
 </templates>
