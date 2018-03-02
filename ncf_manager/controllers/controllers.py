@@ -26,13 +26,12 @@ class Odoojs(http.Controller):
             :param **kwargs dict :the parameters received
             :param term string : the character of the client or his rnc /
         """
-        if kwargs.get("term", False):
-            if kwargs["term"].isdigit():
-                result = rnc.check_dgii(kwargs["term"])
-
+        term = kwargs.get("term", False)
+        if term:
+            if term.isdigit() and len(term) in [9,11]:
+                result = rnc.check_dgii(term)
             else:
-                result = rnc.search_dgii(kwargs["term"], end_at=20, start_at=1)
-   
+                result = rnc.search_dgii(term, end_at=20, start_at=1)
             if not result is None:
                 if not isinstance(result, list):
                     result = [result]
