@@ -169,3 +169,8 @@ class ResPartner(models.Model):
                 else:
                     raise UserError(
                         _(u"Debe especificar el término de pago del contacto"))
+
+
+    @api.model
+    def get_sale_fiscal_type_selection(self):
+        return self._fields['sale_fiscal_type'].selection
