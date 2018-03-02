@@ -12,6 +12,7 @@ odoo.define('ncf_pos.screens', function (require) {
             this._super(visibility, partner, clickpos);
             var name_input = this.$('input[name$=\'name\']');
             var $rnc = $("input[name$='vat']");
+            var $sale_fiscal_type = $("select[name$='sale_fiscal_type']");
 
 
             name_input.autocomplete({
@@ -21,6 +22,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     
                     name_input.val(ui.item.name);
                     $rnc.val(ui.item.rnc);
+                    $sale_fiscal_type.val("fiscal");
 
                     return false;
                 }
