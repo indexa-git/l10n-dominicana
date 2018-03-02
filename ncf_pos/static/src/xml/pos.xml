@@ -1,35 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template">
 
-    <!--<t t-extend="ClientDetailsEdit">-->
-        <!--<t t-jquery=".client-details-left" t-operation="append">-->
-            <!--<div class='client-detail'>-->
-                <!--<span class='label'>Factura</span>-->
-                <!--<select>-->
-                    <!--<option value='final'>Final</option>-->
-                    <!--<option value="fiscal">Fiscal</option>-->
-                    <!--<option value="gov">Gubernamental</option>-->
-                    <!--<option value="special">Especiales</option>-->
-                <!--</select>-->
-            <!--</div>-->
-        <!--</t>-->
-    <!--</t>-->
+    <t t-extend="ClientDetailsEdit">
+        <t t-jquery=".client-details-left" t-operation="append">
 
-    <!--<t t-extend="ClientDetails">-->
-        <!--<t t-jquery=".client-details-left" t-operation="append">-->
-            <!--<div class='client-detail'>-->
-                <!--<span class='label'>Tipo de comprobante</span>-->
-                <!--<t t-if='partner.sale_fiscal_type'>-->
-                    <!--<span class='detail client-sale-fiscal-type'>-->
-                        <!--<t t-esc='partner.sale_fiscal_type'/>-->
-                    <!--</span>-->
-                <!--</t>-->
-                <!--<t t-if='!partner.sale_fiscal_type'>-->
-                    <!--<span class='detail client-sale_fiscal_type empty'>N/A</span>-->
-                <!--</t>-->
-            <!--</div>-->
-        <!--</t>-->
-    <!--</t>-->
+            <div class='client-detail'>
+                <span class='label'>NCF</span>
+                <select class='detail client-fiscal-type needsclick' name='sale_fiscal_type'>
+                    <option value=''>None</option>
+                    <t t-foreach='widget.pos.sale_fiscal_type_selection' t-as='row'>
+                        <option t-att-value='row[0]'
+                                t-att-selected="partner.sale_fiscal_type ? ((row[0] === partner.sale_fiscal_type) ? true : undefined) : undefined">
+                            <t t-esc='row[1]'/>
+                        </option>
+                    </t>
+                </select>
+            </div>
+
+        </t>
+    </t>
+
+    <t t-extend="ClientDetails">
+        <t t-jquery=".client-details-left" t-operation="append">
+            <div class='client-detail'>
+                <span class='label'>NCF</span>
+                <t t-if='partner.sale_fiscal_type'>
+                    <span class='detail client-sale-fiscal-type'>
+                        <t t-foreach='widget.pos.sale_fiscal_type_selection' t-as='row'>
+                            <t t-if='row[0] === partner.sale_fiscal_type'>
+                                <t t-esc="row[1]"/>
+                            </t>
+                        </t>
+                    </span>
+                </t>
+                <t t-if='!partner.sale_fiscal_type'>
+                    <span class='detail client-sale_fiscal_type empty'>N/A</span>
+                </t>
+            </div>
+        </t>
+    </t>
+
+    <t t-extend="ActionpadWidget">
+        <t t-jquery=".fa.fa-user" t-operation="replace">
+            <i class='fa fa-user'/>
+            <t t-set="partner" t-value="widget.pos.get_client()"/>
+
+            <t t-if='partner.sale_fiscal_type'>
+                <t t-foreach='widget.pos.sale_fiscal_type_selection' t-as='row'>
+                    <t t-if='row[0] === partner.sale_fiscal_type'>
+                        <span style="color:red">
+                            <t t-esc="row[1]"/>
+                        </span>
+                    </t>
+                </t>
+            </t>
+
+        </t>
+    </t>
 
     <t t-extend="ClientListScreenWidget">
         <t t-jquery="table.client-list>thead>tr" t-operation="replace">
@@ -42,9 +69,17 @@
     <t t-extend="ClientLine">
         <t t-jquery=".client-line" t-operation="replace">
             <tr class='client-line' t-att-data-id='partner.id'>
-                <td><t t-if="partner.vat"><t t-esc='partner.vat'/></t></td>
-                <td><t t-esc='partner.name'/></td>
-                <td><t t-esc='partner.phone or partner.mobile or ""'/></td>
+                <td>
+                    <t t-if="partner.vat">
+                        <t t-esc='partner.vat'/>
+                    </t>
+                </td>
+                <td>
+                    <t t-esc='partner.name'/>
+                </td>
+                <td>
+                    <t t-esc='partner.phone or partner.mobile or ""'/>
+                </td>
             </tr>
         </t>
     </t>
