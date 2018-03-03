@@ -84,5 +84,11 @@
             </tr>
         </t>
     </t>
+    
+    <t t-name="QueryInvoicesButton">
+        <div class='control-button'>
+            <i class='fa fa-search' />All invoices
+        </div>
+    </t>
 
 </templates>
