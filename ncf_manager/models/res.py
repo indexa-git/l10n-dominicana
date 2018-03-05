@@ -112,11 +112,12 @@ class ResPartner(models.Model):
                 res = partners.name_get()
         return res
 
-    @api.onchange("sale_fiscal_type")
-    def onchange_sale_fiscal_type(self):
-        if self.sale_fiscal_type == "special":
-            self.property_account_position_id = self.env.ref(
-                "ncf_manager.ncf_manager_special_fiscal_position")
+    #TODO have to find how to change tax to exept one u sale_fiscal_type == to special
+    # @api.onchange("sale_fiscal_type")
+    # def onchange_sale_fiscal_type(self):
+    #     if self.sale_fiscal_type == "special":
+    #         self.property_account_position_id = self.env.ref(
+    #             "ncf_manager.ncf_manager_special_fiscal_position")
 
     @api.model
     def validate_rnc_cedula(self):

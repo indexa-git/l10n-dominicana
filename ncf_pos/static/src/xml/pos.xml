@@ -84,6 +84,12 @@
             </tr>
         </t>
     </t>
+    
+    <t t-name="QueryInvoicesButton">
+        <div class='control-button'>
+            <i class='fa fa-search' />All invoices
+        </div>
+    </t>
 
     <t t-name="QueryInvoicesButton">
         <span class='control-button'>
