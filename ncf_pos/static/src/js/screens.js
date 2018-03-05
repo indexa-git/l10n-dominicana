@@ -31,18 +31,26 @@ odoo.define('ncf_pos.screens', function (require) {
      |         THE INVOICES LIST              |
      \*======================================*/
 
-// The invoiceslist displays the list of invoices,
-// and allows the cashier to reoder and rewrite the invoices.
+    // The invoiceslist displays the list of invoices,
+    // and allows the cashier to reoder and rewrite the invoices.
 
     var InvoicesListScreenWidget = screens.ScreenWidget.extend({
         template: 'InvoicesListScreenWidget',
 
         init: function (parent, options) {
             this._super(parent, options);
-            //this.partner_cache = new DomCache();
+            var self = this;
+
+            $(document).on('click', '.back', function () {
+                self.gui.back();
+            });
+
+            $(document).on('click', '.search', function () {
+                console.log("Llenar Grid");
+            });
         },
 
-        auto_back: true,
+        auto_back: false,
 
         show: function () {
             var self = this;
@@ -53,18 +61,11 @@ odoo.define('ncf_pos.screens', function (require) {
                 //self.render_list(invoices, this.value);
             });
 
-            this.$('.back').on('click', function () {
-                self.gui.back();
-            });
-
-             this.$('.search').on('click', function () {
-                alert("Llenar Grid");
-            });
         },
 
-        close: function() {
-            this._super();
-        },
+        //close: function () {
+        //    this._super();
+        //},
     });
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
