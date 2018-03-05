@@ -83,13 +83,11 @@ class AccountInvoice(models.Model):
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
-    sale_fiscal_type = fields.Selection(
-        [("final", "Consumidor Final"),
-         ("fiscal", u"Crédito Fiscal"),
-         ("gov", "Gubernamental"),
-         ("special", u"Regímenes Especiales"),
-         ("unico", u"Único ingreso")],
-        string="NCF para")
+    sale_fiscal_type = fields.Selection([("final", "Consumidor Final"),
+                                         ("fiscal", u"Crédito Fiscal"),
+                                         ("gov", "Gubernamental"),
+                                         ("special", u"Regímenes Especiales"),
+                                         ("unico", u"Único Ingreso")])
 
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
@@ -201,7 +199,7 @@ class AccountInvoice(models.Model):
                 u"digitados, o si los números de ese NCF se "
                 "le agotaron al proveedor".format(number,
                                                   self.partner_id.name)
-                ))
+            ))
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
@@ -255,7 +253,8 @@ class AccountInvoice(models.Model):
         for inv in self:
             if inv.journal_id.ncf_control and not inv.partner_id.sale_fiscal_type:
                 inv.sale_fiscal_type = "final"
-            if inv.type == "out_invoice" and inv.sale_fiscal_type in ("fiscal", "gov", "special") and inv.journal_id.ncf_control and not inv.partner_id.vat:
+            if inv.type == "out_invoice" and inv.sale_fiscal_type in (
+                    "fiscal", "gov", "special") and inv.journal_id.ncf_control and not inv.partner_id.vat:
                 raise UserError(_(
                     u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
                     "para este tipo de factura.".format(inv.partner_id.id,

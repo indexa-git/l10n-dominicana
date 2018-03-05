@@ -37,10 +37,9 @@
             </xpath>
 
             <field name="partner_id" position="after">
-                <field name="sale_fiscal_type" attrs="{
+                <field name="sale_fiscal_type" attrs="{'readonly': [('state','!=','draft')],
                     'invisible':[('type','=','out_refund')],
-                    'required': [('ncf_control','=',True),('type','=','out_invoice')],
-                    'readonly': [('state','!=','draft')]}"/>
+                    'required': [('ncf_control','=',True),('type','=','out_invoice')]}"/>
             </field>
 
             <field name="date_invoice" position="after">

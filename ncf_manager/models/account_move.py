@@ -19,11 +19,20 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+from odoo import models, api, _
+from odoo.exceptions import ValidationError, UserError
 
-from . import shop
-from . import account
-from . import account_move
-from . import res_currency
-from . import account_invoice
-from . import res
-from . import ir_sequence
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    @api.multi
+    def post(self):
+        invoice = self._context.get('invoice', False)
+        if invoice and invoice.type == "out_invoice":
+            return super(AccountMove, self.with_context(sale_fiscal_type=invoice.sale_fiscal_type)).post()
+        elif invoice and invoice.type == "out_refund":
+            return super(AccountMove, self.with_context(sale_fiscal_type="credit_note")).post()
+        else:
+            return super(AccountMove, self).post()
+
