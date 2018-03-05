@@ -6,6 +6,7 @@
             <script type="text/javascript" src="/ncf_pos/static/src/js/models.js"></script>
             <script type="text/javascript" src="/ncf_pos/static/src/js/screens.js"></script>
             <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/invoices.js"></script>
         </xpath>
     </template>
 </odoo>
