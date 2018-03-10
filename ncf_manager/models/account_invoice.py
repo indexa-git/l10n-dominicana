@@ -216,6 +216,7 @@ class AccountInvoice(models.Model):
         if self.partner_id and self.type == 'out_invoice':
             if self.journal_id.ncf_control:
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
+                self.special_check()
             if not self.partner_id.customer:
                 self.partner_id.customer = True
         elif self.partner_id and self.type == 'in_invoice':
@@ -229,15 +230,20 @@ class AccountInvoice(models.Model):
     @api.onchange('sale_fiscal_type', 'expense_type')
     def _onchange_fiscal_type(self):
         if self.partner_id:
-            if self.type == 'out_invoice':
+            if self.type == 'out_invoice' and self.journal_id.ncf_control:
                 self.partner_id.write(
                     {'sale_fiscal_type': self.sale_fiscal_type})
-
-                if self.sale_fiscal_type == "special":
-                    self.partner_id.fiscal_position_id = self.journal_id.special_fiscal_position_id.id
+                self.special_check()
 
             if self.type == 'in_invoice':
                 self.partner_id.write({'expense_type': self.expense_type})
+
+    def special_check(self):
+
+        if self.sale_fiscal_type == "special":
+            self.fiscal_position_id = self.journal_id.special_fiscal_position_id
+        else:
+            self.fiscal_position_id = False
 
     # deprecate
     # @api.onchange("shop_id")
@@ -272,6 +278,7 @@ class AccountInvoice(models.Model):
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
+
 
         return super(AccountInvoice, self).action_invoice_open()
 
