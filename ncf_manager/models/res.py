@@ -47,12 +47,16 @@ class ResCompany(models.Model):
     @api.onchange("name")
     def onchange_company_name(self):
         if self.name:
-            self.env["res.partner"].validate_rnc_cedula()
+            self.partner_id.validate_rnc_cedula(self.name)
+            self.name = self.partner_id.name
+            self.vat = self.partner_id.vat
 
     @api.onchange("vat")
     def onchange_company_vat(self):
         if self.vat:
-            self.env["res.partner"].validate_rnc_cedula()
+            self.partner_id.validate_rnc_cedula(self.vat)
+            self.name = self.partner_id.name
+            self.vat = self.partner_id.vat
 
 
 class ResPartner(models.Model):
@@ -112,7 +116,7 @@ class ResPartner(models.Model):
                 res = partners.name_get()
         return res
 
-    #TODO have to find how to change tax to exept one u sale_fiscal_type == to special
+    # TODO have to find how to change tax to exept one u sale_fiscal_type == to special
     # @api.onchange("sale_fiscal_type")
     # def onchange_sale_fiscal_type(self):
     #     if self.sale_fiscal_type == "special":
@@ -120,10 +124,9 @@ class ResPartner(models.Model):
     #             "ncf_manager.ncf_manager_special_fiscal_position")
 
     @api.model
-    def validate_rnc_cedula(self):
-        if self.name:
-            if self.name.isdigit() and len(self.name) in (9, 11):
-                number = self.name
+    def validate_rnc_cedula(self, number):
+        if number:
+            if number.isdigit() and len(number) in (9, 11):
                 is_rnc = len(number) == 9
                 try:
                     rnc.validate(number) if is_rnc else cedula.validate(number)
@@ -146,12 +149,12 @@ class ResPartner(models.Model):
     @api.onchange("name")
     def onchange_partner_name(self):
         if self.name:
-            self.validate_rnc_cedula()
+            self.validate_rnc_cedula(self.name)
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.vat:
-            self.validate_rnc_cedula()
+            self.validate_rnc_cedula(self.vat)
 
     @api.multi
     def rewrite_due_date(self):
@@ -170,7 +173,6 @@ class ResPartner(models.Model):
                 else:
                     raise UserError(
                         _(u"Debe especificar el término de pago del contacto"))
-
 
     @api.model
     def get_sale_fiscal_type_selection(self):
