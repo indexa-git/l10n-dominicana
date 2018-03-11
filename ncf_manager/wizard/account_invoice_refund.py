@@ -45,6 +45,7 @@ class AccountInvoiceRefund(models.TransientModel):
 
     @api.multi
     def compute_refund(self, mode='refund'):
+        # TODO sale_fiscal_type are missing on refund wizard
         ctx = dict(self._context)
         if self.supplier_ncf:
             ctx.update({"credit_note_supplier_ncf": self.supplier_ncf})
@@ -59,6 +60,7 @@ class AccountInvoiceRefund(models.TransientModel):
         # The created refund invoice is the first invoice in the
         # ('id', 'in', ...) tupla
         created_inv = [x[2] for x in result['domain'] if x[0] == 'id' and x[1] == 'in'][0]
+
         if mode == 'modify':
             # Remove pairs ids, because they are new draft invoices
             del created_inv[1::2]
@@ -68,8 +70,14 @@ class AccountInvoiceRefund(models.TransientModel):
                 origin_inv_id = active_ids[idx]
                 origin_inv = self.env['account.invoice'].browse(origin_inv_id)
                 refund = self.env['account.invoice'].browse(refund_id)
-                vals = {}
 
+                if origin_inv.type == "out_invoice" and origin_inv.journal_id.ncf_control:
+                    refund.sale_fiscal_type = origin_inv.sale_fiscal_type
+
+                if mode != "debit" and origin_inv.residual < self.amount:
+                    raise ValidationError(_("No puede hacer un descuento mayor al saldo de la factura."))
+
+                vals = {}
                 if mode in ("debit", "discount"):
                     new_line = refund.invoice_line_ids[0].copy(
                         {"product_id": False,
@@ -81,10 +89,13 @@ class AccountInvoiceRefund(models.TransientModel):
                                                        [new_line.id])]})
 
                     if mode == "debit":
+
                         vals.update({"is_nd": True})
 
                         if refund.type == "out_refund":
                             vals.update({"type": "out_invoice"})
+                            if result.get("domain", False):
+                                result["domain"][0] = ('type', '=', 'out_invoice')
 
                         if refund.type == "in_refund":
                             vals.update({"type": "in_invoice",
@@ -122,10 +133,10 @@ class AccountInvoiceRefund(models.TransientModel):
                             u"NCF NO pasó validación en DGII\n\n"
                             u"¡El número de comprobante *{}* del proveedor "
                             u"*{}* no pasó la validación en "
-                             "DGII! Verifique que el NCF y el RNC del "
+                            "DGII! Verifique que el NCF y el RNC del "
                             u"proveedor estén correctamente "
                             u"digitados, o si los números de ese NCF se "
-                             "le agotaron al proveedor".format(
+                            "le agotaron al proveedor".format(
                                 self.supplier_ncf,
                                 invoice.partner_id.name)))
 

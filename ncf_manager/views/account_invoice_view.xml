@@ -42,10 +42,12 @@
                     'required': [('ncf_control','=',True),('type','=','out_invoice')]}"/>
             </field>
 
-            <field name="date_invoice" position="after">
-                <field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"
-                       attrs="{'readonly':[('state','!=','draft')],'required': True}"/>
-            </field>
+
+            <!--shop_id field deprefcate on odoo 11-->
+            <!--<field name="date_invoice" position="after">-->
+                <!--<field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"-->
+                       <!--attrs="{'readonly':[('state','!=','draft')],'required': True}"/>-->
+            <!--</field>-->
 
             <field name="number" position="before">
                 <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>

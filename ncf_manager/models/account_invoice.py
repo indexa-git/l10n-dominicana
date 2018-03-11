@@ -58,27 +58,29 @@ class AccountInvoice(models.Model):
             else:
                 inv.is_company_currency = False
 
-    def _default_user_shop(self):
-        Shop = self.env["shop.ncf.config"]
-        shop_user_config = False
+    # deprecate on odoo 11
+    # def _default_user_shop(self):
+    #     Shop = self.env["shop.ncf.config"]
+    #     shop_user_config = False
+    #
+    #     if not self.journal_id:
+    #         shop_user_config = Shop.sudo().search(
+    #             [('user_ids', 'in', self._uid)])
+    #     else:
+    #         shop_user_config = Shop.sudo().search([
+    #             ('user_ids', 'in', self._uid),
+    #             ('journal_id', '=', self.journal_id.id)])
+    #
+    #     if shop_user_config:
+    #         return shop_user_config[0]
+    #     else:
+    #         return False
 
-        if not self.journal_id:
-            shop_user_config = Shop.sudo().search(
-                [('user_ids', 'in', self._uid)])
-        else:
-            shop_user_config = Shop.sudo().search([
-                ('user_ids', 'in', self._uid),
-                ('journal_id', '=', self.journal_id.id)])
-
-        if shop_user_config:
-            return shop_user_config[0]
-        else:
-            return False
-
-    shop_id = fields.Many2one("shop.ncf.config", string="Sucursal",
-                              required=False,
-                              default=_default_user_shop,
-                              domain=lambda s: [('user_ids', '=', [s._uid])])
+    shop_id = fields.Many2one("shop.ncf.config", string="Sucursal")
+    # deprecate on odoo 11
+    # required=False,
+    # default=_default_user_shop,
+    # domain=lambda s: [('user_ids', '=', [s._uid])])
 
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
@@ -210,9 +212,11 @@ class AccountInvoice(models.Model):
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         super(AccountInvoice, self)._onchange_partner_id()
+
         if self.partner_id and self.type == 'out_invoice':
             if self.journal_id.ncf_control:
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
+                self.special_check()
             if not self.partner_id.customer:
                 self.partner_id.customer = True
         elif self.partner_id and self.type == 'in_invoice':
@@ -226,22 +230,26 @@ class AccountInvoice(models.Model):
     @api.onchange('sale_fiscal_type', 'expense_type')
     def _onchange_fiscal_type(self):
         if self.partner_id:
-            if self.type == 'out_invoice':
+            if self.type == 'out_invoice' and self.journal_id.ncf_control:
                 self.partner_id.write(
                     {'sale_fiscal_type': self.sale_fiscal_type})
-
-                if self.sale_fiscal_type == "special":
-                    pass
-                    # self.fiscal_position_id = self.env.ref(
-                    #     "ncf_manager.ncf_manager_special_fiscal_position")
+                self.special_check()
 
             if self.type == 'in_invoice':
                 self.partner_id.write({'expense_type': self.expense_type})
 
-    @api.onchange("shop_id")
-    def onchange_shop_id(self):
-        if self.type in ('out_invoice', 'out_refund'):
-            self.journal_id = self.shop_id.journal_id.id
+    def special_check(self):
+
+        if self.sale_fiscal_type == "special":
+            self.fiscal_position_id = self.journal_id.special_fiscal_position_id
+        else:
+            self.fiscal_position_id = False
+
+    # deprecate
+    # @api.onchange("shop_id")
+    # def onchange_shop_id(self):
+    #     if self.type in ('out_invoice', 'out_refund'):
+    #         self.journal_id = self.shop_id.journal_id.id
 
     @api.onchange("move_name")
     def onchange_ncf(self):
@@ -252,7 +260,11 @@ class AccountInvoice(models.Model):
     def action_invoice_open(self):
         for inv in self:
             if inv.journal_id.ncf_control and not inv.partner_id.sale_fiscal_type:
-                inv.sale_fiscal_type = "final"
+                raise ValidationError(_(
+                    u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
+                    "para este tipo de factura.".format(inv.partner_id.id,
+                                                        inv.partner_id.name)))
+
             if inv.type == "out_invoice" and inv.sale_fiscal_type in (
                     "fiscal", "gov", "special") and inv.journal_id.ncf_control and not inv.partner_id.vat:
                 raise UserError(_(
@@ -266,6 +278,7 @@ class AccountInvoice(models.Model):
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
+
 
         return super(AccountInvoice, self).action_invoice_open()
 

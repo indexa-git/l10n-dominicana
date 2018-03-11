@@ -47,6 +47,13 @@ class AccountJournal(models.Model):
     prefix = fields.Char(related="sequence_id.prefix")
     date_range_ids = fields.One2many(related="sequence_id.date_range_ids")
     ncf_ready = fields.Boolean(compute=check_ncf_ready)
+    special_fiscal_position_id = fields.Many2one("account.fiscal.position", string="Posición fiscal para regímenes especiales.",
+                                                 help="Define la posición fiscal por defecto para los clientes que tienen definido el tipo de comprobante fiscal regímenes especiales.")
+
+    @api.onchange("type")
+    def onchange_type(self):
+        if self.type != 'sale':
+            self.ncf_control = False
 
     @api.multi
     def create_ncf_sequence(self):

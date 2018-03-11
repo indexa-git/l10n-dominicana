@@ -10,7 +10,7 @@
             <xpath expr="//button[@name='toggle_active']" position="after">
                 <field name="ncf_ready" invisible="1"/>
                 <button class="oe_stat_button" type="object" name="create_ncf_sequence" icon="fa-database"
-                attrs="{'invisible':[('ncf_ready','!=',False)]}" string="Generar NCF">
+                        attrs="{'invisible':['|',('ncf_control','!=',True),('ncf_ready','!=',False)]}" string="Generar NCF">
                 </button>
             </xpath>
 
@@ -20,10 +20,12 @@
                 <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
             </field>
 
+
             <notebook>
                 <page string="Secuencias NCF" attrs="{'invisible':[('ncf_control','!=',True)]}">
                     <group>
                         <field name="prefix"/>
+                        <field name="special_fiscal_position_id"/>
                     </group>
                     <field name="date_range_ids">
                         <tree>

@@ -30,7 +30,10 @@ class AccountMove(models.Model):
     def post(self):
         invoice = self._context.get('invoice', False)
         if invoice and invoice.type == "out_invoice":
-            return super(AccountMove, self.with_context(sale_fiscal_type=invoice.sale_fiscal_type)).post()
+            if not invoice.is_nd:
+                return super(AccountMove, self.with_context(sale_fiscal_type=invoice.sale_fiscal_type)).post()
+            else:
+                return super(AccountMove, self.with_context(sale_fiscal_type="debit_note")).post()
         elif invoice and invoice.type == "out_refund":
             return super(AccountMove, self.with_context(sale_fiscal_type="credit_note")).post()
         else:
