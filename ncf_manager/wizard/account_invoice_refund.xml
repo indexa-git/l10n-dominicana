@@ -17,7 +17,7 @@
                                    widget="radio" string="Seleccione una opción"/>
                         </group>
                         <group>
-                            <html>
+                            <html style="font-size:14px !important">
                                 <div class="panel panel-primary">
                                     <div class="panel-heading">
                                         <h3 class="panel-title">Descripción de la opción</h3>
@@ -32,12 +32,14 @@
                                         </div>
                                         <div attrs="{'invisible':['|',('refund_only','=',True),('filter_refund','&lt;&gt;','cancel')]}"
                                              class="alert alert-info" role="alert" colspan="4">
+                                            <strong>Esta opción no es válida para facturas pagadas.</strong>
                                             Utilice esta opción si desea cancelar la factura que
                                             Han emitido, La nota de crédito será creada, validada y reconciliada
                                             Con la factura. No podrá modificar la nota de crédito.
                                         </div>
                                         <div attrs="{'invisible':['|',('refund_only','=',True),('filter_refund','&lt;&gt;','modify')]}"
                                              class="alert alert-info" role="alert" colspan="4">
+                                            <strong>Esta opción no es válida para facturas pagadas.</strong>
                                             Utilice esta opción si desea cancelar una factura y crear una nueva.
                                             La nota de crédito será creada, validada y reconciliada
                                             Con la factura actual. Se creará una nueva factura en estado borrador

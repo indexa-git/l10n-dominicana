@@ -9,7 +9,7 @@ class IrSequence(models.Model):
         "fiscal": "01",
         "final": "02",
         "gov": "15",
-        "esp": "14",
+        "special": "14",
         "unico": '12',
         "debit_note": "03",
         "credit_note": "04"
