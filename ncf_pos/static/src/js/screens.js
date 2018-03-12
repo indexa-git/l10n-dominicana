@@ -79,40 +79,18 @@ odoo.define('ncf_pos.screens', function (require) {
             });
         },
         perform_search: function (query) {
+            
             var self = this;
+             rpc.query({
+                model: 'pos.order',
+                method: 'order_search_from_ui',
+                args: [query]
+            }, {})
+                .then(function (result) {
+                    console.log(result);
+                });
 
-            $.ajax(
-                {
-                    url: "/orders_ws",
-                    dataType: 'json',
-                    type: 'GET',
-                    data: {query: query}
-                }).done(function (result) {
-                    self.render_list(result && result.orders || [])
-                }
-            );
 
-            /*rpc.query({
-             //model: 'res.partner'
-             model: 'pos.order',
-             fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id']
-             }).then(function (result) {
-             alert(result);
-             console.log("result: " + result);
-             },
-             function (type, err) {
-             console.log("Error: " + err);
-             });*/
-
-            //rpc.query({
-            //    route: "/invoices_ws",
-            //    /*method: "GET",*/
-            //    /*params: {value: query}*/
-            //}, {})
-            //    .then(function (result) {
-            //        alert(result);
-            //        console.log("invoices_ws: " + result);
-            //    });
         },
         clear_search: function () {
             //var customers = this.pos.db.get_partners_sorted(1000);
