@@ -143,16 +143,16 @@
     <t t-name="InvoicesLine">
         <tr class='wk-order-line' t-att-data-id='order.id' style="cursor:pointer;">
             <td>
-                <t t-esc='order.name'/>
+                <t t-esc='order.date_order'/>
             </td>
             <td>
-                <t t-esc='order.pos_reference'/>
+                <t t-esc='order.number'/>
             </td>
             <td>
                 <t t-esc="order.partner_id[1] || '-'"/>
             </td>
             <td>
-                <t t-esc='order.date_order'/>
+                <t t-esc='order.amount_total'/>
             </td>
             <td>
                 -

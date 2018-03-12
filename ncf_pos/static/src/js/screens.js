@@ -43,18 +43,12 @@ odoo.define('ncf_pos.screens', function (require) {
         init: function (parent, options) {
             this._super(parent, options);
         },
-
         show: function () {
             var self = this;
-            var inputSearch = this.$('.invoices_search');
             this._super();
-
             this.renderElement();
-            //var invoices = self.pos.db.pos_all_invoices;
-            //this.render_list(invoices, undefined);
 
             this.$('.button').click(function () {
-                //self.render_list(invoices, this.value);
                 self.perform_search(self.$('.invoices_search').val());
             });
 
@@ -62,13 +56,10 @@ odoo.define('ncf_pos.screens', function (require) {
                 self.gui.back();
             });
 
-            //var search_timeout = null;
-
             if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
                 this.chrome.widget.keyboard.connect(this.$('.invoices_search'));
             }
 
-            //this.$('.searchbox input').on('keypress', function (event) {
             this.$('.invoices_search').on('keypress', function (event) {
                 if (event.which === 13)
                     self.perform_search(this.value);
@@ -79,8 +70,10 @@ odoo.define('ncf_pos.screens', function (require) {
             });
         },
         perform_search: function (query) {
-            
             var self = this;
+
+            if($.trim(query) == "") return false;
+
              rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
@@ -89,12 +82,8 @@ odoo.define('ncf_pos.screens', function (require) {
                 .then(function (result) {
                     console.log(result);
                 });
-
-
         },
         clear_search: function () {
-            //var customers = this.pos.db.get_partners_sorted(1000);
-            //this.render_list(customers);
             this.$('.invoices_search')[0].value = '';
             this.$('.invoices_search').focus();
         },
@@ -103,7 +92,7 @@ odoo.define('ncf_pos.screens', function (require) {
             var contents = this.$('.client-list-contents');
 
             contents.empty();
-            $.each(orders, function (i, e) {
+            $.each(orders.wk_order, function (i, e) {
                 var rowHtml = QWeb.render('InvoicesLine', {widget: self, order: e});
                 contents.append(rowHtml);
             });

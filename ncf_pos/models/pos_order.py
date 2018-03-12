@@ -1,5 +1,4 @@
 from odoo import models, fields, api
-import ipdb; 
 class PosOrder(models.Model):
     _inherit = "pos.order"
 
@@ -16,6 +15,7 @@ class PosOrder(models.Model):
                 "date_order": order.date_order,
                 "id": order.id,
                 "invoice_id": [order.invoice_id.id, order.invoice_id.number],
+                "number": order.invoice_id.number,
                 "is_return_order": order.is_return_order,
                 "name": order.name,
                 "pos_reference": order.pos_reference,
