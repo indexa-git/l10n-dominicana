@@ -30,5 +30,12 @@ odoo.define('ncf_pos.models', function (require) {
                     self.set_sale_fiscal_type_selection(result);
                 });
         }
+    }),
+
+    models.Order = models.Order.extend({
+        is_to_invoice: function(){
+            return true ;     
+        }
     })
+
 });
