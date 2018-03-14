@@ -35,5 +35,5 @@ class PosOrder(models.Model):
                     "product_id": [line.product_id.id, line.product_id.name],
                 }
                 order_lines_list.append(order_lines_json)
-        return {"wk_order": order_list, "wk_order_lines": order_lines_list}
+        return {"orders": order_list, "order_lines": order_lines_list}
 
