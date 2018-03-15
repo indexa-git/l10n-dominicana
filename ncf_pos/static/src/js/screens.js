@@ -107,4 +107,11 @@ odoo.define('ncf_pos.screens', function (require) {
     });
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
+    var PaymentScreenWidget = screens.PaymentScreenWidget.extend({
+        show: function() {
+            this._super();
+
+            $(".button.js_invoice").destroy();
+        }
+    });
 });

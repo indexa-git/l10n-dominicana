@@ -34,5 +34,17 @@ odoo.define('ncf_pos.models', function (require) {
                     self.sale_fiscal_type_selection = result;
                 });
         },
-    })
+    });
+
+    var _super_order = models.Order.prototype;
+    models.Order = models.Order.extend({
+        initialize: function(attributes,options){
+            
+            _super_order.initialize.apply(this, arguments);
+
+            if (this.pos.config.iface_invoicing) {
+                this.to_invoice = true;
+            }
+        }
+    });
 });
