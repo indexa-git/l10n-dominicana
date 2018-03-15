@@ -6,18 +6,22 @@ odoo.define('ncf_pos.models', function (require) {
 
     models.load_fields("res.partner", ['sale_fiscal_type']);
 
-
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
         initialize: function (session, attributes) {
+            var self = this;
+            this.invoices = [];
             this.sale_fiscal_type_selection = [];
+
+            _super_posmodel.initialize.call(this, session, attributes);
+        },
+
+        load_server_data: function () {
             this.get_sale_fiscal_type_selection();
-            return _super_posmodel.initialize.call(this, session, attributes);
+
+            return _super_posmodel.load_server_data.call(this);
         },
-        set_sale_fiscal_type_selection: function (result) {
-            if (result)
-                this.sale_fiscal_type_selection = result;
-        },
+
         get_sale_fiscal_type_selection: function () {
             var self = this;
 
@@ -27,8 +31,8 @@ odoo.define('ncf_pos.models', function (require) {
                 args: []
             }, {})
                 .then(function (result) {
-                    self.set_sale_fiscal_type_selection(result);
+                    self.sale_fiscal_type_selection = result;
                 });
-        }
+        },
     })
 });

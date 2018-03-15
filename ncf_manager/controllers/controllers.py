@@ -3,7 +3,6 @@ from odoo import http
 import json
 import requests
 import re
-
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -15,9 +14,6 @@ except(ImportError, IOError) as err:
 
 
 class Odoojs(http.Controller):
-    
-
-
     @http.route('/dgii_ws', auth='public')
     def index(self, **kwargs):
         """
@@ -28,7 +24,7 @@ class Odoojs(http.Controller):
         """
         term = kwargs.get("term", False)
         if term:
-            if term.isdigit() and len(term) in [9,11]:
+            if term.isdigit() and len(term) in [9, 11]:
                 result = rnc.check_dgii(term)
             else:
                 result = rnc.search_dgii(term, end_at=20, start_at=1)
@@ -37,6 +33,6 @@ class Odoojs(http.Controller):
                     result = [result]
 
                 for d in result:
-                    d["name"] = " ".join(re.split("\s+", d["name"], flags=re.UNICODE))  #remove all duplicate white space from the name
+                    d["name"] = " ".join(re.split("\s+", d["name"], flags=re.UNICODE))  # remove all duplicate white space from the name
                     d["label"] = "{} - {}".format(d["rnc"], d["name"])
                 return json.dumps(result)

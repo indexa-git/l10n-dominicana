@@ -3,6 +3,9 @@ odoo.define('ncf_pos.screens', function (require) {
 
     var screens = require('point_of_sale.screens');
     var gui = require('point_of_sale.gui');
+    var core = require('web.core');
+    var rpc = require('web.rpc');
+    var QWeb = core.qweb;
 
     screens.ClientListScreenWidget.include({
         display_client_details: function (visibility, partner, clickpos) {
@@ -39,33 +42,68 @@ odoo.define('ncf_pos.screens', function (require) {
 
         init: function (parent, options) {
             this._super(parent, options);
-            var self = this;
-
-            $(document).on('click', '.back', function () {
-                self.gui.back();
-            });
-
-            $(document).on('click', '.search', function () {
-                console.log("Llenar Grid");
-            });
         },
-
-        auto_back: false,
-
         show: function () {
             var self = this;
             this._super();
-            //var invoices = self.pos.db.pos_all_invoices;
-            //this.render_list(invoices, undefined);
-            this.$('invoices_search').keyup(function () {
-                //self.render_list(invoices, this.value);
+            this.renderElement();
+
+            this.$('.button').click(function () {
+                self.perform_search(self.$('.invoices_search').val());
             });
 
-        },
+            this.$('.back').click(function () {
+                self.gui.back();
+            });
 
-        //close: function () {
-        //    this._super();
-        //},
+            if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
+                this.chrome.widget.keyboard.connect(this.$('.invoices_search'));
+            }
+
+            this.$('.invoices_search').on('keypress', function (event) {
+                if (event.which === 13)
+                    self.perform_search(this.value);
+            });
+
+            this.$('.searchbox .search-clear').click(function () {
+                self.clear_search();
+            });
+        },
+        perform_search: function (query) {
+            var self = this;
+
+            if($.trim(query) == "") return false;
+
+             rpc.query({
+                model: 'pos.order',
+                method: 'order_search_from_ui',
+                args: [query]
+            }, {})
+                .then(function (result) {
+                     self.render_list(result && result.orders || []);
+                    console.log(result);
+                });
+        },
+        clear_search: function () {
+            this.$('.invoices_search')[0].value = '';
+            this.$('.invoices_search').focus();
+        },
+        render_list: function (orders) {
+            var self = this;
+            var contents = this.$('.client-list-contents');
+
+            contents.empty();
+            $.each(orders, function (i, e) {
+                var rowHtml = QWeb.render('InvoicesLine', {widget: self, order: e});
+                contents.append(rowHtml);
+            });
+        },
+        close: function () {
+            this._super();
+            if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
+                this.chrome.widget.keyboard.hide();
+            }
+        },
     });
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
