@@ -22,7 +22,6 @@ class PosOrder(models.Model):
                 "lines": [line.id for line in order.lines],
                 "statement_ids": [statement_id.id for statement_id in order.statement_ids],
             }
-            order_list.append(order_json)
             for line in order.lines:
                 order_lines_json = {
                     "discount": line.discount,
@@ -35,5 +34,7 @@ class PosOrder(models.Model):
                     "product_id": [line.product_id.id, line.product_id.name],
                 }
                 order_lines_list.append(order_lines_json)
-        return {"orders": order_list, "order_lines": order_lines_list}
+            order_json["lines"] = order_lines_list
+            order_list.append(order_json)
+        return {"orders": order_list}
 

@@ -80,6 +80,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 args: [query]
             }, {})
                 .then(function (result) {
+                     self.render_list(result && result.orders || []);
                     console.log(result);
                 });
         },
@@ -92,7 +93,7 @@ odoo.define('ncf_pos.screens', function (require) {
             var contents = this.$('.client-list-contents');
 
             contents.empty();
-            $.each(orders.wk_order, function (i, e) {
+            $.each(orders, function (i, e) {
                 var rowHtml = QWeb.render('InvoicesLine', {widget: self, order: e});
                 contents.append(rowHtml);
             });
