@@ -1,12 +1,14 @@
 from odoo import models, fields, api
+
+
 class PosOrder(models.Model):
     _inherit = "pos.order"
 
     @api.model
     def order_search_from_ui(self, input_txt):
-        
+
         invoice_ids = self.env["account.invoice"].search([('number', 'ilike', "%{}%".format(input_txt))], limit=100)
-        order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])  
+        order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
         order_list = []
         order_lines_list = []
         for order in order_ids:
@@ -37,4 +39,3 @@ class PosOrder(models.Model):
             order_json["lines"] = order_lines_list
             order_list.append(order_json)
         return {"orders": order_list}
-
