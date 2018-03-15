@@ -72,15 +72,15 @@ odoo.define('ncf_pos.screens', function (require) {
         perform_search: function (query) {
             var self = this;
 
-            if($.trim(query) == "") return false;
+            if ($.trim(query) == "") return false;
 
-             rpc.query({
+            rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
                 args: [query]
             }, {})
                 .then(function (result) {
-                     self.render_list(result && result.orders || []);
+                    self.render_list(result && result.orders || []);
                     console.log(result);
                 });
         },
@@ -106,5 +106,13 @@ odoo.define('ncf_pos.screens', function (require) {
         },
     });
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
+
+    screens.PaymentScreenWidget.include({
+        show: function () {
+            this._super();
+            $(".button.js_invoice").remove();
+        }
+    });
+
 
 });
