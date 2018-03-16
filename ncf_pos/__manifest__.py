@@ -40,6 +40,8 @@
     'data': [
         # 'security/ir.model.access.csv',
         'views/templates.xml',
+        'views/pos_config.xml',
+        'data/data.xml',
         ],
     'qweb': ['static/src/xml/pos.xml']
 
