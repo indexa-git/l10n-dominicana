@@ -1,0 +1,23 @@
+<odoo>
+
+
+    <record id="pos_config_view_form" model="ir.ui.view">
+        <field name="name">pos_config_view_form</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+
+
+            <xpath expr="//div[@id='iface_invoicing']//div[2]//div[2]">
+                <div class="row mt16">
+                    <label string="Cliente de consumo" for="pos_default_partner_id" class="col-md-3 o_light_label"/>
+                    <field name="pos_default_partner_id"/>
+                </div>
+            </xpath>
+
+        </field>
+
+
+    </record>
+
+</odoo>
