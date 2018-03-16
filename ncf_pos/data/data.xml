@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="default_partner_on_pos" model="res.partner">
+        <field name="name">Cliente de consumo</field>
+    </record>
+</odoo>

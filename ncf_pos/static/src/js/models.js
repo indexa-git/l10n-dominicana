@@ -5,14 +5,16 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields("res.partner", ['sale_fiscal_type']);
+    models.load_fields("pos.config", ['pos_default_partner_id']);
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
         initialize: function (session, attributes) {
             var self = this;
             this.invoices = [];
-            this.sale_fiscal_type_selection = [];
 
+            // This object define sale_fiscal_type con pos
+            this.sale_fiscal_type_selection = [];
             _super_posmodel.initialize.call(this, session, attributes);
         },
 
@@ -33,17 +35,24 @@ odoo.define('ncf_pos.models', function (require) {
                 .then(function (result) {
                     self.sale_fiscal_type_selection = result;
                 });
-        },
+        }
     });
 
     var _super_order = models.Order.prototype;
     models.Order = models.Order.extend({
-        initialize: function(attributes,options){
-            
+        initialize: function (attributes, options) {
             _super_order.initialize.apply(this, arguments);
 
             if (this.pos.config.iface_invoicing) {
+                var pos_default_partner = this.pos.config.pos_default_partner_id;
                 this.to_invoice = true;
+
+                if (pos_default_partner) {
+                    var client = this.pos.db.get_partner_by_id(pos_default_partner[0]);
+
+                    if (client)
+                        this.set_client(client);
+                }
             }
         }
     });
