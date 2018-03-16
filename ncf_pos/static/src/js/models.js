@@ -39,12 +39,20 @@ odoo.define('ncf_pos.models', function (require) {
 
     var _super_order = models.Order.prototype;
     models.Order = models.Order.extend({
-        initialize: function(attributes,options){
-            
+        initialize: function (attributes, options) {
             _super_order.initialize.apply(this, arguments);
+
+            var pos_default_partner = this.pos.config.pos_default_partner_id;
 
             if (this.pos.config.iface_invoicing) {
                 this.to_invoice = true;
+
+                if (pos_default_partner) {
+                    var client = this.pos.db.get_partner_by_id(pos_default_partner[0]);
+
+                    if (client)
+                        this.set_client(client);
+                }
             }
         }
     });
