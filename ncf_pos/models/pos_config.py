@@ -9,7 +9,7 @@ class PosConfig(models.Model):
 
     @api.onchange("iface_invoicing")
     def onchange_iface_invoicing(self):
-        default_partner = self.env.ref("ncf_pos.cliente_consumo_pos", raise_if_not_found=False)
+        default_partner = self.env.ref("ncf_pos.default_partner_on_pos", raise_if_not_found=False)
         if self.iface_invoicing and default_partner:
             self.pos_default_partner_id = default_partner.id
         else:

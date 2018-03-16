@@ -12,8 +12,9 @@ odoo.define('ncf_pos.models', function (require) {
         initialize: function (session, attributes) {
             var self = this;
             this.invoices = [];
-            this.sale_fiscal_type_selection = [];
 
+            // This object define sale_fiscal_type con pos
+            this.sale_fiscal_type_selection = [];
             _super_posmodel.initialize.call(this, session, attributes);
         },
 
@@ -34,7 +35,7 @@ odoo.define('ncf_pos.models', function (require) {
                 .then(function (result) {
                     self.sale_fiscal_type_selection = result;
                 });
-        },
+        }
     });
 
     var _super_order = models.Order.prototype;
@@ -42,9 +43,8 @@ odoo.define('ncf_pos.models', function (require) {
         initialize: function (attributes, options) {
             _super_order.initialize.apply(this, arguments);
 
-            var pos_default_partner = this.pos.config.pos_default_partner_id;
-
             if (this.pos.config.iface_invoicing) {
+                var pos_default_partner = this.pos.config.pos_default_partner_id;
                 this.to_invoice = true;
 
                 if (pos_default_partner) {
