@@ -127,9 +127,12 @@ class ResPartner(models.Model):
     def validate_rnc_cedula(self, number):
         if number:
             if number.isdigit() and len(number) in (9, 11):
-                exists = self.search([('vat', '=', number)])
-                if exists:
-                    raise UserError(_("Este RNC/Ced ya existe!"))
+                message = "El contacto: %s, esta registrado con este RNC/Céd."
+                contact = self.search([('vat', '=', number)])
+                if contact:
+                    name = contact.name if len(contact) == 1 else ", ".join(
+                        [x.name for x in contact])
+                    raise UserError(_(message % name))
 
                 is_rnc = len(number) == 9
                 try:
