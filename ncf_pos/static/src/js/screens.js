@@ -146,6 +146,14 @@ odoo.define('ncf_pos.screens', function (require) {
                             self.gui.show_screen('products');
                         }
                     });
+                } else if (self.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !client.vat) {
+                    self.gui.show_popup('error', {
+                        'title': 'Error: Factura sin Cedula de Cliente',
+                        'body': 'El cliente debe tener una cedula si el total de la factura es 50 mil pesos o mas',
+                        'cancel': function () {
+                            self.gui.show_screen('products');
+                        }
+                    });
                 } else if ((client.sale_fiscal_type == 'fiscal' || client.sale_fiscal_type == 'gov' || client.sale_fiscal_type == 'special') && (client.vat == false || client.vat == null)) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Para el tipo de comprobante',
