@@ -114,5 +114,44 @@ odoo.define('ncf_pos.screens', function (require) {
         }
     });
 
+    screens.ActionpadWidget.include({
+        renderElement: function() {
+            var self = this;
+            this._super();
+
+            this.$('.pay').on("click", function(){
+                var order = self.pos.get_order();
+                var has_valid_product_lot = _.every(order.orderlines.models, function(line){
+                    return line.has_valid_product_lot();
+                });
+                if(!has_valid_product_lot){
+                    self.gui.show_popup('confirm',{
+                        'title': _t('Empty Serial/Lot Number'),
+                        'body':  _t('One or more product(s) required serial/lot number.'),
+                        confirm: function(){
+                            self.gui.show_screen('payment');
+                        },
+                    });
+                }else{
+                    self.gui.show_screen('payment');
+                }
+                if(order.get_total_with_tax() === 0) {
+                    self.gui.show_popup('error', {
+                        'title': 'No existen articulos a pagar',
+                        'body': 'La orden esta vacia, no existen articulos a pagar.' +
+                                'Por favor elija algun articulo',
+                        'cancel': function() {
+                            self.gui.show_screen('products');
+                        }
+                    });
+                }
+                debugger;
+            });
+            this.$('.set-customer').click(function(){
+                self.gui.show_screen('clientlist');
+            });
+        }
+    });
+
 
 });
