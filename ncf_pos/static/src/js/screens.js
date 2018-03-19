@@ -31,10 +31,10 @@ odoo.define('ncf_pos.screens', function (require) {
     });
 
     /*--------------------------------------*\
-      THE INVOICES LIST
+     THE INVOICES LIST
      ======================================
-      The invoiceslist displays the list of invoices,
-      and allows the cashier to reoder and rewrite the invoices.
+     The invoiceslist displays the list of invoices,
+     and allows the cashier to reoder and rewrite the invoices.
      */
     var InvoicesListScreenWidget = screens.ScreenWidget.extend({
         template: 'InvoicesListScreenWidget',
@@ -113,7 +113,7 @@ odoo.define('ncf_pos.screens', function (require) {
         show: function () {
             var self = this;
             var contents = this.$('.order-details-contents');
-            var parent = this.$('.order_list').parent();
+            var parent = this.$('.order-list').parent();
 
             this._super();
             contents.empty();
@@ -134,23 +134,27 @@ odoo.define('ncf_pos.screens', function (require) {
             var self = this;
             var order = self.pos.db.order_by_id[id];
 
-            this.$('.order_list .lowlight').removeClass('lowlight');
+            this.$('.order-list .lowlight').removeClass('lowlight');
 
             if ($line.hasClass('highlight')) {
+                $line.removeClass('highlight');
+                $line.addClass('lowlight');
                 this.display_order_details('hide');
             }
             else {
-                this.$('.order_list .highlight').removeClass('highlight');
+                var y;
+
+                this.$('.order-list .highlight').removeClass('highlight');
                 $line.addClass('highlight');
-                self.selected_tr_element = $line;
-                var y = event.pageY - $line.parent().offset().top;
-                self.display_order_details('show', order, y);
+                this.selected_tr_element = $line;
+                y = event.pageY - $line.parent().offset().top;
+                this.display_order_details('show', order, y);
             }
         },
         display_order_details: function (visibility, order, clickpos) {
             var self = this;
             var contents = this.$('.order-details-contents');
-            var parent = this.$('.order_list').parent();
+            var parent = this.$('.order-list').parent();
             var scroll = parent.scrollTop();
             var height = contents.height();
             var new_height = 0;
@@ -170,14 +174,12 @@ odoo.define('ncf_pos.screens', function (require) {
                 if (!this.details_visible) {
                     if (clickpos < scroll + new_height + 20) {
                         parent.scrollTop(clickpos - 20);
-                    } else {
-                        parent.scrollTop(parent.scrollTop() + new_height);
                     }
+                    else
+                        parent.scrollTop(parent.scrollTop() + new_height);
                 }
-                else {
+                else
                     parent.scrollTop(parent.scrollTop() - height + new_height);
-                }
-                this.details_visible = true;
 
                 this.$("#close_order_details").on("click", function () {
                     self.display_order_details('hide');
@@ -196,11 +198,11 @@ odoo.define('ncf_pos.screens', function (require) {
                             contents.css({height: ''});
                         });
                 }
-                else {
+                else
                     parent.scrollTop(parent.scrollTop() - height);
-                }
-                this.details_visible = false;
             }
+
+            this.details_visible = (visibility === 'show');
         }
     });
 
