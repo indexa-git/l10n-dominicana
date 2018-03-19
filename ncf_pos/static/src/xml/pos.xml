@@ -111,14 +111,14 @@
                     <div class='window'>
                         <section class='subwindow collapsed'>
                             <div class='subwindow-container collapsed'>
-                                <div class='subwindow-container-fix client-details-contents'>
+                                <div class='subwindow-container-fix order-details-contents'>
                                 </div>
                             </div>
                         </section>
                         <section class='subwindow'>
                             <div class='subwindow-container'>
                                 <div class='subwindow-container-fix touch-scrollable scrollable-y'>
-                                    <table class='client-list'>
+                                    <table class='client-list order-list'>
                                         <thead>
                                             <tr>
                                                 <th>Fecha Orden</th>
@@ -128,7 +128,7 @@
                                                 <th>Estado</th>
                                             </tr>
                                         </thead>
-                                        <tbody class='client-list-contents'>
+                                        <tbody class='order-list-contents'>
                                         </tbody>
                                     </table>
                                 </div>
@@ -141,7 +141,7 @@
     </t>
 
     <t t-name="InvoicesLine">
-        <tr class='wk-order-line' t-att-data-id='order.id' style="cursor:pointer;">
+        <tr class='order-line' t-att-data-id='order.id' style="cursor:pointer;">
             <td>
                 <t t-esc='order.date_order'/>
             </td>
@@ -158,6 +158,156 @@
                 -
             </td>
         </tr>
+    </t>
+
+    <t t-name="OrderDetails">
+        <section class='order-details' style="border-bottom: solid 5px rgb(110,200,155);">
+            <div class='client-details-box clearfix' style="background-color: rgb(252, 252, 252);">
+                <div class='client-details-left' style="margin-bottom: 1%;">
+                    <div class='client-detail'>
+                        <h2 style="margin-left: 5.6%;color: rgb(67, 134, 111);">Detalles de la Orden</h2>
+                    </div>
+                    <div class='client-detail' style="margin-left: 6.3%;">
+                        <span class='label' style="text-align: left;">Nombre:</span>
+                        <span class='detail client-address'>
+                            <t t-esc='order.name'/>
+                        </span>
+                    </div>
+                    <t t-if="order.partner_id">
+                        <div class='client-detail' style="margin-left: 6.3%;">
+                            <span class='label'>Cliente:</span>
+                            <span class='detail client-address'>
+                                <t t-esc='order.partner_id[1]'/>
+                            </span>
+                        </div>
+                    </t>
+                    <t t-if="!order.partner_id">
+                        <div class='client-detail' style="margin-left: 6.3%;">
+                            <span class='label'>Cliente:</span>
+                            -
+                        </div>
+                    </t>
+                </div>
+                <div class='client-details-right' style="margin-right: -20%;">
+                    <t t-if="!order.refunded">
+                        <div class='client-detail'>
+                            <div id="refund" class='control-button highlight'
+                                 style="margin-left: 18%;margin-top: 1%;">
+                                NC/Devolución
+                            </div>
+                        </div>
+                    </t>
+                    <img id="close_order_details" src="/pos_order_return/static/src/img/icon-cross.png"
+                         style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
+                    <div class='client-detail'>
+                        <span class='label' style="text-align: left;">Fecha:</span>
+                        <span class='detail client-id'>
+                            <t t-esc='order.date_order'/>
+                        </span>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label' style="text-align: left;width: 27%;">NC/Devolución:</span>
+                        <span class='detail client-id'>
+                            <t t-esc='order.return_status'/>
+                        </span>
+                    </div>
+                </div>
+
+                <div class='order-detail' style="width: 100%;text-align: left;margin-left: 3%;">
+                    <table border="1" frame="void" rules="rows" id="order_line_content"
+                           style="width: 94%;text-align:center;border-bottom: 3px solid rgb(70, 150, 110);">
+                        <tr style="color: rgb(51, 112, 39);border-bottom: 3px solid rgb(67, 134, 111);">
+                            <th style="text-align:left;width: 35%;">Producto</th>
+                            <th style="width: 10%;">Cantidad</th>
+                            <th style="width: 10%;">Devoluciones</th>
+                            <th style="width: 10%;">Precio Unitario</th>
+                            <th style="width: 10%;">Impuesto</th>
+                            <th style="width: 10%;">Descuento(%)</th>
+                            <th style="width: 10%;">Precio</th>
+                        </tr>
+                        <t t-foreach='orderlines' t-as='line'>
+                            <tr>
+                                <td style="text-align:left">
+                                    <t t-if="widget.pos.db.get_product_by_id(line.product_id[0])">
+                                        <t t-if="widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
+                                            <t t-esc="line.product_id[1]"/>
+                                            <b style="color: rgb(160, 89, 89);">(Non-Returnable)</b>
+                                        </t>
+                                        <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
+                                            <t t-esc="line.product_id[1]"/>
+                                        </t>
+                                    </t>
+                                    <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0])">
+                                        <t t-esc="line.product_id[1]"/>
+                                        <b style="color: rgb(160, 89, 89);">(Unavailable In POS)</b>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-esc="line.qty"/>
+                                </td>
+                                <td>
+                                    <t t-if="line.line_qty_returned == 0">
+                                        -
+                                    </t>
+                                    <t t-if="line.line_qty_returned != 0">
+                                        <t t-esc="line.line_qty_returned"/>
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-esc="widget.chrome.screens.payment.format_currency(line.price_unit)"/>
+                                </td>
+                                <td>
+                                    <t t-if="line.price_subtotal_incl - line.price_subtotal != 0.0">
+                                        <t t-esc="widget.chrome.screens.payment.format_currency(Math.abs(line.price_subtotal_incl - line.price_subtotal))"/>
+                                    </t>
+                                    <t t-if="line.price_subtotal_incl - line.price_subtotal == 0.0">
+                                        -
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-if="line.discount == 0">
+                                        -
+                                    </t>
+                                    <t t-if="line.discount != 0">
+                                        <t t-esc="line.discount"/>%
+                                    </t>
+                                </td>
+                                <td>
+                                    <t t-esc="widget.chrome.screens.payment.format_currency(line.price_subtotal_incl)"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </table>
+                </div>
+                <div class='client-details-box clearfix'>
+                    <div class='client-details-left' style="margin-top: 1%;">
+                        <div class='client-detail'>
+                            <span class='label'
+                                  style="width: 27.5%;color: rgb(67, 134, 111);text-align: left;margin-left: 5.7%;">
+                                Métodos de pago:
+                            </span>
+                            <ul style="margin-left: 5.7%;">
+                                <t t-foreach='statements' t-as='statement'>
+                                    <li>
+                                        <t t-esc="statement.journal_id[1]"/>
+                                        (<t t-esc="widget.chrome.screens.payment.format_currency(statement.amount)"/>)
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class='client-details-right' style="margin-top: 1%;margin-right: -26%;">
+                        <div class='client-detail'>
+                            <span class='label'>Total</span>
+                            <span class='detail client-id' style="color: rgb(67, 134, 111);font-weight: bold;">
+                                <t t-esc='widget.chrome.screens.payment.format_currency(order.amount_total)'/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+            </div>
+        </section>
     </t>
 
 </templates>
