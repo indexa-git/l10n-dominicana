@@ -149,7 +149,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 } else if (self.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !client.vat) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Factura sin Cedula de Cliente',
-                        'body': 'El cliente debe tener una cedula si el total de la factura es 50 mil pesos o mas',
+                        'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
                         'cancel': function () {
                             self.gui.show_screen('products');
                         }
@@ -177,7 +177,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         if (line.get_price_with_tax() <= 0) {
                             self.gui.show_popup('error', {
                                 'title': 'Error: Precio de producto',
-                                'body': 'Ningun producto puede tener precio 0 o menor',
+                                'body': 'Ningun producto puede tener precio menor o igual a RD$0',
                                 'cancel': function() {
                                     self.gui.show_screen('products');
                                 }
