@@ -261,7 +261,7 @@ odoo.define('ncf_pos.screens', function (require) {
                             self.gui.show_screen('products');
                         }
                     });
-                } else if(order.get_total_with_tax() === 0) {
+                } else if(order.get_total_with_tax() <= 0) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Cantidad de articulos a pagar',
                         'body': 'La orden esta vacia, no existen articulos a pagar. Por favor elija algun articulo',
@@ -271,7 +271,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     });
                 } else {
                     order.orderlines.find(function(line) {
-                        if (line.get_price_with_tax() <= 0) {
+                        if (line.get_price_with_tax() < 0) {
                             self.gui.show_popup('error', {
                                 'title': 'Error: Precio de producto',
                                 'body': 'Ningun producto puede tener precio menor o igual a RD$0',
