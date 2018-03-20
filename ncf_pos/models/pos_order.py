@@ -10,7 +10,6 @@ class PosOrder(models.Model):
         invoice_ids = self.env["account.invoice"].search([('number', 'ilike', "%{}%".format(input_txt))], limit=100)
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
         order_list = []
-        order_lines_list = []
         for order in order_ids:
             order_json = {
                 "amount_total": order.amount_total,
@@ -24,6 +23,7 @@ class PosOrder(models.Model):
                 "lines": [line.id for line in order.lines],
                 "statement_ids": [statement_id.id for statement_id in order.statement_ids],
             }
+            order_lines_list = []
             for line in order.lines:
                 order_lines_json = {
                     "discount": line.discount,
