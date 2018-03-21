@@ -245,7 +245,7 @@ odoo.define('ncf_pos.screens', function (require) {
                             self.gui.show_screen('products');
                         }
                     });
-                } else if (self.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !client.vat) {
+                } else if (order.get_total_without_tax() >= 50000 && !has_vat(client)) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Factura sin Cedula de Cliente',
                         'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
@@ -253,7 +253,7 @@ odoo.define('ncf_pos.screens', function (require) {
                             self.gui.show_screen('products');
                         }
                     });
-                } else if ((client.sale_fiscal_type == 'fiscal' || client.sale_fiscal_type == 'gov' || client.sale_fiscal_type == 'special') && (client.vat == false || client.vat == null)) {
+                } else if (self.has_fiscal_type(client, ["fiscal", "gov", "special"])) {
                     self.gui.show_popup('error', {
                         'title': 'Error: Para el tipo de comprobante',
                         'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
@@ -290,6 +290,12 @@ odoo.define('ncf_pos.screens', function (require) {
             this.$('.set-customer').click(function(){
                 self.gui.show_screen('clientlist');
             });
+        },
+        has_vat: function(client) {
+            return client.vat;
+        },
+        has_fiscal_type: function(client, fiscal_types) {
+            return _.contains(fiscal_types, client.sale_fiscal_type) && !has_vat(client);
         }
     });
 });
