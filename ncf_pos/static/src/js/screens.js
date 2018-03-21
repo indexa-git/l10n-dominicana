@@ -213,7 +213,8 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         validate_order: function(force_validation) {
             // TODO: refactor this
-            var client = self.pos.get_client();
+            var order = this.pos.get_order();
+            var client = this.pos.get_client();
             function has_client_vat(client) {
                 return client.vat;
             }
@@ -222,53 +223,63 @@ odoo.define('ncf_pos.screens', function (require) {
             }
             
             if(order.get_total_with_tax() <= 0) {
-                self.gui.show_popup('error', {
+                this.gui.show_popup('error', {
                     'title': 'Error: Cantidad de articulos a pagar',
                     'body': 'La orden esta vacia, no existen articulos a pagar.',
                     'cancel': function() {
-                        self.gui.show_screen('products');
+                        this.gui.show_screen('products');
                     }
                 });
-            } else if (self.pos.config.iface_invoicing && !client) {
-                self.gui.show_popup('error', {
+
+                return false;
+            } else if (this.pos.config.iface_invoicing && !client) {
+                this.gui.show_popup('error', {
                     'title': 'Error: Factura sin Cliente',
                     'body': 'Debe seleccionar un cliente para poder realizar el pago, o utilizar el cliente por defecto; de no tener un cliente por defecto, pida ayuda a su encargado para que lo establezca.',
                     'cancel': function () {
-                        self.gui.show_screen('products');
+                        this.gui.show_screen('products');
                     }
                 });
+
+                return false;
             } else if (order.get_total_without_tax() >= 50000 && !has_client_vat(client)) {
-                self.gui.show_popup('error', {
+                this.gui.show_popup('error', {
                     'title': 'Error: Factura sin Cedula de Cliente',
                     'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
                     'cancel': function () {
-                        self.gui.show_screen('products');
+                        this.gui.show_screen('products');
                     }
                 });
+
+                return false;
             } else if (has_client_fiscal_type(client, ["fiscal", "gov", "special"])) {
-                self.gui.show_popup('error', {
+                this.gui.show_popup('error', {
                     'title': 'Error: Para el tipo de comprobante',
                     'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
                     'cancel': function () {
-                        self.gui.show_screen('products');
+                        this.gui.show_screen('products');
                     }
                 });
+                return false;
             } else {
                 order.orderlines.find(function(line) {
                     if (line.get_price_with_tax() < 0) {
-                        self.gui.show_popup('error', {
+                        this.gui.show_popup('error', {
                             'title': 'Error: Precio de producto',
                             'body': 'Ningun producto puede tener precio menor a RD$0',
                             'cancel': function() {
-                                self.gui.show_screen('products');
+                                this.gui.show_screen('products');
                             }
                         });
 
                         return true;
                     }
                 });
+                
+                return false;
             }
-            this._super(force_validation);
+
+            this._super();
         }
     });
 
