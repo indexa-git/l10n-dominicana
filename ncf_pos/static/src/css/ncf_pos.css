@@ -5,3 +5,8 @@
     line-height: 18px;
     font-size: 14px;
 }
+
+.popup > p.body {
+    white-space: pre-wrap;
+    text-align: left;
+}
