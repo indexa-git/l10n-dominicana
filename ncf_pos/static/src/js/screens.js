@@ -108,7 +108,6 @@ odoo.define('ncf_pos.screens', function (require) {
             }
         },
     });
-    gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
     InvoicesListScreenWidget.include({
         show: function () {
@@ -260,6 +259,8 @@ odoo.define('ncf_pos.screens', function (require) {
             this.details_visible = (visibility === 'show');
         }
     });
+
+    gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
     var OrderReturnPopup = PopupWidget.extend({
         template: 'OrderReturnPopup',
