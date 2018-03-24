@@ -9,7 +9,8 @@ odoo.define('ncf_pos.models', function (require) {
 
     models.load_models([{
         model: 'pos.order',
-        fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id'],
+        fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id',
+            'amount_total', 'number', 'statement_ids'],
         domain: function (self) {
             var domain_list = [];
             if (self.config.order_loading_options == 'n_days') {
@@ -26,40 +27,69 @@ odoo.define('ncf_pos.models', function (require) {
                 ];
             return domain_list;
         },
-        loaded: function (self, wk_order) {
-            self.db.pos_all_orders = wk_order;
+        loaded: function (self, order) {
+            self.db.pos_all_orders = order;
             self.db.order_by_id = {};
-            wk_order.forEach(function (order) {
+            order.forEach(function (order) {
                 var order_date = new Date(order.date_order);
                 var utc = order_date.getTime() - (order_date.getTimezoneOffset() * 60000);
+
                 order.date_order = new Date(utc).toLocaleString();
                 self.db.order_by_id[order.id] = order;
             });
         }
     }, {
-        model: 'pos.order.line',
-        fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_tax', 'price_subtotal_incl', 'price_subtotal'],
+        model: 'account.invoice',
+        fields: ['number'],
         domain: function (self) {
-            var order_lines = [];
+            var invoice_ids = self.db.pos_all_orders.map(function (order) {
+                return order.invoice_id[0];
+            });
+
+            return [['id', 'in', invoice_ids]];
+        },
+        loaded: function (self, invoices) {
+            var invoice_by_id = {};
+
+            invoices.forEach(function (invoice) {
+                invoice_by_id[invoice.id] = invoice;
+            });
+
+            self.db.pos_all_orders.forEach(function (order, ix) {
+                var number = invoice_by_id[order.invoice_id[0]].number;
+
+                self.db.pos_all_orders[ix].number = number;
+                self.db.order_by_id[order.id].number = number;
+            });
+        }
+    }, {
+        model: 'pos.order.line',
+        fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_tax', 'price_subtotal_incl',
+            'price_subtotal'],
+        domain: function (self) {
             var orders = self.db.pos_all_orders;
-            for (var i = 0; i < orders.length; i++) {
+            var order_lines = [];
+
+            for (var i in orders) {
                 order_lines = order_lines.concat(orders[i].lines);
+                orders[i].lines = [];
             }
+
             return [
                 ['id', 'in', order_lines]
             ];
         },
-        loaded: function (self, wk_order_lines) {
-            self.db.pos_all_order_lines = wk_order_lines;
-            self.db.line_by_id = {};
-            wk_order_lines.forEach(function (line) {
-                self.db.line_by_id[line.id] = line;
+        loaded: function (self, order_lines) {
+            order_lines.forEach(function (line) {
+                var order = self.db.order_by_id[line.order_id[0]];
+
+                if (order)
+                    order.lines.push(line);
             });
         }
     }], {
         'after': 'product.product'
     });
-
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({

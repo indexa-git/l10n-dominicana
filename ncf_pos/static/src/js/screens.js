@@ -46,13 +46,14 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         show: function () {
             var self = this;
+
             this._super();
             this.renderElement();
-
+            this.$('.order-details-contents').empty();
+            this.$('.order-list').parent().scrollTop(0);
             this.$('.button').click(function () {
                 self.perform_search(self.$('.invoices_search').val());
             });
-
             this.$('.back').click(function () {
                 self.gui.back();
             });
@@ -60,75 +61,79 @@ odoo.define('ncf_pos.screens', function (require) {
             if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
                 this.chrome.widget.keyboard.connect(this.$('.invoices_search'));
             }
-
             this.$('.invoices_search').on('keypress', function (event) {
                 if (event.which === 13)
                     self.perform_search(this.value);
             }).focus();
-
             this.$('.searchbox .search-clear').click(function () {
                 self.clear_search();
             });
+            this.$('.order-list-contents').on('click', '.order-line', function (e) {
+                self.line_select(e, $(this), parseInt($(this).data('id')));
+            });
+            this.render_list(this.pos.db.pos_all_orders);
         },
         perform_search: function (query) {
             var self = this;
 
-            if ($.trim(query) == "") return false;
+            if ($.trim(query) == "") {
+                this.render_list(this.pos.db.pos_all_orders);
+            } else {
+                var allOrders = this.pos.db.pos_all_orders;
+                var orders = [];
 
-            rpc.query({
-                model: 'pos.order',
-                method: 'order_search_from_ui',
-                args: [query]
-            }, {})
-                .then(function (result) {
-                    self.render_list(result && result.orders || []);
-                });
+                for (var i in allOrders) {
+                    if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1)
+                        orders.push(allOrders[i]);
+                }
+
+                if (orders.length > 0) {
+                    this.render_list(orders);
+                } else {
+                    rpc.query({
+                        model: 'pos.order',
+                        method: 'order_search_from_ui',
+                        args: [query]
+                    }, {})
+                        .then(function (result) {
+                            var orders = result && result.orders || [];
+
+                            orders.forEach(function (order) {
+                                var obj = self.pos.db.order_by_id[order.id];
+
+                                if (!obj)
+                                    self.pos.db.pos_all_orders.push(order);
+                                self.pos.db.order_by_id[order.id] = order;
+                            });
+
+                            self.render_list(orders);
+                        });
+                }
+            }
         },
         clear_search: function () {
             this.$('.invoices_search')[0].value = '';
             this.$('.invoices_search').focus();
+            this.render_list(this.pos.db.pos_all_orders);
         },
         render_list: function (orders) {
             var self = this;
             var contents = this.$('.order-list-contents');
 
             contents.empty();
-            this.pos.db.order_by_id = {};
+            this.display_order_details('hide');
             orders.forEach(function (order) {
                 var rowHtml = QWeb.render('InvoicesLine', {widget: self, order: order});
 
-                self.pos.db.order_by_id[order.id] = order;
                 contents.append(rowHtml);
             });
         },
         close: function () {
             this._super();
+            this.$('.order-list-contents').off('click', '.order-line');
             if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
                 this.chrome.widget.keyboard.hide();
             }
-        },
-    });
-
-    InvoicesListScreenWidget.include({
-        show: function () {
-            var self = this;
-            var contents = this.$('.order-details-contents');
-            var parent = this.$('.order-list').parent();
-
-            this._super();
-            contents.empty();
-            parent.scrollTop(0);
-            this.$('.order-list-contents').on('click', '.order-line', function (e) {
-                self.line_select(e, $(this), parseInt($(this).data('id')));
-            });
-        },
-        close: function () {
-            this._super();
-            this.$('.order-list-contents').off('click', '.order-line');
-        },
-        render_list: function (orders) {
-            this.display_order_details('hide');
-            this._super(orders);
         },
         line_select: function (event, $line, id) {
             var self = this;
