@@ -276,7 +276,6 @@ odoo.define('ncf_pos.screens', function (require) {
                     }
                 });
                 
-                return false;
             }
 
             this._super();
