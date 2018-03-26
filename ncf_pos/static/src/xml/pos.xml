@@ -3,13 +3,13 @@
 
     <t t-extend="ClientDetailsEdit">
         <t t-jquery=".client-name" t-operation="replace">
-            <t t-if="partner.name">
+            <t t-if="!partner.name or partner.sale_fiscal_type === 'final'">
+                <input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Name'/>
+            </t>
+            <t t-else="">
                 <span class='detail client-name' name='name'>
                     <t t-esc="partner.name"/>
                 </span>
-            </t>
-            <t t-else="">
-                <input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Name'/>
             </t>
         </t>
         <t t-jquery=".client-details-left" t-operation="append">
