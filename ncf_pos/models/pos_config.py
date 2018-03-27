@@ -6,7 +6,7 @@ class PosConfig(models.Model):
 
     pos_default_partner_id = fields.Many2one("res.partner",
                                              help="Este cliente se usará por defecto como cliente de consumo para las facturas de consumo o final en el POS")
-    print_pdf = fields.Selection([(False, 'No (Default)'), (True, 'Si')], default=False)
+    print_pdf = fields.Selection([('0', 'No (Default)'), ('1', 'Si')], default='0')
 
     @api.onchange("iface_invoicing")
     def onchange_iface_invoicing(self):

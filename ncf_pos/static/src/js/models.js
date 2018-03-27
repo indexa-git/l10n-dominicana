@@ -5,8 +5,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields("res.partner", ['sale_fiscal_type']);
-    models.load_fields("pos.config", ['pos_default_partner_id']);
-    models.load_fields("pos.config", ['print_pdf']);
+    models.load_fields("pos.config", ['pos_default_partner_id', 'print_pdf']);
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
