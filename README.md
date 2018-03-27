@@ -2,7 +2,6 @@
 
 [![Throughput Graph](https://graphs.waffle.io/odoo-dominicana/l10n-dominicana/throughput.svg)](https://waffle.io/odoo-dominicana/l10n-dominicana/metrics/throughput)
 
-
 # Localización RD para Facturación Fiscal
 
 Este repositorio consolida los módulos utilizados para poder realizar facturación en República Dominicana desde los módulos de Ventas, Contable y Punto de Ventas.
