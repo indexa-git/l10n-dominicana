@@ -10,7 +10,7 @@ odoo.define('ncf_pos.models', function (require) {
     models.load_models([{
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id',
-            'amount_total', 'number', 'statement_ids'],
+            'amount_total', 'number', 'statement_ids','number'],
         domain: function (self) {
             var domain_list = [];
             if (self.config.order_loading_options == 'n_days') {
@@ -50,13 +50,14 @@ odoo.define('ncf_pos.models', function (require) {
         },
         loaded: function (self, invoices) {
             var invoice_by_id = {};
-
+            console.log(invoices);
             invoices.forEach(function (invoice) {
                 invoice_by_id[invoice.id] = invoice;
             });
 
             self.db.pos_all_orders.forEach(function (order, ix) {
-                var number = invoice_by_id[order.invoice_id[0]].number;
+                var invoice_id = invoice_by_id[order.invoice_id[0]];
+                var number = invoice_id && invoice_id.number;
 
                 self.db.pos_all_orders[ix].number = number;
                 self.db.order_by_id[order.id].number = number;

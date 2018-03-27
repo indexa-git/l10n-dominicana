@@ -8,11 +8,11 @@ class PosConfig(models.Model):
                                              help="Este cliente se usará por defecto como cliente de consumo para las facturas de consumo o final en el POS")
 
     order_loading_options = fields.Selection(
-        [("current_session", u"Cargar Órdenes de la Sesión actual"),
-         ("n_days", u"Cargar Órdenes de los Últimos 'n' Días")],
+        [("current_session", "Cargar Órdenes de la Sesión actual"),
+         ("n_days", "Cargar Órdenes de los Últimos 'n' Días")],
         default='current_session', string="Opciones de Carga")
     number_of_days = fields.Integer(
-        string=u'Cantida de Días Anteriores', default=10)
+        string='Cantidad de Días Anteriores', default=10)
 
     @api.onchange("iface_invoicing")
     def onchange_iface_invoicing(self):
@@ -24,7 +24,6 @@ class PosConfig(models.Model):
 
     @api.constrains('number_of_days')
     def number_of_days_validation(self):
-        if self.order_loading_options == 'n_days':
-            if not self.number_of_days or self.number_of_days < 0:
-                raise exceptions.ValidationError(_(
-                    u"Por favor provea un valir válido para el campo 'Cantidad de Días Anteriores'!!!"))
+        if self.order_loading_options == 'n_days' and (not self.number_of_days or self.number_of_days < 0):
+            raise exceptions.ValidationError(_(
+                "Favor proveer un valor válido para el campo 'Cantidad de Días Anteriores'!!!"))

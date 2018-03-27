@@ -9,7 +9,7 @@ class PosOrder(models.Model):
     return_status = fields.Selection([('-', 'No Devuelta'), ('Fully-Returned', 'Totalmente Devuelta'),
                                       ('Partially-Returned', 'Parcialmente Devuelta'),
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
-                                     string=u'Estatus de Devolución')
+                                     string='Estatus de Devolución')
 
     @api.model
     def _process_order(self, pos_order):
@@ -85,8 +85,8 @@ class PosOrder(models.Model):
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
 
-    line_qty_returned = fields.Integer(u'Línea Devuelta', default=0)
-    original_line_id = fields.Many2one('pos.order.line', u"Línea Original")
+    line_qty_returned = fields.Integer('Línea Devuelta', default=0)
+    original_line_id = fields.Many2one('pos.order.line', "Línea Original")
 
     @api.model
     def _order_line_fields(self, line, session_id=None):
