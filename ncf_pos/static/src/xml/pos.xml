@@ -113,6 +113,16 @@
         </t>
     </t>
 
+    <t t-extend="DebugWidget">
+        <t t-jquery=".content" t-operation="append">
+            <p class="category">View the Ticket</p>
+            <ul>
+                <li class="button view_ticket">View Ticket</li>
+                <li class="button view_products">Go to products</li>
+            </ul>
+        </t>
+    </t>
+
     <t t-name="QueryInvoicesButton">
         <span class='control-button'>
             All Invoices
