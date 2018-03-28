@@ -6,6 +6,7 @@ odoo.define('ncf_pos.models', function (require) {
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
     models.load_fields('pos.config', ['pos_default_partner_id', 'print_pdf']);
+    models.load_fields("res.company", ['street']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
         model: 'pos.order',
@@ -175,6 +176,19 @@ odoo.define('ncf_pos.models', function (require) {
                 return done;
             });
             return invoiced;
+        },
+        getDatetime: function () {
+            var date = new Date(),
+                time = new Date(),
+                timezone = 'es-ES',
+                dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' },
+                timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+
+            return {
+                date: date.toLocaleDateString(timezone, dateOptions),
+                time: time.toLocaleTimeString(timezone, timeOptions),
+                datetime: date.toLocaleDateString(timezone, _.extend(dateOptions, timeOptions))
+            }
         },
         set_order: function (order) {
             _super_posmodel.set_order.call(this, order);
