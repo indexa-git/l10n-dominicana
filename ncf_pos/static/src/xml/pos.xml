@@ -337,4 +337,59 @@
         </section>
     </t>
 
+    <t t-name="OrderReturnPopup">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput return_popup_style">
+                <div class="title">
+                    <span>
+                        Devolver Productos
+                    </span>
+                    <span class="button" id="complete_return"
+                          style="position: absolute;right: 1%;top: -1%;background-color: #5c92a7;color: white;width: 28%;">
+                        Completar Devolución
+                    </span>
+                </div>
+                <div class="body">
+                    <div class='container_div'>
+                        <table border="1" frame="void" rules="rows" class="return_popup_table">
+                            <tr class="return_popup_tr">
+                                <th class="table_data_cells">
+                                    <p>Producto (<span style="color:#2f6e75">Cant.</span>.)
+                                    </p>
+                                </th>
+                                <th class="table_data_cells">Cant. devuelta.</th>
+                            </tr>
+
+                            <t t-foreach="widget.orderlines || []" t-as="line">
+                                <tr class="return_popup_tr">
+                                    <td class="table_data_cells">
+                                        <t t-esc="line.product_id[1]"/>
+                                        (
+                                        <b style="color:#2f6e75">
+                                            <t t-esc="line.qty - line.line_qty_returned"/>
+                                        </b>
+                                        )
+                                    </td>
+                                    <td class="table_data_cells return_qty">
+                                        <input t-att-line-qty-remaining='line.qty - line.line_qty_returned'
+                                               t-att-line-id="line.id" type="number" value="0"></input>
+                                    </td>
+                                </tr>
+                            </t>
+
+                        </table>
+                    </div>
+                </div>
+                <div class="footer">
+                    <div class="button" id="return_order" style="background-color: rgb(94, 191, 143);color: white;">
+                        Devolver
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
 </templates>

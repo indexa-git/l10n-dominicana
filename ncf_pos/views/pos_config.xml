@@ -18,6 +18,29 @@
                 </div>
             </xpath>
 
+            <xpath expr="//h2[2]" position="before">
+                <h2>Listar Todas las Ordenes</h2>
+                <div class="row mt16 o_settings_container" id="wk_pos_orders">
+                    <div class="col-xs-12 col-md-6 o_setting_box" title="select 'Load Orders Of Current Session' if you wish to load order that belongs to current session or
+                    select 'Load Orders Of Last 'n' Days' to load all orders upto last n days.">
+                        <div class="o_setting_right_pane">
+                            <div class="text-muted">
+                                Seleccione entre las opciones actuales para cargar las órdenes que desee en la Sesión
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <field style="font-weight:bold" name="order_loading_options" widget="radio"/>
+                                </div>
+                                <div class="mt16">
+                                    <field name="number_of_days"
+                                           attrs="{'invisible': ['|',('order_loading_options', '=', 'current_session'), ('order_loading_options', '=', 'all_orders')]}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+
         </field>
 
 
