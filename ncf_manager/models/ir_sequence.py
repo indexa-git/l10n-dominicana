@@ -34,7 +34,7 @@ class IrSequence(models.Model):
         if sale_fiscal_type:
             """ Returns the next number in the preferred sequence in all the ones given in self."""
             if not self.use_date_range:
-                return UserError(_("Debe configurar los NCF."))
+                raise UserError(_("Debe configurar los NCF."))
             # date mode
             dt = fields.Date.today()
             if self._context.get('ir_sequence_date'):
@@ -45,7 +45,7 @@ class IrSequence(models.Model):
                  ('date_to', '>=', dt)], limit=1)
 
             if not seq_date:
-                return UserError(_("Debe configurar los NCF."))
+                raise UserError(_("Debe configurar los NCF."))
             return seq_date.with_context(ir_sequence_date_range=seq_date.date_from)._next()
         else:
             return super(IrSequence, self)._next()
