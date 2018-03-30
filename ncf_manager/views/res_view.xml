@@ -12,7 +12,7 @@
             <field name="vat" position="replace"></field>
             <xpath expr="//div[hasclass('o_row')]">
                 <field name="fiscal_info_required" invisible="1"/>
-                <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)],'readonly': [('id','>',0)]}"/>
+                <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)]}"/>
             </xpath>
         </field>
     </record>
