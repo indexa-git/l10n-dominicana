@@ -279,7 +279,6 @@ class AccountInvoice(models.Model):
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
 
-
         return super(AccountInvoice, self).action_invoice_open()
 
     @api.model
