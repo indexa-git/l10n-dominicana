@@ -37,9 +37,14 @@
             </xpath>
 
             <field name="partner_id" position="after">
-                <field name="sale_fiscal_type" attrs="{'readonly': [('state','!=','draft')],
-                    'invisible':[('type','=','out_refund')],
-                    'required': [('ncf_control','=',True),('type','=','out_invoice')]}"/>
+                <field name="sale_fiscal_type" attrs="{
+                       'invisible':[('type','=','out_refund')],
+                       'required': [('ncf_control','=',True),('type','=','out_invoice')],
+                       'readonly': [('state','!=','draft')]}"/>
+                <field name="income_type" attrs="{
+                       'invisible':[('ncf_control','!=',True)],
+                       'required': [('ncf_control','=',True),('type','=','out_invoice')],
+                       'readonly': [('state','!=','draft')]}"/>
             </field>
 
 
@@ -105,10 +110,6 @@
                 <field name="journal_id" groups="account.group_account_user"
                        options="{'no_create': True}"
                        attrs="{'readonly':[('move_name','!=',False)]}"/>
-                <field name="income_type" attrs="{
-                       'invisible':[('ncf_control','!=',True)],
-                       'required': [('ncf_control','=',True),('type','=','out_invoice')],
-                       'readonly': [('state','!=','draft')]}"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('purchase_type','not in',['normal','minor','informal'])],
                        'required': [('purchase_type','in',['normal','minor','informal'])],
