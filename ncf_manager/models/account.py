@@ -83,5 +83,17 @@ class AccountTax(models.Model):
          ('isr', 'ISR Retenido'),
          ('rext', 'Remesas al Exterior (Ley  253-12)'),
          ('none', 'No Deducible')],
-        default="none", string="Tipo de Impuesto de Compra"
+        default="none", string="Tipo de Impuesto en Compra"
+    )
+
+    isr_retention_type = fields.Selection(
+        [('01', 'Alquileres'),
+         ('02', 'Honorarios por Servicios'),
+         ('03', 'Otras Rentas'),
+         ('04', 'Rentas Presuntas'),
+         ('05', 'Intereses Pagados a Personas Jurídicas'),
+         ('06', 'Intereses Pagados a Personas Físicas'),
+         ('07', 'Retención por Proveedores del Estado'),
+         ('08', 'Juegos Telefónicos')],
+        string="Tipo de Retención en ISR"
     )
