@@ -40,6 +40,14 @@ class AccountJournal(models.Model):
          ("others", "Otros. No requiere NCF")],
         string="Tipo de Compra", default="others")
 
+    payment_form = fields.Selection(
+        [("01", "Efectivo"),
+         ("02", "Cheque / Transferencia / Depósito"),
+         ("03", "Tarjeta Crédito / Débito"),
+         ("04", "A Crédito"),
+         ("05", "Permuta")],
+        string="Forma de Pago", oldname="ipf_payment_type")
+
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
 
     ncf_control = fields.Boolean(related="sequence_id.ncf_control")
