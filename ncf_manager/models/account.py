@@ -20,8 +20,7 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError, UserError
+from odoo import models, fields, api
 
 
 class AccountJournal(models.Model):
@@ -57,7 +56,6 @@ class AccountJournal(models.Model):
 
     @api.multi
     def create_ncf_sequence(self):
-
         if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
             # this method read Selection values from res.partner sale_fiscal_type fields
             selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
@@ -65,6 +63,7 @@ class AccountJournal(models.Model):
                 self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
 
             self.sequence_id.date_range_ids.invalidate_cache()
+            self.sequence_id.write({'prefix': 'B', 'padding': 8})
 
 
 class AccountTax(models.Model):
