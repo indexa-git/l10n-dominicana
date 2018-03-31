@@ -107,7 +107,7 @@
                        attrs="{'readonly':[('move_name','!=',False)]}"/>
                 <field name="income_type" attrs="{
                        'invisible':[('ncf_control','!=',True)],
-                       'required': [('ncf_control','=',True),('type','=','out_invoice')]
+                       'required': [('ncf_control','=',True),('type','=','out_invoice')],
                        'readonly': [('state','!=','draft')]}"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('purchase_type','not in',['normal','minor','informal'])],
