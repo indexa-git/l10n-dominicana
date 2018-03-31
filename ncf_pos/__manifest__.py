@@ -34,21 +34,15 @@
     'version': '11.0.1.0.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['ncf_manager', 'point_of_sale', 'pos_order_return',
-                'pos_orders'],
+    'depends': ['ncf_manager', 'point_of_sale'],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
-        'views/pos_view.xml',
-        'views/pos_sesion_view.xml',
-        'views/pos_config_view.xml',
-        'data/data.xml',
         'views/templates.xml',
+        'views/pos_config.xml',
+        'data/data.xml',
+        ],
+    'qweb': ['static/src/xml/pos.xml']
 
-    ],
-    'qweb': [
-        'static/src/xml/ncf_pos.xml',
-        'static/src/xml/pos.xml',
-    ],
 }

@@ -1,0 +1,31 @@
+#. module: point_of_sale
+#. openerp-web
+#: code:addons/point_of_sale/static/src/xml/pos.xml:384
+#: code:addons/point_of_sale/static/src/xml/pos.xml:452
+#, python-format
+msgid "Tax ID"
+msgstr "RNC"
+
+#. module: point_of_sale
+#. openerp-web
+#: code:addons/point_of_sale/static/src/xml/pos.xml:384
+#: code:addons/point_of_sale/static/src/xml/pos.xml:452
+#, python-format
+msgid "All Invoices"
+msgstr "Todas las Facturas"
+
+#. module: point_of_sale
+#. openerp-web
+#: code:addons/point_of_sale/static/src/xml/pos.xml:384
+#: code:addons/point_of_sale/static/src/xml/pos.xml:452
+#, python-format
+msgid "Search"
+msgstr "Buscar"
+
+#. module: point_of_sale
+#. openerp-web
+#: code:addons/point_of_sale/static/src/xml/pos.xml:384
+#: code:addons/point_of_sale/static/src/xml/pos.xml:452
+#, python-format
+msgid "Search Invoices"
+msgstr "Buscar Facturas"

@@ -1,33 +1,30 @@
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
-
-# This file is part of NCF Manager.
-
-# NCF Manager is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# NCF Manager is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
-
-from odoo import models, fields
+from odoo import models, fields, api, exceptions, _
 
 
 class PosConfig(models.Model):
-    _inherit = 'pos.config'
+    _inherit = "pos.config"
 
-    user_ids = fields.Many2many("res.users", string="Acceso para usuarios")
-    shop_id = fields.Many2one(comodel_name="shop.ncf.config",
-                              string="Sucursal", required=True, default=1)
-    default_partner_id = fields.Many2one("res.partner",
-                                         string="Cliente de contado")
+    pos_default_partner_id = fields.Many2one("res.partner",
+                                             help="Este cliente se usará por defecto como cliente de consumo para las facturas de consumo o final en el POS")
+    print_pdf = fields.Boolean("Imprimir PDF", default=False)
+
+    order_loading_options = fields.Selection(
+        [("current_session", "Cargar Órdenes de la Sesión actual"),
+         ("n_days", "Cargar Órdenes de los Últimos 'n' Días")],
+        default='current_session', string="Opciones de Carga")
+    number_of_days = fields.Integer(
+        string='Cantidad de Días Anteriores', default=10)
+
+    @api.onchange("iface_invoicing")
+    def onchange_iface_invoicing(self):
+        default_partner = self.env.ref("ncf_pos.default_partner_on_pos", raise_if_not_found=False)
+        if self.iface_invoicing and default_partner:
+            self.pos_default_partner_id = default_partner.id
+        else:
+            self.pos_default_partner_id = False
+
+    @api.constrains('number_of_days')
+    def number_of_days_validation(self):
+        if self.order_loading_options == 'n_days' and (not self.number_of_days or self.number_of_days < 0):
+            raise exceptions.ValidationError(_(
+                "Favor proveer un valor válido para el campo 'Cantidad de Días Anteriores'!!!"))

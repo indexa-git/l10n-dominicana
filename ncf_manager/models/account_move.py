@@ -19,15 +19,25 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+from odoo import models, api, _
+from odoo.exceptions import UserError
 
-from odoo import models
-from odoo.tools.safe_eval import safe_eval
 
+class AccountMove(models.Model):
+    _inherit = 'account.move'
 
-class PosSession(models.Model):
-    _name = 'pos.session'
-    _inherit = ['pos.session', 'mail.thread']
-
-    def get_pos_session_concile_type(self):
-        IrConfigParam = self.env['ir.config_parameter']
-        return safe_eval(IrConfigParam.get_param('ncf_pos.pos_session_concile_type', 'ticket'))
+    @api.multi
+    def post(self):
+        invoice = self._context.get('invoice', False)
+        if invoice and invoice.journal_id.ncf_control:
+            if not invoice.journal_id.ncf_ready:
+                raise UserError(_("Debe configurar los NCF para este diario."))
+            if invoice.type == "out_invoice":
+                if invoice.is_nd:
+                    return super(AccountMove, self.with_context(sale_fiscal_type="debit_note")).post()
+                else:
+                    return super(AccountMove, self.with_context(sale_fiscal_type=invoice.sale_fiscal_type)).post()
+            elif invoice.type == "out_refund":
+                return super(AccountMove, self.with_context(sale_fiscal_type="credit_note")).post()
+        else:
+            return super(AccountMove, self).post()

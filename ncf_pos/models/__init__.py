@@ -20,6 +20,6 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
+# from . import model
 from . import pos_order
 from . import pos_config
-from . import pos_session

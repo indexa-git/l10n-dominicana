@@ -1,108 +1,98 @@
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
-
-# This file is part of NCF Manager.
-
-# NCF Manager is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# NCF Manager is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
-
-import logging
-import time
-
-from odoo import api, fields, models, _
-from odoo.exceptions import UserError
-
-_logger = logging.getLogger(__name__)
+from odoo import models, fields, api
 
 
 class PosOrder(models.Model):
     _inherit = "pos.order"
 
-    move_name = fields.Char(size=19)
-    fiscal_nif = fields.Char()
-    invoice_number = fields.Char(related="invoice_id.number")
-    is_service_order = fields.Boolean("Ordenes que no generan picking")
+    is_return_order = fields.Boolean(string='Devolver Orden', copy=False)
+    return_order_id = fields.Many2one('pos.order', 'Devolver Orden de', readonly=True, copy=False)
+    return_status = fields.Selection([('-', 'No Devuelta'), ('Fully-Returned', 'Totalmente Devuelta'),
+                                      ('Partially-Returned', 'Parcialmente Devuelta'),
+                                      ('Non-Returnable', 'No Retornable')], default='-', copy=False,
+                                     string='Estatus de Devolución')
 
-    def _prepare_invoice(self):
-        res = super(PosOrder, self)._prepare_invoice()
-        if self.is_return_order:
-            res.update({"type": "out_refund",
-                        "origin": self.return_order_id.move_name}
-                       )
-        res.update({"move_name": self.move_name})
-        if self.fiscal_nif:
-            res.update({"fiscal_nif": self.fiscal_nif})
+    @api.model
+    def _process_order(self, pos_order):
+        res = super(PosOrder, self)._process_order(pos_order)
+        if res.is_return_order:
+            res.amount_paid = 0
+            for line in res.lines:
+                line.qty = abs(line.qty)
+                line.line_qty_returned += line.qty
+            for statement in res.statement_ids:
+                statement.amount = abs(statement.amount)
 
-        res.update({'shop_id': self.config_id.shop_id})
+            res.amount_tax = abs(res.amount_tax)
+            res.amount_return = 0
+            res.amount_total = abs(res.amount_total)
 
         return res
 
     @api.model
-    def get_fiscal_data(self, name):
-        res = {"fiscal_type": "none", "fiscal_type_name": "FACTURA"}
+    def _order_fields(self, ui_order):
+        fields_return = super(PosOrder, self)._order_fields(ui_order)
+        fields_return.update({
+            'is_return_order': ui_order.get('is_return_order') or False,
+            'return_order_id': ui_order.get('return_order_id') or False,
+            'return_status': ui_order.get('return_status') or False,
+        })
+        return fields_return
 
-        order_id = False
-        timeout = time.time() + 5  # 5 seconds from now
-        while not order_id:
-            time.sleep(1)
-            if time.time() > timeout:
-                break
-            order_id = self.search([('pos_reference', '=', name)])
+    def _action_create_invoice_line(self, line=False, invoice_id=False):
+        res = super(PosOrder, self)._action_create_invoice_line(line, invoice_id)
+        if self.is_return_order:
+            res.quantity = abs(line.qty)
 
-        if order_id:
-            res.update({"id": order_id.id,
-                        "rnc": order_id.partner_id.vat,
-                        "name": order_id.partner_id.name,
-                        "ncf": order_id.invoice_id.number,
-                        "fiscal_type": order_id.partner_id.sale_fiscal_type,
-                        "origin": False
-                        })
-            order_id.move_name = order_id.invoice_id.number
+        return res
 
-            if order_id.is_return_order:
-                res.update({"fiscal_type_name": u"NOTA DE CRÉDITO"})
+    @api.model
+    def order_search_from_ui(self, input_txt):
 
-                reference_ncf = order_id.return_order_id.invoice_id.number
-                reference_ncf_type = reference_ncf[9:11]
-
-                if reference_ncf_type in ("01", "14"):
-                    res.update({"fiscal_type": "fiscal_note"})
-                elif reference_ncf_type == "02":
-                    res.update({"fiscal_type": "final_note"})
-                elif reference_ncf_type == "15":
-                    res.update({"fiscal_type": "special_note"})
-                res.update({"origin": reference_ncf})
-            else:
-                fiscal_type_names = {
-                    'fiscal': "FACTURA CON VALOR FISCAL",
-                    'final': "FACTURA PARA CONSUMIDOR FINAL",
-                    'gov': "FACTURA GUBERNAMENTAL",
-                    'special': u"FACTURA PARA REGÍMENES ESPECIALES",
+        invoice_ids = self.env["account.invoice"].search([('number', 'ilike', "%{}%".format(input_txt))], limit=100)
+        order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
+        order_list = []
+        for order in order_ids:
+            order_json = {
+                "amount_total": order.amount_total,
+                "date_order": order.date_order,
+                "id": order.id,
+                "invoice_id": [order.invoice_id.id, order.invoice_id.number],
+                "number": order.invoice_id.number,
+                "name": order.name,
+                "pos_reference": order.pos_reference,
+                "partner_id": [order.partner_id.id, order.partner_id.name],
+                "lines": [line.id for line in order.lines],
+                "statement_ids": [statement_id.id for statement_id in order.statement_ids],
+            }
+            order_lines_list = []
+            for line in order.lines:
+                order_lines_json = {
+                    "discount": line.discount,
+                    "id": line.id,
+                    "price_subtotal": line.price_subtotal,
+                    "price_subtotal_incl": line.price_subtotal_incl,
+                    "qty": line.qty,
+                    "price_unit": line.price_unit,
+                    "order_id": [order.id, order.name],
+                    "product_id": [line.product_id.id, line.product_id.name],
                 }
-                res.update({"fiscal_type_name": fiscal_type_names.get(
-                    order_id.partner_id.sale_fiscal_type)})
+                order_lines_list.append(order_lines_json)
+            order_json["lines"] = order_lines_list
+            order_list.append(order_json)
+        return {"orders": order_list}
 
-            return res
-        else:
-            return False
 
-    @api.multi
-    def action_pos_order_paid(self):
-        if not self.test_paid() and not self.is_return_order:
-            raise UserError(_("Order is not paid."))
-        self.write({'state': 'paid'})
-        return self.create_picking()
+class PosOrderLine(models.Model):
+    _inherit = 'pos.order.line'
+
+    line_qty_returned = fields.Integer('Línea Devuelta', default=0)
+    original_line_id = fields.Many2one('pos.order.line', "Línea Original")
+
+    @api.model
+    def _order_line_fields(self, line, session_id=None):
+        fields_return = super(PosOrderLine, self)._order_line_fields(line, session_id)
+
+        fields_return[2].update({'line_qty_returned': line[2].get('line_qty_returned', ''),
+                                 'original_line_id': line[2].get('original_line_id', '')})
+
+        return fields_return

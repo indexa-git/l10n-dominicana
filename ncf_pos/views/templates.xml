@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="assets" inherit_id="point_of_sale.assets">
+    <template id="assets_ncf_pos" inherit_id="point_of_sale.assets">
         <xpath expr="." position="inside">
-            <link rel="stylesheet" href="/ncf_pos/static/src/css/pos_orders.css"/>
-            <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
+            <link rel="stylesheet" href="/ncf_pos/static/src/libs/jquery-autocomplete-ui.css"/>
+            <link rel="stylesheet" href="/ncf_pos/static/src/css/ncf_pos.css"/>
             <script type="text/javascript" src="/ncf_pos/static/src/js/models.js"></script>
-            <script type="text/javascript" src="/ncf_pos/static/src/js/popups.js"></script>
             <script type="text/javascript" src="/ncf_pos/static/src/js/screens.js"></script>
-            <script type="text/javascript" src="/ncf_pos/static/src/js/ticket_format.js"></script>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/db.js"></script>
+            <script type="text/javascript" src="/ncf_pos/static/src/js/invoices.js"></script>
         </xpath>
     </template>
 </odoo>

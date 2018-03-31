@@ -6,28 +6,19 @@ odoo.define('ncf_manager.ncf_manager', function (require) {
 
     var FieldDgiiAutoComplete = FieldChar.extend({
         _prepareInput: function ($input) {
-            var self = this;
-            this.$input = $input || $("<input/>");
-            this.$input.addClass('o_input');
-            this.$input.attr({
-                placeholder: this.attrs.placeholder || "",
-            });
-            this.$input.val(this._formatValue(this.value));
+            this._super.apply(this, arguments);
 
-            this.$input.autocomplete({
+            $input.autocomplete({
                 source: "/dgii_ws/",
+                minLength: 3,
                 select: function (event, ui) {
-                    var selected = ui.item.value.split("||");
-                    self.$input.val(selected[1]);
-                    var rnc = $('input[name$=\'vat\']');
-                    rnc.val(selected[0]);
-                    rnc.trigger('change');
+                    var $rnc = $("input[name$='vat']");
+                    $input.val(ui.item.name);
+                    $rnc.val(ui.item.rnc).trigger("change");
+
                     return false;
                 }
             });
-            return this.$input;
-
-
         }
     });
 

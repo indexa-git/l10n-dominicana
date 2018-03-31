@@ -20,12 +20,16 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo import models, fields, api
 
 
 class AccountJournal(models.Model):
     _inherit = "account.journal"
+
+    @api.depends("ncf_control")
+    @api.one
+    def check_ncf_ready(self):
+        self.ncf_ready = len(self.date_range_ids) > 1
 
     purchase_type = fields.Selection(
         [("normal", "Requiere NCF"),
@@ -36,57 +40,40 @@ class AccountJournal(models.Model):
          ("others", "Otros. No requiere NCF")],
         string="Tipo de Compra", default="others")
 
-    ncf_control = fields.Boolean("Control de NCF", default=False)
+    payment_form = fields.Selection(
+        [("cash", "Efectivo"),
+         ("bank", "Cheque / Transferencia / Depósito"),
+         ("card", "Tarjeta Crédito / Débito"),
+         ("credit", "A Crédito"),
+         ("swap", "Permuta"),
+         ("bond", "Bonos o Certificados de Regalo"),
+         ("others", "Otras Formas de Venta")],
+        string="Forma de Pago", oldname="ipf_payment_type")
+
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
 
+    ncf_control = fields.Boolean(related="sequence_id.ncf_control")
+    prefix = fields.Char(related="sequence_id.prefix")
+    date_range_ids = fields.One2many(related="sequence_id.date_range_ids")
+    ncf_ready = fields.Boolean(compute=check_ncf_ready)
+    special_fiscal_position_id = fields.Many2one("account.fiscal.position", string="Posición fiscal para regímenes especiales.",
+                                                 help="Define la posición fiscal por defecto para los clientes que tienen definido el tipo de comprobante fiscal regímenes especiales.")
 
-class AccountMove(models.Model):
-    _inherit = 'account.move'
+    @api.onchange("type")
+    def onchange_type(self):
+        if self.type != 'sale':
+            self.ncf_control = False
 
     @api.multi
-    def post(self):
-        invoice = self._context.get('invoice', False)
-        self._post_validate()
-        for move in self:
-            if invoice and invoice.type in ['out_invoice', 'out_refund'] and invoice.journal_id.ncf_control:
+    def create_ncf_sequence(self):
+        if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
+            # this method read Selection values from res.partner sale_fiscal_type fields
+            selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
+            for sale_fiscal_type in selection:
+                self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
 
-                if invoice.type == 'out_invoice' and not invoice.sale_fiscal_type:
-                    raise ValidationError(_("Debe especificar el tipo de"
-                                          " comprobante para la venta."))
-
-                if not invoice.move_name:
-                    active_sequence = False
-                    if invoice.is_nd:
-                        sequence = invoice.shop_id.nd_sequence_id
-                        active_sequence = invoice.shop_id.nd_active
-                    elif invoice.type == "out_refund":
-                        sequence = invoice.shop_id.nc_sequence_id
-                        active_sequence = invoice.shop_id.nc_active
-                    elif invoice.sale_fiscal_type == "final":
-                        sequence = invoice.shop_id.final_sequence_id
-                        active_sequence = invoice.shop_id.final_active
-                    elif invoice.sale_fiscal_type == "fiscal":
-                        sequence = invoice.shop_id.fiscal_sequence_id
-                        active_sequence = invoice.shop_id.fiscal_active
-                    elif invoice.sale_fiscal_type == "gov":
-                        sequence = invoice.shop_id.gov_sequence_id
-                        active_sequence = invoice.shop_id.gov_active
-                    elif invoice.sale_fiscal_type == "special":
-                        sequence = invoice.shop_id.special_sequence_id
-                        active_sequence = invoice.shop_id.special_active
-                    elif invoice.sale_fiscal_type == "unico":
-                        sequence = invoice.shop_id.special_sequence_id
-                        active_sequence = invoice.shop_id.special_active
-
-                    if not active_sequence:
-                        raise ValidationError(_(u"Los NCF para **{}** no están activados.".format(invoice.sale_fiscal_type)))
-
-                    invoice.shop_id.check_max(invoice.sale_fiscal_type,
-                                              invoice)
-                    invoice.move_name = sequence.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
-                    invoice.reference = invoice.journal_id.sequence_id.with_context(ir_sequence_date=invoice.date_invoice).next_by_id()
-
-        return super(AccountMove, self).post()
+            self.sequence_id.date_range_ids.invalidate_cache()
+            self.sequence_id.write({'prefix': 'B', 'padding': 8})
 
 
 class AccountTax(models.Model):
@@ -98,5 +85,17 @@ class AccountTax(models.Model):
          ('isr', 'ISR Retenido'),
          ('rext', 'Remesas al Exterior (Ley  253-12)'),
          ('none', 'No Deducible')],
-        default="none", string="Tipo de Impuesto de Compra"
+        default="none", string="Tipo de Impuesto en Compra"
+    )
+
+    isr_retention_type = fields.Selection(
+        [('01', 'Alquileres'),
+         ('02', 'Honorarios por Servicios'),
+         ('03', 'Otras Rentas'),
+         ('04', 'Rentas Presuntas'),
+         ('05', 'Intereses Pagados a Personas Jurídicas'),
+         ('06', 'Intereses Pagados a Personas Físicas'),
+         ('07', 'Retención por Proveedores del Estado'),
+         ('08', 'Juegos Telefónicos')],
+        string="Tipo de Retención en ISR"
     )
