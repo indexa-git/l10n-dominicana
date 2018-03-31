@@ -40,6 +40,16 @@ class AccountJournal(models.Model):
          ("others", "Otros. No requiere NCF")],
         string="Tipo de Compra", default="others")
 
+    payment_form = fields.Selection(
+        [("cash", "Efectivo"),
+         ("bank", "Cheque / Transferencia / Depósito"),
+         ("card", "Tarjeta Crédito / Débito"),
+         ("credit", "A Crédito"),
+         ("swap", "Permuta"),
+         ("bond", "Bonos o Certificados de Regalo"),
+         ("others", "Otras Formas de Venta")],
+        string="Forma de Pago", oldname="ipf_payment_type")
+
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
 
     ncf_control = fields.Boolean(related="sequence_id.ncf_control")
@@ -75,5 +85,17 @@ class AccountTax(models.Model):
          ('isr', 'ISR Retenido'),
          ('rext', 'Remesas al Exterior (Ley  253-12)'),
          ('none', 'No Deducible')],
-        default="none", string="Tipo de Impuesto de Compra"
+        default="none", string="Tipo de Impuesto en Compra"
+    )
+
+    isr_retention_type = fields.Selection(
+        [('01', 'Alquileres'),
+         ('02', 'Honorarios por Servicios'),
+         ('03', 'Otras Rentas'),
+         ('04', 'Rentas Presuntas'),
+         ('05', 'Intereses Pagados a Personas Jurídicas'),
+         ('06', 'Intereses Pagados a Personas Físicas'),
+         ('07', 'Retención por Proveedores del Estado'),
+         ('08', 'Juegos Telefónicos')],
+        string="Tipo de Retención en ISR"
     )
