@@ -105,9 +105,14 @@
                 <field name="journal_id" groups="account.group_account_user"
                        options="{'no_create': True}"
                        attrs="{'readonly':[('move_name','!=',False)]}"/>
+                <field name="income_type" attrs="{
+                       'invisible':[('ncf_control','!=',True)],
+                       'required': [('ncf_control','=',True),('type','=','out_invoice')]
+                       'readonly': [('state','!=','draft')]}"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('purchase_type','not in',['normal','minor','informal'])],
-                       'required': [('purchase_type','in',['normal','minor','informal'])], 'readonly': [('state','!=','draft')]}"/>
+                       'required': [('purchase_type','in',['normal','minor','informal'])],
+                       'readonly': [('state','!=','draft')]}"/>
                 <field name="move_name" string="NCF"
                        attrs="{'size': 19,
                        'invisible': [('purchase_type','!=','normal')],
