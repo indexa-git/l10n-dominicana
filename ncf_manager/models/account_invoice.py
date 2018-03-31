@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -19,11 +20,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+import logging
+
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -46,8 +47,8 @@ class AccountInvoice(models.Model):
                         dict(self._context or {}, date=inv.date_invoice))
                     inv.invoice_rate = 1 / rate.rate
                     inv.rate_id = rate.res_currency_rate_id
-                except:
-                    pass
+                except(Exception) as err:
+                    _logger.debug(err)
 
     @api.multi
     @api.depends("currency_id")
@@ -141,7 +142,7 @@ class AccountInvoice(models.Model):
         related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
-    origin_out = fields.Char(u"Afecta a", related="origin")
+    origin_out = fields.Char("Afecta a", related="origin")
 
     _sql_constraints = [
         ('number_uniq',
@@ -157,18 +158,16 @@ class AccountInvoice(models.Model):
 
         if not ncf.is_valid(number):
             raise UserError(_(
-                u"NCF mal digitado\n\n"
-                u"El comprobante *{}* no tiene la estructura correcta "
-                " valide si lo ha digitado correctamente".format(number))
-            )
+                "NCF mal digitado\n\n"
+                "El comprobante *{}* no tiene la estructura correcta "
+                "valide si lo ha digitado correctamente".format(number)))
 
         if number[9:11] not in (
                 '01', '03', '04', '11', '12', '13', '14', '15'):
             raise ValidationError(_(
-                u"NCF NO corresponde con el tipo de documento\n\n"
-                u"Verifique lo ha digitado correctamente y que no sea un "
-                "Comprobante Consumidor Final (02)".format(number))
-            )
+                "NCF *{}* NO corresponde con el tipo de documento\n\n"
+                "Verifique lo ha digitado correctamente y que no sea un "
+                "Comprobante Consumidor Final (02)".format(number)))
 
         if self.id:
             ncf_in_draft = self.search_count(
@@ -214,14 +213,14 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
-        super(AccountInvoice, self)._onchange_journal_id()
+        res = super(AccountInvoice, self)._onchange_journal_id()
         if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
             self.partner_id = self.company_id.partner_id.id
+        return res
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
-        super(AccountInvoice, self)._onchange_partner_id()
-
+        res = super(AccountInvoice, self)._onchange_partner_id()
         if self.partner_id and self.type == 'out_invoice':
             if self.journal_id.ncf_control:
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
@@ -235,6 +234,7 @@ class AccountInvoice(models.Model):
 
         if self.journal_id.purchase_type == "minor":
             self.partner_id = self.company_id.partner_id.id
+        return res
 
     @api.onchange('sale_fiscal_type', 'expense_type')
     def _onchange_fiscal_type(self):
@@ -248,7 +248,6 @@ class AccountInvoice(models.Model):
                 self.partner_id.write({'expense_type': self.expense_type})
 
     def special_check(self):
-
         if self.sale_fiscal_type == "special":
             self.fiscal_position_id = self.journal_id.special_fiscal_position_id
         else:

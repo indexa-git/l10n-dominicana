@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -23,7 +24,7 @@
 {
     'name': "NCF POS",
 
-    'summary': """
+    'summary': u"""
         Incorpora funcionalidades de facturación con NCF al POS
         """,
 

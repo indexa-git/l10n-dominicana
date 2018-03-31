@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-from odoo import http
 import json
-import requests
 import re
 import logging
+
+from odoo import http
 
 _logger = logging.getLogger(__name__)
 
 try:
-    from stdnum.do import rnc, cedula
+    from stdnum.do import rnc
 except(ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -18,7 +18,7 @@ class Odoojs(http.Controller):
     def index(self, **kwargs):
         """
         Look for clients in the web service of the DGII
-            :param self: 
+            :param self:
             :param **kwargs dict :the parameters received
             :param term string : the character of the client or his rnc /
         """
@@ -34,5 +34,5 @@ class Odoojs(http.Controller):
 
                 for d in result:
                     d["name"] = " ".join(re.split("\s+", d["name"], flags=re.UNICODE))  # remove all duplicate white space from the name
-                    d["label"] = "{} - {}".format(d["rnc"], d["name"])
+                    d["label"] = u"{} - {}".format(d["rnc"], d["name"])
                 return json.dumps(result)

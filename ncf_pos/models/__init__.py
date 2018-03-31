@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -20,6 +21,5 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-# from . import model
 from . import pos_order
 from . import pos_config

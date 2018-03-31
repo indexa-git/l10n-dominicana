@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -21,11 +22,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -96,11 +96,6 @@ class ResPartner(models.Model):
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
                                  ondelete='restrict', default=61)
-    vat = fields.Char(string='TIN',
-                      help="Tax Identification Number. "
-                           "Fill it if the company is subjected to taxes. "
-                           "Used by the some of the legal statements.",
-                      index=True)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -115,13 +110,6 @@ class ResPartner(models.Model):
             if partners:
                 res = partners.name_get()
         return res
-
-    # TODO have to find how to change tax to exept one u sale_fiscal_type == to special
-    # @api.onchange("sale_fiscal_type")
-    # def onchange_sale_fiscal_type(self):
-    #     if self.sale_fiscal_type == "special":
-    #         self.property_account_position_id = self.env.ref(
-    #             "ncf_manager.ncf_manager_special_fiscal_position")
 
     @api.model
     def validate_rnc_cedula(self, number):

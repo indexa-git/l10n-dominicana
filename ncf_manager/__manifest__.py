@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -23,7 +24,7 @@
 {
     'name': "Gestor de Comprobantes Fiscales (NCF Manager)",
     'version': '11.0.1.0.0',
-    'summary': """
+    'summary': u"""
         Este módulo implementa la administración y gestión de los números de
          comprobantes fiscales para el cumplimento de la norma 06-18 de la
          Dirección de Impuestos Internos en la República Dominicana
