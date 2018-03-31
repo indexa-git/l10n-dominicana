@@ -41,11 +41,13 @@ class AccountJournal(models.Model):
         string="Tipo de Compra", default="others")
 
     payment_form = fields.Selection(
-        [("01", "Efectivo"),
-         ("02", "Cheque / Transferencia / Depósito"),
-         ("03", "Tarjeta Crédito / Débito"),
-         ("04", "A Crédito"),
-         ("05", "Permuta")],
+        [("cash", "Efectivo"),
+         ("bank", "Cheque / Transferencia / Depósito"),
+         ("card", "Tarjeta Crédito / Débito"),
+         ("credit", "A Crédito"),
+         ("swap", "Permuta"),
+         ("bond", "Bonos o Certificados de Regalo"),
+         ("others", "Otras Formas de Venta")],
         string="Forma de Pago", oldname="ipf_payment_type")
 
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
