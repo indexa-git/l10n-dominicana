@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -91,7 +92,7 @@ class ShopJournalConfig(models.Model):
     ]
 
     @api.onchange("journal_id")
-    def onchange_name(self):
+    def onchange_journal_id(self):
         if not self.ncf_control:
 
             self.name = lambda obj: obj.env['ir.sequence'].next_by_code(
@@ -139,8 +140,9 @@ class ShopJournalConfig(models.Model):
         company_id = company_id or user.company_id.id
 
         journal_obj = self.env['account.journal'].search(
-                                            [('company_id', '=', company_id),
-                                             ('type', '=', 'sale')], limit=1)
+            [('company_id', '=', company_id),
+             ('type', '=', 'sale')],
+            limit=1)
 
         journal_id = journal_id if journal_id else [journal for journal in journal_obj][0].id
 
@@ -171,8 +173,7 @@ class ShopJournalConfig(models.Model):
                                     'special_max': 10000000,
                                     'nc_max': 10000000,
                                     'nd_max': 10000000,
-                                    'unico_max': 10000000
-                                    })
+                                    'unico_max': 10000000})
 
             seq_values = {'padding': 8,
                           'code': False,
@@ -185,8 +186,7 @@ class ShopJournalConfig(models.Model):
                           'date_range_ids': [],
                           'number_next_actual': 1,
                           'active': True,
-                          'suffix': False
-                          }
+                          'suffix': False}
 
             seq_values["prefix"] = final_prefix
             seq_values["name"] = "Facturas de cliente final {}".format(name)
