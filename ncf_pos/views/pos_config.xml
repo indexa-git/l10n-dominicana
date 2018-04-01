@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//div[@id='iface_invoicing']//div[2]//div[2]">
+            <xpath expr="//div/field[@name='active']">
                 <div class="row mt16">
                     <label string="Cliente de consumo" for="pos_default_partner_id" class="col-md-3 o_light_label"/>
                     <field name="pos_default_partner_id"/>
@@ -18,7 +18,7 @@
                 </div>
             </xpath>
 
-            <xpath expr="//h2[2]" position="before">
+            <xpath expr="//group[@name='features']" position="before">
                 <h2>Listar Todas las Ordenes</h2>
                 <div class="row mt16 o_settings_container" id="wk_pos_orders">
                     <div class="col-xs-12 col-md-6 o_setting_box" title="select 'Load Orders Of Current Session' if you wish to load order that belongs to current session or
