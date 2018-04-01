@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="dgii_report_form_view" model="ir.ui.view">
+        <field name="name">dgii.report.form.view</field>
+        <field name="model">dgii.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="generate_report" string="Generate Statements" type="object"
+                            class="oe_highlight"/>
+                    <field name="state" widget="statusbar" clickable="0"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="company_id" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="12/1999"/>
+                            <field name="previous_balance"/>
+                        </group>
+                    </group>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <group name="606" class="bs-callout bs-callout-info">
+                                <button type="object" name="get_606_tree_view">
+                                    <h2>606</h2>
+                                </button>
+                                <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
+                                <field name="purchase_records" readonly="1"/>
+                                <field name="service_total_amount" readonly="1"/>
+                                <field name="good_total_amount" readonly="1"/>
+                                <field name="purchase_invoiced_amount" readonly="1"/>
+                                <field name="purchase_invoiced_itbis" readonly="1"/>
+                                <field name="purchase_withholded_itbis" readonly="1"/>
+                                <field name="cost_itbis" readonly="1"/>
+                                <field name="advance_itbis" readonly="1"/>
+                                <field name="income_withholding" readonly="1"/>
+                                <field name="purchase_selective_tax" readonly="1"/>
+                                <field name="purchase_other_taxes" readonly="1"/>
+                                <field name="purchase_legal_tip" readonly="1"/>
+                            </group>
+                        </div>
+                        <div class="col-md-3">
+                            <group name="607" class="bs-callout bs-callout-success">
+                                <button type="object" name="get_607_tree_view">
+                                    <h2>607</h2>
+                                </button>
+                                <field name="sale_binary" filename="sale_filename" readonly="1"/>
+                                <field name="sale_records" readonly="1"/>
+                                <field name="sale_invoiced_amount" readonly="1"/>
+                                <field name="sale_invoiced_itbis" readonly="1"/>
+                                <field name="sale_withholded_itbis" readonly="1"/>
+                                <field name="sale_withholded_isr" readonly="1"/>
+                                <field name="sale_selective_tax" readonly="1"/>
+                                <field name="sale_other_taxes" readonly="1"/>
+                                <field name="sale_legal_tip" readonly="1"/>
+                            </group>
+                        </div>
+                        <div class="col-md-3">
+                            <group name="608" class="bs-callout bs-callout-warning">
+                                <button type="object" name="get_608_tree_view">
+                                    <h2>608</h2>
+                                </button>
+                                <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
+                                <field name="cancel_records" readonly="1"/>
+                            </group>
+                        </div>
+                        <div class="col-md-3">
+                            <group name="609" class="bs-callout bs-callout-danger">
+                                <button type="object" name="get_609_tree_view">
+                                    <h2>609</h2>
+                                </button>
+                                <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
+                                <field name="exterior_records" readonly="1"/>
+                                <field name="presumed_income" readonly="1"/>
+                                <field name="exterior_withholded_isr" readonly="1"/>
+                                <field name="exterior_invoiced_amount" readonly="1"/>
+                            </group>
+                        </div>
+                    </div>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="dgii_report_tree_view" model="ir.ui.view">
+        <field name="name">dgii.report.tree.view</field>
+        <field name="model">dgii.report</field>
+        <field name="arch" type="xml">
+            <tree string="Statements">
+                <field name="name"/>
+                <field name="create_date"/>
+                <field name="create_uid"/>
+                <field name="write_uid"/>
+                <field name="write_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dgii_report_search_view" model="ir.ui.view">
+        <field name="name">dgii.report.search.view</field>
+        <field name="model">dgii.report</field>
+        <field name="arch" type="xml">
+            <search string="Statements">
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="dgii_report_action" model="ir.actions.act_window">
+        <field name="name">DGII Statements</field>
+        <field name="res_model">dgii.report</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="dgii_report_search_view"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create"></p>
+            <p>You can create your DGII Tax Statements here.</p>
+        </field>
+    </record>
+
+    <menuitem action="dgii_report_action" id="dgii_report_menu" sequence="14" name="DGII"
+              parent="account.menu_finance"/>
+
+    <!--606-->
+    <record id="dgii_report_purchase_line_tree" model="ir.ui.view">
+        <field name="name">dgii.report.purchase.line.tree</field>
+        <field name="model">dgii.report.purchase.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="dgii_report_id" invisible="1"/>
+                <field name="line"/>
+                <field name="invoice_partner_id"/>
+                <field name="identification_type"/>
+                <field name="expense_type"/>
+                <field name="number"/>
+                <field name="modified_invoice_number"/>
+                <field name="invoice_date"/>
+                <field name="payment_date"/>
+                <field name="invoiced_itbis" sum="Invoiced ITBIS"/>
+                <field name="withholded_itbis" sum="Retained ITBIS"/>
+                <field name="invoiced_amount" sum="Invoiced amount"/>
+                <field name="income_withholding" sum="Income withholding"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--607-->
+    <record id="dgii_report_sale_line_tree" model="ir.ui.view">
+        <field name="name">dgii.report.sale.line.tree</field>
+        <field name="model">dgii.report.sale.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="dgii_report_id" invisible="1"/>
+                <field name="line"/>
+                <field name="invoice_partner_id"/>
+                <field name="identification_type"/>
+                <field name="number"/>
+                <field name="modified_invoice_number"/>
+                <field name="invoice_date"/>
+                <field name="payment_date"/>
+                <field name="invoiced_itbis" sum="Invoiced ITBIS"/>
+                <field name="invoiced_amount" sum="Invoiced amount"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--608-->
+    <record id="dgii_cancel_report_line_tree" model="ir.ui.view">
+        <field name="name">dgii.report.cancel.line.tree</field>
+        <field name="model">dgii.cancel.report.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="dgii_report_id" invisible="1"/>
+                <field name="line"/>
+                <field name="fiscal_invoice_number"/>
+                <field name="invoice_date"/>
+                <field name="anulation_type"/>
+                <field name="invoice"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--609-->
+    <record id="dgii_exterior_report_line_tree" model="ir.ui.view">
+        <field name="name">dgii.exterior.cancel.line.tree</field>
+        <field name="model">dgii.exterior.report.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="dgii_report_id" invisible="1"/>
+                <field name="line"/>
+                <field name="expense_type"/>
+                <field name="invoice_date"/>
+                <field name="payment_date"/>
+                <field name="income_withholding"/>
+                <field name="invoiced_amount"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

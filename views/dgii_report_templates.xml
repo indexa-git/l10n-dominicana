@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="assets_backend" name="dgii_reports_template" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <link rel="stylesheet" type="text/css"
+                  href='/dgii_reports/static/src/less/dgii_reports.css'/>
+        </xpath>
+    </template>
+
+</odoo>
