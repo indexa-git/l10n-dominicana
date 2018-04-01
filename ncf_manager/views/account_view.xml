@@ -6,11 +6,13 @@
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//button[@name='toggle_active']" position="after">
-                <field name="ncf_ready" invisible="1"/>
-                <button class="oe_stat_button" type="object" name="create_ncf_sequence" icon="fa-database"
-                        attrs="{'invisible':['|',('ncf_control','!=',True),('ncf_ready','!=',False)]}" string="Generar NCF">
-                </button>
+            <xpath expr="//sheet/*[1]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <field name="ncf_ready" invisible="1"/>
+                    <button class="oe_stat_button" type="object" name="create_ncf_sequence" icon="fa-database"
+                            attrs="{'invisible':['|',('ncf_control','!=',True),('ncf_ready','!=',False)]}" string="Generar NCF">
+                    </button>
+                </div>
             </xpath>
 
             <field name="type" position="after">
