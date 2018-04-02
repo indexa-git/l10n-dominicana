@@ -18,7 +18,8 @@
                 <t t-if="partner.name">
                     <span>
                         <t t-foreach='widget.pos.sale_fiscal_type_selection' t-as='row'>
-                            <t t-if="partner.sale_fiscal_type ? ((row[0] === partner.sale_fiscal_type) ? true : undefined) : undefined" t-esc="row[1]"/>
+                            <t t-if="partner.sale_fiscal_type ? ((row[0] === partner.sale_fiscal_type) ? true : undefined) : undefined"
+                               t-esc="row[1]"/>
                         </t>
                     </span>
                 </t>
@@ -151,7 +152,7 @@
                                                 <th>Fecha Orden</th>
                                                 <th>Tax ID</th>
                                                 <th>Cliente</th>
-                                                <th>Monto</th>
+                                                <th class="col-right">Monto</th>
                                                 <th>Estado</th>
                                             </tr>
                                         </thead>
@@ -178,8 +179,8 @@
             <td>
                 <t t-esc="order.partner_id[1] || '-'"/>
             </td>
-            <td>
-                <t t-esc='order.amount_total'/>
+            <td class="col-right">
+                <t t-esc='Math.round(order.amount_total * 100) / 100'/>
             </td>
             <td>
                 -
@@ -337,7 +338,7 @@
         </section>
     </t>
 
-    <t t-name="OrderReturnPopup">
+    <t t-name="OrderRefundPopup">
         <div class="modal-dialog">
             <div class="popup popup-textinput return_popup_style">
                 <div class="title">
@@ -354,7 +355,7 @@
                         <table border="1" frame="void" rules="rows" class="return_popup_table">
                             <tr class="return_popup_tr">
                                 <th class="table_data_cells">
-                                    <p>Producto (<span style="color:#2f6e75">Cant.</span>.)
+                                    <p>Producto (<span style="color:#2f6e75">Cant.</span>)
                                     </p>
                                 </th>
                                 <th class="table_data_cells">Cant. devuelta.</th>
@@ -371,8 +372,9 @@
                                         )
                                     </td>
                                     <td class="table_data_cells return_qty">
-                                        <input t-att-line-qty-remaining='line.qty - line.line_qty_returned'
-                                               t-att-line-id="line.id" type="number" value="0"></input>
+                                        <input type="number" t-att-line-id='line.id'
+                                               t-att-line-qty-remaining='line.qty - line.line_qty_returned'
+                                               t-att-value='line.current_return_qty || 0' />
                                     </td>
                                 </tr>
                             </t>
@@ -390,6 +392,83 @@
                 </div>
             </div>
         </div>
+    </t>
+
+    <t t-name="OrderRefundConfirm">
+        <div class="full-content">
+            <section class='info-content'>
+                <div style="float:left;">
+                    <div class='label-text'>
+                        <span class="font-bold">Customer</span>:
+                        <t t-if="widget.pos.get_client()">
+                            <t t-esc="widget.pos.get_client().name"/>
+                        </t>
+                    </div>
+                    <div class='label-text'>
+                        <span class="font-bold">Tax ID</span>:
+                        <t t-esc="widget.pos.db.order_by_id[order.return_order_id].number"></t>
+                    </div>
+                </div>
+                <div style="float:right;">
+                    <span class="button-custom edit">
+                        <i class="fa fa-edit"></i>
+                        Edit
+                    </span>
+                </div>
+            </section>
+            <div class='clientlist-screen'>
+                <table class='client-list'>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="col-right">Quantity</th>
+                            <th class="col-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="order.orderlineList || []" t-as="line">
+                            <tr class="widget.return_popup_tr">
+                                <td>
+                                    <t t-esc="line.product_name"/>
+                                </td>
+                                <td class="col-right">
+                                    <t t-esc="line.quantity"/>
+                                </td>
+                                <td class="col-right">
+                                    <t t-esc="Math.round(line.price * 100) / 100"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="col-right highlight-2">
+                                <t t-esc="Math.round((order.amount_total || 0) * 100) / 100"/>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-extend="PaymentScreenWidget">
+        <t t-jquery=".payment-screen .screen-content" t-operation="append">
+            <div class="refund-confirm-content touch-scrollable scrollable-y">
+            </div>
+        </t>
+        <t t-jquery=".payment-screen .top-content" t-operation="append">
+            <span class="button cancel oe_hidden">
+                <i class="fa fa-times"/>
+                Cancel
+            </span>
+            <span class="button confirm oe_hidden">
+                <i class="fa fa-check"/>
+                Confirm
+            </span>
+        </t>
     </t>
 
 </templates>

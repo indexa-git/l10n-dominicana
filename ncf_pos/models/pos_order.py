@@ -63,7 +63,15 @@ class PosOrder(models.Model):
                 "partner_id": [order.partner_id.id, order.partner_id.name],
                 "lines": [line.id for line in order.lines],
                 "statement_ids": [statement_id.id for statement_id in order.statement_ids],
+                "is_return_order": order.is_return_order
             }
+            if not order.is_return_order:
+                order_json['return_status'] = order.return_status
+            else:
+                order.return_order_id.return_status = order.return_status
+                order_json['return_order_id'] = order.return_order_id.id
+                order_json['return_status'] = order.return_order_id.return_status
+
             order_lines_list = []
             for line in order.lines:
                 order_lines_json = {
