@@ -141,9 +141,9 @@
             <br />
             <span><t t-esc="widget.pos.getDatetime().date"/></span>
             <span style="margin-left: 2em"><t t-esc="widget.pos.getDatetime().time"/></span><br />
-            <span>NIF <t t-esc="order.number"/></span><br />
-            <span>NFC <t t-esc="order.number"/></span><br />
-            <span>RNC <t t-esc="order.number"/></span><br />
+            <span>NIF: <t t-esc="order.number"/></span><br />
+            <span>NFC: <t t-esc="order.number"/></span><br />
+            <span>RNC: <t t-esc="order.number"/></span><br />
             <span>DGII <t t-esc="order.number"/></span><br />
             <t t-if="receipt.header">
                 <div style='text-align:center'>
@@ -157,7 +157,7 @@
             <table class='receipt-orderlines'>
                 <colgroup>
                     <col width='50%' />
-                    <col width='25%' />
+                    <col width='20%' />
                     <col width='25%' />
                 </colgroup>
                 <thead>
@@ -176,7 +176,7 @@
                         </t>
                     </td>
                     <td class="pos-right-align">
-                        <t t-esc="orderline.get_quantity_str_with_unit()"/>
+                        <t t-esc="widget.format_currency(orderline.get_tax())"/>
                     </td>
                     <td class="pos-right-align">
                         <t t-esc="widget.format_currency(orderline.get_display_price())"/>
@@ -185,49 +185,33 @@
             </table>
             <br />
             <table class='receipt-total'>
+                <colgroup>
+                    <col width='50%' />
+                    <col width='25%' />
+                    <col width='25%' />
+                </colgroup>
                 <tr>
-                    <td>Subtotal:</td>
+                    <td>TOTAL A PAGAR:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_total_tax())"/>
+                    </td>
                     <td class="pos-right-align">
                         <t t-esc="widget.format_currency(order.get_total_without_tax())"/>
                     </td>
                 </tr>
-                <t t-foreach="order.get_tax_details()" t-as="taxdetail">
+            </table>
+            <table class='receipt-paymentlines'>
+                <t t-foreach="paymentlines" t-as="line">
                     <tr>
-                        <td><t t-esc="taxdetail.name" /></td>
+                        <td>
+                            <t t-esc="line.name"/>
+                        </td>
                         <td class="pos-right-align">
-                            <t t-esc="widget.format_currency(taxdetail.amount)" />
+                            <t t-esc="widget.format_currency(line.get_amount())"/>
                         </td>
                     </tr>
                 </t>
-                <tr>
-                    <t t-if="order.get_total_discount() > 0">
-                        <td>Discount:</td>
-                        <td class="pos-right-align">
-                            <t t-esc="widget.format_currency(order.get_total_discount())"/>
-                        </td>
-                    </t>
-                </tr>
-                <tr class="emph">
-                    <td>Total:</td>
-                    <td class="pos-right-align">
-                        <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
-                    </td>
-                </tr>
             </table>
-            <br />
-            <table class='receipt-paymentlines'>
-                <t t-foreach="paymentlines" t-as="line">
-                  <tr>
-                      <td>
-                          <t t-esc="line.name"/>
-                      </td>
-                      <td class="pos-right-align">
-                          <t t-esc="widget.format_currency(line.get_amount())"/>
-                      </td>
-                  </tr>
-                </t>
-            </table>
-            <br />
             <table class='receipt-change'>
                 <tr><td>Change:</td><td class="pos-right-align">
                     <t t-esc="widget.format_currency(order.get_change())"/>
@@ -239,6 +223,19 @@
                     <t t-esc="receipt.footer" />
                 </div>
             </t>
+            <br/>
+            <br/>
+            <hr/>
+            <div>
+                <span>NIF:</span>
+            </div>
+            <div>
+                <span>TRANSACCION NRO.: </span>
+                <span class="pos-right-align">Versión</span>
+            </div>
+            <div>
+                <span>123456</span>
+            </div>
         </t>
     </t>
 
