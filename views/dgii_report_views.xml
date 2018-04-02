@@ -139,17 +139,29 @@
             <tree>
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="invoice_partner_id"/>
+                <field name="rnc_cedula"/>
                 <field name="identification_type"/>
                 <field name="expense_type"/>
-                <field name="number"/>
+                <field name="fiscal_invoice_number"/>
                 <field name="modified_invoice_number"/>
                 <field name="invoice_date"/>
                 <field name="payment_date"/>
-                <field name="invoiced_itbis" sum="Invoiced ITBIS"/>
-                <field name="withholded_itbis" sum="Retained ITBIS"/>
-                <field name="invoiced_amount" sum="Invoiced amount"/>
-                <field name="income_withholding" sum="Income withholding"/>
+                <field name="service_total_amount"/>
+                <field name="good_total_amount"/>
+                <field name="invoiced_amount"/>
+                <field name="invoiced_itbis"/>
+                <field name="withholded_itbis"/>
+                <field name="proportionality_tax"/>
+                <field name="cost_itbis"/>
+                <field name="advance_itbis"/>
+                <field name="purchase_perceived_itbis"/>
+                <field name="isr_withholding_type"/>
+                <field name="income_withholding"/>
+                <field name="purchase_perceived_isr"/>
+                <field name="excise_tax"/>
+                <field name="other_taxes"/>
+                <field name="legal_tip"/>
+                <field name="payment_type"/>
             </tree>
         </field>
     </record>
@@ -162,14 +174,29 @@
             <tree>
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="invoice_partner_id"/>
+                <field name="rnc_cedula"/>
                 <field name="identification_type"/>
-                <field name="number"/>
+                <field name="fiscal_invoice_number"/>
                 <field name="modified_invoice_number"/>
+                <field name="income_type"/>
                 <field name="invoice_date"/>
-                <field name="payment_date"/>
-                <field name="invoiced_itbis" sum="Invoiced ITBIS"/>
-                <field name="invoiced_amount" sum="Invoiced amount"/>
+                <field name="withholding_date"/>
+                <field name="invoiced_amount"/>
+                <field name="invoiced_itbis"/>
+                <field name="third_withheld_itbis"/>
+                <field name="perceived_itbis"/>
+                <field name="third_income_withholding"/>
+                <field name="perceived_isr"/>
+                <field name="excise_tax"/>
+                <field name="other_taxes"/>
+                <field name="legal_tip"/>
+                <field name="cash"/>
+                <field name="check_transfer_deposit"/>
+                <field name="debit_credit_card"/>
+                <field name="credit_sale"/>
+                <field name="bonus_gift_certificates"/>
+                <field name="barter"/>
+                <field name="other_sale_form"/>
             </tree>
         </field>
     </record>
@@ -185,7 +212,6 @@
                 <field name="fiscal_invoice_number"/>
                 <field name="invoice_date"/>
                 <field name="anulation_type"/>
-                <field name="invoice"/>
             </tree>
         </field>
     </record>
@@ -198,11 +224,19 @@
             <tree>
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="expense_type"/>
-                <field name="invoice_date"/>
-                <field name="payment_date"/>
-                <field name="income_withholding"/>
+                <field name="legal_name"/>
+                <field name="tax_id_type"/>
+                <field name="tax_id"/>
+                <field name="country_code"/>
+                <field name="purchased_service_type"/>
+                <field name="service_type_detail"/>
+                <field name="related_part"/>
+                <field name="doc_number"/>
+                <field name="doc_date"/>
                 <field name="invoiced_amount"/>
+                <field name="isr_withholding_date"/>
+                <field name="presumed_income"/>
+                <field name="withholded_isr"/>
             </tree>
         </field>
     </record>
