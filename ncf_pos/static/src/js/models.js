@@ -120,6 +120,20 @@ odoo.define('ncf_pos.models', function (require) {
                     self.sale_fiscal_type_selection = result;
                 });
         },
+
+        /**
+         * Devuelve el label del tipo fiscal del cliente
+         * @param {string} sale_fiscal_type - Tipo fiscal del cliente
+         * @return {string}
+         */
+        get_sale_fiscal_type_label: function (sale_fiscal_type) {
+            var label = _.find(this.sale_fiscal_type_selection, function (item) {
+                return item[0] === sale_fiscal_type;
+            });
+
+            return label[1];
+        },
+
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
         // an invoice. This method can fail in various ways:

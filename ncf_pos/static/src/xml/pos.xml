@@ -152,7 +152,7 @@
                 <br />
             </t>
             <div class="pos-center-align">
-                <span>Factura para <t t-esc="order.get_client().sale_fiscal_type"/></span>
+                <span>Factura para <t t-esc="widget.pos.get_sale_fiscal_type_label(order.get_client().sale_fiscal_type)"/></span>
             </div>
             <table class='receipt-orderlines'>
                 <colgroup>
@@ -167,7 +167,7 @@
                 </thead>
                 <tr t-foreach="orderlines" t-as="orderline">
                     <td>
-                        <t t-esc="orderline.get_quantity()"/> x
+                        <t t-esc="orderline.get_quantity()"/>x
                         <t t-esc="orderline.get_product().display_name"/>
                         <t t-if="orderline.get_discount() > 0">
                             <div class="pos-disc-font">
