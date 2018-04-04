@@ -34,6 +34,8 @@ class AccountMove(models.Model):
             if not invoice.journal_id.ncf_ready:
                 raise UserError(_("Debe configurar los NCF para este diario."))
             if invoice.type == "out_invoice":
+                invoice.internal_reference = self.env['ir.sequence'].next_by_code(
+                'internal.invoice.number')
                 if invoice.is_nd:
                     return super(AccountMove, self.with_context(sale_fiscal_type="debit_note")).post()
                 else:
@@ -41,4 +43,6 @@ class AccountMove(models.Model):
             elif invoice.type == "out_refund":
                 return super(AccountMove, self.with_context(sale_fiscal_type="credit_note")).post()
         else:
+            invoice.internal_reference = self.env['ir.sequence'].next_by_code(
+            'internal.supplier.invoice.number')
             return super(AccountMove, self).post()

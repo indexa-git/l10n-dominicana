@@ -143,6 +143,7 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
+    internal_reference = fields.Char(string=u"Número de factura")
 
     _sql_constraints = [
         ('number_uniq',
