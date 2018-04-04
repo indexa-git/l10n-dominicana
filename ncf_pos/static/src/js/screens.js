@@ -276,7 +276,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 this.details_visible = (visibility === 'show');
             }
         })
-        ;
+    ;
 
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
@@ -449,7 +449,15 @@ odoo.define('ncf_pos.screens', function (require) {
                 refundConfirm.empty();
                 refundConfirm.append(QWeb.render('OrderRefundConfirm', {widget: this, order: order}));
                 if (order.paymentlines.length == 0) {
-                    this.click_paymentmethods(8); //Select payment method: 8 - Cash
+                    var cashregister = this.pos.cashregisters[0];
+
+                    for (var n in this.pos.cashregisters) {
+                        if (this.pos.cashregisters[n].journal.type.toLowerCase() == "cash") {
+                            cashregister = this.pos.cashregisters[n];
+                            break;
+                        }
+                    }
+                    order.add_paymentline(cashregister);
                     order.selected_paymentline.set_amount(order.get_total_with_tax()); //Add paymentline for total+tax
                 }
                 this.order_changes();

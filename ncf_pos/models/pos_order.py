@@ -11,20 +11,40 @@ class PosOrder(models.Model):
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
                                      string='Estatus de Devolución')
 
+    def check_refund_order_from_ui(self, orders):
+        """
+        set negative values if order is refund
+        :param order:
+        :return:
+        """
+
+        for order in orders:
+            if order.get("data", {}).get("is_return_order", False):
+                order["data"]["amount_paid"] = abs(order["data"]["amount_paid"]) * -1
+                order["data"]["amount_tax"] = abs(order["data"]["amount_tax"]) * -1
+                order["data"]["amount_total"] = abs(order["data"]["amount_total"]) * -1
+
+                for line in order["data"]["lines"]:
+                    line[2]["qty"] = abs(line[2]["qty"]) * -1
+
+                for statement in order["data"]["statement_ids"]:
+                    statement[2]["amount"] = abs(statement[2]["amount"]) * -1
+
+        return orders
+
+    @api.model
+    def create_from_ui(self, orders):
+        orders = self.check_refund_order_from_ui(orders)
+        res = super(PosOrder, self).create_from_ui(orders)
+        return res
+
     @api.model
     def _process_order(self, pos_order):
         res = super(PosOrder, self)._process_order(pos_order)
         if res.is_return_order:
             res.amount_paid = 0
             for line in res.lines:
-                line.qty = abs(line.qty)
                 line.line_qty_returned += line.qty
-            for statement in res.statement_ids:
-                statement.amount = abs(statement.amount)
-
-            res.amount_tax = abs(res.amount_tax)
-            res.amount_return = 0
-            res.amount_total = abs(res.amount_total)
 
         return res
 
@@ -37,13 +57,6 @@ class PosOrder(models.Model):
             'return_status': ui_order.get('return_status') or False,
         })
         return fields_return
-
-    def _action_create_invoice_line(self, line=False, invoice_id=False):
-        res = super(PosOrder, self)._action_create_invoice_line(line, invoice_id)
-        if self.is_return_order:
-            res.quantity = abs(line.qty)
-
-        return res
 
     @api.model
     def order_search_from_ui(self, input_txt):
