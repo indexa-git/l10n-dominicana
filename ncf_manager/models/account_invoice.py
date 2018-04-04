@@ -213,10 +213,25 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
-        res = super(AccountInvoice, self)._onchange_journal_id()
-        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+        super(AccountInvoice, self)._onchange_journal_id()
+        if self.journal_id.type == 'purchase' \
+            and self.journal_id.purchase_type == "minor":
             self.partner_id = self.company_id.partner_id.id
-        return res
+
+    @api.onchange('journal_id', 'partner_id')
+    def onchange_journal_id(self):
+        if self.journal_id.type == 'purchase' \
+            and self.journal_id.purchase_type == "minor":
+            self.partner_id = self.company_id.partner_id.id
+
+        if self.partner_id.id == self.company_id.partner_id.id:
+            journal_id = self.env['account.journal'].search([
+                ('purchase_type', '=', 'minor')])
+            if not journal_id:
+                raise ValidationError(
+                    _("No existe un Diario de Gastos Menores,"
+                      " debe de crear uno."))
+            self.journal_id = journal_id.id
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -232,8 +247,6 @@ class AccountInvoice(models.Model):
             if not self.partner_id.supplier:
                 self.partner_id.supplier = True
 
-        if self.journal_id.purchase_type == "minor":
-            self.partner_id = self.company_id.partner_id.id
         return res
 
     @api.onchange('sale_fiscal_type', 'expense_type')
