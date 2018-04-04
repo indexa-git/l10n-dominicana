@@ -29,9 +29,9 @@ class AccountMove(models.Model):
 
     @api.multi
     def post(self):
-        invoice = self._context.get('invoice', False
+        invoice = self._context.get('invoice', False)
 
-        if invoice.type == "in_invoice":
+        if invoice and invoice.type == "in_invoice":
             invoice.internal_reference = self.env['ir.sequence'].next_by_code(
             'internal.supplier.invoice.number')
 
