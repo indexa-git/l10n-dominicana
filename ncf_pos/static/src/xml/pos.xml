@@ -131,7 +131,7 @@
             </div>
             <br/>
             <span>Direccion General de Impuestos Internos</span><br />
-            <span>RNC <t t-esc="order.number"/></span><br />
+            <span>RNC <t t-esc="widget.pos.company.vat || ''"/></span><br />
             <span>RES DGII: <t t-esc="order.number"/></span>
             <span class="pos-right-align">DEL <t t-esc="order.number"/></span><br />
             <br />
@@ -141,30 +141,32 @@
             <br />
             <span><t t-esc="widget.pos.getDatetime().date"/></span>
             <span style="margin-left: 2em"><t t-esc="widget.pos.getDatetime().time"/></span><br />
-            <span>NIF: <t t-esc="order.number"/></span><br />
-            <span>NFC: <t t-esc="order.number"/></span><br />
-            <span>RNC: <t t-esc="order.number"/></span><br />
-            <span>DGII <t t-esc="order.number"/></span><br />
+            <span>NCF: <t t-esc="order.number"/></span><br />
+            <t t-set="client" t-value="widget.pos.get_client()"/>
+            <t t-if="client.vat">
+                <span>RNC: <t t-esc="client.vat"/></span><br />
+            </t>
+            <br />
             <t t-if="receipt.header">
                 <div style='text-align:center'>
                     <t t-esc="receipt.header" />
                 </div>
                 <br />
             </t>
-            <div class="pos-center-align">
+            <div class="pos-center-align dotted_ticket_title">
                 <span>Factura para <t t-esc="widget.pos.get_sale_fiscal_type_label(order.get_client().sale_fiscal_type)"/></span>
             </div>
             <table class='receipt-orderlines'>
                 <colgroup>
                     <col width='50%' />
-                    <col width='20%' />
+                    <col width='25%' />
                     <col width='25%' />
                 </colgroup>
-                <thead>
-                    <th>Descripción</th>
-                    <th>ITBIS</th>
-                    <th>Valor</th>
-                </thead>
+                <tr class="dotted_ticket_table_header">
+                    <td>DESCRIPCION</td>
+                    <td>ITBIS</td>
+                    <td class="pos-right-align">VALOR</td>
+                </tr>
                 <tr t-foreach="orderlines" t-as="orderline">
                     <td>
                         <t t-esc="orderline.get_quantity()"/>x
@@ -175,7 +177,7 @@
                             </div>
                         </t>
                     </td>
-                    <td class="pos-right-align">
+                    <td>
                         <t t-esc="widget.format_currency(orderline.get_tax())"/>
                     </td>
                     <td class="pos-right-align">
@@ -192,7 +194,7 @@
                 </colgroup>
                 <tr>
                     <td>TOTAL A PAGAR:</td>
-                    <td class="pos-right-align">
+                    <td>
                         <t t-esc="widget.format_currency(order.get_total_tax())"/>
                     </td>
                     <td class="pos-right-align">

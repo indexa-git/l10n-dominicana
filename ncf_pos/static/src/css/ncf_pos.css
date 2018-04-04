@@ -5,7 +5,27 @@
     line-height: 18px;
     font-size: 14px;
 }
+
 .popup > p.body {
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+
+/* c) The receipt screen */
+
+.dotted_ticket_title {
+    border: 1px dashed black;
+    border-left: none;
+    border-right: none;
+    padding: .5em 0;
+    margin: .9em 0 0 0;
+}
+
+.dotted_ticket_table_header {
+    border-bottom: 1px dashed black;
+    height: 2em;
+}.popup > p.body {
     white-space: pre-wrap;
     text-align: left;
 }
