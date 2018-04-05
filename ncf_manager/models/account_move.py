@@ -31,16 +31,10 @@ class AccountMove(models.Model):
     def post(self):
         invoice = self._context.get('invoice', False)
 
-        if invoice and invoice.type == "in_invoice":
-            invoice.internal_reference = self.env['ir.sequence'].next_by_code(
-            'internal.supplier.invoice.number')
-
         if invoice and invoice.journal_id.ncf_control:
             if not invoice.journal_id.ncf_ready:
                 raise UserError(_("Debe configurar los NCF para este diario."))
             if invoice.type == "out_invoice":
-                invoice.internal_reference = self.env['ir.sequence'].next_by_code(
-                'internal.invoice.number')
                 if invoice.is_nd:
                     return super(AccountMove, self.with_context(sale_fiscal_type="debit_note")).post()
                 else:
