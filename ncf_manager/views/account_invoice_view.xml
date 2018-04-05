@@ -71,7 +71,7 @@
             </field>
 
             <field name="date_invoice" position="before">
-                <field name="internal_reference" readonly="1"/>
+                <field name="internal_sequence" readonly="1"/>
             </field>
 
         </field>
@@ -95,7 +95,7 @@
             </field>
 
             <field name="date_invoice" position="before">
-                <field name="internal_reference" readonly="1"/>
+                <field name="internal_sequence" readonly="1"/>
             </field>
 
             <xpath expr="//sheet//label" position="before">
