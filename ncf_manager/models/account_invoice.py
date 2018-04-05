@@ -230,7 +230,7 @@ class AccountInvoice(models.Model):
             if not journal_id:
                 raise ValidationError(
                     _("No existe un Diario de Gastos Menores,"
-                      " debe de crear uno."))
+                      " debe crear uno."))
             self.journal_id = journal_id.id
 
     @api.onchange('partner_id')
