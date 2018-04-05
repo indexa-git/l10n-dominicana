@@ -96,6 +96,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         }, {})
                             .then(function (result) {
                                 var orders = result && result.orders || [];
+                                var orderlines = result && result.orderlines || [];
 
                                 orders.forEach(function (order) {
                                     var obj = self.pos.db.order_by_id[order.id];
@@ -103,6 +104,10 @@ odoo.define('ncf_pos.screens', function (require) {
                                     if (!obj)
                                         self.pos.db.pos_all_orders.push(order);
                                     self.pos.db.order_by_id[order.id] = order;
+                                });
+                                self.pos.db.pos_all_order_lines.concat(orderlines);
+                                orderlines.forEach(function (line) {
+                                    self.pos.db.line_by_id[line.id] = line;
                                 });
 
                                 self.render_list(orders);
@@ -136,8 +141,8 @@ odoo.define('ncf_pos.screens', function (require) {
                 var self = this;
                 var order = self.pos.db.order_by_id[id];
 
-                if (order.is_return_order)
-                    return false;
+                //if (order.is_return_order)
+                //    return false;
                 this.$('.order-list .lowlight').removeClass('lowlight');
                 if ($line.hasClass('highlight')) {
                     $line.removeClass('highlight');
@@ -275,8 +280,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
                 this.details_visible = (visibility === 'show');
             }
-        })
-    ;
+        });
 
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
@@ -413,17 +417,21 @@ odoo.define('ncf_pos.screens', function (require) {
                     product_name: line.product_id[1],
                     quantity: qty,
                     price: line.price_subtotal_incl
-
                 });
             });
             this.click_confirm();
             self.gui.show_screen('payment', null, true);
         },
         show: function (options) {
+            var firstInput;
+
             options = options || {};
             this._super(options);
             this.orderlines = options.orderlines || [];
             this.renderElement();
+            firstInput = $('.return_qty input:eq(0)');
+            if (firstInput.length)
+                firstInput.select()
         },
     });
 
@@ -673,8 +681,8 @@ odoo.define('ncf_pos.screens', function (require) {
     });
 
     gui.Gui.include({
-        /*
-         Allows the keyboard capture for the current screen
+        /**
+         * Allows the keyboard capture for the current screen
          */
         __enable_keyboard_handler: function () {
             var current_screen = this.current_screen;
@@ -684,8 +692,8 @@ odoo.define('ncf_pos.screens', function (require) {
             window.document.body.addEventListener('keypress', current_screen.keyboard_handler);
             window.document.body.addEventListener('keydown', current_screen.keyboard_keydown_handler);
         },
-        /*
-         Remove the keyboard capture for the current screen
+        /**
+         * Remove the keyboard capture for the current screen
          */
         __disable_keyboard_handler: function () {
             var current_screen = this.current_screen;

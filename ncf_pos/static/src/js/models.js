@@ -33,7 +33,7 @@ odoo.define('ncf_pos.models', function (require) {
             return domain_list;
         },
         loaded: function (self, order) {
-            self.db.pos_all_orders = order;
+            self.db.pos_all_orders = order || [];
             self.db.order_by_id = {};
             order.forEach(function (order) {
                 var order_date = new Date(order.date_order);
@@ -84,7 +84,7 @@ odoo.define('ncf_pos.models', function (require) {
             ];
         },
         loaded: function (self, order_lines) {
-            self.db.pos_all_order_lines = order_lines;
+            self.db.pos_all_order_lines = order_lines || [];
             self.db.line_by_id = {};
             order_lines.forEach(function (line) {
                 self.db.line_by_id[line.id] = line;

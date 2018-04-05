@@ -236,7 +236,7 @@
                     <div class='client-detail'>
                         <span class='label' style="text-align: left;width: 27%;">NC/Devolución:</span>
                         <span class='detail client-id'>
-                            <t t-esc='order.return_status'/>
+                            <t t-esc='order.return_status || ""'/>
                         </span>
                     </div>
                 </div>
