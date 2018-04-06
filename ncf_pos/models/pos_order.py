@@ -1,4 +1,5 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, exceptions, _
+from odoo.tools import float_is_zero
 
 
 class PosOrder(models.Model):
@@ -40,13 +41,23 @@ class PosOrder(models.Model):
 
     @api.model
     def _process_order(self, pos_order):
-        res = super(PosOrder, self)._process_order(pos_order)
-        if res.is_return_order:
-            res.amount_paid = 0
-            for line in res.lines:
-                line.line_qty_returned += line.qty
 
-        return res
+        if pos_order.get('is_return_order', False):
+            pos_order['amount_paid'] = 0
+            for line in pos_order['lines']:
+                line_dict = line[2]
+                line_dict['qty'] = abs(line_dict['qty'])
+                if line_dict.get('original_line_id', False):
+                    original_line = self.env['pos.order.line'].browse(line_dict["original_line_id"])
+                    original_line.line_qty_returned += abs(line_dict.get('qty', 0))
+            for statement in pos_order['statement_ids']:
+                statement_dict = statement[2]
+                statement_dict['amount'] = statement_dict['amount'] * -1
+            pos_order['amount_tax'] = pos_order['amount_tax'] * -1
+            pos_order['amount_return'] = 0
+            pos_order['amount_total'] = pos_order['amount_total'] * -1
+
+        return super(PosOrder, self)._process_order(pos_order)
 
     @api.model
     def _order_fields(self, ui_order):
