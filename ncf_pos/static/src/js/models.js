@@ -7,7 +7,6 @@ odoo.define('ncf_pos.models', function (require) {
     models.load_fields('res.partner', ['sale_fiscal_type']);
     models.load_fields('pos.config', ['pos_default_partner_id', 'print_pdf']);
     models.load_fields('product.product', 'not_returnable');
-
     models.load_models([{
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id',
@@ -182,6 +181,31 @@ odoo.define('ncf_pos.models', function (require) {
 
             if (order && order.is_return_order === true)
                 this.gui.show_screen('payment');
+        },
+        /**
+         * Envia un arreglo con las ordenes al servidor para generar las facturas
+         * y luego de creadas facturas para las que sean de nota de credito actualizamos
+         * la BD offline con los cambios
+         * @param {object} orders - Objeto con la lista de ordenes
+         * @param {object} options - Objeto con los configuracion opcional
+         * @returns {*} Deferred con la lista de ids generados en el servidor
+         * @private
+         */
+        _save_to_server: function (orders, options) {
+            var self = this;
+            return _super_posmodel._save_to_server.call(this, orders, options).always(function () {
+                _.each(orders || [], function (order) {
+                    order = order.data;
+                    if (order.is_return_order === true) {
+                        order.lines.forEach(function (line) {
+                            var original_line = self.db.line_by_id[line[2].original_line_id];
+
+                            if (original_line)
+                                original_line.line_qty_returned += Math.abs(line[2].qty);
+                        });
+                    }
+                });
+            });
         }
     });
 

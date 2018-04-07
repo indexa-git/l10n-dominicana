@@ -217,14 +217,18 @@
                     </t>
                 </div>
                 <div class='client-details-right' style="margin-right: -20%;">
-                    <t t-if="!order.refunded">
-                        <div class='client-detail'>
-                            <div id="refund" class='control-button highlight'
-                                 style="margin-left: 18%;margin-top: 1%;">
+                    <div class='client-detail'>
+                        <t t-if="!order.refunded">
+                            <div id="refund" class='control-button highlight' style="margin-left: 18%;margin-top: 1%;">
                                 NC/Devolución
                             </div>
-                        </div>
-                    </t>
+                        </t>
+                        <t t-else="">
+                            <div class='control-button' style="margin-left: 25%; margin-top: 1%; cursor: default;">
+                                Refunded
+                            </div>
+                        </t>
+                    </div>
                     <img id="close_order_details" src="/pos_order_return/static/src/img/icon-cross.png"
                          style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
                     <div class='client-detail'>
@@ -374,7 +378,7 @@
                                     <td class="table_data_cells return_qty">
                                         <input type="number" t-att-line-id='line.id'
                                                t-att-line-qty-remaining='line.qty - line.line_qty_returned'
-                                               t-att-value='line.current_return_qty || 0' />
+                                               t-att-value='line.current_return_qty || 0'/>
                                     </td>
                                 </tr>
                             </t>

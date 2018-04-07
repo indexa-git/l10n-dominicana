@@ -39,248 +39,257 @@ odoo.define('ncf_pos.screens', function (require) {
      to reoder and rewrite the invoices.
      */
     var InvoicesListScreenWidget = screens.ScreenWidget.extend({
-            template: 'InvoicesListScreenWidget',
-            init: function (parent, options) {
-                this._super(parent, options);
-            },
-            show: function () {
-                var self = this;
+        template: 'InvoicesListScreenWidget',
+        init: function (parent, options) {
+            this._super(parent, options);
+        },
+        show: function () {
+            var self = this;
 
-                this._super();
-                this.renderElement();
-                this.$('.order-details-contents').empty();
-                this.$('.order-list').parent().scrollTop(0);
-                this.$('.button').click(function () {
-                    self.perform_search(self.$('.invoices_search').val());
-                });
-                this.$('.back').click(function () {
-                    self.gui.back();
-                });
+            this._super();
+            this.renderElement();
+            this.$('.order-details-contents').empty();
+            this.$('.order-list').parent().scrollTop(0);
+            this.$('.button').click(function () {
+                self.perform_search(self.$('.invoices_search').val());
+            });
+            this.$('.back').click(function () {
+                self.gui.back();
+            });
 
-                if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
-                    this.chrome.widget.keyboard.connect(this.$('.invoices_search'));
-                }
-                this.$('.invoices_search').on('keypress', function (event) {
-                    if (event.which === 13)
-                        self.perform_search(this.value);
-                }).focus();
-                this.$('.searchbox .search-clear').click(function () {
-                    self.clear_search();
-                });
-                this.$('.order-list-contents').on('click', '.order-line', function (e) {
-                    self.line_select(e, $(this), parseInt($(this).data('id')));
-                });
+            if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
+                this.chrome.widget.keyboard.connect(this.$('.invoices_search'));
+            }
+            this.$('.invoices_search').on('keypress', function (event) {
+                if (event.which === 13)
+                    self.perform_search(this.value);
+            }).focus();
+            this.$('.searchbox .search-clear').click(function () {
+                self.clear_search();
+            });
+            this.$('.order-list-contents').on('click', '.order-line', function (e) {
+                self.line_select(e, $(this), parseInt($(this).data('id')));
+            });
+            this.render_list(this.pos.db.pos_all_orders);
+        },
+        perform_search: function (query) {
+            var self = this;
+
+            if ($.trim(query) == "") {
                 this.render_list(this.pos.db.pos_all_orders);
-            },
-            perform_search: function (query) {
-                var self = this;
+            } else {
+                var allOrders = this.pos.db.pos_all_orders;
+                var orders = [];
 
-                if ($.trim(query) == "") {
-                    this.render_list(this.pos.db.pos_all_orders);
+                for (var i in allOrders) {
+                    if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1)
+                        orders.push(allOrders[i]);
+                }
+
+                if (orders.length > 0) {
+                    this.render_list(orders);
                 } else {
-                    var allOrders = this.pos.db.pos_all_orders;
-                    var orders = [];
+                    rpc.query({
+                        model: 'pos.order',
+                        method: 'order_search_from_ui',
+                        args: [query]
+                    }, {})
+                        .then(function (result) {
+                            var orders = result && result.orders || [];
+                            var orderlines = result && result.orderlines || [];
 
-                    for (var i in allOrders) {
-                        if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1)
-                            orders.push(allOrders[i]);
-                    }
+                            orders.forEach(function (order) {
+                                var obj = self.pos.db.order_by_id[order.id];
 
-                    if (orders.length > 0) {
-                        this.render_list(orders);
-                    } else {
-                        rpc.query({
-                            model: 'pos.order',
-                            method: 'order_search_from_ui',
-                            args: [query]
-                        }, {})
-                            .then(function (result) {
-                                var orders = result && result.orders || [];
-                                var orderlines = result && result.orderlines || [];
-
-                                orders.forEach(function (order) {
-                                    var obj = self.pos.db.order_by_id[order.id];
-
-                                    if (!obj)
-                                        self.pos.db.pos_all_orders.push(order);
-                                    self.pos.db.order_by_id[order.id] = order;
-                                });
-                                self.pos.db.pos_all_order_lines.concat(orderlines);
-                                orderlines.forEach(function (line) {
-                                    self.pos.db.line_by_id[line.id] = line;
-                                });
-
-                                self.render_list(orders);
+                                if (!obj)
+                                    self.pos.db.pos_all_orders.push(order);
+                                self.pos.db.order_by_id[order.id] = order;
                             });
-                    }
-                }
-            },
-            clear_search: function () {
-                this.$('.invoices_search')[0].value = '';
-                this.$('.invoices_search').focus();
-                this.render_list(this.pos.db.pos_all_orders);
-            },
-            render_list: function (orders) {
-                var self = this;
-                var contents = this.$('.order-list-contents');
+                            self.pos.db.pos_all_order_lines.concat(orderlines);
+                            orderlines.forEach(function (line) {
+                                self.pos.db.line_by_id[line.id] = line;
+                            });
 
-                contents.empty();
+                            self.render_list(orders);
+                        });
+                }
+            }
+        },
+        clear_search: function () {
+            this.$('.invoices_search')[0].value = '';
+            this.$('.invoices_search').focus();
+            this.render_list(this.pos.db.pos_all_orders);
+        },
+        render_list: function (orders) {
+            var self = this;
+            var contents = this.$('.order-list-contents');
+
+            contents.empty();
+            this.display_order_details('hide');
+            orders.forEach(function (order) {
+                contents.append(QWeb.render('InvoicesLine', {widget: self, order: order}));
+            });
+        },
+        close: function () {
+            this._super();
+            this.$('.order-list-contents').off('click', '.order-line');
+            if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
+                this.chrome.widget.keyboard.hide();
+            }
+        },
+        line_select: function (event, $line, id) {
+            var self = this;
+            var order = self.pos.db.order_by_id[id];
+
+            //if (order.is_return_order)
+            //    return false;
+            this.$('.order-list .lowlight').removeClass('lowlight');
+            if ($line.hasClass('highlight')) {
+                $line.removeClass('highlight');
+                $line.addClass('lowlight');
                 this.display_order_details('hide');
-                orders.forEach(function (order) {
-                    contents.append(QWeb.render('InvoicesLine', {widget: self, order: order}));
+            }
+            else {
+                var y;
+
+                this.$('.order-list .highlight').removeClass('highlight');
+                $line.addClass('highlight');
+                this.selected_tr_element = $line;
+                y = event.pageY - $line.parent().offset().top;
+                this.display_order_details('show', order, y);
+            }
+        },
+        display_order_details: function (visibility, order, clickpos) {
+            var self = this;
+            var contents = this.$('.order-details-contents');
+            var parent = this.$('.order-list').parent();
+            var scroll = parent.scrollTop();
+            var height = contents.height();
+            var new_height = 0;
+            var orderlines = [];
+            var statements = [];
+
+            if (visibility === 'show') {
+                var sumQty = 0;
+
+                order.lines.forEach(function (line_id) {
+                    var line = self.pos.db.line_by_id[line_id];
+
+                    orderlines.push(line);
+                    sumQty += (line.qty - line.line_qty_returned);
                 });
-            },
-            close: function () {
-                this._super();
-                this.$('.order-list-contents').off('click', '.order-line');
-                if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
-                    this.chrome.widget.keyboard.hide();
+                if(sumQty == 0){
+                    order.refunded = true;
+                    order.return_status = 'Fully-Returned'
                 }
-            },
-            line_select: function (event, $line, id) {
-                var self = this;
-                var order = self.pos.db.order_by_id[id];
-
-                //if (order.is_return_order)
-                //    return false;
-                this.$('.order-list .lowlight').removeClass('lowlight');
-                if ($line.hasClass('highlight')) {
-                    $line.removeClass('highlight');
-                    $line.addClass('lowlight');
-                    this.display_order_details('hide');
-                }
-                else {
-                    var y;
-
-                    this.$('.order-list .highlight').removeClass('highlight');
-                    $line.addClass('highlight');
-                    this.selected_tr_element = $line;
-                    y = event.pageY - $line.parent().offset().top;
-                    this.display_order_details('show', order, y);
-                }
-            },
-            display_order_details: function (visibility, order, clickpos) {
-                var self = this;
-                var contents = this.$('.order-details-contents');
-                var parent = this.$('.order-list').parent();
-                var scroll = parent.scrollTop();
-                var height = contents.height();
-                var new_height = 0;
-                var orderlines = [];
-                var statements = [];
-
-                if (visibility === 'show') {
-                    order.lines.forEach(function (line_id) {
-                        orderlines.push(self.pos.db.line_by_id[line_id]);
-                    });
-                    contents.empty();
-                    contents.append($(QWeb.render('OrderDetails',
-                        {
-                            widget: this,
-                            order: order,
-                            orderlines: orderlines,
-                            statements: statements
-                        })));
-                    new_height = contents.height();
-                    if (!this.details_visible) {
-                        if (clickpos < scroll + new_height + 20) {
-                            parent.scrollTop(clickpos - 20);
-                        }
-                        else
-                            parent.scrollTop(parent.scrollTop() + new_height);
-                    } else {
-                        parent.scrollTop(parent.scrollTop() - height + new_height);
-                    }
-                    this.$("#close_order_details").on("click", function () {
-                        self.display_order_details('hide');
-                    });
-                    self.$("#refund").on("click", function () {
-                        var message = '';
-                        var non_returnable_products = false;
-                        var original_orderlines = [];
-                        var allow_return = true;
-                        var orders = self.pos.get_order_list();
-
-                        //Mostramos la pantalla con la orden si ya esta en proceso de creacion
-                        for (var n in orders) {
-                            var _order = orders[n];
-
-                            if (_order.is_return_order && _order.return_order_id == order.id) {
-                                self.pos.set_order(_order);
-                                return false;
-                            }
-                        }
-                        if (order.return_status == 'Fully-Returned') {
-                            message = 'No quedan items para devolver en esta orden!!';
-                            allow_return = false;
-                        }
-                        if (allow_return) {
-                            order.lines.forEach(function (line_id) {
-                                var line = self.pos.db.line_by_id[line_id];
-                                var product = self.pos.db.get_product_by_id(line.product_id[0]);
-
-                                if (product == null) {
-                                    non_returnable_products = true;
-                                    message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
-                                } else if (product.not_returnable) {
-                                    non_returnable_products = true;
-                                    message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
-                                } else if (line.qty - line.line_qty_returned > 0) {
-                                    original_orderlines.push(line);
-                                }
-                            });
-                            if (original_orderlines.length == 0) {
-                                self.gui.show_popup('alert', {
-                                    'title': _t('No se puede devolver esta Orden!!!'),
-                                    'body': _t("No quedan productos retornables en esta orden. Tal vez los productos son No Retornables o no estan disponibles en el Punto de Venta!!"),
-                                });
-                            } else if (non_returnable_products) {
-                                self.gui.show_popup('confirm', {
-                                    'title': _t('Warning !!!'),
-                                    'body': _t(message),
-                                    confirm: function () {
-                                        self.gui.show_popup('refund_order_popup', {
-                                            'orderlines': original_orderlines,
-                                            'order': order,
-                                            'is_partial_return': true,
-                                        });
-                                    },
-                                });
-                            } else {
-                                self.gui.show_popup('refund_order_popup', {
-                                    'orderlines': original_orderlines,
-                                    'order': order,
-                                    'is_partial_return': false,
-                                });
-                            }
-                        } else {
-                            self.gui.show_popup('alert', {
-                                'title': _t('Warning!!!'),
-                                'body': _t(message),
-                            });
-                        }
-                    });
-                }
-                else if (visibility === 'hide') {
-                    if (this.selected_tr_element) {
-                        this.selected_tr_element.removeClass('highlight');
-                        this.selected_tr_element.addClass('lowlight');
-                    }
-                    contents.empty();
-                    if (height > scroll) {
-                        contents.css({height: height + 'px'});
-                        contents.animate({height: 0}, 400,
-                            function () {
-                                contents.css({height: ''});
-                            });
+                contents.empty();
+                contents.append($(QWeb.render('OrderDetails',
+                    {
+                        widget: this,
+                        order: order,
+                        orderlines: orderlines,
+                        statements: statements
+                    })));
+                new_height = contents.height();
+                if (!this.details_visible) {
+                    if (clickpos < scroll + new_height + 20) {
+                        parent.scrollTop(clickpos - 20);
                     }
                     else
-                        parent.scrollTop(parent.scrollTop() - height);
+                        parent.scrollTop(parent.scrollTop() + new_height);
+                } else {
+                    parent.scrollTop(parent.scrollTop() - height + new_height);
                 }
+                this.$("#close_order_details").on("click", function () {
+                    self.display_order_details('hide');
+                });
+                self.$("#refund").on("click", function () {
+                    var message = '';
+                    var non_returnable_products = false;
+                    var original_orderlines = [];
+                    var allow_return = true;
+                    var orders = self.pos.get_order_list();
 
-                this.details_visible = (visibility === 'show');
+                    //Mostramos la pantalla con la orden si ya esta en proceso de creacion
+                    for (var n in orders) {
+                        var _order = orders[n];
+
+                        if (_order.is_return_order && _order.return_order_id == order.id) {
+                            self.pos.set_order(_order);
+                            return false;
+                        }
+                    }
+                    if (order.return_status == 'Fully-Returned') {
+                        message = 'No quedan items para devolver en esta orden!!';
+                        allow_return = false;
+                    }
+                    if (allow_return) {
+                        order.lines.forEach(function (line_id) {
+                            var line = self.pos.db.line_by_id[line_id];
+                            var product = self.pos.db.get_product_by_id(line.product_id[0]);
+
+                            if (product == null) {
+                                non_returnable_products = true;
+                                message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
+                            } else if (product.not_returnable) {
+                                non_returnable_products = true;
+                                message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
+                            } else if (line.qty - line.line_qty_returned > 0) {
+                                original_orderlines.push(line);
+                            }
+                        });
+                        if (original_orderlines.length == 0) {
+                            self.gui.show_popup('alert', {
+                                'title': _t('No se puede devolver esta Orden!!!'),
+                                'body': _t("No quedan productos retornables en esta orden. Tal vez los productos son No Retornables o no estan disponibles en el Punto de Venta!!"),
+                            });
+                        } else if (non_returnable_products) {
+                            self.gui.show_popup('confirm', {
+                                'title': _t('Warning !!!'),
+                                'body': _t(message),
+                                confirm: function () {
+                                    self.gui.show_popup('refund_order_popup', {
+                                        'orderlines': original_orderlines,
+                                        'order': order,
+                                        'is_partial_return': true,
+                                    });
+                                },
+                            });
+                        } else {
+                            self.gui.show_popup('refund_order_popup', {
+                                'orderlines': original_orderlines,
+                                'order': order,
+                                'is_partial_return': false,
+                            });
+                        }
+                    } else {
+                        self.gui.show_popup('alert', {
+                            'title': _t('Warning!!!'),
+                            'body': _t(message),
+                        });
+                    }
+                });
             }
-        });
+            else if (visibility === 'hide') {
+                if (this.selected_tr_element) {
+                    this.selected_tr_element.removeClass('highlight');
+                    this.selected_tr_element.addClass('lowlight');
+                }
+                contents.empty();
+                if (height > scroll) {
+                    contents.css({height: height + 'px'});
+                    contents.animate({height: 0}, 400,
+                        function () {
+                            contents.css({height: ''});
+                        });
+                }
+                else
+                    parent.scrollTop(parent.scrollTop() - height);
+            }
+
+            this.details_visible = (visibility === 'show');
+        }
+    });
 
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
 
