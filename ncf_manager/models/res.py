@@ -47,16 +47,20 @@ class ResCompany(models.Model):
     @api.onchange("name")
     def onchange_company_name(self):
         if self.name:
-            self.partner_id.validate_rnc_cedula(self.name)
-            self.name = self.partner_id.name
-            self.vat = self.partner_id.vat
+            result = self.env['res.partner'].validate_rnc_cedula(
+                self.name, model='company')
+            if result:
+                self.name = result.get('name')
+                self.vat = result.get('vat')
 
     @api.onchange("vat")
     def onchange_company_vat(self):
         if self.vat:
-            self.partner_id.validate_rnc_cedula(self.vat)
-            self.name = self.partner_id.name
-            self.vat = self.partner_id.vat
+            result = self.env['res.partner'].validate_rnc_cedula(
+                self.vat, model='company')
+            if result:
+                self.name = result.get('name')
+                self.vat = result.get('vat')
 
 
 class ResPartner(models.Model):
@@ -112,8 +116,11 @@ class ResPartner(models.Model):
         return res
 
     @api.model
-    def validate_rnc_cedula(self, number):
+    def validate_rnc_cedula(self, number, model='partner'):
         if number:
+            result = {}
+            model = 'res.partner' if model == 'partner' else 'res.company'
+
             if number.isdigit() and len(number) in (9, 11):
                 message = "El contacto: %s, esta registrado con este RNC/Céd."
                 contact = self.search([('vat', '=', number)])
@@ -133,23 +140,36 @@ class ResPartner(models.Model):
                 if dgii_vals is None:
                     if is_rnc:
                         raise ValidationError(_("RNC no disponible en DGII"))
-                    self.vat = number
+                    result['vat'] = number
                 else:
-                    self.name = dgii_vals.get(
+                    result['name'] = dgii_vals.get(
                         "name", False) or dgii_vals.get("commercial_name", "")
-                    self.vat = dgii_vals.get('rnc')
-                    self.is_company = True if is_rnc else False,
-                    self.sale_fiscal_type = "fiscal" if is_rnc else "final"
+                    result['vat'] = dgii_vals.get('rnc')
+
+                    if model == 'partner':
+                        result['is_company'] = True if is_rnc else False,
+                        result['sale_fiscal_type'] = "fiscal" if is_rnc else "final"
+            return result
 
     @api.onchange("name")
     def onchange_partner_name(self):
         if self.name:
-            self.validate_rnc_cedula(self.name)
+            result = self.validate_rnc_cedula(self.name)
+            if result:
+                self.name = resul.get('name')
+                self.vat = resul.get('vat')
+                self.is_company = resul.get('is_company', False)
+                self.sale_fiscal_type = resul.get('sale_fiscal_type')
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.vat:
-            self.validate_rnc_cedula(self.vat)
+            result = self.validate_rnc_cedula(self.vat)
+            if result:
+                self.name = result.get('name')
+                self.vat = result.get('vat')
+                self.is_company = result.get('is_company', False)
+                self.sale_fiscal_type = result.get('sale_fiscal_type')
 
     @api.multi
     def rewrite_due_date(self):
