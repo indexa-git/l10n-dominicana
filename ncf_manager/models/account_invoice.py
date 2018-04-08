@@ -305,9 +305,15 @@ class AccountInvoice(models.Model):
             if inv.type == "out_invoice":
                 inv.internal_sequence = sequence_obj.next_by_code(
                 'client.invoice.number')
-            else:
+            if inv.type == "in_invoice":
                 inv.internal_sequence = sequence_obj.next_by_code(
                 'supplier.invoice.number')
+            if inv.type == "in_refund":
+                inv.internal_sequence = sequence_obj.next_by_code(
+                'debit.note.invoice.number')
+            if inv.type == "out_refund":
+                inv.internal_sequence = sequence_obj.next_by_code(
+                'credit.note.invoice.number')
 
         return super(AccountInvoice, self).action_invoice_open()
 

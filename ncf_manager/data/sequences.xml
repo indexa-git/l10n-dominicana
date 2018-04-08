@@ -30,4 +30,22 @@
         <field eval="1" name="number_increment"/>
         <field name="padding">8</field>
     </record>
+
+    <record id="sequence_debit_note_invoice" model="ir.sequence">
+        <field name="name">Debit Note invoices sequence</field>
+        <field name="code">debit.note.invoice.number</field>
+        <field name="prefix">ND/</field>
+        <field eval="1" name="number_next"/>
+        <field eval="1" name="number_increment"/>
+        <field name="padding">8</field>
+    </record>
+
+    <record id="sequence_credit_note_invoice" model="ir.sequence">
+        <field name="name">Credit Note invoices sequence</field>
+        <field name="code">credit.note.invoice.number</field>
+        <field name="prefix">NC/</field>
+        <field eval="1" name="number_next"/>
+        <field eval="1" name="number_increment"/>
+        <field name="padding">8</field>
+    </record>
 </odoo>

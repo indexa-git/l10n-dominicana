@@ -49,6 +49,7 @@
         'wizard/account_invoice_cancel_view.xml',
         'wizard/update_rate_wizard_view.xml',
         'wizard/account_invoice_refund.xml',
+        'wizard/update_sequence_wizard_view.xml',
         'views/shop_view.xml',
         'views/account_invoice_view.xml',
         'views/account_view.xml',
