@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="update_sequences_wizard_form" model="ir.ui.view">
+        <field name="name">update_sequences_wizard_form</field>
+        <field name="model">update.internal.sequence.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Actualizacion de secuencias internas">
+                <group>
+                    <group string="Secuencia Factura de Cliente">
+                        <field name="customer_prefix" placeholder="FC #/"/>
+                        <field name="customer_padding"/>
+                    </group>
+                    <group string="Secuencia Factura de Proveedor">
+                        <field name="supplier_prefix" placeholder="FP #/"/>
+                        <field name="supplier_padding"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Secuencia Factura de ND">
+                        <field name="debit_note_prefix" placeholder="ND #/"/>
+                        <field name="debit_note_padding"/>
+                    </group>
+                    <group string="Secuencia Factura de NC">
+                        <field name="credit_note_prefix" placeholder="NC #/"/>
+                        <field name="credit_note_padding"/>
+                    </group>
+                </group>
+
+                <footer>
+                    <button string="Actualizar secuencias" name="update_sequences" type="object" default_focus="1"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-default" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="update_sequences_action" model="ir.actions.act_window">
+        <field name="name">Actualizar Sec. Internas</field>
+        <field name="res_model">update.internal.sequence.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="update_sequences_wizard_form"/>
+    </record>
+
+    <menuitem id="internal_sequences_config_menu"
+        action="update_sequences_action"
+        parent="account.account_account_menu"
+        groups="account.group_account_manager"
+    />
+</odoo>
