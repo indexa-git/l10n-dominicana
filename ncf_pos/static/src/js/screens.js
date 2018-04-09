@@ -178,7 +178,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     orderlines.push(line);
                     sumQty += (line.qty - line.line_qty_returned);
                 });
-                if(sumQty == 0){
+                if (sumQty == 0) {
                     order.refunded = true;
                     order.return_status = 'Fully-Returned'
                 }
@@ -582,6 +582,30 @@ odoo.define('ncf_pos.screens', function (require) {
             }
 
             this._super();
+        },
+        init: function (parent, options) {
+            this._super(parent, options);
+            //Agregamos una forma de pago personalizada para llamar el popup de Nota de Credito
+            this.pos.cashregisters.push({
+                journal_id: [101, 'Nota de Credito'],
+                journal: {type: 'cash', id: 10001, sequence: 10001},
+                css_class: 'highlight',
+                show_popup: true,
+                popup_name: 'alert',
+                popup_options: {title: 'Crear Nota de Credito'}
+            });
+        },
+        click_paymentmethods: function (id) {
+            for (var i = 0; i < this.pos.cashregisters.length; i++) {
+                var cashregister = this.pos.cashregisters[i];
+
+                //Evaluamos que sea una forma de pago personalizada que lanza un popup
+                if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
+                    this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
+                    return false;
+                }
+            }
+            this._super(id);
         }
     });
 
