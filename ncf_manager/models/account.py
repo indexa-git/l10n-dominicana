@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -20,8 +21,7 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError, UserError
+from odoo import models, fields, api
 
 
 class AccountJournal(models.Model):
@@ -33,13 +33,23 @@ class AccountJournal(models.Model):
         self.ncf_ready = len(self.date_range_ids) > 1
 
     purchase_type = fields.Selection(
-        [("normal", "Requiere NCF"),
-         ("minor", "Gasto Menor. NCF Generado por el Sistema"),
-         ("informal", "Proveedores Informales. NCF Generado por el Sistema"),
-         ("exterior", "Pagos al Exterior. NCF Generado por el Sistema"),
-         ("import", "Importaciones. NCF Generado por el Sistema"),
-         ("others", "Otros. No requiere NCF")],
+        [("normal", "Compras Fiscales"),
+         ("minor", "Gastos Menores"),
+         ("informal", "Registro de Proveedores Informales"),
+         ("exterior", "Compras al Exterior"),
+         ("import", "Importaciones"),
+         ("others", "No deducibles. No requiere NCF")],
         string="Tipo de Compra", default="others")
+
+    payment_form = fields.Selection(
+        [("cash", "Efectivo"),
+         ("bank", u"Cheque / Transferencia / Depósito"),
+         ("card", u"Tarjeta Crédito / Débito"),
+         ("credit", u"A Crédito"),
+         ("swap", "Permuta"),
+         ("bond", "Bonos o Certificados de Regalo"),
+         ("others", "Otras Formas de Venta")],
+        string="Forma de Pago", oldname="ipf_payment_type")
 
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
 
@@ -47,8 +57,8 @@ class AccountJournal(models.Model):
     prefix = fields.Char(related="sequence_id.prefix")
     date_range_ids = fields.One2many(related="sequence_id.date_range_ids")
     ncf_ready = fields.Boolean(compute=check_ncf_ready)
-    special_fiscal_position_id = fields.Many2one("account.fiscal.position", string="Posición fiscal para regímenes especiales.",
-                                                 help="Define la posición fiscal por defecto para los clientes que tienen definido el tipo de comprobante fiscal regímenes especiales.")
+    special_fiscal_position_id = fields.Many2one("account.fiscal.position", string=u"Posición fiscal para regímenes especiales.",
+                                                 help=u"Define la posición fiscal por defecto para los clientes que tienen definido el tipo de comprobante fiscal regímenes especiales.")
 
     @api.onchange("type")
     def onchange_type(self):
@@ -57,7 +67,6 @@ class AccountJournal(models.Model):
 
     @api.multi
     def create_ncf_sequence(self):
-
         if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
             # this method read Selection values from res.partner sale_fiscal_type fields
             selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
@@ -65,6 +74,7 @@ class AccountJournal(models.Model):
                 self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
 
             self.sequence_id.date_range_ids.invalidate_cache()
+            self.sequence_id.write({'prefix': 'B', 'padding': 8})
 
 
 class AccountTax(models.Model):
@@ -74,7 +84,19 @@ class AccountTax(models.Model):
         [('itbis', 'ITBIS Pagado'),
          ('ritbis', 'ITBIS Retenido'),
          ('isr', 'ISR Retenido'),
-         ('rext', 'Remesas al Exterior (Ley  253-12)'),
+         ('rext', 'Remesas al Exterior (Ley 253-12)'),
          ('none', 'No Deducible')],
-        default="none", string="Tipo de Impuesto de Compra"
+        default="none", string="Tipo de Impuesto en Compra"
+    )
+
+    isr_retention_type = fields.Selection(
+        [('01', 'Alquileres'),
+         ('02', 'Honorarios por Servicios'),
+         ('03', 'Otras Rentas'),
+         ('04', 'Rentas Presuntas'),
+         ('05', u'Intereses Pagados a Personas Jurídicas'),
+         ('06', u'Intereses Pagados a Personas Físicas'),
+         ('07', u'Retención por Proveedores del Estado'),
+         ('08', u'Juegos Telefónicos')],
+        string="Tipo de Retención en ISR"
     )

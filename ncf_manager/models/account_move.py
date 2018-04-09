@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -20,7 +21,7 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 from odoo import models, api, _
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import UserError
 
 
 class AccountMove(models.Model):
@@ -29,13 +30,16 @@ class AccountMove(models.Model):
     @api.multi
     def post(self):
         invoice = self._context.get('invoice', False)
-        if invoice and invoice.type == "out_invoice":
-            if not invoice.is_nd:
-                return super(AccountMove, self.with_context(sale_fiscal_type=invoice.sale_fiscal_type)).post()
-            else:
-                return super(AccountMove, self.with_context(sale_fiscal_type="debit_note")).post()
-        elif invoice and invoice.type == "out_refund":
-            return super(AccountMove, self.with_context(sale_fiscal_type="credit_note")).post()
+
+        if invoice and invoice.journal_id.ncf_control:
+            if not invoice.journal_id.ncf_ready:
+                raise UserError(_("Debe configurar los NCF para este diario."))
+            if invoice.type == "out_invoice":
+                if invoice.is_nd:
+                    return super(AccountMove, self.with_context(sale_fiscal_type="debit_note")).post()
+                else:
+                    return super(AccountMove, self.with_context(sale_fiscal_type=invoice.sale_fiscal_type)).post()
+            elif invoice.type == "out_refund":
+                return super(AccountMove, self.with_context(sale_fiscal_type="credit_note")).post()
         else:
             return super(AccountMove, self).post()
-

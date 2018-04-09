@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -94,4 +95,4 @@ class UpdateRateWizard(models.TransientModel):
 
         else:
             name = "{} {}".format(invoice_id.date_invoice, fields.Datetime.now().split(" ")[1])
-            self.env["res.currency.rate"].create({"name": name,"rate": 1 / float(self.rate),"currency_id": invoice_id.currency_id.id,"company_id": invoice_id.company_id.id})
+            self.env["res.currency.rate"].create({"name": name, "rate": 1 / float(self.rate), "currency_id": invoice_id.currency_id.id, "company_id": invoice_id.company_id.id})

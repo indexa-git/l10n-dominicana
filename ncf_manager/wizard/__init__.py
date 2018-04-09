@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -23,3 +24,4 @@
 from . import account_invoice_cancel
 from . import update_rate_wizard
 from . import account_invoice_refund
+from . import update_internal_sequence_wizard
