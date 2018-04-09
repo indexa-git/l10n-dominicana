@@ -113,6 +113,134 @@
         </t>
     </t>
 
+    <t t-extend="DebugWidget">
+        <t t-jquery=".content" t-operation="append">
+            <p class="category">View the Ticket</p>
+            <ul>
+                <li class="button view_ticket">View Ticket</li>
+                <li class="button view_products">Go to products</li>
+            </ul>
+        </t>
+    </t>
+
+    <t t-extend="PosTicket">
+        <t t-jquery=".pos-sale-ticket" t-operation="inner">
+            <div class="pos-center-align">
+                <t t-esc="widget.pos.company.name"/><br />
+                <t t-esc="widget.pos.company.street || ''"/> | <t t-esc="widget.pos.company.phone || ''"/>
+            </div>
+            <br/>
+            <span>Direccion General de Impuestos Internos</span><br />
+            <span>RNC <t t-esc="widget.pos.company.vat || ''"/></span><br />
+            <span>RES DGII: <t t-esc="order.number"/></span>
+            <span class="pos-right-align">DEL <t t-esc="order.number"/></span><br />
+            <br />
+            <div class="pos-center-align">
+                <span>Autorizado por DGII</span>
+            </div>
+            <br />
+            <span><t t-esc="widget.pos.getDatetime().date"/></span>
+            <span style="margin-left: 2em"><t t-esc="widget.pos.getDatetime().time"/></span><br />
+            <span>NCF: <t t-esc="order.number"/></span><br />
+            <t t-set="client" t-value="widget.pos.get_client()"/>
+            <t t-if="client.vat">
+                <span>RNC: <t t-esc="client.vat"/></span><br />
+            </t>
+            <br />
+            <t t-if="receipt.header">
+                <div style='text-align:center'>
+                    <t t-esc="receipt.header" />
+                </div>
+                <br />
+            </t>
+            <div class="pos-center-align dotted_ticket_title">
+                <span>Factura para <t t-esc="widget.pos.get_sale_fiscal_type_label(order.get_client().sale_fiscal_type)"/></span>
+            </div>
+            <table class='receipt-orderlines'>
+                <colgroup>
+                    <col width='50%' />
+                    <col width='25%' />
+                    <col width='25%' />
+                </colgroup>
+                <tr class="dotted_ticket_table_header">
+                    <td>DESCRIPCION</td>
+                    <td>ITBIS</td>
+                    <td class="pos-right-align">VALOR</td>
+                </tr>
+                <tr t-foreach="orderlines" t-as="orderline">
+                    <td>
+                        <t t-esc="orderline.get_quantity()"/>x
+                        <t t-esc="orderline.get_product().display_name"/>
+                        <t t-if="orderline.get_discount() > 0">
+                            <div class="pos-disc-font">
+                                With a <t t-esc="orderline.get_discount()"/>% discount
+                            </div>
+                        </t>
+                    </td>
+                    <td>
+                        <t t-esc="widget.format_currency(orderline.get_tax())"/>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(orderline.get_display_price())"/>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table class='receipt-total'>
+                <colgroup>
+                    <col width='50%' />
+                    <col width='25%' />
+                    <col width='25%' />
+                </colgroup>
+                <tr>
+                    <td>TOTAL A PAGAR:</td>
+                    <td>
+                        <t t-esc="widget.format_currency(order.get_total_tax())"/>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_total_without_tax())"/>
+                    </td>
+                </tr>
+            </table>
+            <table class='receipt-paymentlines'>
+                <t t-foreach="paymentlines" t-as="line">
+                    <tr>
+                        <td>
+                            <t t-esc="line.name"/>
+                        </td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency(line.get_amount())"/>
+                        </td>
+                    </tr>
+                </t>
+            </table>
+            <table class='receipt-change'>
+                <tr><td>Change:</td><td class="pos-right-align">
+                    <t t-esc="widget.format_currency(order.get_change())"/>
+                    </td></tr>
+            </table>
+            <t t-if="receipt.footer">
+                <br />
+                <div style='text-align:center'>
+                    <t t-esc="receipt.footer" />
+                </div>
+            </t>
+            <br/>
+            <br/>
+            <hr/>
+            <div>
+                <span>NIF:</span>
+            </div>
+            <div>
+                <span>TRANSACCION NRO.: </span>
+                <span class="pos-right-align">Versión</span>
+            </div>
+            <div>
+                <span>123456</span>
+            </div>
+        </t>
+    </t>
+
     <t t-name="QueryInvoicesButton">
         <span class='control-button'>
             All Invoices
