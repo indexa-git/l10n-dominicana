@@ -585,9 +585,9 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         init: function (parent, options) {
             this._super(parent, options);
-            //Agregamos una forma de pago personalizada para llamar el popup de Nota de Credito
+            //Agregamos una forma de pago personalizada para lanzar el popup de Nota de Credito
             this.pos.cashregisters.push({
-                journal_id: [101, 'Nota de Credito'],
+                journal_id: [10001, 'Nota de Credito'],
                 journal: {type: 'cash', id: 10001, sequence: 10001},
                 css_class: 'highlight',
                 show_popup: true,
