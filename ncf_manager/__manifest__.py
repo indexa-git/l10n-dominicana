@@ -4,6 +4,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2017-2018 Neotec SRL (https://neotec.do/)
+#             Yasmany Castillo <yasmany003@gmail.com>
 
 # This file is part of NCF Manager.
 
@@ -50,6 +52,8 @@
         'wizard/update_rate_wizard_view.xml',
         'wizard/account_invoice_refund.xml',
         'wizard/update_sequence_wizard_view.xml',
+        'reports/invoice_template.xml',
+        'views/invoice_reports.xml',
         'views/shop_view.xml',
         'views/account_invoice_view.xml',
         'views/account_view.xml',
