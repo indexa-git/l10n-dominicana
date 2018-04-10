@@ -449,6 +449,20 @@ odoo.define('ncf_pos.screens', function (require) {
         widget: OrderRefundPopup
     });
 
+    popups.include({
+        renderElement: function () {
+            this._super();
+            //Ponemos un valor por defecto al input del popup TextInput o TextArea
+            if (["TextInputPopupWidget", "TextAreaPopupWidget"].indexOf(this.template) > -1 &&
+                this.options.text_input_value) {
+                var input = this.$('input,textarea');
+
+                if (input.length > 0)
+                    input.val(this.options.text_input_value);
+            }
+        }
+    });
+
     screens.PaymentScreenWidget.include({
         show: function () {
             var self = this;
