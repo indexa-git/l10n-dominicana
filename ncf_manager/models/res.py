@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -21,11 +22,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -47,16 +47,20 @@ class ResCompany(models.Model):
     @api.onchange("name")
     def onchange_company_name(self):
         if self.name:
-            self.partner_id.validate_rnc_cedula(self.name)
-            self.name = self.partner_id.name
-            self.vat = self.partner_id.vat
+            result = self.env['res.partner'].validate_rnc_cedula(
+                self.name, model='company')
+            if result:
+                self.name = result.get('name')
+                self.vat = result.get('vat')
 
     @api.onchange("vat")
     def onchange_company_vat(self):
         if self.vat:
-            self.partner_id.validate_rnc_cedula(self.vat)
-            self.name = self.partner_id.name
-            self.vat = self.partner_id.vat
+            result = self.env['res.partner'].validate_rnc_cedula(
+                self.vat, model='company')
+            if result:
+                self.name = result.get('name')
+                self.vat = result.get('vat')
 
 
 class ResPartner(models.Model):
@@ -96,11 +100,6 @@ class ResPartner(models.Model):
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
                                  ondelete='restrict', default=61)
-    vat = fields.Char(string='TIN',
-                      help="Tax Identification Number. "
-                           "Fill it if the company is subjected to taxes. "
-                           "Used by the some of the legal statements.",
-                      index=True)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -116,16 +115,12 @@ class ResPartner(models.Model):
                 res = partners.name_get()
         return res
 
-    # TODO have to find how to change tax to exept one u sale_fiscal_type == to special
-    # @api.onchange("sale_fiscal_type")
-    # def onchange_sale_fiscal_type(self):
-    #     if self.sale_fiscal_type == "special":
-    #         self.property_account_position_id = self.env.ref(
-    #             "ncf_manager.ncf_manager_special_fiscal_position")
-
     @api.model
-    def validate_rnc_cedula(self, number):
+    def validate_rnc_cedula(self, number, model='partner'):
         if number:
+            result = {}
+            model = 'res.partner' if model == 'partner' else 'res.company'
+
             if number.isdigit() and len(number) in (9, 11):
                 message = "El contacto: %s, esta registrado con este RNC/Céd."
                 contact = self.search([('vat', '=', number)])
@@ -145,23 +140,36 @@ class ResPartner(models.Model):
                 if dgii_vals is None:
                     if is_rnc:
                         raise ValidationError(_("RNC no disponible en DGII"))
-                    self.vat = number
+                    result['vat'] = number
                 else:
-                    self.name = dgii_vals.get(
+                    result['name'] = dgii_vals.get(
                         "name", False) or dgii_vals.get("commercial_name", "")
-                    self.vat = dgii_vals.get('rnc')
-                    self.is_company = True if is_rnc else False,
-                    self.sale_fiscal_type = "fiscal" if is_rnc else "final"
+                    result['vat'] = dgii_vals.get('rnc')
+
+                    if model == 'partner':
+                        result['is_company'] = True if is_rnc else False,
+                        result['sale_fiscal_type'] = "fiscal" if is_rnc else "final"
+            return result
 
     @api.onchange("name")
     def onchange_partner_name(self):
         if self.name:
-            self.validate_rnc_cedula(self.name)
+            result = self.validate_rnc_cedula(self.name)
+            if result:
+                self.name = resul.get('name')
+                self.vat = resul.get('vat')
+                self.is_company = resul.get('is_company', False)
+                self.sale_fiscal_type = resul.get('sale_fiscal_type')
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
         if self.vat:
-            self.validate_rnc_cedula(self.vat)
+            result = self.validate_rnc_cedula(self.vat)
+            if result:
+                self.name = result.get('name')
+                self.vat = result.get('vat')
+                self.is_company = result.get('is_company', False)
+                self.sale_fiscal_type = result.get('sale_fiscal_type')
 
     @api.multi
     def rewrite_due_date(self):

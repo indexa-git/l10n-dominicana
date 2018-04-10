@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from odoo import models, fields
 
 
@@ -22,8 +23,7 @@ class IrSequence(models.Model):
             interpolated_prefix, interpolated_suffix = self._get_prefix_suffix()
             return interpolated_prefix + self.ncf_dict[
                 sale_fiscal_type] + '%%0%sd' % self.padding % number_next + interpolated_suffix
-        else:
-            return super(IrSequence, self).get_next_char(number_next)
+        return super(IrSequence, self).get_next_char(number_next)
 
         interpolated_prefix, interpolated_suffix = self._get_prefix_suffix()
         return interpolated_prefix + '%%0%sd' % self.padding % number_next + interpolated_suffix
@@ -51,9 +51,9 @@ class IrSequenceDateRange(models.Model):
     _inherit = 'ir.sequence.date_range'
 
     def get_sale_fiscal_type_from_partner(self):
-        return self.env["res.partner"]._fields['sale_fiscal_type'].selection + [("credit_note", "Nota de Crédito"),
-                                                                                ("debit_note", "Nota de Débito")]
+        return self.env["res.partner"]._fields['sale_fiscal_type'].selection + [("credit_note", u"Nota de Crédito"),
+                                                                                ("debit_note", u"Nota de Débito")]
 
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
-    max_number_next = fields.Integer("Número Máximo", default=100)
+    max_number_next = fields.Integer(u"Número Máximo", default=100)

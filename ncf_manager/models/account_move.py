@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ######################################################################
 # © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
 #             Eneldo Serrata <eneldo@marcos.do>
@@ -29,6 +30,7 @@ class AccountMove(models.Model):
     @api.multi
     def post(self):
         invoice = self._context.get('invoice', False)
+
         if invoice and invoice.journal_id.ncf_control:
             if not invoice.journal_id.ncf_ready:
                 raise UserError(_("Debe configurar los NCF para este diario."))

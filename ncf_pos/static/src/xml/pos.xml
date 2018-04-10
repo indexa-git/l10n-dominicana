@@ -18,7 +18,8 @@
                 <t t-if="partner.name">
                     <span>
                         <t t-foreach='widget.pos.sale_fiscal_type_selection' t-as='row'>
-                            <t t-if="partner.sale_fiscal_type ? ((row[0] === partner.sale_fiscal_type) ? true : undefined) : undefined" t-esc="row[1]"/>
+                            <t t-if="partner.sale_fiscal_type ? ((row[0] === partner.sale_fiscal_type) ? true : undefined) : undefined"
+                               t-esc="row[1]"/>
                         </t>
                     </span>
                 </t>
@@ -112,6 +113,134 @@
         </t>
     </t>
 
+    <t t-extend="DebugWidget">
+        <t t-jquery=".content" t-operation="append">
+            <p class="category">View the Ticket</p>
+            <ul>
+                <li class="button view_ticket">View Ticket</li>
+                <li class="button view_products">Go to products</li>
+            </ul>
+        </t>
+    </t>
+
+    <t t-extend="PosTicket">
+        <t t-jquery=".pos-sale-ticket" t-operation="inner">
+            <div class="pos-center-align">
+                <t t-esc="widget.pos.company.name"/><br />
+                <t t-esc="widget.pos.company.street || ''"/> | <t t-esc="widget.pos.company.phone || ''"/>
+            </div>
+            <br/>
+            <span>Direccion General de Impuestos Internos</span><br />
+            <span>RNC <t t-esc="widget.pos.company.vat || ''"/></span><br />
+            <span>RES DGII: <t t-esc="order.number"/></span>
+            <span class="pos-right-align">DEL <t t-esc="order.number"/></span><br />
+            <br />
+            <div class="pos-center-align">
+                <span>Autorizado por DGII</span>
+            </div>
+            <br />
+            <span><t t-esc="widget.pos.getDatetime().date"/></span>
+            <span style="margin-left: 2em"><t t-esc="widget.pos.getDatetime().time"/></span><br />
+            <span>NCF: <t t-esc="order.number"/></span><br />
+            <t t-set="client" t-value="widget.pos.get_client()"/>
+            <t t-if="client.vat">
+                <span>RNC: <t t-esc="client.vat"/></span><br />
+            </t>
+            <br />
+            <t t-if="receipt.header">
+                <div style='text-align:center'>
+                    <t t-esc="receipt.header" />
+                </div>
+                <br />
+            </t>
+            <div class="pos-center-align dotted_ticket_title">
+                <span>Factura para <t t-esc="widget.pos.get_sale_fiscal_type_label(order.get_client().sale_fiscal_type)"/></span>
+            </div>
+            <table class='receipt-orderlines'>
+                <colgroup>
+                    <col width='50%' />
+                    <col width='25%' />
+                    <col width='25%' />
+                </colgroup>
+                <tr class="dotted_ticket_table_header">
+                    <td>DESCRIPCION</td>
+                    <td>ITBIS</td>
+                    <td class="pos-right-align">VALOR</td>
+                </tr>
+                <tr t-foreach="orderlines" t-as="orderline">
+                    <td>
+                        <t t-esc="orderline.get_quantity()"/>x
+                        <t t-esc="orderline.get_product().display_name"/>
+                        <t t-if="orderline.get_discount() > 0">
+                            <div class="pos-disc-font">
+                                With a <t t-esc="orderline.get_discount()"/>% discount
+                            </div>
+                        </t>
+                    </td>
+                    <td>
+                        <t t-esc="widget.format_currency(orderline.get_tax())"/>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(orderline.get_display_price())"/>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <table class='receipt-total'>
+                <colgroup>
+                    <col width='50%' />
+                    <col width='25%' />
+                    <col width='25%' />
+                </colgroup>
+                <tr>
+                    <td>TOTAL A PAGAR:</td>
+                    <td>
+                        <t t-esc="widget.format_currency(order.get_total_tax())"/>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_total_without_tax())"/>
+                    </td>
+                </tr>
+            </table>
+            <table class='receipt-paymentlines'>
+                <t t-foreach="paymentlines" t-as="line">
+                    <tr>
+                        <td>
+                            <t t-esc="line.name"/>
+                        </td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency(line.get_amount())"/>
+                        </td>
+                    </tr>
+                </t>
+            </table>
+            <table class='receipt-change'>
+                <tr><td>Change:</td><td class="pos-right-align">
+                    <t t-esc="widget.format_currency(order.get_change())"/>
+                    </td></tr>
+            </table>
+            <t t-if="receipt.footer">
+                <br />
+                <div style='text-align:center'>
+                    <t t-esc="receipt.footer" />
+                </div>
+            </t>
+            <br/>
+            <br/>
+            <hr/>
+            <div>
+                <span>NIF:</span>
+            </div>
+            <div>
+                <span>TRANSACCION NRO.: </span>
+                <span class="pos-right-align">Versión</span>
+            </div>
+            <div>
+                <span>123456</span>
+            </div>
+        </t>
+    </t>
+
     <t t-name="QueryInvoicesButton">
         <span class='control-button'>
             All Invoices
@@ -151,7 +280,7 @@
                                                 <th>Fecha Orden</th>
                                                 <th>Tax ID</th>
                                                 <th>Cliente</th>
-                                                <th>Monto</th>
+                                                <th class="col-right">Monto</th>
                                                 <th>Estado</th>
                                             </tr>
                                         </thead>
@@ -178,8 +307,8 @@
             <td>
                 <t t-esc="order.partner_id[1] || '-'"/>
             </td>
-            <td>
-                <t t-esc='order.amount_total'/>
+            <td class="col-right">
+                <t t-esc='Math.round(order.amount_total * 100) / 100'/>
             </td>
             <td>
                 -
@@ -216,14 +345,18 @@
                     </t>
                 </div>
                 <div class='client-details-right' style="margin-right: -20%;">
-                    <t t-if="!order.refunded">
-                        <div class='client-detail'>
-                            <div id="refund" class='control-button highlight'
-                                 style="margin-left: 18%;margin-top: 1%;">
+                    <div class='client-detail'>
+                        <t t-if="!order.refunded">
+                            <div id="refund" class='control-button highlight' style="margin-left: 18%;margin-top: 1%;">
                                 NC/Devolución
                             </div>
-                        </div>
-                    </t>
+                        </t>
+                        <t t-else="">
+                            <div class='control-button' style="margin-left: 25%; margin-top: 1%; cursor: default;">
+                                Refunded
+                            </div>
+                        </t>
+                    </div>
                     <img id="close_order_details" src="/pos_order_return/static/src/img/icon-cross.png"
                          style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
                     <div class='client-detail'>
@@ -235,7 +368,7 @@
                     <div class='client-detail'>
                         <span class='label' style="text-align: left;width: 27%;">NC/Devolución:</span>
                         <span class='detail client-id'>
-                            <t t-esc='order.return_status'/>
+                            <t t-esc='order.return_status || ""'/>
                         </span>
                     </div>
                 </div>
@@ -337,7 +470,7 @@
         </section>
     </t>
 
-    <t t-name="OrderReturnPopup">
+    <t t-name="OrderRefundPopup">
         <div class="modal-dialog">
             <div class="popup popup-textinput return_popup_style">
                 <div class="title">
@@ -354,7 +487,7 @@
                         <table border="1" frame="void" rules="rows" class="return_popup_table">
                             <tr class="return_popup_tr">
                                 <th class="table_data_cells">
-                                    <p>Producto (<span style="color:#2f6e75">Cant.</span>.)
+                                    <p>Producto (<span style="color:#2f6e75">Cant.</span>)
                                     </p>
                                 </th>
                                 <th class="table_data_cells">Cant. devuelta.</th>
@@ -371,8 +504,9 @@
                                         )
                                     </td>
                                     <td class="table_data_cells return_qty">
-                                        <input t-att-line-qty-remaining='line.qty - line.line_qty_returned'
-                                               t-att-line-id="line.id" type="number" value="0"></input>
+                                        <input type="number" t-att-line-id='line.id'
+                                               t-att-line-qty-remaining='line.qty - line.line_qty_returned'
+                                               t-att-value='line.current_return_qty || 0'/>
                                     </td>
                                 </tr>
                             </t>
@@ -390,6 +524,92 @@
                 </div>
             </div>
         </div>
+    </t>
+
+    <t t-name="OrderRefundConfirm">
+        <div class="full-content">
+            <section class='info-content'>
+                <div style="float:left;">
+                    <div class='label-text'>
+                        <span class="font-bold">Customer</span>:
+                        <t t-if="widget.pos.get_client()">
+                            <t t-esc="widget.pos.get_client().name"/>
+                        </t>
+                    </div>
+                    <div class='label-text'>
+                        <span class="font-bold">Tax ID</span>:
+                        <t t-esc="widget.pos.db.order_by_id[order.return_order_id].number"></t>
+                    </div>
+                </div>
+                <div style="float:right;">
+                    <span class="button-custom edit">
+                        <i class="fa fa-edit"></i>
+                        Edit
+                    </span>
+                </div>
+            </section>
+            <div class='clientlist-screen'>
+                <table class='client-list'>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="col-right">Quantity</th>
+                            <th class="col-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="order.orderlineList || []" t-as="line">
+                            <tr class="widget.return_popup_tr">
+                                <td>
+                                    <t t-esc="line.product_name"/>
+                                </td>
+                                <td class="col-right">
+                                    <t t-esc="line.quantity"/>
+                                </td>
+                                <td class="col-right">
+                                    <t t-esc="Math.round(line.price * 100) / 100"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="col-right highlight-2">
+                                <t t-esc="Math.round((order.amount_total || 0) * 100) / 100"/>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-extend="PaymentScreenWidget">
+        <t t-jquery=".payment-screen .screen-content" t-operation="append">
+            <div class="refund-confirm-content touch-scrollable scrollable-y">
+            </div>
+        </t>
+        <t t-jquery=".payment-screen .top-content" t-operation="append">
+            <span class="button cancel oe_hidden">
+                <i class="fa fa-times"/>
+                Cancel
+            </span>
+            <span class="button confirm oe_hidden">
+                <i class="fa fa-check"/>
+                Confirm
+            </span>
+        </t>
+    </t>
+
+    <t t-extend="PaymentScreen-Paymentmethods">
+        <t t-jquery=".paymentmethod" t-operation="replace">
+            <div t-attf-class="button paymentmethod {{ cashregister.css_class }}"
+                 t-att-data-id="cashregister.journal_id[0]">
+                <t t-esc="cashregister.journal_id[1]"/>
+            </div>
+        </t>
     </t>
 
 </templates>
