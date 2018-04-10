@@ -598,6 +598,26 @@ odoo.define('ncf_pos.screens', function (require) {
             this._super();
         },
         init: function (parent, options) {
+            var self = this;
+            var popup_options = {
+                title: 'Digite el número de NCF de la Nota de Crédito',
+                disable_keyboard_handler: true,
+                input_name: 'ncf',
+                text_input_value: '12345',
+                confirm: function (input_value) {
+                    if (parseInt(input_value) > 100) {
+                        popup_options.text_input_value = input_value;
+                        self.gui.show_popup('error', {
+                            'title': _t('NCF invalido'),
+                            'body': _t('Favor digite un numero de NCF valido.'),
+                            cancel: function () {
+                                self.gui.show_popup('textinput', popup_options);
+                            }
+                        });
+                    }
+                }
+            };
+
             this._super(parent, options);
             //Agregamos una forma de pago personalizada para lanzar el popup de Nota de Credito
             this.pos.cashregisters.push({
@@ -605,8 +625,8 @@ odoo.define('ncf_pos.screens', function (require) {
                 journal: {type: 'cash', id: 10001, sequence: 10001},
                 css_class: 'highlight',
                 show_popup: true,
-                popup_name: 'alert',
-                popup_options: {title: 'Crear Nota de Credito'}
+                popup_name: 'textinput',
+                popup_options: popup_options
             });
         },
         click_paymentmethods: function (id) {
