@@ -143,6 +143,7 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
+    internal_sequence = fields.Char(string=u"Número de factura")
 
     _sql_constraints = [
         ('number_uniq',
@@ -218,6 +219,20 @@ class AccountInvoice(models.Model):
             self.partner_id = self.company_id.partner_id.id
         return res
 
+    @api.onchange('journal_id', 'partner_id')
+    def onchange_journal_id(self):
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
+            self.partner_id = self.company_id.partner_id.id
+
+        if self.partner_id.id == self.company_id.partner_id.id:
+            journal_id = self.env['account.journal'].search([
+                ('purchase_type', '=', 'minor')])
+            if not journal_id:
+                raise ValidationError(
+                    _("No existe un Diario de Gastos Menores,"
+                      " debe crear uno."))
+            self.journal_id = journal_id.id
+
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         res = super(AccountInvoice, self)._onchange_partner_id()
@@ -232,8 +247,6 @@ class AccountInvoice(models.Model):
             if not self.partner_id.supplier:
                 self.partner_id.supplier = True
 
-        if self.journal_id.purchase_type == "minor":
-            self.partner_id = self.company_id.partner_id.id
         return res
 
     @api.onchange('sale_fiscal_type', 'expense_type')
@@ -267,6 +280,8 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
+            sequence_obj = self.env['ir.sequence']
+
             if inv.journal_id.ncf_control and not inv.partner_id.sale_fiscal_type:
                 raise ValidationError(_(
                     u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
@@ -279,13 +294,25 @@ class AccountInvoice(models.Model):
                     u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
                     "para este tipo de factura.".format(inv.partner_id.id,
                                                         inv.partner_id.name)))
-
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
                     raise UserError(_(
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
+
+            if inv.type == "out_invoice":
+                inv.internal_sequence = sequence_obj.next_by_code(
+                    'client.invoice.number')
+            if inv.type == "in_invoice":
+                inv.internal_sequence = sequence_obj.next_by_code(
+                    'supplier.invoice.number')
+            if inv.type == "in_refund":
+                inv.internal_sequence = sequence_obj.next_by_code(
+                    'debit.note.invoice.number')
+            if inv.type == "out_refund":
+                inv.internal_sequence = sequence_obj.next_by_code(
+                    'credit.note.invoice.number')
 
         return super(AccountInvoice, self).action_invoice_open()
 

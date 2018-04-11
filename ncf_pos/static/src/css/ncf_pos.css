@@ -10,3 +10,103 @@
     white-space: pre-wrap;
     text-align: left;
 }
+
+
+/* c) The receipt screen */
+
+.dotted_ticket_title {
+    border: 1px dashed black;
+    border-left: none;
+    border-right: none;
+    padding: .5em 0;
+    margin: .9em 0 0 0;
+}
+
+.dotted_ticket_table_header {
+    border-bottom: 1px dashed black;
+    height: 2em;
+}.popup > p.body {
+    white-space: pre-wrap;
+    text-align: left;
+}
+.return_popup_table {
+    table-layout: fixed;
+    text-align: left;
+    width: 100%;
+}
+.container_div {
+    height: 240px;
+    overflow-y: scroll;
+    margin-top: -3%;
+}
+.return_popup_tr {
+    height: 53px;
+    background-color: rgb(222, 224, 224);
+}
+.table_data_cells {
+    padding-left: 2%;
+}
+.return_popup_style {
+    height: 375px !important;
+    width: 535px !important;
+    font-family: inherit;
+}
+.button.confirm {
+    right: 0px;
+    margin-right: 16px;
+}
+.button.cancel {
+    left: 0px;
+    margin-left: 16px;
+}
+.info-content {
+    margin: 30px 0px 8px;
+    display: flow-root;
+}
+.label-text {
+    font-size: 16px;
+    padding: 5px 8px 3px 8px;
+}
+.highlight-2 {
+    background: rgb(184, 152, 204);
+    color: white;
+    font-size: 18px;
+}
+.col-right {
+    text-align: right;
+}
+.font-bold {
+    font-weight: bold;
+}
+.button-custom {
+    line-height: 48px;
+    padding: 10px 13px;
+    font-size: 20px;
+    background: rgb(230, 230, 230);
+    margin: 12px;
+    border-radius: 3px;
+    border: solid 1px rgb(209, 209, 209);
+    cursor: pointer;
+    transition: all 150ms linear;
+}
+.button-custom:hover {
+    background: #efefef;
+}
+.button-custom:active {
+    background: black;
+    border-color: black;
+    color: white;
+}
+.button-custom.highlight {
+    background: rgb(110,200,155);
+    color: white;
+    border: solid 1px rgb(110,200,155);
+}
+.button-custom.highlight:hover {
+    background: rgb(120,210,165);
+}
+.button-custom.highlight-2 {
+    background: rgb(184, 152, 204);
+    color: white;
+    border: solid 1px rgb(184, 152, 204);
+}
