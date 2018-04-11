@@ -118,6 +118,16 @@ class PosOrder(models.Model):
             "orderlines": order_lines_list
         }
 
+    @api.model
+    def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_cn):
+        # import pdb;pdb.set_trace()
+        journal_id = self.env["account.journal"].browse(invoice_journal_id)
+        if is_cn:
+            return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                       sale_fiscal_type="credit_note").next_by_id()
+        else:
+            return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                       sale_fiscal_type=sale_fiscal_type).next_by_id()
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'

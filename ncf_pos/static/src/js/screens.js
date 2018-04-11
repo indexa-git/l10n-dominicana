@@ -582,6 +582,10 @@ odoo.define('ncf_pos.screens', function (require) {
             }
 
             this._super();
+            var client_sale_fiscal_type = order.get_client().sale_fiscal_type;
+            var invoice_journal_id = this.pos.config.invoice_journal_id[0];
+            var is_credit_note = false;
+            var next_ncf = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_credit_note);
         },
         init: function (parent, options) {
             this._super(parent, options);

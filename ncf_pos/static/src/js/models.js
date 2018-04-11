@@ -133,7 +133,31 @@ odoo.define('ncf_pos.models', function (require) {
 
             return label[1];
         },
+        /**
+         * Get the next ncf sequence
+         */
+        get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_nc) {
+            var args = [
+                sale_fiscal_type,
+                invoice_journal_id,
+                is_nc
+            ];
 
+            var tipo = rpc.query({
+                model: 'pos.order',
+                method: 'get_next_ncf',
+                args: args,
+            }, {
+                timeout: 30000,
+                shadow: ""
+            }).then(function (next_ncf) {
+                console.log(next_ncf);
+            }).fail(function (type, error){
+                console.error('Ha ocurrido el siguiente error', error);
+            });
+
+            return tipo;
+        },
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
         // an invoice. This method can fail in various ways:
