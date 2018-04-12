@@ -33,6 +33,16 @@ class PosOrder(models.Model):
 
         return orders
 
+    def _prepare_invoice(self):
+        """
+        Prepare the dict of values to create the new invoice for a pos order.
+        """
+        inv = super(PosOrder, self)._prepare_invoice()
+        inv.update({
+            'move_name': self.ncf
+        })
+        return inv
+
     @api.model
     def create_from_ui(self, orders):
         orders = self.check_refund_order_from_ui(orders)
