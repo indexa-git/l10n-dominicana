@@ -129,6 +129,7 @@ class PosOrder(models.Model):
         invoice_ids = self.env["account.invoice"].search([('number', '=', ncf)])
         return {"ncf": ncf, "credit_note_exists": invoice_ids.id is not False, "residual": invoice_ids.residual}
 
+<<<<<<< HEAD
     @api.model
     def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
         journal_id = self.env["account.journal"].browse(invoice_journal_id)
@@ -149,6 +150,8 @@ class PosOrder(models.Model):
                 order.sudo().write({'state': 'is_return_order'})
         return res
 
+=======
+>>>>>>> [ADD] backend method for the search of credit notes by NCF number
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
