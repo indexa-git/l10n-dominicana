@@ -118,6 +118,11 @@ class PosOrder(models.Model):
             "orderlines": order_lines_list
         }
 
+    @api.model
+    def credit_note_info_from_ui(self, ncf):
+        invoice_ids = self.env["account.invoice"].search([('number', '=', ncf)])
+        return {"ncf": ncf, "credit_note_exists": invoice_ids.id is not False, "residual": invoice_ids.residual}
+
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
