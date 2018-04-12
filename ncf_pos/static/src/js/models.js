@@ -152,8 +152,8 @@ odoo.define('ncf_pos.models', function (require) {
                 timeout: 30000,
                 shadow: ""
             }).then(function (next_ncf) {
-                self.pos.get_order().ncf = next_ncf;
-                console.log("This order NCF is " + next_ncf);
+                self.get_order().set('ncf', next_ncf);
+                console.info("Order NCF validated: " + next_ncf);
             }).fail(function (type, error){
                 console.error('The following error has been ocurred', error);
             });
@@ -314,7 +314,8 @@ odoo.define('ncf_pos.models', function (require) {
                 return_status: this.return_status,
                 is_return_order: this.is_return_order,
                 return_order_id: this.return_order_id,
-                amount_total: parseFloat(json.amount_total || 0)
+                amount_total: parseFloat(json.amount_total || 0),
+                ncf: this.ncf
             });
             return json;
         }

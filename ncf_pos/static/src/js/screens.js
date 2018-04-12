@@ -531,6 +531,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 return false;
             });
         },
+        /**
+         * Making some things about validation and calling to backend to get the ncf
+         */
         finalize_validation: function() {
             var self = this;
             var order = this.pos.get_order();
@@ -548,7 +551,7 @@ odoo.define('ncf_pos.screens', function (require) {
             order.finalized = true;
             var ncf_call = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_credit_note);
 
-            ncf_call.then(function () {
+            ncf_call.always(function () {
                 if (order.is_to_invoice()) {
                     var invoiced = self.pos.push_and_invoice_order(order);
                     self.invoicing = true;
