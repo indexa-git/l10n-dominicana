@@ -453,13 +453,28 @@ odoo.define('ncf_pos.screens', function (require) {
         renderElement: function () {
             this._super();
             //Ponemos un valor por defecto al input del popup TextInput o TextArea
-            if (["TextInputPopupWidget", "TextAreaPopupWidget"].indexOf(this.template) > -1 &&
-                this.options.text_input_value) {
+            if (["TextInputPopupWidget", "TextAreaPopupWidget"].indexOf(this.template) > -1) {
+                var self = this;
                 var input = this.$('input,textarea');
 
-                if (input.length > 0)
-                    input.val(this.options.text_input_value);
+                if (input.length > 0) {
+                    //Ponemos un valor al input
+                    input.val(this.options.text_input_value || '');
+                    //Ejecutamos el clic al boton confirm al presionar Enter
+                    input.on('keypress', function (event) {
+                        if (event.which === 13) {
+                            self.click_confirm(this.value);
+                            event.stopPropagation();
+                            event.preventDefault();
+                        }
+                    });
+                }
             }
+        },
+        close: function () {
+            this._super();
+            if (this.options && this.options.hasOwnProperty('text_input_value'))
+                this.options.text_input_value = '';
         }
     });
 
@@ -820,6 +835,8 @@ odoo.define('ncf_pos.screens', function (require) {
 
             if (!current_screen || !current_screen.keyboard_handler) return;
 
+            $('body').on('keypress', current_screen.keyboard_handler);
+            $('body').on('keydown', current_screen.keyboard_keydown_handler);
             window.document.body.addEventListener('keypress', current_screen.keyboard_handler);
             window.document.body.addEventListener('keydown', current_screen.keyboard_keydown_handler);
         },
