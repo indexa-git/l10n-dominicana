@@ -137,6 +137,7 @@ odoo.define('ncf_pos.models', function (require) {
          * Get the next ncf sequence
          */
         get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_nc) {
+            var self = this;
             var args = [
                 sale_fiscal_type,
                 invoice_journal_id,
@@ -151,9 +152,10 @@ odoo.define('ncf_pos.models', function (require) {
                 timeout: 30000,
                 shadow: ""
             }).then(function (next_ncf) {
-                console.log(next_ncf);
+                self.pos.get_order().ncf = next_ncf;
+                console.log("This order NCF is " + next_ncf);
             }).fail(function (type, error){
-                console.error('Ha ocurrido el siguiente error', error);
+                console.error('The following error has been ocurred', error);
             });
 
             return tipo;
@@ -268,6 +270,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.is_return_order = false;
             this.return_order_id = false;
             this.orderlineList = [];
+            this.ncf = 0;
             _super_order.initialize.call(this, attributes, options);
             if (this.pos.config.iface_invoicing) {
                 var pos_default_partner = this.pos.config.pos_default_partner_id;

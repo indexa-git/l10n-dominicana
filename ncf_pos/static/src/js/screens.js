@@ -531,6 +531,67 @@ odoo.define('ncf_pos.screens', function (require) {
                 return false;
             });
         },
+        finalize_validation: function() {
+            var self = this;
+            var order = this.pos.get_order();
+            var client = order.get_client();
+            var client_sale_fiscal_type = client.sale_fiscal_type;
+            var invoice_journal_id = this.pos.config.invoice_journal_id[0];
+            var is_credit_note = false;
+
+            if (order.is_paid_with_cash() && this.pos.config.iface_cashdrawer) {
+
+                    this.pos.proxy.open_cashbox();
+            }
+
+            order.initialize_validation_date();
+            order.finalized = true;
+            var ncf_call = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_credit_note);
+
+            ncf_call.then(function () {
+                if (order.is_to_invoice()) {
+                    var invoiced = self.pos.push_and_invoice_order(order);
+                    self.invoicing = true;
+
+                    invoiced.fail(function(error){
+                        self.invoicing = false;
+                        order.finalized = false;
+                        if (error.message === 'Missing Customer') {
+                            self.gui.show_popup('confirm',{
+                                'title': _t('Please select the Customer'),
+                                'body': _t('You need to select the customer before you can invoice an order.'),
+                                confirm: function(){
+                                    self.gui.show_screen('clientlist');
+                                },
+                            });
+                        } else if (error.code < 0) {        // XmlHttpRequest Errors
+                            self.gui.show_popup('error',{
+                                'title': _t('The order could not be sent'),
+                                'body': _t('Check your internet connection and try again.'),
+                            });
+                        } else if (error.code === 200) {    // OpenERP Server Errors
+                            self.gui.show_popup('error-traceback',{
+                                'title': error.data.message || _t("Server Error"),
+                                'body': error.data.debug || _t('The server encountered an error while receiving your order.'),
+                            });
+                        } else {                            // ???
+                            self.gui.show_popup('error',{
+                                'title': _t("Unknown Error"),
+                                'body':  _t("The order could not be sent to the server due to an unknown error"),
+                            });
+                        }
+                    });
+
+                    invoiced.done(function(){
+                        self.invoicing = false;
+                        self.gui.show_screen('receipt');
+                    });
+                } else {
+                    self.pos.push_order(order);
+                    self.gui.show_screen('receipt');
+                }
+            });
+        },
         validate_order: function (force_validation) {
             // TODO: refactor this
             var order = this.pos.get_order();
@@ -582,10 +643,6 @@ odoo.define('ncf_pos.screens', function (require) {
             }
 
             this._super();
-            var client_sale_fiscal_type = order.get_client().sale_fiscal_type;
-            var invoice_journal_id = this.pos.config.invoice_journal_id[0];
-            var is_credit_note = false;
-            var next_ncf = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_credit_note);
         },
         init: function (parent, options) {
             this._super(parent, options);
