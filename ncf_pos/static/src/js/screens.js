@@ -518,7 +518,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     body: _t('Are you sure you want to create this refund order?'),
                     confirm: function () {
                         self.validate_order();
-                    },
+                    }
                 });
                 return false;
             }).addClass('highlight');
@@ -613,48 +613,91 @@ odoo.define('ncf_pos.screens', function (require) {
             this._super();
         },
         init: function (parent, options) {
-            var self = this;
-            var popup_options = {
-                title: 'Digite el número de NCF de la Nota de Crédito',
-                disable_keyboard_handler: true,
-                input_name: 'ncf',
-                text_input_value: '12345',
-                confirm: function (input_value) {
-                    if (parseInt(input_value) > 100) {
-                        popup_options.text_input_value = input_value;
-                        self.gui.show_popup('error', {
-                            'title': _t('NCF invalido'),
-                            'body': _t('Favor digite un numero de NCF valido.'),
-                            cancel: function () {
-                                self.gui.show_popup('textinput', popup_options);
-                            }
-                        });
+            var self = this,
+                cashregister_credit_note = {},
+                popup_options = {
+                    title: 'Digite el número de NCF de la Nota de Crédito',
+                    disable_keyboard_handler: true,
+                    input_name: 'ncf',
+                    text_input_value: '',
+                    confirm: function (input_value) {
+                        var msg_error = "";
+
+                        rpc.query({
+                            model: 'pos.order',
+                            method: 'credit_note_info_from_ui',
+                            args: [input_value]
+                        }, {})
+                            .then(function (result) {
+                                var residual = parseFloat(result.residual) || 0;
+
+                                if (result.credit_note_exists === false) {
+                                    msg_error = _t("La nota de credito no existe.");
+                                } else if (residual < 1) {
+                                    msg_error = _t("El balance de la Nota de Credito es 0.");
+                                }
+                                else {
+                                    var order = self.pos.get_order();
+                                    var cashregister = self.pos.cashregisters_by_id[10001];
+                                    var paymentline = order.paymentlines.find(function (pl) {
+                                        return pl.ncf == input_value
+                                    });
+
+                                    if (paymentline) {
+                                        msg_error = "Esta Nota de Credito ya esta aplicada a la Orden";
+                                    }
+                                    else {
+                                        order.add_paymentline(cashregister);
+                                        order.selected_paymentline.ncf = input_value;
+                                        order.selected_paymentline.set_amount(residual); //Add paymentline for residual
+                                        self.reset_input();
+                                        self.render_paymentlines();
+                                        return false;
+                                    }
+                                }
+                                popup_options.text_input_value = input_value;
+                                self.gui.show_popup('error', {
+                                    title: _t("Search") + " Nota de Credito",
+                                    body: msg_error,
+                                    disable_keyboard_handler: true,
+                                    cancel: function () {
+                                        self.gui.show_popup('textinput', popup_options);
+                                    }
+                                });
+                            });
                     }
-                }
-            };
+                };
 
             this._super(parent, options);
-            //Agregamos una forma de pago personalizada para lanzar el popup de Nota de Credito
-            this.pos.cashregisters.push({
-                journal_id: [10001, 'Nota de Credito'],
-                journal: {type: 'cash', id: 10001, sequence: 10001},
-                css_class: 'highlight',
-                show_popup: true,
-                popup_name: 'textinput',
-                popup_options: popup_options
-            });
-        },
-        click_paymentmethods: function (id) {
-            for (var i = 0; i < this.pos.cashregisters.length; i++) {
-                var cashregister = this.pos.cashregisters[i];
-
-                //Evaluamos que sea una forma de pago personalizada que lanza un popup
-                if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
-                    this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
-                    return false;
+            cashregister_credit_note = $.extend({}, this.pos.cashregisters[0]);
+            for (var n in this.pos.cashregisters) {
+                if (this.pos.cashregisters[n].journal.id == 10001) {
+                    this.pos.cashregisters[n].popup_options = popup_options;
+                    cashregister_credit_note = this.pos.cashregisters[n];
+                    break;
                 }
             }
-            this._super(id);
+        },
+        click_paymentmethods: function (id) {
+            //Validamos que la orden tenga saldo pendiente antes de agregar una nueva linea de pago
+            if (this.pos.get_order().get_due() <= 0) {
+                this.gui.show_popup('alert', {
+                    title: _t("Payment"),
+                    body: _t("This order has no pending balance."),
+                    disable_keyboard_handler: true
+                });
+            } else {
+                for (var i = 0; i < this.pos.cashregisters.length; i++) {
+                    var cashregister = this.pos.cashregisters[i];
+
+                    //Evaluamos si es una forma de pago especial que abre un popup
+                    if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
+                        this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
+                        return false;
+                    }
+                }
+                this._super(id);
+            }
         }
     });
 
