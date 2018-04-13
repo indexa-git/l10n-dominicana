@@ -11,6 +11,7 @@ class PosOrder(models.Model):
                                       ('Partially-Returned', 'Parcialmente Devuelta'),
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
                                      string=u'Estatus de Devolución')
+    state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
 
     def check_refund_order_from_ui(self, orders):
         """
@@ -24,40 +25,32 @@ class PosOrder(models.Model):
                 order["data"]["amount_paid"] = abs(order["data"]["amount_paid"]) * -1
                 order["data"]["amount_tax"] = abs(order["data"]["amount_tax"]) * -1
                 order["data"]["amount_total"] = abs(order["data"]["amount_total"]) * -1
+                order["data"]["amount_paid"] = order["data"]["amount_return"] = 0
 
                 for line in order["data"]["lines"]:
-                    line[2]["qty"] = abs(line[2]["qty"]) * -1
+                    line_dict = line[2]
+                    line_dict["qty"] = abs(line_dict["qty"]) * -1
+                    original_line = self.env['pos.order.line'].browse(line_dict["original_line_id"])
+                    original_line.line_qty_returned += abs(line_dict.get('qty', 0))
 
-                for statement in order["data"]["statement_ids"]:
-                    statement[2]["amount"] = abs(statement[2]["amount"]) * -1
-
+                order["data"]["statement_ids"] = []
         return orders
+
+    def test_paid(self):
+        """A Point of Sale is paid when the sum
+        @return: True
+        """
+        for order in self:
+            if order.is_return_order:
+                return True
+            else:
+                super(PosOrder, self).test_paid()
 
     @api.model
     def create_from_ui(self, orders):
         orders = self.check_refund_order_from_ui(orders)
         res = super(PosOrder, self).create_from_ui(orders)
         return res
-
-    @api.model
-    def _process_order(self, pos_order):
-
-        if pos_order.get('is_return_order', False):
-            pos_order['amount_paid'] = 0
-            for line in pos_order['lines']:
-                line_dict = line[2]
-                line_dict['qty'] = abs(line_dict['qty'])
-                if line_dict.get('original_line_id', False):
-                    original_line = self.env['pos.order.line'].browse(line_dict["original_line_id"])
-                    original_line.line_qty_returned += abs(line_dict.get('qty', 0))
-            for statement in pos_order['statement_ids']:
-                statement_dict = statement[2]
-                statement_dict['amount'] = statement_dict['amount'] * -1
-            pos_order['amount_tax'] = pos_order['amount_tax'] * -1
-            pos_order['amount_return'] = 0
-            pos_order['amount_total'] = pos_order['amount_total'] * -1
-
-        return super(PosOrder, self)._process_order(pos_order)
 
     @api.model
     def _order_fields(self, ui_order):
@@ -122,6 +115,14 @@ class PosOrder(models.Model):
     def credit_note_info_from_ui(self, ncf):
         invoice_ids = self.env["account.invoice"].search([('number', '=', ncf)])
         return {"ncf": ncf, "credit_note_exists": invoice_ids.id is not False, "residual": invoice_ids.residual}
+
+    @api.multi
+    def action_pos_order_invoice(self):
+        res = super(PosOrder, self).action_pos_order_invoice()
+        for order in self:
+            if order.is_return_order:
+                order.sudo().write({'state': 'is_return_order'})
+        return res
 
 
 class PosOrderLine(models.Model):
