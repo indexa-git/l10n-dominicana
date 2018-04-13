@@ -11,6 +11,7 @@ class PosOrder(models.Model):
                                       ('Partially-Returned', 'Parcialmente Devuelta'),
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
                                      string=u'Estatus de Devolución')
+    ncf = fields.Char("NCF")
 
     def check_refund_order_from_ui(self, orders):
         """
@@ -38,9 +39,10 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new invoice for a pos order.
         """
         inv = super(PosOrder, self)._prepare_invoice()
-        inv.update({
-            'move_name': self.ncf
-        })
+        if self.ncf:
+            inv.update({
+                'move_name': self.ncf
+            })
         return inv
 
     @api.model
@@ -71,13 +73,14 @@ class PosOrder(models.Model):
 
     @api.model
     def _order_fields(self, ui_order):
-        fields_return = super(PosOrder, self)._order_fields(ui_order)
-        fields_return.update({
+        res = super(PosOrder, self)._order_fields(ui_order)
+        res.update({
             'is_return_order': ui_order.get('is_return_order') or False,
             'return_order_id': ui_order.get('return_order_id') or False,
             'return_status': ui_order.get('return_status') or False,
+            'ncf': ui_order['ncf']
         })
-        return fields_return
+        return res
 
     @api.model
     def order_search_from_ui(self, input_txt):
@@ -129,15 +132,17 @@ class PosOrder(models.Model):
         }
 
     @api.model
-    def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_cn):
-        # import pdb;pdb.set_trace()
+    def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
         journal_id = self.env["account.journal"].browse(invoice_journal_id)
-        if is_cn:
+        if not is_return_order and journal_id:
+            return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                       sale_fiscal_type=sale_fiscal_type).next_by_id()
+        elif is_return_order and journal_id:
             return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
                                                        sale_fiscal_type="credit_note").next_by_id()
         else:
-            return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                       sale_fiscal_type=sale_fiscal_type).next_by_id()
+            raise exceptions.ValidationError(_("You have not specified a sales journal"))
+
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'

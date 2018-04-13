@@ -138,6 +138,7 @@ odoo.define('ncf_pos.models', function (require) {
          */
         get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_nc) {
             var self = this;
+            var order = self.get_order();
             var args = [
                 sale_fiscal_type,
                 invoice_journal_id,
@@ -152,12 +153,11 @@ odoo.define('ncf_pos.models', function (require) {
                 timeout: 30000,
                 shadow: ""
             }).then(function (next_ncf) {
-                self.get_order().set('ncf', next_ncf);
+                order.ncf = next_ncf;
                 console.info("Order NCF validated: " + next_ncf);
             }).fail(function (type, error){
                 console.error('The following error has been ocurred', error);
             });
-
             return tipo;
         },
         // saves the order locally and try to send it to the backend and make an invoice
