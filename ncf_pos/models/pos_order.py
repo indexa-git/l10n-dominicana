@@ -11,7 +11,10 @@ class PosOrder(models.Model):
                                       ('Partially-Returned', 'Parcialmente Devuelta'),
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
                                      string=u'Estatus de Devolución')
+<<<<<<< HEAD
     ncf = fields.Char("NCF")
+=======
+>>>>>>> [IMP]
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
 
     def check_refund_order_from_ui(self, orders):
@@ -37,6 +40,7 @@ class PosOrder(models.Model):
                 order["data"]["statement_ids"] = []
         return orders
 
+<<<<<<< HEAD
     def _prepare_invoice(self):
         """
         Prepare the dict of values to create the new invoice for a pos order.
@@ -48,6 +52,8 @@ class PosOrder(models.Model):
             })
         return inv
 
+=======
+>>>>>>> [IMP]
     def test_paid(self):
         """A Point of Sale is paid when the sum
         @return: True
@@ -130,6 +136,7 @@ class PosOrder(models.Model):
         return {"ncf": ncf, "credit_note_exists": invoice_ids.id is not False, "residual": invoice_ids.residual}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     @api.model
     def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
         journal_id = self.env["account.journal"].browse(invoice_journal_id)
@@ -142,6 +149,8 @@ class PosOrder(models.Model):
         else:
             raise exceptions.ValidationError(_("You have not specified a sales journal"))
 
+=======
+>>>>>>> [IMP]
     @api.multi
     def action_pos_order_invoice(self):
         res = super(PosOrder, self).action_pos_order_invoice()
@@ -150,8 +159,11 @@ class PosOrder(models.Model):
                 order.sudo().write({'state': 'is_return_order'})
         return res
 
+<<<<<<< HEAD
 =======
 >>>>>>> [ADD] backend method for the search of credit notes by NCF number
+=======
+>>>>>>> [IMP]
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
