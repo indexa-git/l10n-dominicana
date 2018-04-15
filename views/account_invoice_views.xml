@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="invoice_form_inherited" model="ir.ui.view">
+        <field name="name">invoice.form.inherited</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='other_info']" position="after">
+                <page name="dgii_fields" string="DGII">
+                    <group>
+                        <group>
+                            <field name="withholded_itbis"/>
+                            <field name="income_withholding"/>
+                            <field name="selective_tax"/>
+                            <field name="other_taxes"/>
+                            <field name="legal_tip"/>
+                            <field name="service_total_amount"/>
+                        </group>
+                        <group>
+                            <field name="good_total_amount"/>
+                            <!--<field name="cost_itbis"/>-->
+                            <!--<field name="advance_itbis"/>-->
+                            <field name="isr_withholding_type"/>
+                            <field name="payment_form"/>
+                            <field name="invoiced_itbis"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="invoice_supplier_form_inherited" model="ir.ui.view">
+        <field name="name">invoice.supplier.form.inherited</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='other_info']" position="after">
+                <page name="dgii_fields" string="DGII">
+                    <group>
+                        <group>
+                            <field name="withholded_itbis"/>
+                            <field name="income_withholding"/>
+                            <field name="selective_tax"/>
+                            <field name="other_taxes"/>
+                            <field name="legal_tip"/>
+                            <field name="service_total_amount"/>
+                        </group>
+                        <group>
+                            <field name="good_total_amount"/>
+                            <!--<field name="cost_itbis"/>-->
+                            <!--<field name="advance_itbis"/>-->
+                            <field name="isr_withholding_type"/>
+                            <field name="payment_form"/>
+                            <field name="invoiced_itbis"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

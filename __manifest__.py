@@ -19,10 +19,12 @@
 
     # any module necessary for this one to work correctly
     'depends': ['base',
+                'account_invoicing',
                 'ncf_manager'],
 
     # always loaded
     'data': [
+        'views/account_invoice_views.xml',
         'views/dgii_report_views.xml',
         'views/dgii_report_templates.xml',
     ],
