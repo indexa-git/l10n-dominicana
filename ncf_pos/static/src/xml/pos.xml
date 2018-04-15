@@ -526,6 +526,33 @@
         </div>
     </t>
 
+    <t t-extend="TextInputPopupWidget">
+        <t t-jquery=".footer" t-operation="before">
+            <t t-set="input_name" t-value="widget.options.input_name"></t>
+            <t t-if="input_name">
+                <p>Debe colocar como número de referencia:</p>
+                <t t-if="input_name == 'credit_card'">
+                    <p>
+                        <i class="fa fa-credit-card-alt" aria-hidden="true"></i>
+                        TARJETA: Número de aprobación
+                    </p>
+                </t>
+                <t t-elif="input_name == 'bank_check'">
+                    <p>
+                      <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    CHEQUE: Número del cheque y banco
+                    </p>
+                </t>
+                <t t-else="">
+                    <p>
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        NCF: Número de Comprobante Fiscal
+                    </p>
+                </t>
+            </t>
+        </t>
+    </t>
+
     <t t-name="OrderRefundConfirm">
         <div class="full-content">
             <section class='info-content'>
