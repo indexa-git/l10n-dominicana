@@ -156,10 +156,10 @@ class ResPartner(models.Model):
         if self.name:
             result = self.validate_rnc_cedula(self.name)
             if result:
-                self.name = resul.get('name')
-                self.vat = resul.get('vat')
-                self.is_company = resul.get('is_company', False)
-                self.sale_fiscal_type = resul.get('sale_fiscal_type')
+                self.name = result.get('name')
+                self.vat = result.get('vat')
+                self.is_company = result.get('is_company', False)
+                self.sale_fiscal_type = result.get('sale_fiscal_type')
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
