@@ -24,6 +24,7 @@
 
     # always loaded
     'data': [
+        'views/account_account_views.xml',
         'views/account_invoice_views.xml',
         'views/dgii_report_views.xml',
         'views/dgii_report_templates.xml',

@@ -35,6 +35,19 @@ class DgiiReport(models.Model):
             rec.purchase_other_taxes = abs(sum([inv.other_taxes for inv in purchase_line_ids]))
             rec.purchase_legal_tip = abs(sum([inv.legal_tip for inv in purchase_line_ids]))
 
+    @api.multi
+    def _compute_607_fields(self):
+        for rec in self:
+            sale_line_ids = self.env['dgii.reports.sale.line'].search([('dgii_report_id', '=', rec.id)])
+            rec.sale_records = len(sale_line_ids)
+            rec.sale_invoiced_amount = abs(sum([inv.invoiced_amount for inv in sale_line_ids]))
+            rec.sale_invoiced_itbis = abs(sum([inv.invoiced_itbis for inv in sale_line_ids]))
+            rec.sale_withholded_itbis = abs(sum([inv.third_withheld_itbis for inv in sale_line_ids]))
+            rec.sale_withholded_isr = abs(sum([inv.third_income_withholding for inv in sale_line_ids]))
+            rec.sale_selective_tax = abs(sum([inv.selective_tax for inv in sale_line_ids]))
+            rec.sale_other_taxes = abs(sum([inv.other_taxes for inv in sale_line_ids]))
+            rec.sale_legal_tip = abs(sum([inv.legal_tip for inv in sale_line_ids]))
+
     # 606
     purchase_records = fields.Integer(compute='_compute_606_fields')
     service_total_amount = fields.Monetary(compute='_compute_606_fields')
@@ -52,14 +65,14 @@ class DgiiReport(models.Model):
     purchase_binary = fields.Binary(string="606 file")
 
     # 607
-    sale_records = fields.Integer()
-    sale_invoiced_amount = fields.Float()
-    sale_invoiced_itbis = fields.Float()
-    sale_withholded_itbis = fields.Float()
-    sale_withholded_isr = fields.Float()
-    sale_selective_tax = fields.Float()
-    sale_other_taxes = fields.Float()
-    sale_legal_tip = fields.Float()
+    sale_records = fields.Integer(compute='_compute_607_fields')
+    sale_invoiced_amount = fields.Float(compute='_compute_607_fields')
+    sale_invoiced_itbis = fields.Float(compute='_compute_607_fields')
+    sale_withholded_itbis = fields.Float(compute='_compute_607_fields')
+    sale_withholded_isr = fields.Float(compute='_compute_607_fields')
+    sale_selective_tax = fields.Float(compute='_compute_607_fields')
+    sale_other_taxes = fields.Float(compute='_compute_607_fields')
+    sale_legal_tip = fields.Float(compute='_compute_607_fields')
     sale_filename = fields.Char()
     sale_binary = fields.Binary(string="607 file")
 
@@ -155,9 +168,9 @@ class DgiiReport(models.Model):
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'withholded_itbis': inv.withholded_itbis,
-                    'proportionality_tax': 0,  # Falta computarlo en la factura
-                    'cost_itbis': 0,  # Falta computarlo en la factura
-                    'advance_itbis': 0,  # Falta computarlo en la factura
+                    'proportionality_tax': inv.proportionality_tax,
+                    'cost_itbis': inv.cost_itbis,
+                    'advance_itbis': inv.advance_itbis,
                     'purchase_perceived_itbis': 0,  # Falta computarlo en la factura
                     'isr_withholding_type': inv.isr_withholding_type,
                     'income_withholding': inv.income_withholding,
@@ -166,23 +179,66 @@ class DgiiReport(models.Model):
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
                     'payment_type': inv.payment_form,
-                    'invoice_id': inv.id,
                     'invoice_partner_id': inv.partner_id.id,
                     'credit_note': True if inv.type == 'in_refund' else False
                 }
                 PurchaseLine.create(values)
 
+    def _get_sale_payments_forms(self, invoice_id):
+        payments_dict = {'cash': 0, 'bank': 0, 'card': 0, 'credit': 0, 'swap': 0, 'bond': 0, 'others': 0}
+        for move_line in invoice_id.payment_move_line_ids:
+            key = move_line.journal_id.payment_form
+            payments_dict[key] += move_line.credit
+
+        return payments_dict
+
     @api.multi
     def _compute_607_data(self):
         for rec in self:
+            SaleLine = self.env['dgii.reports.sale.line']
+            SaleLine.search([('dgii_report_id', '=', rec.id)]).unlink()
+
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['out_invoice', 'out_refund'])
+            line = 0
             for inv in invoice_ids:
-                print(inv.number)
+                line += 1
+                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
+                payments = self._get_sale_payments_forms(inv)
+                values = {
+                    'dgii_report_id': rec.id,
+                    'line': line,
+                    'rnc_cedula': rnc_ced[0] if rnc_ced else False,
+                    'identification_type': rnc_ced[1] if rnc_ced else False,
+                    'fiscal_invoice_number': inv.move_name,
+                    'modified_invoice_number': inv.origin,
+                    'income_type': inv.income_type,
+                    'invoice_date': inv.date_invoice,
+                    'withholding_date': False,  # Pendiente
+                    'invoiced_amount': inv.amount_untaxed_signed,
+                    'invoiced_itbis': inv.invoiced_itbis,
+                    'third_withheld_itbis': inv.third_withheld_itbis,
+                    'perceived_itbis': 0,  # Pendiente
+                    'third_income_withholding': inv.third_income_withholding,
+                    'perceived_isr': 0,  # Pendiente
+                    'selective_tax': inv.selective_tax,
+                    'other_taxes': inv.other_taxes,
+                    'legal_tip': inv.legal_tip,
+                    'invoice_partner_id': inv.partner_id.id,
+                    'credit_note': True if inv.type == 'out_refund' else False,
+                    'cash': payments.get('cash'),
+                    'bank': payments.get('bank'),
+                    'card': payments.get('card'),
+                    'credit': payments.get('credit'),
+                    'swap': payments.get('swap'),
+                    'bond': payments.get('bond'),
+                    'others': payments.get('others')
+                }
+                SaleLine.create(values)
 
     @api.multi
     def generate_report(self):
         self._compute_606_data()
-        # self._compute_607_data()
+        self._compute_607_data()
 
     def get_606_tree_view(self):
         return {
@@ -257,7 +313,6 @@ class DgiiReportPurchaseLine(models.Model):
     payment_type = fields.Char()  # Forma de Pago
 
     # Los siguientes campos no estan en la Norma. Validar si van o no.
-    invoice_id = fields.Many2one("account.invoice")
     invoice_partner_id = fields.Many2one("res.partner")
     credit_note = fields.Boolean()
 
@@ -287,15 +342,14 @@ class DgiiReportSaleLine(models.Model):
 
     # Tipo de Venta/ Forma de pago
     cash = fields.Float()  # Efectivo
-    check_transfer_deposit = fields.Float()  # Cheque/ Transferencia/ Depósito
-    debit_credit_card = fields.Float()  # Tarjeta Débito/ Crédito
-    credit_sale = fields.Float()  # Venta a Crédito
-    bonus_gift_certificates = fields.Float()  # Bonos o Certificados de Regalo
-    barter = fields.Float()  # Permuta
-    other_sale_form = fields.Float()  # Otras Formas de Ventas
+    bank = fields.Float()  # Cheque/ Transferencia/ Depósito
+    card = fields.Float()  # Tarjeta Débito/ Crédito
+    credit = fields.Float()  # Venta a Crédito
+    bond = fields.Float()  # Bonos o Certificados de Regalo
+    swap = fields.Float()  # Permuta
+    others = fields.Float()  # Otras Formas de Ventas
 
     # Los siguientes campos no estan en la Norma. Validar si van o no.
-    invoice = fields.Many2one("account.invoice")
     invoice_partner_id = fields.Many2one("res.partner")
     credit_note = fields.Boolean()
 

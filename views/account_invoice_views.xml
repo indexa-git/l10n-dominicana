@@ -24,10 +24,16 @@
                             <field name="isr_withholding_type"/>
                             <field name="payment_form"/>
                             <field name="invoiced_itbis"/>
+                            <field name="third_withheld_itbis"/>
+                            <field name="third_income_withholding"/>
+                            <field name="proportionality_tax"/>
+                            <field name="cost_itbis"/>
+                            <field name="advance_itbis"/>
                         </group>
                     </group>
                 </page>
             </xpath>
+
         </field>
     </record>
 
@@ -54,6 +60,11 @@
                             <field name="isr_withholding_type"/>
                             <field name="payment_form"/>
                             <field name="invoiced_itbis"/>
+                            <field name="third_withheld_itbis"/>
+                            <field name="third_income_withholding"/>
+                            <field name="proportionality_tax"/>
+                            <field name="cost_itbis"/>
+                            <field name="advance_itbis"/>
                         </group>
                     </group>
                 </page>

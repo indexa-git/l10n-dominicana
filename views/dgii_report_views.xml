@@ -140,6 +140,7 @@
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="rnc_cedula"/>
+                <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
                 <field name="expense_type"/>
                 <field name="fiscal_invoice_number"/>
@@ -175,6 +176,7 @@
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="rnc_cedula"/>
+                <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
                 <field name="fiscal_invoice_number"/>
                 <field name="modified_invoice_number"/>
@@ -191,12 +193,12 @@
                 <field name="other_taxes"/>
                 <field name="legal_tip"/>
                 <field name="cash"/>
-                <field name="check_transfer_deposit"/>
-                <field name="debit_credit_card"/>
-                <field name="credit_sale"/>
-                <field name="bonus_gift_certificates"/>
-                <field name="barter"/>
-                <field name="other_sale_form"/>
+                <field name="bank"/>
+                <field name="card"/>
+                <field name="credit"/>
+                <field name="bond"/>
+                <field name="swap"/>
+                <field name="others"/>
             </tree>
         </field>
     </record>
