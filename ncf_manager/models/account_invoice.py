@@ -214,15 +214,14 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
-        super(AccountInvoice, self)._onchange_journal_id()
-        if self.journal_id.type == 'purchase' \
-            and self.journal_id.purchase_type == "minor":
+        res = super(AccountInvoice, self)._onchange_journal_id()
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
             self.partner_id = self.company_id.partner_id.id
+        return res
 
     @api.onchange('journal_id', 'partner_id')
     def onchange_journal_id(self):
-        if self.journal_id.type == 'purchase' \
-            and self.journal_id.purchase_type == "minor":
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
             self.partner_id = self.company_id.partner_id.id
 
         if self.partner_id.id == self.company_id.partner_id.id:
@@ -304,16 +303,16 @@ class AccountInvoice(models.Model):
 
             if inv.type == "out_invoice":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'client.invoice.number')
+                    'client.invoice.number')
             if inv.type == "in_invoice":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'supplier.invoice.number')
+                    'supplier.invoice.number')
             if inv.type == "in_refund":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'debit.note.invoice.number')
+                    'debit.note.invoice.number')
             if inv.type == "out_refund":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'credit.note.invoice.number')
+                    'credit.note.invoice.number')
 
         return super(AccountInvoice, self).action_invoice_open()
 

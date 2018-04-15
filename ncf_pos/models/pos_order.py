@@ -1,5 +1,5 @@
-from odoo import models, fields, api, exceptions, _
-from odoo.tools import float_is_zero
+# -*- coding: utf-8 -*-
+from odoo import models, fields, api
 
 
 class PosOrder(models.Model):
