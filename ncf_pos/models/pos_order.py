@@ -1,5 +1,4 @@
 from odoo import models, fields, api, exceptions, _
-from odoo.tools import float_is_zero
 
 
 class PosOrder(models.Model):
@@ -13,8 +12,8 @@ class PosOrder(models.Model):
                                      string=u'Estatus de Devolución')
     ncf = fields.Char("NCF")
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
-    refund_payments = fields.Many2many("account.move.line")
-    ncf = fields.Char(related="invoice_id.number", string="NCF")
+    refund_payment_account_move_line_ids = fields.Many2many("account.move.line")
+    ncf_invoice_related = fields.Char(related="invoice_id.number", string="NCF")
     sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type", string="Tipo", readonly=1)
 
     def check_refund_order_from_ui(self, orders):
@@ -47,7 +46,8 @@ class PosOrder(models.Model):
         inv = super(PosOrder, self)._prepare_invoice()
         if self.ncf:
             inv.update({
-                'move_name': self.ncf
+                'move_name': self.ncf,
+                'income_type': '01'
             })
         return inv
 
@@ -165,7 +165,8 @@ class PosOrder(models.Model):
                     move_line_ids = move_line_ids.filtered(lambda
                                                                r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
                     for move_line_id in move_line_ids:
-                        self.write({"refund_payments": [(4, move_line_id.id, _)]})
+                        self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
+
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
