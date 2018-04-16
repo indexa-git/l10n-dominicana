@@ -347,18 +347,21 @@ odoo.define('ncf_pos.models', function (require) {
     var super_paymentline = models.Paymentline.prototype;
     models.Paymentline = models.Paymentline.extend({
         initialize: function (attr, options) {
-            this.credit_note = null;
+            this.credit_note_id = null;
+            this.note = ''
             super_paymentline.initialize.call(this, attr, options);
         },
         init_from_JSON: function (json) {
             super_paymentline.init_from_JSON.call(this, json);
-            this.credit_note = json.credit_note;
+            this.credit_note_id = json.credit_note_id;
+            this.note = json.note;
         },
         export_as_JSON: function () {
             var json = super_paymentline.export_as_JSON.call(this);
 
             $.extend(json, {
-                credit_note: this.credit_note
+                credit_note_id: this.credit_note_id,
+                note: this.note
             });
             return json;
         }

@@ -614,7 +614,6 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         init: function (parent, options) {
             var self = this,
-                cashregister_credit_note = {},
                 popup_options = {
                     title: 'Digite el número de NCF de la Nota de Crédito',
                     disable_keyboard_handler: true,
@@ -640,7 +639,7 @@ odoo.define('ncf_pos.screens', function (require) {
                                     var order = self.pos.get_order();
                                     var cashregister = self.pos.cashregisters_by_id[10001];
                                     var paymentline = order.paymentlines.find(function (pl) {
-                                        return pl.credit_note && pl.credit_note[1] == input_value
+                                        return pl.note == input_value
                                     });
 
                                     if (paymentline) {
@@ -648,9 +647,11 @@ odoo.define('ncf_pos.screens', function (require) {
                                     }
                                     else {
                                         order.add_paymentline(cashregister);
-                                        order.selected_paymentline.credit_note = [result.id, input_value];
+                                        order.selected_paymentline.credit_note_id = result.id;
+                                        order.selected_paymentline.note = input_value;
                                         order.selected_paymentline.set_amount(residual); //Add paymentline for residual
                                         self.reset_input();
+                                        self.order_changes();
                                         self.render_paymentlines();
                                         return false;
                                     }
@@ -669,11 +670,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 };
 
             this._super(parent, options);
-            cashregister_credit_note = $.extend({}, this.pos.cashregisters[0]);
             for (var n in this.pos.cashregisters) {
                 if (this.pos.cashregisters[n].journal.id == 10001) {
                     this.pos.cashregisters[n].popup_options = popup_options;
-                    cashregister_credit_note = this.pos.cashregisters[n];
                     break;
                 }
             }
