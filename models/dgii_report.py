@@ -126,11 +126,16 @@ class DgiiReport(models.Model):
         start_date = "{}-{}-01".format(year, month)
         end_date = "{}-{}-{}".format(year, month, last_day)
 
-        return self.env["account.invoice"].search([('date_invoice', '>=', start_date),
-                                                   ('date_invoice', '<=', end_date),
-                                                   ('company_id', '=', self.company_id.id),
-                                                   ('state', 'in', states),
-                                                   ('type', 'in', types)], order='date_invoice asc')
+        invoice_ids = self.env["account.invoice"].search(
+            [('date_invoice', '>=', start_date),
+             ('date_invoice', '<=', end_date),
+             ('company_id', '=', self.company_id.id),
+             ('state', 'in', states),
+             ('type', 'in', types)],
+            order='date_invoice asc').filtered(lambda inv: (inv.journal_id.purchase_type != "others") or
+                                                           (inv.journal_id.ncf_control is True))
+
+        return invoice_ids
 
     def formated_rnc_cedula(self, vat):
         if vat:
