@@ -141,7 +141,6 @@ class PosOrder(models.Model):
                         self.write({"refund_payments": [(4, move_line_id.id, _)]})
 
 
-
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
 
