@@ -11,11 +11,9 @@ class PosOrder(models.Model):
                                       ('Partially-Returned', 'Parcialmente Devuelta'),
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
                                      string=u'Estatus de Devolución')
-<<<<<<< HEAD
     ncf = fields.Char("NCF")
-=======
->>>>>>> [IMP]
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
+    refund_payments = fields.Many2many("account.move.line")
 
     def check_refund_order_from_ui(self, orders):
         """
@@ -40,7 +38,6 @@ class PosOrder(models.Model):
                 order["data"]["statement_ids"] = []
         return orders
 
-<<<<<<< HEAD
     def _prepare_invoice(self):
         """
         Prepare the dict of values to create the new invoice for a pos order.
@@ -52,8 +49,6 @@ class PosOrder(models.Model):
             })
         return inv
 
-=======
->>>>>>> [IMP]
     def test_paid(self):
         """A Point of Sale is paid when the sum
         @return: True
@@ -135,8 +130,6 @@ class PosOrder(models.Model):
         invoice_ids = self.env["account.invoice"].search([('number', '=', ncf)])
         return {"ncf": ncf, "credit_note_exists": invoice_ids.id is not False, "residual": invoice_ids.residual}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     @api.model
     def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
         journal_id = self.env["account.journal"].browse(invoice_journal_id)
@@ -149,8 +142,6 @@ class PosOrder(models.Model):
         else:
             raise exceptions.ValidationError(_("You have not specified a sales journal"))
 
-=======
->>>>>>> [IMP]
     @api.multi
     def action_pos_order_invoice(self):
         res = super(PosOrder, self).action_pos_order_invoice()
@@ -159,11 +150,20 @@ class PosOrder(models.Model):
                 order.sudo().write({'state': 'is_return_order'})
         return res
 
-<<<<<<< HEAD
-=======
->>>>>>> [ADD] backend method for the search of credit notes by NCF number
-=======
->>>>>>> [IMP]
+    def add_payment(self, data):
+        statement_id = data.get("statement_id", False)
+        if statement_id != 10001:
+            return super(PosOrder, self).add_payment(data)
+        else:
+            payment_name = data.get("payment_name", False)
+            if payment_name:
+                out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
+                if out_refund_invoice:
+                    move_line_ids = out_refund_invoice.move_id.line_ids
+                    move_line_ids = move_line_ids.filtered(lambda
+                                                               r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
+                    for move_line_id in move_line_ids:
+                        self.write({"refund_payments": [(4, move_line_id.id, _)]})
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
