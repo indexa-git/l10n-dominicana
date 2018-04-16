@@ -13,6 +13,8 @@ class PosOrder(models.Model):
                                      string=u'Estatus de Devolución')
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
     refund_payments = fields.Many2many("account.move.line")
+    ncf = fields.Char(related="invoice_id.number", string="NCF")
+    sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type", string="Tipo", readonly=1)
 
     def check_refund_order_from_ui(self, orders):
         """
