@@ -211,7 +211,7 @@ class DgiiReport(models.Model):
                     'rnc_cedula': rnc_ced[0] if rnc_ced else False,
                     'identification_type': rnc_ced[1] if rnc_ced else False,
                     'fiscal_invoice_number': inv.move_name,
-                    'modified_invoice_number': inv.origin,
+                    'modified_invoice_number': inv.origin if inv.type == 'out_refund' else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
                     'withholding_date': False,  # Pendiente
