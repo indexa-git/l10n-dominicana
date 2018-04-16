@@ -12,6 +12,7 @@ class PosOrder(models.Model):
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
                                      string=u'Estatus de Devolución')
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
+    refund_payments = fields.Many2many("account.move.line")
 
     def check_refund_order_from_ui(self, orders):
         """
@@ -123,6 +124,22 @@ class PosOrder(models.Model):
             if order.is_return_order:
                 order.sudo().write({'state': 'is_return_order'})
         return res
+
+    def add_payment(self, data):
+        statement_id = data.get("statement_id", False)
+        if statement_id != 10001:
+            return super(PosOrder, self).add_payment(data)
+        else:
+            payment_name = data.get("payment_name", False)
+            if payment_name:
+                out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
+                if out_refund_invoice:
+                    move_line_ids = out_refund_invoice.move_id.line_ids
+                    move_line_ids = move_line_ids.filtered(lambda
+                                                               r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
+                    for move_line_id in move_line_ids:
+                        self.write({"refund_payments": [(4, move_line_id.id, _)]})
+
 
 
 class PosOrderLine(models.Model):
