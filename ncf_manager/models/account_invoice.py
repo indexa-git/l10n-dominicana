@@ -90,7 +90,8 @@ class AccountInvoice(models.Model):
                                          ("fiscal", u"Crédito Fiscal"),
                                          ("gov", "Gubernamental"),
                                          ("special", u"Regímenes Especiales"),
-                                         ("unico", u"Único Ingreso")])
+                                         ("unico", u"Único Ingreso")],
+                                        string='NCF Para')
 
     income_type = fields.Selection(
         [('01', '01 - Ingresos por operaciones (No financieros)'),
