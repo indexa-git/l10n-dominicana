@@ -24,6 +24,8 @@
 
     # always loaded
     'data': [
+        'security/ir.model.access.csv',
+        'security/ir_rule.xml',
         'views/account_account_views.xml',
         'views/account_invoice_views.xml',
         'views/dgii_report_views.xml',
