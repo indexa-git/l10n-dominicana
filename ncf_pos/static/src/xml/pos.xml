@@ -126,46 +126,73 @@
     <t t-extend="PosTicket">
         <t t-jquery=".pos-sale-ticket" t-operation="inner">
             <div class="pos-center-align">
-                <t t-esc="widget.pos.company.name"/><br />
-                <t t-esc="widget.pos.company.street || ''"/> | <t t-esc="widget.pos.company.phone || ''"/>
+                <t t-esc="widget.pos.company.name"/>
+                <br/>
+                <t t-esc="widget.pos.company.street || ''"/>
+                |
+                <t t-esc="widget.pos.company.phone || ''"/>
             </div>
             <br/>
-            <span>Direccion General de Impuestos Internos</span><br />
-            <span>RNC <t t-esc="widget.pos.company.vat || ''"/></span><br />
-            <span>RES DGII: <t t-esc="order.number"/></span>
-            <span class="pos-right-align">DEL <t t-esc="order.number"/></span><br />
-            <br />
+            <span>Direccion General de Impuestos Internos</span>
+            <br/>
+            <span>RNC
+                <t t-esc="widget.pos.company.vat || ''"/>
+            </span>
+            <br/>
+            <span>RES DGII:
+                <t t-esc="order.number"/>
+            </span>
+            <span class="pos-right-align">DEL
+                <t t-esc="order.number"/>
+            </span>
+            <br/>
+            <br/>
             <div class="pos-center-align">
                 <span>Autorizado por DGII</span>
             </div>
-            <br />
-            <span><t t-esc="widget.pos.getDatetime().date"/></span>
-            <span style="margin-left: 2em"><t t-esc="widget.pos.getDatetime().time"/></span><br />
+
+            <br/>
+            <span>
+                <t t-esc="widget.pos.getDatetime().date"/>
+            </span>
+            <span style="margin-left: 2em">
+                <t t-esc="widget.pos.getDatetime().time"/>
+            </span>
+            <br/>
             <t t-if="order.ncf">
-                <span>NCF: <t t-esc="order.ncf"/></span><br />
+                <span>NCF:
+                    <t t-esc="order.ncf"/>
+                </span>
+                <br/>
             </t>
             <t t-else="">
                 <span>Documento de No Venta</span>
             </t>
+
             <t t-set="client" t-value="widget.pos.get_client()"/>
             <t t-if="client.vat">
-                <span>RNC: <t t-esc="client.vat"/></span><br />
+                <span>RNC:
+                    <t t-esc="client.vat"/>
+                </span>
+                <br/>
             </t>
-            <br />
+            <br/>
             <t t-if="receipt.header">
                 <div style='text-align:center'>
-                    <t t-esc="receipt.header" />
+                    <t t-esc="receipt.header"/>
                 </div>
-                <br />
+                <br/>
             </t>
             <div class="pos-center-align dotted_ticket_title">
-                <span>Factura para <t t-esc="widget.pos.get_sale_fiscal_type_label(order.get_client().sale_fiscal_type)"/></span>
+                <span>Factura para
+                    <t t-esc="widget.pos.get_sale_fiscal_type_label(order.get_client().sale_fiscal_type)"/>
+                </span>
             </div>
             <table class='receipt-orderlines'>
                 <colgroup>
-                    <col width='50%' />
-                    <col width='25%' />
-                    <col width='25%' />
+                    <col width='50%'/>
+                    <col width='25%'/>
+                    <col width='25%'/>
                 </colgroup>
                 <tr class="dotted_ticket_table_header">
                     <td>DESCRIPCION</td>
@@ -178,7 +205,7 @@
                         <t t-esc="orderline.get_product().display_name"/>
                         <t t-if="orderline.get_discount() > 0">
                             <div class="pos-disc-font">
-                                With a <t t-esc="orderline.get_discount()"/>% discount
+                                With a<t t-esc="orderline.get_discount()"/>% discount
                             </div>
                         </t>
                     </td>
@@ -190,12 +217,12 @@
                     </td>
                 </tr>
             </table>
-            <br />
+            <br/>
             <table class='receipt-total'>
                 <colgroup>
-                    <col width='50%' />
-                    <col width='25%' />
-                    <col width='25%' />
+                    <col width='50%'/>
+                    <col width='25%'/>
+                    <col width='25%'/>
                 </colgroup>
                 <tr>
                     <td>TOTAL A PAGAR:</td>
@@ -220,14 +247,17 @@
                 </t>
             </table>
             <table class='receipt-change'>
-                <tr><td>Change:</td><td class="pos-right-align">
-                    <t t-esc="widget.format_currency(order.get_change())"/>
-                    </td></tr>
+                <tr>
+                    <td>Change:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency(order.get_change())"/>
+                    </td>
+                </tr>
             </table>
             <t t-if="receipt.footer">
-                <br />
+                <br/>
                 <div style='text-align:center'>
-                    <t t-esc="receipt.footer" />
+                    <t t-esc="receipt.footer"/>
                 </div>
             </t>
             <br/>
@@ -237,7 +267,7 @@
                 <span>NIF:</span>
             </div>
             <div>
-                <span>TRANSACCION NRO.: </span>
+                <span>TRANSACCION NRO.:</span>
                 <span class="pos-right-align">Versión</span>
             </div>
             <div>
@@ -544,8 +574,8 @@
                 </t>
                 <t t-elif="input_name == 'bank_check'">
                     <p>
-                      <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                    CHEQUE: Número del cheque y banco
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        CHEQUE: Número del cheque y banco
                     </p>
                 </t>
                 <t t-else="">
@@ -641,6 +671,21 @@
                  t-att-data-id="cashregister.journal_id[0]">
                 <t t-esc="cashregister.journal_id[1]"/>
             </div>
+        </t>
+    </t>
+
+    <t t-extend="PaymentScreen-Paymentlines">
+        <t t-jquery=".col-name" t-operation="replace">
+            <t t-if="line.credit_note">
+                <td>
+                    <t t-esc='"NC: " + line.credit_note[1]'/>
+                </td>
+            </t>
+            <t t-else="">
+                <td>
+                    <t t-esc='line.name'/>
+                </td>
+            </t>
         </t>
     </t>
 
