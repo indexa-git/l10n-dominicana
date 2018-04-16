@@ -171,12 +171,9 @@ odoo.define('ncf_pos.models', function (require) {
             var self = this;
             var invoiced = new $.Deferred();
 
-            if (!order.get_client()) {
-                invoiced.reject({code: 400, message: 'Missing Customer', data: {}});
-                return invoiced;
+            if (order) {
+                var order_id = this.db.add_order(order.export_as_JSON());
             }
-
-            var order_id = this.db.add_order(order.export_as_JSON());
 
             this.flush_mutex.exec(function () {
                 var done = new $.Deferred(); // holds the mutex
