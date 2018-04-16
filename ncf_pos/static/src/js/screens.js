@@ -695,7 +695,7 @@ odoo.define('ncf_pos.screens', function (require) {
                             .then(function (result) {
                                 var residual = parseFloat(result.residual) || 0;
 
-                                if (result.credit_note_exists === false) {
+                                if (result.id === false) {
                                     msg_error = _t("La nota de credito no existe.");
                                 } else if (residual < 1) {
                                     msg_error = _t("El balance de la Nota de Credito es 0.");
@@ -704,7 +704,7 @@ odoo.define('ncf_pos.screens', function (require) {
                                     var order = self.pos.get_order();
                                     var cashregister = self.pos.cashregisters_by_id[10001];
                                     var paymentline = order.paymentlines.find(function (pl) {
-                                        return pl.ncf == input_value
+                                        return pl.credit_note && pl.credit_note[1] == input_value
                                     });
 
                                     if (paymentline) {
@@ -712,7 +712,7 @@ odoo.define('ncf_pos.screens', function (require) {
                                     }
                                     else {
                                         order.add_paymentline(cashregister);
-                                        order.selected_paymentline.ncf = input_value;
+                                        order.selected_paymentline.credit_note = [result.id, input_value];
                                         order.selected_paymentline.set_amount(residual); //Add paymentline for residual
                                         self.reset_input();
                                         self.render_paymentlines();
