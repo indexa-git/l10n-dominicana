@@ -78,8 +78,7 @@ class AccountInvoice(models.Model):
 
     def _get_invoice_payment_widget(self, invoice_id):
         j = json.loads(invoice_id.payments_widget)
-        content = j['content']
-        return content if content else []
+        return j['content'] if j else []
 
     def _get_payment_string(self, invoice_id):
         """Compute Vendor Bills payment method string"""

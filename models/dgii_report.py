@@ -188,7 +188,8 @@ class DgiiReport(models.Model):
         payments_dict = {'cash': 0, 'bank': 0, 'card': 0, 'credit': 0, 'swap': 0, 'bond': 0, 'others': 0}
         for move_line in invoice_id.payment_move_line_ids:
             key = move_line.journal_id.payment_form
-            payments_dict[key] += move_line.credit
+            if key:
+                payments_dict[key] += move_line.credit
 
         return payments_dict
 
