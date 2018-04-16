@@ -540,7 +540,7 @@ odoo.define('ncf_pos.screens', function (require) {
             var client = order.get_client();
             var client_sale_fiscal_type = client.sale_fiscal_type;
             var invoice_journal_id = this.pos.config.invoice_journal_id[0];
-            var is_credit_note = false;
+            var is_return_order = false;
 
             if (order.is_paid_with_cash() && this.pos.config.iface_cashdrawer) {
 
@@ -549,7 +549,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
             order.initialize_validation_date();
             order.finalized = true;
-            var ncf_call = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_credit_note);
+            var ncf_call = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_return_order);
 
             ncf_call.always(function () {
                 if (order.is_to_invoice()) {

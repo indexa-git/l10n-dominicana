@@ -136,16 +136,16 @@ odoo.define('ncf_pos.models', function (require) {
         /**
          * Get the next ncf sequence
          */
-        get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_nc) {
+        get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_return_order) {
             var self = this;
             var order = self.get_order();
             var args = [
                 sale_fiscal_type,
                 invoice_journal_id,
-                is_nc
+                is_return_order
             ];
 
-            var tipo = rpc.query({
+            var ncfPromise = rpc.query({
                 model: 'pos.order',
                 method: 'get_next_ncf',
                 args: args,
@@ -158,7 +158,7 @@ odoo.define('ncf_pos.models', function (require) {
             }).fail(function (type, error){
                 console.error('The following error has been ocurred', error);
             });
-            return tipo;
+            return ncfPromise;
         },
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
@@ -267,7 +267,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.is_return_order = false;
             this.return_order_id = false;
             this.orderlineList = [];
-            this.ncf = 0;
+            this.ncf = false;
             _super_order.initialize.call(this, attributes, options);
             if (this.pos.config.iface_invoicing) {
                 var pos_default_partner = this.pos.config.pos_default_partner_id;
