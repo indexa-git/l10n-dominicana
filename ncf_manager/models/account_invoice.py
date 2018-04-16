@@ -34,6 +34,23 @@ except(ImportError, IOError) as err:
     _logger.debug(err)
 
 
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    @api.multi
+    def _prepare_invoice(self):
+        """
+        Prepare the dict of values to create the new invoice for a sales order. This method may be
+        overridden to implement custom invoice generation (making sure to call super() to establish
+        a clean extension chain).
+        """
+        self.ensure_one()
+        invoice_vals = super(SaleOrder, self)._prepare_invoice()
+        invoice_vals['sale_fiscal_type'] = self.partner_id.sale_fiscal_type
+
+        return invoice_vals
+
+
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
