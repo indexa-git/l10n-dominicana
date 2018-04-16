@@ -183,7 +183,7 @@ odoo.define('ncf_pos.models', function (require) {
                 // the client will believe it wasn't successfully sent, and very bad
                 // things will happen as a duplicate will be sent next time
                 // so we must make sure the server detects and ignores duplicated orders
-                var transfer = self._flush_orders([self.db.get_order(order_id)], {
+                var transfer = self._flush_orders(self.db.get_orders(), {
                     timeout: 30000,
                     to_invoice: true
                 });
@@ -289,6 +289,8 @@ odoo.define('ncf_pos.models', function (require) {
             this.is_return_order = json.is_return_order;
             this.return_order_id = json.return_order_id;
             this.amount_total = json.amount_total;
+            this.to_invoice = json.to_invoice;
+            this.ncf = json.ncf;
             if (this.orderlines && $.isArray(this.orderlines.models)) {
                 this.orderlines.models.forEach(function (line) {
                     var productDefCode = line.product.default_code;
@@ -312,6 +314,7 @@ odoo.define('ncf_pos.models', function (require) {
                 is_return_order: this.is_return_order,
                 return_order_id: this.return_order_id,
                 amount_total: parseFloat(json.amount_total || 0),
+                to_invoice: this.to_invoice,
                 ncf: this.ncf
             });
             return json;

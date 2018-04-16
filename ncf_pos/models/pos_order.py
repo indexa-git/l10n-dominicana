@@ -38,6 +38,7 @@ class PosOrder(models.Model):
         """
         Prepare the dict of values to create the new invoice for a pos order.
         """
+        import pdb; pdb.set_trace()
         inv = super(PosOrder, self)._prepare_invoice()
         if self.ncf:
             inv.update({
