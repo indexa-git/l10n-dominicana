@@ -114,8 +114,8 @@ class PosOrder(models.Model):
 
     @api.model
     def credit_note_info_from_ui(self, ncf):
-        invoice_ids = self.env["account.invoice"].search([('number', '=', ncf)])
-        return {"ncf": ncf, "credit_note_exists": invoice_ids.id is not False, "residual": invoice_ids.residual}
+        invoice_ids = self.env["account.invoice"].search([('number', '=', ncf), ('type', '=', 'out_refund')])
+        return {"id": invoice_ids.id, "residual": invoice_ids.residual}
 
     @api.multi
     def action_pos_order_invoice(self):
