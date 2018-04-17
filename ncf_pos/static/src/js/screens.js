@@ -569,7 +569,7 @@ odoo.define('ncf_pos.screens', function (require) {
             var client = order.get_client();
             var client_sale_fiscal_type = client.sale_fiscal_type;
             var invoice_journal_id = this.pos.config.invoice_journal_id[0];
-            var is_return_order = false;
+            var is_return_order = order.is_return_order;
 
             if (order.is_paid_with_cash() && this.pos.config.iface_cashdrawer) {
 
