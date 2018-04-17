@@ -16,6 +16,7 @@
                             <field name="other_taxes"/>
                             <field name="legal_tip"/>
                             <field name="service_total_amount"/>
+                            <field name="payment_date"/>
                         </group>
                         <group>
                             <field name="good_total_amount"/>
@@ -52,6 +53,7 @@
                             <field name="other_taxes"/>
                             <field name="legal_tip"/>
                             <field name="service_total_amount"/>
+                            <field name="payment_date"/>
                         </group>
                         <group>
                             <field name="good_total_amount"/>

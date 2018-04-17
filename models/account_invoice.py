@@ -46,7 +46,10 @@ class AccountInvoice(models.Model):
                 inv.cost_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
                                           if tax.account_id.account_fiscal_type == 'A51']))
 
-                if inv.type == 'in_invoice':
+                if inv.type == 'in_invoice' and inv.state == 'paid':
+                    # Fecha Pago
+                    inv.payment_date = fields.Date.context_today(inv)
+
                     # Monto ITBIS Retenido
                     inv.withholded_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
                                                     if tax.tax_id.purchase_tax_type == 'ritbis']))
@@ -176,9 +179,9 @@ class AccountInvoice(models.Model):
             if inv.state != 'draft':
                 inv.advance_itbis = inv.invoiced_itbis - inv.cost_itbis
 
-    # Fecha Pago                            --> Fecha en que la factura pasa a 'paid' ? *PENDIENTE VALIDAR*
     # ISR Percibido                         --> Este campo se va con 12 espacios en 0 para el 606
     # ITBIS Percibido                       --> Este campo se va con 12 espacios en 0 para el 606
+    payment_date = fields.Date(compute='_compute_taxes_fields', store=True)
     service_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)
     good_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)
     invoiced_itbis = fields.Monetary(compute='_compute_invoiced_itbis', store=True)

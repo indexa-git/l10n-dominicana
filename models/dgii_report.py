@@ -174,7 +174,7 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.move_name,
                     'modified_invoice_number': inv.origin,
                     'invoice_date': inv.date_invoice,
-                    'payment_date': False,  # Falta computarlo en la factura
+                    'payment_date': inv.payment_date,
                     'service_total_amount': inv.service_total_amount,
                     'good_total_amount': inv.good_total_amount,
                     'invoiced_amount': inv.amount_untaxed_signed,
