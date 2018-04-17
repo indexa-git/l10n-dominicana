@@ -299,7 +299,7 @@
                     </span>
                 </section>
                 <section class="full-content">
-                    <div class='window'>
+                    <div class='window touch-scrollable scrollable-y'>
                         <section class='subwindow collapsed'>
                             <div class='subwindow-container collapsed'>
                                 <div class='subwindow-container-fix order-details-contents'>
