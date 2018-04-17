@@ -211,6 +211,7 @@
             <tree>
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
+                <field name="invoice_partner_id"/>
                 <field name="fiscal_invoice_number"/>
                 <field name="invoice_date"/>
                 <field name="anulation_type"/>

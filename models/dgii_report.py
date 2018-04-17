@@ -2,6 +2,7 @@
 
 import calendar
 from datetime import datetime as dt
+
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -11,8 +12,8 @@ class DgiiReport(models.Model):
     _inherit = ['mail.thread']
 
     name = fields.Char(string='Period', required=True, size=7)
-    state = fields.Selection([('draft', 'New'), ('error', 'With error'), ('done', 'Validated')], default="draft")
-    previous_balance = fields.Float("Previous balance")
+    state = fields.Selection([('draft', 'New'), ('error', 'With error'), ('done', 'Validated')], default='draft')
+    previous_balance = fields.Float('Previous balance')
     currency_id = fields.Many2one('res.currency', string='Currency', required=True,
                                   default=lambda self: self.env.user.company_id.currency_id)
     company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.user.company_id,
@@ -48,6 +49,12 @@ class DgiiReport(models.Model):
             rec.sale_other_taxes = abs(sum([inv.other_taxes for inv in sale_line_ids]))
             rec.sale_legal_tip = abs(sum([inv.legal_tip for inv in sale_line_ids]))
 
+    @api.multi
+    def _compute_608_fields(self):
+        for rec in self:
+            cancel_line_ids = self.env['dgii.cancel.report.line'].search([('dgii_report_id', '=', rec.id)])
+            rec.cancel_records = len(cancel_line_ids)
+
     # 606
     purchase_records = fields.Integer(compute='_compute_606_fields')
     service_total_amount = fields.Monetary(compute='_compute_606_fields')
@@ -62,7 +69,7 @@ class DgiiReport(models.Model):
     purchase_other_taxes = fields.Monetary(compute='_compute_606_fields')
     purchase_legal_tip = fields.Monetary(compute='_compute_606_fields')
     purchase_filename = fields.Char()
-    purchase_binary = fields.Binary(string="606 file")
+    purchase_binary = fields.Binary(string='606 file')
 
     # 607
     sale_records = fields.Integer(compute='_compute_607_fields')
@@ -74,12 +81,12 @@ class DgiiReport(models.Model):
     sale_other_taxes = fields.Float(compute='_compute_607_fields')
     sale_legal_tip = fields.Float(compute='_compute_607_fields')
     sale_filename = fields.Char()
-    sale_binary = fields.Binary(string="607 file")
+    sale_binary = fields.Binary(string='607 file')
 
     # 608
-    cancel_records = fields.Integer()
+    cancel_records = fields.Integer(compute='_compute_608_fields')
     cancel_filename = fields.Char()
-    cancel_binary = fields.Binary(string="608 file")
+    cancel_binary = fields.Binary(string='608 file')
 
     # 609
     exterior_records = fields.Integer()
@@ -87,7 +94,7 @@ class DgiiReport(models.Model):
     exterior_withholded_isr = fields.Float()
     exterior_invoiced_amount = fields.Float()
     exterior_filename = fields.Char()
-    exterior_binary = fields.Binary(string="609 file")
+    exterior_binary = fields.Binary(string='609 file')
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
@@ -121,18 +128,18 @@ class DgiiReport(models.Model):
         :param type: a list of invoice type
         :return: filtered invoices
         """
-        month, year = rec.name.split("/")
+        month, year = rec.name.split('/')
         last_day = calendar.monthrange(int(year), int(month))[1]
-        start_date = "{}-{}-01".format(year, month)
-        end_date = "{}-{}-{}".format(year, month, last_day)
+        start_date = '{}-{}-01'.format(year, month)
+        end_date = '{}-{}-{}'.format(year, month, last_day)
 
-        invoice_ids = self.env["account.invoice"].search(
+        invoice_ids = self.env['account.invoice'].search(
             [('date_invoice', '>=', start_date),
              ('date_invoice', '<=', end_date),
              ('company_id', '=', self.company_id.id),
              ('state', 'in', states),
              ('type', 'in', types)],
-            order='date_invoice asc').filtered(lambda inv: (inv.journal_id.purchase_type != "others") or
+            order='date_invoice asc').filtered(lambda inv: (inv.journal_id.purchase_type != 'others') or
                                                            (inv.journal_id.ncf_control is True))
 
         return invoice_ids
@@ -242,9 +249,30 @@ class DgiiReport(models.Model):
                 SaleLine.create(values)
 
     @api.multi
+    def _compute_608_data(self):
+        for rec in self:
+            CancelLine = self.env['dgii.cancel.report.line']
+            CancelLine.search([('dgii_report_id', '=', rec.id)]).unlink()
+
+            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'out_refund'])
+            line = 0
+            for inv in invoice_ids:
+                line += 1
+                values = {
+                    'dgii_report_id': rec.id,
+                    'line': line,
+                    'invoice_partner_id': inv.partner_id.id,
+                    'fiscal_invoice_number': inv.move_name,
+                    'invoice_date': inv.date_invoice,
+                    'anulation_type': inv.anulation_type,
+                }
+                CancelLine.create(values)
+
+    @api.multi
     def generate_report(self):
         self._compute_606_data()
         self._compute_607_data()
+        self._compute_608_data()
 
     def get_606_tree_view(self):
         return {
@@ -291,7 +319,7 @@ class DgiiReportPurchaseLine(models.Model):
     _name = 'dgii.reports.purchase.line'
     _order = 'line asc'
 
-    dgii_report_id = fields.Many2one("dgii.reports")
+    dgii_report_id = fields.Many2one('dgii.reports')
     line = fields.Integer()
 
     rnc_cedula = fields.Char(size=11)
@@ -318,14 +346,14 @@ class DgiiReportPurchaseLine(models.Model):
     legal_tip = fields.Float()
     payment_type = fields.Char()
 
-    invoice_partner_id = fields.Many2one("res.partner")
+    invoice_partner_id = fields.Many2one('res.partner')
     credit_note = fields.Boolean()
 
 
 class DgiiReportSaleLine(models.Model):
-    _name = "dgii.reports.sale.line"
+    _name = 'dgii.reports.sale.line'
 
-    dgii_report_id = fields.Many2one("dgii.reports")
+    dgii_report_id = fields.Many2one('dgii.reports')
     line = fields.Integer()
 
     rnc_cedula = fields.Char(size=11)
@@ -354,27 +382,27 @@ class DgiiReportSaleLine(models.Model):
     swap = fields.Float()
     others = fields.Float()
 
-    invoice_partner_id = fields.Many2one("res.partner")
+    invoice_partner_id = fields.Many2one('res.partner')
     credit_note = fields.Boolean()
 
 
 class DgiiCancelReportline(models.Model):
-    _name = "dgii.cancel.report.line"
+    _name = 'dgii.cancel.report.line'
 
-    dgii_report_id = fields.Many2one("dgii.reports")
+    dgii_report_id = fields.Many2one('dgii.reports')
     line = fields.Integer()
 
     fiscal_invoice_number = fields.Char(size=19)
     invoice_date = fields.Date()
     anulation_type = fields.Char(size=2)
 
-    invoice_partner_id = fields.Many2one("res.partner")
+    invoice_partner_id = fields.Many2one('res.partner')
 
 
 class DgiiExteriorReportline(models.Model):
-    _name = "dgii.exterior.report.line"
+    _name = 'dgii.exterior.report.line'
 
-    dgii_report_id = fields.Many2one("dgii.reports")
+    dgii_report_id = fields.Many2one('dgii.reports')
     line = fields.Integer()
 
     legal_name = fields.Char()
