@@ -42,7 +42,7 @@ class AccountInvoiceCancel(models.TransientModel):
          ("05", "05 - Cambio de Productos"),
          ("06", u"06 - Devolución de Productos"),
          ("07", u"07 - Omisión de Productos"),
-         ("08", "08 - Errores de Secuencia de NCF"),
+         ("08", "08 - Errores en Secuencia de NCF"),
          ("09", "09 - Por Cese de Operaciones"),
          ("10", u"10 - Pérdida o Hurto de Talonarios")],
         string=u"Tipo de Anulación", required=True,
