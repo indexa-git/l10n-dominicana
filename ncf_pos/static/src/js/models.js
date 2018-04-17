@@ -108,7 +108,7 @@ odoo.define('ncf_pos.models', function (require) {
                 id: 10001,
                 journal_id: [10001, 'Nota de Credito'],
                 journal: {type: 'cash', id: 10001, sequence: 10001},
-                css_class: 'highlight',
+                css_class: 'altlight',
                 show_popup: true,
                 popup_name: 'textinput',
                 popup_options: {}
