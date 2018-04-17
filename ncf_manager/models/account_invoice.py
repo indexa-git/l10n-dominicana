@@ -117,14 +117,15 @@ class AccountInvoice(models.Model):
 
     anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
-         ("04", "04 - Duplicidad de Factura"),
-         ("05", u"05 - Corrección de La Información"),
-         ("06", "06 - Cambio de Productos"),
-         ("07", u"07 - Devolución de Productos"),
-         ("08", u"08 - Omisión de Productos"),
-         ("09", "09 - Errores en Secuencia de NCF")],
+         ("04", u"04 - Corrección de la Información"),
+         ("05", "05 - Cambio de Productos"),
+         ("06", u"06 - Devolución de Productos"),
+         ("07", u"07 - Omisión de Productos"),
+         ("08", "08 - Errores en Secuencia de NCF"),
+         ("09", "09 - Por Cese de Operaciones"),
+         ("10", u"10 - Pérdida o Hurto de Talonarios")],
         string=u"Tipo de anulación", copy=False)
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
