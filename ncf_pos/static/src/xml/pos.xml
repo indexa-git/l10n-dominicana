@@ -676,9 +676,9 @@
 
     <t t-extend="PaymentScreen-Paymentlines">
         <t t-jquery=".col-name" t-operation="replace">
-            <t t-if="line.credit_note">
+            <t t-if="line.credit_note_id">
                 <td>
-                    <t t-esc='"NC: " + line.credit_note[1]'/>
+                    <t t-esc='"NC: " + line.note'/>
                 </td>
             </t>
             <t t-else="">
