@@ -93,6 +93,34 @@ odoo.define('ncf_pos.models', function (require) {
     }], {
         'after': 'product.product'
     });
+    models.load_models([{
+        label: "Custom Account Journal",
+        loaded: function (self, tmp) {
+            var cashregister_credit_note = $.extend({}, self.cashregisters[0]);
+
+            for (var n in self.cashregisters) {
+                if (self.cashregisters[n].journal.type.toLowerCase() == "cash") {
+                    cashregister_credit_note = $.extend({}, self.cashregisters[n]);
+                    break;
+                }
+            }
+            cashregister_credit_note = $.extend(cashregister_credit_note, {
+                id: 10001,
+                journal_id: [10001, 'Nota de Credito'],
+                journal: {type: 'cash', id: 10001, sequence: 10001},
+                css_class: 'highlight',
+                show_popup: true,
+                popup_name: 'textinput',
+                popup_options: {}
+            });
+
+            //Creamos una forma de pago especial para la Nota de Credito
+            self.cashregisters.push(cashregister_credit_note);
+            self.cashregisters_by_id[cashregister_credit_note.id] = cashregister_credit_note;
+        }
+    }], {
+        'after': 'account.journal'
+    });
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
@@ -218,8 +246,8 @@ odoo.define('ncf_pos.models', function (require) {
             var date = new Date(),
                 time = new Date(),
                 timezone = 'es-ES',
-                dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' },
-                timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+                dateOptions = {day: '2-digit', month: '2-digit', year: 'numeric'},
+                timeOptions = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true};
 
             return {
                 date: date.toLocaleDateString(timezone, dateOptions),
@@ -339,6 +367,29 @@ odoo.define('ncf_pos.models', function (require) {
             $.extend(json, {
                 line_qty_returned: this.line_qty_returned,
                 original_line_id: this.original_line_id
+            });
+            return json;
+        }
+    });
+
+    var super_paymentline = models.Paymentline.prototype;
+    models.Paymentline = models.Paymentline.extend({
+        initialize: function (attr, options) {
+            this.credit_note_id = null;
+            this.note = ''
+            super_paymentline.initialize.call(this, attr, options);
+        },
+        init_from_JSON: function (json) {
+            super_paymentline.init_from_JSON.call(this, json);
+            this.credit_note_id = json.credit_note_id;
+            this.note = json.note;
+        },
+        export_as_JSON: function () {
+            var json = super_paymentline.export_as_JSON.call(this);
+
+            $.extend(json, {
+                credit_note_id: this.credit_note_id,
+                note: this.note
             });
             return json;
         }
