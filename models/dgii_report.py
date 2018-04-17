@@ -294,31 +294,30 @@ class DgiiReportPurchaseLine(models.Model):
     dgii_report_id = fields.Many2one("dgii.reports")
     line = fields.Integer()
 
-    rnc_cedula = fields.Char(size=11)  # RNC o Cédula
-    identification_type = fields.Char(size=1)  # Tipo Id
-    expense_type = fields.Char(size=2)  # Tipo Bienes y Servicios Comprados
-    fiscal_invoice_number = fields.Char(size=19)  # NCF
-    modified_invoice_number = fields.Char(size=19)  # NCF o Documento Modificado
-    invoice_date = fields.Date()  # Fecha Comprobante
-    payment_date = fields.Date()  # Fecha Pago
-    service_total_amount = fields.Float()  # Monto Facturado en Servicios
-    good_total_amount = fields.Float()  # Monto Facturado en Bienes
-    invoiced_amount = fields.Float()  # Total Monto Facturado
-    invoiced_itbis = fields.Float()  # ITBIS Facturado
-    withholded_itbis = fields.Float()  # ITBIS Retenido
-    proportionality_tax = fields.Float()  # ITBIS sujeto a Proporcionalidad
-    cost_itbis = fields.Float()  # ITBIS llevado al Costo
-    advance_itbis = fields.Float()  # ITBIS por Adelantar
-    purchase_perceived_itbis = fields.Float()  # ITBIS percibido en compras
-    isr_withholding_type = fields.Char()  # Tipo de Retención en ISR
-    income_withholding = fields.Float()  # Monto Retención Renta
-    purchase_perceived_isr = fields.Float()  # ISR Percibido en compras
-    selective_tax = fields.Float()  # Impuesto Selectivo al Consumo
-    other_taxes = fields.Float()  # Otros Impuestos/Tasas
-    legal_tip = fields.Float()  # Monto Propina Legal
-    payment_type = fields.Char()  # Forma de Pago
+    rnc_cedula = fields.Char(size=11)
+    identification_type = fields.Char(size=1)
+    expense_type = fields.Char(size=2)
+    fiscal_invoice_number = fields.Char(size=19)
+    modified_invoice_number = fields.Char(size=19)
+    invoice_date = fields.Date()
+    payment_date = fields.Date()
+    service_total_amount = fields.Float()
+    good_total_amount = fields.Float()
+    invoiced_amount = fields.Float()
+    invoiced_itbis = fields.Float()
+    withholded_itbis = fields.Float()
+    proportionality_tax = fields.Float()
+    cost_itbis = fields.Float()
+    advance_itbis = fields.Float()
+    purchase_perceived_itbis = fields.Float()
+    isr_withholding_type = fields.Char()
+    income_withholding = fields.Float()
+    purchase_perceived_isr = fields.Float()
+    selective_tax = fields.Float()
+    other_taxes = fields.Float()
+    legal_tip = fields.Float()
+    payment_type = fields.Char()
 
-    # Los siguientes campos no estan en la Norma. Validar si van o no.
     invoice_partner_id = fields.Many2one("res.partner")
     credit_note = fields.Boolean()
 
@@ -329,33 +328,32 @@ class DgiiReportSaleLine(models.Model):
     dgii_report_id = fields.Many2one("dgii.reports")
     line = fields.Integer()
 
-    rnc_cedula = fields.Char(size=11)  # RNC, Cédula o Pasaporte
-    identification_type = fields.Char(size=1)  # Tipo Identificación
-    fiscal_invoice_number = fields.Char(size=19)  # Número Comprobante Fiscal
-    modified_invoice_number = fields.Char(size=19)  # Numero Comprobante Modificado
-    income_type = fields.Char()  # Tipo de Ingreso
-    invoice_date = fields.Date()  # Fecha Comprobante
-    withholding_date = fields.Date()  # Fecha de Retención
-    invoiced_amount = fields.Float()  # Monto Facturado
-    invoiced_itbis = fields.Float()  # ITBIS Facturado
-    third_withheld_itbis = fields.Float()  # ITBIS Retenido por Terceros
-    perceived_itbis = fields.Float()  # ITBIS Percibido
-    third_income_withholding = fields.Float()  # Retención de Renta por Terceros
-    perceived_isr = fields.Float()  # ISR Percibido
-    selective_tax = fields.Float()  # Impuesto Selectivo al Consumo
-    other_taxes = fields.Float()  # Otros Impuestos/Tasas
-    legal_tip = fields.Float()  # Monto Propina Legal
+    rnc_cedula = fields.Char(size=11)
+    identification_type = fields.Char(size=1)
+    fiscal_invoice_number = fields.Char(size=19)
+    modified_invoice_number = fields.Char(size=19)
+    income_type = fields.Char()
+    invoice_date = fields.Date()
+    withholding_date = fields.Date()
+    invoiced_amount = fields.Float()
+    invoiced_itbis = fields.Float()
+    third_withheld_itbis = fields.Float()
+    perceived_itbis = fields.Float()
+    third_income_withholding = fields.Float()
+    perceived_isr = fields.Float()
+    selective_tax = fields.Float()
+    other_taxes = fields.Float()
+    legal_tip = fields.Float()
 
     # Tipo de Venta/ Forma de pago
-    cash = fields.Float()  # Efectivo
-    bank = fields.Float()  # Cheque/ Transferencia/ Depósito
-    card = fields.Float()  # Tarjeta Débito/ Crédito
-    credit = fields.Float()  # Venta a Crédito
-    bond = fields.Float()  # Bonos o Certificados de Regalo
-    swap = fields.Float()  # Permuta
-    others = fields.Float()  # Otras Formas de Ventas
+    cash = fields.Float()
+    bank = fields.Float()
+    card = fields.Float()
+    credit = fields.Float()
+    bond = fields.Float()
+    swap = fields.Float()
+    others = fields.Float()
 
-    # Los siguientes campos no estan en la Norma. Validar si van o no.
     invoice_partner_id = fields.Many2one("res.partner")
     credit_note = fields.Boolean()
 
@@ -366,12 +364,11 @@ class DgiiCancelReportline(models.Model):
     dgii_report_id = fields.Many2one("dgii.reports")
     line = fields.Integer()
 
-    fiscal_invoice_number = fields.Char(size=19)  # Numero Comprobante Fiscal
-    invoice_date = fields.Date()  # Fecha Comprobante
-    anulation_type = fields.Char(size=2)  # Tipo Anulación
+    fiscal_invoice_number = fields.Char(size=19)
+    invoice_date = fields.Date()
+    anulation_type = fields.Char(size=2)
 
-    # Los siguientes campos no estan en la Norma. Validar si van o no.
-    invoice = fields.Many2one("account.invoice")
+    invoice_partner_id = fields.Many2one("res.partner")
 
 
 class DgiiExteriorReportline(models.Model):
@@ -380,23 +377,21 @@ class DgiiExteriorReportline(models.Model):
     dgii_report_id = fields.Many2one("dgii.reports")
     line = fields.Integer()
 
-    legal_name = fields.Char()  # Razón Social
-    tax_id_type = fields.Char()  # Tipo Id Tributaria
-    tax_id = fields.Char()  # Id tributaria
-    country_code = fields.Char()  # País destino
-    purchased_service_type = fields.Char()  # Tipo servicios adquirido
-    service_type_detail = fields.Char()  # Detalles del Servicio Adquirido
-    related_part = fields.Char()  # Parte relacionada
-    doc_number = fields.Char()  # Numero de documento
-    doc_date = fields.Date()  # Fecha documento
-    invoiced_amount = fields.Float()  # Monto facturado
-    isr_withholding_date = fields.Date()  # Fecha Retención ISR
-    presumed_income = fields.Float()  # Renta Presunta
-    withholded_isr = fields.Float()  # ISR retenido
+    legal_name = fields.Char()
+    tax_id_type = fields.Char()
+    tax_id = fields.Char()
+    country_code = fields.Char()
+    purchased_service_type = fields.Char()
+    service_type_detail = fields.Char()
+    related_part = fields.Char()
+    doc_number = fields.Char()
+    doc_date = fields.Date()
+    invoiced_amount = fields.Float()
+    isr_withholding_date = fields.Date()
+    presumed_income = fields.Float()
+    withholded_isr = fields.Float()
 
-    # Los siguientes campos no estan en la Norma. Validar si van o no.
     expense_type = fields.Char(size=2)
     invoice_date = fields.Date()
     payment_date = fields.Date()
     income_withholding = fields.Float()
-    invoice = fields.Many2one("account.invoice")

@@ -22,6 +22,7 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('tax_line_ids', 'tax_line_ids.amount', 'state')
     def _compute_taxes_fields(self):
+        """Compute invoice common taxes fields"""
         for inv in self:
             if inv.state != 'draft':
                 # Monto Impuesto Selectivo al Consumo
@@ -57,6 +58,7 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
     def _compute_amount_fields(self):
+        """Compute Purchase amount by product type"""
         for inv in self:
             if inv.type == 'in_invoice' and inv.state != 'draft':
                 # Monto calculado en servicio
@@ -70,6 +72,18 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
     def _compute_isr_withholding_type(self):
+        """Compute ISR Withholding Type
+
+        Keyword / Values:
+        01 -- Alquileres
+        02 -- Honorarios por Servicios
+        03 -- Otras Rentas
+        04 -- Rentas Presuntas
+        05 -- Intereses Pagados a Personas Jurídicas
+        06 -- Intereses Pagados a Personas Físicas
+        07 -- Retención por Proveedores del Estado
+        08 -- Juegos Telefónicos
+        """
         for inv in self:
             if inv.type == 'in_invoice' and inv.state != 'draft':
                 isr = [tax_line.tax_id for tax_line in inv.tax_line_ids if tax_line.tax_id.purchase_tax_type == 'isr']
@@ -81,7 +95,17 @@ class AccountInvoice(models.Model):
         return j['content'] if j else []
 
     def _get_payment_string(self, invoice_id):
-        """Compute Vendor Bills payment method string"""
+        """Compute Vendor Bills payment method string
+
+        Keyword / Values:
+        cash        -- Efectivo
+        bank        -- Cheques / Transferencias / Depósitos
+        card        -- Tarjeta Crédito / Débito
+        credit      -- Compra a Crédito
+        swap        -- Permuta
+        credit_note -- Notas de Crédito
+        mixed       -- Mixto
+        """
         payments = []
         p_string = ""
 
@@ -114,6 +138,7 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('tax_line_ids', 'tax_line_ids.amount', 'state')
     def _compute_invoiced_itbis(self):
+        """Compute invoice invoiced_itbis taking into account the currency"""
         for inv in self:
             if inv.state != 'draft':
                 amount = 0
@@ -152,21 +177,21 @@ class AccountInvoice(models.Model):
     # Fecha Pago                            --> Fecha en que la factura pasa a 'paid' ? *PENDIENTE VALIDAR*
     # ISR Percibido                         --> Este campo se va con 12 espacios en 0 para el 606
     # ITBIS Percibido                       --> Este campo se va con 12 espacios en 0 para el 606
-    service_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)  # Monto Facturado en Servicios
-    good_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)  # Monto Facturado en Bienes
-    invoiced_itbis = fields.Monetary(compute='_compute_invoiced_itbis', store=True)  # ITBIS Facturado
-    withholded_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True)  # Monto ITBIS Retenido
-    proportionality_tax = fields.Monetary(compute='_compute_taxes_fields', store=True)  # ITBIS sujeto a proporcionalidad
-    cost_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True)  # ITBIS llevado al Costo
-    advance_itbis = fields.Monetary(compute='_compute_advance_itbis', store=True)  # # ITBIS por Adelantar
-    isr_withholding_type = fields.Char(compute='_compute_isr_withholding_type', store=True, size=2)  # Tipo de Retención en ISR
-    income_withholding = fields.Monetary(compute='_compute_taxes_fields', store=True)  # Monto Retención Renta
-    selective_tax = fields.Monetary(compute='_compute_taxes_fields', store=True)  # Monto Impuesto Selectivo al Consumo
-    other_taxes = fields.Monetary(compute='_compute_taxes_fields', store=True)  # Monto Otros Impuestos/Tasas
-    legal_tip = fields.Monetary(compute='_compute_taxes_fields', store=True)  # Monto Propina Legal
-    payment_form = fields.Selection([('01', 'Cash'), ('02', 'Check / Transfer / Deposit'),  # Forma de pago
+    service_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)
+    good_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)
+    invoiced_itbis = fields.Monetary(compute='_compute_invoiced_itbis', store=True)
+    withholded_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    proportionality_tax = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    cost_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    advance_itbis = fields.Monetary(compute='_compute_advance_itbis', store=True)
+    isr_withholding_type = fields.Char(compute='_compute_isr_withholding_type', store=True, size=2)
+    income_withholding = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    selective_tax = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    other_taxes = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    legal_tip = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    payment_form = fields.Selection([('01', 'Cash'), ('02', 'Check / Transfer / Deposit'),
                                      ('03', 'Credit Card / Debit Card'), ('04', 'Credit'),
                                      ('05', 'Swap'), ('06', 'Credit Note'), ('07', 'Mixed')],
                                     compute='_compute_in_invoice_payment_form', store=True)
-    third_withheld_itbis = fields.Monetary(compute='_compute_third_withheld', store=True)  # ITBIS Retenido por Terceros
-    third_income_withholding = fields.Monetary(compute='_compute_third_withheld', store=True)  # Retención de Renta por Terceros
+    third_withheld_itbis = fields.Monetary(compute='_compute_third_withheld', store=True)
+    third_income_withholding = fields.Monetary(compute='_compute_third_withheld', store=True)
