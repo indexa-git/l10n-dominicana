@@ -133,7 +133,33 @@ odoo.define('ncf_pos.models', function (require) {
 
             return label[1];
         },
+        /**
+         * Get the next ncf sequence
+         */
+        get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_return_order) {
+            var self = this;
+            var order = self.get_order();
+            var args = [
+                sale_fiscal_type,
+                invoice_journal_id,
+                is_return_order
+            ];
 
+            var ncfPromise = rpc.query({
+                model: 'pos.order',
+                method: 'get_next_ncf',
+                args: args,
+            }, {
+                timeout: 30000,
+                shadow: ""
+            }).then(function (next_ncf) {
+                order.ncf = next_ncf;
+                console.info("Order NCF validated: " + next_ncf);
+            }).fail(function (type, error){
+                console.error('The following error has been ocurred', error);
+            });
+            return ncfPromise;
+        },
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
         // an invoice. This method can fail in various ways:
@@ -145,12 +171,9 @@ odoo.define('ncf_pos.models', function (require) {
             var self = this;
             var invoiced = new $.Deferred();
 
-            if (!order.get_client()) {
-                invoiced.reject({code: 400, message: 'Missing Customer', data: {}});
-                return invoiced;
+            if (order) {
+                var order_id = this.db.add_order(order.export_as_JSON());
             }
-
-            var order_id = this.db.add_order(order.export_as_JSON());
 
             this.flush_mutex.exec(function () {
                 var done = new $.Deferred(); // holds the mutex
@@ -160,7 +183,7 @@ odoo.define('ncf_pos.models', function (require) {
                 // the client will believe it wasn't successfully sent, and very bad
                 // things will happen as a duplicate will be sent next time
                 // so we must make sure the server detects and ignores duplicated orders
-                var transfer = self._flush_orders([self.db.get_order(order_id)], {
+                var transfer = self._flush_orders(self.db.get_orders(), {
                     timeout: 30000,
                     to_invoice: true
                 });
@@ -244,6 +267,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.is_return_order = false;
             this.return_order_id = false;
             this.orderlineList = [];
+            this.ncf = false;
             _super_order.initialize.call(this, attributes, options);
             if (this.pos.config.iface_invoicing) {
                 var pos_default_partner = this.pos.config.pos_default_partner_id;
@@ -265,6 +289,8 @@ odoo.define('ncf_pos.models', function (require) {
             this.is_return_order = json.is_return_order;
             this.return_order_id = json.return_order_id;
             this.amount_total = json.amount_total;
+            this.to_invoice = json.to_invoice;
+            this.ncf = json.ncf;
             if (this.orderlines && $.isArray(this.orderlines.models)) {
                 this.orderlines.models.forEach(function (line) {
                     var productDefCode = line.product.default_code;
@@ -287,7 +313,9 @@ odoo.define('ncf_pos.models', function (require) {
                 return_status: this.return_status,
                 is_return_order: this.is_return_order,
                 return_order_id: this.return_order_id,
-                amount_total: parseFloat(json.amount_total || 0)
+                amount_total: parseFloat(json.amount_total || 0),
+                to_invoice: this.to_invoice,
+                ncf: this.ncf
             });
             return json;
         }
