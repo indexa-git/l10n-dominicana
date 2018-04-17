@@ -134,6 +134,8 @@ class AccountInvoice(models.Model):
                 payment_dict = {'cash': '01', 'bank': '02', 'card': '03', 'credit': '04', 'swap': '05',
                                 'credit_note': '06', 'mixed': '07'}
                 inv.payment_form = payment_dict.get(self._get_payment_string(inv))
+            else:
+                inv.payment_form = '04'
 
     @api.multi
     @api.depends('tax_line_ids', 'tax_line_ids.amount', 'state')
