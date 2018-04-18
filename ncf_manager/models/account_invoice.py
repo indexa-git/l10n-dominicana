@@ -34,6 +34,23 @@ except(ImportError, IOError) as err:
     _logger.debug(err)
 
 
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    @api.multi
+    def _prepare_invoice(self):
+        """
+        Prepare the dict of values to create the new invoice for a sales order. This method may be
+        overridden to implement custom invoice generation (making sure to call super() to establish
+        a clean extension chain).
+        """
+        self.ensure_one()
+        invoice_vals = super(SaleOrder, self)._prepare_invoice()
+        invoice_vals['sale_fiscal_type'] = self.partner_id.sale_fiscal_type
+
+        return invoice_vals
+
+
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
@@ -90,7 +107,8 @@ class AccountInvoice(models.Model):
                                          ("fiscal", u"Crédito Fiscal"),
                                          ("gov", "Gubernamental"),
                                          ("special", u"Regímenes Especiales"),
-                                         ("unico", u"Único Ingreso")])
+                                         ("unico", u"Único Ingreso")],
+                                        string='NCF Para')
 
     income_type = fields.Selection(
         [('01', '01 - Ingresos por operaciones (No financieros)'),
@@ -99,7 +117,8 @@ class AccountInvoice(models.Model):
          ('04', '04 - Ingresos por Arrendamientos'),
          ('05', '05 - Ingresos por Venta de Activo Depreciable'),
          ('06', '06 - Otros Ingresos')],
-        string="Tipo de Ingreso")
+        string='Tipo de Ingreso',
+        default=lambda self: self._context.get('income_type', '01'))
 
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
@@ -215,15 +234,14 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
-        super(AccountInvoice, self)._onchange_journal_id()
-        if self.journal_id.type == 'purchase' \
-            and self.journal_id.purchase_type == "minor":
+        res = super(AccountInvoice, self)._onchange_journal_id()
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
             self.partner_id = self.company_id.partner_id.id
+        return res
 
     @api.onchange('journal_id', 'partner_id')
     def onchange_journal_id(self):
-        if self.journal_id.type == 'purchase' \
-            and self.journal_id.purchase_type == "minor":
+        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
             self.partner_id = self.company_id.partner_id.id
 
         if self.partner_id.id == self.company_id.partner_id.id:
@@ -305,16 +323,16 @@ class AccountInvoice(models.Model):
 
             if inv.type == "out_invoice":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'client.invoice.number')
+                    'client.invoice.number')
             if inv.type == "in_invoice":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'supplier.invoice.number')
+                    'supplier.invoice.number')
             if inv.type == "in_refund":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'debit.note.invoice.number')
+                    'debit.note.invoice.number')
             if inv.type == "out_refund":
                 inv.internal_sequence = sequence_obj.next_by_code(
-                'credit.note.invoice.number')
+                    'credit.note.invoice.number')
 
         return super(AccountInvoice, self).action_invoice_open()
 

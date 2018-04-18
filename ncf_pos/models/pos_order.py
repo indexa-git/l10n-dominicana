@@ -1,4 +1,6 @@
-from odoo import models, fields, api, exceptions, _
+# -*- coding: utf-8 -*-
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 
 class PosOrder(models.Model):
@@ -142,7 +144,7 @@ class PosOrder(models.Model):
             return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
                                                        sale_fiscal_type="credit_note").next_by_id()
         else:
-            raise exceptions.ValidationError(_("You have not specified a sales journal"))
+            raise ValidationError(_("You have not specified a sales journal"))
 
     @api.multi
     def action_pos_order_invoice(self):
@@ -162,8 +164,7 @@ class PosOrder(models.Model):
                 out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
                 if out_refund_invoice:
                     move_line_ids = out_refund_invoice.move_id.line_ids
-                    move_line_ids = move_line_ids.filtered(lambda
-                                                               r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
+                    move_line_ids = move_line_ids.filtered(lambda r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
                     for move_line_id in move_line_ids:
                         self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
 
