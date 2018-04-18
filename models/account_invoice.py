@@ -179,6 +179,12 @@ class AccountInvoice(models.Model):
             if inv.state != 'draft':
                 inv.advance_itbis = inv.invoiced_itbis - inv.cost_itbis
 
+    @api.multi
+    @api.depends('journal_id.purchase_type')
+    def _compute_is_exterior(self):
+        for inv in self:
+            inv.is_exterior = True if inv.journal_id.purchase_type == 'exterior' else False
+
     # ISR Percibido                         --> Este campo se va con 12 espacios en 0 para el 606
     # ITBIS Percibido                       --> Este campo se va con 12 espacios en 0 para el 606
     payment_date = fields.Date(compute='_compute_taxes_fields', store=True)
@@ -200,3 +206,38 @@ class AccountInvoice(models.Model):
                                     compute='_compute_in_invoice_payment_form', store=True)
     third_withheld_itbis = fields.Monetary(compute='_compute_third_withheld', store=True)
     third_income_withholding = fields.Monetary(compute='_compute_third_withheld', store=True)
+    is_exterior = fields.Boolean(compute='_compute_is_exterior', store=True)
+    service_type = fields.Selection([('01', 'Gastos de Personal'),
+                                     ('02', 'Gastos por Trabajos, Suministros y Servicios'),
+                                     ('03', 'Arrendamientos'),
+                                     ('04', 'Gastos de Activos Fijos'),
+                                     ('05', 'Gastos de Representación'),
+                                     ('06', 'Gastos Financieros'),
+                                     ('07', 'Gastos de Seguros'),
+                                     ('08', 'Gastos por Regalías y otros Intangibles')])
+    service_type_detail = fields.Selection(
+        [('11', 'Sueldo y Salario'),
+         ('12', 'Otros Gastos de Personal'),
+         ('21', 'Honorarios por Servicios Profesionales (Personas Morales)'),
+         ('22', 'Honorarios por Servicios Profesionales (Personas Físicas)'),
+         ('23', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Físicas)'),
+         ('24', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Morales)'),
+         ('31', 'De Inmuebles (A Personas Físicas)'),
+         ('32', 'De Inmuebles (A Personas Morales)'),
+         ('33', 'Otros Arrendamientos'),
+         ('41', 'Reparación'),
+         ('42', 'Mantenimiento'),
+         ('51', 'Relaciones Públicas'),
+         ('52', 'Publicidad Promocional'),
+         ('53', 'Promocional'),
+         ('54', 'Otros Gastos de Representación'),
+         ('61', 'Por Préstamos con Bancos'),
+         ('62', 'Por Préstamos con Financiamiento'),
+         ('63', 'Por Préstamos con Personas Físicas'),
+         ('64', 'Por Préstamos con Organismos Internacionales'),
+         ('65', 'Otros Gastos Financieros'),
+         ('71', 'Gastos de Seguro'),
+         ('81', 'Cesión / Uso Marca'),
+         ('82', 'Transferencias de Know-How'),
+         ('83', 'Cesión / Uso de Patente'),
+         ('84', 'Otras Regalías')])

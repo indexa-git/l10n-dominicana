@@ -43,6 +43,12 @@
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='reference']" position="before">
+                <field name="is_exterior" invisible="1"/>
+                <field name="service_type" attrs="{'invisible': [('is_exterior', '=', False)], 'required': True}"/>
+                <field name="service_type_detail"
+                       attrs="{'invisible': [('is_exterior', '=', False)], 'required': True}"/>
+            </xpath>
             <xpath expr="//page[@name='other_info']" position="after">
                 <page name="dgii_fields" string="DGII">
                     <group>
