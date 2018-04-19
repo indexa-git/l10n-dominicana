@@ -5,7 +5,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
-    models.load_fields('pos.config', ['pos_default_partner_id', 'print_pdf']);
+    models.load_fields('pos.config', ['default_partner_id', 'print_pdf']);
     models.load_fields("res.company", ['street']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
@@ -108,7 +108,7 @@ odoo.define('ncf_pos.models', function (require) {
                 id: 10001,
                 journal_id: [10001, 'Nota de Credito'],
                 journal: {type: 'cash', id: 10001, sequence: 10001},
-                css_class: 'highlight',
+                css_class: 'altlight',
                 show_popup: true,
                 popup_name: 'textinput',
                 popup_options: {}
@@ -298,7 +298,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.ncf = false;
             _super_order.initialize.call(this, attributes, options);
             if (this.pos.config.iface_invoicing) {
-                var pos_default_partner = this.pos.config.pos_default_partner_id;
+                var pos_default_partner = this.pos.config.default_partner_id;
 
                 this.to_invoice = true;
                 if (pos_default_partner) {

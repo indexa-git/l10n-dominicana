@@ -299,7 +299,7 @@
                     </span>
                 </section>
                 <section class="full-content">
-                    <div class='window'>
+                    <div class='window touch-scrollable scrollable-y'>
                         <section class='subwindow collapsed'>
                             <div class='subwindow-container collapsed'>
                                 <div class='subwindow-container-fix order-details-contents'>
@@ -667,7 +667,7 @@
 
     <t t-extend="PaymentScreen-Paymentmethods">
         <t t-jquery=".paymentmethod" t-operation="replace">
-            <div t-attf-class="button paymentmethod {{ cashregister.css_class }}"
+            <div t-attf-class="button paymentmethod {{ cashregister.css_class || '' }}"
                  t-att-data-id="cashregister.journal_id[0]">
                 <t t-esc="cashregister.journal_id[1]"/>
             </div>
