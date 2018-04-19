@@ -774,6 +774,14 @@ odoo.define('ncf_pos.screens', function (require) {
                 }
                 this._super(id);
             }
+        },
+        payment_input: function (input) {
+            var order = this.pos.get_order();
+
+            //Evitamos que se pueda cambiar el monto de la Nota de Credito
+            if (order.selected_paymentline && order.selected_paymentline.cashregister.id == 10001)
+                return false;
+            this._super(input);
         }
     });
 
