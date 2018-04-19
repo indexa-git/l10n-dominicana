@@ -1,8 +1,19 @@
+import logging
 from odoo import models, fields, api, exceptions, _
+
+_logger = logging.getLogger(__name__)
 
 
 class PosOrder(models.Model):
     _inherit = "pos.order"
+
+    @api.depends('statement_ids', 'lines.price_subtotal_incl', 'lines.discount')
+    def _compute_amount_all(self):
+        super(PosOrder, self)._compute_amount_all()
+        for order in self:
+            refund_payments = 0
+            refund_payments += sum(payment.credit for payment in order.refund_payment_account_move_line_ids)
+            order.amount_paid += refund_payments
 
     is_return_order = fields.Boolean(string='Devolver Orden', copy=False)
     return_order_id = fields.Many2one('pos.order', 'Devolver Orden de', readonly=True, copy=False)
@@ -65,7 +76,41 @@ class PosOrder(models.Model):
     def create_from_ui(self, orders):
         orders = self.check_refund_order_from_ui(orders)
         res = super(PosOrder, self).create_from_ui(orders)
+        self = self.browse(res)
+        self.reconcile_befores_session_close()
         return res
+
+    def reconcile_befores_session_close(self):
+        moves = self.env['account.move.line']
+        for rec in self:
+            for st_line in rec.statement_ids:
+                if st_line.account_id and not st_line.journal_entry_ids.ids:
+                    st_line.sudo().fast_counterpart_creation()
+                elif not st_line.journal_entry_ids.ids:
+                    _logger.error('Debe revisar las formas de pago de la order {}'.format(rec.name))
+                moves = (moves | st_line.journal_entry_ids)
+                # moves.sudo().post()
+        self.sudo()._reconcile_payments()
+
+    def _reconcile_payments(self):
+        for order in self:
+            aml = order.statement_ids.mapped('journal_entry_ids') \
+                  | order.account_move.line_ids | order.invoice_id.move_id.line_ids
+
+            aml = aml.filtered(lambda
+                                   r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == order.partner_id.commercial_partner_id)
+            if order.refund_payment_account_move_line_ids:
+                aml |= order.refund_payment_account_move_line_ids
+
+            try:
+                aml.reconcile()
+            except:
+                # There might be unexpected situations where the automatic reconciliation won't
+                # work. We don't want the user to be blocked because of this, since the automatic
+                # reconciliation is introduced for convenience, not for mandatory accounting
+                # reasons.
+                _logger.error('Reconciliation did not work for order %s', order.name)
+                continue
 
     @api.model
     def _order_fields(self, ui_order):
@@ -74,7 +119,7 @@ class PosOrder(models.Model):
             'is_return_order': ui_order.get('is_return_order') or False,
             'return_order_id': ui_order.get('return_order_id') or False,
             'return_status': ui_order.get('return_status') or False,
-            'ncf': ui_order['ncf']
+            'ncf': ui_order.get("ncf", False)
         })
         return res
 
