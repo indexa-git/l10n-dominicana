@@ -520,58 +520,58 @@ odoo.define('ncf_pos.screens', function (require) {
                     order.selected_paymentline.set_amount(order.get_total_with_tax()); //Add paymentline for total+tax
                 }
                 this.order_changes();
+                this.$('.button.confirm').click(function () {
+                    self.gui.show_popup('confirm', {
+                        title: _t('Create') + ' ' + _t('Refund Order'),
+                        body: _t('Are you sure you want to create this refund order?'),
+                        confirm: function () {
+                            self.validate_order();
+                        }
+                    });
+                    return false;
+                }).addClass('highlight');
+                this.$('.button.cancel').click(function () {
+                    $('.order-selector .deleteorder-button').click();
+                    return false;
+                });
+                this.$('.button-custom.edit').click(function () {
+                    var original_order = self.pos.db.order_by_id[order.return_order_id];
+                    var original_orderlines = [];
+                    var return_product = {};
+
+                    order.orderlineList.forEach(function (obj) {
+                        return_product[obj.product_id] = obj.quantity;
+                    });
+                    original_order.lines.forEach(function (line_id) {
+                        var line = $.extend({}, self.pos.db.line_by_id[line_id]);
+                        var product = self.pos.db.get_product_by_id(line.product_id[0]);
+
+                        if (product != null && !product.not_returnable && line.qty - line.line_qty_returned > 0) {
+                            line.current_return_qty = return_product[line.product_id[0]] || 0;
+                            original_orderlines.push(line);
+                        }
+                    });
+                    self.gui.show_popup('refund_order_popup', {
+                        disable_keyboard_handler: true,
+                        order: original_order,
+                        orderlines: original_orderlines,
+                        is_partial_return: true,
+                        mode: 'edit',
+                        confirm: function () {
+                            var paymentlines = order.get_paymentlines();
+
+                            for (var n = paymentlines.length - 1; n >= 0; n--) {
+                                order.paymentlines.remove(paymentlines[n]);
+                            }
+                        }
+                    });
+                    return false;
+                });
             } else {
                 paymentContents.removeClass('oe_hidden');
                 refundContents.addClass('oe_hidden');
             }
             this.$('.button.js_invoice').remove();
-            this.$('.confirm').click(function () {
-                self.gui.show_popup('confirm', {
-                    title: _t('Create') + ' ' + _t('Refund Order'),
-                    body: _t('Are you sure you want to create this refund order?'),
-                    confirm: function () {
-                        self.validate_order();
-                    }
-                });
-                return false;
-            }).addClass('highlight');
-            this.$('.edit').click(function () {
-                var original_order = self.pos.db.order_by_id[order.return_order_id];
-                var original_orderlines = [];
-                var return_product = {};
-
-                order.orderlineList.forEach(function (obj) {
-                    return_product[obj.product_id] = obj.quantity;
-                });
-                original_order.lines.forEach(function (line_id) {
-                    var line = $.extend({}, self.pos.db.line_by_id[line_id]);
-                    var product = self.pos.db.get_product_by_id(line.product_id[0]);
-
-                    if (product != null && !product.not_returnable && line.qty - line.line_qty_returned > 0) {
-                        line.current_return_qty = return_product[line.product_id[0]] || 0;
-                        original_orderlines.push(line);
-                    }
-                });
-                self.gui.show_popup('refund_order_popup', {
-                    disable_keyboard_handler: true,
-                    order: original_order,
-                    orderlines: original_orderlines,
-                    is_partial_return: true,
-                    mode: 'edit',
-                    confirm: function () {
-                        var paymentlines = order.get_paymentlines();
-
-                        for (var n = paymentlines.length - 1; n >= 0; n--) {
-                            order.paymentlines.remove(paymentlines[n]);
-                        }
-                    }
-                });
-                return false;
-            });
-            this.$('.cancel').click(function () {
-                $('.order-selector .deleteorder-button').click();
-                return false;
-            });
         },
         /**
          * Making some things about validation and calling to backend to get the ncf
