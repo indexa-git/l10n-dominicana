@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class IrSequence(models.Model):
@@ -39,12 +39,21 @@ class IrSequence(models.Model):
             if self._context.get('ir_sequence_date'):
                 dt = self._context.get('ir_sequence_date')
 
-            seq_date = self.env['ir.sequence.date_range'].search([('sale_fiscal_type', '=', sale_fiscal_type), ('sequence_id', '=', self.id), ('date_from', '<=', dt), ('date_to', '>=', dt)], limit=1)
+            seq_date = self.env['ir.sequence.date_range'].search(
+                [('sale_fiscal_type', '=', sale_fiscal_type), ('sequence_id', '=', self.id), ('date_from', '<=', dt),
+                 ('date_to', '>=', dt)], limit=1)
             if not seq_date:
                 seq_date = self._create_date_range_seq(dt)
             return seq_date.with_context(ir_sequence_date_range=seq_date.date_from)._next()
         else:
             return super(IrSequence, self)._next()
+
+    @api.multi
+    def write(self, vals):
+        if self._context.get("params", {}).get("model", {}) == "account.invoice":
+            return True
+
+        return super(IrSequence, self).write(vals)
 
 
 class IrSequenceDateRange(models.Model):

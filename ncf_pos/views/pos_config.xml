@@ -9,8 +9,8 @@
 
             <xpath expr="//div[@id='iface_invoicing']//div[2]//div[2]">
                 <div class="row mt16">
-                    <label string="Cliente de consumo" for="pos_default_partner_id" class="col-md-3 o_light_label"/>
-                    <field name="pos_default_partner_id"/>
+                    <label string="Cliente de consumo" for="default_partner_id" class="col-md-3 o_light_label"/>
+                    <field name="default_partner_id"/>
                 </div>
                 <div class="row mt16">
                     <label string="Imprimir PDF" for="print_pdf" class="col-md-3 o_light_label"/>

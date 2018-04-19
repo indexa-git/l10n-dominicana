@@ -449,6 +449,48 @@ odoo.define('ncf_pos.screens', function (require) {
         widget: OrderRefundPopup
     });
 
+    popups.include({
+        /**
+         * Show the popup
+         * @param {(string, Object)} options - The title or optional configuration for the popup.
+         * @param {boolean} options.disable_keyboard_handler - Disable the keyboard capture for the payment screen
+         * when the popup is opened.
+         * @param {string} options.input_name - Indicate the name of text input and is used for show the
+         * description of it for the textinput and textarea popups
+         * @param {string} options.text_input_value - Indicate the initial value of text input for the textinput
+         * and textarea popups
+         */
+        show: function (options) {
+            this._super(options);
+        },
+        renderElement: function () {
+            this._super();
+            //Ponemos un valor por defecto al input del popup TextInput o TextArea
+            if (["TextInputPopupWidget", "TextAreaPopupWidget"].indexOf(this.template) > -1) {
+                var self = this;
+                var input = this.$('input,textarea');
+
+                if (input.length > 0) {
+                    //Ponemos un valor al input
+                    input.val(this.options.text_input_value || '');
+                    //Ejecutamos el clic al boton confirm al presionar Enter
+                    input.on('keypress', function (event) {
+                        if (event.which === 13) {
+                            self.click_confirm(this.value);
+                            event.stopPropagation();
+                            event.preventDefault();
+                        }
+                    });
+                }
+            }
+        },
+        close: function () {
+            this._super();
+            if (this.options && this.options.hasOwnProperty('text_input_value'))
+                this.options.text_input_value = '';
+        }
+    });
+
     screens.PaymentScreenWidget.include({
         show: function () {
             var self = this;
@@ -489,7 +531,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     body: _t('Are you sure you want to create this refund order?'),
                     confirm: function () {
                         self.validate_order();
-                    },
+                    }
                 });
                 return false;
             }).addClass('highlight');
@@ -529,6 +571,70 @@ odoo.define('ncf_pos.screens', function (require) {
             this.$('.cancel').click(function () {
                 $('.order-selector .deleteorder-button').click();
                 return false;
+            });
+        },
+        /**
+         * Making some things about validation and calling to backend to get the ncf
+         */
+        finalize_validation: function() {
+            var self = this;
+            var order = this.pos.get_order();
+            var client = order.get_client();
+            var client_sale_fiscal_type = client.sale_fiscal_type;
+            var invoice_journal_id = this.pos.config.invoice_journal_id[0];
+            var is_return_order = order.is_return_order;
+
+            if (order.is_paid_with_cash() && this.pos.config.iface_cashdrawer) {
+
+                    this.pos.proxy.open_cashbox();
+            }
+
+            order.initialize_validation_date();
+            order.finalized = true;
+            var ncf_call = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_return_order);
+
+            ncf_call.always(function () {
+                if (order.is_to_invoice()) {
+                    var invoiced = self.pos.push_and_invoice_order(order);
+                    self.invoicing = true;
+
+                    invoiced.fail(function(error){
+                        self.invoicing = false;
+                        order.finalized = false;
+                        if (error.message === 'Missing Customer') {
+                            self.gui.show_popup('confirm',{
+                                'title': _t('Please select the Customer'),
+                                'body': _t('You need to select the customer before you can invoice an order.'),
+                                confirm: function(){
+                                    self.gui.show_screen('clientlist');
+                                },
+                            });
+                        } else if (error.code < 0) {        // XmlHttpRequest Errors
+                            self.gui.show_popup('error',{
+                                'title': _t('The order could not be sent'),
+                                'body': _t('Check your internet connection and try again.'),
+                            });
+                        } else if (error.code === 200) {    // OpenERP Server Errors
+                            self.gui.show_popup('error-traceback',{
+                                'title': error.data.message || _t("Server Error"),
+                                'body': error.data.debug || _t('The server encountered an error while receiving your order.'),
+                            });
+                        } else {                            // ???
+                            self.gui.show_popup('error',{
+                                'title': _t("Unknown Error"),
+                                'body':  _t("The order could not be sent to the server due to an unknown error"),
+                            });
+                        }
+                    });
+
+                    invoiced.done(function(){
+                        self.invoicing = false;
+                        self.gui.show_screen('receipt');
+                    });
+                } else {
+                    self.pos.push_order(order);
+                    self.gui.show_screen('receipt');
+                }
             });
         },
         validate_order: function (force_validation) {
@@ -584,28 +690,90 @@ odoo.define('ncf_pos.screens', function (require) {
             this._super();
         },
         init: function (parent, options) {
-            this._super(parent, options);
-            //Agregamos una forma de pago personalizada para llamar el popup de Nota de Credito
-            this.pos.cashregisters.push({
-                journal_id: [101, 'Nota de Credito'],
-                journal: {type: 'cash', id: 10001, sequence: 10001},
-                css_class: 'highlight',
-                show_popup: true,
-                popup_name: 'alert',
-                popup_options: {title: 'Crear Nota de Credito'}
-            });
-        },
-        click_paymentmethods: function (id) {
-            for (var i = 0; i < this.pos.cashregisters.length; i++) {
-                var cashregister = this.pos.cashregisters[i];
+            var self = this,
+                popup_options = {
+                    title: 'Digite el número de NCF de la Nota de Crédito',
+                    disable_keyboard_handler: true,
+                    input_name: 'ncf',
+                    text_input_value: '',
+                    confirm: function (input_value) {
+                        var msg_error = "";
 
-                //Evaluamos que sea una forma de pago personalizada que lanza un popup
-                if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
-                    this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
-                    return false;
+                        rpc.query({
+                            model: 'pos.order',
+                            method: 'credit_note_info_from_ui',
+                            args: [input_value]
+                        }, {})
+                            .then(function (result) {
+                                var residual = parseFloat(result.residual) || 0;
+
+                                if (result.id === false) {
+                                    msg_error = _t("La nota de credito no existe.");
+                                } else if (residual < 1) {
+                                    msg_error = _t("El balance de la Nota de Credito es 0.");
+                                }
+                                else {
+                                    var order = self.pos.get_order();
+                                    var cashregister = self.pos.cashregisters_by_id[10001];
+                                    var paymentline = order.paymentlines.find(function (pl) {
+                                        return pl.note == input_value
+                                    });
+
+                                    if (paymentline) {
+                                        msg_error = "Esta Nota de Credito ya esta aplicada a la Orden";
+                                    }
+                                    else {
+                                        order.add_paymentline(cashregister);
+                                        order.selected_paymentline.credit_note_id = result.id;
+                                        order.selected_paymentline.note = input_value;
+                                        order.selected_paymentline.set_amount(residual); //Add paymentline for residual
+                                        self.reset_input();
+                                        self.order_changes();
+                                        self.render_paymentlines();
+                                        return false;
+                                    }
+                                }
+                                popup_options.text_input_value = input_value;
+                                self.gui.show_popup('error', {
+                                    title: _t("Search") + " Nota de Credito",
+                                    body: msg_error,
+                                    disable_keyboard_handler: true,
+                                    cancel: function () {
+                                        self.gui.show_popup('textinput', popup_options);
+                                    }
+                                });
+                            });
+                    }
+                };
+
+            this._super(parent, options);
+            for (var n in this.pos.cashregisters) {
+                if (this.pos.cashregisters[n].journal.id == 10001) {
+                    this.pos.cashregisters[n].popup_options = popup_options;
+                    break;
                 }
             }
-            this._super(id);
+        },
+        click_paymentmethods: function (id) {
+            //Validamos que la orden tenga saldo pendiente antes de agregar una nueva linea de pago
+            if (this.pos.get_order().get_due() <= 0) {
+                this.gui.show_popup('alert', {
+                    title: _t("Payment"),
+                    body: _t("This order has no pending balance."),
+                    disable_keyboard_handler: true
+                });
+            } else {
+                for (var i = 0; i < this.pos.cashregisters.length; i++) {
+                    var cashregister = this.pos.cashregisters[i];
+
+                    //Evaluamos si es una forma de pago especial que abre un popup
+                    if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
+                        this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
+                        return false;
+                    }
+                }
+                this._super(id);
+            }
         }
     });
 
@@ -722,6 +890,8 @@ odoo.define('ncf_pos.screens', function (require) {
 
             if (!current_screen || !current_screen.keyboard_handler) return;
 
+            $('body').on('keypress', current_screen.keyboard_handler);
+            $('body').on('keydown', current_screen.keyboard_keydown_handler);
             window.document.body.addEventListener('keypress', current_screen.keyboard_handler);
             window.document.body.addEventListener('keydown', current_screen.keyboard_keydown_handler);
         },

@@ -5,7 +5,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
-    models.load_fields('pos.config', ['pos_default_partner_id', 'print_pdf']);
+    models.load_fields('pos.config', ['default_partner_id', 'print_pdf']);
     models.load_fields("res.company", ['street']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
@@ -93,6 +93,34 @@ odoo.define('ncf_pos.models', function (require) {
     }], {
         'after': 'product.product'
     });
+    models.load_models([{
+        label: "Custom Account Journal",
+        loaded: function (self, tmp) {
+            var cashregister_credit_note = $.extend({}, self.cashregisters[0]);
+
+            for (var n in self.cashregisters) {
+                if (self.cashregisters[n].journal.type.toLowerCase() == "cash") {
+                    cashregister_credit_note = $.extend({}, self.cashregisters[n]);
+                    break;
+                }
+            }
+            cashregister_credit_note = $.extend(cashregister_credit_note, {
+                id: 10001,
+                journal_id: [10001, 'Nota de Credito'],
+                journal: {type: 'cash', id: 10001, sequence: 10001},
+                css_class: 'altlight',
+                show_popup: true,
+                popup_name: 'textinput',
+                popup_options: {}
+            });
+
+            //Creamos una forma de pago especial para la Nota de Credito
+            self.cashregisters.push(cashregister_credit_note);
+            self.cashregisters_by_id[cashregister_credit_note.id] = cashregister_credit_note;
+        }
+    }], {
+        'after': 'account.journal'
+    });
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
@@ -133,7 +161,33 @@ odoo.define('ncf_pos.models', function (require) {
 
             return label[1];
         },
+        /**
+         * Get the next ncf sequence
+         */
+        get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_return_order) {
+            var self = this;
+            var order = self.get_order();
+            var args = [
+                sale_fiscal_type,
+                invoice_journal_id,
+                is_return_order
+            ];
 
+            var ncfPromise = rpc.query({
+                model: 'pos.order',
+                method: 'get_next_ncf',
+                args: args,
+            }, {
+                timeout: 30000,
+                shadow: ""
+            }).then(function (next_ncf) {
+                order.ncf = next_ncf;
+                console.info("Order NCF validated: " + next_ncf);
+            }).fail(function (type, error){
+                console.error('The following error has been ocurred', error);
+            });
+            return ncfPromise;
+        },
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
         // an invoice. This method can fail in various ways:
@@ -145,12 +199,9 @@ odoo.define('ncf_pos.models', function (require) {
             var self = this;
             var invoiced = new $.Deferred();
 
-            if (!order.get_client()) {
-                invoiced.reject({code: 400, message: 'Missing Customer', data: {}});
-                return invoiced;
+            if (order) {
+                var order_id = this.db.add_order(order.export_as_JSON());
             }
-
-            var order_id = this.db.add_order(order.export_as_JSON());
 
             this.flush_mutex.exec(function () {
                 var done = new $.Deferred(); // holds the mutex
@@ -160,7 +211,7 @@ odoo.define('ncf_pos.models', function (require) {
                 // the client will believe it wasn't successfully sent, and very bad
                 // things will happen as a duplicate will be sent next time
                 // so we must make sure the server detects and ignores duplicated orders
-                var transfer = self._flush_orders([self.db.get_order(order_id)], {
+                var transfer = self._flush_orders(self.db.get_orders(), {
                     timeout: 30000,
                     to_invoice: true
                 });
@@ -195,8 +246,8 @@ odoo.define('ncf_pos.models', function (require) {
             var date = new Date(),
                 time = new Date(),
                 timezone = 'es-ES',
-                dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' },
-                timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+                dateOptions = {day: '2-digit', month: '2-digit', year: 'numeric'},
+                timeOptions = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true};
 
             return {
                 date: date.toLocaleDateString(timezone, dateOptions),
@@ -244,9 +295,10 @@ odoo.define('ncf_pos.models', function (require) {
             this.is_return_order = false;
             this.return_order_id = false;
             this.orderlineList = [];
+            this.ncf = false;
             _super_order.initialize.call(this, attributes, options);
             if (this.pos.config.iface_invoicing) {
-                var pos_default_partner = this.pos.config.pos_default_partner_id;
+                var pos_default_partner = this.pos.config.default_partner_id;
 
                 this.to_invoice = true;
                 if (pos_default_partner) {
@@ -265,6 +317,8 @@ odoo.define('ncf_pos.models', function (require) {
             this.is_return_order = json.is_return_order;
             this.return_order_id = json.return_order_id;
             this.amount_total = json.amount_total;
+            this.to_invoice = json.to_invoice;
+            this.ncf = json.ncf;
             if (this.orderlines && $.isArray(this.orderlines.models)) {
                 this.orderlines.models.forEach(function (line) {
                     var productDefCode = line.product.default_code;
@@ -287,7 +341,9 @@ odoo.define('ncf_pos.models', function (require) {
                 return_status: this.return_status,
                 is_return_order: this.is_return_order,
                 return_order_id: this.return_order_id,
-                amount_total: parseFloat(json.amount_total || 0)
+                amount_total: parseFloat(json.amount_total || 0),
+                to_invoice: this.to_invoice,
+                ncf: this.ncf
             });
             return json;
         }
@@ -311,6 +367,29 @@ odoo.define('ncf_pos.models', function (require) {
             $.extend(json, {
                 line_qty_returned: this.line_qty_returned,
                 original_line_id: this.original_line_id
+            });
+            return json;
+        }
+    });
+
+    var super_paymentline = models.Paymentline.prototype;
+    models.Paymentline = models.Paymentline.extend({
+        initialize: function (attr, options) {
+            this.credit_note_id = null;
+            this.note = ''
+            super_paymentline.initialize.call(this, attr, options);
+        },
+        init_from_JSON: function (json) {
+            super_paymentline.init_from_JSON.call(this, json);
+            this.credit_note_id = json.credit_note_id;
+            this.note = json.note;
+        },
+        export_as_JSON: function () {
+            var json = super_paymentline.export_as_JSON.call(this);
+
+            $.extend(json, {
+                credit_note_id: this.credit_note_id,
+                note: this.note
             });
             return json;
         }
