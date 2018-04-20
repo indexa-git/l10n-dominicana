@@ -5,7 +5,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
-    models.load_fields('pos.config', ['pos_default_partner_id', 'print_pdf']);
+    models.load_fields('pos.config', ['pos_default_partner_id', 'print_pdf', 'ncf_control']);
     models.load_fields("res.company", ['street']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
@@ -297,6 +297,9 @@ odoo.define('ncf_pos.models', function (require) {
             this.orderlineList = [];
             this.ncf = false;
             _super_order.initialize.call(this, attributes, options);
+
+            this.ncf_control = this.pos.config.ncf_control;
+
             if (this.pos.config.iface_invoicing) {
                 var pos_default_partner = this.pos.config.pos_default_partner_id;
 
@@ -319,6 +322,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.amount_total = json.amount_total;
             this.to_invoice = json.to_invoice;
             this.ncf = json.ncf;
+            this.ncf_control = json.ncf_control;
             if (this.orderlines && $.isArray(this.orderlines.models)) {
                 this.orderlines.models.forEach(function (line) {
                     var productDefCode = line.product.default_code;
@@ -343,7 +347,8 @@ odoo.define('ncf_pos.models', function (require) {
                 return_order_id: this.return_order_id,
                 amount_total: parseFloat(json.amount_total || 0),
                 to_invoice: this.to_invoice,
-                ncf: this.ncf
+                ncf: this.ncf,
+                ncf_control: this.ncf_control
             });
             return json;
         }

@@ -8,13 +8,13 @@ class PosConfig(models.Model):
     pos_default_partner_id = fields.Many2one("res.partner",
                                              help=u"Este cliente se usará por defecto como cliente de consumo para las facturas de consumo o final en el POS")
     print_pdf = fields.Boolean("Imprimir PDF", default=False)
-
     order_loading_options = fields.Selection(
         [("current_session", u"Cargar Órdenes de la Sesión actual"),
          ("n_days", u"Cargar Órdenes de los Últimos 'n' Días")],
         default='current_session', string="Opciones de Carga")
     number_of_days = fields.Integer(
         string=u'Cantidad de Días Anteriores', default=10)
+    ncf_control = fields.Boolean(related="invoice_journal_id.ncf_control")
 
     @api.onchange("iface_invoicing")
     def onchange_iface_invoicing(self):

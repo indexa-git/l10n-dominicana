@@ -26,40 +26,19 @@ class PosOrder(models.Model):
     refund_payment_account_move_line_ids = fields.Many2many("account.move.line")
     ncf_invoice_related = fields.Char(related="invoice_id.number", string="NCF")
     sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type", string="Tipo", readonly=1)
-
-    def check_refund_order_from_ui(self, orders):
-        """
-        set negative values if order is refund
-        :param order:
-        :return:
-        """
-
-        for order in orders:
-            if order.get("data", {}).get("is_return_order", False):
-                order["data"]["amount_paid"] = abs(order["data"]["amount_paid"]) * -1
-                order["data"]["amount_tax"] = abs(order["data"]["amount_tax"]) * -1
-                order["data"]["amount_total"] = abs(order["data"]["amount_total"]) * -1
-                order["data"]["amount_paid"] = order["data"]["amount_return"] = 0
-
-                for line in order["data"]["lines"]:
-                    line_dict = line[2]
-                    line_dict["qty"] = abs(line_dict["qty"]) * -1
-                    original_line = self.env['pos.order.line'].browse(line_dict["original_line_id"])
-                    original_line.line_qty_returned += abs(line_dict.get('qty', 0))
-
-                order["data"]["statement_ids"] = []
-        return orders
+    ncf_control = fields.Boolean(related="sale_journal.ncf_control")
 
     def _prepare_invoice(self):
         """
         Prepare the dict of values to create the new invoice for a pos order.
         """
         inv = super(PosOrder, self)._prepare_invoice()
-        if self.ncf:
-            inv.update({
-                'move_name': self.ncf,
-                'income_type': '01'
-            })
+        if self.ncf_control:
+            if self.ncf:
+                inv.update({
+                    'move_name': self.ncf,
+                    'income_type': '01'
+                })
         return inv
 
     def test_paid(self):
@@ -67,14 +46,47 @@ class PosOrder(models.Model):
         @return: True
         """
         for order in self:
-            if order.is_return_order:
-                return True
+            if not order.ncf_control:
+                return super(PosOrder, self).test_paid()
             else:
-                super(PosOrder, self).test_paid()
+                if order.is_return_order:
+                    return True
+                else:
+                    return super(PosOrder, self).test_paid()
+
+    def check_ncf_control_from_ui(self, orders):
+        """
+        set negative values if order is refund
+        :param order:
+        :return:
+        """
+        for order in orders:
+            if order.get("data", {}).get("ncf_control", {}):
+                if order.get("data", {}).get("is_return_order", {}):
+                    order["data"]["amount_paid"] = abs(order["data"]["amount_paid"]) * -1
+                    order["data"]["amount_tax"] = abs(order["data"]["amount_tax"]) * -1
+                    order["data"]["amount_total"] = abs(order["data"]["amount_total"]) * -1
+                    order["data"]["amount_paid"] = order["data"]["amount_return"] = 0
+
+                    for line in order["data"]["lines"]:
+                        line_dict = line[2]
+                        line_dict["qty"] = abs(line_dict["qty"]) * -1
+                        original_line = self.env['pos.order.line'].browse(line_dict["original_line_id"])
+                        original_line.line_qty_returned += abs(line_dict.get('qty', 0))
+
+                    order["data"]["statement_ids"] = []
+            else:
+                if order.get("data", {}).get("to_invoice", {}):
+                    order["data"]["to_invoice"] = False
+                if order.get("to_invoice", {}):
+                    order["to_invoice"] = False
+
+        return orders
+
 
     @api.model
     def create_from_ui(self, orders):
-        orders = self.check_refund_order_from_ui(orders)
+        orders = self.check_ncf_control_from_ui(orders)
         res = super(PosOrder, self).create_from_ui(orders)
         self = self.browse(res)
         self.reconcile_befores_session_close()
@@ -83,14 +95,15 @@ class PosOrder(models.Model):
     def reconcile_befores_session_close(self):
         moves = self.env['account.move.line']
         for rec in self:
-            for st_line in rec.statement_ids:
-                if st_line.account_id and not st_line.journal_entry_ids.ids:
-                    st_line.sudo().fast_counterpart_creation()
-                elif not st_line.journal_entry_ids.ids:
-                    _logger.error('Debe revisar las formas de pago de la order {}'.format(rec.name))
-                moves = (moves | st_line.journal_entry_ids)
-                # moves.sudo().post()
-        self.sudo()._reconcile_payments()
+            if rec.ncf_control:
+                for st_line in rec.statement_ids:
+                    if st_line.account_id and not st_line.journal_entry_ids.ids:
+                        st_line.sudo().fast_counterpart_creation()
+                    elif not st_line.journal_entry_ids.ids:
+                        _logger.error('Debe revisar las formas de pago de la order {}'.format(rec.name))
+                    moves = (moves | st_line.journal_entry_ids)
+
+                self.sudo()._reconcile_payments()
 
     def _reconcile_payments(self):
         for order in self:
@@ -112,20 +125,22 @@ class PosOrder(models.Model):
                 _logger.error('Reconciliation did not work for order %s', order.name)
                 continue
 
+
     @api.model
     def _order_fields(self, ui_order):
         res = super(PosOrder, self)._order_fields(ui_order)
-        res.update({
-            'is_return_order': ui_order.get('is_return_order') or False,
-            'return_order_id': ui_order.get('return_order_id') or False,
-            'return_status': ui_order.get('return_status') or False,
-            'ncf': ui_order.get("ncf", False)
-        })
+        if ui_order.get("ncf_control", {}):
+            res.update({
+                'is_return_order': ui_order.get('is_return_order') or False,
+                'return_order_id': ui_order.get('return_order_id') or False,
+                'return_status': ui_order.get('return_status') or False,
+                'ncf': ui_order.get("ncf", False)
+            })
         return res
+
 
     @api.model
     def order_search_from_ui(self, input_txt):
-
         invoice_ids = self.env["account.invoice"].search([('number', 'ilike', "%{}%".format(input_txt)),
                                                           ('type', '=', 'out_invoice')], limit=100)
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
@@ -172,22 +187,28 @@ class PosOrder(models.Model):
             "orderlines": order_lines_list
         }
 
+
     @api.model
     def credit_note_info_from_ui(self, ncf):
         invoice_ids = self.env["account.invoice"].search([('number', '=', ncf), ('type', '=', 'out_refund')])
         return {"id": invoice_ids.id, "residual": invoice_ids.residual}
 
+
     @api.model
     def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
         journal_id = self.env["account.journal"].browse(invoice_journal_id)
-        if not is_return_order and journal_id:
-            return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                       sale_fiscal_type=sale_fiscal_type).next_by_id()
-        elif is_return_order and journal_id:
-            return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                       sale_fiscal_type="credit_note").next_by_id()
+        if journal_id.ncf_control:
+            if not is_return_order and journal_id:
+                return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                           sale_fiscal_type=sale_fiscal_type).next_by_id()
+            elif is_return_order and journal_id:
+                return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                           sale_fiscal_type="credit_note").next_by_id()
+            else:
+                raise exceptions.ValidationError(_("You have not specified a sales journal"))
         else:
-            raise exceptions.ValidationError(_("You have not specified a sales journal"))
+            return False
+
 
     @api.multi
     def action_pos_order_invoice(self):
@@ -197,20 +218,21 @@ class PosOrder(models.Model):
                 order.sudo().write({'state': 'is_return_order'})
         return res
 
-    def add_payment(self, data):
-        statement_id = data.get("statement_id", False)
-        if statement_id != 10001:
-            return super(PosOrder, self).add_payment(data)
-        else:
-            payment_name = data.get("payment_name", False)
-            if payment_name:
-                out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
-                if out_refund_invoice:
-                    move_line_ids = out_refund_invoice.move_id.line_ids
-                    move_line_ids = move_line_ids.filtered(lambda
-                                                               r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
-                    for move_line_id in move_line_ids:
-                        self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
+
+def add_payment(self, data):
+    statement_id = data.get("statement_id", False)
+    if statement_id != 10001:
+        return super(PosOrder, self).add_payment(data)
+    else:
+        payment_name = data.get("payment_name", False)
+        if payment_name:
+            out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
+            if out_refund_invoice:
+                move_line_ids = out_refund_invoice.move_id.line_ids
+                move_line_ids = move_line_ids.filtered(lambda
+                                                           r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
+                for move_line_id in move_line_ids:
+                    self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
 
 
 class PosOrderLine(models.Model):
