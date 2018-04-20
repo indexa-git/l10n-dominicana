@@ -42,7 +42,7 @@ class AccountInvoiceCancel(models.TransientModel):
          ("05", "05 - Cambio de Productos"),
          ("06", u"06 - Devolución de Productos"),
          ("07", u"07 - Omisión de Productos"),
-         ("08", "08 - Errores de Secuencia de NCF"),
+         ("08", "08 - Errores en Secuencia de NCF"),
          ("09", "09 - Por Cese de Operaciones"),
          ("10", u"10 - Pérdida o Hurto de Talonarios")],
         string=u"Tipo de Anulación", required=True,
@@ -56,5 +56,6 @@ class AccountInvoiceCancel(models.TransientModel):
         for record in self.env['account.invoice'].browse(active_ids):
             if record.state in ('cancel', 'paid'):
                 raise UserError(_("Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Done' state."))
+            record.anulation_type = self.anulation_type
             record.action_invoice_cancel()
         return {'type': 'ir.actions.act_window_close'}

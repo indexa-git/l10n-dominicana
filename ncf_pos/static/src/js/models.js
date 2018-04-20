@@ -108,7 +108,7 @@ odoo.define('ncf_pos.models', function (require) {
                 id: 10001,
                 journal_id: [10001, 'Nota de Credito'],
                 journal: {type: 'cash', id: 10001, sequence: 10001},
-                css_class: 'highlight',
+                css_class: 'altlight',
                 show_popup: true,
                 popup_name: 'textinput',
                 popup_options: {}
@@ -301,7 +301,7 @@ odoo.define('ncf_pos.models', function (require) {
             this.ncf_control = this.pos.config.ncf_control;
 
             if (this.pos.config.iface_invoicing) {
-                var pos_default_partner = this.pos.config.pos_default_partner_id;
+                var pos_default_partner = this.pos.config.default_partner_id;
 
                 this.to_invoice = true;
                 if (pos_default_partner) {

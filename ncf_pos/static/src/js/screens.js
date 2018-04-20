@@ -450,6 +450,19 @@ odoo.define('ncf_pos.screens', function (require) {
     });
 
     popups.include({
+        /**
+         * Show the popup
+         * @param {(string, Object)} options - The title or optional configuration for the popup.
+         * @param {boolean} options.disable_keyboard_handler - Disable the keyboard capture for the payment screen
+         * when the popup is opened.
+         * @param {string} options.input_name - Indicate the name of text input and is used for show the
+         * description of it for the textinput and textarea popups
+         * @param {string} options.text_input_value - Indicate the initial value of text input for the textinput
+         * and textarea popups
+         */
+        show: function (options) {
+            this._super(options);
+        },
         renderElement: function () {
             this._super();
             //Ponemos un valor por defecto al input del popup TextInput o TextArea

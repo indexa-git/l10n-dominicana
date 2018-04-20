@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 import logging
-from odoo import models, fields, api, exceptions, _
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -83,7 +85,6 @@ class PosOrder(models.Model):
 
         return orders
 
-
     @api.model
     def create_from_ui(self, orders):
         orders = self.check_ncf_control_from_ui(orders)
@@ -125,7 +126,6 @@ class PosOrder(models.Model):
                 _logger.error('Reconciliation did not work for order %s', order.name)
                 continue
 
-
     @api.model
     def _order_fields(self, ui_order):
         res = super(PosOrder, self)._order_fields(ui_order)
@@ -137,7 +137,6 @@ class PosOrder(models.Model):
                 'ncf': ui_order.get("ncf", False)
             })
         return res
-
 
     @api.model
     def order_search_from_ui(self, input_txt):
@@ -187,12 +186,10 @@ class PosOrder(models.Model):
             "orderlines": order_lines_list
         }
 
-
     @api.model
     def credit_note_info_from_ui(self, ncf):
         invoice_ids = self.env["account.invoice"].search([('number', '=', ncf), ('type', '=', 'out_refund')])
         return {"id": invoice_ids.id, "residual": invoice_ids.residual}
-
 
     @api.model
     def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
@@ -205,10 +202,7 @@ class PosOrder(models.Model):
                 return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
                                                            sale_fiscal_type="credit_note").next_by_id()
             else:
-                raise exceptions.ValidationError(_("You have not specified a sales journal"))
-        else:
-            return False
-
+                raise ValidationError(_("You have not specified a sales journal"))
 
     @api.multi
     def action_pos_order_invoice(self):
@@ -218,21 +212,20 @@ class PosOrder(models.Model):
                 order.sudo().write({'state': 'is_return_order'})
         return res
 
-
-def add_payment(self, data):
-    statement_id = data.get("statement_id", False)
-    if statement_id != 10001:
-        return super(PosOrder, self).add_payment(data)
-    else:
-        payment_name = data.get("payment_name", False)
-        if payment_name:
-            out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
-            if out_refund_invoice:
-                move_line_ids = out_refund_invoice.move_id.line_ids
-                move_line_ids = move_line_ids.filtered(lambda
-                                                           r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
-                for move_line_id in move_line_ids:
-                    self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
+    def add_payment(self, data):
+        statement_id = data.get("statement_id", False)
+        if statement_id != 10001:
+            return super(PosOrder, self).add_payment(data)
+        else:
+            payment_name = data.get("payment_name", False)
+            if payment_name:
+                out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
+                if out_refund_invoice:
+                    move_line_ids = out_refund_invoice.move_id.line_ids
+                    move_line_ids = move_line_ids.filtered(lambda
+                                                               r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
+                    for move_line_id in move_line_ids:
+                        self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
 
 
 class PosOrderLine(models.Model):
