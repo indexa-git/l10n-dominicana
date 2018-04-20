@@ -141,8 +141,6 @@ odoo.define('ncf_pos.screens', function (require) {
             var self = this;
             var order = self.pos.db.order_by_id[id];
 
-            //if (order.is_return_order)
-            //    return false;
             this.$('.order-list .lowlight').removeClass('lowlight');
             if ($line.hasClass('highlight')) {
                 $line.removeClass('highlight');
@@ -878,6 +876,16 @@ odoo.define('ncf_pos.screens', function (require) {
             this.$('.set-customer').click(function () {
                 self.gui.show_screen('clientlist');
             });
+        }
+    });
+
+    screens.ProductScreenWidget.include({
+        show: function (reset) {
+            //Ocultamos el boton 'Todas las facturas' si el diario de ventas no tiene activado el ncf_control
+            if (!this.pos.config.ncf_control) {
+                this.$('.control-button.all-invoices').remove();
+            }
+            this._super(reset);
         }
     });
 

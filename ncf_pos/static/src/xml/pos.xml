@@ -277,7 +277,7 @@
     </t>
 
     <t t-name="QueryInvoicesButton">
-        <span class='control-button'>
+        <span class='control-button all-invoices'>
             All Invoices
         </span>
     </t>
