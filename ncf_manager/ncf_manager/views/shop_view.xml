@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="shop_form" model="ir.ui.view">
+        <field name="name">ncf manager shop form</field>
+        <field name="model">shop.ncf.config</field>
+        <field name="arch" type="xml">
+            <form string="Comprobantes fiscales">
+                <sheet>
+                    <group col="2">
+                        <field name="company_id"/>
+                        <field name="branch_office"/>
+                        <field name="journal_id"/>
+                        <field name="name" attrs="{'invisible': [('ncf_control', '=', False)],'required': [('ncf_control', '=', True)]}"/>
+                        <field name="ncf_control" invisible="True"/>
+                    </group>
+
+                    <group string="Configuración de secuencias" attrs="{'invisible':[('ncf_control','=',False)]}">
+                        <html>
+                            <table class="table table-striped table-condensed table-hover">
+                                <tr>
+                                    <th>Activo</th>
+                                    <th>Tipo de comprobante</th>
+                                    <th>Siguiente número</th>
+                                    <th>Número maximo</th>
+                                    <th groups="base.group_system">Secuencia</th>
+                                </tr>
+                                <tr>
+                                    <td><field name="final_active"/></td>
+                                    <td>Secuencia para consumidor final</td>
+                                    <td><field name="final_number_next_actual"/></td>
+                                    <td><field name="final_max"/></td>
+                                    <td groups="base.group_system"><field name="final_sequence_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><field name="fiscal_active"/></td>
+                                    <td>Secuencia para crédito fiscal</td>
+                                    <td><field name="fiscal_number_next_actual"/></td>
+                                    <td><field name="fiscal_max"/></td>
+                                    <td groups="base.group_system"><field name="fiscal_sequence_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><field name="gov_active"/></td>
+                                    <td>Secuencia para gubernamental</td>
+                                    <td><field name="gov_number_next_actual"/></td>
+                                    <td><field name="gov_max"/></td>
+                                    <td groups="base.group_system"><field name="gov_sequence_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><field name="special_active"/></td>
+                                    <td>Secuencia para regímenes especiales</td>
+                                    <td><field name="special_number_next_actual"/></td>
+                                    <td><field name="special_max"/></td>
+                                    <td groups="base.group_system"><field name="special_sequence_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><field name="nc_active"/></td>
+                                    <td>Secuencia para notas de crédito</td>
+                                    <td><field name="nc_number_next_actual"/></td>
+                                    <td><field name="nc_max"/></td>
+                                    <td groups="base.group_system"><field name="nc_sequence_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><field name="nd_active"/></td>
+                                    <td>Secuencia para notas de débito</td>
+                                    <td><field name="nd_number_next_actual"/></td>
+                                    <td><field name="nd_max"/></td>
+                                    <td groups="base.group_system"><field name="nd_sequence_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><field name="unico_active"/></td>
+                                    <td>Secuencia para único ingreso</td>
+                                    <td><field name="unico_number_next_actual"/></td>
+                                    <td><field name="unico_max"/></td>
+                                    <td groups="base.group_system"><field name="unico_sequence_id"/></td>
+                                </tr>
+                            </table>
+                        </html>
+                    </group>
+                    <group name="group_two" string="Usuarios que pueden usar estas secuencias" attrs="{'invisible':[('journal_id','=',False)]}">
+                        <field name="user_ids" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="shop_tree" model="ir.ui.view">
+        <field name="name">ncf_manager shoop tree</field>
+        <field name="model">shop.ncf.config</field>
+        <field name="arch" type="xml">
+            <tree string="Comprobantes fiscales">
+                <field name ="branch_office"/>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="shop_action" model="ir.actions.act_window">
+        <field name="name">Comprobantes fiscales</field>
+        <field name="res_model">shop.ncf.config</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="shop_tree"/>
+    </record>
+
+    <menuitem action="shop_action" id="invoice_journal_config_menu"
+              parent="account.account_account_menu"
+              groups="account.group_account_user,account.group_account_manager,account.group_account_invoice"/>
+</odoo>

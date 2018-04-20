@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="company_address" name="Company Address">
+        <div t-field="company.name" t-attf-style="color:#424242;white-space:nowrap;font-size:22px; font-weight:500;"/>
+        <strong><span t-if="company.vat">RNC: <span t-field="company.vat"/></span></strong>
+	    <div t-field="company.partner_id" style="margin-bottom:0px; padding-bottom:0px;white-space:nowrap;" t-field-options='{"widget": "contact", "fields": ["address", "phone",  "email", "website"], "no_marker": false}'/>
+        <div t-if="docs.date_invoice">
+            <b style="white-space:nowrap;"><i class="fa fa-calendar"/> Fecha: <span t-field="docs.date_invoice"/></b>
+        </div>
+        <p style="margin-bottom:15px; padding-top:0px;"></p>
+    </template>
+
+    <template id="company_footer" name="page Footer">
+        <t t-set="company" t-value="company.sudo()"/>
+        <div class="col-xs-12" style="padding-left:0px; padding-right:0px;">
+            <div class="" t-attf-style="color:#424242;border-top: 1px solid #424242;padding-top:5px;">
+                <ul class="list-inline" name="financial_infos" style="white-space:nowrap;">
+                    <li t-if="company.name"><i class="fa fa-university"/> <span t-field="company.name"/></li>
+                    <li t-if="company.name and company.phone">&amp;bull;</li>
+                    <li t-if="company.phone"><i class="fa fa-phone-square"/> <span t-field="company.phone"/></li>
+                    <li t-if="company.email and company.phone or company.email and company.name">&amp;bull;</li>
+                    <li t-if="company.email"><i class="fa fa-envelope"/> <span t-field="company.email"/></li>
+
+                    <li t-if="company.website and company.email or company.website and company.phone or
+                            company.website and company.name">&amp;bull;</li>
+                    <li t-if="company.website"><i class="fa fa-globe"/> <span t-field="company.website"/></li>
+                    <li t-if="company.vat and company.email or company.vat and company.website or
+                            company.vat and company.phone">&amp;bull;</li>
+                    <li t-if="company.vat" ><i class="fa fa-building"/> <span t-field="company.vat"/></li>
+                    <li>Pág:</li>
+                    <li><span class="page"/></li>
+                    <li>/</li>
+                    <li><span class="topage"/></li>
+                </ul>
+            </div>
+        </div>
+    </template>
+
+    <template id="account.report_invoice" name="Invoices">
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="docs.company_id"></t>
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company"></t>
+        </t>
+
+        <div t-attf-style="padding-bottom:0px; padding-left:0px; padding-right:0px; color:#424242 !important;" class="header col-xs-12">
+            <div class="col-xs-6" style="padding-left:0px;">
+    		    <span t-if="docs.company_id.logo">
+    			    <span itemprop="image" t-field="company.logo" t-field-options='{"widget": "image"}'/>
+    		    </span>
+                <t t-call="ncf_manager.company_address"/>
+            </div>
+            <div class="col-xs-6" style="margin-top:13%;">
+                <div t-if="docs.state in ['draft', 'proforma']" class="row text-right">
+                    <strong>
+                        <span t-if="docs.number"/>
+                    </strong>
+                </div>
+                <div t-if="docs.state in ['open', 'paid']" class="row text-right" style="line-height:1.3;">
+                    <h2>Factura de </h2>
+                    <h2 style="margin-top:-10px;">
+                        <span t-if="docs.sale_fiscal_type == 'fiscal'">Crédito Fiscal</span>
+                        <span t-if="docs.sale_fiscal_type == 'final'">Consumo</span>
+                        <span t-if="docs.sale_fiscal_type == 'gov'">Gubernamental</span>
+                        <span t-if="docs.sale_fiscal_type == 'special'">Regimenes Especiales</span>
+                        <span t-if="docs.sale_fiscal_type == 'unico'">Único Ingreso</span>
+                    </h2>
+                    NCF: <span t-field="docs.number"></span>
+                    <p>
+                        Váloida hasta: <span t-field="docs.date_invoice"></span>
+                    </p>
+                </div>
+            </div>
+        </div> <!--end of Header-->
+
+		<!-- START OF PAGE -->
+        <div class="page">
+            <hr/>
+            <div class="col-md-12" style="margin-top: 170px !important;">
+                <div class="row" t-attf-style="color:#424242; margin-bottom:25px:">
+                    <table t-if="docs.sale_fiscal_type != 'final'" class="table well" style="width:100%;">
+                        <tr>
+                            <td style="width:25% !important;"><strong>RNC CLIENTE: </strong></td>
+                            <td >
+                                <span t-field="docs.partner_id.vat"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width:25% !important;">
+                                <strong>NOMBRE O RAZÓN SOCIAL: </strong>
+                            </td>
+                            <td >
+                                <span t-field="docs.partner_id.name"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <t t-call="ncf_manager.invoice_lines"/>
+        </div><!--End of PAGE-->
+
+        <!--FOOTER -->
+        <div class="footer">
+            <t t-call="ncf_manager.company_footer"/>
+        </div>
+        <!--/FOOTER-->
+    </template>
+
+    <template id="invoice_lines">
+        <div class="col-xs-12" style="padding:8px;"/>
+            <!-- Is there a discount on at least one line? -->
+            <t t-set="display_discount" t-value="any([l.discount for l in docs.invoice_line_ids])"/>
+            <!-- Is there tax in at least one line? -->
+            <t t-set="display_taxes" t-value="any([y.invoice_line_tax_ids for y in docs.invoice_line_ids])"/>
+            <!-- to take care of columns when no discount -->
+            <t t-set="col_span" t-value="8 if display_discount else 7"/>
+
+            <table class="table  table-condensed" t-attf-style="color:#424242;" groups="!sale.group_sale_layout">
+                <thead>
+                    <t t-set="th_style" t-value="'border-bottom: 1px solid #ddd !important;white-space:nowrap;'"></t>
+                    <tr t-attf-style="background-color: transparent;font-size:18px;">
+                        <th t-attf-style="{{th_style}}">Producto</th>
+                        <th t-attf-style="{{th_style}}">Descripción</th>
+                        <th class="text-right" t-attf-style="{{th_style}}"> Cantidad</th>
+                        <th class="text-right" t-attf-style="{{th_style}}"> Precio Unit.</th>
+                        <th t-if="display_discount" class="text-right" t-attf-style="{{th_style}}" groups="sale.group_discount_per_so_line">
+                            Descuento(%)
+                        </th>
+                        <th t-if="display_taxes" class="text-center" t-attf-style="{{th_style}}"> ITBIS</th>
+                        <th class="text-right" t-attf-style="{{th_style}}"> Valor</th>
+                        <th class="text-right"></th>
+                   </tr>
+               </thead>
+               <tbody>
+                    <!-- Invoice line without layouts -->
+                    <t t-foreach="docs.invoice_line_ids" t-as="l">
+                        <t t-set="is_exempt" t-value="False"/>
+                        <t t-foreach="l.invoice_line_tax_ids" t-as="tax">
+                            <t t-if="tax.amount == 0.0">
+                                <t t-set="is_exempt" t-value="True"/>
+                            </t>
+                        </t>
+                        <tr t-attf-style="background-color:transparent; page-break-inside: avoid">
+                            <td><span t-field="l.product_id.name"/></td>
+                            <td><span t-field="l.name"/></td>
+                            <td class="text-right">
+                               <span t-field="l.quantity"/>
+                               <span t-field="l.uom_id"  groups="product.group_uom"/>
+                            </td>
+                            <td class="text-right">
+                               <span t-field="l.price_unit"  t-options="{'widget': 'monetary', 'display_currency': docs.currency_id}" />
+                            </td>
+                            <td t-if="display_discount" class="text-right" groups="sale.group_discount_per_so_line"><span t-esc="'{0:.2f}'.format(l.discount)"/></td>
+                            <td t-if="display_taxes" class="text-center">
+                                <span t-esc="', '.join(map(lambda x: (x.description or x.name), l.invoice_line_tax_ids))"/>
+                            </td>
+                            <td class="text-right">
+                               <span t-field="l.price_subtotal"/>
+                           </td>
+                           <td class="text-center">
+                               <t t-if="is_exempt">
+                                   <strong>E</strong>
+                               </t>
+                           </td>
+                        </tr>
+                    </t>
+                </tbody>
+           </table>
+
+
+            <div class="col-xs-5 pull-right" style="padding-left:0px; padding-right:0px; page-break-inside: avoid;">
+                <table class="table table-condensed" t-attf-style="color:#424242;">
+                    <tbody>
+                        <tr t-if="display_taxes" t-attf-style="border-top: 1px solid #424242;" >
+                            <td t-attf-style="border-top: 1px solid #424242 !important;"><strong>Subtotal</strong></td>
+                            <td class="text-right" t-attf-style="border-top: 1px solid #424242 !important;">
+                               <span t-field="docs.amount_untaxed"/>
+                            </td>
+                        </tr>
+                        <tr t-if="display_taxes">
+                            <td><strong>ITBIS</strong></td>
+                            <td class="text-right">
+                               <span t-field="docs.amount_tax"/>
+                            </td>
+                        </tr>
+                        <tr t-attf-style="border-bottom: 1px solid #424242;">
+                            <td t-attf-style="border-top: 1px solid #424242 !important;"><strong>Total</strong></td>
+                            <td class="text-right" t-attf-style="border-top: 1px solid #424242 !important;">
+                                <span  style="font-weight:bold; text-decoration:underline;" t-field="docs.amount_total"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td t-attf-style="border-top: 1px solid #424242 !important;"><strong>Balance</strong></td>
+                            <td class="text-right" t-attf-style="border-top: 1px solid #424242 !important;">
+                                <strong>
+                                   <span  style="font-weight:bold;" t-field="docs.residual"/>
+                                </strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <t t-set="stl" t-value="'padding-top:3px;'"/>
+                            <td t-attf-style="border-top: 1px solid #424242 !important;"><strong>Estado</strong></td>
+                            <td class="text-right" t-attf-style="border-top: 1px solid #424242 !important;white-space:nowrap;" t-if="docs.type in ['out_invoice', 'in_invoice']">
+                                <span  t-if="docs.state in ['proforma', 'proforma2']" class="label label-warning orders_label_text_align"><i class="fa fa-fw fa-asterisk"/> Pro-Forma</span>
+                                <span  t-if="docs.state == 'paid' and docs.amount_total != 0.0" class="label label-success orders_label_text_align"><i class="fa fa-fw fa-check"/> Completamente Pagado</span>
+                                <span  t-if="docs.state in ['paid','open'] and docs.amount_total == 0.0" class="label label-success orders_label_text_align"><i class="fa fa-fw fa-check"/> Sin cargo</span>
+                                <span  t-if="docs.state == 'open' and docs.residual == docs.amount_total and docs.amount_total != 0.0" class="label label-info orders_label_text_align">
+                                    <i class="fa fa-fw fa-times"/> Pendiente
+                                </span>
+                                <span  t-if="docs.state == 'open' and docs.residual &lt; docs.amount_total" class="label label-info orders_label_text_align">
+                                    <i class="fa fa-fw fa-times-circle-o"/> Parcialmente pagado
+                                </span>
+                                <span  t-if="docs.state == 'draft'" class="label label-warning orders_label_text_align"><i class="fa fa-fw fa-asterisk"/> No emitido</span>
+                                <span  t-if="docs.state == 'cancel'" class="label label-danger orders_label_text_align"><i class="fa fa-fw fa-ban"/> Cancelado</span>
+                                <span  t-if="docs.state == 'open' and datetime.datetime.strptime((docs.date_due or '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(days=1))), '%Y-%m-%d') &lt; datetime.datetime.now() and docs.amount_total != 0.0"
+                                   class="label label-warning orders_label_text_align"> <i class="fa fa-fw fa-clock-o"/>Atrasado
+                               </span>
+                               <!-- the addition of one day to time is basically to take care of a case where date_due is missing
+                               ...this will avoid errors and also avoid showing overdue status when date_due is missing..it make sense -->
+                           </td>
+                            <td class="text-right" t-attf-style="border-top: 1px solid #424242 !important;white-space:nowrap;" t-if="docs.type in ['out_refund', 'in_refund']">
+                                <span  t-if="docs.state == 'paid' and docs.amount_total != 0.0" class="label label-success orders_label_text_align"><i class="fa fa-fw fa-check"/> Totalmente reembolsado</span>
+                                <span  t-if="docs.state in ['paid','open'] and docs.amount_total == 0.0" class="label label-success orders_label_text_align"><i class="fa fa-fw fa-check"/> Sin cargo</span>
+                                <span  t-if="docs.state == 'open' and docs.residual == docs.amount_total and docs.amount_total != 0.0" class="label label-info orders_label_text_align">
+                                       <i class="fa fa-fw fa-times"/> No reembolsado</span>
+                                <span  t-if="docs.state == 'open' and docs.residual &lt; docs.amount_total" class="label label-info orders_label_text_align">
+                                       <i class="fa fa-fw fa-times-circle-o"/> Parcialmente reembolsado</span>
+                                <span  t-if="docs.state == 'draft'" class="label label-warning orders_label_text_align"><i class="fa fa-fw fa-asterisk"/> No Emitido</span>
+                                <span  t-if="docs.state == 'cancel'" class="label label-danger orders_label_text_align"><i class="fa fa-fw fa-ban"/> Cancelado</span>
+                                <span  t-if="docs.state == 'open' and datetime.datetime.strptime((docs.date_due or '{:%Y-%m-%d}'.format(datetime.datetime.now()+ datetime.timedelta(days=1))), '%Y-%m-%d') &lt; datetime.datetime.now() and docs.amount_total != 0.0"
+                                       class="label label-warning orders_label_text_align"> <i class="fa fa-fw fa-clock-o"/>Atrasado</span>
+                               <!-- the addition of one day to time is basically to take care of a case where date_due is missing
+                               ...this will avoid errors and also avoid showing overdue status when date_due is missing..it make sense -->
+                           </td>
+                       </tr>
+                   </tbody>
+               </table>
+           </div>
+
+            <div t-if="docs.tax_line_ids" class="col-xs-6 pull-left" style="padding-top:1px; padding-left:0px; padding-right:0px; page-break-inside: avoid;">
+                <table class="table table-condensed" t-attf-style="color:#424242;">
+                    <thead>
+                       <tr t-attf-style="page-break-inside: avoid;font-size:18px;">
+                           <th class="text-center"><i class="fa fa-pencil-square"/> ITBIS</th>
+                           <th class="text-right"><i class="fa fa-money"/> Valor</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                       <t t-foreach="docs.tax_line_ids" t-as="t">
+                          <tr t-attf-style="page-break-inside: avoid;">
+                               <td><span t-field="t.name"/></td>
+                               <td class="text-right"><span t-field="t.amount"/></td>
+                           </tr>
+                       </t>
+                    </tbody>
+                </table>
+            </div>
+
+            <div  t-if="docs.payment_ids" class="col-xs-6 pull-left" style="padding-top:1px; padding-left:0px; padding-right:0px; page-break-inside: avoid;">
+                <strong t-if="docs.type in ['in_refund', 'out_refund']">Reembolsado:</strong>
+                <strong t-if="docs.type in ['in_invoice', 'out_invoice']">Pagos:</strong>
+                <table class="table table-condensed" t-attf-style="color:#424242;">
+                    <thead t-attf-style="; page-break-inside: avoid; color:#424242;white-space:nowrap;">
+                        <tr t-attf-style="font-size:18px;white-space:nowrap;">
+                            <th><i class="fa fa-calendar"/> Fecha</th>
+                            <th><i class="fa fa-credit-card"/> Método</th>
+                            <th><i class="fa fa-pencil-square"/> Ref.</th>
+                            <th class="text-right"><i class="fa fa-money"/> Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="docs.payment_ids" t-as="p">
+                            <tr t-attf-style="page-break-inside: avoid;">
+                                <td><span t-field="p.payment_date"/></td>
+                                <td><span t-field="p.journal_id"/></td>
+                                <td><span t-field="p.communication"/></td>
+                                <td class="text-right"><span t-field="p.amount"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-xs-12" style="padding-left:0px; padding-right:0px; page-break-inside: avoid;">
+                <p t-if="docs.payment_term_id">
+                   <span t-field="docs.payment_term_id.note"/>
+                </p>
+                <p t-if="docs.comment">
+                   <strong>Notas:</strong> <span t-field="docs.comment"/>
+                </p>
+                <!-- IF YOU WANT CUSTOMER SIGNATURE AND STAMP, UNCOMMENT LINE BELOW -->
+                <!--<div class="col-xs-6 pull-left mt16 row">
+                   <p>
+                   <strong>Customer Signature:</strong><span t-esc="35*'.'"/>
+                   </p>
+               </div>
+               <div class="col-xs-6 pull-right mt16 row">
+                   <p class="text-right">
+                   <strong>Stamp:</strong><span t-esc="45*'.'"/>
+                   </p>
+               </div>-->
+        </div>
+    </template>
+</odoo>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+
+
+        <record id="dgii_report_form" model="ir.ui.view">
+            <field name="name">Dgii report form</field>
+            <field name="model">dgii.report</field>
+            <field name="arch" type="xml">
+                <form string="Declaraciones">
+                    <header>
+                        <button name="generate_report" string="Generar declaraciones" type="object"
+                                class="oe_highlight"/>
+                        <field name="state" widget="statusbar" clickable="0"/>
+                    </header>
+                    <sheet string="Declaraciones">
+                        <group>
+                            <group>
+                                <field name="company_id" readonly="1"/>
+                                <field name="name" widget="mask" data-inputmask="'mask': '99/9999'"/>
+                                <field name="positive_balance"/>
+                            </group>
+                            <group string="Declaraciones">
+                                <field name="it_binary" filename="it_filename" readonly="1"/>
+                                <field name="ir17_binary" filename="ir17_filename" readonly="1"/>
+                            </group>
+                        </group>
+                        <group col="4">
+                            <group string="606">
+                                <field name="COMPRAS_CANTIDAD_REGISTRO"/>
+                                <field name="ITBIS_TOTAL"/>
+                                <field name="ITBIS_TOTAL_NC"/>
+                                <field name="ITBIS_TOTAL_PAYMENT"/>
+                                <field name="TOTAL_MONTO_FACTURADO"/>
+                                <field name="TOTAL_MONTO_NC"/>
+                                <field name="TOTAL_MONTO_PAYMENT"/>
+                                <field name="ITBIS_RETENIDO"/>
+                                <field name="RETENCION_RENTA"/>
+                                <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
+                            </group>
+                            <group string="607">
+                                <field name="VENTAS_CANTIDAD_REGISTRO"/>
+                                <field name="SALE_ITBIS_TOTAL"/>
+                                <field name="SALE_ITBIS_NC"/>
+                                <field name="SALE_ITBIS_CHARGED"/>
+                                <field name="SALE_TOTAL_MONTO_FACTURADO"/>
+                                <field name="SALE_TOTAL_MONTO_NC"/>
+                                <field name="SALE_TOTAL_MONTO_CHARGED"/>
+                                <field name="sale_binary" filename="sale_filename" readonly="1"/>
+                            </group>
+                            <group string="608">
+                                <field name="CANCEL_CANTIDAD_REGISTRO"/>
+                                <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
+                            </group>
+                            <group string="609">
+                                <field name="EXTERIOR_CANTIDAD_REGISTRO"/>
+                                <field name="EXTERIOR_TOTAL_MONTO_FACTURADO"/>
+                                <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="606">
+                                <field name="purchase_report">
+                                    <tree>
+                                        <field name="LINE"/>
+                                        <field name="inv_partner"/>
+                                        <field name="TIPO_IDENTIFICACION"/>
+                                        <field name="TIPO_BIENES_SERVICIOS_COMPRADOS"/>
+                                        <field name="number"/>
+                                        <field name="NUMERO_COMPROBANTE_MODIFICADO"/>
+                                        <field name="FECHA_COMPROBANTE"/>
+                                        <field name="FECHA_PAGO"/>
+                                        <field name="ITBIS_FACTURADO" sum="Total ITBIS Facturado"/>
+                                        <field name="ITBIS_RETENIDO" sum="Total ITBIS Retenido"/>
+                                        <field name="MONTO_FACTURADO" sum="Total Monto Facturado"/>
+                                        <field name="RETENCION_RENTA" sum="Total ITBIS Facturado"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="607">
+                                <field name="sale_report">
+                                    <tree>
+                                        <field name="LINE"/>
+                                        <field name="inv_partner"/>
+                                        <field name="TIPO_IDENTIFICACION"/>
+                                        <field name="number"/>
+                                        <field name="NUMERO_COMPROBANTE_MODIFICADO"/>
+                                        <field name="FECHA_COMPROBANTE"/>
+                                        <field name="FECHA_PAGO"/>
+                                        <field name="ITBIS_FACTURADO" sum="Total ITBIS Facturado"/>
+                                        <field name="MONTO_FACTURADO" sum="Total Monto Facturado"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="608">
+                                <field name="cancel_report">
+                                    <tree>
+                                        <field name="LINE"/>
+                                        <field name="NUMERO_COMPROBANTE_FISCAL"/>
+                                        <field name="FECHA_COMPROBANTE"/>
+                                        <field name="TIPO_ANULACION"/>
+                                        <field name="invoice_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="609">
+                                <field name="exterior_report">
+                                    <tree>
+                                        <field name="LINE"/>
+                                        <field name="TIPO_BIENES_SERVICIOS_COMPRADOS"/>
+                                        <field name="FECHA_COMPROBANTE"/>
+                                        <field name="FECHA_PAGO"/>
+                                        <field name="RETENCION_RENTA"/>
+                                        <field name="MONTO_FACTURADO"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                        <widget type="opl"/>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="dgii_report_tree" model="ir.ui.view">
+            <field name="name">Dgii report tree</field>
+            <field name="model">dgii.report</field>
+            <field name="arch" type="xml">
+                <tree string="Declaraciones">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="dgii_report_search" model="ir.ui.view">
+            <field name="name">Dgii report search</field>
+            <field name="model">dgii.report</field>
+            <field name="arch" type="xml">
+                <search string="Declaraciones">
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="dgii_report_action" model="ir.actions.act_window">
+            <field name="name">Declaraciones</field>
+            <field name="res_model">dgii.report</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="dgii_report_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+
+                </p>
+                <p>
+
+                </p>
+            </field>
+        </record>
+
+
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem action="dgii_report_action" id="marcos_ncf_dgii_report_wizard_menu"
+                  parent="ncf_manager.marcos_account_dgii_menu"
+                  sequence="2"/>
+
+    </data>
+</odoo>
