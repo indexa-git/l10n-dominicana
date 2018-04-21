@@ -300,7 +300,7 @@ class DgiiReport(models.Model):
                     'doc_number': inv.number,
                     'doc_date': inv.date_invoice,
                     'invoiced_amount': inv.amount_untaxed_signed,
-                    'isr_withholding_date': False,
+                    'isr_withholding_date': inv.payment_date,
                     'presumed_income': 0,  # Pendiente
                     'withholded_isr': inv.income_withholding,
                 }
