@@ -73,9 +73,6 @@ class AccountInvoice(models.Model):
                                           if tax.account_id.account_fiscal_type == 'A51']))
 
                 if inv.type == 'in_invoice' and inv.state == 'paid':
-                    # Fecha Pago
-                    inv.payment_date = fields.Date.context_today(inv)
-
                     # Monto ITBIS Retenido
                     inv.withholded_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
                                                     if tax.tax_id.purchase_tax_type == 'ritbis']))
@@ -83,6 +80,9 @@ class AccountInvoice(models.Model):
                     # Monto Retención Renta
                     inv.income_withholding = abs(sum([tax.amount for tax in inv.tax_line_ids
                                                       if tax.tax_id.purchase_tax_type == 'isr']))
+                if inv.state == 'paid':
+                    # Fecha Pago
+                    inv.payment_date = fields.Date.context_today(inv)
 
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')

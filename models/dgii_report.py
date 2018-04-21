@@ -235,7 +235,7 @@ class DgiiReport(models.Model):
                     'modified_invoice_number': inv.origin if inv.type == 'out_refund' else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
-                    'withholding_date': False,  # Pendiente
+                    'withholding_date': inv.payment_date,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'third_withheld_itbis': inv.third_withheld_itbis,
