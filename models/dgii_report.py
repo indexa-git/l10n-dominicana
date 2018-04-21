@@ -269,6 +269,26 @@ class DgiiReport(models.Model):
                 CancelLine.create(values)
 
     @api.multi
+    def _compute_609_data(self):
+        for rec in self:
+            ExteriorLine = self.env['dgii.exterior.report.line']
+            ExteriorLine.search([('dgii_report_id', '=', rec.id)]).unlink()
+
+            invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['in_invoice', 'in_refund'])
+            line = 0
+            for inv in invoice_ids:
+                line += 1
+                values = {
+                    'legal_name': inv.partner_id.name,
+                    'tax_id_type': 1 if inv.partner_id.company_type == 'individual' else 2,
+                    'country_code': inv.partner_id.country_id.code,
+                    'purchased_service_type': inv.service_type,
+                    'service_type_detail': inv.service_type_detail,
+                    'related_part': False
+                }
+                ExteriorLine.create(values)
+
+    @api.multi
     def generate_report(self):
         self._compute_606_data()
         self._compute_607_data()
@@ -406,12 +426,12 @@ class DgiiExteriorReportline(models.Model):
     line = fields.Integer()
 
     legal_name = fields.Char()
-    tax_id_type = fields.Char()
+    tax_id_type = fields.Integer()
     tax_id = fields.Char()
     country_code = fields.Char()
-    purchased_service_type = fields.Char()
-    service_type_detail = fields.Char()
-    related_part = fields.Char()
+    purchased_service_type = fields.Char(size=2)
+    service_type_detail = fields.Char(size=2)
+    related_part = fields.Integer()
     doc_number = fields.Char()
     doc_date = fields.Date()
     invoiced_amount = fields.Float()

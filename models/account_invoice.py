@@ -5,6 +5,32 @@ import json
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
+SERVICE_TYPE_DETAIL = [('11', 'Sueldo y Salario'),
+                       ('12', 'Otros Gastos de Personal'),
+                       ('21', 'Honorarios por Servicios Profesionales (Personas Morales)'),
+                       ('22', 'Honorarios por Servicios Profesionales (Personas Físicas)'),
+                       ('23', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Físicas)'),
+                       ('24', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Morales)'),
+                       ('31', 'De Inmuebles (A Personas Físicas)'),
+                       ('32', 'De Inmuebles (A Personas Morales)'),
+                       ('33', 'Otros Arrendamientos'),
+                       ('41', 'Reparación'),
+                       ('42', 'Mantenimiento'),
+                       ('51', 'Relaciones Públicas'),
+                       ('52', 'Publicidad Promocional'),
+                       ('53', 'Promocional'),
+                       ('54', 'Otros Gastos de Representación'),
+                       ('61', 'Por Préstamos con Bancos'),
+                       ('62', 'Por Préstamos con Financiamiento'),
+                       ('63', 'Por Préstamos con Personas Físicas'),
+                       ('64', 'Por Préstamos con Organismos Internacionales'),
+                       ('65', 'Otros Gastos Financieros'),
+                       ('71', 'Gastos de Seguro'),
+                       ('81', 'Cesión / Uso Marca'),
+                       ('82', 'Transferencias de Know-How'),
+                       ('83', 'Cesión / Uso de Patente'),
+                       ('84', 'Otras Regalías')]
+
 
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
@@ -185,6 +211,23 @@ class AccountInvoice(models.Model):
         for inv in self:
             inv.is_exterior = True if inv.journal_id.purchase_type == 'exterior' else False
 
+    @api.model
+    @api.depends('service_type')
+    def _get_service_type_detail(self):
+        context = self._context.get('params')
+        service_type = self.service_type
+        if not service_type and context:
+            service_type = self.browse(context.get('id')).service_type
+
+        if service_type:
+            return [(x[0], x[1]) for x in SERVICE_TYPE_DETAIL if x[0][:1] == service_type[1:]]
+        else:
+            return []
+
+    @api.onchange('service_type')
+    def onchange_service_type(self):
+        self._get_service_type_detail()
+
     # ISR Percibido                         --> Este campo se va con 12 espacios en 0 para el 606
     # ITBIS Percibido                       --> Este campo se va con 12 espacios en 0 para el 606
     payment_date = fields.Date(compute='_compute_taxes_fields', store=True)
@@ -215,29 +258,4 @@ class AccountInvoice(models.Model):
                                      ('06', 'Gastos Financieros'),
                                      ('07', 'Gastos de Seguros'),
                                      ('08', 'Gastos por Regalías y otros Intangibles')])
-    service_type_detail = fields.Selection(
-        [('11', 'Sueldo y Salario'),
-         ('12', 'Otros Gastos de Personal'),
-         ('21', 'Honorarios por Servicios Profesionales (Personas Morales)'),
-         ('22', 'Honorarios por Servicios Profesionales (Personas Físicas)'),
-         ('23', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Físicas)'),
-         ('24', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Morales)'),
-         ('31', 'De Inmuebles (A Personas Físicas)'),
-         ('32', 'De Inmuebles (A Personas Morales)'),
-         ('33', 'Otros Arrendamientos'),
-         ('41', 'Reparación'),
-         ('42', 'Mantenimiento'),
-         ('51', 'Relaciones Públicas'),
-         ('52', 'Publicidad Promocional'),
-         ('53', 'Promocional'),
-         ('54', 'Otros Gastos de Representación'),
-         ('61', 'Por Préstamos con Bancos'),
-         ('62', 'Por Préstamos con Financiamiento'),
-         ('63', 'Por Préstamos con Personas Físicas'),
-         ('64', 'Por Préstamos con Organismos Internacionales'),
-         ('65', 'Otros Gastos Financieros'),
-         ('71', 'Gastos de Seguro'),
-         ('81', 'Cesión / Uso Marca'),
-         ('82', 'Transferencias de Know-How'),
-         ('83', 'Cesión / Uso de Patente'),
-         ('84', 'Otras Regalías')])
+    service_type_detail = fields.Selection(_get_service_type_detail)

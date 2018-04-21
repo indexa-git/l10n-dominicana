@@ -46,8 +46,7 @@
             <xpath expr="//field[@name='reference']" position="before">
                 <field name="is_exterior" invisible="1"/>
                 <field name="service_type" attrs="{'invisible': [('is_exterior', '=', False)], 'required': True}"/>
-                <field name="service_type_detail"
-                       attrs="{'invisible': [('is_exterior', '=', False)], 'required': True}"/>
+                <field name="service_type_detail" attrs="{'invisible': [('is_exterior', '=', False)]}"/>
             </xpath>
             <xpath expr="//page[@name='other_info']" position="after">
                 <page name="dgii_fields" string="DGII">
