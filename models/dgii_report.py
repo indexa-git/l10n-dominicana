@@ -55,6 +55,15 @@ class DgiiReport(models.Model):
             cancel_line_ids = self.env['dgii.cancel.report.line'].search([('dgii_report_id', '=', rec.id)])
             rec.cancel_records = len(cancel_line_ids)
 
+    @api.multi
+    def _compute_609_fields(self):
+        for rec in self:
+            external_line_ids = self.env['dgii.exterior.report.line'].search([('dgii_report_id', '=', rec.id)])
+            rec.exterior_records = len(external_line_ids)
+            rec.presumed_income = abs(sum([inv.presumed_income for inv in external_line_ids]))
+            rec.exterior_withholded_isr = abs(sum([inv.withholded_isr for inv in external_line_ids]))
+            rec.exterior_invoiced_amount = abs(sum([inv.invoiced_amount for inv in external_line_ids]))
+
     # 606
     purchase_records = fields.Integer(compute='_compute_606_fields')
     service_total_amount = fields.Monetary(compute='_compute_606_fields')
@@ -89,10 +98,10 @@ class DgiiReport(models.Model):
     cancel_binary = fields.Binary(string='608 file')
 
     # 609
-    exterior_records = fields.Integer()
-    presumed_income = fields.Float()
-    exterior_withholded_isr = fields.Float()
-    exterior_invoiced_amount = fields.Float()
+    exterior_records = fields.Integer(compute='_compute_609_fields')
+    presumed_income = fields.Float(compute='_compute_609_fields')
+    exterior_withholded_isr = fields.Float(compute='_compute_609_fields')
+    exterior_invoiced_amount = fields.Float(compute='_compute_609_fields')
     exterior_filename = fields.Char()
     exterior_binary = fields.Binary(string='609 file')
 
@@ -120,7 +129,7 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
-    def _get_invoices(self, rec, states, types):
+    def _get_invoices(self, rec, states, types, ):
         """
         Given rec and state, return a recordset of invoices
         :param rec: dgii.reports object
@@ -279,12 +288,21 @@ class DgiiReport(models.Model):
             for inv in invoice_ids:
                 line += 1
                 values = {
+                    'dgii_report_id': rec.id,
+                    'line': line,
                     'legal_name': inv.partner_id.name,
                     'tax_id_type': 1 if inv.partner_id.company_type == 'individual' else 2,
+                    'tax_id': inv.partner_id.vat,
                     'country_code': inv.partner_id.country_id.code,
                     'purchased_service_type': inv.service_type,
                     'service_type_detail': inv.service_type_detail,
                     'related_part': int(inv.partner_id.related),
+                    'doc_number': inv.number,
+                    'doc_date': inv.date_invoice,
+                    'invoiced_amount': inv.amount_untaxed_signed,
+                    'isr_withholding_date': False,
+                    'presumed_income': 0,  # Pendiente
+                    'withholded_isr': inv.income_withholding,
                 }
                 ExteriorLine.create(values)
 
@@ -293,6 +311,7 @@ class DgiiReport(models.Model):
         self._compute_606_data()
         self._compute_607_data()
         self._compute_608_data()
+        self._compute_609_data()
 
     def get_606_tree_view(self):
         return {
@@ -438,8 +457,3 @@ class DgiiExteriorReportline(models.Model):
     isr_withholding_date = fields.Date()
     presumed_income = fields.Float()
     withholded_isr = fields.Float()
-
-    expense_type = fields.Char(size=2)
-    invoice_date = fields.Date()
-    payment_date = fields.Date()
-    income_withholding = fields.Float()
