@@ -284,7 +284,7 @@ class DgiiReport(models.Model):
                     'country_code': inv.partner_id.country_id.code,
                     'purchased_service_type': inv.service_type,
                     'service_type_detail': inv.service_type_detail,
-                    'related_part': False
+                    'related_part': int(inv.partner_id.related),
                 }
                 ExteriorLine.create(values)
 

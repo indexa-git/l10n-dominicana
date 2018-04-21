@@ -857,3 +857,15 @@ msgstr ""
 msgid "dgii.reports.sale.line"
 msgstr ""
 
+#. module: dgii_reports
+#: selection:res.partner,related:0
+msgid "Not Related"
+msgstr "No Relacionado"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_res_partner_related
+#: model:ir.model.fields,field_description:dgii_reports.field_res_users_related
+#: selection:res.partner,related:0
+msgid "Related"
+msgstr "Relacionado"
+
