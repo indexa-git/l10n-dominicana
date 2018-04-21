@@ -283,7 +283,11 @@ class DgiiReport(models.Model):
             ExteriorLine = self.env['dgii.exterior.report.line']
             ExteriorLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['in_invoice', 'in_refund'])
+            invoice_ids = self._get_invoices(rec,
+                                             ['open', 'paid'],
+                                             ['in_invoice',
+                                              'in_refund']
+                                             ).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO'))
             line = 0
             for inv in invoice_ids:
                 line += 1
