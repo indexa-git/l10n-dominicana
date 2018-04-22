@@ -26,9 +26,9 @@ class AccountInvoice(models.Model):
     def _check_isr_tax(self):
         """Restrict one ISR tax per invoice"""
         for inv in self:
-            l = [tax_line.tax_id.purchase_tax_type for tax_line in inv.tax_line_ids
-                 if tax_line.tax_id.purchase_tax_type in ['isr', 'ritbis']]
-            if len(l) != len(set(l)):
+            line = [tax_line.tax_id.purchase_tax_type for tax_line in inv.tax_line_ids
+                    if tax_line.tax_id.purchase_tax_type in ['isr', 'ritbis']]
+            if len(line) != len(set(line)):
                 raise ValidationError(_('An invoice cannot have multiple withholding taxes.'))
 
     @api.multi
