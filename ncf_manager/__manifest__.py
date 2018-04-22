@@ -27,7 +27,7 @@
     'summary': u"""
         Este módulo implementa la administración y gestión de los números de
          comprobantes fiscales para el cumplimento de la norma 06-18 de la
-         Dirección de Impuestos Internos en la República Dominicana
+         Dirección de Impuestos Internos en la República Dominicana.
     """,
     'author': "Marcos Organizador de Negocios SRL, "
               "iterativo SRL, "
@@ -46,19 +46,22 @@
     'data': [
         'security/ir.model.access.csv',
         'security/ncf_manager_security.xml',
+
+        'data/setup_ncf.xml',
+        'data/sequences.xml',
+
         'wizard/account_invoice_cancel_view.xml',
-        'wizard/update_rate_wizard_view.xml',
         'wizard/account_invoice_refund.xml',
         'wizard/update_sequence_wizard_view.xml',
+
         'views/shop_view.xml',
         'views/account_invoice_view.xml',
         'views/account_view.xml',
         'views/res_currency_view.xml',
         'views/assets_backend.xml',
         'views/ir_sequence_view.xml',
-        'data/sequences.xml',
         'views/res_view.xml',
-        'data/setup_ncf.xml'
+
     ],
     'qweb': [
         'static/src/xml/ncf_manager.xml'
