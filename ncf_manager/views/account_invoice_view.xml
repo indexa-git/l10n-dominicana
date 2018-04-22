@@ -18,18 +18,6 @@
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
 
-            <xpath expr="//sheet//label" position="before">
-                <div class="oe_button_box" name="button_box">
-                    <button name="%(update_rate_wizard_action)d"
-                            type="action"
-                            class="oe_stat_button"
-                            icon="fa-money"
-                            attrs="{'invisible': [('is_company_currency', '=', True)]}">
-                        <field name="invoice_rate" widget="monetary" string="Tasa"/>
-                    </button>
-                </div>
-            </xpath>
-
             <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
                 <button name="%(ncf_manager.action_account_invoice_cancel)d" type='action'
                         string="Cancelar Factura"
@@ -46,13 +34,6 @@
                        'required': [('ncf_control','=',True),('type','=','out_invoice')],
                        'readonly': [('state','!=','draft')]}"/>
             </field>
-
-
-            <!--shop_id field deprefcate on odoo 11-->
-            <!--<field name="date_invoice" position="after">-->
-                <!--<field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"-->
-                       <!--attrs="{'readonly':[('state','!=','draft')],'required': True}"/>-->
-            <!--</field>-->
 
             <field name="number" position="before">
                 <h2 attrs="{'invisible': [('state','!=','cancel')]}">
@@ -99,18 +80,6 @@
             <field name="date_invoice" position="before">
                 <field name="internal_sequence" readonly="1"/>
             </field>
-
-            <xpath expr="//sheet//label" position="before">
-                <div class="oe_button_box" name="button_box">
-                    <button name="%(update_rate_wizard_action)d"
-                            type="action"
-                            class="oe_stat_button"
-                            icon="fa-money"
-                            attrs="{'invisible': [('is_company_currency', '=', True)]}">
-                        <field name="invoice_rate" widget="monetary" string="Tasa"/>
-                    </button>
-                </div>
-            </xpath>
 
             <field name="journal_id" position="replace"/>
             <field name="move_name" position="replace"/>
