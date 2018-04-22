@@ -1,0 +1,22 @@
+<odoo>
+    <template id="report_invoice">
+        <t t-call="web.report_layout">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context({'lang':o.partner_id.lang})" />
+                <t t-call="ncf_manager.INVOICE_1_document" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <report
+        id="account.account_invoices"
+        model="account.invoice"
+        string="Invoices"
+        report_type="qweb-pdf"
+        name="ncf_manager.report_invoice"
+        file="ncf_manager.report_invoice"
+        attachment_use="True"
+        attachment="(object.state in ('open','paid')) and ((object.number or '').replace('/','-')+('-pagado' if object.state in ('paid') else '-pendiente')+'.pdf')"
+    />
+
+</odoo>
