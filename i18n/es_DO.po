@@ -897,3 +897,10 @@ msgid ""
 "An invoice cannot have multiple withholding taxes."
 msgstr "Una factura no puede tener múltiples retenciones de ISR"
 
+#. module: dgii_reports
+#: code:dgii_reports/models/dgii_report.py:111
+#, python-format
+msgid ""
+"Error. Date format must be MM/YYYY"
+msgstr "Error. El formato de fecha debe ser MM/AAAA"
+
