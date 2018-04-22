@@ -129,7 +129,7 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
-    def _get_invoices(self, rec, states, types, ):
+    def _get_invoices(self, rec, states, types):
         """
         Given rec and state, return a recordset of invoices
         :param rec: dgii.reports object
