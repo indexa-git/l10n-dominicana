@@ -58,7 +58,7 @@ class AccountInvoice(models.Model):
                 inv.cost_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
                                           if tax.account_id.account_fiscal_type == 'A51']))
 
-                if inv.type == 'in_invoice' and inv.state == 'paid':
+                if inv.type == 'in_invoice':
                     # Monto ITBIS Retenido
                     inv.withholded_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
                                                     if tax.tax_id.purchase_tax_type == 'ritbis']))

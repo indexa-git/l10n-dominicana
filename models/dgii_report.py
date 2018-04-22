@@ -188,14 +188,14 @@ class DgiiReport(models.Model):
                     'good_total_amount': inv.good_total_amount,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
-                    'withholded_itbis': inv.withholded_itbis,
                     'proportionality_tax': inv.proportionality_tax,
                     'cost_itbis': inv.cost_itbis,
                     'advance_itbis': inv.advance_itbis,
                     'purchase_perceived_itbis': 0,  # Falta computarlo en la factura
-                    'isr_withholding_type': inv.isr_withholding_type,
-                    'income_withholding': inv.income_withholding,
                     'purchase_perceived_isr': 0,  # Falta computarlo en la factura
+                    'isr_withholding_type': inv.isr_withholding_type,
+                    'withholded_itbis': inv.withholded_itbis,
+                    'income_withholding': inv.income_withholding,
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
