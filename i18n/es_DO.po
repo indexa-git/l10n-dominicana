@@ -869,3 +869,19 @@ msgstr "No Relacionado"
 msgid "Related"
 msgstr "Relacionado"
 
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_exterior_report_line_purchased_service_type
+msgid "Purchased Service Type"
+msgstr "Tipo servicios adquiridos"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_service_type
+msgid "Service Type"
+msgstr "Tipo Servicio Adquirido"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_service_type_detail
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_exterior_report_line_service_type_detail
+msgid "Service Type Detail"
+msgstr "Detalle Servicio Adquirido"
+

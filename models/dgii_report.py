@@ -287,7 +287,8 @@ class DgiiReport(models.Model):
                                              ['open', 'paid'],
                                              ['in_invoice',
                                               'in_refund']
-                                             ).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO'))
+                                             ).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO') and
+                                                                    (inv.journal_id.purchase_type == 'exterior'))
             line = 0
             for inv in invoice_ids:
                 line += 1
@@ -299,7 +300,7 @@ class DgiiReport(models.Model):
                     'tax_id': inv.partner_id.vat,
                     'country_code': inv.partner_id.country_id.code,
                     'purchased_service_type': inv.service_type,
-                    'service_type_detail': inv.service_type_detail,
+                    'service_type_detail': inv.service_type_detail.code,
                     'related_part': int(inv.partner_id.related),
                     'doc_number': inv.number,
                     'doc_date': inv.date_invoice,

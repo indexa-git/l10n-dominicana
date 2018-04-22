@@ -4,3 +4,4 @@ access_dgii_reports_sale_line,access_dgii_reports_sale_line,model_dgii_reports_s
 access_dgii_cancel_report_line,access_dgii_cancel_report_line,model_dgii_cancel_report_line,,1,1,1,1
 access_dgii_exterior_report_line,access_dgii_exterior_report_line,model_dgii_exterior_report_line,,1,1,1,1
 access_dgii_reports,access_dgii_reports,model_dgii_reports,,1,1,1,0
+access_invoice_service_type_detail,access_invoice_service_type_detail,model_invoice_service_type_detail,,1,0,0,0
