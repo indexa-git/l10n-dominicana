@@ -5,32 +5,6 @@ import json
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
-# SERVICE_TYPE_DETAIL = [('11', 'Sueldo y Salario'),
-#                        ('12', 'Otros Gastos de Personal'),
-#                        ('21', 'Honorarios por Servicios Profesionales (Personas Morales)'),
-#                        ('22', 'Honorarios por Servicios Profesionales (Personas Físicas)'),
-#                        ('23', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Físicas)'),
-#                        ('24', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Morales)'),
-#                        ('31', 'De Inmuebles (A Personas Físicas)'),
-#                        ('32', 'De Inmuebles (A Personas Morales)'),
-#                        ('33', 'Otros Arrendamientos'),
-#                        ('41', 'Reparación'),
-#                        ('42', 'Mantenimiento'),
-#                        ('51', 'Relaciones Públicas'),
-#                        ('52', 'Publicidad Promocional'),
-#                        ('53', 'Promocional'),
-#                        ('54', 'Otros Gastos de Representación'),
-#                        ('61', 'Por Préstamos con Bancos'),
-#                        ('62', 'Por Préstamos con Financiamiento'),
-#                        ('63', 'Por Préstamos con Personas Físicas'),
-#                        ('64', 'Por Préstamos con Organismos Internacionales'),
-#                        ('65', 'Otros Gastos Financieros'),
-#                        ('71', 'Gastos de Seguro'),
-#                        ('81', 'Cesión / Uso Marca'),
-#                        ('82', 'Transferencias de Know-How'),
-#                        ('83', 'Cesión / Uso de Patente'),
-#                        ('84', 'Otras Regalías')]
-
 
 class InvoiceServiceTypeDetail(models.Model):
     _name = 'invoice.service.type.detail'
