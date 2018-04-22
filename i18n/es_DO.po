@@ -885,3 +885,15 @@ msgstr "Tipo Servicio Adquirido"
 msgid "Service Type Detail"
 msgstr "Detalle Servicio Adquirido"
 
+#. module: dgii_reports
+#: sql_constraint:invoice.service.type.detail:0
+msgid "Code must be unique"
+msgstr "El código debe ser único"
+
+#. module: dgii_reports
+#: code:dgii_reports/models/account_invoice.py:32
+#, python-format
+msgid ""
+"An invoice cannot have multiple withholding taxes."
+msgstr "Una factura no puede tener múltiples retenciones de ISR"
+
