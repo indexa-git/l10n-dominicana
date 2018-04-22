@@ -914,3 +914,23 @@ msgid ""
 "Error. Date format must be MM/YYYY"
 msgstr "Error. El formato de fecha debe ser MM/AAAA"
 
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_report_status
+msgid "Report Status"
+msgstr "Estado 606"
+
+#. module: dgii_reports
+#: selection:account.invoice,report_status:0
+msgid "Reported"
+msgstr "Reportada"
+
+#. module: dgii_reports
+#: selection:account.invoice,report_status:0
+msgid "Partial"
+msgstr "Parcial"
+
+#. module: dgii_reports
+#: selection:account.invoice,report_status:0
+msgid "Not Sent"
+msgstr "No enviada"
+
