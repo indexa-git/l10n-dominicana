@@ -12,7 +12,9 @@ class DgiiReport(models.Model):
     _inherit = ['mail.thread']
 
     name = fields.Char(string='Period', required=True, size=7)
-    state = fields.Selection([('draft', 'New'), ('error', 'With error'), ('done', 'Validated')], default='draft')
+    state = fields.Selection([('draft', 'New'), ('error', 'With error'),
+                              ('generated', 'Generated'), ('sent', 'Sent')],
+                             default='draft', track_visibility='onchange')
     previous_balance = fields.Float('Previous balance')
     currency_id = fields.Many2one('res.currency', string='Currency', required=True,
                                   default=lambda self: self.env.user.company_id.currency_id)
@@ -172,6 +174,7 @@ class DgiiReport(models.Model):
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['in_invoice', 'in_refund'])
             line = 0
             for inv in invoice_ids:
+                inv.report_status = 'blocked'
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 values = {
@@ -317,6 +320,12 @@ class DgiiReport(models.Model):
         self._compute_607_data()
         self._compute_608_data()
         self._compute_609_data()
+        self.state = 'generated'
+
+    @api.multi
+    def state_sent(self):
+        for report in self:
+            report.state = 'sent'
 
     def get_606_tree_view(self):
         return {

@@ -369,6 +369,11 @@ msgid "Generate Statements"
 msgstr "Generar Reportes"
 
 #. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "Set as sent"
+msgstr "Marcar como enviado"
+
+#. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_good_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_good_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_good_total_amount
@@ -556,6 +561,11 @@ msgstr "NCF o Documento Modificado"
 #: selection:dgii.reports,state:0
 msgid "New"
 msgstr "Nuevo"
+
+#. module: dgii_reports
+#: selection:dgii.reports,state:0
+msgid "Generated"
+msgstr "Generado"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_other_taxes
@@ -793,8 +803,8 @@ msgstr "ITBIS Retenido por Terceros"
 
 #. module: dgii_reports
 #: selection:dgii.reports,state:0
-msgid "Validated"
-msgstr "Validado"
+msgid "Sent"
+msgstr "Enviado"
 
 #. module: dgii_reports
 #: selection:dgii.reports,state:0

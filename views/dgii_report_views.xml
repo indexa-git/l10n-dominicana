@@ -8,8 +8,12 @@
             <form>
                 <header>
                     <button name="generate_report" string="Generate Statements" type="object"
-                            class="oe_highlight"/>
-                    <field name="state" widget="statusbar" clickable="0"/>
+                            class="oe_highlight" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button name="generate_report" string="Generate Statements" type="object"
+                            attrs="{'invisible': [('state', '!=', 'generated')]}"/>
+                    <button name="state_sent" string="Set as sent" type="object"
+                            class="oe_highlight" attrs="{'invisible': [('state', '!=', 'generated')]}"/>
+                    <field name="state" widget="statusbar" clickable="0" statusbar_visible="draft,generated,sent"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -19,8 +23,8 @@
                     </div>
                     <group>
                         <group>
-                            <field name="name" placeholder="MM/YYYY"/>
-                            <field name="previous_balance"/>
+                            <field name="name" placeholder="MM/YYYY" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="previous_balance" readonly="1"/>
                         </group>
                     </group>
 
@@ -98,6 +102,7 @@
         <field name="arch" type="xml">
             <tree string="Statements">
                 <field name="name"/>
+                <field name="state"/>
                 <field name="create_date"/>
                 <field name="create_uid"/>
                 <field name="write_uid"/>

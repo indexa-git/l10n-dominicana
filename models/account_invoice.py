@@ -238,7 +238,12 @@ class AccountInvoice(models.Model):
                                      ('07', 'Gastos de Seguros'),
                                      ('08', 'Gastos por Regalías y otros Intangibles')])
     service_type_detail = fields.Many2one('invoice.service.type.detail')
-    report_status = fields.Selection([('normal', 'Partial'),
-                                      ('done', 'Reported'),
-                                      ('blocked', 'Not Sent')],
-                                     string='Report Status', copy=False)
+    report_status = fields.Selection(
+        [('normal', 'Partial'),
+         ('done', 'Reported'),
+         ('blocked', 'Not Sent')],
+        string='Report Status', copy=False,
+        help="* The \'Grey\' status means ...\n"
+             "* The \'Green\' status means ...\n"
+             "* The \'Red\' status means ...\n"
+             "* The blank status means that the invoice have not been included in a report.")
