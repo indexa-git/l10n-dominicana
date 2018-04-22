@@ -369,6 +369,11 @@ msgid "Generate Statements"
 msgstr "Generar Reportes"
 
 #. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "Set as sent"
+msgstr "Marcar como enviado"
+
+#. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_good_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_good_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_good_total_amount
@@ -556,6 +561,11 @@ msgstr "NCF o Documento Modificado"
 #: selection:dgii.reports,state:0
 msgid "New"
 msgstr "Nuevo"
+
+#. module: dgii_reports
+#: selection:dgii.reports,state:0
+msgid "Generated"
+msgstr "Generado"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_other_taxes
@@ -793,8 +803,8 @@ msgstr "ITBIS Retenido por Terceros"
 
 #. module: dgii_reports
 #: selection:dgii.reports,state:0
-msgid "Validated"
-msgstr "Validado"
+msgid "Sent"
+msgstr "Enviado"
 
 #. module: dgii_reports
 #: selection:dgii.reports,state:0
@@ -884,4 +894,43 @@ msgstr "Tipo Servicio Adquirido"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_exterior_report_line_service_type_detail
 msgid "Service Type Detail"
 msgstr "Detalle Servicio Adquirido"
+
+#. module: dgii_reports
+#: sql_constraint:invoice.service.type.detail:0
+msgid "Code must be unique"
+msgstr "El código debe ser único"
+
+#. module: dgii_reports
+#: code:dgii_reports/models/account_invoice.py:32
+#, python-format
+msgid ""
+"An invoice cannot have multiple withholding taxes."
+msgstr "Una factura no puede tener múltiples retenciones de ISR"
+
+#. module: dgii_reports
+#: code:dgii_reports/models/dgii_report.py:111
+#, python-format
+msgid ""
+"Error. Date format must be MM/YYYY"
+msgstr "Error. El formato de fecha debe ser MM/AAAA"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_report_status
+msgid "Report Status"
+msgstr "Estado 606"
+
+#. module: dgii_reports
+#: selection:account.invoice,report_status:0
+msgid "Reported"
+msgstr "Reportada"
+
+#. module: dgii_reports
+#: selection:account.invoice,report_status:0
+msgid "Partial"
+msgstr "Parcial"
+
+#. module: dgii_reports
+#: selection:account.invoice,report_status:0
+msgid "Not Sent"
+msgstr "No enviada"
 

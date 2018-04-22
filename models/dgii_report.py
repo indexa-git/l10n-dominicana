@@ -12,7 +12,9 @@ class DgiiReport(models.Model):
     _inherit = ['mail.thread']
 
     name = fields.Char(string='Period', required=True, size=7)
-    state = fields.Selection([('draft', 'New'), ('error', 'With error'), ('done', 'Validated')], default='draft')
+    state = fields.Selection([('draft', 'New'), ('error', 'With error'),
+                              ('generated', 'Generated'), ('sent', 'Sent')],
+                             default='draft', track_visibility='onchange')
     previous_balance = fields.Float('Previous balance')
     currency_id = fields.Many2one('res.currency', string='Currency', required=True,
                                   default=lambda self: self.env.user.company_id.currency_id)
@@ -129,7 +131,20 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
-    def _get_invoices(self, rec, states, types, ):
+    @api.multi
+    def unlink(self):
+        """When report is deleted, set all purchase invoices report_status to False"""
+        for report in self:
+            PurchaseLine = self.env['dgii.reports.purchase.line']
+            invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            for inv in invoice_ids:
+                inv.report_status = False
+        return super(DgiiReport, self).unlink()
+
+    def _get_pending_invoices(self):
+        return self.env['account.invoice'].search([('report_status', '=', 'normal'), ('state', '=', 'paid')])
+
+    def _get_invoices(self, rec, states, types):
         """
         Given rec and state, return a recordset of invoices
         :param rec: dgii.reports object
@@ -151,6 +166,9 @@ class DgiiReport(models.Model):
             order='date_invoice asc').filtered(lambda inv: (inv.journal_id.purchase_type != 'others') or
                                                            (inv.journal_id.ncf_control is True))
 
+        # Append pending invoces (report_status = Partial, state = Paid)
+        invoice_ids += self._get_pending_invoices()
+
         return invoice_ids
 
     def formated_rnc_cedula(self, vat):
@@ -170,8 +188,10 @@ class DgiiReport(models.Model):
             PurchaseLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['in_invoice', 'in_refund'])
+
             line = 0
             for inv in invoice_ids:
+                inv.report_status = 'blocked'
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 values = {
@@ -188,19 +208,20 @@ class DgiiReport(models.Model):
                     'good_total_amount': inv.good_total_amount,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
-                    'withholded_itbis': inv.withholded_itbis,
                     'proportionality_tax': inv.proportionality_tax,
                     'cost_itbis': inv.cost_itbis,
                     'advance_itbis': inv.advance_itbis,
                     'purchase_perceived_itbis': 0,  # Falta computarlo en la factura
-                    'isr_withholding_type': inv.isr_withholding_type,
-                    'income_withholding': inv.income_withholding,
                     'purchase_perceived_isr': 0,  # Falta computarlo en la factura
+                    'isr_withholding_type': inv.isr_withholding_type,
+                    'withholded_itbis': inv.withholded_itbis,
+                    'income_withholding': inv.income_withholding,
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
                     'payment_type': inv.payment_form,
                     'invoice_partner_id': inv.partner_id.id,
+                    'invoice_id': inv.id,
                     'credit_note': True if inv.type == 'in_refund' else False
                 }
                 PurchaseLine.create(values)
@@ -317,6 +338,32 @@ class DgiiReport(models.Model):
         self._compute_607_data()
         self._compute_608_data()
         self._compute_609_data()
+        self.state = 'generated'
+
+    def _has_withholding(self, inv):
+        """Validate if given invoice has an Withholding tax"""
+        return True if any([inv.income_withholding, inv.withholded_itbis]) else False
+
+    @api.multi
+    def _invoice_status_sent(self):
+        for report in self:
+            PurchaseLine = self.env['dgii.reports.purchase.line']
+            invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            for inv in invoice_ids:
+                if inv.state == 'paid':
+                    inv.report_status = 'done'
+                    continue
+
+                if self._has_withholding(inv):
+                    inv.report_status = 'normal'
+                else:
+                    inv.report_status = 'done'
+
+    @api.multi
+    def state_sent(self):
+        for report in self:
+            self._invoice_status_sent()
+            report.state = 'sent'
 
     def get_606_tree_view(self):
         return {
@@ -363,7 +410,7 @@ class DgiiReportPurchaseLine(models.Model):
     _name = 'dgii.reports.purchase.line'
     _order = 'line asc'
 
-    dgii_report_id = fields.Many2one('dgii.reports')
+    dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
 
     rnc_cedula = fields.Char(size=11)
@@ -391,13 +438,14 @@ class DgiiReportPurchaseLine(models.Model):
     payment_type = fields.Char()
 
     invoice_partner_id = fields.Many2one('res.partner')
+    invoice_id = fields.Many2one('account.invoice')
     credit_note = fields.Boolean()
 
 
 class DgiiReportSaleLine(models.Model):
     _name = 'dgii.reports.sale.line'
 
-    dgii_report_id = fields.Many2one('dgii.reports')
+    dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
 
     rnc_cedula = fields.Char(size=11)
@@ -433,7 +481,7 @@ class DgiiReportSaleLine(models.Model):
 class DgiiCancelReportline(models.Model):
     _name = 'dgii.cancel.report.line'
 
-    dgii_report_id = fields.Many2one('dgii.reports')
+    dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
 
     fiscal_invoice_number = fields.Char(size=19)
@@ -446,7 +494,7 @@ class DgiiCancelReportline(models.Model):
 class DgiiExteriorReportline(models.Model):
     _name = 'dgii.exterior.report.line'
 
-    dgii_report_id = fields.Many2one('dgii.reports')
+    dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
 
     legal_name = fields.Char()

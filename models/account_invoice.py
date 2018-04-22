@@ -5,32 +5,6 @@ import json
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
-# SERVICE_TYPE_DETAIL = [('11', 'Sueldo y Salario'),
-#                        ('12', 'Otros Gastos de Personal'),
-#                        ('21', 'Honorarios por Servicios Profesionales (Personas Morales)'),
-#                        ('22', 'Honorarios por Servicios Profesionales (Personas Físicas)'),
-#                        ('23', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Físicas)'),
-#                        ('24', 'Seguridad, Mensajería, Transporte y otros Servicios (Personas Morales)'),
-#                        ('31', 'De Inmuebles (A Personas Físicas)'),
-#                        ('32', 'De Inmuebles (A Personas Morales)'),
-#                        ('33', 'Otros Arrendamientos'),
-#                        ('41', 'Reparación'),
-#                        ('42', 'Mantenimiento'),
-#                        ('51', 'Relaciones Públicas'),
-#                        ('52', 'Publicidad Promocional'),
-#                        ('53', 'Promocional'),
-#                        ('54', 'Otros Gastos de Representación'),
-#                        ('61', 'Por Préstamos con Bancos'),
-#                        ('62', 'Por Préstamos con Financiamiento'),
-#                        ('63', 'Por Préstamos con Personas Físicas'),
-#                        ('64', 'Por Préstamos con Organismos Internacionales'),
-#                        ('65', 'Otros Gastos Financieros'),
-#                        ('71', 'Gastos de Seguro'),
-#                        ('81', 'Cesión / Uso Marca'),
-#                        ('82', 'Transferencias de Know-How'),
-#                        ('83', 'Cesión / Uso de Patente'),
-#                        ('84', 'Otras Regalías')]
-
 
 class InvoiceServiceTypeDetail(models.Model):
     _name = 'invoice.service.type.detail'
@@ -52,9 +26,9 @@ class AccountInvoice(models.Model):
     def _check_isr_tax(self):
         """Restrict one ISR tax per invoice"""
         for inv in self:
-            l = [tax_line.tax_id.purchase_tax_type for tax_line in inv.tax_line_ids
-                 if tax_line.tax_id.purchase_tax_type in ['isr', 'ritbis']]
-            if len(l) != len(set(l)):
+            line = [tax_line.tax_id.purchase_tax_type for tax_line in inv.tax_line_ids
+                    if tax_line.tax_id.purchase_tax_type in ['isr', 'ritbis']]
+            if len(line) != len(set(line)):
                 raise ValidationError(_('An invoice cannot have multiple withholding taxes.'))
 
     @api.multi
@@ -84,7 +58,7 @@ class AccountInvoice(models.Model):
                 inv.cost_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
                                           if tax.account_id.account_fiscal_type == 'A51']))
 
-                if inv.type == 'in_invoice' and inv.state == 'paid':
+                if inv.type == 'in_invoice':
                     # Monto ITBIS Retenido
                     inv.withholded_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
                                                     if tax.tax_id.purchase_tax_type == 'ritbis']))
@@ -264,3 +238,12 @@ class AccountInvoice(models.Model):
                                      ('07', 'Gastos de Seguros'),
                                      ('08', 'Gastos por Regalías y otros Intangibles')])
     service_type_detail = fields.Many2one('invoice.service.type.detail')
+    report_status = fields.Selection(
+        [('normal', 'Partial'),
+         ('done', 'Reported'),
+         ('blocked', 'Not Sent')],
+        string='Report Status', copy=False,
+        help="* The \'Grey\' status means ...\n"
+             "* The \'Green\' status means ...\n"
+             "* The \'Red\' status means ...\n"
+             "* The blank status means that the invoice have not been included in a report.")
