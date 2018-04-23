@@ -162,7 +162,7 @@ class AccountInvoice(models.Model):
             if inv.state != 'draft':
                 amount = 0
                 for tax in inv.tax_line_ids:
-                   if inv.currency_id != inv.company_id.currency_id and tax.tax_id.tax_group_id.name in ['ITBIS',
+                    if inv.currency_id != inv.company_id.currency_id and tax.tax_id.tax_group_id.name in ['ITBIS',
                                                                                                           'ITBIS 18%',
                                                                                                           'ITBIS 0.0015%',
                                                                                                           'ITBIS -30%',
@@ -250,7 +250,7 @@ class AccountInvoice(models.Model):
         [('normal', 'Partial'),
          ('done', 'Reported'),
          ('blocked', 'Not Sent')],
-        string='Report Status', copy=False,
+        copy=False,
         help="* The \'Grey\' status means ...\n"
              "* The \'Green\' status means ...\n"
              "* The \'Red\' status means ...\n"
