@@ -133,8 +133,18 @@
         </field>
     </record>
 
-    <menuitem action="dgii_report_action" id="dgii_report_menu" sequence="14" name="DGII"
-              parent="account.menu_finance"/>
+    <menuitem id="marcos_account_dgii_menu" name="DGII"
+              parent="account.menu_finance"
+              sequence="5"
+              groups="account.group_account_user"/>
+
+    <menuitem id="marcos_account_dgii_file_menu" name="Archivos"
+              parent="marcos_account_dgii_menu"
+              sequence="5"/>
+
+    <menuitem action="dgii_report_action" id="dgii_report_menu"
+              parent="marcos_account_dgii_menu"
+              sequence="14"/>
 
     <!--606-->
     <record id="dgii_report_purchase_line_tree" model="ir.ui.view">
