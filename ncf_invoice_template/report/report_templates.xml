@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="external_layout_background_inherited" inherit_id="web.external_layout_background">
+        <xpath expr="//div[hasclass('o_background_header')]" position="replace">
+            <div class="header o_background_header">
+                <div class="pull-right">
+                    <h3 class="mt0 text-right" t-field="company.report_header"/>
+                </div>
+                <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)" class="pull-left"/>
+                <xpath expr="//div[hasclass('company_address')]" position="replace"/>
+                    <div class="pull-left company_address" style="margin:0 !important; padding:0 !important;"/>
+                <div class="clearfix mb8"/>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="external_layout_boxed_inherited" inherit_id="web.external_layout_boxed">
+        <xpath expr="//div[hasclass('o_boxed_header')]" position="replace">
+            <div class="row mb8">
+                <div class="col-xs-6">
+                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"/>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="external_layout_clean_inherited" inherit_id="web.external_layout_clean">
+        <xpath expr="//div[hasclass('o_clean_header')]" position="replace">
+            <div class="row">
+                <div class="col-xs-6">
+                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"/>
+                    <span>HOLA</span>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- <template id="external_layout_standard_inherited" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[hasclass('header')]" position="replace">
+            <div class="row">
+                <div class="col-xs-3 mb4">
+                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)" style="max-height: 45px;"/>
+                </div>
+                <span>HOLA</span>
+                <div class="col-xs-9 text-right" style="margin-top:22px;" t-field="company.report_header" name="moto"/>
+            </div>
+            <div t-if="company.logo or company.report_header" class="row zero_min_height">
+                <div class="col-xs-12">
+                    <div style="border-bottom: 1px solid black;"/>
+                </div>
+            </div>
+        </xpath>
+    </template> -->
+
+</odoo>
