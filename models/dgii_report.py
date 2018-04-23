@@ -214,8 +214,8 @@ class DgiiReport(models.Model):
                     'purchase_perceived_itbis': 0,  # Falta computarlo en la factura
                     'purchase_perceived_isr': 0,  # Falta computarlo en la factura
                     'isr_withholding_type': inv.isr_withholding_type,
-                    'withholded_itbis': inv.withholded_itbis,
-                    'income_withholding': inv.income_withholding,
+                    'withholded_itbis': inv.withholded_itbis if inv.state == 'paid' else 0,
+                    'income_withholding': inv.income_withholding if inv.state == 'paid' else 0,
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
