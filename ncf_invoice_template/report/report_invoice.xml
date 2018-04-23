@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    
+
     <template id="report_invoice_document_inherit" inherit_id="account.report_invoice_document">
         <xpath expr="//div[hasclass('page')]" position="before">
             <t t-if="not o and doc">
@@ -48,13 +48,13 @@
                             <span t-if="o.state == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">NCF: </span>
                             <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
                             <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
-                            <span t-if="o.type == 'out_refund'">Credit Note</span>
-                            <span t-if="o.type == 'in_refund'">Nota Credito</span>
+                            <span t-if="o.type == 'out_refund'">Nota de Crédito</span>
+                            <span t-if="o.type == 'in_refund'">Nota Crédito</span>
                             <span t-if="o.type == 'in_invoice'">Factura Proveedor</span>
                             <span t-field="o.number"/>
                         </strong>
                     </div>
-                    <div class="text-center" style="font-size:20px;">
+                    <div name="reference" class="text-center" style="font-size:20px;">
                         <strong>
                             Válida hasta <span t-field="o.date_due"/>
                         </strong>
