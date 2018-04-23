@@ -221,7 +221,7 @@
     <!--608-->
     <record id="dgii_cancel_report_line_tree" model="ir.ui.view">
         <field name="name">dgii.reports.cancel.line.tree</field>
-        <field name="model">dgii.cancel.report.line</field>
+        <field name="model">dgii.reports.cancel.line</field>
         <field name="arch" type="xml">
             <tree>
                 <field name="dgii_report_id" invisible="1"/>
@@ -237,7 +237,7 @@
     <!--609-->
     <record id="dgii_exterior_report_line_tree" model="ir.ui.view">
         <field name="name">dgii.exterior.cancel.line.tree</field>
-        <field name="model">dgii.exterior.report.line</field>
+        <field name="model">dgii.reports.exterior.line</field>
         <field name="arch" type="xml">
             <tree>
                 <field name="dgii_report_id" invisible="1"/>
