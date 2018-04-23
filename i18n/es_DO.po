@@ -934,3 +934,9 @@ msgstr "Parcial"
 msgid "Not Sent"
 msgstr "No enviada"
 
+#. module: dgii_reports
+#: model:ir.actions.act_window,name:dgii_reports.dgii_report_action
+#: model:ir.ui.menu,name:dgii_reports.dgii_report_menu
+msgid "DGII Statements"
+msgstr "Declaraciones DGII"
+
