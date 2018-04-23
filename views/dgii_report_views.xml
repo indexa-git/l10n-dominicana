@@ -105,8 +105,8 @@
                 <field name="state"/>
                 <field name="create_date"/>
                 <field name="create_uid"/>
-                <field name="write_uid"/>
                 <field name="write_date"/>
+                <field name="write_uid"/>
             </tree>
         </field>
     </record>
