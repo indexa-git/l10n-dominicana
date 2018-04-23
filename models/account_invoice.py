@@ -44,7 +44,9 @@ class AccountInvoice(models.Model):
                 # Monto Otros Impuestos/Tasas
                 inv.other_taxes = abs(sum([tax.amount for tax in inv.tax_line_ids
                                            if tax.tax_id.purchase_tax_type not in ['isr', 'ritbis']
-                                           and tax.tax_id.tax_group_id.name[:5] not in ['ISC', 'ITBIS']]))
+                                           and tax.tax_id.tax_group_id.name not in ['ISC', 'ITBIS', 'ITBIS 18%',
+                                                                                    'ITBIS 0.0015%', 'ITBIS -30%',
+                                                                                    'ITBIS -100%']]))
 
                 # Monto Propina Legal
                 inv.legal_tip = abs(sum([tax.amount for tax in inv.tax_line_ids
@@ -160,11 +162,17 @@ class AccountInvoice(models.Model):
             if inv.state != 'draft':
                 amount = 0
                 for tax in inv.tax_line_ids:
-                    if inv.currency_id != inv.company_id.currency_id and tax.tax_id.tax_group_id.name[:5] == 'ITBIS':
+                    if inv.currency_id != inv.company_id.currency_id and tax.tax_id.tax_group_id.name[:5] in ['ITBIS',
+                                                                                                              'ITBIS 18%',
+                                                                                                              'ITBIS 0.0015%',
+                                                                                                              'ITBIS -30%',
+                                                                                                              'ITBIS -100%']:
                         currency_id = inv.currency_id.with_context(date=inv.date_invoice)
                         amount += currency_id.compute(
                             abs(tax.amount), inv.company_id.currency_id)
-                    elif tax.tax_id.tax_group_id.name[:5] == 'ITBIS':
+                    elif tax.tax_id.tax_group_id.name in ['ITBIS', 'ITBIS 18%',
+                                                          'ITBIS 0.0015%', 'ITBIS -30%',
+                                                          'ITBIS -100%']:
                         amount += abs(tax.amount)
                 inv.invoiced_itbis = amount
 
