@@ -54,13 +54,13 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_608_fields(self):
         for rec in self:
-            cancel_line_ids = self.env['dgii.cancel.report.line'].search([('dgii_report_id', '=', rec.id)])
+            cancel_line_ids = self.env['dgii.reports.cancel.line'].search([('dgii_report_id', '=', rec.id)])
             rec.cancel_records = len(cancel_line_ids)
 
     @api.multi
     def _compute_609_fields(self):
         for rec in self:
-            external_line_ids = self.env['dgii.exterior.report.line'].search([('dgii_report_id', '=', rec.id)])
+            external_line_ids = self.env['dgii.reports.exterior.line'].search([('dgii_report_id', '=', rec.id)])
             rec.exterior_records = len(external_line_ids)
             rec.presumed_income = abs(sum([inv.presumed_income for inv in external_line_ids]))
             rec.exterior_withholded_isr = abs(sum([inv.withholded_isr for inv in external_line_ids]))
@@ -281,7 +281,7 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_608_data(self):
         for rec in self:
-            CancelLine = self.env['dgii.cancel.report.line']
+            CancelLine = self.env['dgii.reports.cancel.line']
             CancelLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
             invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'out_refund'])
@@ -301,7 +301,7 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_609_data(self):
         for rec in self:
-            ExteriorLine = self.env['dgii.exterior.report.line']
+            ExteriorLine = self.env['dgii.reports.exterior.line']
             ExteriorLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
             invoice_ids = self._get_invoices(rec,
@@ -389,7 +389,7 @@ class DgiiReport(models.Model):
         return {
             'name': '608',
             'view_mode': 'tree',
-            'res_model': 'dgii.cancel.report.line',
+            'res_model': 'dgii.reports.cancel.line',
             'type': 'ir.actions.act_window',
             'view_id': self.env.ref('dgii_reports.dgii_cancel_report_line_tree').id,
             'domain': [('dgii_report_id', '=', self.id)]
@@ -399,7 +399,7 @@ class DgiiReport(models.Model):
         return {
             'name': '609',
             'view_mode': 'tree',
-            'res_model': 'dgii.exterior.report.line',
+            'res_model': 'dgii.reports.exterior.line',
             'type': 'ir.actions.act_window',
             'view_id': self.env.ref('dgii_reports.dgii_exterior_report_line_tree').id,
             'domain': [('dgii_report_id', '=', self.id)]
@@ -479,7 +479,7 @@ class DgiiReportSaleLine(models.Model):
 
 
 class DgiiCancelReportline(models.Model):
-    _name = 'dgii.cancel.report.line'
+    _name = 'dgii.reports.cancel.line'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -492,7 +492,7 @@ class DgiiCancelReportline(models.Model):
 
 
 class DgiiExteriorReportline(models.Model):
-    _name = 'dgii.exterior.report.line'
+    _name = 'dgii.reports.exterior.line'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
