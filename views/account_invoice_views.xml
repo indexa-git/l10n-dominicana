@@ -7,15 +7,15 @@
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='other_info']" position="after">
-                <page name="dgii_fields" string="DGII">
+                <page name="dgii_fields" string="DGII" groups="account.group_account_user">
                     <group>
-                        <group col="3" string="Withholding">
+                        <group col="3" string="Withholding" groups="account.group_account_manager">
                             <field name="payment_date" string="Withholding date"/>
                             <field name="third_withheld_itbis" string="Withheld ITBIS by a third"/>
                             <field name="third_income_withholding" string="Income Withholding by a third"/>
 
                         </group>
-                        <group col="3" string="Taxes">
+                        <group col="3" string="Taxes" groups="account.group_account_manager">
                             <field name="invoiced_itbis" string="Invoiced ITBIS"/>
                             <field name="selective_tax" string="Selective Tax"/>
                             <field name="other_taxes" string="Other taxes"/>
@@ -40,9 +40,9 @@
                        attrs="{'invisible': [('is_exterior', '=', False)], 'readonly': [('service_type', '=', False)], 'required': [('service_type', '!=', False)]}"/>
             </xpath>
             <xpath expr="//page[@name='other_info']" position="after">
-                <page name="dgii_fields" string="DGII">
+                <page name="dgii_fields" string="DGII" groups="account.group_account_user">
                     <group>
-                        <group col="3" string="Taxes">
+                        <group col="3" string="Taxes" groups="account.group_account_manager">
                             <field name="invoiced_itbis" string="Invoiced ITBIS"/>
                             <field name="proportionality_tax" string="Proportionality Tax"/>
                             <field name="cost_itbis" string="Cost Itbis"/>
@@ -51,13 +51,13 @@
                             <field name="other_taxes" string="Other taxes"/>
                             <field name="legal_tip" string="Legal tip amount"/>
                         </group>
-                        <group col="3" string="Invoicing">
+                        <group col="3" string="Invoicing" groups="account.group_account_manager">
                             <field name="payment_date" string="Payment date"/>
                             <field name="payment_form" string="Payment form"/>
                             <field name="service_total_amount" string="Service Total Amount"/>
                             <field name="good_total_amount" string="Good Total Amount"/>
                         </group>
-                        <group col="3" string="Withholding">
+                        <group col="3" string="Withholding" groups="account.group_account_manager">
                             <field name="withholded_itbis" string="Withheld ITBIS"/>
                             <field name="isr_withholding_type" string="ISR Withholding Type"/>
                             <field name="income_withholding" string="Income Withholding"/>
@@ -77,7 +77,8 @@
         <field name="inherit_id" ref="account.invoice_supplier_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state']" position="after">
-                <field name="report_status" widget="state_selection" readonly="1"/>
+                <field name="report_status" widget="state_selection" readonly="1"
+                       groups="account.group_account_user"/>
             </xpath>
         </field>
     </record>
