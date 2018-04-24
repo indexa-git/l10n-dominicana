@@ -136,7 +136,9 @@ class DgiiReport(models.Model):
         """When report is deleted, set all purchase invoices fiscal_status to False"""
         for report in self:
             PurchaseLine = self.env['dgii.reports.purchase.line']
+            SaleLine = self.env['dgii.reports.sale.line']
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
                 inv.fiscal_status = False
         return super(DgiiReport, self).unlink()
@@ -246,6 +248,7 @@ class DgiiReport(models.Model):
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['out_invoice', 'out_refund'])
             line = 0
             for inv in invoice_ids:
+                inv.fiscal_status = 'blocked'
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 payments = self._get_sale_payments_forms(inv)
@@ -261,14 +264,15 @@ class DgiiReport(models.Model):
                     'withholding_date': inv.payment_date,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
-                    'third_withheld_itbis': inv.third_withheld_itbis,
+                    'third_withheld_itbis': inv.third_withheld_itbis if inv.state == 'paid' else 0,
                     'perceived_itbis': 0,  # Pendiente
-                    'third_income_withholding': inv.third_income_withholding,
+                    'third_income_withholding': inv.third_income_withholding if inv.state == 'paid' else 0,
                     'perceived_isr': 0,  # Pendiente
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
                     'invoice_partner_id': inv.partner_id.id,
+                    'invoice_id': inv.id,
                     'credit_note': True if inv.type == 'out_refund' else False,
                     'cash': payments.get('cash'),
                     'bank': payments.get('bank'),
@@ -344,13 +348,18 @@ class DgiiReport(models.Model):
 
     def _has_withholding(self, inv):
         """Validate if given invoice has an Withholding tax"""
-        return True if any([inv.income_withholding, inv.withholded_itbis]) else False
+        return True if any([inv.income_withholding,
+                            inv.withholded_itbis,
+                            inv.third_withheld_itbis,
+                            inv.third_income_withholding]) else False
 
     @api.multi
     def _invoice_status_sent(self):
         for report in self:
             PurchaseLine = self.env['dgii.reports.purchase.line']
+            SaleLine = self.env['dgii.reports.sale.line']
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
                 if inv.state == 'paid':
                     inv.fiscal_status = 'done'
@@ -477,6 +486,7 @@ class DgiiReportSaleLine(models.Model):
     others = fields.Float()
 
     invoice_partner_id = fields.Many2one('res.partner')
+    invoice_id = fields.Many2one('account.invoice')
     credit_note = fields.Boolean()
 
 

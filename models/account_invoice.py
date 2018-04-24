@@ -249,8 +249,7 @@ class AccountInvoice(models.Model):
     fiscal_status = fields.Selection(
         [('normal', 'Partial'),
          ('done', 'Reported'),
-         ('blocked', 'Not Sent')],
-        copy=False,
+         ('blocked', 'Not Sent')], copy=False,
         help="* The \'Grey\' status means ...\n"
              "* The \'Green\' status means ...\n"
              "* The \'Red\' status means ...\n"

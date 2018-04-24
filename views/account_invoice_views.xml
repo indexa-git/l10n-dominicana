@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
+    <!-- 607 -->
+
     <record id="invoice_form_inherited" model="ir.ui.view">
         <field name="name">invoice.form.inherited</field>
         <field name="model">account.invoice</field>
@@ -27,6 +29,20 @@
 
         </field>
     </record>
+
+    <record id="invoice_tree_inherited" model="ir.ui.view">
+        <field name="name">invoice.tree.inherited</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="fiscal_status" widget="state_selection" readonly="1"
+                       groups="account.group_account_user"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 606 -->
 
     <record id="invoice_supplier_form_inherited" model="ir.ui.view">
         <field name="name">invoice.supplier.form.inherited</field>
