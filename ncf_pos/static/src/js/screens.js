@@ -879,16 +879,6 @@ odoo.define('ncf_pos.screens', function (require) {
         }
     });
 
-    screens.ProductScreenWidget.include({
-        show: function (reset) {
-            //Ocultamos el boton 'Todas las facturas' si el diario de ventas no tiene activado el ncf_control
-            if (!this.pos.config.ncf_control) {
-                this.$('.control-button.all-invoices').remove();
-            }
-            this._super(reset);
-        }
-    });
-
     gui.Gui.include({
         /**
          * Allows the keyboard capture for the current screen
