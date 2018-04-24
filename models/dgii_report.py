@@ -233,6 +233,8 @@ class DgiiReport(models.Model):
             if key:
                 payments_dict[key] += move_line.credit
 
+        payments_dict['credit'] += invoice_id.residual
+
         return payments_dict
 
     @api.multi
