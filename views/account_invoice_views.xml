@@ -42,28 +42,28 @@
             <xpath expr="//page[@name='other_info']" position="after">
                 <page name="dgii_fields" string="DGII">
                     <group>
-                        <group>
-                            <field name="withholded_itbis"/>
-                            <field name="income_withholding"/>
-                            <field name="selective_tax"/>
-                            <field name="other_taxes"/>
-                            <field name="legal_tip"/>
-                            <field name="service_total_amount"/>
-                            <field name="payment_date"/>
-                            <field name="report_status" widget="state_selection" readonly="1"/>
+                        <group string="Taxes">
+                            <field name="invoiced_itbis" string="Invoiced ITBIS"/>
+                            <field name="proportionality_tax" string="Proportionality Tax"/>
+                            <field name="cost_itbis" string="Cost Itbis"/>
+                            <field name="advance_itbis" string="Advanced ITBIS"/>
+                            <field name="selective_tax" string="Selective Tax"/>
+                            <field name="other_taxes" string="Other taxes"/>
+                            <field name="legal_tip" string="Legal tip amount"/>
                         </group>
-                        <group>
-                            <field name="good_total_amount"/>
-                            <!--<field name="cost_itbis"/>-->
-                            <!--<field name="advance_itbis"/>-->
-                            <field name="isr_withholding_type"/>
-                            <field name="payment_form"/>
-                            <field name="invoiced_itbis"/>
-                            <field name="third_withheld_itbis"/>
-                            <field name="third_income_withholding"/>
-                            <field name="proportionality_tax"/>
-                            <field name="cost_itbis"/>
-                            <field name="advance_itbis"/>
+                        <group string="Invoicing">
+                            <field name="payment_date" string="Payment date"/>
+                            <field name="payment_form" string="Payment form"/>
+                            <field name="service_total_amount" string="Service Total Amount"/>
+                            <field name="good_total_amount" string="Good Total Amount"/>
+                        </group>
+                        <group string="Withholding">
+                            <field name="withholded_itbis" string="Withheld ITBIS"/>
+                            <field name="isr_withholding_type" string="ISR Withholding Type"/>
+                            <field name="income_withholding" string="Income Withholding"/>
+                        </group>
+                        <group string="606">
+                            <field name="report_status" widget="state_selection" readonly="1"/>
                         </group>
                     </group>
                 </page>

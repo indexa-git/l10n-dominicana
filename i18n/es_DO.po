@@ -242,6 +242,7 @@ msgstr "Compañía"
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_cost_itbis
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cost_itbis
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_cost_itbis
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Cost Itbis"
 msgstr "ITBIS llevado al Costo"
 
@@ -377,6 +378,7 @@ msgstr "Marcar como enviado"
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_good_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_good_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_good_total_amount
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Good Total Amount"
 msgstr "Facturado en Bienes"
 
@@ -445,6 +447,7 @@ msgstr "Tipo de Ingreso"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_exterior_report_line_income_withholding
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_income_withholding
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_income_withholding
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Income Withholding"
 msgstr "Monto Retención Renta"
 
@@ -580,8 +583,10 @@ msgid "Others"
 msgstr "Otras Formas de Ventas"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_payment_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_exterior_report_line_payment_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_payment_date
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Payment Date"
 msgstr "Fecha Pago"
 
@@ -624,6 +629,7 @@ msgstr "Balance anterior"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_proportionality_tax
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_proportionality_tax
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Proportionality Tax"
 msgstr "ITBIS sujeto a Proporcionalidad"
 
@@ -748,6 +754,7 @@ msgstr "ITBIS Retenido por Terceros"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_selective_tax
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_selective_tax
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Selective Tax"
 msgstr "Impuesto Selectivo al Consumo"
 
@@ -755,6 +762,7 @@ msgstr "Impuesto Selectivo al Consumo"
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_service_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_service_total_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_service_total_amount
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Service Total Amount"
 msgstr "Facturado en Servicios"
 
@@ -943,6 +951,7 @@ msgstr "Declaraciones DGII"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Withholding"
 msgstr "Retenciones"
 
@@ -963,11 +972,13 @@ msgstr "Retención de Renta por Terceros"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Taxes"
 msgstr "Impuestos"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Invoiced ITBIS"
 msgstr "ITBIS Facturado"
 
@@ -978,6 +989,36 @@ msgstr "Otros Impuestos o Tasas"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Legal tip amount"
 msgstr "Monto Propina Legal"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+msgid "Advanced ITBIS"
+msgstr "ITBIS por Adelantar"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+msgid "Other taxes"
+msgstr "Otros Impuestos/Tasas"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+msgid "Payment form"
+msgstr "Forma de Pago"
+
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+msgid "Withheld ITBIS"
+msgstr "ITBIS Retenido"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+msgid "ISR Withholding Type"
+msgstr "Tipo de Retención ISR"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+msgid "Invoicing"
+msgstr "Facturación"
 
