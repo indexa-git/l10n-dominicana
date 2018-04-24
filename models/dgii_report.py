@@ -138,9 +138,11 @@ class DgiiReport(models.Model):
             PurchaseLine = self.env['dgii.reports.purchase.line']
             SaleLine = self.env['dgii.reports.sale.line']
             CancelLine = self.env['dgii.reports.cancel.line']
+            ExteriorLine = self.env['dgii.reports.exterior.line']
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            invoice_ids += ExteriorLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
                 inv.fiscal_status = False
         return super(DgiiReport, self).unlink()
@@ -322,6 +324,7 @@ class DgiiReport(models.Model):
                                                                     (inv.journal_id.purchase_type == 'exterior'))
             line = 0
             for inv in invoice_ids:
+                inv.fiscal_status = 'blocked'
                 line += 1
                 values = {
                     'dgii_report_id': rec.id,
@@ -338,7 +341,8 @@ class DgiiReport(models.Model):
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'isr_withholding_date': inv.payment_date,
                     'presumed_income': 0,  # Pendiente
-                    'withholded_isr': inv.income_withholding,
+                    'withholded_isr': inv.income_withholding if inv.state == 'paid' else 0,
+                    'invoice_id': inv.id
                 }
                 ExteriorLine.create(values)
 
@@ -363,9 +367,11 @@ class DgiiReport(models.Model):
             PurchaseLine = self.env['dgii.reports.purchase.line']
             SaleLine = self.env['dgii.reports.sale.line']
             CancelLine = self.env['dgii.reports.cancel.line']
+            ExteriorLine = self.env['dgii.reports.exterior.line']
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            invoice_ids += ExteriorLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
                 if inv.state in ['paid', 'cancel']:
                     inv.fiscal_status = 'done'
@@ -529,3 +535,4 @@ class DgiiExteriorReportLine(models.Model):
     isr_withholding_date = fields.Date()
     presumed_income = fields.Float()
     withholded_isr = fields.Float()
+    invoice_id = fields.Many2one('account.invoice')
