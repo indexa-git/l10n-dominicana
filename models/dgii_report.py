@@ -133,16 +133,16 @@ class DgiiReport(models.Model):
 
     @api.multi
     def unlink(self):
-        """When report is deleted, set all purchase invoices report_status to False"""
+        """When report is deleted, set all purchase invoices fiscal_status to False"""
         for report in self:
             PurchaseLine = self.env['dgii.reports.purchase.line']
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
-                inv.report_status = False
+                inv.fiscal_status = False
         return super(DgiiReport, self).unlink()
 
     def _get_pending_invoices(self):
-        return self.env['account.invoice'].search([('report_status', '=', 'normal'), ('state', '=', 'paid')])
+        return self.env['account.invoice'].search([('fiscal_status', '=', 'normal'), ('state', '=', 'paid')])
 
     def _get_invoices(self, rec, states, types):
         """
@@ -166,7 +166,7 @@ class DgiiReport(models.Model):
             order='date_invoice asc').filtered(lambda inv: (inv.journal_id.purchase_type != 'others') or
                                                            (inv.journal_id.ncf_control is True))
 
-        # Append pending invoces (report_status = Partial, state = Paid)
+        # Append pending invoces (fiscal_status = Partial, state = Paid)
         invoice_ids += self._get_pending_invoices()
 
         return invoice_ids
@@ -191,7 +191,7 @@ class DgiiReport(models.Model):
 
             line = 0
             for inv in invoice_ids:
-                inv.report_status = 'blocked'
+                inv.fiscal_status = 'blocked'
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 values = {
@@ -353,13 +353,13 @@ class DgiiReport(models.Model):
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
                 if inv.state == 'paid':
-                    inv.report_status = 'done'
+                    inv.fiscal_status = 'done'
                     continue
 
                 if self._has_withholding(inv):
-                    inv.report_status = 'normal'
+                    inv.fiscal_status = 'normal'
                 else:
-                    inv.report_status = 'done'
+                    inv.fiscal_status = 'done'
 
     @api.multi
     def state_sent(self):

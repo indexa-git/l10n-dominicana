@@ -246,7 +246,7 @@ class AccountInvoice(models.Model):
                                      ('07', 'Gastos de Seguros'),
                                      ('08', 'Gastos por Regalías y otros Intangibles')])
     service_type_detail = fields.Many2one('invoice.service.type.detail')
-    report_status = fields.Selection(
+    fiscal_status = fields.Selection(
         [('normal', 'Partial'),
          ('done', 'Reported'),
          ('blocked', 'Not Sent')],

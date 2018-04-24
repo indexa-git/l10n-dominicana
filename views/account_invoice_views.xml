@@ -63,7 +63,7 @@
                             <field name="income_withholding" string="Income Withholding"/>
                         </group>
                         <group col="3" string="606">
-                            <field name="report_status" widget="state_selection" readonly="1"/>
+                            <field name="fiscal_status" widget="state_selection" readonly="1"/>
                         </group>
                     </group>
                 </page>
@@ -77,7 +77,7 @@
         <field name="inherit_id" ref="account.invoice_supplier_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state']" position="after">
-                <field name="report_status" widget="state_selection" readonly="1"
+                <field name="fiscal_status" widget="state_selection" readonly="1"
                        groups="account.group_account_user"/>
             </xpath>
         </field>
