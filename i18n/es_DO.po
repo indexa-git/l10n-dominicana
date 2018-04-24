@@ -747,6 +747,7 @@ msgstr "ITBIS Retenido por Terceros"
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_selective_tax
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_selective_tax
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_selective_tax
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 msgid "Selective Tax"
 msgstr "Impuesto Selectivo al Consumo"
 
@@ -939,4 +940,44 @@ msgstr "No enviada"
 #: model:ir.ui.menu,name:dgii_reports.dgii_report_menu
 msgid "DGII Statements"
 msgstr "Declaraciones DGII"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Withholding"
+msgstr "Retenciones"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Withholding date"
+msgstr "Fecha de Retención"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Withheld ITBIS by a third"
+msgstr "ITBIS Retenido por Terceros"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Income Withholding by a third"
+msgstr "Retención de Renta por Terceros"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Taxes"
+msgstr "Impuestos"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Invoiced ITBIS"
+msgstr "ITBIS Facturado"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Other taxes"
+msgstr "Otros Impuestos o Tasas"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+msgid "Legal tip amount"
+msgstr "Monto Propina Legal"
 
