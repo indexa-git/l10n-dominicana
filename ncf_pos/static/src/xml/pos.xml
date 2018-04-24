@@ -392,7 +392,7 @@
                             </div>
                         </t>
                     </div>
-                    <img id="close_order_details" src="/pos_order_return/static/src/img/icon-cross.png"
+                    <img id="close_order_details" src="/ncf_pos/static/src/img/icon-cross.png"
                          style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
                     <div class='client-detail'>
                         <span class='label' style="text-align: left;">Fecha:</span>
