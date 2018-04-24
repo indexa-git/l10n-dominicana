@@ -277,7 +277,7 @@
     </t>
 
     <t t-name="QueryInvoicesButton">
-        <span class='control-button'>
+        <span class='control-button all-invoices'>
             All Invoices
         </span>
     </t>
@@ -380,16 +380,19 @@
                     </t>
                 </div>
                 <div class='client-details-right' style="margin-right: -20%;">
-                    <div class='client-detail'>
-                        <t t-if="!order.refunded">
-                            <div id="refund" class='control-button highlight' style="margin-left: 18%;margin-top: 1%;">
-                                NC/Devolución
-                            </div>
-                        </t>
-                        <t t-else="">
-                            <div class='control-button' style="margin-left: 25%; margin-top: 1%; cursor: default;">
-                                Refunded
-                            </div>
+                    <div class='client-detail' style="height: 80px;">
+                        <t t-if="widget.pos.config.ncf_control">
+                            <t t-if="!order.refunded">
+                                <div id="refund" class='control-button highlight'
+                                     style="margin-left: 18%;margin-top: 1%;">
+                                    NC/Devolución
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class='control-button' style="margin-left: 27%; margin-top: 1%; cursor: default;">
+                                    Refunded
+                                </div>
+                            </t>
                         </t>
                     </div>
                     <img id="close_order_details" src="/ncf_pos/static/src/img/icon-cross.png"

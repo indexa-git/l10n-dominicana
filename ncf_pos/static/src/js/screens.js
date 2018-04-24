@@ -141,8 +141,6 @@ odoo.define('ncf_pos.screens', function (require) {
             var self = this;
             var order = self.pos.db.order_by_id[id];
 
-            //if (order.is_return_order)
-            //    return false;
             this.$('.order-list .lowlight').removeClass('lowlight');
             if ($line.hasClass('highlight')) {
                 $line.removeClass('highlight');

@@ -6,7 +6,6 @@ odoo.define('ncf_pos.invoices', function (require) {
     var QueryInvoicesButton = screens.ActionButtonWidget.extend({
         template: 'QueryInvoicesButton',
         button_click: function () {
-            //alert("Aqui va la llamada a la pantalla");
             this.gui.show_screen('invoiceslist');
         }
     });
