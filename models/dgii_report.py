@@ -133,12 +133,14 @@ class DgiiReport(models.Model):
 
     @api.multi
     def unlink(self):
-        """When report is deleted, set all purchase invoices fiscal_status to False"""
+        """When report is deleted, set all implied invoices fiscal_status to False"""
         for report in self:
             PurchaseLine = self.env['dgii.reports.purchase.line']
             SaleLine = self.env['dgii.reports.sale.line']
+            CancelLine = self.env['dgii.reports.cancel.line']
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
                 inv.fiscal_status = False
         return super(DgiiReport, self).unlink()
@@ -293,6 +295,7 @@ class DgiiReport(models.Model):
             invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'out_refund'])
             line = 0
             for inv in invoice_ids:
+                inv.fiscal_status = 'blocked'
                 line += 1
                 values = {
                     'dgii_report_id': rec.id,
@@ -301,6 +304,7 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.move_name,
                     'invoice_date': inv.date_invoice,
                     'anulation_type': inv.anulation_type,
+                    'invoice_id': inv.id
                 }
                 CancelLine.create(values)
 
@@ -358,10 +362,12 @@ class DgiiReport(models.Model):
         for report in self:
             PurchaseLine = self.env['dgii.reports.purchase.line']
             SaleLine = self.env['dgii.reports.sale.line']
+            CancelLine = self.env['dgii.reports.cancel.line']
             invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
+            invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
-                if inv.state == 'paid':
+                if inv.state in ['paid', 'cancel']:
                     inv.fiscal_status = 'done'
                     continue
 
@@ -490,7 +496,7 @@ class DgiiReportSaleLine(models.Model):
     credit_note = fields.Boolean()
 
 
-class DgiiCancelReportline(models.Model):
+class DgiiCancelReportLine(models.Model):
     _name = 'dgii.reports.cancel.line'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
@@ -501,9 +507,10 @@ class DgiiCancelReportline(models.Model):
     anulation_type = fields.Char(size=2)
 
     invoice_partner_id = fields.Many2one('res.partner')
+    invoice_id = fields.Many2one('account.invoice')
 
 
-class DgiiExteriorReportline(models.Model):
+class DgiiExteriorReportLine(models.Model):
     _name = 'dgii.reports.exterior.line'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
