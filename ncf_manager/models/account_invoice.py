@@ -34,6 +34,23 @@ except(ImportError, IOError) as err:
     _logger.debug(err)
 
 
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    @api.multi
+    def _prepare_invoice(self):
+        """
+        Prepare the dict of values to create the new invoice for a sales order. This method may be
+        overridden to implement custom invoice generation (making sure to call super() to establish
+        a clean extension chain).
+        """
+        self.ensure_one()
+        invoice_vals = super(SaleOrder, self)._prepare_invoice()
+        invoice_vals['sale_fiscal_type'] = self.partner_id.sale_fiscal_type
+
+        return invoice_vals
+
+
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
@@ -58,6 +75,14 @@ class AccountInvoice(models.Model):
                 inv.is_company_currency = True
             else:
                 inv.is_company_currency = False
+
+    @api.multi
+    @api.depends('state')
+    def get_ncf_expiration_date(self):
+        for inv in self:
+            if inv.state != 'draft' and inv.journal_id.ncf_control:
+                inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                           dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
     # deprecate on odoo 11
     # def _default_user_shop(self):
@@ -90,7 +115,8 @@ class AccountInvoice(models.Model):
                                          ("fiscal", u"Crédito Fiscal"),
                                          ("gov", "Gubernamental"),
                                          ("special", u"Regímenes Especiales"),
-                                         ("unico", u"Único Ingreso")])
+                                         ("unico", u"Único Ingreso")],
+                                        string='NCF Para')
 
     income_type = fields.Selection(
         [('01', '01 - Ingresos por operaciones (No financieros)'),
@@ -99,7 +125,8 @@ class AccountInvoice(models.Model):
          ('04', '04 - Ingresos por Arrendamientos'),
          ('05', '05 - Ingresos por Venta de Activo Depreciable'),
          ('06', '06 - Otros Ingresos')],
-        string="Tipo de Ingreso")
+        string='Tipo de Ingreso',
+        default=lambda self: self._context.get('income_type', '01'))
 
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
@@ -117,14 +144,15 @@ class AccountInvoice(models.Model):
 
     anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
-         ("04", "04 - Duplicidad de Factura"),
-         ("05", u"05 - Corrección de La Información"),
-         ("06", "06 - Cambio de Productos"),
-         ("07", u"07 - Devolución de Productos"),
-         ("08", u"08 - Omisión de Productos"),
-         ("09", "09 - Errores en Secuencia de NCF")],
+         ("04", u"04 - Corrección de la Información"),
+         ("05", "05 - Cambio de Productos"),
+         ("06", u"06 - Devolución de Productos"),
+         ("07", u"07 - Omisión de Productos"),
+         ("08", "08 - Errores en Secuencia de NCF"),
+         ("09", "09 - Por Cese de Operaciones"),
+         ("10", u"10 - Pérdida o Hurto de Talonarios")],
         string=u"Tipo de anulación", copy=False)
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
@@ -143,7 +171,8 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
-    internal_sequence = fields.Char(string=u"Número de factura")
+    internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
+    ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     _sql_constraints = [
         ('number_uniq',
@@ -327,3 +356,10 @@ class AccountInvoice(models.Model):
             res.update({"move_name": self._context["credit_note_supplier_ncf"]
                         })
         return res
+
+
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    income_type = fields.Selection([], related='invoice_id.income_type')
+    expense_type = fields.Selection([], related='invoice_id.expense_type')
