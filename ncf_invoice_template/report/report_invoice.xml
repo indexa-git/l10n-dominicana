@@ -12,8 +12,8 @@
                 </div>
 
 
-                <div class="pull-right col-xs-6 text-right">
-                    <div t-if="o.state == 'open' or o.state == 'paid'" style="font-size:20px;">
+                <div class="pull-right col-xs-6 text-right" style="font-size:20px;">
+                    <div t-if="o.state == 'open' or o.state == 'paid'">
                         <strong>Factura de
                             <span t-if="o.sale_fiscal_type == 'fiscal'">Crédito Fiscal</span>
                             <span t-if="o.sale_fiscal_type == 'final'">Consumo</span>
@@ -26,15 +26,38 @@
                         <span t-if="o.type == 'out_refund'">Nota de Crédito</span>
                         <span t-if="o.type == 'in_refund'">Nota Crédito</span>
                         <span t-if="o.type == 'in_invoice'">Factura Proveedor</span>
-                        <span t-field="o.number"/>
                     </strong>
-                    <strong><span t-if="o.type == 'out_invoice' and (o.state != 'draft')">Válida hasta:</span></strong>
+                    <span t-field="o.number"/>
                     <br/>
+                    <strong><span t-if="o.type == 'out_invoice' and (o.state != 'draft')">Válida hasta:</span></strong>
                     <span t-if="o.type == 'out_invoice' and (o.state != 'draft')" t-field="o.ncf_expiration_date"/>
+                </div>
+
+            </div>
+
+            <div class="clearfix mb12"/>
+            <br/>
+
+            <div class="row">
+                <div name="invoice_partner_address" class="col-xs-12">
+
+                    <strong>RNC CLIENTE:</strong>
+                    <span t-field="o.partner_id.vat"/>
+                    <br/>
+                    <strong>NOMBRE O RAZÓN SOCIAL:</strong>
+                    <span t-field="o.partner_id.name"/>
+
                 </div>
             </div>
 
+            <div class="clearfix mb12"/>
+            <br/>
+
         </xpath>
+
+        <xpath expr="//h2" position="replace"/>
+        <xpath expr="//div[hasclass('mt32')]" position="replace"/>
+
 
     </template>
 
