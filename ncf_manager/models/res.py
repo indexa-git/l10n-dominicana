@@ -146,7 +146,7 @@ class ResPartner(models.Model):
                         "name", False) or dgii_vals.get("commercial_name", "")
                     result['vat'] = dgii_vals.get('rnc')
 
-                    if model == 'partner':
+                    if model == 'res.partner':
                         result['is_company'] = True if is_rnc else False,
                         result['sale_fiscal_type'] = "fiscal" if is_rnc else "final"
             return result
