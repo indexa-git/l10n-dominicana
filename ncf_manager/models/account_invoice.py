@@ -80,7 +80,7 @@ class AccountInvoice(models.Model):
     @api.depends('state')
     def get_ncf_expiration_date(self):
         for inv in self:
-            if inv.state != 'draft':
+            if inv.state != 'draft' and inv.journal_id.ncf_control:
                 inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
                                            dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
@@ -356,3 +356,10 @@ class AccountInvoice(models.Model):
             res.update({"move_name": self._context["credit_note_supplier_ncf"]
                         })
         return res
+
+
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    income_type = fields.Selection([], related='invoice_id.income_type')
+    expense_type = fields.Selection([], related='invoice_id.expense_type')
