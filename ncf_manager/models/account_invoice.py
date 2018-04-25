@@ -352,25 +352,5 @@ class AccountInvoice(models.Model):
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
-    income_type = fields.Selection(
-        [('01', '01 - Ingresos por operaciones (No financieros)'),
-         ('02', '02 - Ingresos Financieros'),
-         ('03', '03 - Ingresos Extraordinarios'),
-         ('04', '04 - Ingresos por Arrendamientos'),
-         ('05', '05 - Ingresos por Venta de Activo Depreciable'),
-         ('06', '06 - Otros Ingresos')],
-        string='Tipo de Ingreso', related='invoice_id.income_type')
-
-    expense_type = fields.Selection(
-        [('01', '01 - Gastos de Personal'),
-         ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
-         ('03', '03 - Arrendamientos'),
-         ('04', '04 - Gastos de Activos Fijos'),
-         ('05', u'05 - Gastos de Representación'),
-         ('06', '06 - Otras Deducciones Admitidas'),
-         ('07', '07 - Gastos Financieros'),
-         ('08', '08 - Gastos Extraordinarios'),
-         ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
-         ('10', '10 - Adquisiciones de Activos'),
-         ('11', '11 - Gastos de Seguros')],
-        string="Tipo de Costos y Gastos", related='invoice_id.expense_type')
+    income_type = fields.Selection([], related='invoice_id.income_type')
+    expense_type = fields.Selection([], related='invoice_id.expense_type')
