@@ -172,6 +172,7 @@ class AccountInvoice(models.Model):
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
     internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
+    ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     _sql_constraints = [
         ('number_uniq',
