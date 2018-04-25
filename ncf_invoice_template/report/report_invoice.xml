@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
+    <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
+
+        <xpath expr="//div[@class='page']/div[@class='row']" position="replace">
+            <div class="row">
+                <div name="dgii_invoice_address" class="col-xs-5">
+                    <h3><span t-field="o.company_id.name"/><br/></h3>
+                    <strong>RNC: </strong><span t-field="o.company_id.vat"/><br/>
+                    <strong>Fecha: </strong><span t-field="o.date_invoice"/>
+                </div>
+
+
+                <div class="pull-right col-xs-6 text-right">
+                    <div t-if="o.state == 'open' or o.state == 'paid'" style="font-size:20px;">
+                        <strong>Factura de
+                            <span t-if="o.sale_fiscal_type == 'fiscal'">Crédito Fiscal</span>
+                            <span t-if="o.sale_fiscal_type == 'final'">Consumo</span>
+                        </strong>
+                    </div>
+                    <strong>
+                        <span t-if="o.type == 'out_invoice' and (o.state != 'draft')">NCF:</span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
+                        <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
+                        <span t-if="o.type == 'out_refund'">Nota de Crédito</span>
+                        <span t-if="o.type == 'in_refund'">Nota Crédito</span>
+                        <span t-if="o.type == 'in_invoice'">Factura Proveedor</span>
+                        <span t-field="o.number"/>
+                    </strong>
+                    <strong><span t-if="o.type == 'out_invoice' and (o.state != 'draft')">Válida hasta:</span></strong>
+                    <br/>
+                    <span t-if="o.type == 'out_invoice' and (o.state != 'draft')" t-field="o.ncf_expiration_date"/>
+                </div>
+            </div>
+
+        </xpath>
+
+    </template>
+
 </odoo>

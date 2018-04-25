@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
+    <template id="external_layout_clean_inherited" inherit_id="web.external_layout_clean">
+        <xpath expr="//div[@name='company_address']" position="replace"/>
+    </template>
+
 </odoo>
