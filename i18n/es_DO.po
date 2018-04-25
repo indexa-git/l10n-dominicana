@@ -449,7 +449,7 @@ msgstr "Tipo de Ingreso"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_income_withholding
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Income Withholding"
-msgstr "Monto Retención Renta"
+msgstr "Retención Renta"
 
 #. module: dgii_reports
 #: model:ir.model,name:dgii_reports.model_account_invoice
@@ -576,7 +576,7 @@ msgstr "Generado"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_other_taxes
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_other_taxes
 msgid "Other Taxes"
-msgstr "Otros Impuestos/Tasas"
+msgstr "Otros Impuestos"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_others
@@ -589,7 +589,7 @@ msgstr "Otras Formas de Ventas"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_payment_date
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Payment Date"
-msgstr "Fecha Pago"
+msgstr "Fecha de Pago"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_payment_form
@@ -657,7 +657,7 @@ msgstr "Propina Legal"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_other_taxes
 msgid "Purchase Other Taxes"
-msgstr "Otros Impuestos/Tasas"
+msgstr "Otros Impuestos"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_purchase_perceived_isr
@@ -667,7 +667,7 @@ msgstr "ISR Percibido"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_purchase_perceived_itbis
 msgid "Purchase Perceived Itbis"
-msgstr "ITBIS percibido"
+msgstr "ITBIS Percibido"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_records
@@ -677,7 +677,7 @@ msgstr "Registros"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_selective_tax
 msgid "Purchase Selective Tax"
-msgstr "Impuesto Selectivo al Consumo"
+msgstr "Selectivo al Consumo"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_withholded_itbis
@@ -692,12 +692,12 @@ msgstr "Tipo servicios adquirido"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_related_part
 msgid "Related Part"
-msgstr "Parte relacionada"
+msgstr "Parte Relacionada"
 
 #. module: dgii_reports
 #: selection:account.account,account_fiscal_type:0
 msgid "Retención de Renta por Terceros"
-msgstr ""
+msgstr "Retención Renta"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_rnc_cedula
@@ -743,12 +743,12 @@ msgstr "Impuesto Selectivo al Consumo"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_withholded_isr
 msgid "Sale Withholded Isr"
-msgstr "Retención de Renta por Terceros"
+msgstr "Retención Renta"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_withholded_itbis
 msgid "Sale Withholded Itbis"
-msgstr "ITBIS Retenido por Terceros"
+msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_selective_tax
@@ -757,7 +757,7 @@ msgstr "ITBIS Retenido por Terceros"
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Selective Tax"
-msgstr "Impuesto Selectivo al Consumo"
+msgstr "Selectivo al Consumo"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_service_total_amount
@@ -803,13 +803,13 @@ msgstr "Tipo Id Tributaria"
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_third_income_withholding
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_third_income_withholding
 msgid "Third Income Withholding"
-msgstr "Retención de Renta por Terceros"
+msgstr "Retención Renta"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_third_withheld_itbis
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_third_withheld_itbis
 msgid "Third Withheld Itbis"
-msgstr "ITBIS Retenido por Terceros"
+msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
 #: selection:dgii.reports,state:0
@@ -830,7 +830,7 @@ msgstr "ISR Retenido"
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_withholded_itbis
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_withholded_itbis
 msgid "Withholded Itbis"
-msgstr "Monto ITBIS Retenido"
+msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_withholding_date
@@ -880,30 +880,30 @@ msgstr ""
 #. module: dgii_reports
 #: selection:res.partner,related:0
 msgid "Not Related"
-msgstr "No Relacionado"
+msgstr "No Relacionada"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_res_partner_related
 #: model:ir.model.fields,field_description:dgii_reports.field_res_users_related
 #: selection:res.partner,related:0
 msgid "Related"
-msgstr "Relacionado"
+msgstr "Relacionada"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_purchased_service_type
 msgid "Purchased Service Type"
-msgstr "Tipo servicios adquiridos"
+msgstr "Tipo de Servicio"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_service_type
 msgid "Service Type"
-msgstr "Tipo Servicio Adquirido"
+msgstr "Tipo de Servicio"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_service_type_detail
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_service_type_detail
 msgid "Service Type Detail"
-msgstr "Detalle Servicio Adquirido"
+msgstr "Detalle del Servicio"
 
 #. module: dgii_reports
 #: sql_constraint:invoice.service.type.detail:0
@@ -964,12 +964,12 @@ msgstr "Fecha de Retención"
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 msgid "Withheld ITBIS by a third"
-msgstr "ITBIS Retenido por Terceros"
+msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 msgid "Income Withholding by a third"
-msgstr "Retención de Renta por Terceros"
+msgstr "Retención Renta"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
@@ -986,13 +986,13 @@ msgstr "ITBIS Facturado"
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 msgid "Other taxes"
-msgstr "Otros Impuestos o Tasas"
+msgstr "Otros Impuestos"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Legal tip amount"
-msgstr "Monto Propina Legal"
+msgstr "Propina Legal"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
@@ -1002,7 +1002,7 @@ msgstr "ITBIS por Adelantar"
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Other taxes"
-msgstr "Otros Impuestos/Tasas"
+msgstr "Otros Impuestos"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
