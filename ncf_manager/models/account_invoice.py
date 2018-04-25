@@ -76,6 +76,14 @@ class AccountInvoice(models.Model):
             else:
                 inv.is_company_currency = False
 
+    @api.multi
+    @api.depends('state')
+    def get_ncf_expiration_date(self):
+        for inv in self:
+            if inv.state != 'draft':
+                inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                           dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+
     # deprecate on odoo 11
     # def _default_user_shop(self):
     #     Shop = self.env["shop.ncf.config"]
@@ -163,7 +171,8 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
-    internal_sequence = fields.Char(string=u"Número de factura")
+    internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
+    ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     _sql_constraints = [
         ('number_uniq',
