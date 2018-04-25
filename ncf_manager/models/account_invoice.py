@@ -91,7 +91,7 @@ class AccountInvoice(models.Model):
                                          ("gov", "Gubernamental"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")])
-
+    ncf_date_to = fields.Date(string="Validez NCF")
     income_type = fields.Selection(
         [('01', '01 - Ingresos por operaciones (No financieros)'),
          ('02', '02 - Ingresos Financieros'),
@@ -286,7 +286,6 @@ class AccountInvoice(models.Model):
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
-
         return super(AccountInvoice, self).action_invoice_open()
 
     @api.model

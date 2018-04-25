@@ -62,6 +62,17 @@ class ResCompany(models.Model):
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    def _split_vat(self, vat):
+        vat_country, vat_number = vat[:2].lower(), vat[2:].replace(' ', '')
+        if vat_country.isnumeric():
+            if self.country_id.code:
+                vat_country = self.country_id.code
+            elif self.company_id.country_id.code:
+                vat_country = self.company_id.country_id.code
+            else:
+                vat_country = 'DO'
+        return vat_country, vat_number
+
     @api.multi
     @api.depends('sale_fiscal_type')
     def _fiscal_info_required(self):

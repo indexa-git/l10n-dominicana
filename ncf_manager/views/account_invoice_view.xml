@@ -47,6 +47,9 @@
                        'readonly': [('state','!=','draft')]}"/>
             </field>
 
+            <field name="date_invoice" position="after">
+                <field name="ncf_date_to" readonly="1"/>
+            </field>
 
             <!--shop_id field deprefcate on odoo 11-->
             <!--<field name="date_invoice" position="after">-->
