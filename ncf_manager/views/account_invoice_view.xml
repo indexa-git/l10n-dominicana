@@ -58,8 +58,9 @@
             </field>
 
             <xpath expr="//field[@name='number']" position="after">
-                <h3 attrs="{'invisible': [('state', '=', 'draft')]}">
-                    Válido hasta: <field name="ncf_expiration_date" readonly="1"/>
+                <h3 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('sale_fiscal_type', '=', False)]}">
+                    Válido hasta:
+                    <field name="ncf_expiration_date" readonly="1"/>
                 </h3>
             </xpath>
 
