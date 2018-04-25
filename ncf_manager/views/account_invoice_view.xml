@@ -57,6 +57,14 @@
                 <field name="internal_sequence" readonly="1"/>
             </field>
 
+
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
+                <field name="income_type" invisible="1"/>
+                <field name="account_id" groups="account.group_account_user"
+                       domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False),
+                       ('income_type', '=', income_type)]"/>
+            </xpath>
+
             <xpath expr="//field[@name='number']" position="after">
                 <h3 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('sale_fiscal_type', '=', False)]}">
                     Válido hasta:
@@ -105,6 +113,14 @@
                        'required': [('purchase_type','=','normal')],
                        'readonly': [('state','!=','draft')]}"/>
             </field>
+
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
+                <field name="expense_type" invisible="1"/>
+                <field name="account_id" groups="account.group_account_user"
+                       domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False),
+                       ('expense_type', '=', expense_type)]"/>
+            </xpath>
+
         </field>
     </record>
 </odoo>

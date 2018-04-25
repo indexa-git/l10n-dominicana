@@ -118,7 +118,7 @@ class ResPartner(models.Model):
     @api.model
     def validate_rnc_cedula(self, number, model='partner'):
         if number:
-            result = {}
+            result, dgii_vals = {}, False
             model = 'res.partner' if model == 'partner' else 'res.company'
 
             if number.isdigit() and len(number) in (9, 11):
@@ -129,26 +129,26 @@ class ResPartner(models.Model):
                         [x.name for x in contact])
                     raise UserError(_(message % name))
 
-                is_rnc = len(number) == 9
                 try:
+                    is_rnc = len(number) == 9
                     rnc.validate(number) if is_rnc else cedula.validate(number)
                 except Exception as e:
                     raise ValidationError(_("RNC/Ced Inválido"))
 
                 dgii_vals = rnc.check_dgii(number)
-
                 if dgii_vals is None:
                     if is_rnc:
                         raise ValidationError(_("RNC no disponible en DGII"))
                     result['vat'] = number
+                    result['sale_fiscal_type'] = "final"
                 else:
                     result['name'] = dgii_vals.get(
                         "name", False) or dgii_vals.get("commercial_name", "")
                     result['vat'] = dgii_vals.get('rnc')
 
-                    if model == 'partner':
+                    if model == 'res.partner':
                         result['is_company'] = True if is_rnc else False,
-                        result['sale_fiscal_type'] = "fiscal" if is_rnc else "final"
+                        result['sale_fiscal_type'] = "fiscal"
             return result
 
     @api.onchange("name")
