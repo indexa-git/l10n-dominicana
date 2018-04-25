@@ -163,7 +163,7 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
-    internal_sequence = fields.Char(string=u"Número de factura")
+    internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
 
     _sql_constraints = [
         ('number_uniq',
