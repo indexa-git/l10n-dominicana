@@ -118,7 +118,7 @@ class ResPartner(models.Model):
     @api.model
     def validate_rnc_cedula(self, number, model='partner'):
         if number:
-            result = {}
+            result, dgii_vals = {}, False
             model = 'res.partner' if model == 'partner' else 'res.company'
 
             if number.isdigit() and len(number) in (9, 11):
@@ -129,13 +129,16 @@ class ResPartner(models.Model):
                         [x.name for x in contact])
                     raise UserError(_(message % name))
 
-                is_rnc = len(number) == 9
                 try:
-                    rnc.validate(number) if is_rnc else cedula.validate(number)
+                    dgii_vals = rnc.check_dgii(number)
+                    if len(number) == 11:
+                        cedula.validate(number)
+                        is_rnc = True if dgii_vals else False
+                    elif len(number) == 9:
+                        is_rnc = True
+                        rnc.validate(number)
                 except Exception as e:
                     raise ValidationError(_("RNC/Ced Inválido"))
-
-                dgii_vals = rnc.check_dgii(number)
 
                 if dgii_vals is None:
                     if is_rnc:
