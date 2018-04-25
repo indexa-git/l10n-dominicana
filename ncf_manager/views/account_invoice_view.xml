@@ -57,6 +57,12 @@
                 <field name="internal_sequence" readonly="1"/>
             </field>
 
+            <xpath expr="//field[@name='number']" position="after">
+                <h3 attrs="{'invisible': [('state', '=', 'draft')]}">
+                    Válido hasta: <field name="ncf_expiration_date" readonly="1"/>
+                </h3>
+            </xpath>
+
         </field>
     </record>
 
