@@ -54,4 +54,21 @@
             </field>
         </field>
     </record>
+
+    <record id="view_account_form_inherited" model="ir.ui.view">
+        <field name="name">view.account.form.inherited</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="income_type"
+                attrs="{'invisible': [('user_type_id','not in',[%(account.data_account_type_revenue)d,
+                %(account.data_account_type_other_income)d, %(account.data_account_type_fixed_assets)d,
+                %(account.data_account_type_current_assets)d, %(account.data_account_type_non_current_assets)d ])]}"/>
+                <field name="expense_type"
+                attrs="{'invisible': [('user_type_id','not in',[%(account.data_account_type_direct_costs)d,
+                %(account.data_account_type_expenses)d, %(account.data_account_type_depreciation)d])]}"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

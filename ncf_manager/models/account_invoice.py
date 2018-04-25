@@ -76,6 +76,14 @@ class AccountInvoice(models.Model):
             else:
                 inv.is_company_currency = False
 
+    @api.multi
+    @api.depends('state')
+    def get_ncf_expiration_date(self):
+        for inv in self:
+            if inv.state != 'draft' and inv.journal_id.ncf_control:
+                inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                           dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+
     # deprecate on odoo 11
     # def _default_user_shop(self):
     #     Shop = self.env["shop.ncf.config"]
@@ -136,14 +144,15 @@ class AccountInvoice(models.Model):
 
     anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
-         ("04", "04 - Duplicidad de Factura"),
-         ("05", u"05 - Corrección de La Información"),
-         ("06", "06 - Cambio de Productos"),
-         ("07", u"07 - Devolución de Productos"),
-         ("08", u"08 - Omisión de Productos"),
-         ("09", "09 - Errores en Secuencia de NCF")],
+         ("04", u"04 - Corrección de la Información"),
+         ("05", "05 - Cambio de Productos"),
+         ("06", u"06 - Devolución de Productos"),
+         ("07", u"07 - Omisión de Productos"),
+         ("08", "08 - Errores en Secuencia de NCF"),
+         ("09", "09 - Por Cese de Operaciones"),
+         ("10", u"10 - Pérdida o Hurto de Talonarios")],
         string=u"Tipo de anulación", copy=False)
 
     is_company_currency = fields.Boolean(compute=_is_company_currency)
@@ -162,7 +171,8 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
-    internal_sequence = fields.Char(string=u"Número de factura")
+    internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
+    ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     _sql_constraints = [
         ('number_uniq',
@@ -346,3 +356,10 @@ class AccountInvoice(models.Model):
             res.update({"move_name": self._context["credit_note_supplier_ncf"]
                         })
         return res
+
+
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    income_type = fields.Selection([], related='invoice_id.income_type')
+    expense_type = fields.Selection([], related='invoice_id.expense_type')

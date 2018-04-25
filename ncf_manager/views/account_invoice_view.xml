@@ -18,18 +18,6 @@
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
 
-            <xpath expr="//sheet//label" position="before">
-                <div class="oe_button_box" name="button_box">
-                    <button name="%(update_rate_wizard_action)d"
-                            type="action"
-                            class="oe_stat_button"
-                            icon="fa-money"
-                            attrs="{'invisible': [('is_company_currency', '=', True)]}">
-                        <field name="invoice_rate" widget="monetary" string="Tasa"/>
-                    </button>
-                </div>
-            </xpath>
-
             <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
                 <button name="%(ncf_manager.action_account_invoice_cancel)d" type='action'
                         string="Cancelar Factura"
@@ -47,16 +35,11 @@
                        'readonly': [('state','!=','draft')]}"/>
             </field>
 
-
-            <!--shop_id field deprefcate on odoo 11-->
-            <!--<field name="date_invoice" position="after">-->
-                <!--<field name="shop_id" options="{'no_quick_create':True,'no_create_edit':True}"-->
-                       <!--attrs="{'readonly':[('state','!=','draft')],'required': True}"/>-->
-            <!--</field>-->
-
             <field name="number" position="before">
-                <label string="Cancelada por:" attrs="{'invisible': [('state','!=','cancel')]}"/>
-                <field name="anulation_type" readonly="1" attrs="{'invisible': [('state','!=','cancel')]}"/>
+                <h2 attrs="{'invisible': [('state','!=','cancel')]}">
+                    FACTURA CANCELADA <br/>
+                <field name="anulation_type" readonly="1"/>
+                </h2>
             </field>
 
             <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace"/>
@@ -73,6 +56,21 @@
             <field name="date_invoice" position="before">
                 <field name="internal_sequence" readonly="1"/>
             </field>
+
+
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
+                <field name="income_type" invisible="1"/>
+                <field name="account_id" groups="account.group_account_user"
+                       domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False),
+                       ('income_type', '=', income_type)]"/>
+            </xpath>
+
+            <xpath expr="//field[@name='number']" position="after">
+                <h3 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('sale_fiscal_type', '=', False)]}">
+                    Válido hasta:
+                    <field name="ncf_expiration_date" readonly="1"/>
+                </h3>
+            </xpath>
 
         </field>
     </record>
@@ -98,24 +96,12 @@
                 <field name="internal_sequence" readonly="1"/>
             </field>
 
-            <xpath expr="//sheet//label" position="before">
-                <div class="oe_button_box" name="button_box">
-                    <button name="%(update_rate_wizard_action)d"
-                            type="action"
-                            class="oe_stat_button"
-                            icon="fa-money"
-                            attrs="{'invisible': [('is_company_currency', '=', True)]}">
-                        <field name="invoice_rate" widget="monetary" string="Tasa"/>
-                    </button>
-                </div>
-            </xpath>
-
             <field name="journal_id" position="replace"/>
             <field name="move_name" position="replace"/>
             <field name="reference" position="before">
                 <field name="purchase_type" invisible="1"/>
                 <field name="journal_id" groups="account.group_account_user"
-                       options="{'no_create': True}"
+                       options="{'no_create': True, 'no_open': True}"
                        attrs="{'readonly':[('move_name','!=',False)]}"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('purchase_type','not in',['normal','minor','informal'])],
@@ -127,6 +113,14 @@
                        'required': [('purchase_type','=','normal')],
                        'readonly': [('state','!=','draft')]}"/>
             </field>
+
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
+                <field name="expense_type" invisible="1"/>
+                <field name="account_id" groups="account.group_account_user"
+                       domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False),
+                       ('expense_type', '=', expense_type)]"/>
+            </xpath>
+
         </field>
     </record>
 </odoo>
