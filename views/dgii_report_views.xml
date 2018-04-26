@@ -21,79 +21,89 @@
                             <field name="company_id" readonly="1"/>
                         </h1>
                     </div>
-                    <group>
-                        <group>
-                            <field name="name" placeholder="MM/YYYY" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="previous_balance" readonly="1"/>
-                        </group>
-                    </group>
+                    <notebook>
+                        <page string="Statements">
+                            <group>
+                                <group>
+                                    <field name="name" placeholder="MM/YYYY"
+                                           attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                    <field name="previous_balance" readonly="1"/>
+                                </group>
+                            </group>
 
-                    <div class="row">
-                        <div class="col-md-3">
-                            <group name="606" col="2" class="bs-callout-info">
-                                <button type="object" name="get_606_tree_view">
-                                    <h2>606</h2>
-                                </button>
-                                <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
-                                <field name="purchase_records" readonly="1"/>
-                                <field name="purchase_invoiced_amount" readonly="1"/>
-                                <field name="service_total_amount" readonly="1"/>
-                                <field name="good_total_amount" readonly="1"/>
-                                <separator colspan="2"/>
-                                <field name="purchase_invoiced_itbis" readonly="1"/>
-                                <field name="purchase_withholded_itbis" readonly="1"/>
-                                <field name="cost_itbis" readonly="1"/>
-                                <field name="advance_itbis" readonly="1"/>
-                                <separator colspan="2"/>
-                                <field name="income_withholding" readonly="1"/>
-                                <separator colspan="2"/>
-                                <field name="purchase_selective_tax" readonly="1"/>
-                                <field name="purchase_other_taxes" readonly="1"/>
-                                <field name="purchase_legal_tip" readonly="1"/>
-                            </group>
-                        </div>
-                        <div class="col-md-3">
-                            <group name="607" class="bs-callout-success">
-                                <button type="object" name="get_607_tree_view">
-                                    <h2>607</h2>
-                                </button>
-                                <field name="sale_binary" filename="sale_filename" readonly="1"/>
-                                <field name="sale_records" readonly="1"/>
-                                <field name="sale_invoiced_amount" readonly="1"/>
-                                <separator colspan="2"/>
-                                <field name="sale_invoiced_itbis" readonly="1"/>
-                                <field name="sale_withholded_itbis" readonly="1"/>
-                                <separator colspan="2"/>
-                                <field name="sale_withholded_isr" readonly="1"/>
-                                <separator colspan="2"/>
-                                <field name="sale_selective_tax" readonly="1"/>
-                                <field name="sale_other_taxes" readonly="1"/>
-                                <field name="sale_legal_tip" readonly="1"/>
-                            </group>
-                        </div>
-                        <div class="col-md-3">
-                            <group name="608" class="bs-callout-warning">
-                                <button type="object" name="get_608_tree_view">
-                                    <h2>608</h2>
-                                </button>
-                                <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
-                                <field name="cancel_records" readonly="1"/>
-                            </group>
-                        </div>
-                        <div class="col-md-3">
-                            <group name="609" class="bs-callout-danger">
-                                <button type="object" name="get_609_tree_view">
-                                    <h2>609</h2>
-                                </button>
-                                <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
-                                <field name="exterior_records" readonly="1"/>
-                                <field name="exterior_invoiced_amount" readonly="1"/>
-                                <separator colspan="2"/>
-                                <field name="presumed_income" readonly="1"/>
-                                <field name="exterior_withholded_isr" readonly="1"/>
-                            </group>
-                        </div>
-                    </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <group name="606" col="2" class="bs-callout-info">
+                                        <button type="object" name="get_606_tree_view">
+                                            <h2>606</h2>
+                                        </button>
+                                        <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
+                                        <field name="purchase_records" readonly="1"/>
+                                        <field name="purchase_invoiced_amount" readonly="1"/>
+                                        <field name="service_total_amount" readonly="1"/>
+                                        <field name="good_total_amount" readonly="1"/>
+                                        <separator colspan="2"/>
+                                        <field name="purchase_invoiced_itbis" readonly="1"/>
+                                        <field name="purchase_withholded_itbis" readonly="1"/>
+                                        <field name="cost_itbis" readonly="1"/>
+                                        <field name="advance_itbis" readonly="1"/>
+                                        <separator colspan="2"/>
+                                        <field name="income_withholding" readonly="1"/>
+                                        <separator colspan="2"/>
+                                        <field name="purchase_selective_tax" readonly="1"/>
+                                        <field name="purchase_other_taxes" readonly="1"/>
+                                        <field name="purchase_legal_tip" readonly="1"/>
+                                    </group>
+                                </div>
+                                <div class="col-md-3">
+                                    <group name="607" class="bs-callout-success">
+                                        <button type="object" name="get_607_tree_view">
+                                            <h2>607</h2>
+                                        </button>
+                                        <field name="sale_binary" filename="sale_filename" readonly="1"/>
+                                        <field name="sale_records" readonly="1"/>
+                                        <field name="sale_invoiced_amount" readonly="1"/>
+                                        <separator colspan="2"/>
+                                        <field name="sale_invoiced_itbis" readonly="1"/>
+                                        <field name="sale_withholded_itbis" readonly="1"/>
+                                        <separator colspan="2"/>
+                                        <field name="sale_withholded_isr" readonly="1"/>
+                                        <separator colspan="2"/>
+                                        <field name="sale_selective_tax" readonly="1"/>
+                                        <field name="sale_other_taxes" readonly="1"/>
+                                        <field name="sale_legal_tip" readonly="1"/>
+                                    </group>
+                                </div>
+                                <div class="col-md-3">
+                                    <group name="608" class="bs-callout-warning">
+                                        <button type="object" name="get_608_tree_view">
+                                            <h2>608</h2>
+                                        </button>
+                                        <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
+                                        <field name="cancel_records" readonly="1"/>
+                                    </group>
+                                </div>
+                                <div class="col-md-3">
+                                    <group name="609" class="bs-callout-danger">
+                                        <button type="object" name="get_609_tree_view">
+                                            <h2>609</h2>
+                                        </button>
+                                        <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
+                                        <field name="exterior_records" readonly="1"/>
+                                        <field name="exterior_invoiced_amount" readonly="1"/>
+                                        <separator colspan="2"/>
+                                        <field name="presumed_income" readonly="1"/>
+                                        <field name="exterior_withholded_isr" readonly="1"/>
+                                    </group>
+                                </div>
+                            </div>
+                        </page>
+                        <page string="Additional Info">
+
+                        </page>
+
+                    </notebook>
+
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>

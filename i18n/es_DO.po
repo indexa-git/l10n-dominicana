@@ -778,6 +778,7 @@ msgid "State"
 msgstr "Estado"
 
 #. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 #: model:ir.ui.view,arch_db:dgii_reports.dgii_report_search_view
 #: model:ir.ui.view,arch_db:dgii_reports.dgii_report_tree_view
 msgid "Statements"
