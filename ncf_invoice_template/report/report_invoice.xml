@@ -85,7 +85,6 @@
                         </td>
                         <td class="text-right">
                             <span t-field="l.quantity"/>
-                            <!--<span t-field="l.uom_id"  groups="product.group_uom"/>-->
                         </td>
                         <td class="text-right">
                             <span t-field="l.price_unit"/>
@@ -143,10 +142,6 @@
                         <t t-if="len(o.tax_line_ids) == 1 and o.amount_untaxed == amount_by_group[2]">
                             <td>
                                 <span t-esc="amount_by_group[0]"/>
-                                <!--<span>&amp;nbsp;
-                                    <span>on</span>
-                                    <t t-esc="amount_by_group[4]"/>
-                                </span>-->
                             </td>
                             <td class="text-right">
                                 <span t-esc="amount_by_group[3]"/>
@@ -199,35 +194,5 @@
             </table>
 
         </xpath>
-
-        <!--<xpath expr="//div[@id='total']/div/table/t" position="replace">
-            <t t-foreach="o._get_tax_amount_by_group()" t-as="amount_by_group">
-                <tr style="border-bottom:1px solid #dddddd;">
-                    <t t-if="len(o.tax_line_ids) == 1 and o.amount_untaxed == amount_by_group[2]">
-                        <td>
-                            <span t-esc="amount_by_group[0]"/>
-                            <span>&amp;nbsp;
-                                <span>on</span>
-                                <t t-esc="amount_by_group[4]"/>
-                            </span>
-                        </td>
-                        <td class="text-right">
-                            <span t-esc="amount_by_group[3]"/>
-                        </td>
-                    </t>
-                    <t t-else="">
-                        <td>
-                            <span t-esc="amount_by_group[0]"/>
-                        </td>
-                        <td class="text-right">
-                            <span t-esc="amount_by_group[3]"/>
-                        </td>
-                    </t>
-                </tr>
-            </t>
-        </xpath>-->
-
-
     </template>
-
 </odoo>
