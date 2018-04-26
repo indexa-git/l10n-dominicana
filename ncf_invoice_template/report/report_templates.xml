@@ -5,4 +5,16 @@
         <xpath expr="//div[@name='company_address']" position="replace"/>
     </template>
 
+    <template id="external_layout_boxed_inherited" inherit_id="web.external_layout_boxed">
+        <xpath expr="//div[@name='company_address']" position="replace"/>
+    </template>
+
+    <template id="external_layout_background_inherited" inherit_id="web.external_layout_background">
+        <xpath expr="//div[hasclass('o_background_header')]/*[3]" position="replace"/>
+    </template>
+
+    <template id="external_layout_standard_inherited" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[hasclass('header')]/*[3]" position="replace"/>
+    </template>
+
 </odoo>
