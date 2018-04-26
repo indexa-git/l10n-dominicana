@@ -1024,3 +1024,8 @@ msgstr "Tipo de Retención ISR"
 msgid "Invoicing"
 msgstr "Facturación"
 
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "Additional Info"
+msgstr "Información adicional"
+
