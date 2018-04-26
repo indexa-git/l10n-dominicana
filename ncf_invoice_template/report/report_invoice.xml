@@ -3,7 +3,7 @@
 
     <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
 
-        <xpath expr="//div[@class='page']/div[@class='row']" position="replace">
+        <xpath expr="//div[hasclass('page')]/div[hasclass('row')]" position="replace">
             <div class="row">
                 <div name="dgii_invoice_address" class="col-xs-5">
                     <h3><span t-field="o.company_id.name"/><br/></h3>
