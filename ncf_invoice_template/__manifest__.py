@@ -14,7 +14,7 @@
     'website': "",
     'category': 'Category Hidden',
     'version': '0.1',
-    'depends': ['web', 'account'],
+    'depends': ['web', 'account_invoicing'],
     'data': [
         # 'security/ir.model.access.csv',
         'data/report_paperformat.xml',
