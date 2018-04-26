@@ -14,7 +14,8 @@
     'website': "",
     'category': 'Category Hidden',
     'version': '0.1',
-    'depends': ['web', 'account_invoicing'],
+    'depends': ['web',
+                'ncf_manager'],
     'data': [
         # 'security/ir.model.access.csv',
         'data/report_paperformat.xml',
