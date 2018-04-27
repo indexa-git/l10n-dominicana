@@ -144,7 +144,7 @@ class AccountInvoice(models.Model):
 
     anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
          ("04", u"04 - Corrección de la Información"),
          ("05", "05 - Cambio de Productos"),

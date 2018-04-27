@@ -13,7 +13,7 @@
               "Odoo Dominicana (ODOM) ",
     'website': "",
     'category': 'Category Hidden',
-    'version': '0.1',
+    'version': '10.0.1.0.0',
     'depends': ['web',
                 'ncf_manager'],
     'data': [

@@ -41,7 +41,7 @@
     },
 
     # any module necessary for this one to work correctly
-    'depends': ['account_accountant', 'l10n_do', 'account_cancel', 
+    'depends': ['account_accountant', 'l10n_do', 'account_cancel',
                 'base_vat', 'sale'],
 
     'data': [
