@@ -99,7 +99,18 @@
                             </div>
                         </page>
                         <page string="Additional Info">
-
+                            <group string="607 Reported Operations by NCF Type">
+                                <field name="ncf_sale_summary_ids" nolabel="1" widget="one2many_list" readonly="1">
+                                    <tree>
+                                        <field name="sequence" invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="qty"/>
+                                        <field name="amount"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="dgii_report_id" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </group>
                         </page>
 
                     </notebook>

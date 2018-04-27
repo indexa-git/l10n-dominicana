@@ -1029,3 +1029,23 @@ msgstr "Facturación"
 msgid "Additional Info"
 msgstr "Información adicional"
 
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "607 Reported Operations by NCF Type"
+msgstr "Operaciones Reportadas en el 607 por Tipo de NCF"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary_name
+msgid "Name"
+msgstr "Tipo de NCF"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary_qty
+msgid "Qty"
+msgstr "Cantidad"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary_amount
+msgid "Amount"
+msgstr "Monto"
+

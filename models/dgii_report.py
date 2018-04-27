@@ -7,6 +7,20 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
+class DgiiReportSaleSummary(models.Model):
+    _name = 'dgii.reports.sale.summary'
+    _order = 'sequence'
+
+    name = fields.Char()
+    sequence = fields.Integer()
+    qty = fields.Integer()
+    amount = fields.Monetary()
+    currency_id = fields.Many2one('res.currency', string='Currency', required=True,
+                                  default=lambda self: self.env.user.company_id.currency_id)
+    dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
+
+
+
 class DgiiReport(models.Model):
     _name = 'dgii.reports'
     _inherit = ['mail.thread']
@@ -106,6 +120,10 @@ class DgiiReport(models.Model):
     exterior_invoiced_amount = fields.Float(compute='_compute_609_fields')
     exterior_filename = fields.Char()
     exterior_binary = fields.Binary(string='609 file')
+
+    # Additional Info
+    ncf_sale_summary_ids = fields.One2many('dgii.reports.sale.summary', 'dgii_report_id',
+                                           string='Operations by NCF type')
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
