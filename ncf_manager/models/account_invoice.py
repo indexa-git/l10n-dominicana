@@ -80,9 +80,10 @@ class AccountInvoice(models.Model):
     @api.depends('state')
     def get_ncf_expiration_date(self):
         for inv in self:
-            if inv.state != 'draft' and inv.sale_fiscal_type:
-                inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
-                                           dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+            if inv.state != 'draft' and inv.journal_id.ncf_control:
+                if inv.sale_fiscal_type:
+                    inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                               dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
     # deprecate on odoo 11
     # def _default_user_shop(self):
