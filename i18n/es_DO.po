@@ -1054,3 +1054,8 @@ msgstr "Monto"
 msgid "Operations Total"
 msgstr "Total Operaciones"
 
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_ncf_sale_summary_ids
+msgid "Operations by NCF type"
+msgstr "Operaciones por Tipo de NCF"
+

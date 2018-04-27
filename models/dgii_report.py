@@ -260,6 +260,19 @@ class DgiiReport(models.Model):
 
         return payments_dict
 
+    def _get_607_operations_dict(self):
+        return {
+            'fiscal': {'sequence': 1, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE VÁLIDO PARA CRÉDITO FISCAL'},
+            'final': {'sequence': 2, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE CONSUMIDOR FINAL'},
+            'nd': {'sequence': 3, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE DÉBITO'},
+            'nc': {'sequence': 4, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE CRÉDITO'},
+            'unico': {'sequence': 5, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO ÚNICO DE INGRESOS'},
+            'special': {'sequence': 6, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO REGIMENES ESPECIALES'},
+            'gov': {'sequence': 7, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES GUBERNAMENTALES'},
+            'positive': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS)'},
+            'negative': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS)'},
+        }
+
     @api.multi
     def _compute_607_data(self):
         for rec in self:
