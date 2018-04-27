@@ -174,11 +174,15 @@ class AccountInvoice(models.Model):
     internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
     ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
-    _sql_constraints = [
-        ('number_uniq',
-         'unique(number, company_id, partner_id, journal_id, type)',
-         'Invoice Number must be unique per Company!'),
-    ]
+    @api.model_cr_context
+    def _auto_init(self):
+        super(AccountInvoice, self)._auto_init()
+        self._sql_constraints += [
+            ('number_uniq',
+             'unique(number, company_id, partner_id, journal_id, type)',
+             'Invoice Number must be unique per Company!'),
+        ]
+        self._add_sql_constraints()
 
     def purchase_ncf_validate(self):
         if not self.journal_id.purchase_type == 'normal':
