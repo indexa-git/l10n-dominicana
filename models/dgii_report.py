@@ -288,7 +288,7 @@ class DgiiReport(models.Model):
             op_dict[invoice.sale_fiscal_type]['amount'] += invoice.amount_total
         if invoice.type == 'out_refund' and not invoice.is_nd:
             op_dict['nc']['qty'] += 1
-            op_dict['nc']['amount'] += invoice.amount_total
+            op_dict['nc']['amount'] -= invoice.amount_total
         if invoice.is_nd:
             op_dict['nd']['qty'] += 1
             op_dict['nd']['amount'] += invoice.amount_total
