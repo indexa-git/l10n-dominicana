@@ -313,7 +313,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
-            sequence_obj = self.env['ir.sequence']
+            sequence_obj = self.env['ir.sequence'].sudo()
 
             if inv.type == "out_invoice" and inv.journal_id.ncf_control:
                 if not inv.partner_id.sale_fiscal_type:
