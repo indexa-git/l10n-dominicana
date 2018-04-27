@@ -5,12 +5,14 @@
 
         <xpath expr="//div[hasclass('page')]/div[hasclass('row')]" position="replace">
             <div class="row">
+                <div name="invoice_address" class="col-xs-5 col-xs-offset-7">
+                </div>
+
                 <div name="dgii_invoice_address" class="col-xs-5">
                     <h3><span t-field="o.company_id.name"/><br/></h3>
                     <strong>RNC: </strong><span t-field="o.company_id.vat"/><br/>
                     <strong>Fecha: </strong><span t-field="o.date_invoice"/>
                 </div>
-
 
                 <div class="pull-right col-xs-6 text-right" style="font-size:20px;">
                     <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_invoice')">
@@ -62,7 +64,7 @@
         <xpath expr="//h2" position="replace"/>
         <xpath expr="//div[hasclass('mt32')]" position="replace"/>
 
-        <xpath expr="//table[@name='invoice_line_table']" position="replace">
+        <xpath expr="//table[1]" position="replace">
             <t t-set="itbis" t-value="0"/>
             <t t-set="ITBIS_EXENTO" t-value="0"/>
             <table class="table table-condensed" name="invoice_line_table">
@@ -134,7 +136,7 @@
             </table>
         </xpath>
 
-        <xpath expr="//div[@id='total']/div/table/*[1]" position="after">
+        <xpath expr="//div/div/table/*[1]" position="after">
             <t t-set="total_discount" t-value="0.0"/>
             <t t-foreach="o.invoice_line_ids" t-as="l">
                 <t t-set="total_discount"
