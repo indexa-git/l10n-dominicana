@@ -69,6 +69,7 @@
                         <th class="text-right">Precio</th>
                         <th>Descripción</th>
                         <th t-if="display_discount" class="text-right">Desc.</th>
+                        <th class="text-right">Impuestos</th>
                         <th class="text-right">ITBIS</th>
                         <th class="text-right">Valor</th>
                     </tr>
@@ -96,6 +97,9 @@
                             <span t-field="l.discount"/>
                         </td>
                         <td class="text-right">
+                            <span t-esc="', '.join(map(lambda x: (x.description or x.name), l.invoice_line_tax_ids))"/>
+                        </td>
+                        <td class="text-right">
                             <t t-if="l.discount">
                                 <span t-esc="'{0:,.2f}'.format(itbis * (subtotal-(subtotal * l.discount)/100))"/>
                             </t>
@@ -118,6 +122,7 @@
                         <td></td>
                         <td></td>
                         <td t-if="display_discount"></td>
+                        <td></td>
                         <td></td>
                         <td></td>
                     </tr>
