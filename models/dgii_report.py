@@ -278,20 +278,21 @@ class DgiiReport(models.Model):
                     'dgii_report_id': self.id},
             'positive': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS)',
                          'dgii_report_id': self.id},
-            'negative': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS)'},
+            'negative': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS)',
+                         'dgii_report_id': self.id},
         }
 
     def _process_op_dict(self, dict, invoice):
         op_dict = dict
         if invoice.sale_fiscal_type and invoice.type != 'out_refund':
             op_dict[invoice.sale_fiscal_type]['qty'] += 1
-            op_dict[invoice.sale_fiscal_type]['amount'] += invoice.amount_total
+            op_dict[invoice.sale_fiscal_type]['amount'] += invoice.amount_untaxed_signed
         if invoice.type == 'out_refund' and not invoice.is_nd:
             op_dict['nc']['qty'] += 1
-            op_dict['nc']['amount'] -= invoice.amount_total
+            op_dict['nc']['amount'] += invoice.amount_untaxed_signed
         if invoice.is_nd:
             op_dict['nd']['qty'] += 1
-            op_dict['nd']['amount'] += invoice.amount_total
+            op_dict['nd']['amount'] += invoice.amount_untaxed_signed
 
         return op_dict
 
