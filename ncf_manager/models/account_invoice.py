@@ -315,18 +315,25 @@ class AccountInvoice(models.Model):
         for inv in self:
             sequence_obj = self.env['ir.sequence']
 
-            if inv.journal_id.ncf_control and not inv.partner_id.sale_fiscal_type:
-                raise ValidationError(_(
-                    u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
-                    "para este tipo de factura.".format(inv.partner_id.id,
-                                                        inv.partner_id.name)))
+            if inv.type == "out_invoice" and inv.journal_id.ncf_control:
+                if not inv.partner_id.sale_fiscal_type:
+                    raise ValidationError(_(
+                        u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
+                        "para este tipo de factura.".format(inv.partner_id.id,
+                                                            inv.partner_id.name)))
 
-            if inv.type == "out_invoice" and inv.sale_fiscal_type in (
-                    "fiscal", "gov", "special") and inv.journal_id.ncf_control and not inv.partner_id.vat:
-                raise UserError(_(
-                    u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
-                    "para este tipo de factura.".format(inv.partner_id.id,
-                                                        inv.partner_id.name)))
+                if inv.sale_fiscal_type in ("fiscal", "gov", "special") and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
+                        "para este tipo de factura.".format(inv.partner_id.id,
+                                                            inv.partner_id.name)))
+
+                if inv.sale_fiscal_type == 'final' and len(inv.partner_id.vat) == 9:
+                    raise UserError(_(
+                        u"El cliente [{}]{} tiene RNC, no debe emitir una Factura"
+                        " de Consumo.".format(inv.partner_id.id,
+                                              inv.partner_id.name)))
+
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
                     raise UserError(_(
