@@ -105,7 +105,7 @@
                                         <field name="sequence" invisible="1"/>
                                         <field name="name"/>
                                         <field name="qty"/>
-                                        <field name="amount"/>
+                                        <field name="amount" sum="Operations Total"/>
                                         <field name="currency_id" invisible="1"/>
                                         <field name="dgii_report_id" invisible="1"/>
                                     </tree>

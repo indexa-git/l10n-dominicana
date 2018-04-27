@@ -1049,3 +1049,8 @@ msgstr "Cantidad"
 msgid "Amount"
 msgstr "Monto"
 
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "Operations Total"
+msgstr "Total Operaciones"
+
