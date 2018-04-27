@@ -262,16 +262,35 @@ class DgiiReport(models.Model):
 
     def _get_607_operations_dict(self):
         return {
-            'fiscal': {'sequence': 1, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE VÁLIDO PARA CRÉDITO FISCAL'},
-            'final': {'sequence': 2, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE CONSUMIDOR FINAL'},
-            'nd': {'sequence': 3, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE DÉBITO'},
-            'nc': {'sequence': 4, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE CRÉDITO'},
-            'unico': {'sequence': 5, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO ÚNICO DE INGRESOS'},
-            'special': {'sequence': 6, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO REGIMENES ESPECIALES'},
-            'gov': {'sequence': 7, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES GUBERNAMENTALES'},
-            'positive': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS)'},
+            'fiscal': {'sequence': 1, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE VÁLIDO PARA CRÉDITO FISCAL',
+                       'dgii_report_id': self.id},
+            'final': {'sequence': 2, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE CONSUMIDOR FINAL',
+                      'dgii_report_id': self.id},
+            'nd': {'sequence': 3, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE DÉBITO',
+                   'dgii_report_id': self.id},
+            'nc': {'sequence': 4, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE CRÉDITO',
+                   'dgii_report_id': self.id},
+            'unico': {'sequence': 5, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO ÚNICO DE INGRESOS',
+                      'dgii_report_id': self.id},
+            'special': {'sequence': 6, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO REGIMENES ESPECIALES',
+                        'dgii_report_id': self.id},
+            'gov': {'sequence': 7, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES GUBERNAMENTALES',
+                    'dgii_report_id': self.id},
+            'positive': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS)',
+                         'dgii_report_id': self.id},
             'negative': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS)'},
         }
+
+    def _process_op_dict(self, dict, invoice):
+        op_dict = dict
+        if invoice.sale_fiscal_type and invoice.type != 'out_refund':
+            op_dict[invoice.sale_fiscal_type]['qty'] += 1
+            op_dict[invoice.sale_fiscal_type]['amount'] += invoice.amount_total
+        elif invoice.type == 'out_refund':
+            op_dict['nc']['qty'] += 1
+            op_dict['nc']['amount'] += invoice.amount_total
+
+        return op_dict
 
     @api.multi
     def _compute_607_data(self):
@@ -281,7 +300,9 @@ class DgiiReport(models.Model):
 
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['out_invoice', 'out_refund'])
             line = 0
+            op_dict = self._get_607_operations_dict()
             for inv in invoice_ids:
+                op_dict = self._process_op_dict(op_dict, inv)
                 inv.fiscal_status = 'blocked'
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
@@ -317,6 +338,9 @@ class DgiiReport(models.Model):
                     'others': payments.get('others')
                 }
                 SaleLine.create(values)
+
+            for k in op_dict:
+                self.env['dgii.reports.sale.summary'].create(op_dict[k])
 
     @api.multi
     def _compute_608_data(self):
@@ -378,6 +402,9 @@ class DgiiReport(models.Model):
 
     @api.multi
     def generate_report(self):
+        # Drop 607 NCF Operations for recompute
+        self.env['dgii.reports.sale.summary'].search([('dgii_report_id', '=', self.id)]).unlink()
+
         self._compute_606_data()
         self._compute_607_data()
         self._compute_608_data()
