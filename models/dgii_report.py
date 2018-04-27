@@ -20,7 +20,6 @@ class DgiiReportSaleSummary(models.Model):
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
 
 
-
 class DgiiReport(models.Model):
     _name = 'dgii.reports'
     _inherit = ['mail.thread']
