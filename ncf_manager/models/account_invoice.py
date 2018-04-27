@@ -248,8 +248,8 @@ class AccountInvoice(models.Model):
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
         res = super(AccountInvoice, self)._onchange_journal_id()
-        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
-            self.partner_id = self.company_id.partner_id.id
+        if self.journal_id.type == 'purchase':
+            self.move_name = False
         return res
 
     @api.onchange('journal_id', 'partner_id')
