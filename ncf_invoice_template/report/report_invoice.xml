@@ -13,24 +13,28 @@
 
 
                 <div class="pull-right col-xs-6 text-right" style="font-size:20px;">
-                    <div t-if="o.state == 'open' or o.state == 'paid'">
+                    <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_invoice')">
                         <strong>Factura de
                             <span t-if="o.sale_fiscal_type == 'fiscal'">Crédito Fiscal</span>
                             <span t-if="o.sale_fiscal_type == 'final'">Consumo</span>
                         </strong>
                     </div>
+                    <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_refund')">
+                        <strong>Nota de Crédito</strong>
+                    </div>
                     <strong>
-                        <span t-if="o.type == 'out_invoice' and (o.state != 'draft')">NCF:</span>
+                        <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')">NCF:</span>
                         <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
                         <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
-                        <span t-if="o.type == 'out_refund'">Nota de Crédito</span>
-                        <span t-if="o.type == 'in_refund'">Nota Crédito</span>
                         <span t-if="o.type == 'in_invoice'">Factura Proveedor</span>
                     </strong>
                     <span t-field="o.number"/>
                     <br/>
-                    <strong><span t-if="o.type == 'out_invoice' and (o.state != 'draft')">Válida hasta:</span></strong>
-                    <span t-if="o.type == 'out_invoice' and (o.state != 'draft')" t-field="o.ncf_expiration_date"/>
+                    <strong><span t-if="o.type == 'out_refund' and (o.origin != False)">NCF modificado:</span></strong>
+                    <span t-if="o.type == 'out_refund' and (o.origin != False)" t-field="o.origin"/>
+                    <br t-if="o.type == 'out_refund' and (o.origin != False)"/>
+                    <strong><span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')">Válida hasta:</span></strong>
+                    <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')" t-field="o.ncf_expiration_date"/>
                 </div>
 
             </div>
