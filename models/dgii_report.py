@@ -265,8 +265,11 @@ class DgiiReport(models.Model):
                 }
                 PurchaseLine.create(values)
 
+    def _get_payments_dict(self):
+        return {'cash': 0, 'bank': 0, 'card': 0, 'credit': 0, 'swap': 0, 'bond': 0, 'others': 0}
+
     def _get_sale_payments_forms(self, invoice_id):
-        payments_dict = {'cash': 0, 'bank': 0, 'card': 0, 'credit': 0, 'swap': 0, 'bond': 0, 'others': 0}
+        payments_dict = self._get_payments_dict()
         for move_line in invoice_id.payment_move_line_ids:
             key = move_line.journal_id.payment_form
             if key:
@@ -326,6 +329,27 @@ class DgiiReport(models.Model):
                                   rec.card + rec.credit + \
                                   rec.bond + rec.swap + rec.others
 
+    def _get_income_type_dict(self):
+        return {'01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0}
+
+    def _process_income_dict(self, dict, invoice):
+        income_dict = dict
+        if invoice.income_type:
+            income_dict[invoice.income_type] += invoice.amount_untaxed_signed
+        return income_dict
+
+    @api.multi
+    def _set_income_type_fields(self, income_dict):
+        for rec in self:
+            rec.opr_income = income_dict.get('01')
+            rec.fin_income = income_dict.get('02')
+            rec.ext_income = income_dict.get('03')
+            rec.lea_income = income_dict.get('04')
+            rec.ast_income = income_dict.get('05')
+            rec.otr_income = income_dict.get('06')
+            rec.income_type_total = rec.opr_income + rec.fin_income + rec.ext_income + \
+                                    rec.lea_income + rec.ast_income + rec.otr_income
+
     @api.multi
     def _compute_607_data(self):
         for rec in self:
@@ -335,8 +359,10 @@ class DgiiReport(models.Model):
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['out_invoice', 'out_refund'])
             line = 0
             op_dict = self._get_607_operations_dict()
+            income_dict = self._get_income_type_dict()
             for inv in invoice_ids:
                 op_dict = self._process_op_dict(op_dict, inv)
+                income_dict = self._process_income_dict(income_dict, inv)
                 inv.fiscal_status = 'blocked'
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
@@ -376,6 +402,7 @@ class DgiiReport(models.Model):
 
             for k in op_dict:
                 self.env['dgii.reports.sale.summary'].create(op_dict[k])
+            self._set_income_type_fields(income_dict)
 
     @api.multi
     def _compute_608_data(self):
