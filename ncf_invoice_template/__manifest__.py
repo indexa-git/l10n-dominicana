@@ -20,6 +20,5 @@
         # 'security/ir.model.access.csv',
         'data/report_paperformat.xml',
         'report/report_invoice.xml',
-        'report/report_templates.xml',
     ],
 }

@@ -58,7 +58,6 @@
         'views/assets_backend.xml',
         'views/ir_sequence_view.xml',
         'views/res_view.xml',
-
     ],
     'qweb': [
         'static/src/xml/ncf_manager.xml'

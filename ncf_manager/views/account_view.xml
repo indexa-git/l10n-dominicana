@@ -5,7 +5,6 @@
         <field name="model">account.journal</field>
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
-
             <xpath expr="//sheet/*[1]" position="before">
                 <div class="oe_button_box" name="button_box">
                     <field name="ncf_ready" invisible="1"/>
