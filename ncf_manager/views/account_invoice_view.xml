@@ -9,7 +9,9 @@
                 <attribute name="attrs"></attribute>
                 <attribute name="icon">fa-paper-plane</attribute>
             </button>
-
+            <field name="partner_id" position="replace">
+                <field name="partner_id" default_focus="1" placeholder="Nombre, RNC o Cédula" options="{'no_quick_create':True}"/>
+            </field>
             <form>
                 <field name="ncf_control" invisible="1"/>
                 <field name="is_company_currency" invisible="1"/>
