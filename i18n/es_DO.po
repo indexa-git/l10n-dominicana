@@ -1100,3 +1100,38 @@ msgstr "Permutas"
 msgid "Other Sale Forms"
 msgstr "Otras Formas de Venta"
 
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_opr_income
+msgid "Operations Income (No-Financial)"
+msgstr "Ingresos por Operaciones (No Financieros)"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_ext_income
+msgid "Extraordinary Income"
+msgstr "Ingresos Extraordinarios"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_fin_income
+msgid "Financial Income"
+msgstr "Ingresos Financieros"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_lea_income
+msgid "Lease Income"
+msgstr "Ingresos por Arrendamientos"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_ast_income
+msgid "Depreciable Assets Income"
+msgstr "Ingresos por Venta de Activos Depreciables"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_otr_income
+msgid "Others Income"
+msgstr "Otros Ingresos"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "Operations by Income Type"
+msgstr "Operaciones por Tipo de Ingreso"
+

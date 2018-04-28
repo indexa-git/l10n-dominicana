@@ -132,6 +132,14 @@ class DgiiReport(models.Model):
     others = fields.Monetary('Other Sale Forms', copy=False)
     sale_type_total = fields.Monetary('Total', copy=False)
 
+    opr_income = fields.Monetary('Operations Income (No-Financial)', copy=False)
+    fin_income = fields.Monetary('Financial Income', copy=False)
+    ext_income = fields.Monetary('Extraordinary Income', copy=False)
+    lea_income = fields.Monetary('Lease Income', copy=False)
+    ast_income = fields.Monetary('Depreciable Assets Income', copy=False)
+    otr_income = fields.Monetary('Others Income', copy=False)
+    income_type_total = fields.Monetary('Total', copy=False)
+
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
         if date is not None:
