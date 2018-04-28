@@ -90,7 +90,7 @@ class PosOrder(models.Model):
         orders = self.check_ncf_control_from_ui(orders)
         res = super(PosOrder, self).create_from_ui(orders)
         self = self.browse(res)
-        self.reconcile_befores_session_close()
+        # self.reconcile_befores_session_close()
         return res
 
     def reconcile_befores_session_close(self):
