@@ -113,14 +113,14 @@
                             </group>
                             <group>
                                 <group col="3" string="Operations by Sale Type">
-                                    <field name="cash"/>
-                                    <field name="bank"/>
-                                    <field name="card"/>
-                                    <field name="credit"/>
-                                    <field name="bond"/>
-                                    <field name="swap"/>
-                                    <field name="others"/>
-                                    <field name="sale_type_total"/>
+                                    <field name="cash" readonly="1"/>
+                                    <field name="bank" readonly="1"/>
+                                    <field name="card" readonly="1"/>
+                                    <field name="credit" readonly="1"/>
+                                    <field name="bond" readonly="1"/>
+                                    <field name="swap" readonly="1"/>
+                                    <field name="others" readonly="1"/>
+                                    <field name="sale_type_total" readonly="1"/>
                                 </group>
                             </group>
                         </page>
