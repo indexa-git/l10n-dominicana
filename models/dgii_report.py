@@ -276,9 +276,9 @@ class DgiiReport(models.Model):
                         'dgii_report_id': self.id},
             'gov': {'sequence': 7, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES GUBERNAMENTALES',
                     'dgii_report_id': self.id},
-            'positive': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS)',
+            'positive': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS) - *PENDIENTE*',
                          'dgii_report_id': self.id},
-            'negative': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS)',
+            'negative': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS) - *PENDIENTE*',
                          'dgii_report_id': self.id},
         }
 
