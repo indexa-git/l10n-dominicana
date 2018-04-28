@@ -79,6 +79,25 @@ class DgiiReport(models.Model):
             rec.exterior_withholded_isr = abs(sum([inv.withholded_isr for inv in external_line_ids]))
             rec.exterior_invoiced_amount = abs(sum([inv.invoiced_amount for inv in external_line_ids]))
 
+    @api.multi
+    @api.depends('state')
+    def _compute_sale_payment_forms(self):
+        for rec in self:
+            if rec.state != 'draft':
+                SaleLine = self.env['dgii.reports.sale.line']
+                sale_line_ids = SaleLine.search([('dgii_report_id', '=', rec.id)])
+                for line in sale_line_ids:
+                    rec.cash += line.cash
+                    rec.bank += line.bank
+                    rec.card += line.card
+                    rec.credit += line.credit
+                    rec.bond += line.bond
+                    rec.swap += line.swap
+                    rec.others += line.others
+                    rec.sale_type_total = rec.cash + rec.bank + \
+                                          rec.card + rec.credit + \
+                                          rec.bond + rec.swap + rec.others
+
     # 606
     purchase_records = fields.Integer(compute='_compute_606_fields')
     service_total_amount = fields.Monetary(compute='_compute_606_fields')
@@ -123,14 +142,14 @@ class DgiiReport(models.Model):
     # Additional Info
     ncf_sale_summary_ids = fields.One2many('dgii.reports.sale.summary', 'dgii_report_id',
                                            string='Operations by NCF type', copy=False)
-    cash = fields.Monetary('Cash', copy=False)
-    bank = fields.Monetary('Check / Transfer / Deposit', copy=False)
-    card = fields.Monetary('Credit Card / Debit Card', copy=False)
-    credit = fields.Monetary('Credit', copy=False)
-    bond = fields.Monetary('Gift certificates or vouchers', copy=False)
-    swap = fields.Monetary('Swap', copy=False)
-    others = fields.Monetary('Other Sale Forms', copy=False)
-    sale_type_total = fields.Monetary('Total', copy=False)
+    cash = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Cash')
+    bank = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Check / Transfer / Deposit')
+    card = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Credit Card / Debit Card')
+    credit = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Credit')
+    bond = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Gift certificates or vouchers')
+    swap = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Swap')
+    others = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Other Sale Forms')
+    sale_type_total = fields.Monetary(compute='_compute_sale_payment_forms', store=True, string='Total')
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
