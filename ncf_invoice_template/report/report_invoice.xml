@@ -38,6 +38,8 @@
                     <strong><span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')">Válida hasta:</span></strong>
                     <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')" t-field="o.ncf_expiration_date"/>
                 </div>
+                <div name="reference" class="col-xs-2">          
+                </div>
 
             </div>
 
