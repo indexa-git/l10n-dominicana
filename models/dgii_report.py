@@ -316,15 +316,15 @@ class DgiiReport(models.Model):
         return op_dict
 
     @api.multi
-    def _compute_sale_payment_forms(self, payments):
+    def _set_payment_form_fields(self, payments_dict):
         for rec in self:
-            rec.cash += payments.get('cash')
-            rec.bank += payments.get('bank')
-            rec.card += payments.get('card')
-            rec.credit += payments.get('credit')
-            rec.bond += payments.get('bond')
-            rec.swap += payments.get('swap')
-            rec.others += payments.get('others')
+            rec.cash = payments_dict.get('cash')
+            rec.bank = payments_dict.get('bank')
+            rec.card = payments_dict.get('card')
+            rec.credit = payments_dict.get('credit')
+            rec.bond = payments_dict.get('bond')
+            rec.swap = payments_dict.get('swap')
+            rec.others = payments_dict.get('others')
             rec.sale_type_total = rec.cash + rec.bank + \
                                   rec.card + rec.credit + \
                                   rec.bond + rec.swap + rec.others
@@ -359,6 +359,7 @@ class DgiiReport(models.Model):
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['out_invoice', 'out_refund'])
             line = 0
             op_dict = self._get_607_operations_dict()
+            payment_dict = self._get_payments_dict()
             income_dict = self._get_income_type_dict()
             for inv in invoice_ids:
                 op_dict = self._process_op_dict(op_dict, inv)
@@ -367,7 +368,6 @@ class DgiiReport(models.Model):
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 payments = self._get_sale_payments_forms(inv)
-                self._compute_sale_payment_forms(payments)
                 values = {
                     'dgii_report_id': rec.id,
                     'line': line,
@@ -400,8 +400,13 @@ class DgiiReport(models.Model):
                 }
                 SaleLine.create(values)
 
+                for k in payment_dict:
+                    payment_dict[k] += payments[k]
+
             for k in op_dict:
                 self.env['dgii.reports.sale.summary'].create(op_dict[k])
+
+            self._set_payment_form_fields(payment_dict)
             self._set_income_type_fields(income_dict)
 
     @api.multi
