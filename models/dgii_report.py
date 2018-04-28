@@ -27,8 +27,8 @@ class DgiiReport(models.Model):
     name = fields.Char(string='Period', required=True, size=7)
     state = fields.Selection([('draft', 'New'), ('error', 'With error'),
                               ('generated', 'Generated'), ('sent', 'Sent')],
-                             default='draft', track_visibility='onchange')
-    previous_balance = fields.Float('Previous balance')
+                             default='draft', track_visibility='onchange', copy=False)
+    previous_balance = fields.Float('Previous balance', copy=False)
     currency_id = fields.Many2one('res.currency', string='Currency', required=True,
                                   default=lambda self: self.env.user.company_id.currency_id)
     company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.user.company_id,
@@ -122,14 +122,14 @@ class DgiiReport(models.Model):
 
     # Additional Info
     ncf_sale_summary_ids = fields.One2many('dgii.reports.sale.summary', 'dgii_report_id',
-                                           string='Operations by NCF type')
-    cash = fields.Monetary('Cash')
-    bank = fields.Monetary('Check / Transfer / Deposit')
-    card = fields.Monetary('Credit Card / Debit Card')
-    credit = fields.Monetary('Credit')
-    bond = fields.Monetary('Gift certificates or vouchers')
-    swap = fields.Monetary('Swap')
-    others = fields.Monetary('Other Sale Forms')
+                                           string='Operations by NCF type', copy=False)
+    cash = fields.Monetary('Cash', copy=False)
+    bank = fields.Monetary('Check / Transfer / Deposit', copy=False)
+    card = fields.Monetary('Credit Card / Debit Card', copy=False)
+    credit = fields.Monetary('Credit', copy=False)
+    bond = fields.Monetary('Gift certificates or vouchers', copy=False)
+    swap = fields.Monetary('Swap', copy=False)
+    others = fields.Monetary('Other Sale Forms', copy=False)
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
