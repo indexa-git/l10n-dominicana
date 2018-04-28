@@ -4,6 +4,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2017-2018 Click Solutions Enterprise SRL. (https://cs.com.do/)
+#             Daniel Diaz <ddiaz@cs.com.do>
 
 # This file is part of NCF Manager.
 
@@ -22,6 +24,7 @@
 # ######################################################################
 
 from odoo import models, fields, api
+from datetime import datetime
 
 
 class AccountJournal(models.Model):
@@ -67,6 +70,19 @@ class AccountJournal(models.Model):
 
     @api.multi
     def create_ncf_sequence(self):
+        if len(self.sequence_id.date_range_ids) != 1:
+            self.sequence_id.date_range_ids.unlink()
+            formato_fecha = "%Y-%m-%d"
+            date_from = datetime.now().strftime(formato_fecha)
+            ano = int(date_from[0:4])
+            date_from = datetime(ano, 1, 1, 0, 0, 0).strftime(formato_fecha)
+            date_to = datetime(ano, 12, 31, 0, 0, 0).strftime(formato_fecha)
+            self.sequence_id.date_range_ids.create({'number_next': 1,
+                                                   'sequence_id': self.sequence_id.id,
+                                                   'number_next_actual': 1,
+                                                   'max_number_next': 100,
+                                                   'date_from': date_from,
+                                                   'date_to': date_to})
         if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
             # this method read Selection values from res.partner sale_fiscal_type fields
             selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
