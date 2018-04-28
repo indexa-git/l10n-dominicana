@@ -130,6 +130,7 @@ class DgiiReport(models.Model):
     bond = fields.Monetary('Gift certificates or vouchers', copy=False)
     swap = fields.Monetary('Swap', copy=False)
     others = fields.Monetary('Other Sale Forms', copy=False)
+    sale_type_total = fields.Monetary('Total', copy=False)
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""

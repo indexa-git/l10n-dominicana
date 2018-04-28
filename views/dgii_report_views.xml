@@ -111,6 +111,18 @@
                                     </tree>
                                 </field>
                             </group>
+                            <group>
+                                <group col="3" string="Operations by Sale Type">
+                                    <field name="cash"/>
+                                    <field name="bank"/>
+                                    <field name="card"/>
+                                    <field name="credit"/>
+                                    <field name="bond"/>
+                                    <field name="swap"/>
+                                    <field name="others"/>
+                                    <field name="sale_type_total"/>
+                                </group>
+                            </group>
                         </page>
 
                     </notebook>
