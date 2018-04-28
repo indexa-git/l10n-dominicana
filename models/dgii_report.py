@@ -123,6 +123,13 @@ class DgiiReport(models.Model):
     # Additional Info
     ncf_sale_summary_ids = fields.One2many('dgii.reports.sale.summary', 'dgii_report_id',
                                            string='Operations by NCF type')
+    cash = fields.Monetary('Cash')
+    bank = fields.Monetary('Check / Transfer / Deposit')
+    card = fields.Monetary('Credit Card / Debit Card')
+    credit = fields.Monetary('Credit')
+    bond = fields.Monetary('Gift certificates or vouchers')
+    swap = fields.Monetary('Swap')
+    others = fields.Monetary('Other Sale Forms')
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
