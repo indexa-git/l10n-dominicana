@@ -1059,3 +1059,44 @@ msgstr "Total Operaciones"
 msgid "Operations by NCF type"
 msgstr "Operaciones por Tipo de NCF"
 
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "Operations by Sale Type"
+msgstr "Operaciones por Tipo de Venta"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cash
+msgid "Cash"
+msgstr "Efectivo"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_bank
+msgid "Check / Transfer / Deposit"
+msgstr "Cheque / Transferencia"
+
+#. module: dgii_reports
+#: selection:account.invoice,payment_form:0
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_card
+msgid "Credit Card / Debit Card"
+msgstr "Tarjeta Débito / Crédito"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_credit
+msgid "Credit"
+msgstr "A Crédito"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_bond
+msgid "Gift certificates or vouchers"
+msgstr "Bonos o Certificados de Regalo"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_swap
+msgid "Swap"
+msgstr "Permutas"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_others
+msgid "Other Sale Forms"
+msgstr "Otras Formas de Venta"
+
