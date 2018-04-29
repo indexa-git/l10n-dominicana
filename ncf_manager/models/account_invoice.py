@@ -4,6 +4,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2017-2018 Click Solutions Enterprise SRL. (https://cs.com.do/)
+#             Daniel Diaz <ddiaz@cs.com.do>
 
 # This file is part of NCF Manager.
 
@@ -368,6 +370,11 @@ class AccountInvoice(models.Model):
             res.update({"move_name": self._context["credit_note_supplier_ncf"]
                         })
         return res
+
+    @api.model
+    def create(self, vals):
+        if not self.income_type:
+            return super(AccountInvoice, self).create(vals)
 
 
 class AccountInvoiceLine(models.Model):
