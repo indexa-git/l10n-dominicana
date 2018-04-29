@@ -211,21 +211,21 @@
                 <field name="modified_invoice_number"/>
                 <field name="invoice_date"/>
                 <field name="payment_date"/>
-                <field name="service_total_amount"/>
-                <field name="good_total_amount"/>
-                <field name="invoiced_amount"/>
-                <field name="invoiced_itbis"/>
-                <field name="withholded_itbis"/>
-                <field name="proportionality_tax"/>
-                <field name="cost_itbis"/>
-                <field name="advance_itbis"/>
-                <field name="purchase_perceived_itbis"/>
-                <field name="isr_withholding_type"/>
-                <field name="income_withholding"/>
-                <field name="purchase_perceived_isr"/>
-                <field name="selective_tax"/>
-                <field name="other_taxes"/>
-                <field name="legal_tip"/>
+                <field name="service_total_amount" sum="Total"/>
+                <field name="good_total_amount" sum="Total"/>
+                <field name="invoiced_amount" sum="Total"/>
+                <field name="invoiced_itbis" sum="Total"/>
+                <field name="withholded_itbis" sum="Total"/>
+                <field name="proportionality_tax" sum="Total"/>
+                <field name="cost_itbis" sum="Total"/>
+                <field name="advance_itbis" sum="Total"/>
+                <field name="purchase_perceived_itbis" sum="Total"/>
+                <field name="isr_withholding_type" sum="Total"/>
+                <field name="income_withholding" sum="Total"/>
+                <field name="purchase_perceived_isr" sum="Total"/>
+                <field name="selective_tax" sum="Total"/>
+                <field name="other_taxes" sum="Total"/>
+                <field name="legal_tip" sum="Total"/>
                 <field name="payment_type"/>
             </tree>
         </field>
@@ -247,22 +247,22 @@
                 <field name="income_type"/>
                 <field name="invoice_date"/>
                 <field name="withholding_date"/>
-                <field name="invoiced_amount"/>
-                <field name="invoiced_itbis"/>
-                <field name="third_withheld_itbis"/>
-                <field name="perceived_itbis"/>
-                <field name="third_income_withholding"/>
-                <field name="perceived_isr"/>
-                <field name="selective_tax"/>
-                <field name="other_taxes"/>
-                <field name="legal_tip"/>
-                <field name="cash"/>
-                <field name="bank"/>
-                <field name="card"/>
-                <field name="credit"/>
-                <field name="bond"/>
-                <field name="swap"/>
-                <field name="others"/>
+                <field name="invoiced_amount" sum="Total"/>
+                <field name="invoiced_itbis" sum="Total"/>
+                <field name="third_withheld_itbis" sum="Total"/>
+                <field name="perceived_itbis" sum="Total"/>
+                <field name="third_income_withholding" sum="Total"/>
+                <field name="perceived_isr" sum="Total"/>
+                <field name="selective_tax" sum="Total"/>
+                <field name="other_taxes" sum="Total"/>
+                <field name="legal_tip" sum="Total"/>
+                <field name="cash" sum="Total"/>
+                <field name="bank" sum="Total"/>
+                <field name="card" sum="Total"/>
+                <field name="credit" sum="Total"/>
+                <field name="bond" sum="Total"/>
+                <field name="swap" sum="Total"/>
+                <field name="others" sum="Total"/>
             </tree>
         </field>
     </record>
@@ -300,10 +300,10 @@
                 <field name="related_part"/>
                 <field name="doc_number"/>
                 <field name="doc_date"/>
-                <field name="invoiced_amount"/>
-                <field name="isr_withholding_date"/>
-                <field name="presumed_income"/>
-                <field name="withholded_isr"/>
+                <field name="invoiced_amount" sum="Total"/>
+                <field name="isr_withholding_date" sum="Total"/>
+                <field name="presumed_income" sum="Total"/>
+                <field name="withholded_isr" sum="Total"/>
             </tree>
         </field>
     </record>
