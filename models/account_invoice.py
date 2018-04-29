@@ -31,43 +31,59 @@ class AccountInvoice(models.Model):
             if len(line) != len(set(line)):
                 raise ValidationError(_('An invoice cannot have multiple withholding taxes.'))
 
+    def _convert_to_local_currency(self, inv, amount):
+        sign = -1 if inv.type in ['in_refund', 'out_refund'] else 1
+        if inv.currency_id != inv.company_id.currency_id:
+            currency_id = inv.currency_id.with_context(date=inv.date_invoice)
+            round_curr = currency_id.round
+            amount = round_curr(currency_id.compute(amount, inv.company_id.currency_id))
+
+        return amount * sign
+
+    def _get_tax_line_ids(self, invoice):
+        return invoice.tax_line_ids
+
     @api.multi
     @api.depends('tax_line_ids', 'tax_line_ids.amount', 'state')
     def _compute_taxes_fields(self):
         """Compute invoice common taxes fields"""
         for inv in self:
+
+            fiscal_taxes = ['ISC', 'ITBIS', 'ITBIS 18%', 'ITBIS 0.0015%', 'ITBIS -30%', 'ITBIS -100%']
+
+            tax_line_ids = self._get_tax_line_ids(inv)
+
             if inv.state != 'draft':
                 # Monto Impuesto Selectivo al Consumo
-                inv.selective_tax = abs(sum([tax.amount for tax in inv.tax_line_ids
-                                             if tax.tax_id.tax_group_id.name == 'ISC']))
+                inv.selective_tax = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                    lambda tax: tax.tax_id.tax_group_id.name == 'ISC').mapped('amount')))
 
                 # Monto Otros Impuestos/Tasas
-                inv.other_taxes = abs(sum([tax.amount for tax in inv.tax_line_ids
-                                           if tax.tax_id.purchase_tax_type not in ['isr', 'ritbis']
-                                           and tax.tax_id.tax_group_id.name not in ['ISC', 'ITBIS', 'ITBIS 18%',
-                                                                                    'ITBIS 0.0015%', 'ITBIS -30%',
-                                                                                    'ITBIS -100%']]))
+                inv.other_taxes = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                    lambda tax: tax.tax_id.purchase_tax_type not in ['isr', 'ritbis']
+                                and tax.tax_id.tax_group_id.name not in fiscal_taxes).mapped('amount')))
 
                 # Monto Propina Legal
-                inv.legal_tip = abs(sum([tax.amount for tax in inv.tax_line_ids
-                                         if tax.tax_id.tax_group_id.name == 'Propina']))
+                inv.legal_tip = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                    lambda tax: tax.tax_id.tax_group_id.name == 'Propina').mapped('amount')))
 
                 # ITBIS sujeto a proporcionalidad
-                inv.proportionality_tax = abs(sum([tax.amount for tax in inv.tax_line_ids
-                                                   if tax.account_id.account_fiscal_type == 'A29']))
+                inv.proportionality_tax = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                    lambda tax: tax.account_id.account_fiscal_type == 'A29').mapped('amount')))
 
                 # ITBIS llevado al Costo
-                inv.cost_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
-                                          if tax.account_id.account_fiscal_type == 'A51']))
+                inv.cost_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                    lambda tax: tax.account_id.account_fiscal_type == 'A51').mapped('amount')))
 
                 if inv.type == 'in_invoice':
                     # Monto ITBIS Retenido
-                    inv.withholded_itbis = abs(sum([tax.amount for tax in inv.tax_line_ids
-                                                    if tax.tax_id.purchase_tax_type == 'ritbis']))
+                    inv.withholded_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                        lambda tax: tax.tax_id.purchase_tax_type == 'ritbis').mapped('amount')))
 
                     # Monto Retención Renta
-                    inv.income_withholding = abs(sum([tax.amount for tax in inv.tax_line_ids
-                                                      if tax.tax_id.purchase_tax_type == 'isr']))
+                    inv.income_withholding = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                        lambda tax: tax.tax_id.purchase_tax_type == 'isr').mapped('amount')))
+
                 if inv.state == 'paid':
                     # Fecha Pago
                     inv.payment_date = fields.Date.context_today(inv)
@@ -79,12 +95,14 @@ class AccountInvoice(models.Model):
         for inv in self:
             if inv.type == 'in_invoice' and inv.state != 'draft':
                 # Monto calculado en servicio
-                inv.service_total_amount = sum([line.price_subtotal for line in inv.invoice_line_ids
-                                                if line.product_id.type == 'service'])
+                inv.service_total_amount = self._convert_to_local_currency(
+                    inv, sum([line.price_subtotal for line in inv.invoice_line_ids
+                              if line.product_id.type == 'service']))
 
                 # Monto calculado en bienes
-                inv.good_total_amount = sum([line.price_subtotal for line in inv.invoice_line_ids
-                                             if line.product_id.type != 'service'])
+                inv.good_total_amount = self._convert_to_local_currency(
+                    inv, sum([line.price_subtotal for line in inv.invoice_line_ids
+                              if line.product_id.type != 'service']))
 
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
@@ -161,20 +179,11 @@ class AccountInvoice(models.Model):
         for inv in self:
             if inv.state != 'draft':
                 amount = 0
-                for tax in inv.tax_line_ids:
-                    if inv.currency_id != inv.company_id.currency_id and tax.tax_id.tax_group_id.name in ['ITBIS',
-                                                                                                          'ITBIS 18%',
-                                                                                                          'ITBIS 0.0015%',
-                                                                                                          'ITBIS -30%',
-                                                                                                          'ITBIS -100%']:
-                        currency_id = inv.currency_id.with_context(date=inv.date_invoice)
-                        amount += currency_id.compute(
-                            abs(tax.amount), inv.company_id.currency_id)
-                    elif tax.tax_id.tax_group_id.name in ['ITBIS', 'ITBIS 18%',
-                                                          'ITBIS 0.0015%', 'ITBIS -30%',
-                                                          'ITBIS -100%']:
-                        amount += abs(tax.amount)
-                inv.invoiced_itbis = amount
+                itbis_taxes = ['ITBIS', 'ITBIS 18%']
+                for tax in self._get_tax_line_ids(inv):
+                    if tax.tax_id.tax_group_id.name in itbis_taxes:
+                        amount += tax.amount
+                    inv.invoiced_itbis = self._convert_to_local_currency(inv, amount)
 
     @api.multi
     @api.depends('state')
@@ -185,12 +194,14 @@ class AccountInvoice(models.Model):
                     payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
                     if payment_id:
                         # ITBIS Retenido por Terceros
-                        inv.third_withheld_itbis = sum([move_line.debit for move_line in payment_id.move_line_ids
-                                                        if move_line.account_id.account_fiscal_type == 'A36'])
+                        inv.third_withheld_itbis = self._convert_to_local_currency(
+                            inv, sum([move_line.debit for move_line in payment_id.move_line_ids
+                                      if move_line.account_id.account_fiscal_type == 'A36']))
 
                         # Retención de Renta por Terceros
-                        inv.third_income_withholding = sum([move_line.debit for move_line in payment_id.move_line_ids
-                                                            if move_line.account_id.account_fiscal_type == 'ISR'])
+                        inv.third_income_withholding = self._convert_to_local_currency(
+                            inv, sum([move_line.debit for move_line in payment_id.move_line_ids
+                                      if move_line.account_id.account_fiscal_type == 'ISR']))
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')
