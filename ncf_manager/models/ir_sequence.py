@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields, api, exceptions, _
 from odoo.exceptions import ValidationError
 from datetime import datetime
 import pytz
@@ -77,7 +77,8 @@ class IrSequence(models.Model):
                 [('sale_fiscal_type', '=', sale_fiscal_type), ('sequence_id', '=', self.id), ('date_from', '<=', dt),
                  ('date_to', '>=', dt)], limit=1)
             if not seq_date:
-                raise ValidationError('No tiene Comprobantes validos para la fecha %s del tipo %s' % (dt,sale_fiscal_type))
+                raise ValidationError(
+                    'No tiene Comprobantes validos para la fecha %s del tipo %s' % (dt, sale_fiscal_type))
             return seq_date.with_context(ir_sequence_date_range=seq_date.date_from)._next()
         else:
             return super(IrSequence, self)._next()
@@ -100,3 +101,15 @@ class IrSequenceDateRange(models.Model):
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
     max_number_next = fields.Integer(u"Número Máximo", default=100)
+
+    @api.multi
+    def unlink(self):
+        '''Verifico si ya hay alguna factura existe evitando que me borren algun registro de los que
+        ya se crearon en el generador ncf control.'''
+        rec = super(IrSequenceDateRange, self).unlink()
+        cr = self.env.cr
+        cr.execute("SELECT COUNT(*) As contador FROM account_invoice  WHERE state = 'open';")
+        count_invoice = cr.dictfetchone()
+        if count_invoice > 0:
+            raise exceptions.except_orm(_('Advertencia'), _(
+                'No es posible borrar el registro ya que existen %s numeros de facturas en estado abierto.' % count_invoice))
