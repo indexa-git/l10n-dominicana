@@ -268,6 +268,13 @@ class DgiiReport(models.Model):
     def _get_payments_dict(self):
         return {'cash': 0, 'bank': 0, 'card': 0, 'credit': 0, 'swap': 0, 'bond': 0, 'others': 0}
 
+    def _convert_to_user_currency(self, base_currency, amount):
+        context = dict(self._context or {})
+        user_currency_id = self.env.user.company_id.currency_id
+        base_currency_id = base_currency
+        ctx = context.copy()
+        return base_currency_id.with_context(ctx).compute(amount, user_currency_id)
+
     def _get_sale_payments_forms(self, invoice_id):
         payments_dict = self._get_payments_dict()
         for move_line in invoice_id.payment_move_line_ids:
@@ -275,8 +282,7 @@ class DgiiReport(models.Model):
             if key:
                 payments_dict[key] += move_line.credit
 
-        payments_dict['credit'] += invoice_id.residual
-
+        payments_dict['credit'] += self._convert_to_user_currency(invoice_id.currency_id, invoice_id.residual)
         return payments_dict
 
     def _get_607_operations_dict(self):
@@ -401,7 +407,8 @@ class DgiiReport(models.Model):
                 SaleLine.create(values)
 
                 for k in payment_dict:
-                    payment_dict[k] += payments[k]
+                    if inv.type != 'out_refund':
+                        payment_dict[k] += payments[k]
 
             for k in op_dict:
                 self.env['dgii.reports.sale.summary'].create(op_dict[k])
