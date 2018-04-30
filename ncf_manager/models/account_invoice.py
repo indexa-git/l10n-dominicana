@@ -127,7 +127,7 @@ class AccountInvoice(models.Model):
          ('05', '05 - Ingresos por Venta de Activo Depreciable'),
          ('06', '06 - Otros Ingresos')],
         string='Tipo de Ingreso',
-        default=lambda self: self._context.get('income_type', '01'))
+        default='01')
 
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
