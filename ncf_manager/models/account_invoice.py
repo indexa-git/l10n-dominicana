@@ -374,9 +374,17 @@ class AccountInvoice(models.Model):
 
     @api.model
     def create(self, vals):
-        global income_type_global
-        income_type_global = vals['income_type']
-        return super(AccountInvoice, self).create(vals)
+        type_journal_obj = self.env['account.journal'].search([('id', '=', vals['journal_id'])])
+        global journal_invoice
+        journal_invoice = type_journal_obj.type
+        if type_journal_obj.type == 'sale':
+            global income_type_global
+            if not 'income_type' in vals:
+                vals.update({'income_type': u'01'})
+            income_type_global = vals['income_type']
+            return super(AccountInvoice, self).create(vals)
+        else:
+            return super(AccountInvoice, self).create(vals)
 
 
 class AccountInvoiceLine(models.Model):
@@ -387,7 +395,10 @@ class AccountInvoiceLine(models.Model):
     
     @api.model
     def create(self, vals):
-        if not self.income_type:
-            vals['income_type'] = income_type_global
+        if journal_invoice == 'sale':
+            if not self.income_type:
+                vals['income_type'] = income_type_global
+                return super(AccountInvoiceLine, self).create(vals)
+        else:
             return super(AccountInvoiceLine, self).create(vals)
 
