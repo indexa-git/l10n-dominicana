@@ -36,10 +36,10 @@
             </field>
 
             <field name="number" position="before">
-                <h2 attrs="{'invisible': [('state','!=','cancel')]}">
+                <h1 attrs="{'invisible': [('state','!=','cancel')]}">
                     FACTURA CANCELADA <br/>
                 <field name="anulation_type" readonly="1"/>
-                </h2>
+                </h1>
             </field>
 
             <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace"/>
@@ -66,10 +66,10 @@
             </xpath>
 
             <xpath expr="//field[@name='number']" position="after">
-                <h3 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('sale_fiscal_type', '=', False)]}">
+                <h4 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('sale_fiscal_type', '=', False)]}">
                     Válido hasta:
                     <field name="ncf_expiration_date" readonly="1"/>
-                </h3>
+                </h4>
             </xpath>
 
         </field>

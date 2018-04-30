@@ -4,6 +4,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2017-2018 Click Solutions Enterprise SRL. (https://cs.com.do/)
+#             Daniel Diaz <ddiaz@cs.com.do>
 
 # This file is part of NCF Manager.
 
@@ -25,6 +27,7 @@ import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+
 
 _logger = logging.getLogger(__name__)
 
@@ -369,9 +372,22 @@ class AccountInvoice(models.Model):
                         })
         return res
 
+    @api.model
+    def create(self, vals):
+        global income_type_global
+        income_type_global = vals['income_type']
+        return super(AccountInvoice, self).create(vals)
+
 
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
     income_type = fields.Selection([], related='invoice_id.income_type')
     expense_type = fields.Selection([], related='invoice_id.expense_type')
+    
+    @api.model
+    def create(self, vals):
+        if not self.income_type:
+            vals['income_type'] = income_type_global
+            return super(AccountInvoiceLine, self).create(vals)
+
