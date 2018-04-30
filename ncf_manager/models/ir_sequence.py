@@ -108,8 +108,9 @@ class IrSequenceDateRange(models.Model):
         ya se crearon en el generador ncf control.'''
         rec = super(IrSequenceDateRange, self).unlink()
         cr = self.env.cr
-        cr.execute("SELECT COUNT(*) As contador FROM account_invoice  WHERE state = 'open';")
+        cr.execute("SELECT COUNT(*) As contador FROM account_invoice  WHERE state = 'open' or state = 'paid';")
         count_invoice = cr.dictfetchone()
-        if count_invoice > 0:
+        contador = int(count_invoice['contador'])
+        if contador > 0:
             raise exceptions.except_orm(_('Advertencia'), _(
-                'No es posible borrar el registro ya que existen %s numeros de facturas en estado abierto.' % count_invoice))
+                'No es posible borrar el registro ya que existen facturas con asientos contables relacionadas al diario Cantidad: (%s).' % contador))
