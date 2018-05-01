@@ -14,7 +14,7 @@ except(ImportError, IOError) as err:
 
 
 class Odoojs(http.Controller):
-    @http.route('/dgii_ws', auth='public')
+    @http.route('/dgii_ws', auth='public', cors="*")
     def index(self, **kwargs):
         """
         Look for clients in the web service of the DGII
