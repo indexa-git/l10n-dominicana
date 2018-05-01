@@ -70,25 +70,35 @@ class AccountJournal(models.Model):
 
     @api.multi
     def create_ncf_sequence(self):
-        if len(self.sequence_id.date_range_ids) != 1:
+        if self.ncf_control and len(self.sequence_id.date_range_ids) != 1:
+            selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
             self.sequence_id.date_range_ids.unlink()
             formato_fecha = "%Y-%m-%d"
             date_from = datetime.now().strftime(formato_fecha)
             ano = int(date_from[0:4])
             date_from = datetime(ano, 1, 1, 0, 0, 0).strftime(formato_fecha)
             date_to = datetime(ano, 12, 31, 0, 0, 0).strftime(formato_fecha)
-            self.sequence_id.date_range_ids.create({'number_next': 1,
-                                                   'sequence_id': self.sequence_id.id,
-                                                   'number_next_actual': 1,
-                                                   'max_number_next': 100,
-                                                   'date_from': date_from,
-                                                   'date_to': date_to})
-        if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
-            # this method read Selection values from res.partner sale_fiscal_type fields
-            selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
-            for sale_fiscal_type in selection:
-                self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
-
+            '''verifica si ha corrido el comprobante, de ser asi colocar el numero de la corrida que corresponde'''
+            cr = self.env.cr
+            for type_fiscal in selection:
+                cr.execute("SELECT MAX(number_next) As number_max FROM ir_sequence_date_range WHERE sale_fiscal_type = '" + type_fiscal[0] + "';")
+                number_next_actual = cr.dictfetchone()
+                if number_next_actual > 1:
+                    self.sequence_id.date_range_ids.create({'number_next': number_next_actual['number_max'],
+                                                            'sequence_id': self.sequence_id.id,
+                                                            'number_next_actual': number_next_actual['number_max'],
+                                                            'max_number_next': 100,
+                                                            'date_from': date_from,
+                                                            'date_to': date_to,
+                                                            'sale_fiscal_type': type_fiscal[0]})
+                else:
+                    self.sequence_id.date_range_ids.create({'number_next': 1,
+                                                           'sequence_id': self.sequence_id.id,
+                                                           'number_next_actual': 1,
+                                                           'max_number_next': 100,
+                                                           'date_from': date_from,
+                                                           'date_to': date_to,
+                                                            'sale_fiscal_type': type_fiscal[0]})
             self.sequence_id.date_range_ids.invalidate_cache()
             self.sequence_id.write({'prefix': 'B', 'padding': 8})
 
