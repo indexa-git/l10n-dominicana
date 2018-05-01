@@ -4,6 +4,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2017-2018 Neotecnology Cyber City SRL. (http://neotec.do/)
+#             Yasmany Castillo <yasmany003@gmail.com>
 
 # This file is part of NCF Manager.
 
@@ -20,13 +22,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
+from odoo import api, models
 
-from . import shop
-from . import account
-from . import account_move
-from . import res_currency
-from . import account_invoice
-from . import res
-from . import ir_sequence
-from . import purchase
-from . import sale
+
+class PurchaseOrder(models.Model):
+    _inherit = 'purchase.order'
+
+    @api.onchange('partner_id', 'company_id')
+    def onchange_partner_id(self):
+        if self.partner_id:
+            result = self.env['res.partner'].validate_rnc_cedula(
+                self.partner_id.name)
+            if result:
+                self.partner_id.write({
+                    'name': result.get('name'),
+                    'vat': result.get('vat'),
+                    'is_company': result.get('is_company', False),
+                    'sale_fiscal_type': result.get('sale_fiscal_type'),
+                })
+                self.partner_id.id = self.partner_id.id
+        res = super(PurchaseOrder, self).onchange_partner_id()
+        return res
