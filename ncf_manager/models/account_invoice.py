@@ -51,6 +51,19 @@ class SaleOrder(models.Model):
         return invoice_vals
 
 
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    income_type = fields.Selection(
+        [('01', '01 - Ingresos por operaciones (No financieros)'),
+         ('02', '02 - Ingresos Financieros'),
+         ('03', '03 - Ingresos Extraordinarios'),
+         ('04', '04 - Ingresos por Arrendamientos'),
+         ('05', '05 - Ingresos por Venta de Activo Depreciable'),
+         ('06', '06 - Otros Ingresos')], default='01', related='invoice_id.income_type')
+    expense_type = fields.Selection([], related='invoice_id.expense_type')
+
+
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
@@ -369,10 +382,3 @@ class AccountInvoice(models.Model):
             res.update({"move_name": self._context["credit_note_supplier_ncf"]
                         })
         return res
-
-
-class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
-
-    income_type = fields.Selection([], related='invoice_id.income_type')
-    expense_type = fields.Selection([], related='invoice_id.expense_type')
