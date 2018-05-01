@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ncf_manager_purchase_order_form" model="ir.ui.view">
+        <field name="name">ncf manager purchase form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="options">{'no_quick_create':True}</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="ncf_manager_sale_view_order_form" model="ir.ui.view">
+        <field name="name">ncf manager purchase form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="options">{'no_quick_create':True}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>
