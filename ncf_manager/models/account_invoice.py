@@ -24,10 +24,8 @@
 # ######################################################################
 import logging
 
-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
-
 
 _logger = logging.getLogger(__name__)
 
@@ -386,13 +384,20 @@ class AccountInvoice(models.Model):
         else:
             return super(AccountInvoice, self).create(vals)
 
+    @api.multi
+    def write(self, vals):
+        global journal_invoice, income_type_global
+        journal_invoice = self.journal_id.type
+        income_type_global = u'01'
+        return super(AccountInvoice, self).write(vals)
+
 
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
     income_type = fields.Selection([], related='invoice_id.income_type')
     expense_type = fields.Selection([], related='invoice_id.expense_type')
-    
+
     @api.model
     def create(self, vals):
         if journal_invoice == 'sale':
@@ -401,4 +406,3 @@ class AccountInvoiceLine(models.Model):
                 return super(AccountInvoiceLine, self).create(vals)
         else:
             return super(AccountInvoiceLine, self).create(vals)
-
