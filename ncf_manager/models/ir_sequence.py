@@ -102,15 +102,15 @@ class IrSequenceDateRange(models.Model):
                                         string="NCF para")
     max_number_next = fields.Integer(u"Número Máximo", default=100)
 
-    @api.multi
-    def unlink(self):
-        '''Verifico si ya hay alguna factura existe evitando que me borren algun registro de los que
-        ya se crearon en el generador ncf control.'''
-        rec = super(IrSequenceDateRange, self).unlink()
-        cr = self.env.cr
-        cr.execute("SELECT COUNT(*) As contador FROM account_invoice  WHERE state = 'open' or state = 'paid';")
-        count_invoice = cr.dictfetchone()
-        contador = int(count_invoice['contador'])
-        if contador > 0:
-            raise exceptions.except_orm(_('Advertencia'), _(
-                'No es posible borrar el registro ya que existen facturas con asientos contables relacionadas al diario Cantidad: (%s).' % contador))
+    # @api.multi
+    # def unlink(self):
+    #     '''Verifico si ya hay alguna factura existe evitando que me borren algun registro de los que
+    #     ya se crearon en el generador ncf control.'''
+    #     rec = super(IrSequenceDateRange, self).unlink()
+    #     cr = self.env.cr
+    #     cr.execute("SELECT COUNT(*) As contador FROM account_invoice  WHERE state = 'open' or state = 'paid';")
+    #     count_invoice = cr.dictfetchone()
+    #     contador = int(count_invoice['contador'])
+    #     if contador > 0:
+    #         raise exceptions.except_orm(_('Advertencia'), _(
+    #             'No es posible borrar el registro ya que existen facturas con asientos contables relacionadas al diario Cantidad: (%s).' % contador))
