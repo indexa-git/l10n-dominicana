@@ -81,8 +81,9 @@ class AccountInvoice(models.Model):
     def get_ncf_expiration_date(self):
         for inv in self:
             if inv.state != 'draft' and inv.journal_id.ncf_control:
-                inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
-                                           dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+                if inv.sale_fiscal_type:
+                    inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                               dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
     # deprecate on odoo 11
     # def _default_user_shop(self):
@@ -144,7 +145,7 @@ class AccountInvoice(models.Model):
 
     anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
          ("04", u"04 - Corrección de la Información"),
          ("05", "05 - Cambio de Productos"),
@@ -328,11 +329,12 @@ class AccountInvoice(models.Model):
                         "para este tipo de factura.".format(inv.partner_id.id,
                                                             inv.partner_id.name)))
 
-                if inv.sale_fiscal_type == 'final' and len(inv.partner_id.vat) == 9:
-                    raise UserError(_(
-                        u"El cliente [{}]{} tiene RNC, no debe emitir una Factura"
-                        " de Consumo.".format(inv.partner_id.id,
-                                              inv.partner_id.name)))
+                if inv.sale_fiscal_type == 'final' and inv.partner_id.vat:
+                    if len(inv.partner_id.vat) == 9:
+                        raise UserError(_(
+                            u"No debe emitir una Factura de Consumo,"
+                            " a un cliente con RNC.".format(inv.partner_id.id,
+                                                            inv.partner_id.name)))
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:

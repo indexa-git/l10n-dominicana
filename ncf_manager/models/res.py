@@ -83,6 +83,12 @@ class ResPartner(models.Model):
          ("unico", u"Único Ingreso")],
         string="Tipo de comprobante", default="final")
 
+    sale_fiscal_type_vat = {
+        "rnc": ["fiscal", "gov", "special"],
+        "ced": ["final", "fiscal"],
+        "no_vat": ["final", "unico"]
+    }
+
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
          ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
@@ -191,4 +197,30 @@ class ResPartner(models.Model):
 
     @api.model
     def get_sale_fiscal_type_selection(self):
-        return self._fields['sale_fiscal_type'].selection
+        return {"sale_fiscal_type": self._fields['sale_fiscal_type'].selection,
+                "sale_fiscal_type_vat": self.sale_fiscal_type_vat}
+
+    @api.model
+    def create(self, vals):
+        if self._context.get("quickcreate", False):
+            vat = vals.get("vat", False)
+            result = self.validate_rnc_cedula(vals["vat"])
+            if result:
+                vals.update({"name": result["name"]})
+
+        return super(ResPartner, self).create(vals)
+
+    @api.model
+    def name_create(self, name):
+        if self._context.get("install_mode", False):
+            return super(ResPartner, self).name_create(name)
+        if self._rec_name:
+            if name.isdigit():
+                partner = self.search([('vat', '=', name)])
+                if partner:
+                    return partner.name_get()[0]
+                else:
+                    new_partner = self.with_context(quickcreate=True).create({"vat": name})
+                    return new_partner.name_get()[0]
+            else:
+                return super(ResPartner, self).name_create(name)
