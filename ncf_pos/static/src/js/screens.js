@@ -82,7 +82,10 @@ odoo.define('ncf_pos.screens', function (require) {
                 var orders = [];
 
                 for (var i in allOrders) {
-                    if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1)
+                    if (
+                        String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1 ||
+                        String(allOrders[i].partner_id[1]).toLowerCase().indexOf(String(query).toLowerCase()) > -1
+                    )
                         orders.push(allOrders[i]);
                 }
 
