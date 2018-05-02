@@ -192,3 +192,31 @@ class ResPartner(models.Model):
     @api.model
     def get_sale_fiscal_type_selection(self):
         return self._fields['sale_fiscal_type'].selection
+
+    @api.model
+    def create(self, vals):
+        if self._context.get("quickcreate", False):
+            vat = vals.get("vat", False)
+            if vat.isdigit() and len(vat) in [9, 11]:
+                result = rnc.check_dgii(vals["vat"])
+                if result:
+                    vals.update(
+                        {"name": result["commercial_name"] if result["commercial_name"] != '' else result["name"]
+                         })
+
+        return super(ResPartner, self).create(vals)
+
+    @api.model
+    def name_create(self, name):
+        if self._context.get("install_mode", False):
+            return super(ResPartner, self).name_create(name)
+        if self._rec_name:
+            if name.isdigit():
+                partner = self.search([('vat', '=', name)])
+                if partner:
+                    return partner.name_get()[0]
+                else:
+                    new_partner = self.with_context(quickcreate=True).create({"vat": name})
+                    return new_partner.name_get()[0]
+            else:
+                return super(ResPartner, self).name_create(name)
