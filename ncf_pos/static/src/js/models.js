@@ -160,6 +160,12 @@ odoo.define('ncf_pos.models', function (require) {
                 return item[0] === sale_fiscal_type;
             });
 
+            if (label[0] == 'fiscal' || label[0] == 'gov' || label[0] == 'special'){
+                label[1] = 'Crédito';
+            }
+            if (label[0] == 'final' || label[0] == 'unico'){
+                label[1] = 'Consumo';
+            }
             return label[1];
         },
         /**
