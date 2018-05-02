@@ -83,6 +83,12 @@ class ResPartner(models.Model):
          ("unico", u"Único Ingreso")],
         string="Tipo de comprobante", default="final")
 
+    sale_fiscal_type_vat = {
+        "rnc": ["fiscal", "gov", "special"],
+        "ced": ["final", "fiscal"],
+        "no_vat": ["final", "unico"]
+    }
+
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
          ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
@@ -191,7 +197,8 @@ class ResPartner(models.Model):
 
     @api.model
     def get_sale_fiscal_type_selection(self):
-        return self._fields['sale_fiscal_type'].selection
+        return {"sale_fiscal_type": self._fields['sale_fiscal_type'].selection,
+                "sale_fiscal_type_vat": self.sale_fiscal_type_vat}
 
     @api.model
     def create(self, vals):

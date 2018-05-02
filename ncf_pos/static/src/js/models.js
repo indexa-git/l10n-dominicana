@@ -127,8 +127,8 @@ odoo.define('ncf_pos.models', function (require) {
         initialize: function (session, attributes) {
             this.invoices = [];
 
-            // This object define sale_fiscal_type on pos
-            this.sale_fiscal_type_selection = [];
+            this.sale_fiscal_type_selection = []; // this object define sale_fiscal_type on pos
+            this.sale_fiscal_type_vat = []; // this object define relation between sale_fiscal_type and vat on pos
             _super_posmodel.initialize.call(this, session, attributes);
         },
         load_server_data: function () {
@@ -145,7 +145,8 @@ odoo.define('ncf_pos.models', function (require) {
                 args: []
             }, {})
                 .then(function (result) {
-                    self.sale_fiscal_type_selection = result;
+                    self.sale_fiscal_type_selection = result.sale_fiscal_type;
+                    self.sale_fiscal_type_vat = result.sale_fiscal_type_vat;
                 });
         },
 
