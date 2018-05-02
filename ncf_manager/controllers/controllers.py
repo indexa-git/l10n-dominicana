@@ -8,7 +8,7 @@ from odoo import http
 _logger = logging.getLogger(__name__)
 
 try:
-    from stdnum.do import rnc
+    from stdnum.do import rnc, cedula
 except(ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -36,3 +36,24 @@ class Odoojs(http.Controller):
                     d["name"] = " ".join(re.split("\s+", d["name"], flags=re.UNICODE))  # remove all duplicate white space from the name
                     d["label"] = u"{} - {}".format(d["rnc"], d["name"])
                 return json.dumps(result)
+
+    @http.route('/validate_rnc/', auth='public', cors="*")
+    def validate_rnc(self, **kwargs):
+        """
+        Check if the number provided is a valid RNC
+            :param self:
+            :param **kwargs dict :the parameters received
+            :param rnc string : the character of the client or his rnc
+        """
+        num = kwargs.get("rnc", False)
+        if num.isdigit():
+            if (len(num) == 9 and rnc.is_valid(num)) or (len(num) == 11 and cedula.is_valid(num)):
+                info = rnc.check_dgii(num)
+                if info is not None:
+                    # remove all duplicate white space from the name
+                    info["name"] = " ".join(re.split("\s+", info["name"], flags=re.UNICODE))
+                    return json.dumps({"is_valid": True, "info": info})
+                else:
+                    return json.dumps({"is_valid": True})
+
+        return json.dumps({"is_valid": False})
