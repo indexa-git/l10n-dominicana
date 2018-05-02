@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import calendar
+import base64
 from datetime import datetime as dt
 
 from odoo import models, fields, api, _
@@ -356,6 +357,63 @@ class DgiiReport(models.Model):
             rec.income_type_total = rec.opr_income + rec.fin_income + rec.ext_income + \
                                     rec.lea_income + rec.ast_income + rec.otr_income
 
+    def _get_formated_date(self, date):
+
+        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if date else ""
+
+    def _get_formated_amount(self, amount):
+
+        return str('{:.2f}'.format(abs(amount))).ljust(12)
+
+    def process_607_report_data(self, values):
+
+        pipe = '|'
+
+        RNC = str(values['rnc_cedula'] if values['rnc_cedula'] else "").ljust(11)
+        ID_TYPE = str(values['identification_type'] if values['identification_type'] else "").ljust(1)
+        NCF = str(values['fiscal_invoice_number']).ljust(11)
+        NCM = str(values['modified_invoice_number'] if values['modified_invoice_number'] else "").ljust(19)
+        INCOME_TYPE = str(values['income_type']).ljust(2)
+        INV_DATE = str(self._get_formated_date(values['invoice_date'])).ljust(8)
+        WH_DATE = str(self._get_formated_date(values['withholding_date'])).ljust(8)
+        INV_AMOUNT = self._get_formated_amount(values['invoiced_amount'])
+        INV_ITBIS = self._get_formated_amount(values['invoiced_itbis'])
+        WH_ITBIS = self._get_formated_amount(values['third_withheld_itbis'])
+        WH_ISR = self._get_formated_amount(values['third_income_withholding'])
+        ISC = self._get_formated_amount(values['selective_tax'])
+        OTH_TAX = self._get_formated_amount(values['other_taxes'])
+        LEG_TIP = self._get_formated_amount(values['legal_tip'])
+        CASH = self._get_formated_amount(values['cash'])
+        BANK = self._get_formated_amount(values['bank'])
+        CARD = self._get_formated_amount(values['card'])
+        CRED = self._get_formated_amount(values['credit'])
+        SWAP = self._get_formated_amount(values['swap'])
+        BOND = self._get_formated_amount(values['bond'])
+        OTHR = self._get_formated_amount(values['others'])
+
+        return RNC + pipe + ID_TYPE + pipe + NCF + pipe + NCM + pipe + INCOME_TYPE + pipe + \
+               INV_DATE + pipe + WH_DATE + pipe + INV_AMOUNT + pipe + INV_ITBIS + pipe + \
+               WH_ITBIS + pipe + WH_ISR + pipe + ISC + pipe + OTH_TAX + pipe + LEG_TIP + \
+               pipe + CASH + pipe + BANK + pipe + CARD + pipe + CRED + pipe + SWAP + pipe + \
+               BOND + pipe + OTHR
+
+    def _generate_607_txt(self, report, records, qty):
+
+        company_vat = report.company_id.vat
+        period = report.name.replace('/', '')
+
+        header = "607{}{}{}".format(company_vat, period, qty) + '\n'
+        data = header + records
+
+        file_path = '/tmp/DGII_607_{}_{}.txt'.format(company_vat, period)
+        with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_607:
+            txt_607.write(str(data))
+
+        report.write({
+            'sale_filename': file_path.replace('/tmp/', ''),
+            'sale_binary': base64.b64encode(open(file_path, 'rb').read())
+        })
+
     @api.multi
     def _compute_607_data(self):
         for rec in self:
@@ -367,6 +425,8 @@ class DgiiReport(models.Model):
             op_dict = self._get_607_operations_dict()
             payment_dict = self._get_payments_dict()
             income_dict = self._get_income_type_dict()
+
+            report_data = ''
             for inv in invoice_ids:
                 op_dict = self._process_op_dict(op_dict, inv)
                 income_dict = self._process_income_dict(income_dict, inv)
@@ -405,6 +465,7 @@ class DgiiReport(models.Model):
                     'others': payments.get('others')
                 }
                 SaleLine.create(values)
+                report_data += self.process_607_report_data(values) + '\n'
 
                 for k in payment_dict:
                     if inv.type != 'out_refund':
@@ -415,6 +476,7 @@ class DgiiReport(models.Model):
 
             self._set_payment_form_fields(payment_dict)
             self._set_income_type_fields(income_dict)
+            self._generate_607_txt(rec, report_data, line)
 
     @api.multi
     def _compute_608_data(self):
