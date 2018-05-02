@@ -5,7 +5,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
-    models.load_fields('pos.config', ['pos_default_partner_id', 'print_pdf', 'ncf_control']);
+    models.load_fields('pos.config', ['default_partner_id', 'print_pdf', 'ncf_control']);
     models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
@@ -127,8 +127,8 @@ odoo.define('ncf_pos.models', function (require) {
         initialize: function (session, attributes) {
             this.invoices = [];
 
-            // This object define sale_fiscal_type on pos
-            this.sale_fiscal_type_selection = [];
+            this.sale_fiscal_type_selection = []; // this object define sale_fiscal_type on pos
+            this.sale_fiscal_type_vat = []; // this object define relation between sale_fiscal_type and vat on pos
             _super_posmodel.initialize.call(this, session, attributes);
         },
         load_server_data: function () {
@@ -145,7 +145,8 @@ odoo.define('ncf_pos.models', function (require) {
                 args: []
             }, {})
                 .then(function (result) {
-                    self.sale_fiscal_type_selection = result;
+                    self.sale_fiscal_type_selection = result.sale_fiscal_type;
+                    self.sale_fiscal_type_vat = result.sale_fiscal_type_vat;
                 });
         },
 
