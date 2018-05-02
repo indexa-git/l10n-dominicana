@@ -197,12 +197,9 @@ class ResPartner(models.Model):
     def create(self, vals):
         if self._context.get("quickcreate", False):
             vat = vals.get("vat", False)
-            if vat.isdigit() and len(vat) in [9, 11]:
-                result = rnc.check_dgii(vals["vat"])
-                if result:
-                    vals.update(
-                        {"name": result["commercial_name"] if result["commercial_name"] != '' else result["name"]
-                         })
+            result = self.validate_rnc_cedula(vals["vat"])
+            if result:
+                vals.update({"name": result["name"]})
 
         return super(ResPartner, self).create(vals)
 
