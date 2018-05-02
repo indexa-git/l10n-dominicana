@@ -22,18 +22,19 @@
                 <br/>
                 <t t-esc="order.name"/>
                 <br/>
-                <strong>
-                    <t t-esc="order.fiscal_type_name"/>
+                <div class="pos-center-align dotted_ticket_title">
+                    <strong>COMPROBANTE FISCAL</strong>
                     <br/>
-                </strong>
-                <strong>
-                    <t t-esc="order.ncf"/>
+                    <strong>Factura para </strong>
+                    <t t-esc="widget.pos.get_sale_fiscal_type_label(order.get_client().sale_fiscal_type)"/>
                     <br/>
-                </strong>
-                <t t-if="order.origin_ncf">
-                    <strong>Afecta: </strong>
-                    <span t-esc="order.origin_ncf"/>
-                </t>
+                    <strong><t t-esc="order.ncf"/></strong>
+                    <br/>
+                    <t t-if="order.origin_ncf">
+                        <strong>Afecta: </strong>
+                        <span t-esc="order.origin_ncf"/>
+                    </t>
+                </div>
             </div>
             <br/>
         </t>
