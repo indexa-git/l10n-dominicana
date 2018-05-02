@@ -56,6 +56,9 @@ odoo.define('ncf_pos.screens', function (require) {
                     }
                 }
             });
+            name_input.blur(function () {
+                this.value = $.trim(this.value).toUpperCase();
+            });
             rnc_input.blur(function () {
                 this.value = $.trim(this.value).toUpperCase();
                 sale_fiscal_type_ddl.trigger('change');
@@ -110,9 +113,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         if (data.info && data.info.name) {
                             name_input.val(data.info.name);
                         }
-
-                        alert('Guardando Cliente con RNC/Cedula');
-                        //_super(partner);
+                        _super(partner);
                     }
                 }).fail(function (request, error) {
                     self.gui.show_popup('error', {
@@ -125,8 +126,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     });
                 });
             } else {
-                alert('Guardando Cliente sin RNC/Cedula');
-                //this._super(partner);
+                this._super(partner);
             }
         }
     });
