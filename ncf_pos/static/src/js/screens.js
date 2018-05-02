@@ -48,11 +48,16 @@ odoo.define('ncf_pos.screens', function (require) {
                     sale_fiscal_type_ddl.val(sale_fiscal_type_vat.rnc[0]);
                 } else if (len == 11 && sale_fiscal_type_vat.ced.indexOf(this.value) == -1) {
                     sale_fiscal_type_ddl.val(sale_fiscal_type_vat.ced[0]);
-                } else if (len != 9 && len != 11 && sale_fiscal_type_vat.no_vat.indexOf(this.value) == -1) {
-                    sale_fiscal_type_ddl.val(sale_fiscal_type_vat.no_vat[0]);
+                } else if (len != 9 && len != 11) {
+                    if (len > 0) {
+                        sale_fiscal_type_ddl.val(sale_fiscal_type_vat.other[0]);
+                    } else if (sale_fiscal_type_vat.no_vat.indexOf(this.value) == -1) {
+                        sale_fiscal_type_ddl.val(sale_fiscal_type_vat.no_vat[0]);
+                    }
                 }
             });
             rnc_input.blur(function () {
+                this.value = $.trim(this.value).toUpperCase();
                 sale_fiscal_type_ddl.trigger('change');
             });
             if (visibility === 'edit') {
@@ -77,7 +82,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 fieldsRequired.push({label: 'Tax ID', elem: rnc_input});
             }
             if (fieldsRequired.length > 0) {
-                var fields = fieldsRequired.map(function (obj, idx) {
+                var fields = fieldsRequired.map(function (obj) {
                     return '\n - ' + _t(obj.label);
                 });
                 this.gui.show_popup('error', {
@@ -87,38 +92,42 @@ odoo.define('ncf_pos.screens', function (require) {
                         fieldsRequired[0].elem.focus();
                     }
                 });
-                return;
-            }
-            $.ajax('/validate_rnc/', {
-                dataType: 'json',
-                type: 'GET',
-                data: {'rnc': rnc}
-            }).done(function (data) {
-                if (data.is_valid === false) {
+            } else if (rnc && (rnc.length == 9 || rnc.length == 11)) {
+                $.ajax('/validate_rnc/', {
+                    dataType: 'json',
+                    type: 'GET',
+                    data: {'rnc': rnc}
+                }).done(function (data) {
+                    if (data.is_valid === false) {
+                        self.gui.show_popup('error', {
+                            'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
+                            'body': _t('Tax ID') + ' ' + _t('is invalid'),
+                            cancel: function () {
+                                rnc_input.focus();
+                            }
+                        });
+                    } else {
+                        if (data.info && data.info.name) {
+                            name_input.val(data.info.name);
+                        }
+
+                        alert('Guardando Cliente con RNC/Cedula');
+                        //_super(partner);
+                    }
+                }).fail(function (request, error) {
                     self.gui.show_popup('error', {
                         'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                        'body': _t('Tax ID') + ' ' + _t('is invalid'),
+                        'body': _t((request.statusText || error.message) + '\n' +
+                            ((error.data && error.data.message) || error.message || "Ocurrio un error")),
                         cancel: function () {
                             rnc_input.focus();
                         }
                     });
-                    return;
-                }
-                if (data.info && data.info.name) {
-                    name_input.val(data.info.name);
-                }
-
-                _super(partner);
-            }).fail(function (request, error) {
-                self.gui.show_popup('error', {
-                    'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                    'body': _t((request.statusText || error.message) + '\n' +
-                        ((error.data && error.data.message) || error.message || "Ocurrio un error")),
-                    cancel: function () {
-                        rnc_input.focus();
-                    }
                 });
-            });
+            } else {
+                alert('Guardando Cliente sin RNC/Cedula');
+                //this._super(partner);
+            }
         }
     });
 
