@@ -159,6 +159,18 @@ odoo.define('ncf_pos.models', function (require) {
             var label = _.find(this.sale_fiscal_type_selection, function (item) {
                 return item[0] === sale_fiscal_type;
             });
+            return label[1];
+        },
+
+        /**
+         * Devuelve el label del tipo fiscal del cliente
+         * @param {string} sale_fiscal_type - Tipo fiscal del cliente
+         * @return {string}
+         */
+        get_sale_fiscal_type_label: function (sale_fiscal_type) {
+            var label = _.find(this.sale_fiscal_type_selection, function (item) {
+                return item[0] === sale_fiscal_type;
+            });
 
             if (label[0] == 'fiscal' || label[0] == 'gov' || label[0] == 'special'){
                 label[1] = 'Crédito';
@@ -168,6 +180,7 @@ odoo.define('ncf_pos.models', function (require) {
             }
             return label[1];
         },
+
         /**
          * Get the next ncf sequence
          */
