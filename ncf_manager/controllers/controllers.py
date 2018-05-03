@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 try:
     from stdnum.do import rnc, cedula
 except(ImportError, IOError) as err:
-    _logger.debug(err)
+    _logger.debug(str(err))
 
 
 class Odoojs(http.Controller):
@@ -48,12 +48,16 @@ class Odoojs(http.Controller):
         num = kwargs.get("rnc", False)
         if num.isdigit():
             if (len(num) == 9 and rnc.is_valid(num)) or (len(num) == 11 and cedula.is_valid(num)):
-                info = rnc.check_dgii(num)
+                try:
+                    info = rnc.check_dgii(num)
+                except Exception as err:
+                    info = None
+                    _logger.error(">>> " + str(err))
+
                 if info is not None:
                     # remove all duplicate white space from the name
                     info["name"] = " ".join(re.split("\s+", info["name"], flags=re.UNICODE))
-                    return json.dumps({"is_valid": True, "info": info})
-                else:
-                    return json.dumps({"is_valid": True})
+
+                return json.dumps({"is_valid": True, "info": info})
 
         return json.dumps({"is_valid": False})

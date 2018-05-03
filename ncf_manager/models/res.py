@@ -86,6 +86,7 @@ class ResPartner(models.Model):
     sale_fiscal_type_vat = {
         "rnc": ["fiscal", "gov", "special"],
         "ced": ["final", "fiscal"],
+        "other": ["final"],
         "no_vat": ["final", "unico"]
     }
 
