@@ -163,11 +163,11 @@ odoo.define('ncf_pos.models', function (require) {
         },
 
         /**
-         * Devuelve el label del tipo fiscal del cliente
+         * Devuelve el label para el Ticket
          * @param {string} sale_fiscal_type - Tipo fiscal del cliente
          * @return {string}
          */
-        get_sale_fiscal_type_label: function (sale_fiscal_type) {
+        get_sale_fiscal_ticket_label: function (sale_fiscal_type) {
             var label = _.find(this.sale_fiscal_type_selection, function (item) {
                 return item[0] === sale_fiscal_type;
             });
