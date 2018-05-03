@@ -73,7 +73,8 @@ odoo.define('ncf_pos.screens', function (require) {
             this.render_list(this.pos.db.pos_all_orders);
         },
         perform_search: function (query) {
-            var self = this;
+            var self = this,
+                config_searching_options = self.pos.config.order_searching_options;
 
             if ($.trim(query) == "") {
                 this.render_list(this.pos.db.pos_all_orders);
@@ -82,11 +83,17 @@ odoo.define('ncf_pos.screens', function (require) {
                 var orders = [];
 
                 for (var i in allOrders) {
-                    if (
-                        String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1 ||
-                        String(allOrders[i].partner_id[1]).toLowerCase().indexOf(String(query).toLowerCase()) > -1
-                    )
-                        orders.push(allOrders[i]);
+                    if(config_searching_options === "invoice_number" || config_searching_options === "all") {
+                        if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1) {
+                            orders.push(allOrders[i]);
+                        }
+                    }
+
+                    if(config_searching_options === "client_name" || config_searching_options === "all") {
+                        if (String(allOrders[i].partner_id[1]).toLowerCase().indexOf(String(query).toLowerCase()) > -1) {
+                            orders.push(allOrders[i]);
+                        }
+                    }
                 }
 
                 if (orders.length > 0) {
