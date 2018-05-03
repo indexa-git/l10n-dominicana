@@ -140,7 +140,7 @@ class ResPartner(models.Model):
             model = 'res.partner' if model == 'partner' else 'res.company'
 
             if number.isdigit() and len(number) in (9, 11):
-                message = "El contacto: %s, esta registrado con este RNC/Céd."
+                message = u"El contacto: %s, está registrado con este RNC/Céd."
                 contact = self.search([('vat', '=', number)])
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
@@ -151,7 +151,7 @@ class ResPartner(models.Model):
                     is_rnc = len(number) == 9
                     rnc.validate(number) if is_rnc else cedula.validate(number)
                 except Exception as e:
-                    raise ValidationError(_("RNC/Ced Inválido"))
+                    raise ValidationError(_(u"RNC/Ced Inválido"))
 
                 dgii_vals = rnc.check_dgii(number)
                 if dgii_vals is None:
@@ -216,7 +216,7 @@ class ResPartner(models.Model):
     def create(self, vals):
         if self._context.get("quickcreate", False):
             vat = vals.get("vat", False)
-            result = self.validate_rnc_cedula(vals["vat"])
+            result = self.validate_rnc_cedula(vat)
             if result:
                 vals.update({"name": result["name"]})
 

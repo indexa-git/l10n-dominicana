@@ -215,7 +215,6 @@
 
         </xpath>
 
-        <xpath expr="//div[hasclass('page')]/h2" position="replace"/>
         <xpath expr="//div[hasclass('page')]/div[hasclass('mt32')]" position="replace"/>
 
         <xpath expr="//table[1]" position="replace">

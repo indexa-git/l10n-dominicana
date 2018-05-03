@@ -33,6 +33,13 @@ try:
 except(ImportError, IOError) as err:
     _logger.debug(err)
 
+INCOME_TYPE = [
+    ('01', '01 - Ingresos por operaciones (No financieros)'),
+    ('02', '02 - Ingresos Financieros'),
+    ('03', '03 - Ingresos Extraordinarios'),
+    ('04', '04 - Ingresos por Arrendamientos'),
+    ('05', '05 - Ingresos por Venta de Activo Depreciable'),
+    ('06', '06 - Otros Ingresos')]
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
@@ -120,12 +127,7 @@ class AccountInvoice(models.Model):
                                         string='NCF Para')
 
     income_type = fields.Selection(
-        [('01', '01 - Ingresos por operaciones (No financieros)'),
-         ('02', '02 - Ingresos Financieros'),
-         ('03', '03 - Ingresos Extraordinarios'),
-         ('04', '04 - Ingresos por Arrendamientos'),
-         ('05', '05 - Ingresos por Venta de Activo Depreciable'),
-         ('06', '06 - Otros Ingresos')],
+        INCOME_TYPE,
         string='Tipo de Ingreso',
         default='01')
 
@@ -374,5 +376,5 @@ class AccountInvoice(models.Model):
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
-    income_type = fields.Selection([], related='invoice_id.income_type')
+    income_type = fields.Selection(INCOME_TYPE, related='invoice_id.income_type', default='01')
     expense_type = fields.Selection([], related='invoice_id.expense_type')

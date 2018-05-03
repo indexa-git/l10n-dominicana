@@ -5,7 +5,7 @@ odoo.define('ncf_pos.screens', function (require) {
     var gui = require('point_of_sale.gui');
     var popups = require('point_of_sale.popups');
     var core = require('web.core');
-    var rpc = require('web.rpc');
+var Model = require('web.DataModel');
     var QWeb = core.qweb;
     var _t = core._t;
 
@@ -188,11 +188,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 if (orders.length > 0) {
                     this.render_list(orders);
                 } else {
-                    rpc.query({
-                        model: 'pos.order',
-                        method: 'order_search_from_ui',
-                        args: [query]
-                    }, {})
+                    new Model('pos.order').call('order_search_from_ui', [query])
                         .then(function (result) {
                             var orders = result && result.orders || [];
                             var orderlines = result && result.orderlines || [];
@@ -796,11 +792,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     confirm: function (input_value) {
                         var msg_error = "";
 
-                        rpc.query({
-                            model: 'pos.order',
-                            method: 'credit_note_info_from_ui',
-                            args: [input_value]
-                        }, {})
+                        new Model('pos.order').call('credit_note_info_from_ui', [input_value], {})
                             .then(function (result) {
                                 var residual = parseFloat(result.residual) || 0;
 

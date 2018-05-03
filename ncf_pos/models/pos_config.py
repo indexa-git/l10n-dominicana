@@ -5,6 +5,7 @@ from odoo import models, fields, api, exceptions, _
 class PosConfig(models.Model):
     _inherit = "pos.config"
 
+    shop_id = fields.Many2one(comodel_name="shop.ncf.config", string="Sucursal")
     user_ids = fields.Many2many("res.users", string="Acceso para usuarios")
     default_partner_id = fields.Many2one("res.partner",
                                              help=u"Este cliente se usará por defecto como cliente de consumo para las facturas de consumo o final en el POS")

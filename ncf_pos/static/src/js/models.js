@@ -2,7 +2,7 @@ odoo.define('ncf_pos.models', function (require) {
     "use strict";
 
     var models = require("point_of_sale.models");
-    var rpc = require('web.rpc');
+    var Model = require('web.DataModel');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
     models.load_fields('pos.config', ['default_partner_id', 'print_pdf', 'ncf_control']);
@@ -139,12 +139,8 @@ odoo.define('ncf_pos.models', function (require) {
         get_sale_fiscal_type_selection: function () {
             var self = this;
 
-            rpc.query({
-                model: 'res.partner',
-                method: 'get_sale_fiscal_type_selection',
-                args: []
-            }, {})
-                .then(function (result) {
+            new Model('res.partner').call('get_sale_fiscal_type_selection', [])
+            .then(function (result) {
                     self.sale_fiscal_type_selection = result.sale_fiscal_type;
                     self.sale_fiscal_type_vat = result.sale_fiscal_type_vat;
                 });
@@ -193,16 +189,10 @@ odoo.define('ncf_pos.models', function (require) {
                 is_return_order
             ];
 
-            var ncfPromise = rpc.query({
-                model: 'pos.order',
-                method: 'get_next_ncf',
-                args: args,
-            }, {
-                timeout: 30000,
-                shadow: ""
-            }).then(function (next_ncf) {
-                order.ncf = next_ncf;
-                console.info("Order NCF validated: " + next_ncf);
+            var ncfPromise = new Model('pos.order').call('get_next_ncf', args)
+                .then(function (next_ncf) {
+                    order.ncf = next_ncf;
+                    console.info("Order NCF validated: " + next_ncf);
             }).fail(function (type, error){
                 console.error('The following error has been ocurred', error);
             });
