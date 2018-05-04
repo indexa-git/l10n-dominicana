@@ -87,6 +87,10 @@ odoo.define('ncf_pos.screens', function (require) {
                         if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1) {
                             orders.push(allOrders[i]);
                         }
+
+                        if (String(allOrders[i].pos_reference).toLowerCase().indexOf(String(query).toLowerCase()) > -1) {
+                            orders.push(allOrders[i]);
+                        }
                     }
 
                     if(config_searching_options === "client_name" || config_searching_options === "all") {
@@ -102,7 +106,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     rpc.query({
                         model: 'pos.order',
                         method: 'order_search_from_ui',
-                        args: [query]
+                        args: [query, config_searching_options]
                     }, {})
                         .then(function (result) {
                             var orders = result && result.orders || [];
