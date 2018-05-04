@@ -329,13 +329,6 @@ class AccountInvoice(models.Model):
                         "para este tipo de factura.".format(inv.partner_id.id,
                                                             inv.partner_id.name)))
 
-                if inv.sale_fiscal_type == 'final' and inv.partner_id.vat:
-                    if len(inv.partner_id.vat) == 9:
-                        raise UserError(_(
-                            u"No debe emitir una Factura de Consumo,"
-                            " a un cliente con RNC.".format(inv.partner_id.id,
-                                                            inv.partner_id.name)))
-
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
                     raise UserError(_(
