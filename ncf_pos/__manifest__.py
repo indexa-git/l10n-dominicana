@@ -44,7 +44,9 @@
         'views/pos_config.xml',
         'views/pos_view.xml',
         'data/data.xml',
-        ],
-    'qweb': ['static/src/xml/pos.xml']
-
+    ],
+    'qweb': [
+        'static/src/xml/pos.xml',
+        'static/src/xml/ncf_ticket.xml',
+    ]
 }

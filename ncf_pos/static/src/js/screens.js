@@ -11,24 +11,123 @@ odoo.define('ncf_pos.screens', function (require) {
 
     screens.ClientListScreenWidget.include({
         display_client_details: function (visibility, partner, clickpos) {
-            var self = this;
+            var name_input, rnc_input, sale_fiscal_type_ddl;
+            var sale_fiscal_type_vat = this.pos.sale_fiscal_type_vat;
 
             this._super(visibility, partner, clickpos);
-            var name_input = this.$('input[name$=\'name\']');
-            var $rnc = $("input[name$='vat']");
-            var $sale_fiscal_type = $("select[name$='sale_fiscal_type']");
-
+            name_input = this.$('input[name$=\'name\']');
+            rnc_input = this.$("input[name$='vat']");
+            sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']");
             name_input.autocomplete({
                 source: "/dgii_ws/",
                 minLength: 3,
+                delay: 200,
                 select: function (event, ui) {
                     name_input.val(ui.item.name);
-                    $rnc.val(ui.item.rnc);
-                    $sale_fiscal_type.val("fiscal");
+                    rnc_input.val(ui.item.rnc);
+                    sale_fiscal_type_ddl.val("fiscal");
 
                     return false;
+                },
+                response: function (event, ui) {
+                    // selecting the first item if the result is only one
+                    if (Array.isArray(ui.content) && ui.content.length == 1) {
+                        var input = $(this);
+
+                        ui.item = ui.content[0];
+                        input.data('ui-autocomplete')._trigger('select', 'autocompleteselect', ui);
+                        input.autocomplete('close');
+                        input.blur();
+                    }
                 }
             });
+            sale_fiscal_type_ddl.change(function () {
+                var len = rnc_input.val().length;
+
+                if (len == 9 && sale_fiscal_type_vat.rnc.indexOf(this.value) == -1) {
+                    sale_fiscal_type_ddl.val(sale_fiscal_type_vat.rnc[0]);
+                } else if (len == 11 && sale_fiscal_type_vat.ced.indexOf(this.value) == -1) {
+                    sale_fiscal_type_ddl.val(sale_fiscal_type_vat.ced[0]);
+                } else if (len != 9 && len != 11) {
+                    if (len > 0) {
+                        sale_fiscal_type_ddl.val(sale_fiscal_type_vat.other[0]);
+                    } else if (sale_fiscal_type_vat.no_vat.indexOf(this.value) == -1) {
+                        sale_fiscal_type_ddl.val(sale_fiscal_type_vat.no_vat[0]);
+                    }
+                }
+            });
+            name_input.blur(function () {
+                this.value = $.trim(this.value).toUpperCase();
+            });
+            rnc_input.blur(function () {
+                this.value = $.trim(this.value).toUpperCase();
+                sale_fiscal_type_ddl.trigger('change');
+            });
+            if (visibility === 'edit') {
+                name_input.focus();
+            }
+        },
+        save_client_details: function (partner) {
+            var self = this;
+            var _super = this._super.bind(this);
+            var rnc_input = this.$("input[name='vat']"), rnc = rnc_input.val();
+            var name_input = this.$('input[name$=\'name\']');
+            var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"), sale_fiscal_type = sale_fiscal_type_ddl.val();
+            var fieldsRequired = [];
+
+            if (!name_input.val()) {
+                fieldsRequired.push({label: 'Name', elem: name_input});
+            }
+            if (!sale_fiscal_type) {
+                fieldsRequired.push({label: 'NCF', elem: sale_fiscal_type_ddl});
+            }
+            if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) == -1 && !rnc) {
+                fieldsRequired.push({label: 'Tax ID', elem: rnc_input});
+            }
+            if (fieldsRequired.length > 0) {
+                var fields = fieldsRequired.map(function (obj) {
+                    return '\n - ' + _t(obj.label);
+                });
+                this.gui.show_popup('error', {
+                    'title': _t('Save') + ' ' + _t('Customer'),
+                    'body': _t('You must fill in the required fields:') + '\n' + fields.join(' '),
+                    cancel: function () {
+                        fieldsRequired[0].elem.focus();
+                    }
+                });
+            } else if (rnc && (rnc.length == 9 || rnc.length == 11)) {
+                $.ajax('/validate_rnc/', {
+                    dataType: 'json',
+                    type: 'GET',
+                    data: {'rnc': rnc}
+                }).done(function (data) {
+                    if (data.is_valid === false) {
+                        self.gui.show_popup('error', {
+                            'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
+                            'body': _t('Tax ID') + ' ' + _t('is invalid'),
+                            cancel: function () {
+                                rnc_input.focus();
+                            }
+                        });
+                    } else {
+                        if (data.info && data.info.name) {
+                            name_input.val(data.info.name);
+                        }
+                        _super(partner);
+                    }
+                }).fail(function (request, error) {
+                    self.gui.show_popup('error', {
+                        'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
+                        'body': _t((request.statusText || error.message) + '\n' +
+                            ((error.data && error.data.message) || error.message || "Ocurrio un error")),
+                        cancel: function () {
+                            rnc_input.focus();
+                        }
+                    });
+                });
+            } else {
+                this._super(partner);
+            }
         }
     });
 
@@ -588,7 +687,7 @@ odoo.define('ncf_pos.screens', function (require) {
         /**
          * Making some things about validation and calling to backend to get the ncf
          */
-        finalize_validation: function() {
+        finalize_validation: function () {
             var self = this;
             var order = this.pos.get_order();
             var client = order.get_client();
@@ -598,7 +697,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
             if (order.is_paid_with_cash() && this.pos.config.iface_cashdrawer) {
 
-                    this.pos.proxy.open_cashbox();
+                this.pos.proxy.open_cashbox();
             }
 
             order.initialize_validation_date();
@@ -610,36 +709,36 @@ odoo.define('ncf_pos.screens', function (require) {
                     var invoiced = self.pos.push_and_invoice_order(order);
                     self.invoicing = true;
 
-                    invoiced.fail(function(error){
+                    invoiced.fail(function (error) {
                         self.invoicing = false;
                         order.finalized = false;
                         if (error.message === 'Missing Customer') {
-                            self.gui.show_popup('confirm',{
+                            self.gui.show_popup('confirm', {
                                 'title': _t('Please select the Customer'),
                                 'body': _t('You need to select the customer before you can invoice an order.'),
-                                confirm: function(){
+                                confirm: function () {
                                     self.gui.show_screen('clientlist');
                                 },
                             });
                         } else if (error.code < 0) {        // XmlHttpRequest Errors
-                            self.gui.show_popup('error',{
+                            self.gui.show_popup('error', {
                                 'title': _t('The order could not be sent'),
                                 'body': _t('Check your internet connection and try again.'),
                             });
                         } else if (error.code === 200) {    // OpenERP Server Errors
-                            self.gui.show_popup('error-traceback',{
+                            self.gui.show_popup('error-traceback', {
                                 'title': error.data.message || _t("Server Error"),
                                 'body': error.data.debug || _t('The server encountered an error while receiving your order.'),
                             });
                         } else {                            // ???
-                            self.gui.show_popup('error',{
+                            self.gui.show_popup('error', {
                                 'title': _t("Unknown Error"),
-                                'body':  _t("The order could not be sent to the server due to an unknown error"),
+                                'body': _t("The order could not be sent to the server due to an unknown error"),
                             });
                         }
                     });
 
-                    invoiced.done(function(){
+                    invoiced.done(function () {
                         self.invoicing = false;
                         self.gui.show_screen('receipt');
                     });

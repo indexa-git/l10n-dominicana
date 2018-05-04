@@ -8,14 +8,15 @@
     'description': """
     Adapta el formato de las facturas a la Norma General 06-2018 de la DGII.
     """,
-    'author': "Yasmany Castillo",
+    'author': "Marcos Organizador de Negocios SRL, "
+              "iterativo SRL, "
+              "Odoo Dominicana (ODOM) ",
     'website': "",
     'category': 'Category Hidden',
     'version': '0.1',
-    'depends': ['web', 'account'],
+    'depends': ['web',
+                'ncf_manager'],
     'data': [
-        # 'security/ir.model.access.csv',
-        'data/report_paperformat.xml',
         'report/report_invoice.xml',
         'report/report_templates.xml',
     ],
