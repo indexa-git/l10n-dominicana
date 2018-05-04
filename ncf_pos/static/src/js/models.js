@@ -184,13 +184,16 @@ odoo.define('ncf_pos.models', function (require) {
         /**
          * Get the next ncf sequence
          */
-        get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_return_order) {
+        get_next_ncf: function (data) {
+            data = (data.sale_fiscal_type && data) || {};
+
             var self = this;
             var order = self.get_order();
             var args = [
-                sale_fiscal_type,
-                invoice_journal_id,
-                is_return_order
+                data.order_uid,
+                data.sale_fiscal_type,
+                data.invoice_journal_id,
+                data.is_return_order
             ];
 
             var ncfPromise = rpc.query({
@@ -203,7 +206,7 @@ odoo.define('ncf_pos.models', function (require) {
             }).then(function (next_ncf) {
                 order.ncf = next_ncf;
                 console.info("Order NCF validated: " + next_ncf);
-            }).fail(function (type, error){
+            }).fail(function (type, error) {
                 console.error('The following error has been ocurred', error);
             });
             return ncfPromise;
