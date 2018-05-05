@@ -39,7 +39,7 @@
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/templates.xml',
         'views/pos_config.xml',
         'views/pos_view.xml',
