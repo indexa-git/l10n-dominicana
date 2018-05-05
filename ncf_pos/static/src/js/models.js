@@ -172,7 +172,7 @@ odoo.define('ncf_pos.models', function (require) {
                 return item[0] === sale_fiscal_type;
             });
             if (label[0] == 'final'){
-                label[1] = 'de Consumo';
+                label[1] = 'Consumo';
             }
             return label[1];
         },
