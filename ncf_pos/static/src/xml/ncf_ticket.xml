@@ -152,7 +152,6 @@
                         <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>
                     </td>
                     <td width="12%">
-                        <t t-debug=""></t>
                         <t t-esc="widget.format_currency_no_symbol(orderline.get_tax())"/>
                     </td>
                     <td class="pos-right-align" width="20%">
