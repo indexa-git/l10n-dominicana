@@ -144,7 +144,9 @@
                         <t t-esc="widget.format_currency_no_symbol(orderline.get_display_price())"/>
                     </td>
                     <td width="4%">
-                        <t t-esc="orderline.get_tax() === 0 ? ' E' : ''"/>
+                        <t t-if="orderline.get_tax() === 0">
+                            <strong> E</strong>
+                        </t>
                     </td>
                 </tr>
             </table>
