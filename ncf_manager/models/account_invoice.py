@@ -114,7 +114,7 @@ class AccountInvoice(models.Model):
 
     sale_fiscal_type = fields.Selection([("final", "Consumidor Final"),
                                          ("fiscal", u"Crédito Fiscal"),
-                                         ("gov", "Gubernamental"),
+                                         ("gov", "Gubernamentales"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")],
                                         string='NCF Para')
