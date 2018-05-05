@@ -87,17 +87,23 @@
             <table class="receipt-orderlines">
                 <thead>
                     <tr>
-                        <th class="pos-center-align" width="15%">
+                        <th class="pos-center-align" width="13%">
                             <strong>Cant.</strong>
                         </th>
-                        <th width="40%">
+                        <th width="35%">
                             <strong>Producto</strong>
                         </th>
-                        <th width="20%">
+                        <th width="16%">
                             <strong>$/Und.</strong>
                         </th>
-                        <th class="pos-right-align" width="25%">
+                        <th width="12%">
+                            <strong>ITBIS</strong>
+                        </th>
+                        <th class="pos-right-align" width="20%">
                             <strong>Valor($)</strong>
+                        </th>
+                        <th width="4%">
+                            <strong>.</strong>
                         </th>
                     </tr>
                 </thead>
@@ -114,12 +120,18 @@
                     <td>
                         <div style="border-bottom: 1px solid black;"/>
                     </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
                 </tr>
                 <tr t-as="orderline" t-foreach="orderlines">
-                    <td class="pos-center-align" width="15%">
+                    <td class="pos-center-align" width="13%">
                         <t t-esc="orderline.get_quantity_str_with_unit()"/>
                     </td>
-                    <td width="40%">
+                    <td width="35%">
                         <t t-esc="orderline.get_product().display_name"/>
                         <t t-if="widget.pos.config.on_product_line">
                             <div class="pos-disc-font">
@@ -136,11 +148,18 @@
                             </div>
                         </t>
                     </td>
-                    <td width="20%">
+                    <td width="16%">
                         <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>
                     </td>
-                    <td class="pos-right-align" width="25%">
+                    <td width="12%">
+                        <t t-debug=""></t>
+                        <t t-esc="widget.format_currency_no_symbol(orderline.get_tax())"/>
+                    </td>
+                    <td class="pos-right-align" width="20%">
                         <t t-esc="widget.format_currency_no_symbol(orderline.get_display_price())"/>
+                    </td>
+                    <td width="4%">
+                        <t t-esc="orderline.get_tax() === 0 ? 'E' : ''"/>
                     </td>
                 </tr>
             </table>
