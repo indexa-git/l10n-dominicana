@@ -33,7 +33,9 @@
                         <strong>Afecta: </strong>
                         <span t-esc="order.origin_ncf"/>
                     </t>
-                    <strong>Válida hasta: 31/12/2019</strong>
+                    <t t-if="widget.pos.get_sale_fiscal_ticket_label(order.get_client().sale_fiscal_type) !== 'de Consumo'"/>
+                        <strong>Válida hasta: 31/12/2019</strong>
+                    </t>
                 </div>
             </div>
         </t>
