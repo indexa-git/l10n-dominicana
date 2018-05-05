@@ -73,7 +73,6 @@
             </div>
         </t>
         <t t-jquery=".receipt-orderlines" t-operation="replace">
-            <br/>
             <div style="border-bottom: 1px solid black;"/>
             <table class="receipt-orderlines">
                 <thead>
