@@ -85,29 +85,7 @@ class AccountInvoice(models.Model):
                     inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
                                                dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
-    # deprecate on odoo 11
-    # def _default_user_shop(self):
-    #     Shop = self.env["shop.ncf.config"]
-    #     shop_user_config = False
-    #
-    #     if not self.journal_id:
-    #         shop_user_config = Shop.sudo().search(
-    #             [('user_ids', 'in', self._uid)])
-    #     else:
-    #         shop_user_config = Shop.sudo().search([
-    #             ('user_ids', 'in', self._uid),
-    #             ('journal_id', '=', self.journal_id.id)])
-    #
-    #     if shop_user_config:
-    #         return shop_user_config[0]
-    #     else:
-    #         return False
-
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal")
-    # deprecate on odoo 11
-    # required=False,
-    # default=_default_user_shop,
-    # domain=lambda s: [('user_ids', '=', [s._uid])])
 
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
