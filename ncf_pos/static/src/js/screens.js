@@ -159,10 +159,11 @@ odoo.define('ncf_pos.screens', function (require) {
             if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
                 this.chrome.widget.keyboard.connect(this.$('.invoices_search'));
             }
-            this.$('.invoices_search').on('keypress', function (event) {
-                if (event.which === 13)
-                    self.perform_search(this.value);
-            }).focus();
+
+            this.$('.invoices_search').on('keyup', function () {
+                self.perform_search(this.value);
+            });
+
             this.$('.searchbox .search-clear').click(function () {
                 self.clear_search();
             });
@@ -173,59 +174,32 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         perform_search: function (query) {
             var self = this,
-                config_searching_options = self.pos.config.order_searching_options;
+                // search_criteria = self.pos.config.order_searching_options,
+                allOrders = this.pos.db.pos_all_orders,
+                search_criteria = ["number", "pos_reference", "partner_id"],
+                filteredOrders = [];
 
-            if ($.trim(query) == "") {
-                this.render_list(this.pos.db.pos_all_orders);
+            if ($.trim(query) === "") {
+                this.render_list(allOrders);
             } else {
-                var allOrders = this.pos.db.pos_all_orders;
-                var orders = [];
-
-                for (var i in allOrders) {
-                    if(config_searching_options === "invoice_number" || config_searching_options === "all") {
-                        if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1) {
-                            orders.push(allOrders[i]);
+                _.each(allOrders, function (order) {
+                    _.each(search_criteria, function (criteria) {
+                        if(order[criteria]){
+                            // The property partner_id in order object is an Array, the value to compare is in index 1
+                            if(_.isArray(order[criteria])) {
+                                if(order[criteria][1].toLowerCase().indexOf(query.toLowerCase()) > -1) {
+                                    filteredOrders.push(order);
+                                    return true;
+                                }
+                            } else if(order[criteria].toLowerCase().indexOf(query.toLowerCase()) > -1) {
+                                filteredOrders.push(order);
+                                return true;
+                            }
                         }
+                    });
+                });
 
-                        if (String(allOrders[i].pos_reference).toLowerCase().indexOf(String(query).toLowerCase()) > -1) {
-                            orders.push(allOrders[i]);
-                        }
-                    }
-
-                    if(config_searching_options === "client_name" || config_searching_options === "all") {
-                        if (String(allOrders[i].partner_id[1]).toLowerCase().indexOf(String(query).toLowerCase()) > -1) {
-                            orders.push(allOrders[i]);
-                        }
-                    }
-                }
-
-                if (orders.length > 0) {
-                    this.render_list(orders);
-                } else {
-                    rpc.query({
-                        model: 'pos.order',
-                        method: 'order_search_from_ui',
-                        args: [query, config_searching_options]
-                    }, {})
-                        .then(function (result) {
-                            var orders = result && result.orders || [];
-                            var orderlines = result && result.orderlines || [];
-
-                            orders.forEach(function (order) {
-                                var obj = self.pos.db.order_by_id[order.id];
-
-                                if (!obj)
-                                    self.pos.db.pos_all_orders.push(order);
-                                self.pos.db.order_by_id[order.id] = order;
-                            });
-                            self.pos.db.pos_all_order_lines.concat(orderlines);
-                            orderlines.forEach(function (line) {
-                                self.pos.db.line_by_id[line.id] = line;
-                            });
-
-                            self.render_list(orders);
-                        });
-                }
+                this.render_list(_.uniq(filteredOrders));
             }
         },
         clear_search: function () {
@@ -238,6 +212,9 @@ odoo.define('ncf_pos.screens', function (require) {
             var contents = this.$('.order-list-contents');
 
             contents.empty();
+
+            if(!orders) return;
+
             this.display_order_details('hide');
             orders.forEach(function (order) {
                 contents.append(QWeb.render('InvoicesLine', {widget: self, order: order}));
