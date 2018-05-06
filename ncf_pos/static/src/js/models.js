@@ -305,6 +305,33 @@ odoo.define('ncf_pos.models', function (require) {
                     }
                 });
             });
+        },
+        get_orders_from_server: function () {
+            var self = this;
+            rpc.query({
+                model: 'pos.order',
+                method: 'order_search_from_ui',
+                args: [false, false]
+            }, {})
+                .then(function (result) {
+                    var orders = result && result.orders || [];
+                    var orderlines = result && result.orderlines || [];
+
+                    orders.forEach(function (order) {
+                        var obj = self.db.order_by_id[order.id];
+
+                        if (!obj)
+                            self.db.pos_all_orders.unshift(order);
+                        self.db.order_by_id[order.id] = order;
+                    });
+                    self.db.pos_all_order_lines.concat(orderlines);
+                    orderlines.forEach(function (line) {
+                        self.db.line_by_id[line.id] = line;
+                    });
+
+                    self.gui.screen_instances['invoiceslist'].render_list(self.db.pos_all_orders);
+
+                });
         }
     });
 
