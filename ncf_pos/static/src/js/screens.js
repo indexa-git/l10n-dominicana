@@ -497,7 +497,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 refund_order = self.pos.get_order();
                 refund_order.is_return_order = true;
                 refund_order.return_order_id = order.id;
-                refund_order.afecta = order.number;
+                refund_order.origin_ncf = order.number;
 
                 refund_order.set_client(self.pos.db.get_partner_by_id(order.partner_id[0]));
             }
