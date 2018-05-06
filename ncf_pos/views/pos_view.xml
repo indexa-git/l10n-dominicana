@@ -11,6 +11,7 @@
             </xpath>
             <field name="name" position="before">
                 <field name="ncf_invoice_related"/>
+                <field name="return_order_id" attrs="{'invisible':[('state','not in',['is_return_order'])]}"/>
                 <field name="sale_fiscal_type"/>
             </field>
 
