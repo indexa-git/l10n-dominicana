@@ -140,9 +140,6 @@
                         <input class="invoices_search" placeholder='Search Invoices'/>
                         <span class='search-clear'></span>
                     </span>
-                    <span class='button search'>
-                        Search
-                    </span>
                 </section>
                 <section class="full-content">
                     <div class='window touch-scrollable scrollable-y'>

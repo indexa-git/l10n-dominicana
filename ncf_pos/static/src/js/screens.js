@@ -149,9 +149,6 @@ odoo.define('ncf_pos.screens', function (require) {
             this.renderElement();
             this.$('.order-details-contents').empty();
             this.$('.order-list').parent().scrollTop(0);
-            this.$('.button').click(function () {
-                self.perform_search(self.$('.invoices_search').val());
-            });
             this.$('.back').click(function () {
                 self.gui.back();
             });
