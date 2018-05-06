@@ -147,18 +147,9 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, input_txt, query_options):
+    def order_search_from_ui(self):
 
         invoice_search_domain = [('type', '=', 'out_invoice')]
-
-        if query_options in ["invoice_number", "all"]:
-            invoice_search_domain.insert(0, ('number', 'ilike', "%{}%".format(input_txt)))
-
-        if query_options in ["client_name", "all"]:
-            invoice_search_domain.insert(0, ('partner_id.name', 'ilike', "%{}%".format(input_txt)))
-
-        if len(invoice_search_domain) == 3:
-            invoice_search_domain.insert(0, '|')
 
         invoice_ids = self.env["account.invoice"].search(invoice_search_domain, limit=100)
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])

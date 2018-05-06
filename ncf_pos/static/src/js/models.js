@@ -310,7 +310,7 @@ odoo.define('ncf_pos.models', function (require) {
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
-                args: [false, false]
+                args: []
             }, {})
                 .then(function (result) {
                     var orders = result && result.orders || [];

@@ -14,11 +14,7 @@ class PosConfig(models.Model):
         default='current_session', string="Opciones de Carga")
     number_of_days = fields.Integer(
         string=u'Cantidad de Días Anteriores', default=10)
-    order_searching_options = fields.Selection(
-        [("invoice_number", u"Por número de factura o número de pedido"),
-         ("client_name", u"Por nombre del cliente"),
-         ("all", u"Todas")],
-        default='invoice_number', string=u"Opciones de Búsqueda")
+    order_search_criteria = fields.Many2many('pos.search_criteria', string=u"Criterios de Búsqueda")
     ncf_control = fields.Boolean(related="invoice_journal_id.ncf_control")
 
     @api.onchange("iface_invoicing")

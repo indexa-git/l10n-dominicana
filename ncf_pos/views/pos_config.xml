@@ -44,7 +44,8 @@
                             </div>
                             <div class="content-group">
                                 <div class="mt16">
-                                    <field style="font-weight:bold" name="order_searching_options" widget="radio"/>
+                                    <field style="font-weight:bold" name="order_search_criteria"
+                                           widget="many2many_checkboxes"/>
                                 </div>
                             </div>
                         </div>
