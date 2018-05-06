@@ -112,36 +112,14 @@ class AccountInvoice(models.Model):
                     inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
                                                dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
-    # deprecate on odoo 11
-    # def _default_user_shop(self):
-    #     Shop = self.env["shop.ncf.config"]
-    #     shop_user_config = False
-    #
-    #     if not self.journal_id:
-    #         shop_user_config = Shop.sudo().search(
-    #             [('user_ids', 'in', self._uid)])
-    #     else:
-    #         shop_user_config = Shop.sudo().search([
-    #             ('user_ids', 'in', self._uid),
-    #             ('journal_id', '=', self.journal_id.id)])
-    #
-    #     if shop_user_config:
-    #         return shop_user_config[0]
-    #     else:
-    #         return False
-
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal")
-    # deprecate on odoo 11
-    # required=False,
-    # default=_default_user_shop,
-    # domain=lambda s: [('user_ids', '=', [s._uid])])
 
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
     sale_fiscal_type = fields.Selection([("final", "Consumidor Final"),
                                          ("fiscal", u"Crédito Fiscal"),
-                                         ("gov", "Gubernamental"),
+                                         ("gov", "Gubernamentales"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")],
                                         string='NCF Para')
@@ -312,12 +290,6 @@ class AccountInvoice(models.Model):
         else:
             self.fiscal_position_id = False
 
-    # deprecate
-    # @api.onchange("shop_id")
-    # def onchange_shop_id(self):
-    #     if self.type in ('out_invoice', 'out_refund'):
-    #         self.journal_id = self.shop_id.journal_id.id
-
     @api.onchange("move_name")
     def onchange_ncf(self):
         if self.type in ("in_invoice", "in_refund") and self.move_name:
@@ -345,8 +317,12 @@ class AccountInvoice(models.Model):
                     if len(inv.partner_id.vat) == 9:
                         raise UserError(_(
                             u"No debe emitir una Factura de Consumo,"
-                            " a un cliente con RNC.".format(inv.partner_id.id,
-                                                            inv.partner_id.name)))
+                            " a un cliente con RNC."))
+
+                if inv.amount_untaxed_signed >= 50000 and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"Si el monto es mayor a RD$50,000 el cliente debe "
+                          "tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:

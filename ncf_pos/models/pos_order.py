@@ -77,6 +77,14 @@ class PosOrder(models.Model):
                         original_line.line_qty_returned += abs(line_dict.get('qty', 0))
 
                     order["data"]["statement_ids"] = []
+                # searching the ncf referenced to pos order
+                ncf_ids = self.env['pos.order.ncf.temp'].search(
+                    [("pos_reference", "=", order.get("data", {}).get("uid", False))])
+                if ncf_ids:
+                    if not order.get("data", {}).get("ncf", False):
+                        print("Assign NCF: " + ncf_ids.ncf + " to Order: " + ncf_ids.pos_reference)
+                        order["data"]["ncf"] = ncf_ids.ncf
+                    ncf_ids.unlink()
             else:
                 if order.get("data", {}).get("to_invoice", {}):
                     order["data"]["to_invoice"] = False
@@ -158,17 +166,23 @@ class PosOrder(models.Model):
         return {"id": invoice_ids.id, "residual": invoice_ids.residual}
 
     @api.model
-    def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
+    def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id, is_return_order):
         journal_id = self.env["account.journal"].browse(invoice_journal_id)
         if journal_id.ncf_control:
-            if not is_return_order and journal_id:
-                return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                           sale_fiscal_type=sale_fiscal_type).next_by_id()
-            elif is_return_order and journal_id:
-                return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                           sale_fiscal_type="credit_note").next_by_id()
-            else:
+            if not journal_id:
                 raise ValidationError(_("You have not specified a sales journal"))
+            elif not is_return_order:
+                ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                           sale_fiscal_type=sale_fiscal_type).next_by_id()
+            elif is_return_order:
+                ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                           sale_fiscal_type="credit_note").next_by_id()
+            # saving the ncf referenced to pos order
+            self.env['pos.order.ncf.temp'].create({
+                        'ncf': ncf,
+                        'pos_reference': order_uid
+                    })
+            return ncf
 
     @api.multi
     def action_pos_order_invoice(self):
@@ -207,3 +221,10 @@ class PosOrderLine(models.Model):
                                  'original_line_id': line[2].get('original_line_id', '')})
 
         return fields_return
+
+
+class PosOrderNcfTemp(models.Model):
+    _name = 'pos.order.ncf.temp'
+
+    pos_reference = fields.Char(index=True)
+    ncf = fields.Char("NCF")
