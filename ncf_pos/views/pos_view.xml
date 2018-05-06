@@ -28,7 +28,7 @@
         <field name="arch" type="xml">
 
             <xpath expr="//field[@name='name']" position="after">
-                <field name="ncfadd"/>
+                <field name="ncf"/>
             </xpath>
 
         </field>
