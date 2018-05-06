@@ -72,7 +72,8 @@ odoo.define('ncf_pos.screens', function (require) {
             var _super = this._super.bind(this);
             var rnc_input = this.$("input[name='vat']"), rnc = rnc_input.val();
             var name_input = this.$('input[name$=\'name\']');
-            var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"), sale_fiscal_type = sale_fiscal_type_ddl.val();
+            var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
+                sale_fiscal_type = sale_fiscal_type_ddl.val();
             var fieldsRequired = [];
 
             if (!name_input.val()) {
@@ -675,76 +676,14 @@ odoo.define('ncf_pos.screens', function (require) {
         /**
          * Making some things about validation and calling to backend to get the ncf
          */
-        finalize_validation: function () {
+        validate_order: function (force_validation) {
+            // TODO: refactor this
             var self = this;
             var order = this.pos.get_order();
-            var client = order.get_client();
+            var client = this.pos.get_client();
             var client_sale_fiscal_type = client.sale_fiscal_type;
             var invoice_journal_id = this.pos.config.invoice_journal_id[0];
             var is_return_order = order.is_return_order;
-
-            if (order.is_paid_with_cash() && this.pos.config.iface_cashdrawer) {
-
-                this.pos.proxy.open_cashbox();
-            }
-
-            order.initialize_validation_date();
-            order.finalized = true;
-            var ncf_call = this.pos.get_next_ncf({
-                order_uid: order.uid,
-                sale_fiscal_type: client_sale_fiscal_type,
-                invoice_journal_id: invoice_journal_id,
-                is_return_order: is_return_order
-            });
-
-            ncf_call.always(function () {
-                if (order.is_to_invoice()) {
-                    var invoiced = self.pos.push_and_invoice_order(order);
-                    self.invoicing = true;
-
-                    invoiced.fail(function (error) {
-                        self.invoicing = false;
-                        order.finalized = false;
-                        if (error.message === 'Missing Customer') {
-                            self.gui.show_popup('confirm', {
-                                'title': _t('Please select the Customer'),
-                                'body': _t('You need to select the customer before you can invoice an order.'),
-                                confirm: function () {
-                                    self.gui.show_screen('clientlist');
-                                },
-                            });
-                        } else if (error.code < 0) {        // XmlHttpRequest Errors
-                            self.gui.show_popup('error', {
-                                'title': _t('The order could not be sent'),
-                                'body': _t('Check your internet connection and try again.'),
-                            });
-                        } else if (error.code === 200) {    // OpenERP Server Errors
-                            self.gui.show_popup('error-traceback', {
-                                'title': error.data.message || _t("Server Error"),
-                                'body': error.data.debug || _t('The server encountered an error while receiving your order.'),
-                            });
-                        } else {                            // ???
-                            self.gui.show_popup('error', {
-                                'title': _t("Unknown Error"),
-                                'body': _t("The order could not be sent to the server due to an unknown error"),
-                            });
-                        }
-                    });
-
-                    invoiced.done(function () {
-                        self.invoicing = false;
-                        self.gui.show_screen('receipt');
-                    });
-                } else {
-                    self.pos.push_order(order);
-                    self.gui.show_screen('receipt');
-                }
-            });
-        },
-        validate_order: function (force_validation) {
-            // TODO: refactor this
-            var order = this.pos.get_order();
-            var client = this.pos.get_client();
 
             function has_client_vat(client) {
                 return client.vat;
@@ -776,9 +715,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         }
                     });
                     return false;
-                }
-
-                if (this.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !has_client_vat(client)) {
+                } else if (this.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !has_client_vat(client)) {
                     this.gui.show_popup('error', {
                         'title': 'Error: Factura sin Cedula de Cliente',
                         'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
@@ -791,7 +728,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 }
             }
 
-            this._super();
+            this._super(force_validation);
         },
         init: function (parent, options) {
             var self = this,
@@ -1032,4 +969,54 @@ odoo.define('ncf_pos.screens', function (require) {
             this._super();
         }
     });
+
+    screens.ReceiptScreenWidget.include({
+        /**
+         * Get the next ncf sequence
+         */
+        get_next_ncf: function (data) {
+            data = (data && data) || {};
+            var order = this.pos.get_order();
+            var args = [
+                data.order_uid,
+                data.sale_fiscal_type,
+                data.invoice_journal_id,
+                data.is_return_order
+            ];
+
+            var ncfPromise = this._rpc({
+                model: 'pos.order',
+                method: 'get_next_ncf',
+                args: args,
+            }, {
+                timeout: 30000,
+                shadow: ""
+            }).then(function (next_ncf) {
+                order.ncf = next_ncf;
+                console.info("Order NCF validated: " + next_ncf);
+            }).fail(function (type, error) {
+                console.error('The following error has been ocurred', error);
+            });
+            return ncfPromise;
+        },
+        render_receipt: function () {
+            var self = this;
+            var order = this.pos.get_order();
+            var client = order.get_client();
+            var client_sale_fiscal_type = client.sale_fiscal_type;
+            var invoice_journal_id = this.pos.config.invoice_journal_id[0];
+            var is_return_order = order.is_return_order;
+            var ncf_from_server = this.get_next_ncf({
+                order_uid: order.uid,
+                sale_fiscal_type: client_sale_fiscal_type,
+                invoice_journal_id: invoice_journal_id,
+                is_return_order: is_return_order
+            });
+
+            ncf_from_server.always(function () {
+                self.$('.pos-receipt-container').html(QWeb.render('PosTicket', self.get_receipt_render_env()));
+            });
+
+        }
+    })
 });

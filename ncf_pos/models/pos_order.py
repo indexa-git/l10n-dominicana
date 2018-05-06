@@ -84,7 +84,7 @@ class PosOrder(models.Model):
                     [("pos_reference", "=", order.get("data", {}).get("uid", False))])
                 if ncf_ids:
                     if not order.get("data", {}).get("ncf", False):
-                        print("Assign NCF: " + ncf_ids.ncf + " to Order: " + ncf_ids.pos_reference)
+                        _logger.info("Assign NCF: {} to Order: {}".format(ncf_ids.ncf, ncf_ids.pos_reference))
                         order["data"]["ncf"] = ncf_ids.ncf
                     ncf_ids.unlink()
             else:
