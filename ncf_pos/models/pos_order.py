@@ -18,7 +18,7 @@ class PosOrder(models.Model):
             order.amount_paid += refund_payments
 
     is_return_order = fields.Boolean(string='Devolver Orden', copy=False)
-    return_order_id = fields.Many2one('pos.order', 'Devolver Orden de', readonly=True, copy=False)
+    return_order_id = fields.Many2one('pos.order', 'Afecta', readonly=True, copy=False)
     return_status = fields.Selection([('-', 'No Devuelta'), ('Fully-Returned', 'Totalmente Devuelta'),
                                       ('Partially-Returned', 'Parcialmente Devuelta'),
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
@@ -41,6 +41,8 @@ class PosOrder(models.Model):
                     'move_name': self.ncf,
                     'income_type': '01'
                 })
+            if self.return_order_id:
+                inv.update({'origin': self.return_order_id.invoice_id.number})
         return inv
 
     def test_paid(self):
@@ -82,7 +84,7 @@ class PosOrder(models.Model):
                     [("pos_reference", "=", order.get("data", {}).get("uid", False))])
                 if ncf_ids:
                     if not order.get("data", {}).get("ncf", False):
-                        print("Assign NCF: " + ncf_ids.ncf + " to Order: " + ncf_ids.pos_reference)
+                        _logger.info("Assign NCF: {} to Order: {}".format(ncf_ids.ncf, ncf_ids.pos_reference))
                         order["data"]["ncf"] = ncf_ids.ncf
                     ncf_ids.unlink()
             else:
