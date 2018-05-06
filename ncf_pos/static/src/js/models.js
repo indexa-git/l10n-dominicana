@@ -171,11 +171,7 @@ odoo.define('ncf_pos.models', function (require) {
             var label = _.find(this.sale_fiscal_type_selection, function (item) {
                 return item[0] === sale_fiscal_type;
             });
-
-            if (label[0] == 'fiscal' || label[0] == 'gov' || label[0] == 'special'){
-                label[1] = 'Crédito';
-            }
-            if (label[0] == 'final' || label[0] == 'unico'){
+            if (label[0] == 'final'){
                 label[1] = 'Consumo';
             }
             return label[1];
@@ -184,13 +180,16 @@ odoo.define('ncf_pos.models', function (require) {
         /**
          * Get the next ncf sequence
          */
-        get_next_ncf: function (sale_fiscal_type, invoice_journal_id, is_return_order) {
+        get_next_ncf: function (data) {
+            data = (data && data) || {};
+
             var self = this;
             var order = self.get_order();
             var args = [
-                sale_fiscal_type,
-                invoice_journal_id,
-                is_return_order
+                data.order_uid,
+                data.sale_fiscal_type,
+                data.invoice_journal_id,
+                data.is_return_order
             ];
 
             var ncfPromise = rpc.query({
@@ -203,7 +202,7 @@ odoo.define('ncf_pos.models', function (require) {
             }).then(function (next_ncf) {
                 order.ncf = next_ncf;
                 console.info("Order NCF validated: " + next_ncf);
-            }).fail(function (type, error){
+            }).fail(function (type, error) {
                 console.error('The following error has been ocurred', error);
             });
             return ncfPromise;
