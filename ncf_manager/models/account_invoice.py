@@ -278,12 +278,6 @@ class AccountInvoice(models.Model):
         else:
             self.fiscal_position_id = False
 
-    # deprecate
-    # @api.onchange("shop_id")
-    # def onchange_shop_id(self):
-    #     if self.type in ('out_invoice', 'out_refund'):
-    #         self.journal_id = self.shop_id.journal_id.id
-
     @api.onchange("move_name")
     def onchange_ncf(self):
         if self.type in ("in_invoice", "in_refund") and self.move_name:
@@ -311,8 +305,12 @@ class AccountInvoice(models.Model):
                     if len(inv.partner_id.vat) == 9:
                         raise UserError(_(
                             u"No debe emitir una Factura de Consumo,"
-                            " a un cliente con RNC.".format(inv.partner_id.id,
-                                                            inv.partner_id.name)))
+                            " a un cliente con RNC."))
+
+                if inv.amount_untaxed_signed >= 50000 and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"Si el monto es mayor a RD$50,000 el cliente debe "
+                          "tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
