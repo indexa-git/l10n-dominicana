@@ -676,7 +676,12 @@ odoo.define('ncf_pos.screens', function (require) {
 
             order.initialize_validation_date();
             order.finalized = true;
-            var ncf_call = this.pos.get_next_ncf(client_sale_fiscal_type, invoice_journal_id, is_return_order);
+            var ncf_call = this.pos.get_next_ncf({
+                order_uid: order.uid,
+                sale_fiscal_type: client_sale_fiscal_type,
+                invoice_journal_id: invoice_journal_id,
+                is_return_order: is_return_order
+            });
 
             ncf_call.always(function () {
                 if (order.is_to_invoice()) {
