@@ -680,10 +680,7 @@ odoo.define('ncf_pos.screens', function (require) {
             // TODO: refactor this
             var self = this;
             var order = this.pos.get_order();
-            var client = this.pos.get_client();
-            var client_sale_fiscal_type = client.sale_fiscal_type;
-            var invoice_journal_id = this.pos.config.invoice_journal_id[0];
-            var is_return_order = order.is_return_order;
+            var client = order.get_client();
 
             function has_client_vat(client) {
                 return client.vat;
@@ -1003,20 +1000,16 @@ odoo.define('ncf_pos.screens', function (require) {
             var self = this;
             var order = this.pos.get_order();
             var client = order.get_client();
-            var client_sale_fiscal_type = client.sale_fiscal_type;
-            var invoice_journal_id = this.pos.config.invoice_journal_id[0];
-            var is_return_order = order.is_return_order;
             var ncf_from_server = this.get_next_ncf({
                 order_uid: order.uid,
-                sale_fiscal_type: client_sale_fiscal_type,
-                invoice_journal_id: invoice_journal_id,
-                is_return_order: is_return_order
+                sale_fiscal_type: client.sale_fiscal_type,
+                invoice_journal_id: this.pos.config.invoice_journal_id[0],
+                is_return_order: order.is_return_order
             });
 
             ncf_from_server.always(function () {
                 self.$('.pos-receipt-container').html(QWeb.render('PosTicket', self.get_receipt_render_env()));
             });
-
         }
     })
 });
