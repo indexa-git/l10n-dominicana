@@ -265,3 +265,6 @@ class PosOrderNcfTemp(models.Model):
 
     pos_reference = fields.Char(index=True)
     ncf = fields.Char("NCF")
+
+    _sql_constraints = [
+        ('pos_reference_unique_constrain', 'unique(pos_reference)', 'Duplicate pos UID!')]
