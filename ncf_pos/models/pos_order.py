@@ -83,8 +83,10 @@ class PosOrder(models.Model):
                 ncf_ids = self.env['pos.order.ncf.temp'].search(
                     [("pos_reference", "=", order.get("data", {}).get("uid", False))])
                 if ncf_ids:
+                    from pprint import pprint as pp
+                    pp(order.get("data", {}))
                     if not order.get("data", {}).get("ncf", False):
-                        _logger.info("Assign NCF: {} to Order: {}".format(ncf_ids.ncf, ncf_ids.pos_reference))
+                        _logger.warning("Assign NCF: {} to Order: {}".format(ncf_ids.ncf, ncf_ids.pos_reference))
                         order["data"]["ncf"] = ncf_ids.ncf
                     ncf_ids.unlink()
             else:
@@ -203,9 +205,7 @@ class PosOrder(models.Model):
 
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id, is_return_order):
-        print(order_uid)
         if not self.env["pos.order.ncf.temp"].search([('pos_reference','=',order_uid)]):
-
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
