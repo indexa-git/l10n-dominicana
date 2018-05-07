@@ -971,14 +971,14 @@ odoo.define('ncf_pos.screens', function (require) {
         /**
          * Get the next ncf sequence
          */
-        get_next_ncf: function (data) {
-            data = (data && data) || {};
-            var order = this.pos.get_order();
+        get_next_ncf: function (receipt_render_env) {
+            receipt_render_env = (receipt_render_env && receipt_render_env) || {};
+
             var args = [
-                data.order_uid,
-                data.sale_fiscal_type,
-                data.invoice_journal_id,
-                data.is_return_order
+                receipt_render_env.order.uid,
+                receipt_render_env.order.get_client().sale_fiscal_type,
+                this.pos.config.invoice_journal_id[0],
+                receipt_render_env.order.is_return_order
             ];
 
             var ncfPromise = this._rpc({
@@ -989,26 +989,31 @@ odoo.define('ncf_pos.screens', function (require) {
                 timeout: 30000,
                 shadow: ""
             }).then(function (next_ncf) {
-                order.ncf = next_ncf;
+                receipt_render_env.order.ncf = next_ncf;
                 console.info("Order NCF validated: " + next_ncf);
             }).fail(function (type, error) {
                 console.error('The following error has been ocurred', error);
             });
             return ncfPromise;
         },
-        render_receipt: function () {
+        print_xml: function () {
             var self = this;
-            var order = this.pos.get_order();
-            var client = order.get_client();
-            var ncf_from_server = this.get_next_ncf({
-                order_uid: order.uid,
-                sale_fiscal_type: client.sale_fiscal_type,
-                invoice_journal_id: this.pos.config.invoice_journal_id[0],
-                is_return_order: order.is_return_order
-            });
+            var receipt_render_env = self.get_receipt_render_env();
+            var ncf_from_server = this.get_next_ncf(receipt_render_env);
 
             ncf_from_server.always(function () {
-                self.$('.pos-receipt-container').html(QWeb.render('PosTicket', self.get_receipt_render_env()));
+                var receipt = QWeb.render('XmlReceipt', self.get_receipt_render_env());
+                self.pos.proxy.print_receipt(receipt);
+                self.pos.get_order()._printed = true;
+            });
+        },
+        render_receipt: function () {
+            var self = this;
+            var receipt_render_env = self.get_receipt_render_env();
+            var ncf_from_server = this.get_next_ncf(receipt_render_env);
+
+            ncf_from_server.always(function () {
+                self.$('.pos-receipt-container').html(QWeb.render('PosTicket', receipt_render_env));
             });
         }
     })
