@@ -11,6 +11,7 @@
             </xpath>
             <field name="name" position="before">
                 <field name="ncf_invoice_related"/>
+                <field name="return_order_id" attrs="{'invisible':[('state','not in',['is_return_order'])]}"/>
                 <field name="sale_fiscal_type"/>
             </field>
 
@@ -19,4 +20,18 @@
             </field>
         </field>
     </record>
+
+    <record id="view_pos_order_tree" model="ir.ui.view">
+        <field name="name">pos.order.tree</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="ncf_invoice_related"/>
+            </xpath>
+
+        </field>
+    </record>
+
 </odoo>

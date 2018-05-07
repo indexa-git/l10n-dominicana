@@ -172,31 +172,6 @@ odoo.define('ncf_pos.models', function (require) {
             }
             return label[1];
         },
-
-        /**
-         * Get the next ncf sequence
-         */
-        get_next_ncf: function (data) {
-            data = (data && data) || {};
-
-            var self = this;
-            var order = self.get_order();
-            var args = [
-                data.order_uid,
-                data.sale_fiscal_type,
-                data.invoice_journal_id,
-                data.is_return_order
-            ];
-
-            var ncfPromise = new Model('pos.order').call('get_next_ncf', args)
-                .then(function (next_ncf) {
-                    order.ncf = next_ncf;
-                    console.info("Order NCF validated: " + next_ncf);
-            }).fail(function (type, error){
-                console.error('The following error has ocurred', error);
-            });
-            return ncfPromise;
-        },
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
         // an invoice. This method can fail in various ways:
