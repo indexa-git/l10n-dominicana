@@ -322,7 +322,7 @@ class AccountInvoice(models.Model):
                 if inv.amount_untaxed_signed >= 50000 and not inv.partner_id.vat:
                     raise UserError(_(
                         u"Si el monto es mayor a RD$50,000 el cliente debe "
-                          "tener un RNC o Céd para emitir la factura"))
+                        u"tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
