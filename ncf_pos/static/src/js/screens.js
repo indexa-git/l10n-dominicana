@@ -997,24 +997,28 @@ odoo.define('ncf_pos.screens', function (require) {
             return ncfPromise;
         },
         print_xml: function () {
-            var self = this;
-            var receipt_render_env = self.get_receipt_render_env();
-            var ncf_from_server = this.get_next_ncf(receipt_render_env);
+            if (this.pos.config.iface_print_via_proxy) {
+                var self = this;
+                var receipt_render_env = self.get_receipt_render_env();
+                var ncf_from_server = this.get_next_ncf(receipt_render_env);
 
-            ncf_from_server.always(function () {
-                var receipt = QWeb.render('XmlReceipt', self.get_receipt_render_env());
-                self.pos.proxy.print_receipt(receipt);
-                self.pos.get_order()._printed = true;
-            });
+                ncf_from_server.always(function () {
+                    var receipt = QWeb.render('XmlReceipt', self.get_receipt_render_env());
+                    self.pos.proxy.print_receipt(receipt);
+                    self.pos.get_order()._printed = true;
+                });
+            }
         },
         render_receipt: function () {
-            var self = this;
-            var receipt_render_env = self.get_receipt_render_env();
-            var ncf_from_server = this.get_next_ncf(receipt_render_env);
+            if (!this.pos.config.iface_print_via_proxy) {
+                var self = this;
+                var receipt_render_env = self.get_receipt_render_env();
+                var ncf_from_server = this.get_next_ncf(receipt_render_env);
 
-            ncf_from_server.always(function () {
-                self.$('.pos-receipt-container').html(QWeb.render('PosTicket', receipt_render_env));
-            });
+                ncf_from_server.always(function () {
+                    self.$('.pos-receipt-container').html(QWeb.render('PosTicket', receipt_render_env));
+                });
+            }
         }
     })
 });
