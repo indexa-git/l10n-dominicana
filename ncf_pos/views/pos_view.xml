@@ -28,7 +28,7 @@
         <field name="arch" type="xml">
 
             <xpath expr="//field[@name='name']" position="after">
-                <field name="ncf"/>
+                <field name="ncf_invoice_related"/>
             </xpath>
 
         </field>

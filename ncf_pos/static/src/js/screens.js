@@ -573,7 +573,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 if (input.length > 0) {
                     //Ponemos un valor al input
                     input.val(this.options.text_input_value || '');
-                    //Ejecutamos el clic al boton confirm al presionar Enter
+                    // Ejecutamos el clic al boton confirm al presionar Enter
                     input.on('keypress', function (event) {
                         if (event.which === 13) {
                             self.click_confirm(this.value);
@@ -674,58 +674,90 @@ odoo.define('ncf_pos.screens', function (require) {
             this.$('.button.js_invoice').remove();
         },
         /**
+         * Get the next ncf sequence
+         */
+        get_next_ncf: function (order) {
+            order = (order && order) || {};
+
+            var args = [
+                order.uid,
+                order.get_client().sale_fiscal_type,
+                this.pos.config.invoice_journal_id[0],
+                order.is_return_order
+            ];
+
+            return this._rpc({
+                model: 'pos.order',
+                method: 'get_next_ncf',
+                args: args,
+            }).then(function (next_ncf) {
+                order.ncf = next_ncf;
+                console.info("Order NCF validated: " + next_ncf + " UID: " + order.uid,);
+            }).fail(function (type, error) {
+                console.error('The following error has been ocurred', error);
+            });
+        },
+        /**
          * Making some things about validation and calling to backend to get the ncf
          */
         validate_order: function (force_validation) {
-            // TODO: refactor this
-            var self = this;
-            var order = this.pos.get_order();
-            var client = order.get_client();
+            // por alguna razon el keypress #13 se ejecuta dos veces y por el momento con esto se evita pero hay que arreglarlo
+            this.gui.__disable_keyboard_handler();
+            if (this.order_is_valid(force_validation)) {
+                // TODO: refactor this
+                var self = this;
+                var order = this.pos.get_order();
+                var client = order.get_client();
 
-            function has_client_vat(client) {
-                return client.vat;
-            }
+                var has_client_vat = function(client) {
+                    return client.vat;
+                };
 
-            function has_client_fiscal_type(client, fiscal_types) {
-                return _.contains(fiscal_types, client.sale_fiscal_type) && !has_client_vat(client);
-            }
+                var has_client_fiscal_type = function(client, fiscal_types) {
+                    return _.contains(fiscal_types, client.sale_fiscal_type) && !has_client_vat(client);
+                };
 
-            if (!client) {
-                if (this.pos.config.iface_invoicing) {
-                    this.gui.show_popup('error', {
-                        'title': 'Error: Factura sin Cliente',
-                        'body': 'Debe seleccionar un cliente para poder realizar el pago, o utilizar el cliente por defecto; de no tener un cliente por defecto, pida ayuda a su encargado para que lo establezca.',
-                        'cancel': function () {
-                            this.gui.show_screen('products');
-                        }
-                    });
 
-                    return false;
+                if (!client) {
+                    if (this.pos.config.iface_invoicing) {
+                        this.gui.show_popup('error', {
+                            'title': 'Error: Factura sin Cliente',
+                            'body': 'Debe seleccionar un cliente para poder realizar el pago, o utilizar el cliente por defecto; de no tener un cliente por defecto, pida ayuda a su encargado para que lo establezca.',
+                            'cancel': function () {
+                                this.gui.show_screen('products');
+                            }
+                        });
+
+                        return false;
+                    }
+                } else {
+                    if (has_client_fiscal_type(client, ["fiscal", "gov", "special"]) && !has_client_vat(client)) {
+                        this.gui.show_popup('error', {
+                            'title': 'Error: Para el tipo de comprobante',
+                            'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
+                            'cancel': function () {
+                                this.gui.show_screen('products');
+                            }
+                        });
+                        return false;
+                    } else if (this.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !has_client_vat(client)) {
+                        this.gui.show_popup('error', {
+                            'title': 'Error: Factura sin Cedula de Cliente',
+                            'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
+                            'cancel': function () {
+                                this.gui.show_screen('products');
+                            }
+                        });
+
+                        return false;
+                    } else {
+                        this.get_next_ncf(order).always(function () {
+                            self.finalize_validation();
+                        })
+                    }
                 }
-            } else {
-                if (has_client_fiscal_type(client, ["fiscal", "gov", "special"]) && !has_client_vat(client)) {
-                    this.gui.show_popup('error', {
-                        'title': 'Error: Para el tipo de comprobante',
-                        'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
-                        'cancel': function () {
-                            this.gui.show_screen('products');
-                        }
-                    });
-                    return false;
-                } else if (this.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !has_client_vat(client)) {
-                    this.gui.show_popup('error', {
-                        'title': 'Error: Factura sin Cedula de Cliente',
-                        'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
-                        'cancel': function () {
-                            this.gui.show_screen('products');
-                        }
-                    });
-
-                    return false;
-                }
             }
 
-            this._super(force_validation);
         },
         init: function (parent, options) {
             var self = this,
@@ -966,50 +998,4 @@ odoo.define('ncf_pos.screens', function (require) {
             this._super();
         }
     });
-
-    screens.ReceiptScreenWidget.include({
-        /**
-         * Get the next ncf sequence
-         */
-        get_next_ncf: function (data) {
-            data = (data && data) || {};
-            var order = this.pos.get_order();
-            var args = [
-                data.order_uid,
-                data.sale_fiscal_type,
-                data.invoice_journal_id,
-                data.is_return_order
-            ];
-
-            var ncfPromise = this._rpc({
-                model: 'pos.order',
-                method: 'get_next_ncf',
-                args: args,
-            }, {
-                timeout: 30000,
-                shadow: ""
-            }).then(function (next_ncf) {
-                order.ncf = next_ncf;
-                console.info("Order NCF validated: " + next_ncf);
-            }).fail(function (type, error) {
-                console.error('The following error has been ocurred', error);
-            });
-            return ncfPromise;
-        },
-        render_receipt: function () {
-            var self = this;
-            var order = this.pos.get_order();
-            var client = order.get_client();
-            var ncf_from_server = this.get_next_ncf({
-                order_uid: order.uid,
-                sale_fiscal_type: client.sale_fiscal_type,
-                invoice_journal_id: this.pos.config.invoice_journal_id[0],
-                is_return_order: order.is_return_order
-            });
-
-            ncf_from_server.always(function () {
-                self.$('.pos-receipt-container').html(QWeb.render('PosTicket', self.get_receipt_render_env()));
-            });
-        }
-    })
 });
