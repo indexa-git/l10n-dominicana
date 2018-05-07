@@ -4,7 +4,7 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
-# © 2017-2018 Click Solutions Enterprise SRL. (https://cs.com.do/)
+# © 2018 Click Solutions Enterprise SRL. (https://cs.com.do/)
 #             Daniel Diaz <ddiaz@cs.com.do>
 
 # This file is part of NCF Manager.
