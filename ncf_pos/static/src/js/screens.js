@@ -996,6 +996,12 @@ odoo.define('ncf_pos.screens', function (require) {
             });
             return ncfPromise;
         },
+        // print_xml: function () {
+        //     var receipt = QWeb.render('XmlReceipt', this.get_receipt_render_env());
+        //
+        //     this.pos.proxy.print_receipt(receipt);
+        //     this.pos.get_order()._printed = true;
+        // },
         print_xml: function () {
             if (this.pos.config.iface_print_via_proxy) {
                 var self = this;
@@ -1003,7 +1009,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 var ncf_from_server = this.get_next_ncf(receipt_render_env);
 
                 ncf_from_server.always(function () {
-                    var receipt = QWeb.render('XmlReceipt', self.get_receipt_render_env());
+                    var receipt = QWeb.render('XmlReceipt', receipt_render_env);
                     self.pos.proxy.print_receipt(receipt);
                     self.pos.get_order()._printed = true;
                 });
