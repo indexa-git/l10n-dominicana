@@ -54,6 +54,7 @@ EXPENSE_TYPE = [
     ('10', '10 - Adquisiciones de Activos'),
     ('11', '11 - Gastos de Seguros')]
 
+
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
@@ -122,7 +123,8 @@ class AccountInvoice(models.Model):
                                          ("gov", "Gubernamentales"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")],
-                                        string='NCF Para')
+                                        string='NCF Para',
+                                        default='final')
 
     income_type = fields.Selection(
         INCOME_TYPE,
