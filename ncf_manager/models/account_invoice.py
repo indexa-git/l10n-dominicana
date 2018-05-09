@@ -95,7 +95,8 @@ class AccountInvoice(models.Model):
                                          ("gov", "Gubernamentales"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")],
-                                        string='NCF Para')
+                                        string='NCF Para',
+                                        default=lambda self: self._context.get('sale_fiscal_type', 'final'))
 
     income_type = fields.Selection(
         [('01', '01 - Ingresos por operaciones (No financieros)'),
