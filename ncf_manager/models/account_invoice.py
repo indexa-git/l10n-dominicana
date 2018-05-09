@@ -95,7 +95,8 @@ class AccountInvoice(models.Model):
                                          ("gov", "Gubernamentales"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")],
-                                        string='NCF Para')
+                                        string='NCF Para',
+                                        default=lambda self: self._context.get('sale_fiscal_type', 'final'))
 
     income_type = fields.Selection(
         [('01', '01 - Ingresos por operaciones (No financieros)'),
@@ -310,7 +311,7 @@ class AccountInvoice(models.Model):
                 if inv.amount_untaxed_signed >= 50000 and not inv.partner_id.vat:
                     raise UserError(_(
                         u"Si el monto es mayor a RD$50,000 el cliente debe "
-                          "tener un RNC o Céd para emitir la factura"))
+                        u"tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:

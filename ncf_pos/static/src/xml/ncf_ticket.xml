@@ -10,9 +10,11 @@
                     <br/>
                 </t>
                 <t t-if="widget.pos.company.street">
-                    <t t-esc="widget.pos.company.street"/>,</t>
+                    <t t-esc="widget.pos.company.street"/>,
+                </t>
                 <t t-if="widget.pos.company.street2">
-                    <t t-esc="widget.pos.company.street2"/></t>
+                    <t t-esc="widget.pos.company.street2"/>
+                </t>
                 <t t-if="widget.pos.company.vat">
                     <br/>
                     <strong>RNC:</strong>
@@ -23,17 +25,27 @@
                 <t t-esc="order.name"/>
                 <br/>
                 <div class="pos-center-align dotted_ticket_title">
-                    <strong> Factura de
-                    <t t-esc="widget.pos.get_sale_fiscal_ticket_label(order.get_client().sale_fiscal_type)"/>
+                    <t t-if="order.return_order_id">
+                        <strong>Nota de Crédito</strong>
+                        <br/>
+                    </t>
+                    <t t-else="">
+                        <strong>Factura de
+                            <t t-esc="widget.pos.get_sale_fiscal_ticket_label(order.get_client().sale_fiscal_type)"/>
+                        </strong>
+                        <br/>
+                    </t>
+                    <strong>NCF:
+                        <t t-esc="order.ncf"/>
                     </strong>
-                    <br/>
-                    <strong>NCF: <t t-esc="order.ncf"/></strong>
-                    <br/>
-                    <t t-if="order.origin_ncf">
-                        <strong>Afecta: </strong>
-                        <span t-esc="order.origin_ncf"/>
+                    <t t-if="order.return_order_id">
+                        <br/>
+                        <strong>NCF Modificado:
+                            <t t-esc="order.origin_ncf"/>
+                        </strong>
                     </t>
                     <t t-if="widget.pos.get_sale_fiscal_ticket_label(order.get_client().sale_fiscal_type) !== 'Consumo'">
+                        <br/>
                         <strong>Válida hasta: 31/12/2019</strong>
                     </t>
                 </div>
@@ -60,17 +72,17 @@
                         <br/>
                     </t>
                 </t>
-                <strong>Sucursal:</strong>
+                <strong>Sucursal.:</strong>
                 <t t-esc="widget.pos.shop.name"/>
                 <br/>
-                <strong>Telefono:</strong>
+                <strong>Telefono.:</strong>
                 <t t-esc="widget.pos.company.phone || ''"/>
                 <br/>
             </div>
         </t>
         <t t-jquery=".receipt-user" t-operation="replace">
             <div class="receipt-phone">
-                <strong>Cajero/a:</strong>
+                <strong>Cajero/a.:</strong>
                 <t t-esc="widget.pos.cashier ? widget.pos.cashier.name : widget.pos.user.name"/>
             </div>
         </t>
@@ -83,7 +95,7 @@
                             <strong>Cant.</strong>
                         </th>
                         <th width="35%">
-                            <strong>   Producto</strong>
+                            <strong>Producto</strong>
                         </th>
                         <th width="16%">
                             <strong>$/Und.</strong>
@@ -95,7 +107,7 @@
                             <strong>Valor</strong>
                         </th>
                         <th width="4%">
-                            <strong> </strong>
+                            <strong></strong>
                         </th>
                     </tr>
                 </thead>
@@ -127,11 +139,12 @@
                         <t t-esc="orderline.get_product().display_name"/>
                         <t t-if="widget.pos.config.on_product_line">
                             <div class="pos-disc-font">
-                                <t t-esc="orderline.get_order_line_comment()" />
+                                <t t-esc="orderline.get_order_line_comment()"/>
                             </div>
                         </t>
                         <t t-if="orderline.get_discount() &gt;0">
-                            <div class="pos-disc-font">With a <t t-esc="orderline.get_discount()"/>% discount</div>
+                            <div class="pos-disc-font">With a<t t-esc="orderline.get_discount()"/>% discount
+                            </div>
                         </t>
                     </td>
                     <td width="16%">
@@ -145,7 +158,7 @@
                     </td>
                     <td width="4%">
                         <t t-if="orderline.get_tax() === 0">
-                            <strong> E</strong>
+                            <strong>E</strong>
                         </t>
                     </td>
                 </tr>
@@ -167,7 +180,7 @@
                     <tr>
                         <td class="pos-right-align" width="75%">
                             <t t-esc="taxdetail.name"/>:
-                        
+
                         </td>
                         <td class="pos-right-align" width="25%">
                             <t t-esc="widget.format_currency_no_symbol(taxdetail.amount)"/>
@@ -206,7 +219,8 @@
                         </td>
                         <td class="pos-right-align" width="25%">
                             <t t-if="line.get_amount() > 0">
-                                <t t-esc="widget.format_currency_no_symbol(line.get_amount())"/></t>
+                                <t t-esc="widget.format_currency_no_symbol(line.get_amount())"/>
+                            </t>
                         </td>
                     </tr>
                 </t>

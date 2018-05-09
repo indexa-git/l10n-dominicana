@@ -6,8 +6,8 @@
             <div class="pull-right">
                 <h3 class="mt0 text-right" t-field="company.report_header"/>
             </div>
-            <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)" class="pull-left"/>
-            <div class="clearfix mb8"/>
+            <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"
+                     style="max-height: 99px"/>
         </div>
 
         <div class="article o_report_layout_background">
@@ -38,7 +38,8 @@
         <div class="header o_boxed_header">
             <div class="row mb8">
                 <div class="col-xs-6">
-                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"/>
+                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"
+                     style="max-height: 99px"/>
                 </div>
                 <div class="col-xs-6 text-right mb4">
                     <h4 class="mt0" t-field="company.report_header"/>
@@ -71,7 +72,8 @@
         <div class="header o_clean_header">
             <div class="row">
                 <div class="col-xs-6">
-                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"/>
+                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"
+                     style="max-height: 99px"/>
                 </div>
             </div>
         </div>
@@ -106,7 +108,8 @@
         <div class="header">
             <div class="row">
                 <div class="col-xs-3 mb4">
-                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)" style="max-height: 45px;"/>
+                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % to_text(company.logo)"
+                     style="max-height: 99px"/>
                 </div>
                 <div class="col-xs-9 text-right" style="margin-top:22px;" t-field="company.report_header" name="moto"/>
             </div>
