@@ -162,14 +162,15 @@
                     <strong>RNC: </strong><span t-field="o.company_id.vat"/><br/>
                     <strong>Fecha: </strong><span t-field="o.date_invoice"/>
                 </div>
-
-
                 <div class="pull-right col-xs-6 text-right" style="font-size:20px;">
-                    <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_invoice')">
+                    <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_invoice') and (o.sale_fiscal_type != 'gov')">
                         <strong>Factura de
                             <span t-if="o.sale_fiscal_type == 'fiscal'">Crédito Fiscal</span>
                             <span t-if="o.sale_fiscal_type == 'final'">Consumo</span>
                         </strong>
+                    </div>
+                    <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_invoice') and (o.sale_fiscal_type == 'gov')">
+                        <strong>Factura Gubernamental</strong>
                     </div>
                     <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_refund')">
                         <strong>Nota de Crédito</strong>
