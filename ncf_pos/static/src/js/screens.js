@@ -171,9 +171,8 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         perform_search: function (query) {
             var self = this,
-                // search_criteria = self.pos.config.order_searching_options,
+                search_criteria = self.pos.config.order_searching_options,
                 allOrders = this.pos.db.pos_all_orders,
-                search_criteria = ["number", "pos_reference", "partner_id"],
                 filteredOrders = [];
 
             if ($.trim(query) === "") {

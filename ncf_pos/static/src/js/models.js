@@ -5,7 +5,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
-    models.load_fields('pos.config', ['default_partner_id', 'print_pdf', 'ncf_control', 'order_searching_options']);
+    models.load_fields('pos.config', ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria']);
     models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
@@ -121,6 +121,16 @@ odoo.define('ncf_pos.models', function (require) {
     }], {
         'after': 'account.journal'
     });
+    models.load_models([{
+        label: 'Search Criteria',
+        model: 'pos.search_criteria',
+        fields: ['id', 'name', 'criteria'],
+        loaded: function (self, criterias) {
+            _.each(self.config.order_search_criteria, function(criteria_id, index){
+                self.config.order_search_criteria[index] = _.findWhere(criterias, {id: criteria_id}).criteria;
+            });
+        }
+    }],{ 'after': 'pos.config' })
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
