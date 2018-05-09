@@ -148,10 +148,8 @@ class PosOrder(models.Model):
 
     @api.model
     def order_search_from_ui(self):
+        invoice_ids = self.env["account.invoice"].filtered(lambda inv: inv.type == 'out_invoice')
 
-        invoice_search_domain = [('type', '=', 'out_invoice')]
-
-        invoice_ids = self.env["account.invoice"].search(invoice_search_domain, limit=100)
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
         order_list = []
         order_lines_list = []
