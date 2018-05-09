@@ -682,7 +682,7 @@ var Model = require('web.DataModel');
                 order.is_return_order
             ];
 
-            new Model('pos.order').call('get_next_ncf', args)
+            return new Model('pos.order').call('get_next_ncf', args)
                 .then(function (next_ncf) {
                     order.ncf = next_ncf;
                     console.info("Order NCF validated: " + next_ncf);
