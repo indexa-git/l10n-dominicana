@@ -149,9 +149,9 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, input_txt):
-        invoice_ids = self.env["account.invoice"].search([('number', 'ilike', "%{}%".format(input_txt)),
-                                                          ('type', '=', 'out_invoice')], limit=100)
+    def order_search_from_ui(self):
+        invoice_ids = self.env["account.invoice"].filtered(lambda inv: inv.type == 'out_invoice')
+
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
         order_list = []
         order_lines_list = []

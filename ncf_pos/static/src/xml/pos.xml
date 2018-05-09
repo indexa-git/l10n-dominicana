@@ -140,9 +140,6 @@
                         <input class="invoices_search" placeholder='Search Invoices'/>
                         <span class='search-clear'></span>
                     </span>
-                    <span class='button search'>
-                        Search
-                    </span>
                 </section>
                 <section class="full-content">
                     <div class='window touch-scrollable scrollable-y'>
@@ -159,7 +156,8 @@
                                         <thead>
                                             <tr>
                                                 <th>Fecha Orden</th>
-                                                <th>Tax ID</th>
+                                                <th>Número de Pedido</th>
+                                                <th>Número de Factura</th>
                                                 <th>Cliente</th>
                                                 <th class="col-right">Monto</th>
                                                 <th>Estado</th>
@@ -181,6 +179,9 @@
         <tr class='order-line' t-att-data-id='order.id' style="cursor:pointer;">
             <td>
                 <t t-esc='order.date_order'/>
+            </td>
+            <td>
+                <t t-esc='order.pos_reference'/>
             </td>
             <td>
                 <t t-esc='order.number'/>
