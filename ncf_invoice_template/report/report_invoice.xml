@@ -157,11 +157,20 @@
 
         <xpath expr="//div[hasclass('page')]/div[hasclass('row')]" position="replace">
             <div class="row">
+
                 <div name="dgii_invoice_address" class="col-xs-5">
                     <h3><span t-field="o.company_id.name"/><br/></h3>
                     <strong>RNC: </strong><span t-field="o.company_id.vat"/><br/>
+                    <span t-if="o.company_id.street" t-field="o.company_id.street"/><br/>
+                    <span t-if="o.company_id.street2" t-field="o.company_id.street2"/><br/>
+                    <span t-if="o.company_id.city" t-field="o.company_id.city"/>,
+                    <span t-if="o.company_id.state_id" t-field="o.company_id.state_id"/>,
+                    <span t-if="o.company_id.zip" t-field="o.company_id.zip"/>, <br/>
+                    <span t-if="o.company_id.country_id" t-field="o.company_id.country_id"/>
+                    <br/>
                     <strong>Fecha: </strong><span t-field="o.date_invoice"/>
                 </div>
+
                 <div class="pull-right col-xs-6 text-right" style="font-size:20px;">
                     <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_invoice') and (o.sale_fiscal_type != 'gov')">
                         <strong>Factura de
