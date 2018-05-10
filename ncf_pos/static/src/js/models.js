@@ -22,7 +22,8 @@ odoo.define('ncf_pos.models', function (require) {
 
                 domain_list = [
                     ['date_order', '>', validation_date],
-                    ['state', 'not in', ['draft', 'cancel']]
+                    ['state', 'not in', ['draft', 'cancel']],
+                    ['config_id', '=', self.config.id]
                 ];
             } else
                 domain_list = [
