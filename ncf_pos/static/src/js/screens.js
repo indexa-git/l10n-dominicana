@@ -83,7 +83,8 @@ odoo.define('ncf_pos.screens', function (require) {
         save_client_details: function (partner) {
             var self = this;
             var _super = this._super.bind(this);
-            var rnc_input = this.$("input[name='vat']"), rnc = rnc_input.val();
+            var rnc_input = this.$("input[name='vat']"),
+                rnc = rnc_input.val();
             var name_input = this.$('input[name$=\'name\']');
             var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
                 sale_fiscal_type = sale_fiscal_type_ddl.val();
@@ -142,6 +143,18 @@ odoo.define('ncf_pos.screens', function (require) {
             } else {
                 this._super(partner);
             }
+        },
+        saved_client_details: function (partner_id) {
+            if (this.editing_client) {
+                var clientLine = this.partner_cache.get_node(partner_id);
+
+                // Removing the row of the modified partner to allow the update
+                // of the partner's information in the client list
+                if (clientLine) {
+                    this.partner_cache.clear_node(partner_id);
+                }
+            }
+            this._super.apply(this, arguments);
         }
     });
 
