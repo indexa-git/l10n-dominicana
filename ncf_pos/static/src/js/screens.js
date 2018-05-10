@@ -63,7 +63,20 @@ odoo.define('ncf_pos.screens', function (require) {
                 this.value = $.trim(this.value).toUpperCase();
                 sale_fiscal_type_ddl.trigger('change');
             });
-            if (visibility === 'edit') {
+                if (visibility === 'show' && partner) {
+                // Highlighting the row of the displayed partner in the client list
+                if (this.old_client && this.old_client !== partner) {
+                    var clOldClient = this.partner_cache.get_node(this.old_client.id);
+                    var clientLine = this.partner_cache.get_node(partner.id);
+
+                    if (clOldClient) {
+                        clOldClient.classList.remove('highlight');
+                    }
+                    if (clientLine) {
+                        clientLine.classList.add('highlight');
+                    }
+                }
+            } else if (visibility === 'edit') {
                 name_input.focus();
             }
         },
