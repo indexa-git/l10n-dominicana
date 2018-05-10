@@ -35,6 +35,7 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new invoice for a pos order.
         """
         inv = super(PosOrder, self)._prepare_invoice()
+        inv.update({'user_id': self.user_id.id})
         if self.ncf_control:
             if self.ncf:
                 inv.update({
