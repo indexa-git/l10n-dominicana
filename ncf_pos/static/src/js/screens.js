@@ -63,14 +63,28 @@ odoo.define('ncf_pos.screens', function (require) {
                 this.value = $.trim(this.value).toUpperCase();
                 sale_fiscal_type_ddl.trigger('change');
             });
-            if (visibility === 'edit') {
+                if (visibility === 'show' && partner) {
+                // Highlighting the row of the displayed partner in the client list
+                if (this.old_client && this.old_client !== partner) {
+                    var clOldClient = this.partner_cache.get_node(this.old_client.id);
+                    var clientLine = this.partner_cache.get_node(partner.id);
+
+                    if (clOldClient) {
+                        clOldClient.classList.remove('highlight');
+                    }
+                    if (clientLine) {
+                        clientLine.classList.add('highlight');
+                    }
+                }
+            } else if (visibility === 'edit') {
                 name_input.focus();
             }
         },
         save_client_details: function (partner) {
             var self = this;
             var _super = this._super.bind(this);
-            var rnc_input = this.$("input[name='vat']"), rnc = rnc_input.val();
+            var rnc_input = this.$("input[name='vat']"),
+                rnc = rnc_input.val();
             var name_input = this.$('input[name$=\'name\']');
             var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
                 sale_fiscal_type = sale_fiscal_type_ddl.val();
@@ -129,6 +143,18 @@ odoo.define('ncf_pos.screens', function (require) {
             } else {
                 this._super(partner);
             }
+        },
+        saved_client_details: function (partner_id) {
+            if (this.editing_client) {
+                var clientLine = this.partner_cache.get_node(partner_id);
+
+                // Removing the row of the modified partner to allow the update
+                // of the partner's information in the client list
+                if (clientLine) {
+                    this.partner_cache.clear_node(partner_id);
+                }
+            }
+            this._super.apply(this, arguments);
         }
     });
 
