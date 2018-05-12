@@ -1135,3 +1135,10 @@ msgstr "Otros Ingresos"
 msgid "Operations by Income Type"
 msgstr "Operaciones por Tipo de Ingreso"
 
+#. module: dgii_reports
+#: code:addons/dgii_reports/models/dgii_report.py:39
+#: sql_constraint:dgii.reports:0
+#, python-format
+msgid "You cannot have more than one report by period."
+msgstr "No puede tener más de un reporte por periodo."
+
