@@ -171,7 +171,7 @@
     </record>
 
     <record id="dgii_report_action" model="ir.actions.act_window">
-        <field name="name">DGII Statements</field>
+        <field name="name">Reports</field>
         <field name="res_model">dgii.reports</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
@@ -187,12 +187,12 @@
               sequence="5"
               groups="account.group_account_user"/>
 
-    <menuitem id="marcos_account_dgii_file_menu" name="Archivos"
+    <menuitem id="dgii_report_parent_menu" name="Data Sending"
               parent="marcos_account_dgii_menu"
               sequence="5"/>
 
     <menuitem action="dgii_report_action" id="dgii_report_menu"
-              parent="marcos_account_dgii_menu"
+              parent="dgii_report_parent_menu"
               sequence="14"/>
 
     <!--606-->
