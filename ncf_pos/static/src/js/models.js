@@ -5,7 +5,7 @@ odoo.define('ncf_pos.models', function (require) {
     var Model = require('web.DataModel');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
-    models.load_fields('pos.config', ['default_partner_id', 'print_pdf', 'ncf_control']);
+    models.load_fields('pos.config', ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria']);
     models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
@@ -22,7 +22,8 @@ odoo.define('ncf_pos.models', function (require) {
 
                 domain_list = [
                     ['date_order', '>', validation_date],
-                    ['state', 'not in', ['draft', 'cancel']]
+                    ['state', 'not in', ['draft', 'cancel']],
+                    ['config_id', '=', self.config.id]
                 ];
             } else
                 domain_list = [
@@ -121,14 +122,26 @@ odoo.define('ncf_pos.models', function (require) {
     }], {
         'after': 'account.journal'
     });
+    models.load_models([{
+        label: 'Search Criteria',
+        model: 'pos.search_criteria',
+        fields: ['id', 'name', 'criteria'],
+        loaded: function (self, criterias) {
+            _.each(self.config.order_search_criteria, function (criteria_id, index) {
+                self.config.order_search_criteria[index] = _.findWhere(criterias, {id: criteria_id}).criteria;
+            });
+        }
+    }], {'after': 'pos.config'})
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
         initialize: function (session, attributes) {
             this.invoices = [];
+            this.sale_fiscal_type_selection = []; // this list define sale_fiscal_type on pos
+            this.sale_fiscal_type = []; // this list define sale_fiscal_type on pos
+            this.sale_fiscal_type_by_id = {}; // this object define sale_fiscal_type on pos
+            this.sale_fiscal_type_vat = []; // this list define relation between sale_fiscal_type and vat on pos
 
-            this.sale_fiscal_type_selection = []; // this object define sale_fiscal_type on pos
-            this.sale_fiscal_type_vat = []; // this object define relation between sale_fiscal_type and vat on pos
             _super_posmodel.initialize.call(this, session, attributes);
         },
         load_server_data: function () {
@@ -143,34 +156,14 @@ odoo.define('ncf_pos.models', function (require) {
             .then(function (result) {
                     self.sale_fiscal_type_selection = result.sale_fiscal_type;
                     self.sale_fiscal_type_vat = result.sale_fiscal_type_vat;
+                    self.sale_fiscal_type_list = result.sale_fiscal_type_list;
+                    self.sale_fiscal_type_by_id = {};
+                    for (var n in result.sale_fiscal_type_list) {
+                        var item = result.sale_fiscal_type_list[n];
+
+                        self.sale_fiscal_type_by_id[item.id] = item;
+                    }
                 });
-        },
-
-        /**
-         * Devuelve el label del tipo fiscal del cliente
-         * @param {string} sale_fiscal_type - Tipo fiscal del cliente
-         * @return {string}
-         */
-        get_sale_fiscal_type_label: function (sale_fiscal_type) {
-            var label = _.find(this.sale_fiscal_type_selection, function (item) {
-                return item[0] === sale_fiscal_type;
-            });
-            return label[1];
-        },
-
-        /**
-         * Devuelve el label para el Ticket
-         * @param {string} sale_fiscal_type - Tipo fiscal del cliente
-         * @return {string}
-         */
-        get_sale_fiscal_ticket_label: function (sale_fiscal_type) {
-            var label = _.find(this.sale_fiscal_type_selection, function (item) {
-                return item[0] === sale_fiscal_type;
-            });
-            if (label[0] == 'final'){
-                label[1] = 'Consumo';
-            }
-            return label[1];
         },
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
@@ -269,6 +262,33 @@ odoo.define('ncf_pos.models', function (require) {
                     }
                 });
             });
+        },
+        get_orders_from_server: function () {
+            var self = this;
+            rpc.query({
+                model: 'pos.order',
+                method: 'order_search_from_ui',
+                args: []
+            }, {})
+                .then(function (result) {
+                    var orders = result && result.orders || [];
+                    var orderlines = result && result.orderlines || [];
+
+                    orders.forEach(function (order) {
+                        var obj = self.db.order_by_id[order.id];
+
+                        if (!obj)
+                            self.db.pos_all_orders.unshift(order);
+                        self.db.order_by_id[order.id] = order;
+                    });
+                    self.db.pos_all_order_lines.concat(orderlines);
+                    orderlines.forEach(function (line) {
+                        self.db.line_by_id[line.id] = line;
+                    });
+
+                    self.gui.screen_instances['invoiceslist'].render_list(self.db.pos_all_orders);
+
+                });
         }
     });
 

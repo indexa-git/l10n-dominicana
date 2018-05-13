@@ -14,7 +14,13 @@
                         <field name="order_loading_options" widget="radio"/>
                     </group>
                     <group>
-                        <field name="number_of_days" attrs="{'invisible': [('order_loading_options', '=', 'current_session')]}"/>
+                        <field name="number_of_days"
+                               attrs="{'invisible': ['|',('order_loading_options', '=', 'current_session'), ('order_loading_options', '=', 'all_orders')]}"/>
+                    </group>
+                </group>
+                <group string="Opciones de Búsqueda de Órdenes">
+                    <group>
+                        <field style="font-weight:bold" name="order_search_criteria" widget="many2many_checkboxes"/>
                     </group>
                 </group>
             </xpath>

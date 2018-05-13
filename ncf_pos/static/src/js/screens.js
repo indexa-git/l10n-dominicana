@@ -63,14 +63,28 @@ var Model = require('web.DataModel');
                 this.value = $.trim(this.value).toUpperCase();
                 sale_fiscal_type_ddl.trigger('change');
             });
-            if (visibility === 'edit') {
+                if (visibility === 'show' && partner) {
+                // Highlighting the row of the displayed partner in the client list
+                if (this.old_client && this.old_client !== partner) {
+                    var clOldClient = this.partner_cache.get_node(this.old_client.id);
+                    var clientLine = this.partner_cache.get_node(partner.id);
+
+                    if (clOldClient) {
+                        clOldClient.classList.remove('highlight');
+                    }
+                    if (clientLine) {
+                        clientLine.classList.add('highlight');
+                    }
+                }
+            } else if (visibility === 'edit') {
                 name_input.focus();
             }
         },
         save_client_details: function (partner) {
             var self = this;
             var _super = this._super.bind(this);
-            var rnc_input = this.$("input[name='vat']"), rnc = rnc_input.val();
+            var rnc_input = this.$("input[name='vat']"),
+                rnc = rnc_input.val();
             var name_input = this.$('input[name$=\'name\']');
             var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
                 sale_fiscal_type = sale_fiscal_type_ddl.val();
@@ -129,6 +143,18 @@ var Model = require('web.DataModel');
             } else {
                 this._super(partner);
             }
+        },
+        saved_client_details: function (partner_id) {
+            if (this.editing_client) {
+                var clientLine = this.partner_cache.get_node(partner_id);
+
+                // Removing the row of the modified partner to allow the update
+                // of the partner's information in the client list
+                if (clientLine) {
+                    this.partner_cache.clear_node(partner_id);
+                }
+            }
+            this._super.apply(this, arguments);
         }
     });
 
@@ -150,9 +176,6 @@ var Model = require('web.DataModel');
             this.renderElement();
             this.$('.order-details-contents').empty();
             this.$('.order-list').parent().scrollTop(0);
-            this.$('.button').click(function () {
-                self.perform_search(self.$('.invoices_search').val());
-            });
             this.$('.back').click(function () {
                 self.gui.back();
             });
@@ -160,10 +183,11 @@ var Model = require('web.DataModel');
             if (this.pos.config.iface_vkeyboard && this.chrome.widget.keyboard) {
                 this.chrome.widget.keyboard.connect(this.$('.invoices_search'));
             }
-            this.$('.invoices_search').on('keypress', function (event) {
-                if (event.which === 13)
-                    self.perform_search(this.value);
-            }).focus();
+
+            this.$('.invoices_search').on('keyup', function () {
+                self.perform_search(this.value);
+            });
+
             this.$('.searchbox .search-clear').click(function () {
                 self.clear_search();
             });
@@ -173,42 +197,32 @@ var Model = require('web.DataModel');
             this.render_list(this.pos.db.pos_all_orders);
         },
         perform_search: function (query) {
-            var self = this;
+            var self = this,
+                search_criteria = self.pos.config.order_search_criteria,
+                allOrders = this.pos.db.pos_all_orders,
+                filteredOrders = [];
 
-            if ($.trim(query) == "") {
-                this.render_list(this.pos.db.pos_all_orders);
+            if ($.trim(query) === "") {
+                this.render_list(allOrders);
             } else {
-                var allOrders = this.pos.db.pos_all_orders;
-                var orders = [];
+                _.each(allOrders, function (order) {
+                    _.each(search_criteria, function (criteria) {
+                        if(order[criteria]){
+                            // The property partner_id in order object is an Array, the value to compare is in index 1
+                            if(_.isArray(order[criteria])) {
+                                if(order[criteria][1].toLowerCase().indexOf(query.toLowerCase()) > -1) {
+                                    filteredOrders.push(order);
+                                    return true;
+                                }
+                            } else if(order[criteria].toLowerCase().indexOf(query.toLowerCase()) > -1) {
+                                filteredOrders.push(order);
+                                return true;
+                            }
+                        }
+                    });
+                });
 
-                for (var i in allOrders) {
-                    if (String(allOrders[i].number).toLowerCase().indexOf(String(query).toLowerCase()) > -1)
-                        orders.push(allOrders[i]);
-                }
-
-                if (orders.length > 0) {
-                    this.render_list(orders);
-                } else {
-                    new Model('pos.order').call('order_search_from_ui', [query])
-                        .then(function (result) {
-                            var orders = result && result.orders || [];
-                            var orderlines = result && result.orderlines || [];
-
-                            orders.forEach(function (order) {
-                                var obj = self.pos.db.order_by_id[order.id];
-
-                                if (!obj)
-                                    self.pos.db.pos_all_orders.push(order);
-                                self.pos.db.order_by_id[order.id] = order;
-                            });
-                            self.pos.db.pos_all_order_lines.concat(orderlines);
-                            orderlines.forEach(function (line) {
-                                self.pos.db.line_by_id[line.id] = line;
-                            });
-
-                            self.render_list(orders);
-                        });
-                }
+                this.render_list(_.uniq(filteredOrders));
             }
         },
         clear_search: function () {
@@ -221,6 +235,9 @@ var Model = require('web.DataModel');
             var contents = this.$('.order-list-contents');
 
             contents.empty();
+
+            if(!orders) return;
+
             this.display_order_details('hide');
             orders.forEach(function (order) {
                 contents.append(QWeb.render('InvoicesLine', {widget: self, order: order}));
