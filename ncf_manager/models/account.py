@@ -67,7 +67,7 @@ class AccountJournal(models.Model):
 
     @api.multi
     def create_ncf_sequence(self):
-        if self.ncf_control and len(self.sequence_id.date_range_ids) == 1:
+        if self.ncf_control and len(self.sequence_id.date_range_ids) <= 1:
             # this method read Selection values from res.partner sale_fiscal_type fields
             selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
             for sale_fiscal_type in selection:
