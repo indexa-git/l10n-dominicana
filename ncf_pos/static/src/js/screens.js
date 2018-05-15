@@ -159,6 +159,16 @@ odoo.define('ncf_pos.screens', function (require) {
                 }
             }
             this._super.apply(this, arguments);
+        },
+        toggle_save_button: function () {
+            var $button = this.$('.button.next');
+
+            this._super.apply(this, arguments);
+            // Hide the deselect customer button if the pos generate invoices
+            if ($button && this.pos.config.iface_invoicing === true &&
+                this.editing_client !== true && !this.new_client) {
+                $button.addClass('oe_hidden');
+            }
         }
     });
 
