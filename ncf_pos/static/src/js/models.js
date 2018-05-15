@@ -138,6 +138,7 @@ odoo.define('ncf_pos.models', function (require) {
         initialize: function (session, attributes) {
             this.invoices = [];
             this.sale_fiscal_type_selection = []; // this list define sale_fiscal_type on pos
+            this.sale_fiscal_type_default_id = 'final'; // this define the default id of sale_fiscal_type
             this.sale_fiscal_type = []; // this list define sale_fiscal_type on pos
             this.sale_fiscal_type_by_id = {}; // this object define sale_fiscal_type on pos
             this.sale_fiscal_type_vat = []; // this list define relation between sale_fiscal_type and vat on pos
@@ -145,11 +146,10 @@ odoo.define('ncf_pos.models', function (require) {
             _super_posmodel.initialize.call(this, session, attributes);
         },
         load_server_data: function () {
-            this.get_sale_fiscal_type_selection();
-
+            this.load_sale_fiscal_types();
             return _super_posmodel.load_server_data.call(this);
         },
-        get_sale_fiscal_type_selection: function () {
+        load_sale_fiscal_types: function () {
             var self = this;
 
             rpc.query({
@@ -165,9 +165,20 @@ odoo.define('ncf_pos.models', function (require) {
                     for (var n in result.sale_fiscal_type_list) {
                         var item = result.sale_fiscal_type_list[n];
 
+                        if (item.is_default) {
+                            self.sale_fiscal_type_default_id = item.id;
+                        }
                         self.sale_fiscal_type_by_id[item.id] = item;
                     }
                 });
+        },
+        get_sale_fiscal_type: function (sale_fiscal_type_id) {
+            var item = this.sale_fiscal_type_by_id[sale_fiscal_type_id || this.sale_fiscal_type_default_id];
+
+            if (!item) {
+                item = this.sale_fiscal_type_by_id[this.sale_fiscal_type_default_id];
+            }
+            return item;
         },
         // saves the order locally and try to send it to the backend and make an invoice
         // returns a deferred that succeeds when the order has been posted and successfully generated
