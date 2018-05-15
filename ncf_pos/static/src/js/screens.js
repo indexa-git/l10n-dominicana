@@ -869,6 +869,15 @@ odoo.define('ncf_pos.screens', function (require) {
             if (order.selected_paymentline && order.selected_paymentline.cashregister.id == 10001)
                 return false;
             this._super(input);
+        },
+        /** Update customer information when another customer is selected */
+        customer_changed: function () {
+            var client = this.pos.get_client();
+            var clientFiscalType = (client && client.sale_fiscal_type) || '';
+
+            this._super.apply(this, arguments);
+            this.$('.sale_fiscal_type_label').text(clientFiscalType ?
+                this.pos.get_sale_fiscal_type(clientFiscalType).name : '');
         }
     });
 
