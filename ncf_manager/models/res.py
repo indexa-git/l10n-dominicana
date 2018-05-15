@@ -114,7 +114,7 @@ class ResPartner(models.Model):
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
-                                 ondelete='restrict', default=61)
+                                 ondelete='restrict', default=62)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
