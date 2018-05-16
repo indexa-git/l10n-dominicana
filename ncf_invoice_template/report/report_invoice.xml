@@ -6,8 +6,7 @@
         <xpath expr="//div[hasclass('page')]/div[hasclass('row')]" position="replace">
             <div class="row">
                 <div name="invoice_address" class="col-xs-5">
-                    <h3><span t-field="o.company_id.name"/></h3>
-                    <span t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
+                    <h3><span t-field="o.company_id.name"/></h3><br/>
                     <strong>RNC: </strong><span t-field="o.company_id.vat"/><br/>
                     <strong>Fecha: </strong><span t-field="o.date_invoice"/><br/>
                     <span t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
@@ -35,10 +34,6 @@
                         <strong>Válida hasta: </strong><span t-field="o.ncf_expiration_date"/>
                     </span>
                 </h4>
-
-            <div class="clearfix mb12"/>
-            <br/>
-
             </div>
         </xpath>
 
@@ -81,11 +76,6 @@
                     <p t-field="o.reference"/>
                 </div>
             </div>
-
-
-            <div class="clearfix mb12"/>
-            <br/>
-
         </xpath>
 
         <xpath expr="//table[1]" position="replace">
