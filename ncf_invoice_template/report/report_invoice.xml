@@ -216,7 +216,7 @@
                             <span t-field="o.partner_id.name"/><br/>
                         </t>
                         <t t-else="">
-                            <strong>DOC CLIENTE:</strong>
+                            <strong>ID CLIENTE:</strong>
                             <span t-field="o.partner_id.vat"/><br/>
                             <strong>NOMBRE:</strong>
                             <span t-field="o.partner_id.name"/><br/>
