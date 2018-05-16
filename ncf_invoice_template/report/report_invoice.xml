@@ -216,10 +216,10 @@
                         <strong>NOMBRE:</strong>
                         <span t-field="o.partner_id.name"/><br/>
                     </t>
-                    <t name="invoice_partner_address" t-if="o.partner_id.street">
-                        <strong>DIRECCIÓN CLIENTE:</strong><br/>
+                </div>
+                <div class="col-xs-3" t-if="o.partner_id.street">
+                    <strong>DIRECCIÓN CLIENTE:</strong>
                         <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
-                    </t>
                 </div>
                 <div class="col-xs-2" t-if="o.name">
                     <strong>Descripción:</strong>
