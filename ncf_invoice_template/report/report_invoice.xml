@@ -182,8 +182,8 @@
                     <strong>NCF: </strong><span t-field="o.number"/><br/>
                     <span t-if="o.type == 'out_refund' and (o.origin != False)">
                         <strong>NCF modificado: </strong><span t-field="o.origin"/>
+                        <br/>
                     </span>
-                    <br/>
                     <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state == 'open' or o.state == 'paid')">
                         <strong>Válida hasta: </strong><span t-field="o.ncf_expiration_date"/>
                     </span>
