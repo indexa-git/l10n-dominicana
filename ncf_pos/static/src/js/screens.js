@@ -63,7 +63,7 @@ var Model = require('web.DataModel');
                 this.value = $.trim(this.value).toUpperCase();
                 sale_fiscal_type_ddl.trigger('change');
             });
-                if (visibility === 'show' && partner) {
+            if (visibility === 'show' && partner) {
                 // Highlighting the row of the displayed partner in the client list
                 if (this.old_client && this.old_client !== partner) {
                     var clOldClient = this.partner_cache.get_node(this.old_client.id);
@@ -114,8 +114,10 @@ var Model = require('web.DataModel');
                 $.ajax('/validate_rnc/', {
                     dataType: 'json',
                     type: 'GET',
+                    timeout: 3000,
                     data: {'rnc': rnc}
                 }).done(function (data) {
+                    console.info("Validando RNC con WS DGII", data);
                     if (data.is_valid === false) {
                         self.gui.show_popup('error', {
                             'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
@@ -131,14 +133,16 @@ var Model = require('web.DataModel');
                         _super(partner);
                     }
                 }).fail(function (request, error) {
+                    console.error("Validando RNC con WS DGII", request);
                     self.gui.show_popup('error', {
                         'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                        'body': _t((request.statusText || error.message) + '\n' +
-                            ((error.data && error.data.message) || error.message || "Ocurrio un error")),
+                        'body': _t(request.statusText + '\n' +
+                            ((error.data && error.data.message) || error.message || "")),
                         cancel: function () {
                             rnc_input.focus();
                         }
                     });
+                    _super(partner);
                 });
             } else {
                 this._super(partner);
@@ -207,14 +211,14 @@ var Model = require('web.DataModel');
             } else {
                 _.each(allOrders, function (order) {
                     _.each(search_criteria, function (criteria) {
-                        if(order[criteria]){
+                        if (order[criteria]) {
                             // The property partner_id in order object is an Array, the value to compare is in index 1
-                            if(_.isArray(order[criteria])) {
-                                if(order[criteria][1].toLowerCase().indexOf(query.toLowerCase()) > -1) {
+                            if (_.isArray(order[criteria])) {
+                                if (order[criteria][1].toLowerCase().indexOf(query.toLowerCase()) > -1) {
                                     filteredOrders.push(order);
                                     return true;
                                 }
-                            } else if(order[criteria].toLowerCase().indexOf(query.toLowerCase()) > -1) {
+                            } else if (order[criteria].toLowerCase().indexOf(query.toLowerCase()) > -1) {
                                 filteredOrders.push(order);
                                 return true;
                             }
@@ -236,7 +240,7 @@ var Model = require('web.DataModel');
 
             contents.empty();
 
-            if(!orders) return;
+            if (!orders) return;
 
             this.display_order_details('hide');
             orders.forEach(function (order) {
@@ -719,11 +723,11 @@ var Model = require('web.DataModel');
                 var order = this.pos.get_order();
                 var client = order.get_client();
 
-                var has_client_vat = function(client) {
+                var has_client_vat = function (client) {
                     return client.vat;
                 };
 
-                var has_client_fiscal_type = function(client, fiscal_types) {
+                var has_client_fiscal_type = function (client, fiscal_types) {
                     return _.contains(fiscal_types, client.sale_fiscal_type) && !has_client_vat(client);
                 };
 
