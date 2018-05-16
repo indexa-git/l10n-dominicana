@@ -202,11 +202,30 @@
             <div class="row">
                 <div name="invoice_partner_address" class="col-xs-12">
 
-                    <strong>RNC CLIENTE:</strong>
-                    <span t-field="o.partner_id.vat"/>
-                    <br/>
-                    <strong>NOMBRE O RAZÓN SOCIAL:</strong>
-                    <span t-field="o.partner_id.name"/>
+                    <t t-if="o.partner_id.vat">
+                        <t t-if="len(o.partner_id.vat) == 9">
+                            <strong>RNC CLIENTE:</strong>
+                            <span t-field="o.partner_id.vat"/><br/>
+                            <strong>RAZÓN SOCIAL:</strong>
+                            <span t-field="o.partner_id.name"/><br/>
+                        </t>
+                        <t t-elif="len(o.partner_id.vat) == 11">
+                            <strong>CED CLIENTE:</strong>
+                            <span t-field="o.partner_id.vat"/><br/>
+                            <strong>NOMBRE:</strong>
+                            <span t-field="o.partner_id.name"/><br/>
+                        </t>
+                        <t t-else="">
+                            <strong>DOC CLIENTE:</strong>
+                            <span t-field="o.partner_id.vat"/><br/>
+                            <strong>NOMBRE:</strong>
+                            <span t-field="o.partner_id.name"/><br/>
+                        </t>
+                    </t>
+                    <t t-if="o.partner_id.street">
+                        <strong>DIRECCIÓN CLIENTE:</strong><br/>
+                        <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
+                    </t>
 
                 </div>
             </div>
