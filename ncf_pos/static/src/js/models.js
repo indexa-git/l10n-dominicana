@@ -172,6 +172,13 @@ odoo.define('ncf_pos.models', function (require) {
                     }
                 });
         },
+        /**
+         * Return a object with the sale fiscal type
+         *
+         * @param {string} sale_fiscal_type_id - The value of sale fiscal type
+         * @returns {object} Return a object with the sale fiscal type filtered by the id.
+         * If the id is invalid then return a object with the default sale fiscal type
+         */
         get_sale_fiscal_type: function (sale_fiscal_type_id) {
             var item = this.sale_fiscal_type_by_id[sale_fiscal_type_id || this.sale_fiscal_type_default_id];
 
@@ -259,7 +266,7 @@ odoo.define('ncf_pos.models', function (require) {
          * la BD offline con los cambios
          * @param {object} orders - Objeto con la lista de ordenes
          * @param {object} options - Objeto con los configuracion opcional
-         * @returns {*} Deferred con la lista de ids generados en el servidor
+         * @returns {Promise} Promise con la lista de ids generados en el servidor
          * @private
          */
         _save_to_server: function (orders, options) {
