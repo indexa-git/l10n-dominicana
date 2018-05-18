@@ -574,7 +574,7 @@ odoo.define('ncf_pos.screens', function (require) {
         /**
          * Making some things about validation and calling to backend to get the ncf
          */
-        finalize_validation: function() {
+        finalize_validation: function () {
             var self = this;
             var order = this.pos.get_order();
             var client = order.get_client();
@@ -584,7 +584,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
             if (order.is_paid_with_cash() && this.pos.config.iface_cashdrawer) {
 
-                    this.pos.proxy.open_cashbox();
+                this.pos.proxy.open_cashbox();
             }
 
             order.initialize_validation_date();
@@ -596,36 +596,36 @@ odoo.define('ncf_pos.screens', function (require) {
                     var invoiced = self.pos.push_and_invoice_order(order);
                     self.invoicing = true;
 
-                    invoiced.fail(function(error){
+                    invoiced.fail(function (error) {
                         self.invoicing = false;
                         order.finalized = false;
                         if (error.message === 'Missing Customer') {
-                            self.gui.show_popup('confirm',{
+                            self.gui.show_popup('confirm', {
                                 'title': _t('Please select the Customer'),
                                 'body': _t('You need to select the customer before you can invoice an order.'),
-                                confirm: function(){
+                                confirm: function () {
                                     self.gui.show_screen('clientlist');
                                 },
                             });
                         } else if (error.code < 0) {        // XmlHttpRequest Errors
-                            self.gui.show_popup('error',{
+                            self.gui.show_popup('error', {
                                 'title': _t('The order could not be sent'),
                                 'body': _t('Check your internet connection and try again.'),
                             });
                         } else if (error.code === 200) {    // OpenERP Server Errors
-                            self.gui.show_popup('error-traceback',{
+                            self.gui.show_popup('error-traceback', {
                                 'title': error.data.message || _t("Server Error"),
                                 'body': error.data.debug || _t('The server encountered an error while receiving your order.'),
                             });
                         } else {                            // ???
-                            self.gui.show_popup('error',{
+                            self.gui.show_popup('error', {
                                 'title': _t("Unknown Error"),
-                                'body':  _t("The order could not be sent to the server due to an unknown error"),
+                                'body': _t("The order could not be sent to the server due to an unknown error"),
                             });
                         }
                     });
 
-                    invoiced.done(function(){
+                    invoiced.done(function () {
                         self.invoicing = false;
                         self.gui.show_screen('receipt');
                     });
@@ -785,104 +785,61 @@ odoo.define('ncf_pos.screens', function (require) {
 
     screens.ActionpadWidget.include({
         renderElement: function () {
-            var self = this;
-            this._super();
+            var self = this,
+                $payButton,
+                payButtonClickSuper;
 
-            this.$('.pay').on("click", function () {
+            this._super.apply(this, arguments);
+            $payButton = this.$('.pay');
+            payButtonClickSuper = $payButton.getEvent('click', 0);
+            $payButton.off('click');
+            $payButton.on("click", function () {
+                var invoicing = self.pos.config.iface_invoicing;
                 var order = self.pos.get_order();
-                var has_valid_product_lot = _.every(order.orderlines.models, function (line) {
-                    return line.has_valid_product_lot();
-                });
-                if (!has_valid_product_lot) {
-                    self.gui.show_popup('confirm', {
-                        'title': _t('Empty Serial/Lot Number'),
-                        'body': _t('One or more product(s) required serial/lot number.'),
-                        confirm: function () {
-                            self.gui.show_screen('payment');
-                        },
-                    });
-                } else {
-                    self.gui.show_screen('payment');
-                }
-
-                // Here begin the method extension
-                // TODO: refactor this
                 var client = self.pos.get_client();
+                var popupErrorOptions = '';
+                var anyOrderLineWithZeroPrice = order.orderlines.find(function (line) {
+                    return line.get_price_with_tax() < 0;
+                });
 
-                function has_client_vat(client) {
-                    return client.vat;
-                }
-
-                function has_client_fiscal_type(client, fiscal_types) {
-                    return _.contains(fiscal_types, client.sale_fiscal_type) && !has_client_vat(client);
-                }
-
-                if (order.get_total_with_tax() <= 0) {
-                    self.gui.show_popup('error', {
-                        'title': 'Error: Cantidad de articulos a pagar',
-                        'body': 'La orden esta vacia, no existen articulos a pagar.',
-                        'cancel': function () {
-                            self.gui.show_screen('products');
-                        }
-                    });
-                } else {
-                    order.orderlines.find(function (line) {
-                        if (line.get_price_with_tax() < 0) {
-                            self.gui.show_popup('error', {
-                                'title': 'Error: Precio de producto',
-                                'body': 'Ningun producto puede tener precio menor a RD$0',
-                                'cancel': function () {
-                                    self.gui.show_screen('products');
-                                }
-                            });
-
-                            return true;
-                        }
-                    });
-                }
-
-                if (!client) {
-                    if (self.pos.config.iface_invoicing) {
-                        self.gui.show_popup('error', {
-                            'title': 'Error: Factura sin Cliente',
-                            'body': 'Debe seleccionar un cliente para poder realizar el pago, o utilizar el cliente por defecto; de no tener un cliente por defecto, pida ayuda a su encargado para que lo establezca.',
-                            'cancel': function () {
-                                self.gui.show_screen('products');
-                            }
-                        });
-
-                        return false;
-                    }
-                } else {
-                    if (has_client_fiscal_type(client, ["fiscal", "gov", "special"]) && !has_client_vat(client)) {
-                        self.gui.show_popup('error', {
-                            'title': 'Error: Para el tipo de comprobante',
-                            'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
-                            'cancel': function () {
-                                self.gui.show_screen('products');
-                            }
-                        });
-                        return false;
-                    }
-
-                    if (self.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !has_client_vat(client)) {
-                        self.gui.show_popup('error', {
-                            'title': 'Error: Factura sin Cedula de Cliente',
-                            'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
-                            'cancel': function () {
-                                self.gui.show_screen('products');
-                            }
-                        });
-
-                        return false;
+                if (anyOrderLineWithZeroPrice) {
+                    popupErrorOptions = {
+                        'title': 'Precio de producto',
+                        'body': 'Ningun producto puede tener precio menor a RD$0.00'
+                    };
+                } else if (order.get_total_with_tax() <= 0) {
+                    popupErrorOptions = {
+                        'title': 'Cantidad de articulos a pagar',
+                        'body': 'La orden esta vacia o el total pagar es RD$0.00'
+                    };
+                } else if (!client && invoicing) {
+                    popupErrorOptions = {
+                        'title': 'Factura sin Cliente',
+                        'body': 'Debe seleccionar un cliente para poder realizar el pago, o ' +
+                        'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
+                        'pida ayuda a su encargado para que lo establezca.'
+                    };
+                } else if (client && !client.vat) {
+                    if (["fiscal", "gov", "special"].indexOf(client.sale_fiscal_type) > -1) {
+                        popupErrorOptions = {
+                            'title': 'Para el tipo de comprobante',
+                            'body': 'No puede crear una factura con crédito fiscal si el cliente ' +
+                            'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
+                            'registrado correctamente si este desea comprobante fiscal.',
+                        };
+                    } else if (invoicing && order.get_total_without_tax() >= 50000) {
+                        popupErrorOptions = {
+                            'title': 'Factura sin Cedula de Cliente',
+                            'body': 'El cliente debe tener una cedula si el total de la factura ' +
+                            'es igual o mayor a RD$50,000.00 o mas',
+                        };
                     }
                 }
-
-                // Here end the method extension
-            });
-
-            this.$('.set-customer').click(function () {
-                self.gui.show_screen('clientlist');
+                if (popupErrorOptions) {
+                    self.gui.show_popup('error', popupErrorOptions);
+                } else if (payButtonClickSuper) {
+                    payButtonClickSuper.apply(this, arguments);
+                }
             });
         }
     });
