@@ -26,7 +26,7 @@
 
             <field name="partner_id" position="after">
                 <field name="sale_fiscal_type" attrs="{
-                       'invisible':[('type','=','out_refund')],
+                       'invisible':['|',('type','=','out_refund'),('ncf_control','=',False)],
                        'required': [('ncf_control','=',True),('type','=','out_invoice')],
                        'readonly': [('state','!=','draft')]}"/>
                 <field name="income_type" attrs="{
@@ -85,7 +85,7 @@
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
-
+            
             <field name="origin" position="replace"/>
 
             <field name="number" position="after">
@@ -102,7 +102,7 @@
                 <field name="purchase_type" invisible="1"/>
                 <field name="journal_id" groups="account.group_account_user"
                        options="{'no_create': True, 'no_open': True}"
-                       attrs="{'readonly':[('move_name','!=',False)]}"/>
+                       attrs="{'readonly':[('state','!=','draft')]}"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('purchase_type','not in',['normal','minor','informal'])],
                        'required': [('purchase_type','in',['normal','minor','informal'])],
