@@ -5,7 +5,7 @@ odoo.define('ncf_pos.screens', function (require) {
     var gui = require('point_of_sale.gui');
     var popups = require('point_of_sale.popups');
     var core = require('web.core');
-var Model = require('web.DataModel');
+    var Model = require('web.DataModel');
     var QWeb = core.qweb;
     var _t = core._t;
 

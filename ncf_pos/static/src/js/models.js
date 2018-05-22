@@ -1,7 +1,7 @@
 odoo.define('ncf_pos.models', function (require) {
     "use strict";
 
-    var models = require("point_of_sale.models");
+    var models = require('point_of_sale.models');
     var Model = require('web.DataModel');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
@@ -276,11 +276,7 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_orders_from_server: function () {
             var self = this;
-            rpc.query({
-                model: 'pos.order',
-                method: 'order_search_from_ui',
-                args: []
-            }, {})
+            new Model('pos.order').call('order_search_from_ui', [])
                 .then(function (result) {
                     var orders = result && result.orders || [];
                     var orderlines = result && result.orderlines || [];
