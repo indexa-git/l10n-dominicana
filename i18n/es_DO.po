@@ -1026,11 +1026,6 @@ msgstr "Facturación"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
-msgid "Additional Info"
-msgstr "Información adicional"
-
-#. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid "607 Reported Operations by NCF Type"
 msgstr "Operaciones Reportadas en el 607 por Tipo de NCF"
 

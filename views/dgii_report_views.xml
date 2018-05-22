@@ -98,7 +98,7 @@
                                 </div>
                             </div>
                         </page>
-                        <page string="Additional Info">
+                        <page string="IR-1">
                             <group string="607 Reported Operations by NCF Type">
                                 <field name="ncf_sale_summary_ids" nolabel="1" widget="one2many_list" readonly="1">
                                     <tree>
