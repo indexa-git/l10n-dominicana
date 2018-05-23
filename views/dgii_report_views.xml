@@ -22,7 +22,7 @@
                         </h1>
                     </div>
                     <notebook>
-                        <page string="Statements">
+                        <page name="statements" string="Statements">
                             <group>
                                 <group>
                                     <field name="name" placeholder="MM/YYYY"
@@ -98,7 +98,7 @@
                                 </div>
                             </div>
                         </page>
-                        <page string="IR-1">
+                        <page name="ir1" string="IR-1">
                             <group string="607 Reported Operations by NCF Type">
                                 <field name="ncf_sale_summary_ids" nolabel="1" widget="one2many_list" readonly="1">
                                     <tree>
