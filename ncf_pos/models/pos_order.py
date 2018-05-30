@@ -35,6 +35,7 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new invoice for a pos order.
         """
         inv = super(PosOrder, self)._prepare_invoice()
+        inv.update({'user_id': self.user_id.id})
         if self.ncf_control:
             if self.ncf:
                 inv.update({
@@ -100,41 +101,7 @@ class PosOrder(models.Model):
         orders = self.check_ncf_control_from_ui(orders)
         res = super(PosOrder, self).create_from_ui(orders)
         self = self.browse(res)
-        self.reconcile_befores_session_close()
         return res
-
-    def reconcile_befores_session_close(self):
-        moves = self.env['account.move.line']
-        for rec in self:
-            if rec.ncf_control:
-                for st_line in rec.statement_ids:
-                    if st_line.account_id and not st_line.journal_entry_ids.ids:
-                        st_line.sudo().fast_counterpart_creation()
-                    elif not st_line.journal_entry_ids.ids:
-                        _logger.error('Debe revisar las formas de pago de la order {}'.format(rec.name))
-                    moves = (moves | st_line.journal_entry_ids)
-
-                self.sudo()._reconcile_payments()
-
-    def _reconcile_payments(self):
-        for order in self:
-            aml = order.statement_ids.mapped('journal_entry_ids') \
-                  | order.account_move.line_ids | order.invoice_id.move_id.line_ids
-
-            aml = aml.filtered(lambda
-                                   r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == order.partner_id.commercial_partner_id)
-            if order.refund_payment_account_move_line_ids:
-                aml |= order.refund_payment_account_move_line_ids
-
-            try:
-                aml.reconcile()
-            except:
-                # There might be unexpected situations where the automatic reconciliation won't
-                # work. We don't want the user to be blocked because of this, since the automatic
-                # reconciliation is introduced for convenience, not for mandatory accounting
-                # reasons.
-                _logger.error('Reconciliation did not work for order %s', order.name)
-                continue
 
     @api.model
     def _order_fields(self, ui_order):
@@ -149,9 +116,9 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, input_txt):
-        invoice_ids = self.env["account.invoice"].search([('number', 'ilike', "%{}%".format(input_txt)),
-                                                          ('type', '=', 'out_invoice')], limit=100)
+    def order_search_from_ui(self):
+        invoice_ids = self.env["account.invoice"].search([('type', '=', 'out_invoice')])
+
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
         order_list = []
         order_lines_list = []

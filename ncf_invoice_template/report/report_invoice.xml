@@ -155,64 +155,91 @@
 
     <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
 
+        <xpath expr="//div[hasclass('page')]/h2" position="replace"/>
         <xpath expr="//div[hasclass('page')]/div[hasclass('row')]" position="replace">
             <div class="row">
                 <div name="dgii_invoice_address" class="col-xs-5">
-                    <h3><span t-field="o.company_id.name"/><br/></h3>
+                    <h3><span t-field="o.company_id.name"/></h3>
+                    <span t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
                     <strong>RNC: </strong><span t-field="o.company_id.vat"/><br/>
-                    <strong>Fecha: </strong><span t-field="o.date_invoice"/>
+                    <strong>Fecha: </strong><span t-field="o.date_invoice"/><br/>
+                    <span t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                        <strong>Vence: </strong><span t-field="o.date_due"/>
+                    </span>
                 </div>
 
-
-                <div class="pull-right col-xs-6 text-right" style="font-size:20px;">
-                    <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_invoice')">
-                        <strong>Factura de
-                            <span t-if="o.sale_fiscal_type == 'fiscal'">Crédito Fiscal</span>
-                            <span t-if="o.sale_fiscal_type == 'final'">Consumo</span>
-                        </strong>
-                    </div>
-                    <div t-if="(o.state == 'open' or o.state == 'paid') and (o.type == 'out_refund')">
-                        <strong>Nota de Crédito</strong>
-                    </div>
+                <h4 class="pull-right col-xs-5">
                     <strong>
-                        <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')">NCF:</span>
+                        <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Factura de 
+                            <span t-field="o.sale_fiscal_type"/>
+                        </span>
                         <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
                         <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
-                        <span t-if="o.type == 'in_invoice'">Factura Proveedor</span>
+                        <span t-if="o.type == 'out_refund'">Nota de Crédito</span>
+                        <span t-if="o.type == 'in_refund'">NC de Proveedor</span>
+                        <span t-if="o.type == 'in_invoice'">Factura de Proveedor</span><br/>
                     </strong>
-                    <span t-field="o.number"/>
-                    <br/>
-                    <strong><span t-if="o.type == 'out_refund' and (o.origin != False)">NCF modificado:</span></strong>
-                    <span t-if="o.type == 'out_refund' and (o.origin != False)" t-field="o.origin"/>
-                    <br t-if="o.type == 'out_refund' and (o.origin != False)"/>
-                    <strong><span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')">Válida hasta:</span></strong>
-                    <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state != 'draft')" t-field="o.ncf_expiration_date"/>
-                </div>
-
-            </div>
+                    <strong>NCF: </strong><span t-field="o.number"/><br/>
+                    <span t-if="o.type == 'out_refund' and (o.origin != False)">
+                        <strong>NCF modificado: </strong><span t-field="o.origin"/>
+                        <br/>
+                    </span>
+                    <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state == 'open' or o.state == 'paid')">
+                        <strong>Válida hasta: </strong><span t-field="o.ncf_expiration_date"/>
+                    </span>
+                </h4>
 
             <div class="clearfix mb12"/>
             <br/>
 
-            <div class="row">
-                <div name="invoice_partner_address" class="col-xs-12">
+            </div>
+        </xpath>
 
-                    <strong>RNC CLIENTE:</strong>
-                    <span t-field="o.partner_id.vat"/>
-                    <br/>
-                    <strong>NOMBRE O RAZÓN SOCIAL:</strong>
-                    <span t-field="o.partner_id.name"/>
-
+        <xpath expr="//div[hasclass('mt32')]" position="replace">
+            <div class="row mt32 mb32">
+                <div name="invoice_partner_address" class="col-xs-5" t-if="o.partner_id.vat">
+                    <t t-if="len(o.partner_id.vat) == 9">
+                        <strong>RNC CLIENTE:</strong>
+                        <span t-field="o.partner_id.vat"/><br/>
+                        <strong>RAZÓN SOCIAL:</strong>
+                        <span t-field="o.partner_id.name"/><br/>
+                    </t>
+                    <t t-elif="len(o.partner_id.vat) == 11">
+                        <strong>CED CLIENTE:</strong>
+                        <span t-field="o.partner_id.vat"/><br/>
+                        <strong>NOMBRE:</strong>
+                        <span t-field="o.partner_id.name"/><br/>
+                    </t>
+                    <t t-else="">
+                        <strong>ID CLIENTE:</strong>
+                        <span t-field="o.partner_id.vat"/><br/>
+                        <strong>NOMBRE:</strong>
+                        <span t-field="o.partner_id.name"/><br/>
+                    </t>
+                </div>
+                <div class="col-xs-3" t-if="o.partner_id.street">
+                    <strong>DIRECCIÓN CLIENTE:</strong>
+                        <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
+                </div>
+                <div class="col-xs-2" t-if="o.name">
+                    <strong>Descripción:</strong>
+                    <p t-field="o.name"/>
+                </div>
+                <div class="col-xs-2" t-if="o.origin and o.type == 'out_invoice'">
+                    <strong>Origen:</strong>
+                    <p t-field="o.origin"/>
+                </div>
+                <div name="reference" class="col-xs-2" t-if="o.reference">
+                    <strong>Referencia:</strong>
+                    <p t-field="o.reference"/>
                 </div>
             </div>
+
 
             <div class="clearfix mb12"/>
             <br/>
 
         </xpath>
-
-        <xpath expr="//h2" position="replace"/>
-        <xpath expr="//div[hasclass('mt32')]" position="replace"/>
 
         <xpath expr="//table[@name='invoice_line_table']" position="replace">
             <t t-set="itbis" t-value="0"/>

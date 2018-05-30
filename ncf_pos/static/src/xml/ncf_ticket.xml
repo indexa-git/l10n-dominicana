@@ -4,6 +4,8 @@
         <t t-jquery="t[t-esc='order.formatted_validation_date']" t-operation="replace"/>
         <t t-jquery="t[t-esc='order.name']" t-operation="replace"/>
         <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
+            <t t-set="sale_fiscal_type_client"
+               t-value="widget.pos.get_sale_fiscal_type(order.get_client().sale_fiscal_type)"/>
             <div class="pos-center-align">
                 <t t-if="widget.pos.company">
                     <t t-esc="order.pos.company.name"/>
@@ -31,7 +33,7 @@
                     </t>
                     <t t-else="">
                         <strong>Factura de
-                            <t t-esc="widget.pos.get_sale_fiscal_ticket_label(order.get_client().sale_fiscal_type)"/>
+                            <t t-esc="sale_fiscal_type_client.ticket_label || sale_fiscal_type_client.name"/>
                         </strong>
                         <br/>
                     </t>
@@ -44,7 +46,7 @@
                             <t t-esc="order.origin_ncf"/>
                         </strong>
                     </t>
-                    <t t-if="widget.pos.get_sale_fiscal_ticket_label(order.get_client().sale_fiscal_type) !== 'Consumo'">
+                    <t t-if="sale_fiscal_type_client.ticket_label !== 'Consumo'">
                         <br/>
                         <strong>Válida hasta: 31/12/2019</strong>
                     </t>

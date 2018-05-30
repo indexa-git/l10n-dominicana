@@ -83,6 +83,14 @@ class ResPartner(models.Model):
          ("unico", u"Único Ingreso")],
         string="Tipo de comprobante", default="final")
 
+    sale_fiscal_type_list = [
+        {"id": "final", "name": "Consumidor Final", "ticket_label": "Consumo", "is_default": True},
+        {"id": "fiscal", "name": "Crédito Fiscal"},
+        {"id": "gov", "name": "Gubernamental"},
+        {"id": "special", "name": "Regímenes Especiales"},
+        {"id": "unico", "name": "Único Ingreso"}
+    ]
+
     sale_fiscal_type_vat = {
         "rnc": ["fiscal", "gov", "special"],
         "ced": ["final", "fiscal"],
@@ -106,7 +114,7 @@ class ResPartner(models.Model):
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
-                                 ondelete='restrict', default=61)
+                                 ondelete='restrict', default=62)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -199,6 +207,7 @@ class ResPartner(models.Model):
     @api.model
     def get_sale_fiscal_type_selection(self):
         return {"sale_fiscal_type": self._fields['sale_fiscal_type'].selection,
+                "sale_fiscal_type_list": self.sale_fiscal_type_list,
                 "sale_fiscal_type_vat": self.sale_fiscal_type_vat}
 
     @api.model
