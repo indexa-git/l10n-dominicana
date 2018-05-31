@@ -87,13 +87,15 @@
                 <strong>Cajero/a.:</strong>
                 <t t-esc="widget.pos.user.name"/>
             </div>
-            <t t-set="cashier" t-value="widget.pos.get_cashier()"/>
-            <t t-if="cashier">
-                <t t-if="cashier.name != widget.pos.user.name">
-                    <div class="receipt-phone">
-                        <strong>Vendedor/a.:</strong>
-                        <t t-esc="cashier.name"/>
-                    </div>
+            <t t-if="widget.pos.config.seller_and_cashier_ticket">
+                <t t-set="cashier" t-value="widget.pos.get_cashier()"/>
+                <t t-if="cashier">
+                    <t t-if="cashier.name != widget.pos.user.name">
+                        <div class="receipt-phone">
+                            <strong>Vendedor/a.:</strong>
+                            <t t-esc="cashier.name"/>
+                        </div>
+                    </t>
                 </t>
             </t>
         </t>

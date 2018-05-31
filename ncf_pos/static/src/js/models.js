@@ -5,7 +5,9 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
-    models.load_fields('pos.config', ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria']);
+    models.load_fields('pos.config',
+        ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria', 'seller_and_cashier_ticket']
+    );
     models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
     models.load_fields('product.product', 'not_returnable');
     models.load_models([{
