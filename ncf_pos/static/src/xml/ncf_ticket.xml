@@ -85,8 +85,17 @@
         <t t-jquery=".receipt-user" t-operation="replace">
             <div class="receipt-phone">
                 <strong>Cajero/a.:</strong>
-                <t t-esc="widget.pos.cashier ? widget.pos.cashier.name : widget.pos.user.name"/>
+                <t t-esc="widget.pos.user.name"/>
             </div>
+            <t t-set="cashier" t-value="widget.pos.get_cashier()"/>
+            <t t-if="cashier">
+                <t t-if="cashier.name != widget.pos.user.name">
+                    <div class="receipt-phone">
+                        <strong>Vendedor/a.:</strong>
+                        <t t-esc="cashier.name"/>
+                    </div>
+                </t>
+            </t>
         </t>
         <t t-jquery=".receipt-orderlines" t-operation="replace">
             <div style="border-bottom: 1px solid black;"/>
