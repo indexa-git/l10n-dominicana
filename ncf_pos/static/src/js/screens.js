@@ -704,7 +704,8 @@ odoo.define('ncf_pos.screens', function (require) {
          * Get the next ncf sequence
          */
         get_next_ncf: function (order) {
-            order = (order && order) || {};
+            var self = this,
+                order = (order && order) || {};
 
             var args = [
                 order.uid,
@@ -719,7 +720,10 @@ odoo.define('ncf_pos.screens', function (require) {
                 args: args,
             }).then(function (next_ncf) {
                 order.ncf = next_ncf;
-                console.info("Order NCF validated: " + next_ncf + " UID: " + order.uid,);
+                var ncfs = self.pos.db.load('ncfs', []);
+                ncfs.push({ validatedNcf: next_ncf, orderUid: order.uid});
+                self.pos.db.save('ncfs', ncfs);
+                console.info("Order NCF validated: " + next_ncf + " UID: " + order.uid);
             }).fail(function (type, error) {
                 console.error('The following error has been ocurred', error);
             });
