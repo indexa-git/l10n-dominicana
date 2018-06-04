@@ -169,6 +169,7 @@ class AccountInvoice(models.Model):
     def _check_unique_invoice(self):
         """ Validates out_invoice unique number by company, partner and journal """
         for invoice in self:
+            result = []
             if invoice.number:
                 query = """
                 SELECT id
