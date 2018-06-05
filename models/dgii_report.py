@@ -485,7 +485,6 @@ class DgiiReport(models.Model):
                 op_dict = self._process_op_dict(op_dict, inv)
                 income_dict = self._process_income_dict(income_dict, inv)
                 inv.fiscal_status = 'blocked'
-                # line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 payments = self._get_sale_payments_forms(inv)
                 values = {
@@ -518,13 +517,13 @@ class DgiiReport(models.Model):
                     'bond': payments.get('bond'),
                     'others': payments.get('others')
                 }
-                if values.get('identification_type') == 2 and inv.amount_total < 50000:
+                if str(values.get('fiscal_invoice_number'))[-10:-8] == '02' and inv.amount_untaxed_signed < 50000:
                     pass
                 else:
                     line += 1
                     values.update({'line': line})
                     SaleLine.create(values)
-                report_data += self.process_607_report_data(values) + '\n'
+                    report_data += self.process_607_report_data(values) + '\n'
 
                 for k in payment_dict:
                     if inv.type != 'out_refund':
