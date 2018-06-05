@@ -265,9 +265,9 @@ class DgiiReport(models.Model):
     def _generate_606_txt(self, report, records, qty):
 
         company_vat = report.company_id.vat
-        period = report.name.replace('/', '')
+        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
-        header = "606{}{}{}".format(company_vat, period, qty) + '\n'
+        header = "606|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
 
         file_path = '/tmp/DGII_606_{}_{}.txt'.format(company_vat, period)
@@ -423,7 +423,7 @@ class DgiiReport(models.Model):
         pipe = '|'
 
         RNC = str(values['rnc_cedula'] if values['rnc_cedula'] else "").ljust(11)
-        ID_TYPE = str(values['identification_type'] if values['identification_type'] else "").ljust(1)
+        ID_TYPE = str(values['identification_type'] if values['identification_type'] else "")
         NCF = str(values['fiscal_invoice_number']).ljust(11)
         NCM = str(values['modified_invoice_number'] if values['modified_invoice_number'] else "").ljust(19)
         INCOME_TYPE = str(values['income_type']).ljust(2)
@@ -432,7 +432,9 @@ class DgiiReport(models.Model):
         INV_AMOUNT = self._get_formated_amount(values['invoiced_amount'])
         INV_ITBIS = self._get_formated_amount(values['invoiced_itbis'])
         WH_ITBIS = self._get_formated_amount(values['third_withheld_itbis'])
+        PRC_ITBIS = ''
         WH_ISR = self._get_formated_amount(values['third_income_withholding'])
+        PCR_ISR = ''
         ISC = self._get_formated_amount(values['selective_tax'])
         OTH_TAX = self._get_formated_amount(values['other_taxes'])
         LEG_TIP = self._get_formated_amount(values['legal_tip'])
@@ -446,16 +448,15 @@ class DgiiReport(models.Model):
 
         return RNC + pipe + ID_TYPE + pipe + NCF + pipe + NCM + pipe + INCOME_TYPE + pipe + \
                INV_DATE + pipe + WH_DATE + pipe + INV_AMOUNT + pipe + INV_ITBIS + pipe + \
-               WH_ITBIS + pipe + WH_ISR + pipe + ISC + pipe + OTH_TAX + pipe + LEG_TIP + \
-               pipe + CASH + pipe + BANK + pipe + CARD + pipe + CRED + pipe + SWAP + pipe + \
-               BOND + pipe + OTHR
+               WH_ITBIS + pipe + PRC_ITBIS + pipe + WH_ISR + pipe + PCR_ISR + pipe + ISC + pipe + OTH_TAX + pipe + \
+               LEG_TIP + pipe + CASH + pipe + BANK + pipe + CARD + pipe + CRED + pipe + SWAP + pipe + BOND + pipe + OTHR
 
     def _generate_607_txt(self, report, records, qty):
 
         company_vat = report.company_id.vat
-        period = report.name.replace('/', '')
+        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
-        header = "607{}{}{}".format(company_vat, period, qty) + '\n'
+        header = "607|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
 
         file_path = '/tmp/DGII_607_{}_{}.txt'.format(company_vat, period)
@@ -496,7 +497,7 @@ class DgiiReport(models.Model):
                     'modified_invoice_number': inv.origin if inv.type == 'out_refund' else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
-                    'withholding_date': inv.payment_date,
+                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding])) else '',
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'third_withheld_itbis': inv.third_withheld_itbis if inv.state == 'paid' else 0,
