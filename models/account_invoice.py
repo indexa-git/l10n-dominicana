@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+from datetime import datetime as dt
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -20,6 +21,20 @@ class InvoiceServiceTypeDetail(models.Model):
 
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
+
+    def _get_invoice_payment_widget(self, invoice_id):
+        j = json.loads(invoice_id.payments_widget)
+        return j['content'] if j else []
+
+    def _compute_invoice_payment_date(self, invoices):
+        for inv in invoices:
+            dates = [dt.strptime(payment['date'], '%Y-%m-%d') for payment in self._get_invoice_payment_widget(inv)]
+            if dates:
+                inv.payment_date = max(dates)
+
+    def init(self):
+        invoices = self.search([])
+        self._compute_invoice_payment_date(invoices)
 
     @api.multi
     @api.constrains('tax_line_ids')
@@ -86,7 +101,7 @@ class AccountInvoice(models.Model):
 
                 if inv.state == 'paid':
                     # Fecha Pago
-                    inv.payment_date = fields.Date.context_today(inv)
+                    self._compute_invoice_payment_date(inv)
 
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
@@ -124,10 +139,6 @@ class AccountInvoice(models.Model):
                 isr = [tax_line.tax_id for tax_line in inv.tax_line_ids if tax_line.tax_id.purchase_tax_type == 'isr']
                 if isr:
                     inv.isr_withholding_type = isr.pop(0).isr_retention_type
-
-    def _get_invoice_payment_widget(self, invoice_id):
-        j = json.loads(invoice_id.payments_widget)
-        return j['content'] if j else []
 
     def _get_payment_string(self, invoice_id):
         """Compute Vendor Bills payment method string
