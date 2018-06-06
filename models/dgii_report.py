@@ -248,10 +248,10 @@ class DgiiReport(models.Model):
         PROP_ITBIS = self._get_formated_amount(values['proportionality_tax'])
         COST_ITBIS = self._get_formated_amount(values['cost_itbis'])
         ADV_ITBIS = self._get_formated_amount(values['advance_itbis'])
-        PP_ITBIS = self._get_formated_amount(values['purchase_perceived_itbis'])
+        PP_ITBIS = ''
         WH_TYPE = str(values['isr_withholding_type'] if values['isr_withholding_type'] else "").ljust(2)
         INC_WH = self._get_formated_amount(values['income_withholding'])
-        PP_ISR = self._get_formated_amount(values['purchase_perceived_isr'])
+        PP_ISR = ''
         ISC = self._get_formated_amount(values['selective_tax'])
         OTHR = self._get_formated_amount(values['other_taxes'])
         LEG_TIP = self._get_formated_amount(values['legal_tip'])
