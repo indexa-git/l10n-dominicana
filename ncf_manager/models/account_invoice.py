@@ -164,31 +164,6 @@ class AccountInvoice(models.Model):
         ]
         self._add_sql_constraints()
 
-    @api.multi
-    @api.constrains('number', 'company_id', 'partner_id', 'journal_id', 'type')
-    def _check_unique_invoice(self):
-        """ Validates out_invoice unique number by company, partner and journal """
-        for invoice in self:
-            result = []
-            if invoice.number:
-                query = """
-                SELECT id
-                FROM account_invoice
-                WHERE number = '{number}'
-                AND company_id = {company}
-                AND partner_id = {partner}
-                AND journal_id = {journal}
-                AND type = 'out_invoice'
-                """.format(number=invoice.number,
-                           company=invoice.company_id.id,
-                           partner=invoice.partner_id.id,
-                           journal=invoice.journal_id.id)
-
-                self._cr.execute(query)
-                result = self._cr.fetchall()
-                if len(result) >= 1:
-                    raise ValidationError(_('Invoice Number must be unique per Company!'))
-
     def purchase_ncf_validate(self):
         if not self.journal_id.purchase_type == 'normal':
             return
