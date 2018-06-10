@@ -607,6 +607,45 @@ class DgiiReport(models.Model):
 
             self._generate_608_txt(rec, report_data, line)
 
+    def process_609_report_data(self, values):
+
+        pipe = '|'
+
+        LEGAL_NAME = str(values['legal_name']).ljust(50)
+        ID_TYPE = str(values['tax_id_type'] if values['identification_type'] else "")
+        TAX_ID = str(values['tax_id'] if values['tax_id'] else "").ljust(50)
+        CNT_CODE = str(values['country_code'] if values['country_code'] else "").ljust(3)
+        PST = str(values['purchased_service_type'] if values['purchased_service_type'] else "").ljust(2)
+        STD = str(values['service_type_detail'] if values['service_type_detail'] else "").ljust(2)
+        REL_PART = str(values['related_part'] if values['related_part'] else "").ljust(1)
+        DOC_NUM = str(values['doc_number'] if values['doc_number'] else "").ljust(30)
+        DOC_DATE = str(self._get_formated_date(values['doc_date'])).ljust(8)
+        INV_AMOUNT = self._get_formated_amount(values['invoiced_amount'])
+        ISR_DATE = str(self._get_formated_date(values['isr_withholding_date'])).ljust(8)
+        PRM_INCM = self._get_formated_amount(values['presumed_income'])
+        WH_ISR = self._get_formated_amount(values['withholded_isr'])
+
+        return LEGAL_NAME + pipe + ID_TYPE + pipe + TAX_ID + pipe + CNT_CODE + pipe + PST + pipe + STD + pipe + \
+               REL_PART + pipe + DOC_NUM + pipe + DOC_DATE + pipe + INV_AMOUNT + pipe + ISR_DATE + pipe + PRM_INCM + \
+               pipe + WH_ISR
+
+    def _generate_609_txt(self, report, records, qty):
+
+        company_vat = report.company_id.vat
+        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
+
+        header = "609|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
+        data = header + records
+
+        file_path = '/tmp/DGII_609_{}_{}.txt'.format(company_vat, period)
+        with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_609:
+            txt_609.write(str(data))
+
+        report.write({
+            'exterior_filename': file_path.replace('/tmp/', ''),
+            'exterior_binary': base64.b64encode(open(file_path, 'rb').read())
+        })
+
     @api.multi
     def _compute_609_data(self):
         for rec in self:
@@ -620,6 +659,7 @@ class DgiiReport(models.Model):
                                              ).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO') and
                                                                     (inv.journal_id.purchase_type == 'exterior'))
             line = 0
+            report_data = ''
             for inv in invoice_ids:
                 inv.fiscal_status = 'blocked'
                 line += 1
@@ -642,6 +682,9 @@ class DgiiReport(models.Model):
                     'invoice_id': inv.id
                 }
                 ExteriorLine.create(values)
+                report_data += self.process_609_report_data(values) + '\n'
+
+            self._generate_609_txt(rec, report_data, line)
 
     @api.multi
     def generate_report(self):
