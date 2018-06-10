@@ -240,24 +240,24 @@ class AccountInvoice(models.Model):
     # ISR Percibido                         --> Este campo se va con 12 espacios en 0 para el 606
     # ITBIS Percibido                       --> Este campo se va con 12 espacios en 0 para el 606
     payment_date = fields.Date(compute='_compute_taxes_fields', store=True)
-    service_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)
-    good_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True)
-    invoiced_itbis = fields.Monetary(compute='_compute_invoiced_itbis', store=True)
-    withholded_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True)
-    proportionality_tax = fields.Monetary(compute='_compute_taxes_fields', store=True)
-    cost_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True)
-    advance_itbis = fields.Monetary(compute='_compute_advance_itbis', store=True)
+    service_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True, currency_field='company_currency_id')
+    good_total_amount = fields.Monetary(compute='_compute_amount_fields', store=True, currency_field='company_currency_id')
+    invoiced_itbis = fields.Monetary(compute='_compute_invoiced_itbis', store=True, currency_field='company_currency_id')
+    withholded_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True, currency_field='company_currency_id')
+    proportionality_tax = fields.Monetary(compute='_compute_taxes_fields', store=True, currency_field='company_currency_id')
+    cost_itbis = fields.Monetary(compute='_compute_taxes_fields', store=True, currency_field='company_currency_id')
+    advance_itbis = fields.Monetary(compute='_compute_advance_itbis', store=True, currency_field='company_currency_id')
     isr_withholding_type = fields.Char(compute='_compute_isr_withholding_type', store=True, size=2)
-    income_withholding = fields.Monetary(compute='_compute_taxes_fields', store=True)
-    selective_tax = fields.Monetary(compute='_compute_taxes_fields', store=True)
-    other_taxes = fields.Monetary(compute='_compute_taxes_fields', store=True)
-    legal_tip = fields.Monetary(compute='_compute_taxes_fields', store=True)
+    income_withholding = fields.Monetary(compute='_compute_taxes_fields', store=True, currency_field='company_currency_id')
+    selective_tax = fields.Monetary(compute='_compute_taxes_fields', store=True, currency_field='company_currency_id')
+    other_taxes = fields.Monetary(compute='_compute_taxes_fields', store=True, currency_field='company_currency_id')
+    legal_tip = fields.Monetary(compute='_compute_taxes_fields', store=True, currency_field='company_currency_id')
     payment_form = fields.Selection([('01', 'Cash'), ('02', 'Check / Transfer / Deposit'),
                                      ('03', 'Credit Card / Debit Card'), ('04', 'Credit'),
                                      ('05', 'Swap'), ('06', 'Credit Note'), ('07', 'Mixed')],
                                     compute='_compute_in_invoice_payment_form', store=True)
-    third_withheld_itbis = fields.Monetary(compute='_compute_third_withheld', store=True)
-    third_income_withholding = fields.Monetary(compute='_compute_third_withheld', store=True)
+    third_withheld_itbis = fields.Monetary(compute='_compute_third_withheld', store=True, currency_field='company_currency_id')
+    third_income_withholding = fields.Monetary(compute='_compute_third_withheld', store=True, currency_field='company_currency_id')
     is_exterior = fields.Boolean(compute='_compute_is_exterior', store=True)
     service_type = fields.Selection([('01', 'Gastos de Personal'),
                                      ('02', 'Gastos por Trabajos, Suministros y Servicios'),
