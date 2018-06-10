@@ -35,6 +35,10 @@ class DgiiReport(models.Model):
     company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.user.company_id,
                                  required=True)
 
+    _sql_constraints = [
+        ('name_unique', 'UNIQUE(name)', _("You cannot have more than one report by period."))
+    ]
+
     @api.multi
     def _compute_606_fields(self):
         for rec in self:

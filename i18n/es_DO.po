@@ -960,7 +960,7 @@ msgstr "Retenciones"
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 msgid "Withholding date"
-msgstr "Fecha de Retención"
+msgstr "Fecha de Retención"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
@@ -970,7 +970,7 @@ msgstr "ITBIS Retenido"
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 msgid "Income Withholding by a third"
-msgstr "Retención Renta"
+msgstr "Retención Renta"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
@@ -1017,7 +1017,7 @@ msgstr "ITBIS Retenido"
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "ISR Withholding Type"
-msgstr "Tipo de Retención ISR"
+msgstr "Tipo de Retención ISR"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
@@ -1131,6 +1131,12 @@ msgid "Operations by Income Type"
 msgstr "Operaciones por Tipo de Ingreso"
 
 #. module: dgii_reports
+#: code:addons/dgii_reports/models/dgii_report.py:39
+#: sql_constraint:dgii.reports:0
+#, python-format
+msgid "You cannot have more than one report by period."
+msgstr "No puede tener más de un reporte por periodo."
+
 #: model:ir.ui.menu,name:dgii_reports.dgii_report_parent_menu
 msgid "Data Sending"
 msgstr "Envío de datos"
