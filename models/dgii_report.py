@@ -529,8 +529,9 @@ class DgiiReport(models.Model):
                     'bond': payments.get('bond'),
                     'others': payments.get('others')
                 }
-                # Excluye las facturas de Consumo con monto menor a 50000
+
                 if str(values.get('fiscal_invoice_number'))[-10:-8] == '02' and inv.amount_untaxed_signed < 50000:
+                    # Excluye las facturas de Consumo con monto menor a 50000
                     pass
                 else:
                     line += 1
@@ -549,6 +550,33 @@ class DgiiReport(models.Model):
             self._set_income_type_fields(income_dict)
             self._generate_607_txt(rec, report_data, line)
 
+    def process_608_report_data(self, values):
+
+        pipe = '|'
+
+        NCF = str(values['fiscal_invoice_number']).ljust(11)
+        INV_DATE = str(self._get_formated_date(values['invoice_date'])).ljust(8)
+        ANU_TYPE = str(values['anulation_type']).ljust(2)
+
+        return NCF + pipe + INV_DATE + pipe + ANU_TYPE
+
+    def _generate_608_txt(self, report, records, qty):
+
+        company_vat = report.company_id.vat
+        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
+
+        header = "608|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
+        data = header + records
+
+        file_path = '/tmp/DGII_608_{}_{}.txt'.format(company_vat, period)
+        with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_608:
+            txt_608.write(str(data))
+
+        report.write({
+            'cancel_filename': file_path.replace('/tmp/', ''),
+            'cancel_binary': base64.b64encode(open(file_path, 'rb').read())
+        })
+
     @api.multi
     def _compute_608_data(self):
         for rec in self:
@@ -557,6 +585,7 @@ class DgiiReport(models.Model):
 
             invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'out_refund'])
             line = 0
+            report_data = ''
             for inv in invoice_ids:
                 inv.fiscal_status = 'blocked'
                 line += 1
@@ -570,6 +599,9 @@ class DgiiReport(models.Model):
                     'invoice_id': inv.id
                 }
                 CancelLine.create(values)
+                report_data += self.process_608_report_data(values) + '\n'
+
+            self._generate_608_txt(rec, report_data, line)
 
     @api.multi
     def _compute_609_data(self):
