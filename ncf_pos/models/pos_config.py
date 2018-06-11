@@ -18,6 +18,7 @@ class PosConfig(models.Model):
         string=u'Cantidad de Días Anteriores', default=10)
     order_search_criteria = fields.Many2many('pos.search_criteria', string=u"Criterios de Búsqueda")
     ncf_control = fields.Boolean(related="invoice_journal_id.ncf_control")
+    seller_and_cashier_ticket = fields.Boolean("Seller and Cashier on Ticket")
 
     @api.onchange("iface_invoicing")
     def onchange_iface_invoicing(self):

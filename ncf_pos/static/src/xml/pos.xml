@@ -51,10 +51,9 @@
             <i class='fa fa-user'/>
             <t t-set="partner" t-value="widget.pos.get_client()"/>
             <t t-if='partner and partner.sale_fiscal_type'>
-                <span style="color:red">
+                <span class="sale_fiscal_type_label">
                     <t t-esc="widget.pos.get_sale_fiscal_type(partner.sale_fiscal_type).name"/>
                 </span>
-
             </t>
         </t>
     </t>
@@ -94,6 +93,7 @@
             </ul>
         </t>
     </t>
+
     <t t-name="QueryInvoicesButton">
         <span class='control-button all-invoices'>
             All Invoices
@@ -484,6 +484,21 @@
                 <i class="fa fa-check"/>
                 Confirm
             </span>
+        </t>
+        <t t-jquery=".button.js_set_customer" t-operation="replace">
+            <t t-set="client" t-value="widget.pos.get_client()"/>
+            <button class='button js_set_customer'
+                    style="padding: 4px 5px 4px 58px; height: 75px; line-height: 18px; font-weight: bold; width: 100%;">
+                <i class='fa fa-user'/>
+                <span class="sale_fiscal_type_label">
+                    <t t-esc="(client and client.sale_fiscal_type ?
+                                widget.pos.get_sale_fiscal_type(client.sale_fiscal_type).name: '')"/>
+                </span>
+                <br/>
+                <span class='js_customer_name'>
+                    <t t-esc="(client ? client.name: 'Customer')"/>
+                </span>
+            </button>
         </t>
     </t>
 
