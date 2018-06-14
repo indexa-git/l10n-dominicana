@@ -364,22 +364,6 @@ class DgiiReport(models.Model):
 
             payments_dict['credit'] += self._convert_to_user_currency(invoice_id.currency_id, invoice_id.residual)
 
-        # if invoice_id.type == 'out_invoice':
-        #     for move_line in invoice_id.payment_move_line_ids:
-        #         key = move_line.journal_id.payment_form
-        #         if key:
-        #             payments_dict[key] += self._convert_to_user_currency(invoice_id.currency_id, move_line.credit)
-        #         else:
-        #             payments_dict['swap'] += self._convert_to_user_currency(invoice_id.currency_id, move_line.credit)
-        #
-        #     payments_dict['credit'] += self._convert_to_user_currency(invoice_id.currency_id, invoice_id.residual)
-        # else:
-        #     cn_payments = Invoice._get_invoice_payment_widget(invoice_id)
-        #     for p in cn_payments:
-        #         payments_dict['swap'] += self._convert_to_user_currency(invoice_id.currency_id, p['amount'])
-        #
-        #     payments_dict['credit'] += self._convert_to_user_currency(invoice_id.currency_id, invoice_id.residual)
-
         return payments_dict
 
     def _get_607_operations_dict(self):
