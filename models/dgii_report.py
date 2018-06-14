@@ -253,7 +253,7 @@ class DgiiReport(models.Model):
         COST_ITBIS = self._get_formated_amount(values['cost_itbis'])
         ADV_ITBIS = self._get_formated_amount(values['advance_itbis'])
         PP_ITBIS = ''
-        WH_TYPE = str(values['isr_withholding_type'] if values['isr_withholding_type'] else "").ljust(2)
+        WH_TYPE = str(values['isr_withholding_type'] if values['isr_withholding_type'] else "")
         INC_WH = self._get_formated_amount(values['income_withholding'])
         PP_ISR = ''
         ISC = self._get_formated_amount(values['selective_tax'])
