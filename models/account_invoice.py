@@ -192,7 +192,7 @@ class AccountInvoice(models.Model):
                 amount = 0
                 itbis_taxes = ['ITBIS', 'ITBIS 18%']
                 for tax in self._get_tax_line_ids(inv):
-                    if tax.tax_id.tax_group_id.name in itbis_taxes:
+                    if tax.tax_id.tax_group_id.name in itbis_taxes and tax.tax_id.purchase_tax_type != 'ritbis':
                         amount += tax.amount
                     inv.invoiced_itbis = self._convert_to_local_currency(inv, amount)
 
