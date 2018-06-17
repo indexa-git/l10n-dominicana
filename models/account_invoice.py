@@ -64,7 +64,7 @@ class AccountInvoice(models.Model):
         """Compute invoice common taxes fields"""
         for inv in self:
 
-            fiscal_taxes = ['ISC', 'ITBIS', 'ITBIS 18%', 'ITBIS 0.0015%', 'ITBIS -30%', 'ITBIS -100%']
+            fiscal_taxes = ['ISC', 'ITBIS', 'ISR', 'Propina']
 
             tax_line_ids = self._get_tax_line_ids(inv)
 
