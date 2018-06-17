@@ -110,15 +110,25 @@ class AccountInvoice(models.Model):
         """Compute Purchase amount by product type"""
         for inv in self:
             if inv.type in ['in_invoice', 'in_refund'] and inv.state != 'draft':
-                # Monto calculado en servicio
-                inv.service_total_amount = self._convert_to_local_currency(
-                    inv, sum([line.price_subtotal for line in inv.invoice_line_ids
-                              if line.product_id.type == 'service']))
+                service_amount = 0
+                good_amount = 0
 
-                # Monto calculado en bienes
-                inv.good_total_amount = self._convert_to_local_currency(
-                    inv, sum([line.price_subtotal for line in inv.invoice_line_ids
-                              if line.product_id.type != 'service']))
+                for line in inv.invoice_line_ids:
+                    # Si la linea no tiene un producto
+                    if not line.product_id:
+                        service_amount += line.price_subtotal
+                        continue
+
+                    # Monto calculado en bienes
+                    if line.product_id.type != 'service':
+                        good_amount += line.price_subtotal
+
+                    # Monto calculado en servicio
+                    else:
+                        service_amount += line.price_subtotal
+
+                inv.service_total_amount = self._convert_to_local_currency(inv, service_amount)
+                inv.good_total_amount = self._convert_to_local_currency(inv, good_amount)
 
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
