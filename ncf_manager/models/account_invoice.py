@@ -239,7 +239,7 @@ class AccountInvoice(models.Model):
 
         if self.partner_id.id == self.company_id.partner_id.id:
             journal_id = self.env['account.journal'].search([
-                ('purchase_type', '=', 'minor')])
+                ('purchase_type', '=', 'minor'), ('company_id', '=', self.company_id.id)])
             if not journal_id:
                 raise ValidationError(
                     _("No existe un Diario de Gastos Menores,"
