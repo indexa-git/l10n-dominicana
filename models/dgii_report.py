@@ -237,7 +237,7 @@ class DgiiReport(models.Model):
 
         pipe = '|'
 
-        RNC = str(values['rnc_cedula'] if values['rnc_cedula'] else "").ljust(11)
+        RNC = str(values['rnc_cedula'] if values['rnc_cedula'] else "")
         ID_TYPE = str(values['identification_type'] if values['identification_type'] else "").ljust(1)
         EXP_TYPE = str(values['expense_type'] if values['expense_type'] else "").ljust(2)
         NCF = str(values['fiscal_invoice_number']).ljust(11)
