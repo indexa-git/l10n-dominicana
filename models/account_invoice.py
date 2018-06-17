@@ -108,7 +108,7 @@ class AccountInvoice(models.Model):
     def _compute_amount_fields(self):
         """Compute Purchase amount by product type"""
         for inv in self:
-            if inv.type == 'in_invoice' and inv.state != 'draft':
+            if inv.type in ['in_invoice', 'in_refund'] and inv.state != 'draft':
                 # Monto calculado en servicio
                 inv.service_total_amount = self._convert_to_local_currency(
                     inv, sum([line.price_subtotal for line in inv.invoice_line_ids
