@@ -512,7 +512,7 @@ class DgiiReport(models.Model):
                     'rnc_cedula': rnc_ced[0] if rnc_ced else False,
                     'identification_type': rnc_ced[1] if rnc_ced else False,
                     'fiscal_invoice_number': inv.move_name,
-                    'modified_invoice_number': inv.origin if inv.origin[-10:-8] in ['01', '02', '14', '15'] else False,
+                    'modified_invoice_number': inv.origin if inv.origin and inv.origin[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
                     'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding])) else '',
