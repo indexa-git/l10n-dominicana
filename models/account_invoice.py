@@ -28,9 +28,10 @@ class AccountInvoice(models.Model):
 
     def _compute_invoice_payment_date(self, invoices):
         for inv in invoices:
-            dates = [dt.strptime(payment['date'], '%Y-%m-%d') for payment in self._get_invoice_payment_widget(inv)]
-            if dates:
-                inv.payment_date = max(dates)
+            if inv.state == 'paid':
+                dates = [dt.strptime(payment['date'], '%Y-%m-%d') for payment in self._get_invoice_payment_widget(inv)]
+                if dates:
+                    inv.payment_date = max(dates)
 
     def init(self):
         invoices = self.search([])
