@@ -619,6 +619,73 @@ odoo.define('ncf_pos.screens', function (require) {
     });
 
     screens.PaymentScreenWidget.include({
+        init: function (parent, options) {
+            var self = this,
+                popup_options = {
+                    title: 'Digite el número de NCF de la Nota de Crédito',
+                    disable_keyboard_handler: true,
+                    input_name: 'ncf',
+                    text_input_value: '',
+                    confirm: function (input_value) {
+                        var msg_error = "";
+
+                        rpc.query({
+                            model: 'pos.order',
+                            method: 'credit_note_info_from_ui',
+                            args: [input_value]
+                        }, {})
+                            .then(function (result) {
+                                var residual = parseFloat(result.residual) || 0;
+
+                                if (result.id === false) {
+                                    msg_error = _t("La nota de credito no existe.");
+                                } else if (residual < 1) {
+                                    msg_error = _t("El balance de la Nota de Credito es 0.");
+                                }
+                                else {
+                                    var order = self.pos.get_order();
+                                    var cashregister = self.pos.cashregisters_by_id[10001];
+                                    var paymentline = order.paymentlines.find(function (pl) {
+                                        return pl.note == input_value
+                                    });
+
+                                    if (paymentline) {
+                                        msg_error = "Esta Nota de Credito ya esta aplicada a la Orden";
+                                    }
+                                    else {
+                                        order.add_paymentline(cashregister);
+                                        order.selected_paymentline.credit_note_id = result.id;
+                                        order.selected_paymentline.note = input_value;
+                                        order.selected_paymentline.set_amount(residual); //Add paymentline for residual
+                                        self.reset_input();
+                                        self.order_changes();
+                                        self.render_paymentlines();
+                                        return false;
+                                    }
+                                }
+                                popup_options.text_input_value = input_value;
+                                self.gui.show_popup('error', {
+                                    title: _t("Search") + " Nota de Credito",
+                                    body: msg_error,
+                                    disable_keyboard_handler: true,
+                                    cancel: function () {
+                                        self.gui.show_popup('textinput', popup_options);
+                                    }
+                                });
+                            });
+                    }
+                };
+
+            this._super(parent, options);
+            this.orderValidationDate = null;
+            // Set the popup options for the payment method Credit Note
+            for (var n in this.pos.cashregisters) {
+                if (this.pos.cashregisters[n].journal.id == 10001) {
+                    this.pos.cashregisters[n].popup_options = popup_options;
+                    break;
+                }
+            }
+        },
         show: function () {
             var self = this;
             var order = this.pos.get_order();
@@ -747,126 +814,55 @@ odoo.define('ncf_pos.screens', function (require) {
          * Making some things about validation and calling to backend to get the ncf
          */
         validate_order: function (force_validation) {
-            // por alguna razon el keypress #13 se ejecuta dos veces y por el momento con esto se evita pero hay que arreglarlo
-            this.gui.__disable_keyboard_handler();
             if (this.order_is_valid(force_validation)) {
-                // TODO: refactor this
-                var self = this;
-                var order = this.pos.get_order();
-                var client = order.get_client();
+                var self = this,
+                    now = new Date(),
+                    orderValidationDate = (this.orderValidationDate || null);
 
-                var has_client_vat = function (client) {
-                    return client.vat;
-                };
-
-                var has_client_fiscal_type = function (client, fiscal_types) {
-                    return _.contains(fiscal_types, client.sale_fiscal_type) && !has_client_vat(client);
-                };
-
-
-                if (!client) {
-                    if (this.pos.config.iface_invoicing) {
-                        this.gui.show_popup('error', {
-                            'title': 'Error: Factura sin Cliente',
-                            'body': 'Debe seleccionar un cliente para poder realizar el pago, o utilizar el cliente por defecto; de no tener un cliente por defecto, pida ayuda a su encargado para que lo establezca.',
-                            'cancel': function () {
-                                this.gui.show_screen('products');
-                            }
-                        });
-
-                        return false;
-                    }
+                //blocking the execution of this method for 5 seconds or until the execution is completed
+                if (orderValidationDate && ((now - orderValidationDate) <= 5000)) {
+                    console.info("Failed attempt to execute validate_order", new Date());
                 } else {
-                    if (has_client_fiscal_type(client, ["fiscal", "gov", "special"]) && !has_client_vat(client)) {
-                        this.gui.show_popup('error', {
-                            'title': 'Error: Para el tipo de comprobante',
-                            'body': 'No puede crear una factura con crédito fiscal si el cliente no tiene RNC o Cédula. Puede pedir ayuda para que el cliente sea registrado correctamente si este desea comprobante fiscal',
-                            'cancel': function () {
-                                this.gui.show_screen('products');
-                            }
-                        });
-                        return false;
-                    } else if (this.pos.config.iface_invoicing && order.get_total_without_tax() >= 50000 && !has_client_vat(client)) {
-                        this.gui.show_popup('error', {
-                            'title': 'Error: Factura sin Cedula de Cliente',
-                            'body': 'El cliente debe tener una cedula si el total de la factura es igual o mayor a RD$50,000 o mas',
-                            'cancel': function () {
-                                this.gui.show_screen('products');
-                            }
-                        });
+                    var invoicing = self.pos.config.iface_invoicing,
+                        order = self.pos.get_order(),
+                        client = self.pos.get_client(),
+                        popupErrorOptions = null;
 
-                        return false;
+                    this.orderValidationDate = new Date();
+                    console.info("Executing validate_order", this.orderValidationDate);
+                    if (!client && invoicing) {
+                        popupErrorOptions = {
+                            'title': 'Factura sin Cliente',
+                            'body': 'Debe seleccionar un cliente para poder realizar el pago, o ' +
+                            'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
+                            'pida ayuda a su encargado para que lo establezca.'
+                        };
+                    } else if (client && !client.vat) {
+                        if (["fiscal", "gov", "special"].indexOf(client.sale_fiscal_type) > -1) {
+                            popupErrorOptions = {
+                                'title': 'Para el tipo de comprobante',
+                                'body': 'No puede crear una factura con crédito fiscal si el cliente ' +
+                                'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
+                                'registrado correctamente si este desea comprobante fiscal.',
+                            };
+                        } else if (invoicing && order.get_total_without_tax() >= 50000) {
+                            popupErrorOptions = {
+                                'title': 'Factura sin Cedula de Cliente',
+                                'body': 'El cliente debe tener una cedula si el total de la factura ' +
+                                'es igual o mayor a RD$50,000.00 o mas',
+                            };
+                        }
+                    }
+                    if (popupErrorOptions) {
+                        console.warn(popupErrorOptions.title, {message: popupErrorOptions.body});
+                        self.gui.show_popup('error', popupErrorOptions);
+                        self.orderValidationDate = null;
                     } else {
                         this.get_next_ncf(order).always(function () {
                             self.finalize_validation();
-                        })
+                            self.orderValidationDate = null;
+                        });
                     }
-                }
-            }
-
-        },
-        init: function (parent, options) {
-            var self = this,
-                popup_options = {
-                    title: 'Digite el número de NCF de la Nota de Crédito',
-                    disable_keyboard_handler: true,
-                    input_name: 'ncf',
-                    text_input_value: '',
-                    confirm: function (input_value) {
-                        var msg_error = "";
-
-                        rpc.query({
-                            model: 'pos.order',
-                            method: 'credit_note_info_from_ui',
-                            args: [input_value]
-                        }, {})
-                            .then(function (result) {
-                                var residual = parseFloat(result.residual) || 0;
-
-                                if (result.id === false) {
-                                    msg_error = _t("La nota de credito no existe.");
-                                } else if (residual < 1) {
-                                    msg_error = _t("El balance de la Nota de Credito es 0.");
-                                }
-                                else {
-                                    var order = self.pos.get_order();
-                                    var cashregister = self.pos.cashregisters_by_id[10001];
-                                    var paymentline = order.paymentlines.find(function (pl) {
-                                        return pl.note == input_value
-                                    });
-
-                                    if (paymentline) {
-                                        msg_error = "Esta Nota de Credito ya esta aplicada a la Orden";
-                                    }
-                                    else {
-                                        order.add_paymentline(cashregister);
-                                        order.selected_paymentline.credit_note_id = result.id;
-                                        order.selected_paymentline.note = input_value;
-                                        order.selected_paymentline.set_amount(residual); //Add paymentline for residual
-                                        self.reset_input();
-                                        self.order_changes();
-                                        self.render_paymentlines();
-                                        return false;
-                                    }
-                                }
-                                popup_options.text_input_value = input_value;
-                                self.gui.show_popup('error', {
-                                    title: _t("Search") + " Nota de Credito",
-                                    body: msg_error,
-                                    disable_keyboard_handler: true,
-                                    cancel: function () {
-                                        self.gui.show_popup('textinput', popup_options);
-                                    }
-                                });
-                            });
-                    }
-                };
-
-            this._super(parent, options);
-            for (var n in this.pos.cashregisters) {
-                if (this.pos.cashregisters[n].journal.id == 10001) {
-                    this.pos.cashregisters[n].popup_options = popup_options;
-                    break;
                 }
             }
         },
