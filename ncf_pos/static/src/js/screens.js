@@ -699,6 +699,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 refundContents.addClass('oe_hidden');
             }
             this.$('.button.js_invoice').remove();
+            //improving the keyboard handling method
+            this.gui.__disable_keyboard_handler();
+            this.gui.__enable_keyboard_handler();
         },
         /**
          * Get the next ncf sequence
@@ -967,8 +970,6 @@ odoo.define('ncf_pos.screens', function (require) {
 
             $('body').on('keypress', current_screen.keyboard_handler);
             $('body').on('keydown', current_screen.keyboard_keydown_handler);
-            window.document.body.addEventListener('keypress', current_screen.keyboard_handler);
-            window.document.body.addEventListener('keydown', current_screen.keyboard_keydown_handler);
         },
         /**
          * Remove the keyboard capture for the current screen
