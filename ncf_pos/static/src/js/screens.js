@@ -705,31 +705,43 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         /**
          * Get the next ncf sequence
+         *
+         * @param {object} order - pos order object
+         * @returns {Promise} - Promise object that return the next ncf sequence
          */
         get_next_ncf: function (order) {
             var self = this,
-                order = (order && order) || {};
+                args = [
+                    order.uid,
+                    order.get_client().sale_fiscal_type,
+                    this.pos.config.invoice_journal_id[0],
+                    order.is_return_order
+                ],
+                dfd = $.Deferred();
 
-            var args = [
-                order.uid,
-                order.get_client().sale_fiscal_type,
-                this.pos.config.invoice_journal_id[0],
-                order.is_return_order
-            ];
-
-            return this._rpc({
-                model: 'pos.order',
-                method: 'get_next_ncf',
-                args: args,
-            }).then(function (next_ncf) {
-                order.ncf = next_ncf;
+            dfd.done(function (next_ncf) {
                 var ncfs = self.pos.db.load('ncfs', []);
-                ncfs.push({ validatedNcf: next_ncf, orderUid: order.uid});
+
+                order.ncf = next_ncf;
+                ncfs.push({validatedNcf: next_ncf, orderUid: order.uid});
                 self.pos.db.save('ncfs', ncfs);
-                console.info("Order NCF validated: " + next_ncf + " UID: " + order.uid);
-            }).fail(function (type, error) {
-                console.error('The following error has been ocurred', error);
+                console.info("Order NCF Validated", {ncf: next_ncf, uid: order.uid});
+            }).fail(function (request, error) {
+                console.error("Order NCF Validated", request);
             });
+            if (!order) {
+                console.error("Order NCF Validated", "The order is missing");
+                dfd.reject();
+            } else {
+                dfd = rpc.query({
+                    model: 'pos.order',
+                    method: 'get_next_ncf',
+                    args: args
+                }, {
+                    timeout: 3000
+                });
+            }
+            return dfd.promise();
         },
         /**
          * Making some things about validation and calling to backend to get the ncf
