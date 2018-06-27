@@ -151,8 +151,10 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
-    internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
-    ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
+    internal_sequence = fields.Char(
+        string=u"Número de factura", copy=False, index=True)
+    ncf_expiration_date = fields.Date(
+        'Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     @api.model_cr_context
     def _auto_init(self):
@@ -259,7 +261,16 @@ class AccountInvoice(models.Model):
             self.expense_type = self.partner_id.expense_type
             if not self.partner_id.supplier:
                 self.partner_id.supplier = True
-
+            if self.partner_id.purchase_journal_id:
+                self.journal_id = self.partner_id.purchase_journal_id.id
+        elif self.type == 'in_invoice' and \
+                self.env.context.get('default_purchase_id'):
+            purchase_order = self.env['purchase.order']
+            po = purchase_order.browse(
+                self.env.context.get('default_purchase_id'))
+            supplier = po.partner_id
+            if supplier.purchase_journal_id:
+                self.journal_id = supplier.purchase_journal_id
         return res
 
     @api.onchange('sale_fiscal_type', 'expense_type')
