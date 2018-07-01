@@ -45,7 +45,7 @@
                     <field name="move_name" readonly="1" attrs="{'invisible':[('move_name','=',False)]}"/>
                 </h4>
                 <h4 attrs="{'invisible':[('state','!=','cancel')]}">
-                    Factura cancelada por:
+                    Razón de Cancelación:
                     <br/>
                     <field name="anulation_type" readonly="1"/>
                 </h4>
