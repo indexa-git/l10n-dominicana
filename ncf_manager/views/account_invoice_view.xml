@@ -37,7 +37,7 @@
 
             <field name="move_name" position="replace"/>
             <xpath expr="//h1" position="after">
-                <h4 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('move_name', '=', False)]}">
+                <h4 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('move_name', '=', False), ('ncf_control','=',False)]}">
                     Válido hasta:
                     <field name="ncf_expiration_date" readonly="1"/>
                 </h4>
