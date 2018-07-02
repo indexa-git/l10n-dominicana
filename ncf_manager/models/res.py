@@ -144,7 +144,7 @@ class ResPartner(models.Model):
                 contact = self.search([('vat', '=', number)])
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
-                        [x.name for x in contact])
+                        [x.name for x in contact if x.name])
                     raise UserError(_(message % name))
 
                 try:

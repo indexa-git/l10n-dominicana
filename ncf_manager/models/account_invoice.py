@@ -227,29 +227,27 @@ class AccountInvoice(models.Model):
                                                   self.partner_id.name)
             ))
 
-    @api.onchange('journal_id')
-    def _onchange_journal_id(self):
+    @api.onchange('journal_id', 'partner_id')
+    def onchange_journal_id(self):
         res = super(AccountInvoice, self)._onchange_journal_id()
         if self.journal_id.type == 'purchase':
             self.move_name = False
+            if self.journal_id.purchase_type == "minor":
+                self.partner_id = self.company_id.partner_id.id
+
+            if self.partner_id.id == self.company_id.partner_id.id:
+                journal_id = self.env['account.journal'].search([
+                    ('purchase_type', '=', 'minor'),
+                    ('company_id', '=', self.company_id.id)])
+                if not journal_id:
+                    raise ValidationError(
+                        _("No existe un Diario de Gastos Menores,"
+                        " debe crear uno."))
+                self.journal_id = journal_id.id
         return res
 
-    @api.onchange('journal_id', 'partner_id')
-    def onchange_journal_id(self):
-        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
-            self.partner_id = self.company_id.partner_id.id
-
-        if self.partner_id.id == self.company_id.partner_id.id:
-            journal_id = self.env['account.journal'].search([
-                ('purchase_type', '=', 'minor'), ('company_id', '=', self.company_id.id)])
-            if not journal_id:
-                raise ValidationError(
-                    _("No existe un Diario de Gastos Menores,"
-                      " debe crear uno."))
-            self.journal_id = journal_id.id
-
     @api.onchange('partner_id')
-    def _onchange_partner_id(self):
+    def onchange_partner_id(self):
         res = super(AccountInvoice, self)._onchange_partner_id()
         if self.partner_id and self.type == 'out_invoice':
             if self.journal_id.ncf_control:
