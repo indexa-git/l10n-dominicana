@@ -84,8 +84,7 @@ class ResPartner(models.Model):
         string="Tipo de comprobante", default="final")
 
     sale_fiscal_type_list = [
-        {"id": "final", "name": "Consumidor Final",
-            "ticket_label": "Consumo", "is_default": True},
+        {"id": "final", "name": "Consumidor Final", "ticket_label": "Consumo", "is_default": True},
         {"id": "fiscal", "name": "Crédito Fiscal"},
         {"id": "gov", "name": "Gubernamental"},
         {"id": "special", "name": "Regímenes Especiales"},
@@ -233,8 +232,7 @@ class ResPartner(models.Model):
                 if partner:
                     return partner.name_get()[0]
                 else:
-                    new_partner = self.with_context(
-                        quickcreate=True).create({"vat": name})
+                    new_partner = self.with_context(quickcreate=True).create({"vat": name})
                     return new_partner.name_get()[0]
             else:
                 return super(ResPartner, self).name_create(name)

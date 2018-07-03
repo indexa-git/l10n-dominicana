@@ -151,10 +151,8 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
-    internal_sequence = fields.Char(
-        string=u"Número de factura", copy=False, index=True)
-    ncf_expiration_date = fields.Date(
-        'Válido hasta', compute="get_ncf_expiration_date", store=True)
+    internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
+    ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     @api.model_cr_context
     def _auto_init(self):
@@ -242,7 +240,7 @@ class AccountInvoice(models.Model):
                 if not journal_id:
                     raise ValidationError(
                         _("No existe un Diario de Gastos Menores,"
-                        " debe crear uno."))
+                          " debe crear uno."))
                 self.journal_id = journal_id.id
         return res
 
