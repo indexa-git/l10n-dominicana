@@ -786,19 +786,10 @@ odoo.define('ncf_pos.screens', function (require) {
                 ],
                 dfd = $.Deferred();
 
-            dfd.done(function (next_ncf) {
-                var ncfs = self.pos.db.load('ncfs', []);
-
-                order.ncf = next_ncf;
-                ncfs.push({validatedNcf: next_ncf, orderUid: order.uid});
-                self.pos.db.save('ncfs', ncfs);
-                console.info("Order NCF Validated", {ncf: next_ncf, uid: order.uid});
-            }).fail(function (request, error) {
-                console.error("Order NCF Validated", request);
-            });
+            console.info("Executing get_next_ncf", new Date());
             if (!order) {
-                console.error("Order NCF Validated", "The order is missing");
-                dfd.reject();
+                console.error("get_next_ncf", "The order is missing");
+                dfd.reject("get_next_ncf - The order is missing");
             } else {
                 dfd = rpc.query({
                     model: 'pos.order',
@@ -806,6 +797,18 @@ odoo.define('ncf_pos.screens', function (require) {
                     args: args
                 }, {
                     timeout: 3000
+                });
+
+                dfd.done(function (next_ncf) {
+                    var ncfs = self.pos.db.load('ncfs', []);
+
+                    order.ncf = next_ncf;
+                    ncfs.push({validatedNcf: next_ncf, orderUid: order.uid});
+                    self.pos.db.save('ncfs', ncfs);
+                    console.info("Order NCF Validated", {ncf: next_ncf, uid: order.uid});
+                }).fail(function (request) {
+                    order.ncf = '';
+                    console.error("get_next_ncf", request);
                 });
             }
             return dfd.promise();
@@ -859,6 +862,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         self.orderValidationDate = null;
                     } else {
                         this.get_next_ncf(order).always(function () {
+                            console.info("Finishing Order Validation", new Date());
                             self.finalize_validation();
                             self.orderValidationDate = null;
                         });
