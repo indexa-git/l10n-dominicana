@@ -34,23 +34,6 @@ except(ImportError, IOError) as err:
     _logger.debug(err)
 
 
-class SaleOrder(models.Model):
-    _inherit = "sale.order"
-
-    @api.multi
-    def _prepare_invoice(self):
-        """
-        Prepare the dict of values to create the new invoice for a sales order. This method may be
-        overridden to implement custom invoice generation (making sure to call super() to establish
-        a clean extension chain).
-        """
-        self.ensure_one()
-        invoice_vals = super(SaleOrder, self)._prepare_invoice()
-        invoice_vals['sale_fiscal_type'] = self.partner_id.sale_fiscal_type
-
-        return invoice_vals
-
-
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
@@ -179,6 +162,23 @@ class AccountInvoice(models.Model):
          'unique(number, company_id, partner_id, journal_id, type)',
          'Invoice Number must be unique per Company!'),
     ]
+
+    @api.model
+    def create(self, vals):
+        sale_seq = self.env['ir.sequence'].search([
+            ('code', '=', 'sale.order')])
+        origin = vals.get('origin', False)
+        if origin:
+            from_sale = True if origin.find(sale_seq.prefix) >= 0 else False
+            if from_sale:
+                partner_id = self.env['res.partner'].search([
+                    ('id', '=', vals.get('partner_id'))])
+                vals['sale_fiscal_type'] = partner_id.sale_fiscal_type
+
+        invoice = super(AccountInvoice, self).create(vals)
+        return invoice
+
+
 
     def purchase_ncf_validate(self):
         if not self.journal_id.purchase_type == 'normal':
