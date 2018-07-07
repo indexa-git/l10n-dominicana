@@ -328,7 +328,7 @@ odoo.define('ncf_pos.models', function (require) {
 
             this.ncf_control = this.pos.config.ncf_control;
 
-            if (this.pos.config.iface_invoicing) {
+            if (this.pos.config.iface_invoicing && !this.get_client()) {
                 var pos_default_partner = this.pos.config.default_partner_id;
 
                 this.to_invoice = true;
