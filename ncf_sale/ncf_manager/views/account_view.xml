@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ncf_manager_account_journal_form" model="ir.ui.view">
+        <field name="name">ncf manager aacount journal form</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//button[@name='toggle_active']" position="after">
+                <field name="ncf_ready" invisible="1"/>
+                <button class="oe_stat_button" type="object" name="create_ncf_sequence" icon="fa-database"
+                        attrs="{'invisible':['|',('ncf_control','!=',True),('ncf_ready','!=',False)]}" string="Generar NCF">
+                </button>
+            </xpath>
+
+            <field name="type" position="after">
+                <field name="ncf_control" attrs="{'invisible': [('type','!=','sale')]}"/>
+                <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
+                <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
+                <field name="payment_form" attrs="{'invisible': [('type','not in',('cash','bank'))], 'required': [('type','in',('cash','bank'))]}"/>
+            </field>
+
+            <notebook>
+                <page string="Secuencias NCF" attrs="{'invisible':[('ncf_control','!=',True)]}">
+                    <group>
+                        <field name="prefix"/>
+                        <field name="special_fiscal_position_id"/>
+                    </group>
+                    <field name="date_range_ids">
+                        <tree>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="number_next_actual"/>
+                            <field name="max_number_next"/>
+                            <field name="sale_fiscal_type"/>
+                        </tree>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <record id="ncf_manager_account_tax_form" model="ir.ui.view">
+        <field name="name">ncf manager account tax form</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <field name="type_tax_use" position="after">
+                <field name="purchase_tax_type" widget="radio"
+                       attrs="{'invisible': [('type_tax_use','!=','purchase')]}"/>
+                <field name="isr_retention_type"
+                       attrs="{'invisible': [('purchase_tax_type','!=','isr')],
+                               'required': [('purchase_tax_type','=','isr')]}"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_form_inherited" model="ir.ui.view">
+        <field name="name">view.account.form.inherited</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="income_type"
+                attrs="{'invisible': [('user_type_id','not in',[%(account.data_account_type_revenue)d,
+                %(account.data_account_type_other_income)d, %(account.data_account_type_fixed_assets)d,
+                %(account.data_account_type_current_assets)d, %(account.data_account_type_non_current_assets)d ])]}"/>
+                <field name="expense_type"
+                attrs="{'invisible': [('user_type_id','not in',[%(account.data_account_type_direct_costs)d,
+                %(account.data_account_type_expenses)d, %(account.data_account_type_depreciation)d])]}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

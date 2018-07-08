@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ncf_manager_account_invoice_form" model="ir.ui.view">
+        <field name="name">ncf manager account invoice form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+            <button name="action_invoice_sent" position="attributes">
+                <attribute name="attrs"></attribute>
+                <attribute name="icon">fa-paper-plane</attribute>
+            </button>
+
+            <form>
+                <field name="ncf_control" invisible="1"/>
+                <field name="is_company_currency" invisible="1"/>
+            </form>
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="string">Aplicar NC o ND</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
+                <button name="%(ncf_manager.action_account_invoice_cancel)d" type='action'
+                        string="Cancelar Factura"
+                        states="proforma2,open" groups="account.group_account_user"/>
+            </xpath>
+
+            <field name="partner_id" position="after">
+                <field name="sale_fiscal_type" attrs="{
+                       'invisible':['|',('type','=','out_refund'),('ncf_control','=',False)],
+                       'required': [('ncf_control','=',True),('type','=','out_invoice')],
+                       'readonly': ['|',('state','!=','draft'),('move_name','!=',False)]}"/>
+                <field name="income_type" attrs="{
+                       'invisible':[('ncf_control','!=',True)],
+                       'required': [('ncf_control','=',True),('type','=','out_invoice')],
+                       'readonly': [('state','!=','draft')]}"/>
+            </field>
+
+            <field name="move_name" position="replace"/>
+            <xpath expr="//h1" position="after">
+                <h4 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('move_name', '=', False), ('ncf_control','=',False)]}">
+                    Válido hasta:
+                    <field name="ncf_expiration_date" readonly="1"/>
+                </h4>
+                <h4 states="draft,cancel">
+                    <field name="move_name" readonly="1" attrs="{'invisible':[('move_name','=',False)]}"/>
+                </h4>
+                <h4 attrs="{'invisible':[('state','!=','cancel')]}">
+                    Razón de Cancelación:
+                    <br/>
+                    <field name="anulation_type" readonly="1"/>
+                </h4>
+            </xpath>
+
+            <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace"/>
+
+            <field name="partner_id" position="after">
+                <field name="origin_out" groups="base.group_user"
+                       attrs="{'invisible': [('type', '!=', 'out_refund')], 'readonly': [('origin_out', '!=', False)]}"/>
+            </field>
+
+            <field name="move_id" position="before">
+                <field name="origin" groups="base.group_user" attrs="{'invisible': [('type', '=', 'out_refund')]}"/>
+            </field>
+
+            <field name="date_invoice" position="before">
+                <field name="internal_sequence" readonly="1"/>
+            </field>
+
+
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
+                <field name="income_type" invisible="1"/>
+                <field name="account_id" groups="account.group_account_user"
+                       domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False),
+                       ('income_type', '=', income_type)]"/>
+            </xpath>
+
+        </field>
+    </record>
+
+
+    <record id="ncf_manager_supplier_account_invoice_form" model="ir.ui.view">
+        <field name="name">ncf manager supplier account invoice form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="string">Aplicar NC o ND</attribute>
+            </xpath>
+
+            <field name="origin" position="replace"/>
+
+            <field name="number" position="after">
+                <field name="is_company_currency" invisible="1"/>
+            </field>
+
+            <field name="date_invoice" position="before">
+                <field name="internal_sequence" readonly="1"/>
+            </field>
+
+            <field name="journal_id" position="replace"/>
+            <field name="move_name" position="replace"/>
+            <field name="reference" position="before">
+                <field name="purchase_type" invisible="1"/>
+                <field name="journal_id" groups="account.group_account_user"
+                       options="{'no_create': True, 'no_open': True}"
+                       attrs="{'readonly':[('state','!=','draft')]}"/>
+                <field name="expense_type" attrs="{
+                       'invisible':[('purchase_type','not in',['normal','minor','informal'])],
+                       'required': [('purchase_type','in',['normal','minor','informal'])],
+                       'readonly': [('state','!=','draft')]}"/>
+                <field name="move_name" string="NCF"
+                       attrs="{'size': 19,
+                       'invisible': [('purchase_type','!=','normal')],
+                       'required': [('purchase_type','=','normal')],
+                       'readonly': [('state','!=','draft')]}"/>
+            </field>
+
+            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
+                <field name="expense_type" invisible="1"/>
+                <field name="account_id" groups="account.group_account_user"
+                       domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False),
+                       ('expense_type', '=', expense_type)]"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

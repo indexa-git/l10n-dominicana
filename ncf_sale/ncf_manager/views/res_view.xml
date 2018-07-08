@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Form View to Modify it -->
+    <record id="view_partner_form" model="ir.ui.view">
+        <field name="name">ncf.res.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="name" position="replace">
+                <field name="name" default_focus="1" placeholder="Nombre, RNC o Cédula" attrs="{'required': [('type', '=', 'contact')]}" widget="dgii_autocomplete"/>
+            </field>
+            <field name="vat" position="replace"></field>
+            <xpath expr="//div[hasclass('o_row')]">
+                <field name="fiscal_info_required" invisible="1"/>
+                <field name="vat" placeholder="RNC/Cédula" attrs="{'required': [('fiscal_info_required','=',True)]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_company_form_inherit" model="ir.ui.view">
+        <field name="name">ncf_manager company form inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="widget">dgii_autocomplete</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!-- Inherit Form View to Modify it -->
+    <record id="view_partner_property_form" model="ir.ui.view">
+        <field name="name">ncf.res.partner.property.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <group name="sale" position ="inside">
+                <field name="sale_fiscal_type"/>
+            </group>
+            <group name="purchase" position ="inside">
+                <field name="expense_type"/>
+            </group>
+        </field>
+    </record>
+
+    <!-- Inherit Form View to Modify it -->
+    <record id="view_res_partner_filter" model="ir.ui.view">
+        <field name="name">ncf.res.partner.select</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <field name="name" position="replace">
+                <field name="name" filter_domain="['|','|','|',('display_name','ilike',self),('ref','=',self),('email','ilike',self),('vat','ilike',self)]"/>
+            </field>
+        </field>
+    </record>
+</odoo>

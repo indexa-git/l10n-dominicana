@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+       <!-- Inherit Form View to Modify it -->
+       <record id="sequence_view" model="ir.ui.view">
+           <field name="name">sequence_view</field>
+           <field name="model">ir.sequence</field>
+           <field name="inherit_id" ref="base.sequence_view"/>
+           <field name="arch" type="xml">
+
+               <xpath expr="//tree//field[@name='number_next_actual']" position="after">
+                   <field name="max_number_next"/>
+                   <field name="sale_fiscal_type"/>
+               </xpath>
+
+           </field>
+       </record>
+
+    </data>
+</odoo>
