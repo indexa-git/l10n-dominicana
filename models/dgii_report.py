@@ -537,8 +537,8 @@ class DgiiReport(models.Model):
                     'others': payments.get('others')
                 }
 
-                if str(values.get('fiscal_invoice_number'))[-10:-8] == '02' and inv.amount_untaxed_signed < 50000:
-                    # Excluye las facturas de Consumo con monto menor a 50000
+                if str(values.get('fiscal_invoice_number'))[-10:-8] == '02' and inv.amount_untaxed_signed < 250000:
+                    # Excluye las facturas de Consumo con monto menor a 250000
                     pass
                 else:
                     line += 1
