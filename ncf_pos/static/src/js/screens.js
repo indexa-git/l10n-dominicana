@@ -954,7 +954,7 @@ odoo.define('ncf_pos.screens', function (require) {
                             'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
                             'registrado correctamente si este desea comprobante fiscal.',
                         };
-                    } else if (invoicing && order.get_total_without_tax() >= 50000) {
+                    } else if (invoicing && order.get_total_without_tax() >= 250000) {
                         popupErrorOptions = {
                             'title': 'Factura sin Cedula de Cliente',
                             'body': 'El cliente debe tener una cedula si el total de la factura ' +
