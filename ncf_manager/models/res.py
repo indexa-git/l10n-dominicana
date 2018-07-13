@@ -42,7 +42,7 @@ class ResCompany(models.Model):
 
     country_id = fields.Many2one('res.country', compute='_compute_address',
                                  inverse='_inverse_country',
-                                 string="Country", default=62)
+                                 string="Country", default=lambda self: self.env.ref('base.do'))
 
     @api.onchange("name")
     def onchange_company_name(self):
@@ -114,9 +114,8 @@ class ResPartner(models.Model):
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
-                                 ondelete='restrict', default=62)
-    purchase_journal_id = fields.Many2one(
-        'account.journal', domain=[('type', '=', 'purchase')])
+                                 ondelete='restrict', default=lambda self: self.env.ref('base.do'))
+    purchase_journal_id = fields.Many2one('account.journal', domain=[('type', '=', 'purchase')])
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
