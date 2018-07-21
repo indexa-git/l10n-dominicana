@@ -201,13 +201,15 @@ class AccountInvoice(models.Model):
                 [('id', '!=', self.id),
                  ('partner_id', '=', self.partner_id.id),
                  ('move_name', '=', number),
-                 ('state', 'in', ('draft', 'cancel'))])
+                 ('state', 'in', ('draft', 'cancel')),
+                 ('type', 'in', ('in_invoice', 'in_refund'))])
 
         else:
             ncf_in_draft = self.search_count(
                 [('partner_id', '=', self.partner_id.id),
                  ('move_name', '=', number),
-                 ('state', 'in', ('draft', 'cancel'))])
+                 ('state', 'in', ('draft', 'cancel')),
+                 ('type', 'in', ('in_invoice', 'in_refund'))])
 
         if ncf_in_draft:
             raise UserError(_(
@@ -219,7 +221,9 @@ class AccountInvoice(models.Model):
         ncf_exist = self.search_count(
             [('partner_id', '=', self.partner_id.id),
              ('number', '=', number),
-             ('state', 'in', ('open', 'paid'))])
+             ('state', 'in', ('open', 'paid')),
+             ('type', 'in', ('in_invoice', 'in_refund'))])
+
         if ncf_exist:
             raise UserError(_(
                 "NCF Duplicado\n\n"
