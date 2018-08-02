@@ -293,7 +293,7 @@ class AccountInvoice(models.Model):
                             u"No debe emitir una Factura de Consumo,"
                             " a un cliente con RNC."))
 
-                if inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
+                if inv.amount_untaxed_signed >= 250000 and if inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
                     raise UserError(_(
                         u"Si el monto es mayor a RD$50,000 el cliente debe "
                         u"tener un RNC o Céd para emitir la factura"))
