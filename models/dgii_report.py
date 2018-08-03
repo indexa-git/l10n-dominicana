@@ -3,7 +3,6 @@
 import calendar
 import base64
 from datetime import datetime as dt
-from io import BytesIO
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -272,12 +271,17 @@ class DgiiReport(models.Model):
         company_vat = report.company_id.vat
         period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
-        file_name = 'DGII_606_{}_{}.txt'.format(company_vat, period)
         header = "606|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
 
-        self._generate_txt(file_name, data, report)
+        file_path = '/tmp/DGII_606_{}_{}.txt'.format(company_vat, period)
+        with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_606:
+            txt_606.write(str(data))
 
+        report.write({
+            'purchase_filename': file_path.replace('/tmp/', ''),
+            'purchase_binary': base64.b64encode(open(file_path, 'rb').read())
+        })
 
     @api.multi
     def _compute_606_data(self):
@@ -471,11 +475,17 @@ class DgiiReport(models.Model):
         company_vat = report.company_id.vat
         period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
-        file_name = 'DGII_607_{}_{}.txt'.format(company_vat, period)
         header = "607|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
 
-        self._generate_txt(file_name, data, report)
+        file_path = '/tmp/DGII_607_{}_{}.txt'.format(company_vat, period)
+        with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_607:
+            txt_607.write(str(data))
+
+        report.write({
+            'sale_filename': file_path.replace('/tmp/', ''),
+            'sale_binary': base64.b64encode(open(file_path, 'rb').read())
+        })
 
     @api.multi
     def _compute_607_data(self):
@@ -505,8 +515,7 @@ class DgiiReport(models.Model):
                     'modified_invoice_number': inv.origin if inv.origin and inv.origin[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
-                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any(
-                        [inv.withholded_itbis, inv.income_withholding])) else '',
+                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding])) else '',
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'third_withheld_itbis': inv.third_withheld_itbis if inv.state == 'paid' else 0,
@@ -563,11 +572,17 @@ class DgiiReport(models.Model):
         company_vat = report.company_id.vat
         period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
-        file_name = 'DGII_608_{}_{}.txt'.format(company_vat, period)
         header = "608|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
 
-        self._generate_txt(file_name, data, report)
+        file_path = '/tmp/DGII_608_{}_{}.txt'.format(company_vat, period)
+        with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_608:
+            txt_608.write(str(data))
+
+        report.write({
+            'cancel_filename': file_path.replace('/tmp/', ''),
+            'cancel_binary': base64.b64encode(open(file_path, 'rb').read())
+        })
 
     @api.multi
     def _compute_608_data(self):
@@ -622,21 +637,17 @@ class DgiiReport(models.Model):
         company_vat = report.company_id.vat
         period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
-        file_name = 'DGII_609_{}_{}.txt'.format(company_vat, period)
         header = "609|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
 
-        self._generate_txt(file_name, data, report)
+        file_path = '/tmp/DGII_609_{}_{}.txt'.format(company_vat, period)
+        with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_609:
+            txt_609.write(str(data))
 
-    def _generate_txt(self, file_name, data, report):
-
-        with BytesIO() as f:
-            f.write(data.encode('utf-8'))
-            f.seek(0)
-            report_txt = base64.b64encode(f.read())
-            report.write({
-                'exterior_filename': file_name,
-                'exterior_binary': report_txt})
+        report.write({
+            'exterior_filename': file_path.replace('/tmp/', ''),
+            'exterior_binary': base64.b64encode(open(file_path, 'rb').read())
+        })
 
     @api.multi
     def _compute_609_data(self):
