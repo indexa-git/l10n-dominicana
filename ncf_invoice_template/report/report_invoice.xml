@@ -293,7 +293,7 @@
                 <tbody class="invoice_tbody">
                     <tr t-foreach="o.invoice_line_ids" t-as="l">
                         <t t-set="subtotal" t-value="l.price_unit * l.quantity"/>
-                        <t t-set="itbis" t-value="l.get_itbis_amount(o, l.price_unit, l.discount)['taxes'][0]['amount']"/>
+                        <t t-set="itbis" t-value="l.get_itbis_amount(o, l.price_unit, l.discount)"/>
                         <t t-set="ITBIS_EXENTO" t-value="any([t for t in l.invoice_line_tax_ids if t.amount == 0.0])"/>
 
                         <td class="hidden">
