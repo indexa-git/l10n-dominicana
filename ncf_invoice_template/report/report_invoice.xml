@@ -131,8 +131,6 @@
                     <tr t-foreach="o.invoice_line_ids" t-as="l">
                         <t t-set="subtotal" t-value="l.price_unit * l.quantity"/>
                         <t t-set="itbis" t-value="l.get_itbis_amount(o, l.price_unit, l.discount)"/>
-                        <!--<t t-set="itbis" t-value="sum([t.amount for t in l.invoice_line_tax_ids
-                            if t.tax_group_id.name.startswith('ITBIS')])/100"/>-->
                         <t t-set="ITBIS_EXENTO" t-value="any([t for t in l.invoice_line_tax_ids if t.amount == 0.0])"/>
 
                         <td class="hidden">
@@ -155,12 +153,6 @@
                         </td>
                         <td class="text-right">
                             <span t-esc="'{0:,.2f}'.format(itbis)"/>
-                            <!--<t t-if="l.discount">
-                                <span t-esc="'{0:,.2f}'.format(itbis * (subtotal-(subtotal * l.discount)/100))"/>
-                            </t>
-                            <t t-else="">
-                                <span t-esc="'{0:,.2f}'.format(itbis * subtotal)"/>
-                            </t>-->
                         </td>
                         <td class="text-right" id="subtotal">
                             <span t-field="l.price_subtotal"/>
