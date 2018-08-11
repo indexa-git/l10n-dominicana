@@ -287,3 +287,19 @@ class AccountInvoice(models.Model):
              "* The \'Green\' status means ...\n"
              "* The \'Red\' status means ...\n"
              "* The blank status means that the invoice have not been included in a report.")
+
+
+    @api.model
+    def norma_recompute(self):
+        """
+        This method add all compute fields into []env add_todo and then recompute
+        all compute fields in case dgii config change and need to recompute.
+        :return:
+        """
+        active_ids = self._context.get("active_ids")
+        invoice_ids = self.browse(active_ids)
+        for k, v in self.fields_get().items():
+            if v.get("store") and v.get("depends"):
+                self.env.add_todo(self._fields[k], invoice_ids)
+
+        self.recompute()
