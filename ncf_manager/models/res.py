@@ -76,7 +76,7 @@ class ResPartner(models.Model):
                 rec.fiscal_info_required = False
 
     sale_fiscal_type = fields.Selection(
-        [("final", "Consumidor Final"),
+        [("final", "Consumo"),
          ("fiscal", u"Crédito Fiscal"),
          ("gov", "Gubernamental"),
          ("special", u"Regímenes Especiales"),
