@@ -9,6 +9,7 @@
     'author': "Marcos Organizador de Negocios SRL, "
               "iterativo SRL, "
               "Neotec, "
+              "Indexa, SRL, "
               "Odoo Dominicana (ODOM)",
 
     # Categories can be used to filter modules in modules listing
