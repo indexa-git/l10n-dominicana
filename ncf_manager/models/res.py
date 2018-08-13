@@ -76,7 +76,7 @@ class ResPartner(models.Model):
                 rec.fiscal_info_required = False
 
     sale_fiscal_type = fields.Selection(
-        [("final", "Consumidor Final"),
+        [("final", "Consumo"),
          ("fiscal", u"Crédito Fiscal"),
          ("gov", "Gubernamental"),
          ("special", u"Regímenes Especiales"),
@@ -84,7 +84,7 @@ class ResPartner(models.Model):
         string="Tipo de comprobante", default="final")
 
     sale_fiscal_type_list = [
-        {"id": "final", "name": "Consumidor Final", "ticket_label": "Consumo", "is_default": True},
+        {"id": "final", "name": "Consumo", "ticket_label": "Consumo", "is_default": True},
         {"id": "fiscal", "name": "Crédito Fiscal"},
         {"id": "gov", "name": "Gubernamental"},
         {"id": "special", "name": "Regímenes Especiales"},
