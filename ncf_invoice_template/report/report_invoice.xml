@@ -348,10 +348,10 @@
             </t>
 
             <tr class="border-black" style="border-bottom:1px solid #dddddd;">
-                <td>
+                <td t-if="display_discount">
                     Descuento
                 </td>
-                <td class="text-right">
+                <td t-if="display_discount" class="text-right">
                     <t t-if="o.currency_id.position == 'before'">
                         <span t-esc="o.currency_id.symbol"/>
                         <span t-esc="'{0:,.2f}'.format(total_discount)"/>
