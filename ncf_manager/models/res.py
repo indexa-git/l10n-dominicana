@@ -213,7 +213,7 @@ class ResPartner(models.Model):
     @api.model
     def create(self, vals):
         vat = vals.get("vat", False)
-        result = self.validate_rnc_cedula(vals["vat"])
+        result = self.validate_rnc_cedula(vals["vat"]) if vat else None
         if result:
             vals.update({"name": result["name"]})
 
