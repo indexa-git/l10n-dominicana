@@ -212,11 +212,10 @@ class ResPartner(models.Model):
 
     @api.model
     def create(self, vals):
-        if self._context.get("quickcreate", False):
-            vat = vals.get("vat", False)
-            result = self.validate_rnc_cedula(vals["vat"])
-            if result:
-                vals.update({"name": result["name"]})
+        vat = vals.get("vat", False)
+        result = self.validate_rnc_cedula(vals["vat"]) if vat else None
+        if result:
+            vals.update({"name": result["name"]})
 
         return super(ResPartner, self).create(vals)
 
@@ -230,7 +229,7 @@ class ResPartner(models.Model):
                 if partner:
                     return partner.name_get()[0]
                 else:
-                    new_partner = self.with_context(quickcreate=True).create({"vat": name})
+                    new_partner = self.create({"vat": name})
                     return new_partner.name_get()[0]
             else:
                 return super(ResPartner, self).name_create(name)
