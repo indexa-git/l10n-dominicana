@@ -40,7 +40,8 @@ class PosOrder(models.Model):
             if self.ncf:
                 inv.update({
                     'move_name': self.ncf,
-                    'income_type': '01'
+                    'income_type': '01',
+                    'sale_fiscal_type': self.partner_id.sale_fiscal_type
                 })
             if self.return_order_id:
                 inv.update({'origin': self.return_order_id.invoice_id.number})
@@ -170,22 +171,22 @@ class PosOrder(models.Model):
 
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id, is_return_order):
-        if not self.env["pos.order.ncf.temp"].search([('pos_reference','=',order_uid)]):
+        if not self.env["pos.order.ncf.temp"].search([('pos_reference', '=', order_uid)]):
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
                     raise ValidationError(_("You have not specified a sales journal"))
                 elif not is_return_order:
                     ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                               sale_fiscal_type=sale_fiscal_type).next_by_id()
+                                                              sale_fiscal_type=sale_fiscal_type).next_by_id()
                 elif is_return_order:
                     ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                               sale_fiscal_type="credit_note").next_by_id()
+                                                              sale_fiscal_type="credit_note").next_by_id()
                 # saving the ncf referenced to pos order
                 self.env['pos.order.ncf.temp'].create({
-                            'ncf': ncf,
-                            'pos_reference': order_uid
-                        })
+                    'ncf': ncf,
+                    'pos_reference': order_uid
+                })
                 return ncf
             else:
                 return False
