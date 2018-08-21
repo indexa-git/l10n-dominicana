@@ -214,7 +214,7 @@ class ResPartner(models.Model):
     def create(self, vals):
         vat = vals.get("vat", False)
         result = self.validate_rnc_cedula(vals["vat"]) if vat else None
-        if result:
+        if result and result.get("name", False):
             vals.update({"name": result["name"]})
 
         return super(ResPartner, self).create(vals)
