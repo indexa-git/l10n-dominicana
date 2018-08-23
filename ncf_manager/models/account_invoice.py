@@ -298,11 +298,10 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
+            sequence_obj = self.env['ir.sequence'].sudo()
             if inv.amount_untaxed == 0:
                 raise UserError(_(
                     u"No se puede validar una factura cuyo monto total sea igual a 0."))
-
-            sequence_obj = self.env['ir.sequence'].sudo()
             if inv.type == "out_invoice" and inv.journal_id.ncf_control:
                 if not inv.partner_id.sale_fiscal_type:
                     raise ValidationError(_(
