@@ -28,7 +28,7 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     @api.multi
-    def post(self):
+    def post(self, invoice=False):
         invoice = self._context.get('invoice', False)
 
         if invoice and invoice.journal_id.ncf_control:
