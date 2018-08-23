@@ -34,23 +34,6 @@ except(ImportError, IOError) as err:
     _logger.debug(err)
 
 
-class SaleOrder(models.Model):
-    _inherit = "sale.order"
-
-    @api.multi
-    def _prepare_invoice(self):
-        """
-        Prepare the dict of values to create the new invoice for a sales order. This method may be
-        overridden to implement custom invoice generation (making sure to call super() to establish
-        a clean extension chain).
-        """
-        self.ensure_one()
-        invoice_vals = super(SaleOrder, self)._prepare_invoice()
-        invoice_vals['sale_fiscal_type'] = self.partner_id.sale_fiscal_type
-
-        return invoice_vals
-
-
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
@@ -81,45 +64,25 @@ class AccountInvoice(models.Model):
     def get_ncf_expiration_date(self):
         for inv in self:
             if inv.state != 'draft' and inv.journal_id.ncf_control:
-                inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
-                                           dr.sale_fiscal_type == inv.sale_fiscal_type][0]
-
-    # deprecate on odoo 11
-    # def _default_user_shop(self):
-    #     Shop = self.env["shop.ncf.config"]
-    #     shop_user_config = False
-    #
-    #     if not self.journal_id:
-    #         shop_user_config = Shop.sudo().search(
-    #             [('user_ids', 'in', self._uid)])
-    #     else:
-    #         shop_user_config = Shop.sudo().search([
-    #             ('user_ids', 'in', self._uid),
-    #             ('journal_id', '=', self.journal_id.id)])
-    #
-    #     if shop_user_config:
-    #         return shop_user_config[0]
-    #     else:
-    #         return False
+                if inv.sale_fiscal_type:
+                    inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                               dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal")
-    # deprecate on odoo 11
-    # required=False,
-    # default=_default_user_shop,
-    # domain=lambda s: [('user_ids', '=', [s._uid])])
 
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
-    sale_fiscal_type = fields.Selection([("final", "Consumidor Final"),
+    sale_fiscal_type = fields.Selection([("final", "Consumo"),
                                          ("fiscal", u"Crédito Fiscal"),
-                                         ("gov", "Gubernamental"),
+                                         ("gov", "Gubernamentales"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")],
-                                        string='NCF Para')
+                                        string='NCF para',
+                                        default=lambda self: self._context.get('sale_fiscal_type', 'final'))
 
     income_type = fields.Selection(
-        [('01', '01 - Ingresos por operaciones (No financieros)'),
+        [('01', '01 - Ingresos por Operaciones (No Financieros)'),
          ('02', '02 - Ingresos Financieros'),
          ('03', '03 - Ingresos Extraordinarios'),
          ('04', '04 - Ingresos por Arrendamientos'),
@@ -144,7 +107,7 @@ class AccountInvoice(models.Model):
 
     anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
+         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
          ("04", u"04 - Corrección de la Información"),
          ("05", "05 - Cambio de Productos"),
@@ -174,11 +137,15 @@ class AccountInvoice(models.Model):
     internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
     ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
-    _sql_constraints = [
-        ('number_uniq',
-         'unique(number, company_id, partner_id, journal_id, type)',
-         'Invoice Number must be unique per Company!'),
-    ]
+    @api.model_cr_context
+    def _auto_init(self):
+        super(AccountInvoice, self)._auto_init()
+        self._sql_constraints += [
+            ('number_uniq',
+             'unique(number, company_id, partner_id, journal_id, type)',
+             'Invoice Number must be unique per Company!'),
+        ]
+        self._add_sql_constraints()
 
     def purchase_ncf_validate(self):
         if not self.journal_id.purchase_type == 'normal':
@@ -192,7 +159,7 @@ class AccountInvoice(models.Model):
                 "El comprobante *{}* no tiene la estructura correcta "
                 "valide si lo ha digitado correctamente".format(number)))
 
-        if number[9:11] not in (
+        if number[-10:-8] not in (
                 '01', '03', '04', '11', '12', '13', '14', '15'):
             raise ValidationError(_(
                 "NCF *{}* NO corresponde con el tipo de documento\n\n"
@@ -204,13 +171,15 @@ class AccountInvoice(models.Model):
                 [('id', '!=', self.id),
                  ('partner_id', '=', self.partner_id.id),
                  ('move_name', '=', number),
-                 ('state', 'in', ('draft', 'cancel'))])
+                 ('state', 'in', ('draft', 'cancel')),
+                 ('type', 'in', ('in_invoice', 'in_refund'))])
 
         else:
             ncf_in_draft = self.search_count(
                 [('partner_id', '=', self.partner_id.id),
                  ('move_name', '=', number),
-                 ('state', 'in', ('draft', 'cancel'))])
+                 ('state', 'in', ('draft', 'cancel')),
+                 ('type', 'in', ('in_invoice', 'in_refund'))])
 
         if ncf_in_draft:
             raise UserError(_(
@@ -222,7 +191,9 @@ class AccountInvoice(models.Model):
         ncf_exist = self.search_count(
             [('partner_id', '=', self.partner_id.id),
              ('number', '=', number),
-             ('state', 'in', ('open', 'paid'))])
+             ('state', 'in', ('open', 'paid')),
+             ('type', 'in', ('in_invoice', 'in_refund'))])
+
         if ncf_exist:
             raise UserError(_(
                 "NCF Duplicado\n\n"
@@ -241,29 +212,27 @@ class AccountInvoice(models.Model):
                                                   self.partner_id.name)
             ))
 
-    @api.onchange('journal_id')
-    def _onchange_journal_id(self):
-        res = super(AccountInvoice, self)._onchange_journal_id()
-        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
-            self.partner_id = self.company_id.partner_id.id
-        return res
-
     @api.onchange('journal_id', 'partner_id')
     def onchange_journal_id(self):
-        if self.journal_id.type == 'purchase' and self.journal_id.purchase_type == "minor":
-            self.partner_id = self.company_id.partner_id.id
+        res = super(AccountInvoice, self)._onchange_journal_id()
+        if self.journal_id.type == 'purchase':
+            self.move_name = False
+            if self.journal_id.purchase_type == "minor":
+                self.partner_id = self.company_id.partner_id.id
 
-        if self.partner_id.id == self.company_id.partner_id.id:
-            journal_id = self.env['account.journal'].search([
-                ('purchase_type', '=', 'minor')])
-            if not journal_id:
-                raise ValidationError(
-                    _("No existe un Diario de Gastos Menores,"
-                      " debe crear uno."))
-            self.journal_id = journal_id.id
+            if self.partner_id.id == self.company_id.partner_id.id:
+                journal_id = self.env['account.journal'].search([
+                    ('purchase_type', '=', 'minor'),
+                    ('company_id', '=', self.company_id.id)])
+                if not journal_id:
+                    raise ValidationError(
+                        _("No existe un Diario de Gastos Menores,"
+                        " debe crear uno."))
+                self.journal_id = journal_id.id
+        return res
 
     @api.onchange('partner_id')
-    def _onchange_partner_id(self):
+    def onchange_partner_id(self):
         res = super(AccountInvoice, self)._onchange_partner_id()
         if self.partner_id and self.type == 'out_invoice':
             if self.journal_id.ncf_control:
@@ -295,12 +264,6 @@ class AccountInvoice(models.Model):
         else:
             self.fiscal_position_id = False
 
-    # deprecate
-    # @api.onchange("shop_id")
-    # def onchange_shop_id(self):
-    #     if self.type in ('out_invoice', 'out_refund'):
-    #         self.journal_id = self.shop_id.journal_id.id
-
     @api.onchange("move_name")
     def onchange_ncf(self):
         if self.type in ("in_invoice", "in_refund") and self.move_name:
@@ -309,20 +272,32 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
-            sequence_obj = self.env['ir.sequence']
+            sequence_obj = self.env['ir.sequence'].sudo()
 
-            if inv.journal_id.ncf_control and not inv.partner_id.sale_fiscal_type:
-                raise ValidationError(_(
-                    u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
-                    "para este tipo de factura.".format(inv.partner_id.id,
-                                                        inv.partner_id.name)))
+            if inv.type == "out_invoice" and inv.journal_id.ncf_control:
+                if not inv.partner_id.sale_fiscal_type:
+                    raise ValidationError(_(
+                        u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
+                        "para este tipo de factura.".format(inv.partner_id.id,
+                                                            inv.partner_id.name)))
 
-            if inv.type == "out_invoice" and inv.sale_fiscal_type in (
-                    "fiscal", "gov", "special") and inv.journal_id.ncf_control and not inv.partner_id.vat:
-                raise UserError(_(
-                    u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
-                    "para este tipo de factura.".format(inv.partner_id.id,
-                                                        inv.partner_id.name)))
+                if inv.sale_fiscal_type in ("fiscal", "gov", "special") and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
+                        "para este tipo de factura.".format(inv.partner_id.id,
+                                                            inv.partner_id.name)))
+
+                if inv.sale_fiscal_type == 'final' and inv.partner_id.vat:
+                    if len(inv.partner_id.vat) == 9:
+                        raise UserError(_(
+                            u"No debe emitir una Factura de Consumo,"
+                            " a un cliente con RNC."))
+
+                if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"Si el monto es mayor a RD$50,000 el cliente debe "
+                        u"tener un RNC o Céd para emitir la factura"))
+
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
                     raise UserError(_(

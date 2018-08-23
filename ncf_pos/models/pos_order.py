@@ -18,7 +18,7 @@ class PosOrder(models.Model):
             order.amount_paid += refund_payments
 
     is_return_order = fields.Boolean(string='Devolver Orden', copy=False)
-    return_order_id = fields.Many2one('pos.order', 'Devolver Orden de', readonly=True, copy=False)
+    return_order_id = fields.Many2one('pos.order', 'Afecta', readonly=True, copy=False)
     return_status = fields.Selection([('-', 'No Devuelta'), ('Fully-Returned', 'Totalmente Devuelta'),
                                       ('Partially-Returned', 'Parcialmente Devuelta'),
                                       ('Non-Returnable', 'No Retornable')], default='-', copy=False,
@@ -35,12 +35,16 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new invoice for a pos order.
         """
         inv = super(PosOrder, self)._prepare_invoice()
+        inv.update({'user_id': self.user_id.id})
         if self.ncf_control:
             if self.ncf:
                 inv.update({
                     'move_name': self.ncf,
-                    'income_type': '01'
+                    'income_type': '01',
+                    'sale_fiscal_type': self.partner_id.sale_fiscal_type
                 })
+            if self.return_order_id:
+                inv.update({'origin': self.return_order_id.invoice_id.number})
         return inv
 
     def test_paid(self):
@@ -77,6 +81,14 @@ class PosOrder(models.Model):
                         original_line.line_qty_returned += abs(line_dict.get('qty', 0))
 
                     order["data"]["statement_ids"] = []
+                # searching the ncf referenced to pos order
+                ncf_ids = self.env['pos.order.ncf.temp'].search(
+                    [("pos_reference", "=", order.get("data", {}).get("uid", False))])
+                if ncf_ids:
+                    if not order.get("data", {}).get("ncf", False):
+                        _logger.warning("Assign NCF: {} to Order: {}".format(ncf_ids.ncf, ncf_ids.pos_reference))
+                        order["data"]["ncf"] = ncf_ids.ncf
+                    ncf_ids.unlink()
             else:
                 if order.get("data", {}).get("to_invoice", {}):
                     order["data"]["to_invoice"] = False
@@ -90,41 +102,7 @@ class PosOrder(models.Model):
         orders = self.check_ncf_control_from_ui(orders)
         res = super(PosOrder, self).create_from_ui(orders)
         self = self.browse(res)
-        self.reconcile_befores_session_close()
         return res
-
-    def reconcile_befores_session_close(self):
-        moves = self.env['account.move.line']
-        for rec in self:
-            if rec.ncf_control:
-                for st_line in rec.statement_ids:
-                    if st_line.account_id and not st_line.journal_entry_ids.ids:
-                        st_line.sudo().fast_counterpart_creation()
-                    elif not st_line.journal_entry_ids.ids:
-                        _logger.error('Debe revisar las formas de pago de la order {}'.format(rec.name))
-                    moves = (moves | st_line.journal_entry_ids)
-
-                self.sudo()._reconcile_payments()
-
-    def _reconcile_payments(self):
-        for order in self:
-            aml = order.statement_ids.mapped('journal_entry_ids') \
-                  | order.account_move.line_ids | order.invoice_id.move_id.line_ids
-
-            aml = aml.filtered(lambda
-                                   r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == order.partner_id.commercial_partner_id)
-            if order.refund_payment_account_move_line_ids:
-                aml |= order.refund_payment_account_move_line_ids
-
-            try:
-                aml.reconcile()
-            except:
-                # There might be unexpected situations where the automatic reconciliation won't
-                # work. We don't want the user to be blocked because of this, since the automatic
-                # reconciliation is introduced for convenience, not for mandatory accounting
-                # reasons.
-                _logger.error('Reconciliation did not work for order %s', order.name)
-                continue
 
     @api.model
     def _order_fields(self, ui_order):
@@ -139,9 +117,9 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, input_txt):
-        invoice_ids = self.env["account.invoice"].search([('number', 'ilike', "%{}%".format(input_txt)),
-                                                          ('type', '=', 'out_invoice')], limit=100)
+    def order_search_from_ui(self):
+        invoice_ids = self.env["account.invoice"].search([('type', '=', 'out_invoice')])
+
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
         order_list = []
         order_lines_list = []
@@ -192,17 +170,26 @@ class PosOrder(models.Model):
         return {"id": invoice_ids.id, "residual": invoice_ids.residual}
 
     @api.model
-    def get_next_ncf(self, sale_fiscal_type, invoice_journal_id, is_return_order):
-        journal_id = self.env["account.journal"].browse(invoice_journal_id)
-        if journal_id.ncf_control:
-            if not is_return_order and journal_id:
-                return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                           sale_fiscal_type=sale_fiscal_type).next_by_id()
-            elif is_return_order and journal_id:
-                return journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                           sale_fiscal_type="credit_note").next_by_id()
+    def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id, is_return_order):
+        if not self.env["pos.order.ncf.temp"].search([('pos_reference', '=', order_uid)]):
+            journal_id = self.env["account.journal"].browse(invoice_journal_id)
+            if journal_id.ncf_control:
+                if not journal_id:
+                    raise ValidationError(_("You have not specified a sales journal"))
+                elif not is_return_order:
+                    ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                              sale_fiscal_type=sale_fiscal_type).next_by_id()
+                elif is_return_order:
+                    ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
+                                                              sale_fiscal_type="credit_note").next_by_id()
+                # saving the ncf referenced to pos order
+                self.env['pos.order.ncf.temp'].create({
+                    'ncf': ncf,
+                    'pos_reference': order_uid
+                })
+                return ncf
             else:
-                raise ValidationError(_("You have not specified a sales journal"))
+                return False
 
     @api.multi
     def action_pos_order_invoice(self):
@@ -242,3 +229,13 @@ class PosOrderLine(models.Model):
                                  'original_line_id': line[2].get('original_line_id', '')})
 
         return fields_return
+
+
+class PosOrderNcfTemp(models.Model):
+    _name = 'pos.order.ncf.temp'
+
+    pos_reference = fields.Char(index=True)
+    ncf = fields.Char("NCF")
+
+    _sql_constraints = [
+        ('pos_reference_unique_constrain', 'unique(pos_reference)', 'Duplicate pos UID!')]

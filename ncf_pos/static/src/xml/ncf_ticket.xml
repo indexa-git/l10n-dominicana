@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template">
+    <t t-extend="PosTicket">
+        <t t-jquery="t[t-esc='order.formatted_validation_date']" t-operation="replace"/>
+        <t t-jquery="t[t-esc='order.name']" t-operation="replace"/>
+        <t t-jquery="t[t-esc='widget.pos.company.name']" t-operation="replace">
+            <t t-set="sale_fiscal_type_client"
+               t-value="widget.pos.get_sale_fiscal_type(order.get_client().sale_fiscal_type)"/>
+            <div class="pos-center-align">
+                <t t-if="widget.pos.company">
+                    <t t-esc="order.pos.company.name"/>
+                    <br/>
+                </t>
+                <t t-if="widget.pos.company.street">
+                    <t t-esc="widget.pos.company.street"/>,
+                </t>
+                <t t-if="widget.pos.company.street2">
+                    <t t-esc="widget.pos.company.street2"/>
+                </t>
+                <t t-if="widget.pos.company.vat">
+                    <br/>
+                    <strong>RNC:</strong>
+                    <t t-esc="widget.pos.company.vat"/>
+                    <br/>
+                </t>
+                <br/>
+                <t t-esc="order.name"/>
+                <br/>
+                <div class="pos-center-align dotted_ticket_title">
+                    <t t-if="order.return_order_id">
+                        <strong>Nota de Crédito</strong>
+                        <br/>
+                    </t>
+                    <t t-else="">
+                        <strong>Factura de
+                            <t t-esc="sale_fiscal_type_client.ticket_label || sale_fiscal_type_client.name"/>
+                        </strong>
+                        <br/>
+                    </t>
+                    <strong>NCF:
+                        <t t-esc="order.ncf"/>
+                    </strong>
+                    <t t-if="order.return_order_id">
+                        <br/>
+                        <strong>NCF Modificado:
+                            <t t-esc="order.origin_ncf"/>
+                        </strong>
+                    </t>
+                    <t t-if="sale_fiscal_type_client.ticket_label !== 'Consumo'">
+                        <br/>
+                        <strong>Válida hasta: 31/12/2019</strong>
+                    </t>
+                </div>
+            </div>
+        </t>
+        <t t-jquery=".receipt-phone" t-operation="replace">
+            <div class="receipt-phone">
+                <strong>Fecha....:</strong>
+                <t t-esc="order.formatted_validation_date"/>
+                <br/>
+                <t t-set="client" t-value="order.get('client')"/>
+                <t t-if="client">
+                    <strong>Cliente..:</strong>
+                    <t t-esc="client.name || ''"/>
+                    <br/>
+                    <t t-if="client.vat">
+                        <strong>RNC/Céd..:</strong>
+                        <t t-esc="client.vat"/>
+                        <br/>
+                    </t>
+                    <t t-if="client.barcode">
+                        <strong>Código..:</strong>
+                        <t t-esc="client.barcode"/>
+                        <br/>
+                    </t>
+                </t>
+                <strong>Sucursal.:</strong>
+                <t t-esc="widget.pos.shop.name"/>
+                <br/>
+                <strong>Telefono.:</strong>
+                <t t-esc="widget.pos.company.phone || ''"/>
+                <br/>
+            </div>
+        </t>
+        <t t-jquery=".receipt-user" t-operation="replace">
+            <div class="receipt-phone">
+                <strong>Cajero/a.:</strong>
+                <t t-esc="widget.pos.user.name"/>
+            </div>
+            <t t-if="widget.pos.config.seller_and_cashier_ticket">
+                <t t-set="cashier" t-value="widget.pos.get_cashier()"/>
+                <t t-if="cashier">
+                    <t t-if="cashier.name != widget.pos.user.name">
+                        <div class="receipt-phone">
+                            <strong>Vendedor/a.:</strong>
+                            <t t-esc="cashier.name"/>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </t>
+        <t t-jquery=".receipt-orderlines" t-operation="replace">
+            <div style="border-bottom: 1px solid black;"/>
+            <table class="receipt-orderlines">
+                <thead>
+                    <tr>
+                        <th class="pos-center-align" width="13%">
+                            <strong>Cant.</strong>
+                        </th>
+                        <th width="35%">
+                            <strong>Producto</strong>
+                        </th>
+                        <th width="16%">
+                            <strong>$/Und.</strong>
+                        </th>
+                        <th width="12%">
+                            <strong>ITBIS</strong>
+                        </th>
+                        <th class="pos-right-align" width="20%">
+                            <strong>Valor</strong>
+                        </th>
+                        <th width="4%">
+                            <strong></strong>
+                        </th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                    <td>
+                        <div style="border-bottom: 1px solid black;"/>
+                    </td>
+                </tr>
+                <tr t-as="orderline" t-foreach="orderlines">
+                    <td class="pos-center-align" width="13%">
+                        <t t-esc="orderline.get_quantity_str_with_unit()"/>
+                    </td>
+                    <td width="35%">
+                        <t t-esc="orderline.get_product().display_name"/>
+                        <t t-if="widget.pos.config.on_product_line">
+                            <div class="pos-disc-font">
+                                <t t-esc="orderline.get_order_line_comment()"/>
+                            </div>
+                        </t>
+                        <t t-if="orderline.get_discount() &gt;0">
+                            <div class="pos-disc-font">With a<t t-esc="orderline.get_discount()"/>% discount
+                            </div>
+                        </t>
+                    </td>
+                    <td width="16%">
+                        <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>
+                    </td>
+                    <td width="12%">
+                        <t t-esc="widget.format_currency_no_symbol(orderline.get_tax())"/>
+                    </td>
+                    <td class="pos-right-align" width="20%">
+                        <t t-esc="widget.format_currency_no_symbol(orderline.get_display_price())"/>
+                    </td>
+                    <td width="4%">
+                        <t t-if="orderline.get_tax() === 0">
+                            <strong>E</strong>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+            <table>
+                <br/>
+                <div style="border-bottom: 1px dashed black"/>
+            </table>
+        </t>
+        <t t-jquery=".receipt-total" t-operation="replace">
+            <table class="receipt-total">
+                <tr width="100%">
+                    <td class="pos-right-align" width="75%">SubTotal:</td>
+                    <td class="pos-right-align" width="25%">
+                        <t t-esc="widget.format_currency_no_symbol(order.get_total_without_tax())"/>
+                    </td>
+                </tr>
+                <t t-as="taxdetail" t-foreach="order.get_tax_details()">
+                    <tr>
+                        <td class="pos-right-align" width="75%">
+                            <t t-esc="taxdetail.name"/>:
+
+                        </td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-esc="widget.format_currency_no_symbol(taxdetail.amount)"/>
+                        </td>
+                    </tr>
+                </t>
+                <tr width="100%">
+                    <t t-if="order.get_total_discount() &gt;0">
+                        <td class="pos-right-align" width="75%">Descuento:</td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-esc="widget.format_currency_no_symbol(order.get_total_discount())"/>
+                        </td>
+                    </t>
+                </tr>
+            </table>
+            <table>
+                <tr class="emph" width="100%">
+                    <td class="pos-right-align" width="50%">
+                        <strong>Total:</strong>
+                    </td>
+                    <td class="pos-right-align" width="50%">
+                        <strong>
+                            <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
+                        </strong>
+                    </td>
+                </tr>
+            </table>
+        </t>
+        <t t-jquery=".receipt-paymentlines" t-operation="replace">
+            <table class="receipt-paymentlines">
+                <t t-as="line" t-foreach="paymentlines">
+                    <tr width="100%">
+                        <td class="pos-right-align" width="75%">
+                            <t t-esc="line.name"/>:
+
+                        </td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-if="line.get_amount() > 0">
+                                <t t-esc="widget.format_currency_no_symbol(line.get_amount())"/>
+                            </t>
+                        </td>
+                    </tr>
+                </t>
+            </table>
+        </t>
+        <t t-jquery=".receipt-change" t-operation="replace">
+            <table class="receipt-change">
+                <tr width="100%">
+                    <t t-if="order.get_change() > 0">
+                        <td class="pos-right-align" width="75%">
+                            <strong>Cambio:</strong>
+                        </td>
+                        <td class="pos-right-align" width="25%">
+                            <t t-esc="widget.format_currency_no_symbol(order.get_change())"/>
+                        </td>
+                    </t>
+                </tr>
+            </table>
+        </t>
+    </t>
+</templates>

@@ -1,6 +1,5 @@
 <odoo>
 
-
     <record id="pos_config_view_form" model="ir.ui.view">
         <field name="name">pos_config_view_form</field>
         <field name="model">pos.config</field>
@@ -38,12 +37,36 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-md-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <div class="text-muted">
+                                Seleccione entre las opciones actuales para buscar las órdenes
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <field style="font-weight:bold" name="order_search_criteria"
+                                           widget="many2many_checkboxes"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </xpath>
 
+            <xpath expr="//div[@id='receipt']" position="inside">
+                <div class="col-xs-12 col-md-6 o_setting_box">
+                    <div class="o_setting_left_pane">
+                        <field name="seller_and_cashier_ticket"/>
+                    </div>
+                    <div class="o_setting_right_pane">
+                        <label for="seller_and_cashier_ticket"/>
+                        <div class="text-muted">
+                            Add the cashier and the seller on ticket
+                        </div>
+                    </div>
+                </div>
+            </xpath>
         </field>
-
-
     </record>
 
 </odoo>

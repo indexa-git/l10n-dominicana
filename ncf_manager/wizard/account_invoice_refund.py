@@ -20,11 +20,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
-
-import requests
+import logging
 
 from odoo import models, api, fields, _
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
+
+try:
+    from stdnum.do import ncf
+except(ImportError, IOError) as err:
+    _logger.debug(err)
 
 
 class AccountInvoiceRefund(models.TransientModel):
@@ -116,29 +122,20 @@ class AccountInvoiceRefund(models.TransientModel):
             invoice = self.env["account.invoice"].browse(active_id)
 
             if self.supplier_ncf:
-                if self.filter_refund == 'debit' and self.supplier_ncf[9:11] != "03":
+                if self.filter_refund == 'debit' and self.supplier_ncf[-10:-8] != '03':
                     raise ValidationError(_(u"Las Notas de Débito deben ser tipo 03, este NCF no es de este tipo."))
-                elif self.filter_refund != 'debit' and self.supplier_ncf[9:11] != "04":
+                elif self.filter_refund != 'debit' and self.supplier_ncf[-10:-8] != '04':
                     raise ValidationError(_(u"Las Notas de Crédito deben ser tipo 04, este NCF no es de este tipo."))
 
             if self.supplier_ncf and invoice.journal_id.ncf_remote_validation:
-                request_params = self.env["marcos.api.tools"].get_marcos_api_request_params()
-                if request_params[0] == 1:
-                    res = requests.get('{}/ncf/{}/{}'.format(
-                        request_params[1],
-                        invoice.partner_id.vat,
-                        self.supplier_ncf),
-                        proxies=request_params[2])
-                    if res.status_code == 200 and res.json().get("valid", False) is False:
-                        raise UserError(_(
-                            u"NCF NO pasó validación en DGII\n\n"
-                            u"¡El número de comprobante *{}* del proveedor "
-                            u"*{}* no pasó la validación en "
-                            "DGII! Verifique que el NCF y el RNC del "
-                            u"proveedor estén correctamente "
-                            u"digitados, o si los números de ese NCF se "
-                            "le agotaron al proveedor".format(
-                                self.supplier_ncf,
-                                invoice.partner_id.name)))
+                if not ncf.check_dgii(invoice.partner_id.vat, self.supplier_ncf):
+                    raise UserError(_(
+                        u"NCF NO pasó validación en DGII\n\n"
+                        u"¡El número de comprobante *{}* del proveedor "
+                        u"*{}* no pasó la validación en "
+                        "DGII! Verifique que el NCF y el RNC del "
+                        u"proveedor estén correctamente "
+                        u"digitados, o si los números de ese NCF se "
+                        "le agotaron al proveedor".format(self.supplier_ncf, invoice.partner_id.name)))
 
         return super(AccountInvoiceRefund, self).invoice_refund()
