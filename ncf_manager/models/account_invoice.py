@@ -291,12 +291,6 @@ class AccountInvoice(models.Model):
                         "para este tipo de factura.".format(inv.partner_id.id,
                                                             inv.partner_id.name)))
 
-                if inv.sale_fiscal_type == 'final' and inv.partner_id.vat:
-                    if len(inv.partner_id.vat) == 9:
-                        raise UserError(_(
-                            u"No debe emitir una Factura de Consumo,"
-                            " a un cliente con RNC."))
-
                 if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
                     raise UserError(_(
                         u"Si el monto es mayor a RD$50,000 el cliente debe "
