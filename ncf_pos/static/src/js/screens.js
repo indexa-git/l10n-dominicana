@@ -31,7 +31,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 },
                 response: function (event, ui) {
                     // selecting the first item if the result is only one
-                    if (Array.isArray(ui.content) && ui.content.length == 1) {
+                    if (Array.isArray(ui.content) && ui.content.length == 1 && $.isNumeric(name_input.val())) {
                         var input = $(this);
 
                         ui.item = ui.content[0];
