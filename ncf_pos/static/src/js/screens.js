@@ -250,7 +250,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
             contents.empty();
 
-            if (!orders) return;
+            if (!orders || orders.length == 0) return;
 
             this.display_order_details('hide');
             orders.forEach(function (order) {
