@@ -138,8 +138,9 @@ class ResPartner(models.Model):
 
             if number.isdigit() and len(number) in (9, 11):
                 message = "El contacto: %s, esta registrado con este RNC/Céd."
+                self_id = self.id if self.id else 0
                 contact = self.search([('vat', '=', number),
-                                       ('id', '!=', self.id),
+                                       ('id', '!=', self_id),
                                        ('parent_id', '=', False)])
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
