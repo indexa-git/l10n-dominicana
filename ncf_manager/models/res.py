@@ -151,7 +151,7 @@ class ResPartner(models.Model):
                     is_rnc = len(number) == 9
                     rnc.validate(number) if is_rnc else cedula.validate(number)
                 except Exception as e:
-                    raise ValidationError(_("RNC/Ced Inválido"))
+                    _logger.warning("RNC/Ced Inválido en el contacto {}".format(self.name))
 
                 dgii_vals = rnc.check_dgii(number)
                 if dgii_vals is None:
