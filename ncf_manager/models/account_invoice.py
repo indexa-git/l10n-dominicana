@@ -302,7 +302,7 @@ class AccountInvoice(models.Model):
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
-            elif inv.type == 'out_refund' and not inv.partner_id.vat:
+            elif inv.type == 'out_refund' and inv.journal_id.ncf_control and not inv.partner_id.vat:
                 raise ValidationError(_("Para poder emitir una NC, se requiere"
                                         " que el cliente tenga RNC o Cédula."))
 
