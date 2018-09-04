@@ -285,7 +285,8 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_orders_from_server: function () {
             var self = this;
-            new Model('pos.order').call('order_search_from_ui', [])
+            var day_limit = this.config.order_loading_options === 'n_days' ? this.config.number_of_days : 0;
+            new Model('pos.order').call('order_search_from_ui', [day_limit])
                 .then(function (result) {
                     var orders = result && result.orders || [];
                     var orderlines = result && result.orderlines || [];
