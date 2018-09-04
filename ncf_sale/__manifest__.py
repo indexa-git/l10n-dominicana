@@ -44,7 +44,7 @@
     },
 
     # any module necessary for this one to work correctly
-    'depends': ['ncf_manager', 'sale_management',],
+    'depends': ['ncf_manager', 'sale',],
 
     'data': [
         'security/ir.model.access.csv',
