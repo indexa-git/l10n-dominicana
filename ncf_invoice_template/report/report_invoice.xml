@@ -5,7 +5,7 @@
         <xpath expr="//div[hasclass('page')]/h2" position="replace"/>
         <xpath expr="//div[hasclass('page')]/div[hasclass('row')]" position="replace">
             <div class="row">
-                <div name="dgii_invoice_address" class="col-xs-5">
+                <div name="invoice_address" class="col-xs-5">
                     <p style="font-size: 16px; font-weight: bold;"><span t-field="o.company_id.name"/></p>
                     <span t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
                     <strong>RNC: </strong><span t-field="o.company_id.vat"/><br/>
