@@ -343,3 +343,10 @@ class AccountInvoice(models.Model):
             res.update({"move_name": self._context["credit_note_supplier_ncf"]
                         })
         return res
+
+
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    income_type = fields.Selection([], related='invoice_id.income_type')
+    expense_type = fields.Selection([], related='invoice_id.expense_type')
