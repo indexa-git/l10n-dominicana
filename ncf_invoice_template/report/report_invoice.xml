@@ -206,12 +206,5 @@
             </tr>
         </xpath>
 
-        <xpath expr="//div[@id='total']" position="after">
-             <div class="text-muted" style="float: right">
-                Original: Cliente<br/>
-                Copia: Vendedor
-            </div>
-        </xpath>
-
     </template>
 </odoo>
