@@ -31,7 +31,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 },
                 response: function (event, ui) {
                     // selecting the first item if the result is only one
-                    if (Array.isArray(ui.content) && ui.content.length == 1) {
+                    if (Array.isArray(ui.content) && ui.content.length == 1 && $.isNumeric(name_input.val())) {
                         var input = $(this);
 
                         ui.item = ui.content[0];
@@ -925,16 +925,8 @@ odoo.define('ncf_pos.screens', function (require) {
                 var order = self.pos.get_order();
                 var client = self.pos.get_client();
                 var popupErrorOptions = '';
-                var anyOrderLineWithZeroPrice = order.orderlines.find(function (line) {
-                    return line.get_price_with_tax() < 0;
-                });
 
-                if (anyOrderLineWithZeroPrice) {
-                    popupErrorOptions = {
-                        'title': 'Precio de producto',
-                        'body': 'Ningun producto puede tener precio menor a RD$0.00'
-                    };
-                } else if (order.get_total_with_tax() <= 0) {
+                if (order.get_total_with_tax() <= 0) {
                     popupErrorOptions = {
                         'title': 'Cantidad de articulos a pagar',
                         'body': 'La orden esta vacia o el total pagar es RD$0.00'

@@ -2,6 +2,7 @@
 import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from datetime import timedelta
 
 _logger = logging.getLogger(__name__)
 
@@ -117,8 +118,15 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self):
-        invoice_ids = self.env["account.invoice"].search([('type', '=', 'out_invoice')])
+    def order_search_from_ui(self, day_limit=0):
+        invoice_domain = [('type', '=', 'out_invoice')]
+
+        if day_limit:
+            today = fields.Date.from_string(fields.Date.context_today(self))
+            limit = today - timedelta(days=day_limit)
+            invoice_domain.append(('date_invoice', '>=', limit))
+
+        invoice_ids = self.env["account.invoice"].search(invoice_domain)
 
         order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
         order_list = []

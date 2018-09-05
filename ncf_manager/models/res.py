@@ -138,7 +138,10 @@ class ResPartner(models.Model):
 
             if number.isdigit() and len(number) in (9, 11):
                 message = "El contacto: %s, esta registrado con este RNC/Céd."
-                contact = self.search([('vat', '=', number)])
+                self_id = self.id if self.id else 0
+                contact = self.search([('vat', '=', number),
+                                       ('id', '!=', self_id),
+                                       ('parent_id', '=', False)])
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
                         [x.name for x in contact if x.name])
@@ -148,7 +151,7 @@ class ResPartner(models.Model):
                     is_rnc = len(number) == 9
                     rnc.validate(number) if is_rnc else cedula.validate(number)
                 except Exception as e:
-                    raise ValidationError(_("RNC/Ced Inválido"))
+                    _logger.warning("RNC/Ced Inválido en el contacto {}".format(self.name))
 
                 dgii_vals = rnc.check_dgii(number)
                 if dgii_vals is None:
@@ -212,11 +215,10 @@ class ResPartner(models.Model):
 
     @api.model
     def create(self, vals):
-        if self._context.get("quickcreate", False):
-            vat = vals.get("vat", False)
-            result = self.validate_rnc_cedula(vals["vat"])
-            if result:
-                vals.update({"name": result["name"]})
+        vat = vals.get("vat", False)
+        result = self.validate_rnc_cedula(vals["vat"]) if vat else None
+        if result and result.get("name", False):
+            vals.update({"name": result["name"]})
 
         return super(ResPartner, self).create(vals)
 
@@ -230,7 +232,7 @@ class ResPartner(models.Model):
                 if partner:
                     return partner.name_get()[0]
                 else:
-                    new_partner = self.with_context(quickcreate=True).create({"vat": name})
+                    new_partner = self.create({"vat": name})
                     return new_partner.name_get()[0]
             else:
                 return super(ResPartner, self).name_create(name)

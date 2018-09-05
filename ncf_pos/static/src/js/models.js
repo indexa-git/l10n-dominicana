@@ -289,10 +289,12 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_orders_from_server: function () {
             var self = this;
+            var day_limit = this.config.order_loading_options === 'n_days' ? this.config.number_of_days : 0;
+
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
-                args: []
+                args: [day_limit]
             }, {})
                 .then(function (result) {
                     var orders = result && result.orders || [];
