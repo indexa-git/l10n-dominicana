@@ -50,6 +50,17 @@ class AccountInvoiceRefund(models.TransientModel):
         self.supplier_ncf = False
         self.account_id = False
 
+    @api.depends('date_invoice')
+    @api.one
+    def _get_refund_only(self):
+        # This is the core code, you will be commented while you find a better way to handle this issue.
+        # invoice_id = self.env['account.invoice'].browse(self._context.get('active_id',False))
+        # if len(invoice_id.payment_move_line_ids) != 0 and invoice_id.state != 'paid':
+        #     self.refund_only = True
+        # else:
+        #     self.refund_only = False
+        self.refund_only = True
+
     @api.multi
     def compute_refund(self, mode='refund'):
         # TODO sale_fiscal_type are missing on refund wizard
