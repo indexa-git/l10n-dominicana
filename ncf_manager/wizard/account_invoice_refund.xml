@@ -45,14 +45,14 @@
                                             Para
                                             que pueda editarla.
                                         </div>
-                                        <div attrs="{'invisible':['|',('refund_only','=',True),('filter_refund','=!','discount')]}"
+                                        <div attrs="{'invisible':['|',('refund_only','=',True),('filter_refund','!=','discount')]}"
                                              class="alert alert-info" role="alert" colspan="4">
                                             Utilice esta opción si desea crea una nota de
                                             crédito para aplicar un descuento, La nota de crédito será creada,
                                             validada
                                             y reconciliada Con la factura. No podrá modificar la nota de crédito.
                                         </div>
-                                        <div attrs="{'invisible':['|',('refund_only','=',True),('filter_refund','=!','debit')]}"
+                                        <div attrs="{'invisible':['|',('refund_only','=',True),('filter_refund','!=','debit')]}"
                                              class="alert alert-info" role="alert" colspan="4">
                                             Utilice esta opción si desea aplicar una nota de débito a una factura o
                                             a
