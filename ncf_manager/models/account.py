@@ -35,10 +35,10 @@ class AccountJournal(models.Model):
     purchase_type = fields.Selection(
         [("normal", "Compras Fiscales"),
          ("minor", "Gastos Menores"),
-         ("informal", "Registro de Proveedores Informales"),
-         ("exterior", "Compras al Exterior"),
+         ("informal", "Proveedores Informales"),
+         ("exterior", "Remesas al Exterior"),
          ("import", "Importaciones"),
-         ("others", "No deducibles. No requiere NCF")],
+         ("others", "Otros (sin NCF)")],
         string="Tipo de Compra", default="others")
 
     payment_form = fields.Selection(
