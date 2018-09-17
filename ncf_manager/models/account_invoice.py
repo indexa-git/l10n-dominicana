@@ -293,7 +293,7 @@ class AccountInvoice(models.Model):
 
                 if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
                     raise UserError(_(
-                        u"Si el monto es mayor a RD$50,000 el cliente debe "
+                        u"Si el monto es mayor a RD$250,000 el cliente debe "
                         u"tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
@@ -302,8 +302,8 @@ class AccountInvoice(models.Model):
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
-            elif inv.type == 'out_refund' and inv.journal_id.ncf_control and not inv.partner_id.vat:
-                raise ValidationError(_("Para poder emitir una NC, se requiere"
+            elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
+                raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
                                         " que el cliente tenga RNC o Cédula."))
 
             if inv.type == "out_invoice":
