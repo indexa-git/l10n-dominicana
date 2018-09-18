@@ -100,9 +100,9 @@ class AccountInvoice(models.Model):
                     inv.income_withholding = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
                         lambda tax: tax.tax_id.purchase_tax_type == 'isr').mapped('amount')))
 
-                if inv.state == 'paid':
-                    # Fecha Pago
-                    self._compute_invoice_payment_date(inv)
+                    if inv.state == 'paid' and inv.withholded_itbis or inv.income_withholding:
+                        # Fecha Pago
+                        self._compute_invoice_payment_date(inv)
 
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
