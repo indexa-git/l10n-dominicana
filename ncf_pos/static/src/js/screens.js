@@ -110,7 +110,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         fieldsRequired[0].elem.focus();
                     }
                 });
-            } else if (rnc && (rnc.length == 9 || rnc.length == 11)) {
+            } else if (rnc && (rnc.length === 9 || rnc.length === 11)) {
                 $.ajax('/validate_rnc/', {
                     dataType: 'json',
                     type: 'GET',
@@ -133,15 +133,21 @@ odoo.define('ncf_pos.screens', function (require) {
                         _super(partner);
                     }
                 }).fail(function (request, error) {
-                    console.error("Validando RNC con WS DGII", request);
-                    self.gui.show_popup('error', {
-                        'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                        'body': _t(request.statusText + '\n' +
-                            ((error.data && error.data.message) || error.message || "")),
-                        cancel: function () {
-                            rnc_input.focus();
-                        }
-                    });
+                    if(rnc.length === 9 && self.mod11_validator(rnc)) {
+                        name_input.val(rnc);
+                    } else if(rnc.length === 11 && self.mod10_validator(rnc)) {
+                        name_input.val(rnc);
+                    } else {
+                        console.error("Validando RNC con WS DGII", request);
+                        self.gui.show_popup('error', {
+                            'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
+                            'body': _t(request.statusText + '\n' +
+                                ((error.data && error.data.message) || error.message || "")),
+                            cancel: function () {
+                                rnc_input.focus();
+                            }
+                        });
+                    }
                     _super(partner);
                 });
             } else {
