@@ -81,14 +81,14 @@ odoo.define('ncf_pos.screens', function (require) {
             }
         },
         save_client_details: function (partner) {
-            var self = this;
-            var _super = this._super.bind(this);
-            var rnc_input = this.$("input[name='vat']"),
-                rnc = rnc_input.val();
-            var name_input = this.$('input[name$=\'name\']');
-            var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
-                sale_fiscal_type = sale_fiscal_type_ddl.val();
-            var fieldsRequired = [];
+            var self = this,
+                _super = this._super.bind(this),
+                rnc_input = this.$("input[name='vat']"),
+                rnc = rnc_input.val(),
+                name_input = this.$("input[name$='name']"),
+                sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
+                sale_fiscal_type = sale_fiscal_type_ddl.val(),
+                fieldsRequired = [];
 
             if (!name_input.val()) {
                 fieldsRequired.push({label: 'Name', elem: name_input});
@@ -96,7 +96,7 @@ odoo.define('ncf_pos.screens', function (require) {
             if (!sale_fiscal_type) {
                 fieldsRequired.push({label: 'NCF', elem: sale_fiscal_type_ddl});
             }
-            if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) == -1 && !rnc) {
+            if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) === -1 && !rnc) {
                 fieldsRequired.push({label: 'Tax ID', elem: rnc_input});
             }
             if (fieldsRequired.length > 0) {
@@ -169,6 +169,45 @@ odoo.define('ncf_pos.screens', function (require) {
                 this.editing_client !== true && !this.new_client) {
                 $button.addClass('oe_hidden');
             }
+        },
+        mod11_validator: function(number) {
+            var weights = [7, 9, 8, 6, 5, 4, 3, 2];
+
+            var checkDigit = number.slice(-1);
+            number = number.slice(0, 8);
+
+            var zip = _.zip(weights, number.split(""));
+            var sum = [];
+
+            for(var i=0; i<zip.length; i++) {
+                var nx = zip[i];
+                sum.push(nx[0] * parseInt(nx[1]));
+            }
+
+            var check = _.reduce(sum, function(memo, num){ return memo + num; }, 0) % 11;
+
+            return ((10 - check) % 9 + 1) === checkDigit;
+        },
+        mod10_validator: function (value) {
+            if (/[^0-9-\s]+/.test(value)) return false;
+
+            // The Luhn Algorithm. It's so pretty.
+            var nCheck = 0, bEven = false;
+            value = value.replace(/\D/g, "");
+        
+            for (var n = value.length - 1; n >= 0; n--) {
+                var cDigit = value.charAt(n),
+                    nDigit = parseInt(cDigit, 10);
+
+                if (bEven) {
+                    if ((nDigit *= 2) > 9) nDigit -= 9;
+                }
+
+                nCheck += nDigit;
+                bEven = !bEven;
+            }
+
+            return (nCheck % 10) === 0;
         }
     });
 
