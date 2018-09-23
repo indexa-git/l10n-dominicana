@@ -18,13 +18,12 @@
 
     <record id="account_ncf_registry_action" model="ir.actions.act_window">
         <field name="name">NCF</field>
-        <field name="res_model">account.ncf.registry</field>
+        <field name="res_model">ir.sequence</field>
         <field name="view_type">form</field>
-        <!--<field name="view_mode">form</field>-->
-        <field name="res_id">102</field>
-        <field name="target">current</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="seq_ncf_registry"/>
     </record>
-
+    
     <menuitem id="account_ncf_registry_menu"
         action="account_ncf_registry_action"
         parent="account.account_account_menu"
