@@ -15,6 +15,8 @@ class IrSequence(models.Model):
         "credit_note": "04"
     }
 
+    date_range_ids = fields.One2many('ir.sequence.date_range', 'sequence_id', string='Subsequences', ondelete="cascade")
+
     ncf_control = fields.Boolean("Control de NCF", default=False)
 
     def get_next_char(self, number_next):
@@ -61,7 +63,9 @@ class IrSequenceDateRange(models.Model):
 
     def get_sale_fiscal_type_from_partner(self):
         return self.env["res.partner"]._fields['sale_fiscal_type'].selection + [("credit_note", u"Nota de Crédito"),
-                                                                                ("debit_note", u"Nota de Débito")]
+                                                                                ("debit_note", u"Nota de Débito"),
+                                                                                ("minor", u"Gastos menores"),
+                                                                                ("informal", u"Proveedores informales")]
 
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")

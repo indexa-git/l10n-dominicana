@@ -16,23 +16,13 @@
         </field>
     </record>
 
-    <record id="account_ncf_registry_view_tree" model="ir.ui.view">
-        <field name="name">account.ncf.registry.tree</field>
-        <field name="model">account.ncf.registry</field>
-        <field name="arch" type="xml">
-            <tree>
-                <field name="name"/>
-                <field name="company_id"/>
-            </tree>
-        </field>
-    </record>
-
     <record id="account_ncf_registry_action" model="ir.actions.act_window">
         <field name="name">NCF</field>
         <field name="res_model">account.ncf.registry</field>
         <field name="view_type">form</field>
-        <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="account_ncf_registry_view_tree"/>
+        <!--<field name="view_mode">form</field>-->
+        <field name="res_id">102</field>
+        <field name="target">current</field>
     </record>
 
     <menuitem id="account_ncf_registry_menu"

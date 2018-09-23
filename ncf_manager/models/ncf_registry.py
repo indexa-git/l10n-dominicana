@@ -43,4 +43,3 @@ class AccountNcfRegistry(models.Model):
         string='Entry Sequence',
         required=True,
         copy=False)
-    sequence = fields.Integer(help='Used to order Journals in the dashboard view', default=10)

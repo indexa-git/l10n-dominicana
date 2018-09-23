@@ -4,11 +4,92 @@
 
         <!-- Sequences for ncf.sequence -->
         <record id="seq_ncf_registry" model="ir.sequence">
-            <field name="name">Final</field>
-            <field name="code">sale.order</field>
-            <field name="prefix">SO</field>
-            <field name="padding">3</field>
+            <field name="name">NCF Norma 07-2018</field>
+            <field name="prefix">B</field>
+            <field name="padding">8</field>
+            <field name="use_date_range" eval="False"/>
             <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="ir_sequence_date_range_id_final" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">final</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_fiscal" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">fiscal</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_special" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">special</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_gov" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">gov</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_unico" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">unico</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_nc" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">credit_note</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_nd" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">debit_note</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_minor" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">minor</field>
+        </record>
+
+        <record id="ir_sequence_date_range_id_informal" model="ir.sequence.date_range">
+            <field name="sequence_id" ref="seq_ncf_registry"/>
+            <field name="date_to" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="date_from" eval="(DateTime.today()).strftime('%Y-%m-%d %H:%M')"/>
+            <field name="number_next">1</field>
+            <field name="max_number_next">1</field>
+            <field name="sale_fiscal_type">informal</field>
         </record>
 
     </data>
