@@ -24,31 +24,23 @@
 # along with NCF Sale.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
-{
-    'name': "NCF Sequence",
-    'version': '11.0.1.0.0',
-    'summary': u"""
-        Este módulo extiende la funcionalidad de NCF Manager,
-        para realizar la configuración y mantenimiento de las secuencias de NCF.
-    """,
-    'author': "Marcos Organizador de Negocios SRL, "
-              "iterativo SRL, "
-              "Neotec SRL, "
-              "Odoo Dominicana (ODOM) ",
-    'category': 'Localization',
-    'external_dependencies': {
-        'python': [
-            'stdnum.do',
-        ],
-    },
-    # any module necessary for this one to work correctly
-    'depends': ['ncf_manager'],
+from odoo import models, fields, api, _
 
-    'data': [
-        # 'security/ir.model.access.csv',
-        # 'date/ncf_sequence_data.xml',
-        'views/ncf_registry_view.xml',
-    ],
-    'qweb': [
-    ]
-}
+
+class AccountNcfRegistry(models.Model):
+    _name = "account.ncf.registry"
+    _description = "NCF Sequences Manager"
+
+    name = fields.Char(string="Name")
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        readonly=True,
+        required=True,
+        default=lambda self: self.env.user.company_id)
+    sequence_id = fields.Many2one(
+        'ir.sequence',
+        string='Entry Sequence',
+        required=True,
+        copy=False)
+    sequence = fields.Integer(help='Used to order Journals in the dashboard view', default=10)
