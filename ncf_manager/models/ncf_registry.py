@@ -31,15 +31,18 @@ class AccountNcfRegistry(models.Model):
     _name = "account.ncf.registry"
     _description = "NCF Sequences Manager"
 
-    name = fields.Char(string="Name")
-    company_id = fields.Many2one(
-        'res.company',
-        string='Company',
-        readonly=True,
-        required=True,
-        default=lambda self: self.env.user.company_id)
+    name = fields.Char(string="Name", readonly=True)
     sequence_id = fields.Many2one(
         'ir.sequence',
         string='Entry Sequence',
         required=True,
         copy=False)
+    company_id = fields.Many2one(related="sequence_id.company_id")
+    prefix = fields.Char(related="sequence_id.prefix")
+    padding = fields.Integer(related="sequence_id.padding")
+    # use_date_range = fields.Boolean(related="sequence_id.use_date_range")
+    date_range_ids = fields.One2many(related="sequence_id.date_range_ids")
+    special_fiscal_position_id = fields.Many2one(
+        "account.fiscal.position",
+        string=u"Posición fiscal para regímenes especiales.",
+        help=u"Define la posición fiscal por defecto para los clientes que tienen definido el tipo de comprobante fiscal regímenes especiales.")

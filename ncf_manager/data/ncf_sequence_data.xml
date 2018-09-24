@@ -8,7 +8,7 @@
             <field name="prefix">B</field>
             <field name="padding">8</field>
             <field name="use_date_range" eval="False"/>
-            <field name="company_id" eval="False"/>
+            <field name="ncf_control" eval="True"/>
         </record>
 
         <record id="ir_sequence_date_range_id_final" model="ir.sequence.date_range">

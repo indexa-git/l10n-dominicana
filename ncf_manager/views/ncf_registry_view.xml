@@ -9,8 +9,19 @@
                 <sheet>
                     <group col="2">
                         <field name="name"/>
-
+                        <field name="prefix"/>
+                        <field name="company_id" readonly="1"/>
+                        <!-- <field name="special_fiscal_position_id"/> -->
                     </group>
+                    <field name="date_range_ids" options="{'no_quick_create':True, 'no_create_edit': True, 'delete': False}">
+                        <tree string="Sequences" editable="false" delete="false">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="number_next_actual"/>
+                            <field name="max_number_next"/>
+                            <field name="sale_fiscal_type"/>
+                        </tree>
+                    </field>
                 </sheet>
             </form>
         </field>
@@ -25,7 +36,7 @@
         <field name="view_id" ref="account_ncf_registry_view_form"/>
         <field name="res_id" ref="seq_ncf_registry"/>
     </record>
-    
+
     <menuitem id="account_ncf_registry_menu"
         action="account_ncf_registry_action"
         parent="account.account_account_menu"
