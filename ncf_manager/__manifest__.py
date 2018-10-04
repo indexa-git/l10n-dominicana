@@ -47,6 +47,7 @@
         'security/ir.model.access.csv',
         'security/ncf_manager_security.xml',
         'data/sequences.xml',
+        'data/ir_config_parameters.xml',
         'wizard/account_invoice_cancel_view.xml',
         'wizard/account_invoice_refund.xml',
         'wizard/update_sequence_wizard_view.xml',
