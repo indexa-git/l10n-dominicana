@@ -33,10 +33,6 @@ class AccountInvoice(models.Model):
                 if dates:
                     inv.payment_date = max(dates)
 
-    def init(self):
-        invoices = self.search([])
-        self._compute_invoice_payment_date(invoices)
-
     @api.multi
     @api.constrains('tax_line_ids')
     def _check_isr_tax(self):
