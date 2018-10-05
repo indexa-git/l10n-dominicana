@@ -22,6 +22,6 @@
 # along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
 # ######################################################################
 
+from . import res_partner
 from . import account_invoice
 from . import purchase_order
-from . import res_partner
