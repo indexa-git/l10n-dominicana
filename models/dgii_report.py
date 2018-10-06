@@ -515,7 +515,7 @@ class DgiiReport(models.Model):
                     'modified_invoice_number': inv.origin if inv.origin and inv.origin[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
-                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding])) else '',
+                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding, inv.third_withheld_itbis])) else '',
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'third_withheld_itbis': inv.third_withheld_itbis if inv.state == 'paid' else 0,
