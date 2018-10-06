@@ -72,8 +72,7 @@ class AccountInvoice(models.Model):
 
                 # Monto Otros Impuestos/Tasas
                 inv.other_taxes = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
-                    lambda tax: tax.tax_id.purchase_tax_type not in ['isr', 'ritbis']
-                                and tax.tax_id.tax_group_id.name not in fiscal_taxes).mapped('amount')))
+                    lambda tax: tax.tax_id.tax_group_id.name == "Otros Impuestos").mapped('amount')))
 
                 # Monto Propina Legal
                 inv.legal_tip = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
