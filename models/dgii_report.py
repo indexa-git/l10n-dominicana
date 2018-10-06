@@ -304,7 +304,7 @@ class DgiiReport(models.Model):
                     'identification_type': rnc_ced[1] if rnc_ced else False,
                     'expense_type': inv.expense_type if inv.expense_type else False,
                     'fiscal_invoice_number': inv.move_name,
-                    'modified_invoice_number': inv.origin,
+                    'modified_invoice_number': inv.origin if inv.type == 'in_refund' else False,
                     'invoice_date': inv.date_invoice,
                     'payment_date': inv.payment_date,
                     'service_total_amount': inv.service_total_amount,
