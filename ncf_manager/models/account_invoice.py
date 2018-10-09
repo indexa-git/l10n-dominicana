@@ -55,30 +55,6 @@ EXPENSE_TYPE = [
     ('11', '11 - Gastos de Seguros')]
 
 
-class SaleOrder(models.Model):
-    _inherit = "sale.order"
-
-    @api.multi
-    def _prepare_invoice(self):
-        """
-        Prepare the dict of values to create the new invoice for a sales order. This method may be
-        overridden to implement custom invoice generation (making sure to call super() to establish
-        a clean extension chain).
-        """
-        self.ensure_one()
-        invoice_vals = super(SaleOrder, self)._prepare_invoice()
-        invoice_vals['sale_fiscal_type'] = self.partner_id.sale_fiscal_type
-
-        return invoice_vals
-
-
-class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
-
-    income_type = fields.Selection(INCOME_TYPE, related='invoice_id.income_type', default='01')
-    expense_type = fields.Selection(EXPENSE_TYPE, related='invoice_id.expense_type')
-
-
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
@@ -118,16 +94,21 @@ class AccountInvoice(models.Model):
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
-    sale_fiscal_type = fields.Selection([("final", "Consumidor Final"),
+    sale_fiscal_type = fields.Selection([("final", "Consumo"),
                                          ("fiscal", u"Crédito Fiscal"),
                                          ("gov", "Gubernamentales"),
                                          ("special", u"Regímenes Especiales"),
                                          ("unico", u"Único Ingreso")],
-                                        string='NCF Para',
+                                        string='NCF para',
                                         default='final')
 
     income_type = fields.Selection(
-        INCOME_TYPE,
+        [('01', '01 - Ingresos por Operaciones (No Financieros)'),
+         ('02', '02 - Ingresos Financieros'),
+         ('03', '03 - Ingresos Extraordinarios'),
+         ('04', '04 - Ingresos por Arrendamientos'),
+         ('05', '05 - Ingresos por Venta de Activo Depreciable'),
+         ('06', '06 - Otros Ingresos')],
         string='Tipo de Ingreso',
         default='01')
 
@@ -304,6 +285,10 @@ class AccountInvoice(models.Model):
         for inv in self:
             sequence_obj = self.env['ir.sequence'].sudo()
 
+            if inv.amount_untaxed == 0:
+                raise UserError(_(
+                    u"No se puede validar una factura cuyo monto total sea igual a 0."))
+
             if inv.type == "out_invoice" and inv.journal_id.ncf_control:
                 if not inv.partner_id.sale_fiscal_type:
                     raise ValidationError(_(
@@ -317,15 +302,9 @@ class AccountInvoice(models.Model):
                         "para este tipo de factura.".format(inv.partner_id.id,
                                                             inv.partner_id.name)))
 
-                if inv.sale_fiscal_type == 'final' and inv.partner_id.vat:
-                    if len(inv.partner_id.vat) == 9:
-                        raise UserError(_(
-                            u"No debe emitir una Factura de Consumo,"
-                            " a un cliente con RNC."))
-
-                if inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
+                if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
                     raise UserError(_(
-                        u"Si el monto es mayor a RD$50,000 el cliente debe "
+                        u"Si el monto es mayor a RD$250,000 el cliente debe "
                         u"tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
@@ -334,6 +313,9 @@ class AccountInvoice(models.Model):
                         u"¡Para este tipo de Compra el Proveedor"
                         u" debe de tener un RNC/Cédula establecido!"))
                 self.purchase_ncf_validate()
+            elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
+                raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
+                                        " que el cliente tenga RNC o Cédula."))
 
             if inv.type == "out_invoice":
                 inv.internal_sequence = sequence_obj.next_by_code(
@@ -362,3 +344,9 @@ class AccountInvoice(models.Model):
                         })
         return res
 
+
+class AccountInvoiceLine(models.Model):
+    _inherit = 'account.invoice.line'
+
+    income_type = fields.Selection([], related='invoice_id.income_type')
+    expense_type = fields.Selection([], related='invoice_id.expense_type')
