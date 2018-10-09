@@ -791,7 +791,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 console.error("get_next_ncf", "The order is missing");
                 dfd.reject("get_next_ncf - The order is missing");
             } else {
-                dfd = new Model('pos.order').call('get_next_ncf', args, {timeout: 3000});
+                dfd = new Model('pos.order').call('get_next_ncf', args);
 
                 dfd.done(function (next_ncf) {
                     var ncfs = self.pos.db.load('ncfs', []);

@@ -33,7 +33,7 @@
                     </t>
                     <t t-else="">
                         <strong>Factura de
-                            <t t-esc="sale_fiscal_type_client.ticket_label || sale_fiscal_type_client.name"/>
+                            <t t-esc="widget.pos.get_sale_fiscal_type(order.get_client().sale_fiscal_type)"/>
                         </strong>
                         <br/>
                     </t>
