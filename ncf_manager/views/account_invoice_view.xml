@@ -116,13 +116,6 @@
                        'readonly': [('state','!=','draft')]}"/>
             </field>
 
-            <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
-                <field name="expense_type" invisible="1"/>
-                <field name="account_id" groups="account.group_account_user"
-                       domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False),
-                       ('expense_type', '=', expense_type)]"/>
-            </xpath>
-
         </field>
     </record>
 </odoo>
