@@ -55,6 +55,19 @@
         </field>
     </record>
 
+    <record id="ncf_manager_account_invoice_tree" model="ir.ui.view">
+        <field name="name">ncf manager account invoice tree</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="invisible"/>
+                <attribute name="attrs">{"readonly": [["state","not in",["draft"]]]}</attribute>
+            </xpath>
+
+        </field>
+    </record>
 
     <record id="ncf_manager_supplier_account_invoice_form" model="ir.ui.view">
         <field name="name">ncf manager supplier account invoice form</field>
