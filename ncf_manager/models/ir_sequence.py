@@ -29,6 +29,9 @@ from odoo import models, fields, api
 class IrSequence(models.Model):
     _inherit = 'ir.sequence'
 
+    ncf_padding = fields.Integer(required=True, default=8,
+                                 help="Padding legally use by NCF sequences")
+
     ncf_dict = {
         "fiscal": "01",
         "final": "02",
@@ -44,13 +47,8 @@ class IrSequence(models.Model):
     def get_next_char(self, number_next):
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)
         if sale_fiscal_type:
-            interpolated_suffix = self._get_prefix_suffix()[1]
-            return 'B' + self.ncf_dict[
-                sale_fiscal_type] + '%%0%sd' % self.padding % number_next + interpolated_suffix
+            return 'B' + self.ncf_dict[sale_fiscal_type] + '%%0%sd' % self.ncf_padding % number_next
         return super(IrSequence, self).get_next_char(number_next)
-
-        interpolated_prefix, interpolated_suffix = self._get_prefix_suffix()
-        return interpolated_prefix + '%%0%sd' % self.padding % number_next + interpolated_suffix
 
     def _next(self):
         """ Returns the next number in the preferred sequence in all the ones given in self."""
