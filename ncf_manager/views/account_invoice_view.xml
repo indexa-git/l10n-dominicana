@@ -36,17 +36,8 @@
             </field>
 
             <xpath expr="//h1" position="after">
-                <h4 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)]}">
-                    Válido hasta:
-                    <field name="ncf_expiration_date" readonly="1"/>
-                </h4>
-                <h4 states="draft,cancel">
-                    <field name="reference" readonly="1" attrs="{'invisible':[('reference','=',False)]}"/>
-                </h4>
                 <h4 attrs="{'invisible':[('state','!=','cancel')]}">
-                    Razón de Cancelación:
-                    <br/>
-                    <field name="anulation_type" readonly="1"/>
+                    Razón de Cancelación:<br/><field name="anulation_type" readonly="1"/>
                 </h4>
             </xpath>
 
@@ -55,14 +46,11 @@
             <field name="partner_id" position="after">
                 <field name="origin_out" groups="base.group_user"
                        attrs="{'invisible': [('type', '!=', 'out_refund')], 'readonly': [('origin_out', '!=', False)]}"/>
+                <field name="reference" readonly="1" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)]}"/>
             </field>
 
             <field name="move_id" position="before">
                 <field name="origin" groups="base.group_user" attrs="{'invisible': [('type', '=', 'out_refund')]}"/>
-            </field>
-
-            <field name="date_invoice" position="before">
-                <field name="internal_sequence" readonly="1"/>
             </field>
 
         </field>
@@ -85,9 +73,9 @@
                 <field name="is_company_currency" invisible="1"/>
             </field>
 
-            <field name="date_invoice" position="before">
-                <field name="internal_sequence" readonly="1"/>
-            </field>
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="attrs">{'size': 19, 'invisible': [('purchase_type','!=','normal')], 'required': [('purchase_type','=','normal')], 'readonly': [('state','!=','draft')]}</attribute>
+            </xpath>
 
             <field name="journal_id" position="replace"/>
             <field name="reference" position="before">
@@ -98,11 +86,6 @@
                 <field name="expense_type" attrs="{
                        'invisible':[('purchase_type','not in',['normal','minor','informal'])],
                        'required': [('purchase_type','in',['normal','minor','informal'])],
-                       'readonly': [('state','!=','draft')]}"/>
-                <field name="reference" string="NCF"
-                       attrs="{'size': 19,
-                       'invisible': [('purchase_type','!=','normal')],
-                       'required': [('purchase_type','=','normal')],
                        'readonly': [('state','!=','draft')]}"/>
             </field>
 
