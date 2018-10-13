@@ -280,6 +280,9 @@ class AccountInvoice(models.Model):
                 raise UserError(_(
                     u"No se puede validar una factura cuyo monto total sea igual a 0."))
 
+            if not inv.journal_id.ncf_ready:
+                raise UserError("Debe configurar los NCF para este diario.")
+
             if inv.type == "out_invoice" and inv.journal_id.ncf_control:
                 if not inv.partner_id.sale_fiscal_type:
                     raise ValidationError(_(
