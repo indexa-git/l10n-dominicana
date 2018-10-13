@@ -337,3 +337,20 @@ class AccountInvoice(models.Model):
             res.update({"move_name": self._context["credit_note_supplier_ncf"]
                         })
         return res
+
+    @api.multi
+    def invoice_validate(self):
+        """ After all invoice validation routine, consume a NCF sequence and write it
+            into reference field.
+         """
+        if self.journal_id.ncf_control:
+            sequence_id = self.journal_id.sequence_id
+            if self.type == 'out_invoice':
+                if self.is_nd:
+                    self.reference = sequence_id.with_context(sale_fiscal_type='debit_note')._next()
+                else:
+                    self.reference = sequence_id.with_context(sale_fiscal_type=self.sale_fiscal_type)._next()
+            elif self.type == 'out_refund':
+                self.reference = sequence_id.with_context(sale_fiscal_type='credit_note')._next()
+
+        return super(AccountInvoice, self).invoice_validate()
