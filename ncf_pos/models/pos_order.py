@@ -27,7 +27,7 @@ class PosOrder(models.Model):
     ncf = fields.Char("NCF")
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
     refund_payment_account_move_line_ids = fields.Many2many("account.move.line")
-    ncf_invoice_related = fields.Char(related="invoice_id.number", string="NCF")
+    ncf_invoice_related = fields.Char(related="invoice_id.reference", string="NCF")
     sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type", string="Tipo", readonly=1)
     ncf_control = fields.Boolean(related="sale_journal.ncf_control")
 
@@ -40,12 +40,12 @@ class PosOrder(models.Model):
         if self.ncf_control:
             if self.ncf:
                 inv.update({
-                    'move_name': self.ncf,
+                    'reference': self.ncf,
                     'income_type': '01',
                     'sale_fiscal_type': self.partner_id.sale_fiscal_type
                 })
             if self.return_order_id:
-                inv.update({'origin': self.return_order_id.invoice_id.number})
+                inv.update({'origin': self.return_order_id.invoice_id.reference})
         return inv
 
     def test_paid(self):
@@ -140,7 +140,7 @@ class PosOrder(models.Model):
                 "pos_reference": order.pos_reference,
                 "invoice_id": [order.invoice_id.id, order.invoice_id.number],
                 "amount_total": order.amount_total,
-                "number": order.invoice_id.number,
+                "number": order.invoice_id.reference,
                 "lines": [line.id for line in order.lines],
                 "statement_ids": [statement_id.id for statement_id in order.statement_ids],
                 "is_return_order": order.is_return_order
@@ -174,7 +174,7 @@ class PosOrder(models.Model):
 
     @api.model
     def credit_note_info_from_ui(self, ncf):
-        invoice_ids = self.env["account.invoice"].search([('number', '=', ncf), ('type', '=', 'out_refund')])
+        invoice_ids = self.env["account.invoice"].search([('reference', '=', ncf), ('type', '=', 'out_refund')])
         return {"id": invoice_ids.id, "residual": invoice_ids.residual}
 
     @api.model
@@ -214,7 +214,7 @@ class PosOrder(models.Model):
         else:
             payment_name = data.get("payment_name", False)
             if payment_name:
-                out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
+                out_refund_invoice = self.env["account.invoice"].sudo().search([('reference', '=', payment_name)])
                 if out_refund_invoice:
                     move_line_ids = out_refund_invoice.move_id.line_ids
                     move_line_ids = move_line_ids.filtered(lambda
