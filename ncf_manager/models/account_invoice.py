@@ -39,6 +39,8 @@ except(ImportError, IOError) as err:
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
+    reference = fields.Char(string='NCF')
+
     @api.multi
     @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
