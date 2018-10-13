@@ -144,7 +144,7 @@ class AccountInvoice(models.Model):
     ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     def purchase_ncf_validate(self):
-        if not self.journal_id.purchase_type == 'normal':
+        if self.journal_id.purchase_type not in ('normal', 'minor', 'informal'):
             return
 
         ncf = self.reference if self.reference else None
@@ -155,12 +155,10 @@ class AccountInvoice(models.Model):
                 "El comprobante *{}* no tiene la estructura correcta "
                 "valide si lo ha digitado correctamente".format(ncf)))
 
-        if ncf[-10:-8] not in (
-                '01', '03', '04', '11', '12', '13', '14', '15'):
+        if ncf[-10:-8] == '02':
             raise ValidationError(_(
                 "NCF *{}* NO corresponde con el tipo de documento\n\n"
-                "Verifique lo ha digitado correctamente y que no sea un "
-                "Comprobante Consumidor Final (02)".format(ncf)))
+                "No puede registrar un Comprobante de Consumidor Final (02)".format(ncf)))
 
         if self.id:
             ncf_in_draft = self.search_count(
@@ -267,55 +265,44 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
-            sequence_obj = self.env['ir.sequence'].sudo()
-
             if inv.amount_untaxed == 0:
                 raise UserError(_(
                     u"No se puede validar una factura cuyo monto total sea igual a 0."))
 
-            if not inv.journal_id.ncf_ready:
-                raise UserError("Debe configurar los NCF para este diario.")
+            if inv.journal_id.ncf_control:
 
-            if inv.type == "out_invoice" and inv.journal_id.ncf_control:
-                if not inv.partner_id.sale_fiscal_type:
-                    raise ValidationError(_(
-                        u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
-                        "para este tipo de factura.".format(inv.partner_id.id,
-                                                            inv.partner_id.name)))
+                if inv.type == "out_invoice":
 
-                if inv.sale_fiscal_type in ("fiscal", "gov", "special") and not inv.partner_id.vat:
-                    raise UserError(_(
-                        u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
-                        "para este tipo de factura.".format(inv.partner_id.id,
-                                                            inv.partner_id.name)))
+                    if not inv.journal_id.ncf_ready:
+                        raise ValidationError(_("Debe configurar los NCF para este diario."))
 
-                if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
-                    raise UserError(_(
-                        u"Si el monto es mayor a RD$250,000 el cliente debe "
-                        u"tener un RNC o Céd para emitir la factura"))
+                    if not inv.partner_id.sale_fiscal_type:
+                        raise ValidationError(_(
+                            u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
+                            "para este tipo de factura.".format(inv.partner_id.id,
+                                                                inv.partner_id.name)))
 
-            elif inv.type in ("in_invoice", "in_refund"):
-                if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
-                    raise UserError(_(
-                        u"¡Para este tipo de Compra el Proveedor"
-                        u" debe de tener un RNC/Cédula establecido!"))
-                self.purchase_ncf_validate()
-            elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
-                raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
-                                        " que el cliente tenga RNC o Cédula."))
+                    if inv.sale_fiscal_type in ("fiscal", "gov", "special") and not inv.partner_id.vat:
+                        raise UserError(_(
+                            u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
+                            "para este tipo de factura.".format(inv.partner_id.id,
+                                                                inv.partner_id.name)))
 
-            if inv.type == "out_invoice":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'client.invoice.number')
-            if inv.type == "in_invoice":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'supplier.invoice.number')
-            if inv.type == "in_refund":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'debit.note.invoice.number')
-            if inv.type == "out_refund":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'credit.note.invoice.number')
+                    if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
+                        raise UserError(_(
+                            u"Si el monto es mayor a RD$250,000 el cliente debe "
+                            u"tener un RNC o Céd para emitir la factura"))
+
+                elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
+                    raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
+                                            " que el cliente tenga RNC o Cédula."))
+
+                elif inv.type in ("in_invoice", "in_refund"):
+                    if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
+                        raise UserError(_(
+                            u"¡Para este tipo de Compra el Proveedor"
+                            u" debe de tener un RNC/Cédula establecido!"))
+                    self.purchase_ncf_validate()
 
         return super(AccountInvoice, self).action_invoice_open()
 
