@@ -33,6 +33,11 @@
                        'invisible':[('ncf_control','!=',True)],
                        'required': [('ncf_control','=',True),('type','=','out_invoice')],
                        'readonly': [('state','!=','draft')]}"/>
+                <field name="origin_out" groups="base.group_user" attrs="{
+                       'invisible': [('type', '!=', 'out_refund')],
+                       'readonly': [('origin_out', '!=', False)]}"/>
+                <field name="reference" string="NCF" readonly="1" attrs="{
+                       'invisible': ['|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)]}"/>
             </field>
 
             <xpath expr="//h1" position="after">
@@ -42,12 +47,6 @@
             </xpath>
 
             <xpath expr="//page[@name='other_info']//field[@name='origin']" position="replace"/>
-
-            <field name="partner_id" position="after">
-                <field name="origin_out" groups="base.group_user"
-                       attrs="{'invisible': [('type', '!=', 'out_refund')], 'readonly': [('origin_out', '!=', False)]}"/>
-                <field name="reference" readonly="1" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)]}"/>
-            </field>
 
             <field name="move_id" position="before">
                 <field name="origin" groups="base.group_user" attrs="{'invisible': [('type', '=', 'out_refund')]}"/>
@@ -74,6 +73,7 @@
             </field>
 
             <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="string">NCF</attribute>
                 <attribute name="attrs">{'size': 19, 'invisible': [('purchase_type','!=','normal')], 'required': [('purchase_type','=','normal')], 'readonly': [('state','!=','draft')]}</attribute>
             </xpath>
 
