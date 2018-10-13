@@ -4,6 +4,8 @@
 #             Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 iterativo SRL. (https://iterativo.do/)
 #             Gustavo Valverde <gustavo@iterativo.do>
+# © 2018      INDEXA SRL. (https://indexa.do/)
+#             José López <jlopez@indexa.do>
 
 # This file is part of NCF Manager.
 

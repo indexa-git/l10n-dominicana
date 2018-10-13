@@ -6,6 +6,8 @@
 #             Gustavo Valverde <gustavo@iterativo.do>
 # © 2017-2018 Neotecnology Cyber City SRL. (http://neotec.do/)
 #             Yasmany Castillo <yasmany003@gmail.com>
+# © 2018      INDEXA SRL. (https://indexa.do/)
+#             José López <jlopez@indexa.do>
 
 # This file is part of NCF Manager.
 
