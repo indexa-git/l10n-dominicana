@@ -28,21 +28,21 @@
                 <field name="sale_fiscal_type" attrs="{
                        'invisible':['|',('type','=','out_refund'),('ncf_control','=',False)],
                        'required': [('ncf_control','=',True),('type','=','out_invoice')],
-                       'readonly': ['|',('state','!=','draft'),('move_name','!=',False)]}"/>
+                       'readonly': ['|',('state','!=','draft'),('reference','!=',False)]}"/>
                 <field name="income_type" attrs="{
                        'invisible':[('ncf_control','!=',True)],
                        'required': [('ncf_control','=',True),('type','=','out_invoice')],
                        'readonly': [('state','!=','draft')]}"/>
             </field>
 
-            <field name="move_name" position="replace"/>
+            <field name="reference" position="replace"/>
             <xpath expr="//h1" position="after">
-                <h4 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('move_name', '=', False), ('ncf_control','=',False)]}">
+                <h4 attrs="{'invisible': ['|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)]}">
                     Válido hasta:
                     <field name="ncf_expiration_date" readonly="1"/>
                 </h4>
                 <h4 states="draft,cancel">
-                    <field name="move_name" readonly="1" attrs="{'invisible':[('move_name','=',False)]}"/>
+                    <field name="reference" readonly="1" attrs="{'invisible':[('reference','=',False)]}"/>
                 </h4>
                 <h4 attrs="{'invisible':[('state','!=','cancel')]}">
                     Razón de Cancelación:
@@ -91,7 +91,7 @@
             </field>
 
             <field name="journal_id" position="replace"/>
-            <field name="move_name" position="replace"/>
+            <field name="reference" position="replace"/>
             <field name="reference" position="before">
                 <field name="purchase_type" invisible="1"/>
                 <field name="journal_id" groups="account.group_account_user"
@@ -101,7 +101,7 @@
                        'invisible':[('purchase_type','not in',['normal','minor','informal'])],
                        'required': [('purchase_type','in',['normal','minor','informal'])],
                        'readonly': [('state','!=','draft')]}"/>
-                <field name="move_name" string="NCF"
+                <field name="reference" string="NCF"
                        attrs="{'size': 19,
                        'invisible': [('purchase_type','!=','normal')],
                        'required': [('purchase_type','=','normal')],
