@@ -27,7 +27,7 @@ class PosOrder(models.Model):
     ncf = fields.Char("NCF")
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
     refund_payment_account_move_line_ids = fields.Many2many("account.move.line")
-    ncf_invoice_related = fields.Char(related="invoice_id.reference", string="NCF")
+    ncf_invoice_related = fields.Char(related="invoice_id.reference", string="NCF Factura")
     sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type", string="Tipo", readonly=1)
     ncf_control = fields.Boolean(related="sale_journal.ncf_control")
 
