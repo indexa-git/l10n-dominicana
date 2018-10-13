@@ -67,8 +67,12 @@ class AccountInvoice(models.Model):
         for inv in self:
             if inv.state != 'draft' and inv.journal_id.ncf_control:
                 if inv.sale_fiscal_type:
-                    inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
-                                               dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+                    try:
+                        inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                                   dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+                    except IndexError:
+                        raise ValidationError(
+                            _('Error. No sequence range for NCF para: {}'.format(inv.sale_fiscal_type)))
 
     shop_id = fields.Many2one("shop.ncf.config", string="Sucursal")
 
