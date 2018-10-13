@@ -44,8 +44,8 @@ class IrSequence(models.Model):
     def get_next_char(self, number_next):
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)
         if sale_fiscal_type:
-            interpolated_prefix, interpolated_suffix = self._get_prefix_suffix()
-            return interpolated_prefix + self.ncf_dict[
+            interpolated_suffix = self._get_prefix_suffix()[1]
+            return 'B' + self.ncf_dict[
                 sale_fiscal_type] + '%%0%sd' % self.padding % number_next + interpolated_suffix
         return super(IrSequence, self).get_next_char(number_next)
 
