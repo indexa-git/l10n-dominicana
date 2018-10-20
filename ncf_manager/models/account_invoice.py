@@ -68,8 +68,6 @@ class AccountInvoice(models.Model):
                     inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
                                                dr.sale_fiscal_type == inv.sale_fiscal_type][0]
 
-    shop_id = fields.Many2one("shop.ncf.config", string="Sucursal")
-
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
@@ -125,7 +123,6 @@ class AccountInvoice(models.Model):
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
-    internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
     ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
     @api.model_cr_context
@@ -296,19 +293,6 @@ class AccountInvoice(models.Model):
             elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
                 raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
                                         " que el cliente tenga RNC o Cédula."))
-
-            if inv.type == "out_invoice":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'client.invoice.number')
-            if inv.type == "in_invoice":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'supplier.invoice.number')
-            if inv.type == "in_refund":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'debit.note.invoice.number')
-            if inv.type == "out_refund":
-                inv.internal_sequence = sequence_obj.next_by_code(
-                    'credit.note.invoice.number')
 
         return super(AccountInvoice, self).action_invoice_open()
 

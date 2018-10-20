@@ -62,11 +62,6 @@
                 <field name="origin" groups="base.group_user" attrs="{'invisible': [('type', '=', 'out_refund')]}"/>
             </field>
 
-            <field name="date_invoice" position="before">
-                <field name="internal_sequence" readonly="1"/>
-            </field>
-
-
             <xpath expr="//field[@name='invoice_line_ids']//tree//field[@name='account_id']" position="replace">
                 <field name="income_type" invisible="1"/>
                 <field name="account_id" groups="account.group_account_user"
@@ -92,10 +87,6 @@
 
             <field name="number" position="after">
                 <field name="is_company_currency" invisible="1"/>
-            </field>
-
-            <field name="date_invoice" position="before">
-                <field name="internal_sequence" readonly="1"/>
             </field>
 
             <field name="journal_id" position="replace"/>
