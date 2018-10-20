@@ -122,15 +122,6 @@ class AccountInvoice(models.Model):
 
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate,
                                    currency_field='currency_id')
-    purchase_type = fields.Selection(
-        [("normal", "Requiere NCF"),
-         ("minor", "Gasto Menor. NCF Generado por el Sistema"),
-         ("informal", "Proveedores Informales. NCF Generado por el Sistema"),
-         ("exterior", "Pagos al Exterior. NCF Generado por el Sistema"),
-         ("import", "Importaciones. NCF Generado por el Sistema"),
-         ("others", "Otros. No requiere NCF")],
-        string="Tipo de Compra",
-        related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")

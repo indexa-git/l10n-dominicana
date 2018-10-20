@@ -53,9 +53,9 @@ class AccountJournal(models.Model):
 
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
 
-    ncf_control = fields.Boolean(related="sequence_id.ncf_control")
-    prefix = fields.Char(related="sequence_id.prefix")
-    date_range_ids = fields.One2many(related="sequence_id.date_range_ids")
+    ncf_control = fields.Boolean(related="sequence_id.ncf_control", readonly=False)
+    prefix = fields.Char(related="sequence_id.prefix", readonly=False)
+    date_range_ids = fields.One2many(related="sequence_id.date_range_ids", readonly=False)
     ncf_ready = fields.Boolean(compute=check_ncf_ready)
     special_fiscal_position_id = fields.Many2one("account.fiscal.position", string=u"Posición fiscal para regímenes especiales.",
                                                  help=u"Define la posición fiscal por defecto para los clientes que tienen definido el tipo de comprobante fiscal regímenes especiales.")
