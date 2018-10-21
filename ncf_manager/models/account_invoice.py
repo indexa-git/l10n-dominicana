@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
-# © 2018      INDEXA SRL. (https://indexa.do/)
-#             José López <jlopez@indexa.do>
+# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2018 Yasmany Castillo <yasmany003@gmail.com>
+# © 2018 José López <jlopez@indexa.do>
+# © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+# © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+# © 2018 Andrés Rodríguez <andres@iterativo.do>
 
 # This file is part of NCF Manager.
 
@@ -20,8 +19,8 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 import logging
 
 
@@ -76,8 +75,6 @@ class AccountInvoice(models.Model):
                         raise ValidationError(
                             _('Error. No sequence range for NCF para: {}'.format(inv.sale_fiscal_type)))
 
-    shop_id = fields.Many2one("shop.ncf.config", string="Sucursal")
-
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
@@ -130,15 +127,6 @@ class AccountInvoice(models.Model):
 
     invoice_rate = fields.Monetary(string="Tasa", compute=_get_rate,
                                    currency_field='currency_id')
-    purchase_type = fields.Selection(
-        [("normal", "Requiere NCF"),
-         ("minor", "Gasto Menor. NCF Generado por el Sistema"),
-         ("informal", "Proveedores Informales. NCF Generado por el Sistema"),
-         ("exterior", "Pagos al Exterior. NCF Generado por el Sistema"),
-         ("import", "Importaciones. NCF Generado por el Sistema"),
-         ("others", "Otros. No requiere NCF")],
-        string="Tipo de Compra",
-        related="journal_id.purchase_type")
 
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a", related="origin")
@@ -222,7 +210,7 @@ class AccountInvoice(models.Model):
                 if not journal_id:
                     raise ValidationError(
                         _("No existe un Diario de Gastos Menores,"
-                        " debe crear uno."))
+                          " debe crear uno."))
                 self.journal_id = journal_id.id
         return res
 
@@ -271,40 +259,34 @@ class AccountInvoice(models.Model):
                 raise UserError(_(
                     u"No se puede validar una factura cuyo monto total sea igual a 0."))
 
-            if inv.journal_id.ncf_control:
+            if inv.type == "out_invoice" and inv.journal_id.ncf_control:
+                if not inv.partner_id.sale_fiscal_type:
+                    raise ValidationError(_(
+                        u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
+                        "para este tipo de factura.".format(inv.partner_id.id,
+                                                            inv.partner_id.name)))
 
-                if inv.type == "out_invoice":
+                if inv.sale_fiscal_type in ("fiscal", "gov", "special") and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
+                        "para este tipo de factura.".format(inv.partner_id.id,
+                                                            inv.partner_id.name)))
 
-                    if not inv.journal_id.ncf_ready:
-                        raise ValidationError(_("Debe configurar los NCF para este diario."))
+                if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"Si el monto es mayor a RD$250,000 el cliente debe "
+                        u"tener un RNC o Céd para emitir la factura"))
 
-                    if not inv.partner_id.sale_fiscal_type:
-                        raise ValidationError(_(
-                            u"El cliente [{}]{} no tiene Tipo de comprobante, y es requerido"
-                            "para este tipo de factura.".format(inv.partner_id.id,
-                                                                inv.partner_id.name)))
+            elif inv.type in ("in_invoice", "in_refund"):
+                if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
+                    raise UserError(_(
+                        u"¡Para este tipo de Compra el Proveedor"
+                        u" debe de tener un RNC/Cédula establecido!"))
+                self.purchase_ncf_validate()
 
-                    if inv.sale_fiscal_type in ("fiscal", "gov", "special") and not inv.partner_id.vat:
-                        raise UserError(_(
-                            u"El cliente [{}]{} no tiene RNC/Cédula, y es requerido"
-                            "para este tipo de factura.".format(inv.partner_id.id,
-                                                                inv.partner_id.name)))
-
-                    if inv.amount_untaxed_signed >= 250000 and inv.sale_fiscal_type != 'unico' and not inv.partner_id.vat:
-                        raise UserError(_(
-                            u"Si el monto es mayor a RD$250,000 el cliente debe "
-                            u"tener un RNC o Céd para emitir la factura"))
-
-                elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
-                    raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
-                                            " que el cliente tenga RNC o Cédula."))
-
-                elif inv.type in ("in_invoice", "in_refund"):
-                    if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
-                        raise UserError(_(
-                            u"¡Para este tipo de Compra el Proveedor"
-                            u" debe de tener un RNC/Cédula establecido!"))
-                    self.purchase_ncf_validate()
+            elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
+                raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
+                                        " que el cliente tenga RNC o Cédula."))
 
         return super(AccountInvoice, self).action_invoice_open()
 
