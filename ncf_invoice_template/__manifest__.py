@@ -18,6 +18,5 @@
                 'ncf_manager'],
     'data': [
         'report/report_invoice.xml',
-        'report/report_templates.xml',
     ],
 }
