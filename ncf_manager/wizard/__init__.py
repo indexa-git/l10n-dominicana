@@ -23,4 +23,3 @@
 
 from . import account_invoice_cancel
 from . import account_invoice_refund
-from . import update_internal_sequence_wizard
