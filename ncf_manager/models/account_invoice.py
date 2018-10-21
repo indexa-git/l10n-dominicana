@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
+# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2018 Yasmany Castillo <yasmany003@gmail.com>
+# © 2018 José López <jlopez@indexa.do>
+# © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+# © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+# © 2018 Andrés Rodríguez <andres@iterativo.do>
 
 # This file is part of NCF Manager.
 
@@ -18,8 +19,8 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 import logging
 
 
