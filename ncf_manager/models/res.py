@@ -38,12 +38,6 @@ except(ImportError, IOError) as err:
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    payment_tax_on_606 = fields.Boolean("Reportar retenciones del 606 al pago")
-
-    country_id = fields.Many2one('res.country', compute='_compute_address',
-                                 inverse='_inverse_country',
-                                 string="Country", default=lambda self: self.env.ref('base.do'))
-
     @api.onchange("name")
     def onchange_company_name(self):
         if self.name:
