@@ -1,9 +1,29 @@
-# -*- coding: utf-8 -*-
+# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+
+# This file is part of NCF Manager.
+
+# NCF Manager is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# NCF Manager is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 from odoo import models, fields, api
 
 
 class IrSequence(models.Model):
     _inherit = 'ir.sequence'
+
+    ncf_padding = fields.Integer(required=True, default=8,
+                                 help="Padding legally use by NCF sequences")
 
     ncf_dict = {
         "fiscal": "01",
@@ -20,13 +40,8 @@ class IrSequence(models.Model):
     def get_next_char(self, number_next):
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)
         if sale_fiscal_type:
-            interpolated_prefix, interpolated_suffix = self._get_prefix_suffix()
-            return interpolated_prefix + self.ncf_dict[
-                sale_fiscal_type] + '%%0%sd' % self.padding % number_next + interpolated_suffix
+            return 'B' + self.ncf_dict[sale_fiscal_type] + '%%0%sd' % self.ncf_padding % number_next
         return super(IrSequence, self).get_next_char(number_next)
-
-        interpolated_prefix, interpolated_suffix = self._get_prefix_suffix()
-        return interpolated_prefix + '%%0%sd' % self.padding % number_next + interpolated_suffix
 
     def _next(self):
         """ Returns the next number in the preferred sequence in all the ones given in self."""

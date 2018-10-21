@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
+# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2018 Yasmany Castillo <yasmany003@gmail.com>
+# © 2018 José López <jlopez@indexa.do>
+# © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+# © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+# © 2018 Andrés Rodríguez <andres@iterativo.do>
 
 # This file is part of NCF Manager.
 
@@ -18,8 +19,8 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 import logging
 
 
@@ -29,13 +30,15 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 try:
-    from stdnum.do import ncf
+    from stdnum.do import ncf as ncf_validation
 except(ImportError, IOError) as err:
     _logger.debug(err)
 
 
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
+
+    reference = fields.Char(string='NCF')
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -65,8 +68,12 @@ class AccountInvoice(models.Model):
         for inv in self:
             if inv.state != 'draft' and inv.journal_id.ncf_control:
                 if inv.sale_fiscal_type:
-                    inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
-                                               dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+                    try:
+                        inv.ncf_expiration_date = [dr.date_to for dr in inv.journal_id.date_range_ids if
+                                                   dr.sale_fiscal_type == inv.sale_fiscal_type][0]
+                    except IndexError:
+                        raise ValidationError(
+                            _('Error. No sequence range for NCF para: {}'.format(inv.sale_fiscal_type)))
 
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
@@ -126,47 +133,35 @@ class AccountInvoice(models.Model):
     internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
     ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
-    @api.model_cr_context
-    def _auto_init(self):
-        super(AccountInvoice, self)._auto_init()
-        self._sql_constraints += [
-            ('number_uniq',
-             'unique(number, company_id, partner_id, journal_id, type)',
-             'Invoice Number must be unique per Company!'),
-        ]
-        self._add_sql_constraints()
-
     def purchase_ncf_validate(self):
-        if not self.journal_id.purchase_type == 'normal':
+        if self.journal_id.purchase_type not in ('normal', 'minor', 'informal'):
             return
 
-        number = self.move_name if self.move_name else None
+        ncf = self.reference if self.reference else None
 
-        if not ncf.is_valid(number):
+        if not ncf_validation.is_valid(ncf):
             raise UserError(_(
                 "NCF mal digitado\n\n"
                 "El comprobante *{}* no tiene la estructura correcta "
-                "valide si lo ha digitado correctamente".format(number)))
+                "valide si lo ha digitado correctamente".format(ncf)))
 
-        if number[-10:-8] not in (
-                '01', '03', '04', '11', '12', '13', '14', '15'):
+        if ncf[-10:-8] == '02':
             raise ValidationError(_(
                 "NCF *{}* NO corresponde con el tipo de documento\n\n"
-                "Verifique lo ha digitado correctamente y que no sea un "
-                "Comprobante Consumidor Final (02)".format(number)))
+                "No puede registrar un Comprobante de Consumidor Final (02)".format(ncf)))
 
         if self.id:
             ncf_in_draft = self.search_count(
                 [('id', '!=', self.id),
                  ('partner_id', '=', self.partner_id.id),
-                 ('move_name', '=', number),
+                 ('reference', '=', ncf),
                  ('state', 'in', ('draft', 'cancel')),
                  ('type', 'in', ('in_invoice', 'in_refund'))])
 
         else:
             ncf_in_draft = self.search_count(
                 [('partner_id', '=', self.partner_id.id),
-                 ('move_name', '=', number),
+                 ('reference', '=', ncf),
                  ('state', 'in', ('draft', 'cancel')),
                  ('type', 'in', ('in_invoice', 'in_refund'))])
 
@@ -175,11 +170,11 @@ class AccountInvoice(models.Model):
                 "NCF en Factura Borrador o Cancelada\n\n"
                 "El comprobante *{}* ya se encuentra "
                 "registrado con este mismo proveedor en una factura "
-                "en borrador o cancelada".format(number)))
+                "en borrador o cancelada".format(ncf)))
 
         ncf_exist = self.search_count(
             [('partner_id', '=', self.partner_id.id),
-             ('number', '=', number),
+             ('reference', '=', ncf),
              ('state', 'in', ('open', 'paid')),
              ('type', 'in', ('in_invoice', 'in_refund'))])
 
@@ -187,9 +182,9 @@ class AccountInvoice(models.Model):
             raise UserError(_(
                 "NCF Duplicado\n\n"
                 "El comprobante *{}* ya se encuentra registrado con el"
-                " mismo proveedor en otra factura".format(number)))
+                " mismo proveedor en otra factura".format(ncf)))
 
-        if self.journal_id.ncf_remote_validation and not ncf.check_dgii(self.partner_id.vat, number):
+        if self.journal_id.ncf_remote_validation and not ncf_validation.check_dgii(self.partner_id.vat, ncf):
             raise UserError(_(
                 u"NCF NO pasó validación en DGII\n\n"
                 u"¡El número de comprobante *{}* del proveedor "
@@ -197,15 +192,14 @@ class AccountInvoice(models.Model):
                 "DGII! Verifique que el NCF y el RNC del "
                 u"proveedor estén correctamente "
                 u"digitados, o si los números de ese NCF se "
-                "le agotaron al proveedor".format(number,
-                                                  self.partner_id.name)
+                "le agotaron al proveedor".format(ncf, self.partner_id.name)
             ))
 
     @api.onchange('journal_id', 'partner_id')
     def onchange_journal_id(self):
         res = super(AccountInvoice, self)._onchange_journal_id()
         if self.journal_id.type == 'purchase':
-            self.move_name = False
+            self.reference = False
             if self.journal_id.purchase_type == "minor":
                 self.partner_id = self.company_id.partner_id.id
 
@@ -216,7 +210,7 @@ class AccountInvoice(models.Model):
                 if not journal_id:
                     raise ValidationError(
                         _("No existe un Diario de Gastos Menores,"
-                        " debe crear uno."))
+                          " debe crear uno."))
                 self.journal_id = journal_id.id
         return res
 
@@ -253,9 +247,9 @@ class AccountInvoice(models.Model):
         else:
             self.fiscal_position_id = False
 
-    @api.onchange("move_name")
+    @api.onchange("reference")
     def onchange_ncf(self):
-        if self.type in ("in_invoice", "in_refund") and self.move_name:
+        if self.type in ("in_invoice", "in_refund") and self.reference:
             self.purchase_ncf_validate()
 
     @api.multi
@@ -304,6 +298,23 @@ class AccountInvoice(models.Model):
             description=description, journal_id=journal_id)
 
         if self._context.get("credit_note_supplier_ncf", False):
-            res.update({"move_name": self._context["credit_note_supplier_ncf"]
+            res.update({"reference": self._context["credit_note_supplier_ncf"]
                         })
         return res
+
+    @api.multi
+    def invoice_validate(self):
+        """ After all invoice validation routine, consume a NCF sequence and write it
+            into reference field.
+         """
+        if self.journal_id.ncf_control:
+            sequence_id = self.journal_id.sequence_id
+            if self.type == 'out_invoice':
+                if self.is_nd:
+                    self.reference = sequence_id.with_context(sale_fiscal_type='debit_note')._next()
+                else:
+                    self.reference = sequence_id.with_context(sale_fiscal_type=self.sale_fiscal_type)._next()
+            elif self.type == 'out_refund':
+                self.reference = sequence_id.with_context(sale_fiscal_type='credit_note')._next()
+
+        return super(AccountInvoice, self).invoice_validate()
