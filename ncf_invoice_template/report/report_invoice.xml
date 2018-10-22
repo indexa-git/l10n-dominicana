@@ -41,7 +41,7 @@
                         <br/>
                     </div>
                     <strong>NCF:</strong>
-                    <span t-field="o.number"/>
+                    <span t-field="o.reference"/>
                     <br/>
                     <span t-if="o.type == 'out_refund' and (o.origin != False)">
                         <strong>NCF modificado:</strong>
@@ -138,9 +138,9 @@
                     <strong>Origen:</strong>
                     <p t-field="o.origin"/>
                 </div>
-                <div name="reference" class="col-xs-2" t-if="o.reference">
-                    <strong>Referencia:</strong>
-                    <p t-field="o.reference"/>
+                <div name="reference" class="col-xs-2" t-if="o.number">
+                    <strong>Factura No.:</strong>
+                    <p t-field="o.number"/>
                 </div>
             </div>
         </xpath>
