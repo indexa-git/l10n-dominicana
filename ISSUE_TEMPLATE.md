@@ -1,13 +1,9 @@
-#### Impacted versions:
+#### Impacted versions
 
+#### Steps to reproduce
 
-#### Steps to reproduce:
+#### Current behavior
 
+#### Expected behavior
 
-#### Current behavior:
-
-
-#### Expected behavior:
-
-
-#### Video/Screenshot link (optional):
+#### Video/Screenshot link (optional)
