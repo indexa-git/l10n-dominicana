@@ -139,7 +139,7 @@
                     <p t-field="o.origin"/>
                 </div>
                 <div name="reference" class="col-xs-2" t-if="o.number">
-                    <strong>Factura No.:</strong>
+                    <strong>FACTURA NO.:</strong>
                     <p t-field="o.number"/>
                 </div>
             </div>
