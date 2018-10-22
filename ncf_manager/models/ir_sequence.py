@@ -78,7 +78,9 @@ class IrSequenceDateRange(models.Model):
 
     def get_sale_fiscal_type_from_partner(self):
         return self.env["res.partner"]._fields['sale_fiscal_type'].selection + [("credit_note", u"Nota de Crédito"),
-                                                                                ("debit_note", u"Nota de Débito")]
+                                                                                ("debit_note", u"Nota de Débito"),
+                                                                                ("minor", "Gastos Menores"),
+                                                                                ("informal", "Proveedores Informales")]
 
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
