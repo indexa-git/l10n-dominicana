@@ -307,7 +307,7 @@ class AccountInvoice(models.Model):
         """ After all invoice validation routine, consume a NCF sequence and write it
             into reference field.
          """
-        if self.journal_id.ncf_control:
+        if self.journal_id.ncf_control or self.journal_id.purchase_type in ['minor', 'informal']:
             sequence_id = self.journal_id.sequence_id
             if self.type == 'out_invoice':
                 if self.is_nd:
@@ -316,5 +316,7 @@ class AccountInvoice(models.Model):
                     self.reference = sequence_id.with_context(sale_fiscal_type=self.sale_fiscal_type)._next()
             elif self.type == 'out_refund':
                 self.reference = sequence_id.with_context(sale_fiscal_type='credit_note')._next()
+            elif self.type == 'in_invoice':
+                self.reference = sequence_id.with_context(sale_fiscal_type=self.journal_id.purchase_type)._next()
 
         return super(AccountInvoice, self).invoice_validate()

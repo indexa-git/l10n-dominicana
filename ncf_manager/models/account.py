@@ -70,7 +70,6 @@ class AccountJournal(models.Model):
                 self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
 
             self.sequence_id.date_range_ids.invalidate_cache()
-            self.sequence_id.write({'prefix': 'B', 'padding': 8})
 
 
 class AccountTax(models.Model):
