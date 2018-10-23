@@ -50,22 +50,22 @@ class Currency(models.Model):
                       "Jul": "07",
                       "Ago": "08",
                       "Sep": "09",
+                      "Sept": "09",
                       "Oct": "10",
                       "Nov": "11",
                       "Dic": "12"
                       }
 
-        self.env["res.currency.rate"].search(
-            [('currency_id', '=', 3)]).unlink()
+        self.env["res.currency.rate"].search([('currency_id', '=', 3)]).unlink()
 
-        file = self.bc_rate_xls.base64.b64encode()
+        file = base64.b64decode(self.bc_rate_xls)
         excel_fileobj = TemporaryFile('wb+')
         excel_fileobj.write(file)
         excel_fileobj.seek(0)
         # Create workbook
         workbook = openpyxl.load_workbook(excel_fileobj, data_only=True)
         # Get the first sheet of excel file
-        sheet = workbook[workbook.get_sheet_names()[0]]
+        sheet = workbook[workbook.sheetnames[0]]
 
         for row in sheet.rows:
             if row[0].row in (1, 2, 3):
@@ -75,12 +75,9 @@ class Currency(models.Model):
             year = str(row[0].value)
             month = month_dict[row[1].value.strip()]
             day = str(row[2].value).zfill(2)
-            name = u"{}-{}-{} {}".format(year, month,
-                                         day, fields.Datetime.now().split(" ")[1])
+            name = "{}-{}-{}".format(year, month, day)
             rate = float(row[4].value)
-            self.env["res.currency.rate"].create({"name": name,
-                                                  "rate": 1 / rate,
-                                                  "currency_id": 3})
+            self.env["res.currency.rate"].create({"name": name, "rate": 1 / rate, "currency_id": 3})
             _logger.info("USD rate created {}".format(name))
 
     @api.multi
