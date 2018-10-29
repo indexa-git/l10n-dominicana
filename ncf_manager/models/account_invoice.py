@@ -307,7 +307,7 @@ class AccountInvoice(models.Model):
         """ After all invoice validation routine, consume a NCF sequence and write it
             into reference field.
          """
-        if self.journal_id.ncf_control or self.journal_id.purchase_type in ['minor', 'informal']:
+        if not reference and (self.journal_id.ncf_control or self.journal_id.purchase_type in ['minor', 'informal']):
             sequence_id = self.journal_id.sequence_id
             if self.type == 'out_invoice':
                 if self.is_nd:
