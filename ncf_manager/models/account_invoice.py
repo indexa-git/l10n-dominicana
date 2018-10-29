@@ -135,7 +135,12 @@ class AccountInvoice(models.Model):
     def purchase_ncf_validate(self):
         ncf = self.reference if self.reference else None
 
-        if ncf:
+        if ncf and self.journal_id.purchase_type in ('normal', 'informal'):
+            if not self.partner_id.vat:
+                raise UserError(_(
+                    u"¡Para este tipo de Compra el Proveedor"
+                    u" debe de tener un RNC/Cédula establecido!"))
+
             if not ncf_validation.is_valid(ncf):
                 raise UserError(_(
                     "NCF mal digitado\n\n"
@@ -150,17 +155,17 @@ class AccountInvoice(models.Model):
             if self.id:
                 ncf_in_draft = self.search_count(
                     [('id', '!=', self.id),
-                    ('partner_id', '=', self.partner_id.id),
-                    ('reference', '=', ncf),
-                    ('state', 'in', ('draft', 'cancel')),
-                    ('type', 'in', ('in_invoice', 'in_refund'))])
+                     ('partner_id', '=', self.partner_id.id),
+                     ('reference', '=', ncf),
+                     ('state', 'in', ('draft', 'cancel')),
+                     ('type', 'in', ('in_invoice', 'in_refund'))])
 
             else:
                 ncf_in_draft = self.search_count(
                     [('partner_id', '=', self.partner_id.id),
-                    ('reference', '=', ncf),
-                    ('state', 'in', ('draft', 'cancel')),
-                    ('type', 'in', ('in_invoice', 'in_refund'))])
+                     ('reference', '=', ncf),
+                     ('state', 'in', ('draft', 'cancel')),
+                     ('type', 'in', ('in_invoice', 'in_refund'))])
 
             if ncf_in_draft:
                 raise UserError(_(
@@ -171,9 +176,9 @@ class AccountInvoice(models.Model):
 
             ncf_exist = self.search_count(
                 [('partner_id', '=', self.partner_id.id),
-                ('reference', '=', ncf),
-                ('state', 'in', ('open', 'paid')),
-                ('type', 'in', ('in_invoice', 'in_refund'))])
+                 ('reference', '=', ncf),
+                 ('state', 'in', ('open', 'paid')),
+                 ('type', 'in', ('in_invoice', 'in_refund'))])
 
             if ncf_exist:
                 raise UserError(_(
@@ -246,7 +251,7 @@ class AccountInvoice(models.Model):
 
     @api.onchange("reference")
     def onchange_ncf(self):
-        if self.type in ("in_invoice", "in_refund") and self.reference:
+        if self.reference and self.journal_id.purchase_type in ('normal', 'informal'):
             self.purchase_ncf_validate()
 
     @api.multi
@@ -275,11 +280,8 @@ class AccountInvoice(models.Model):
                         u"tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
-                if inv.journal_id.purchase_type in ('normal', 'informal') and not inv.partner_id.vat:
-                    raise UserError(_(
-                        u"¡Para este tipo de Compra el Proveedor"
-                        u" debe de tener un RNC/Cédula establecido!"))
-                self.purchase_ncf_validate()
+                if inv.journal_id.purchase_type in ('normal', 'informal'):
+                    self.purchase_ncf_validate()
 
             elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
                 raise ValidationError(_("Para poder emitir una NC mayor a RD$250,000 se requiere"
@@ -304,7 +306,7 @@ class AccountInvoice(models.Model):
         """ After all invoice validation routine, consume a NCF sequence and write it
             into reference field.
          """
-        if self.journal_id.ncf_control or self.journal_id.purchase_type in ['minor', 'informal']:
+        if not reference and (self.journal_id.ncf_control or self.journal_id.purchase_type in ['minor', 'informal']):
             sequence_id = self.journal_id.sequence_id
             if self.type == 'out_invoice':
                 if self.is_nd:
