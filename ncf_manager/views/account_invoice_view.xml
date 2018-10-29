@@ -37,7 +37,8 @@
                        'invisible': [('type', '!=', 'out_refund')],
                        'readonly': [('origin_out', '!=', False)]}"/>
                 <field name="reference" string="NCF" readonly="1" attrs="{
-                       'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)]}"/>
+                       'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)],
+                       'readonly': True}"/>
             </field>
 
             <xpath expr="//h1" position="after">
