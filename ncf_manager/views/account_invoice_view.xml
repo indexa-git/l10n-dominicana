@@ -35,7 +35,7 @@
                        'readonly': [('state','!=','draft')]}"/>
                 <field name="origin_out" groups="base.group_user" attrs="{
                        'invisible': [('type', '!=', 'out_refund')],
-                       'readonly': [('origin_out', '!=', False)]}"/>
+                       'readonly': [('origin','=',True),('ncf_control','=',True)]}"/>
                 <field name="reference" string="NCF" readonly="1" attrs="{
                        'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)],
                        'readonly': True}"/>

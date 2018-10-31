@@ -129,7 +129,7 @@ class AccountInvoice(models.Model):
                                    currency_field='currency_id')
 
     is_nd = fields.Boolean()
-    origin_out = fields.Char("Afecta a", related="origin")
+    origin_out = fields.Char("Afecta a")
     internal_sequence = fields.Char(string=u"Número de factura", copy=False, index=True)
     ncf_expiration_date = fields.Date('Válido hasta', compute="get_ncf_expiration_date", store=True)
 
@@ -250,10 +250,18 @@ class AccountInvoice(models.Model):
         else:
             self.fiscal_position_id = False
 
-    @api.onchange("reference")
+    @api.onchange("reference", "origin_out")
     def onchange_ncf(self):
         if self.reference and self.journal_id.purchase_type in ('normal', 'informal'):
             self.purchase_ncf_validate()
+
+        if self.origin_out and self.type == 'out_refund' and self.journal_id.ncf_control:
+            ncf = self.origin_out
+            if not ncf_validation.is_valid(ncf):
+                raise UserError(_(
+                    "NCF mal digitado\n\n"
+                    "El comprobante *{}* no tiene la estructura correcta "
+                    "valide si lo ha digitado correctamente".format(ncf)))
 
     @api.multi
     def action_invoice_open(self):
@@ -296,6 +304,9 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self)._prepare_refund(
             invoice, date_invoice=date_invoice, date=date,
             description=description, journal_id=journal_id)
+
+        if self.type == "out_invoice" and self.journal_id.ncf_control:
+            res.update({"reference": False, "origin_out": self.reference})
 
         if self._context.get("credit_note_supplier_ncf", False):
             res.update({"reference": self._context["credit_note_supplier_ncf"]
