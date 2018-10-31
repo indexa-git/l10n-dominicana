@@ -43,9 +43,9 @@
                     <strong>NCF:</strong>
                     <span t-field="o.reference"/>
                     <br/>
-                    <span t-if="o.type == 'out_refund' and (o.origin != False)">
+                    <span t-if="o.type == 'out_refund' and (o.origin_out != False)">
                         <strong>NCF modificado:</strong>
-                        <span t-field="o.origin"/>
+                        <span t-field="o.origin_out"/>
                         <br/>
                     </span>
                     <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state == 'open' or o.state == 'paid')">
