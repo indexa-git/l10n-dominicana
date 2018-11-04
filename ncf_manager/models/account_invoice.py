@@ -40,6 +40,18 @@ class AccountInvoice(models.Model):
 
     reference = fields.Char(string='NCF')
 
+    @api.model_cr_context
+    def _auto_init(self):
+        res = super(AccountInvoice, self)._auto_init()
+
+        if not tools.index_exists(self._cr, 'account_invoice_out_invoice_unique'):
+            self._cr.execute("CREATE UNIQUE INDEX account_invoice_out_invoice_unique "
+                             "ON account_invoice (type, reference) WHERE type = 'out_invoice'")
+        if not tools.index_exists(self._cr, 'account_invoice_out_refund_unique'):
+            self._cr.execute("CREATE UNIQUE INDEX account_invoice_out_refund_unique "
+                             "ON account_invoice (type, reference) WHERE type = 'out_refund'")
+        return res
+
     @api.multi
     @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
