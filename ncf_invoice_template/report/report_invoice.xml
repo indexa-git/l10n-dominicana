@@ -83,10 +83,8 @@
                 </div>
 
 
-                 <div name="invoice_partner_address" class="col-xs-5" t-if="o.partner_id.vat == False">
+                 <div name="invoice_partner_address" class="col-xs-5" t-if="not o.partner_id.vat">
                     <t>
-                        <strong>ID CLIENTE:</strong>
-                        <span t-field="o.partner_id.vat"/><br/>
                         <strong>NOMBRE:</strong>
                        <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/><br/>
