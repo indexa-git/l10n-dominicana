@@ -116,7 +116,7 @@ class AccountInvoice(models.Model):
                         continue
 
                     # Monto calculado en bienes
-                    if line.product_id.type != 'service':
+                    if line.product_id.type != 'service' or not line.product_id.landed_cost_ok:
                         good_amount += line.price_subtotal
 
                     # Monto calculado en servicio
