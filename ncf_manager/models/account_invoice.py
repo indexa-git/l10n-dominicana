@@ -136,11 +136,6 @@ class AccountInvoice(models.Model):
     def validate_fiscal_purchase(self):
         NCF = self.reference if self.reference else None
 
-        if not self.partner_id.vat:
-            raise ValidationError(_(
-                u"¡Para este tipo de Compra el Proveedor"
-                u" debe de tener un RNC/Cédula establecido!"))
-
         if NCF and self.journal_id.purchase_type == 'normal':
             if NCF[-10:-8] == '02':
                 raise ValidationError(_(
@@ -277,6 +272,10 @@ class AccountInvoice(models.Model):
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.reference and inv.journal_id.purchase_type in ('normal', 'informal', 'minor'):
+                    if not inv.partner_id.vat:
+                        raise ValidationError(_(
+                            u"¡Para este tipo de Compra el Proveedor"
+                            u" debe de tener un RNC/Cédula establecido!"))
                     self.validate_fiscal_purchase()
 
             elif inv.type == 'out_refund' and inv.journal_id.ncf_control and inv.amount_untaxed_signed >= 250000 and not inv.partner_id.vat:
