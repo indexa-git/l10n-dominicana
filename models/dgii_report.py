@@ -189,7 +189,7 @@ class DgiiReport(models.Model):
         return super(DgiiReport, self).unlink()
 
     def _get_pending_invoices(self):
-        return self.env['account.invoice'].search([('type', 'in', ('out_invoice', 'out_refund')), ('state', '!=', 'draft')])
+        return self.env['account.invoice'].search([('fiscal_status', '=', 'normal'), ('state', '=', 'paid')])
 
     def _get_invoices(self, rec, states, types):
         """
