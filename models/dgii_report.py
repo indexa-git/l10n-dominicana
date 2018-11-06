@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# Part of Domincana Premium. See LICENSE file for full copyright and licensing details.
+# © 2018 José López <jlopez@indexa.do>
+# © 2018 Gustavo Valverde <gustavo@iterativo.do>
 
 import calendar
 import base64
@@ -186,7 +189,7 @@ class DgiiReport(models.Model):
         return super(DgiiReport, self).unlink()
 
     def _get_pending_invoices(self):
-        return self.env['account.invoice'].search([('fiscal_status', '=', 'normal'), ('state', '=', 'paid')])
+        return self.env['account.invoice'].search([('type', 'in', ('out_invoice', 'out_refund')), ('state', '!=', 'draft')])
 
     def _get_invoices(self, rec, states, types):
         """

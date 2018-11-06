@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+# Part of Domincana Premium. See LICENSE file for full copyright and licensing details.
+# © 2018 José López <jlopez@indexa.do>
+# © 2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2018 Eneldo Serrata <eneldo@marcos.do>
+
 {
     'name': "Declaraciones DGII",
 
@@ -6,20 +11,14 @@
         Este módulo extiende las funcionalidades del ncf_manager,
         integrando los reportes de declaraciones fiscales""",
 
-    'author': "Marcos Organizador de Negocios SRL, "
-              "iterativo SRL, "
-              "Neotec, "
-              "Indexa, SRL, "
-              "Odoo Dominicana (ODOM)",
+    'author': "Indexa, SRL, "
+              "iteritvo SRL",
 
-    # Categories can be used to filter modules in modules listing
-    # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
-    # for the full list
     'category': 'Accounting',
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'account_invoicing', 'ncf_manager'],
+    'depends': ['base', 'account', 'ncf_manager'],
 
     # always loaded
     'data': [
