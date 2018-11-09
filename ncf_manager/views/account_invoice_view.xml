@@ -35,7 +35,7 @@
                        'readonly': [('state','!=','draft')]}"/>
                 <field name="origin_out" groups="base.group_user" attrs="{
                        'invisible': [('type', '!=', 'out_refund')],
-                       'readonly': [('origin_out', '!=', False)]}"/>
+                       'readonly': [('origin','=',True),('ncf_control','=',True)]}"/>
                 <field name="reference" string="NCF" readonly="1" attrs="{
                        'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)],
                        'readonly': True}"/>
@@ -79,6 +79,12 @@
 
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_invoice_cancel']" position="replace">
+                <button name="%(ncf_manager.action_account_invoice_cancel)d" type='action'
+                        string="Cancelar Factura"
+                        states="proforma2,open" groups="account.group_account_user"/>
             </xpath>
 
             <field name="origin" position="replace"/>
