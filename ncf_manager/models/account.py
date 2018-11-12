@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
+# © 2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2018 Andrés Rodríguez <andres@iterativo.do>
 
 # This file is part of NCF Manager.
 
@@ -18,8 +15,7 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
 from odoo import models, fields, api
 
@@ -74,7 +70,6 @@ class AccountJournal(models.Model):
                 self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
 
             self.sequence_id.date_range_ids.invalidate_cache()
-            self.sequence_id.write({'prefix': 'B', 'padding': 8})
 
 
 class AccountTax(models.Model):

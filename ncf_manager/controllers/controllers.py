@@ -1,4 +1,23 @@
-# -*- coding: utf-8 -*-
+# © 2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+# © 2018 Jorge Hernández <jhernandez@gruponeotec.com>
+# © 2018 Francisco Peñaló <frankpenalo24@gmail.com >
+
+# This file is part of NCF Manager.
+
+# NCF Manager is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# NCF Manager is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 import json
 import re
 import logging
@@ -30,7 +49,7 @@ class Odoojs(http.Controller):
                 result = rnc.check_dgii(term)
             else:
                 result = rnc.search_dgii(term, end_at=20, start_at=1)
-            if not result is None:
+            if result is not None:
                 if not isinstance(result, list):
                     result = [result]
 
