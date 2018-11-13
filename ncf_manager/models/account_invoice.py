@@ -237,13 +237,14 @@ class AccountInvoice(models.Model):
         if self.journal_id.purchase_type in ('normal', 'informal', 'minor'):
             self.validate_fiscal_purchase()
 
-        if self.origin_out and (self.type == 'out_refund' or self.type == 'in_refund') and self.journal_id.ncf_control:
-            ncf = self.origin_out
-            if not ncf_validation.is_valid(ncf) or (ncf[-10:-8] != '03' and ncf[-10:-8] != '04'):
-                raise UserError(_(
-                    "NCF mal digitado\n\n"
-                    "El comprobante *{}* no tiene la estructura correcta "
-                    "valide si lo ha digitado correctamente".format(ncf)))
+        if self.origin_out and (self.type == 'out_refund' or self.type == 'in_refund'):
+            if self.journal_id.purchase_type in ('normal', 'informal', 'minor') or self.journal_id.ncf_control:
+                ncf = self.origin_out
+                if not ncf_validation.is_valid(ncf) and ncf[-10:-8] != '04':
+                    raise UserError(_(
+                        "NCF mal digitado\n\n"
+                        "El comprobante *{}* no tiene la estructura correcta "
+                        "valide si lo ha digitado correctamente".format(ncf)))
 
     @api.multi
     def action_invoice_open(self):
