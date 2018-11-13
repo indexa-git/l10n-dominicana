@@ -237,9 +237,9 @@ class AccountInvoice(models.Model):
         if self.journal_id.purchase_type in ('normal', 'informal', 'minor'):
             self.validate_fiscal_purchase()
 
-        if self.origin_out and self.type == 'out_refund' and self.journal_id.ncf_control:
+        if self.origin_out and (self.type == 'out_refund' or self.type == 'in_refund') and self.journal_id.ncf_control:
             ncf = self.origin_out
-            if not ncf_validation.is_valid(ncf):
+            if not ncf_validation.is_valid(ncf) or (ncf[-10:-8] != '03' and ncf[-10:-8] != '04'):
                 raise UserError(_(
                     "NCF mal digitado\n\n"
                     "El comprobante *{}* no tiene la estructura correcta "
@@ -295,7 +295,7 @@ class AccountInvoice(models.Model):
             res.update({"reference": False, "origin_out": self.reference})
 
         if self._context.get("credit_note_supplier_ncf", False):
-            res.update({"reference": self._context["credit_note_supplier_ncf"]
+            res.update({"reference": self._context["credit_note_supplier_ncf"], "origin_out": self.reference
                         })
         return res
 
