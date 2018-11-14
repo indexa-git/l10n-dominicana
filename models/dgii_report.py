@@ -288,6 +288,7 @@ class DgiiReport(models.Model):
         Evaluate if invoice was paid in current month or was included in a previous period.
         New reported invoices should not include any withholding amount nor payment date
         if payment was made after current period.
+        :param report: dgii.reports object
         :param invoice: account.invoice object
         :return: boolean
         """
