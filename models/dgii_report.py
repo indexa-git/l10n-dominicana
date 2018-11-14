@@ -28,6 +28,19 @@ class DgiiReport(models.Model):
     _name = 'dgii.reports'
     _inherit = ['mail.thread']
 
+    @api.multi
+    def _compute_previous_report_pending(self):
+        for report in self:
+            previous = self.search([('company_id', '=', self.env.user.company_id.id),
+                                    ('state', 'in', ('draft', 'generated')),
+                                    ('id', '!=', self.id)], order='create_date asc', limit=1)
+            if previous:
+                previous_date = dt.strptime('01/' + previous.name, '%d/%m/%Y').date()
+                current_date = dt.strptime('01/' + self.name, '%d/%m/%Y').date()
+                report.previous_report_pending = True if previous_date < current_date else False
+            else:
+                report.previous_report_pending = False
+
     name = fields.Char(string='Period', required=True, size=7)
     state = fields.Selection([('draft', 'New'), ('error', 'With error'),
                               ('generated', 'Generated'), ('sent', 'Sent')],
@@ -37,6 +50,7 @@ class DgiiReport(models.Model):
                                   default=lambda self: self.env.user.company_id.currency_id)
     company_id = fields.Many2one('res.company', 'Company', default=lambda self: self.env.user.company_id,
                                  required=True)
+    previous_report_pending = fields.Boolean(compute='_compute_previous_report_pending')
 
     _sql_constraints = [
         ('name_unique', 'UNIQUE(name, company_id)', _("You cannot have more than one report by period."))

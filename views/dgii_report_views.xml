@@ -16,11 +16,25 @@
                     <field name="state" widget="statusbar" statusbar_visible="draft,generated,sent"/>
                 </header>
                 <sheet>
-                    <div class="oe_title">
-                        <h1>
-                            <field name="company_id" readonly="1"/>
-                        </h1>
-                    </div>
+                    <group>
+                        <group>
+                            <div class="oe_title">
+                                <h1>
+                                    <field name="company_id" readonly="1"/>
+                                </h1>
+                            </div>
+                        </group>
+                        <field name="previous_report_pending" invisible="1"/>
+                        <group attrs="{'invisible': [('previous_report_pending', '=', False)]}">
+                            <div class="alert alert-warning info_icon" role="alert">
+                                <span class="fa fa-lightbulb-o fa-lg"/>
+                                <p>The previous report is still not marked as sent.</p>
+                                <p>Not setting a report as sent may throw inconsistencies
+                                    regarding invoices withholding dates.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
                     <notebook>
                         <page name="statements" string="Statements">
                             <group>
