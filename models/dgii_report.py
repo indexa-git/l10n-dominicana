@@ -94,15 +94,27 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_607_fields(self):
         for rec in self:
+            data = {'sale_records': 0, 'sale_invoiced_amount': 0, 'sale_invoiced_itbis': 0, 'sale_withholded_itbis': 0,
+                    'sale_withholded_isr': 0, 'sale_selective_tax': 0, 'sale_other_taxes': 0, 'sale_legal_tip': 0}
             sale_line_ids = self.env['dgii.reports.sale.line'].search([('dgii_report_id', '=', rec.id)])
-            rec.sale_records = len(sale_line_ids)
-            rec.sale_invoiced_amount = abs(sum([inv.invoiced_amount for inv in sale_line_ids]))
-            rec.sale_invoiced_itbis = abs(sum([inv.invoiced_itbis for inv in sale_line_ids]))
-            rec.sale_withholded_itbis = abs(sum([inv.third_withheld_itbis for inv in sale_line_ids]))
-            rec.sale_withholded_isr = abs(sum([inv.third_income_withholding for inv in sale_line_ids]))
-            rec.sale_selective_tax = abs(sum([inv.selective_tax for inv in sale_line_ids]))
-            rec.sale_other_taxes = abs(sum([inv.other_taxes for inv in sale_line_ids]))
-            rec.sale_legal_tip = abs(sum([inv.legal_tip for inv in sale_line_ids]))
+            for inv in sale_line_ids:
+                data['sale_records'] += 1
+                data['sale_invoiced_amount'] += abs(inv.invoiced_amount)
+                data['sale_invoiced_itbis'] += abs(inv.invoiced_itbis)
+                data['sale_withholded_itbis'] += abs(inv.third_withheld_itbis)
+                data['sale_withholded_isr'] += abs(inv.third_income_withholding)
+                data['sale_selective_tax'] += abs(inv.selective_tax)
+                data['sale_other_taxes'] += abs(inv.other_taxes)
+                data['sale_legal_tip'] += abs(inv.legal_tip)
+
+            rec.sale_records = data['sale_records']
+            rec.sale_invoiced_amount = data['sale_invoiced_amount']
+            rec.sale_invoiced_itbis = data['sale_invoiced_itbis']
+            rec.sale_withholded_itbis = data['sale_withholded_itbis']
+            rec.sale_withholded_isr = data['sale_withholded_isr']
+            rec.sale_selective_tax = data['sale_selective_tax']
+            rec.sale_other_taxes = data['sale_other_taxes']
+            rec.sale_legal_tip = data['sale_legal_tip']
 
     @api.multi
     def _compute_608_fields(self):
@@ -113,11 +125,19 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_609_fields(self):
         for rec in self:
+            data = {'exterior_records': 0, 'presumed_income': 0, 'exterior_withholded_isr': 0,
+                    'exterior_invoiced_amount': 0}
             external_line_ids = self.env['dgii.reports.exterior.line'].search([('dgii_report_id', '=', rec.id)])
-            rec.exterior_records = len(external_line_ids)
-            rec.presumed_income = abs(sum([inv.presumed_income for inv in external_line_ids]))
-            rec.exterior_withholded_isr = abs(sum([inv.withholded_isr for inv in external_line_ids]))
-            rec.exterior_invoiced_amount = abs(sum([inv.invoiced_amount for inv in external_line_ids]))
+            for inv in external_line_ids:
+                data['exterior_records'] += 1
+                data['presumed_income'] += abs(inv.presumed_income)
+                data['exterior_withholded_isr'] += abs(inv.withholded_isr)
+                data['exterior_invoiced_amount'] += abs(inv.invoiced_amount)
+
+            rec.exterior_records = data['exterior_records']
+            rec.presumed_income = data['presumed_income']
+            rec.exterior_withholded_isr = data['exterior_withholded_isr']
+            rec.exterior_invoiced_amount = data['exterior_invoiced_amount']
 
     # 606
     purchase_records = fields.Integer(compute='_compute_606_fields')
