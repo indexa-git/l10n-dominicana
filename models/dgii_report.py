@@ -238,8 +238,6 @@ class DgiiReport(models.Model):
 
     def process_606_report_data(self, values):
 
-        pipe = '|'
-
         RNC = str(values['rnc_cedula'] if values['rnc_cedula'] else "")
         ID_TYPE = str(values['identification_type'] if values['identification_type'] else "").ljust(1)
         EXP_TYPE = str(values['expense_type'] if values['expense_type'] else "").ljust(2)
@@ -264,10 +262,9 @@ class DgiiReport(models.Model):
         LEG_TIP = self._get_formated_amount(values['legal_tip'])
         PAY_FORM = str(values['payment_type'] if values['payment_type'] else "").ljust(2)
 
-        return RNC + pipe + ID_TYPE + pipe + EXP_TYPE + pipe + NCF + pipe + NCM + pipe + INV_DATE + pipe + PAY_DATE + \
-               pipe + SERV_AMOUNT + pipe + GOOD_AMOUNT + pipe + INV_AMOUNT + pipe + INV_ITBIS + pipe + WH_ITBIS + pipe \
-               + PROP_ITBIS + pipe + COST_ITBIS + pipe + ADV_ITBIS + pipe + PP_ITBIS + pipe + WH_TYPE + pipe + INC_WH \
-               + pipe + PP_ISR + pipe + ISC + pipe + OTHR + pipe + LEG_TIP + pipe + PAY_FORM
+        return "|".join([RNC, ID_TYPE, EXP_TYPE, NCF, NCM, INV_DATE, PAY_DATE, SERV_AMOUNT, GOOD_AMOUNT, INV_AMOUNT,
+                         INV_ITBIS, WH_ITBIS, PROP_ITBIS, COST_ITBIS, ADV_ITBIS, PP_ITBIS, WH_TYPE, INC_WH, PP_ISR,
+                         ISC, OTHR, LEG_TIP, PAY_FORM])
 
     def _generate_606_txt(self, report, records, qty):
 
@@ -457,8 +454,6 @@ class DgiiReport(models.Model):
 
     def process_607_report_data(self, values):
 
-        pipe = '|'
-
         RNC = str(values['rnc_cedula'] if values['rnc_cedula'] else "").ljust(11)
         ID_TYPE = str(values['identification_type'] if values['identification_type'] else "")
         NCF = str(values['fiscal_invoice_number']).ljust(11)
@@ -483,10 +478,8 @@ class DgiiReport(models.Model):
         BOND = self._get_formated_amount(values['bond'])
         OTHR = self._get_formated_amount(values['others'])
 
-        return RNC + pipe + ID_TYPE + pipe + NCF + pipe + NCM + pipe + INCOME_TYPE + pipe + \
-               INV_DATE + pipe + WH_DATE + pipe + INV_AMOUNT + pipe + INV_ITBIS + pipe + \
-               WH_ITBIS + pipe + PRC_ITBIS + pipe + WH_ISR + pipe + PCR_ISR + pipe + ISC + pipe + OTH_TAX + pipe + \
-               LEG_TIP + pipe + CASH + pipe + BANK + pipe + CARD + pipe + CRED + pipe + SWAP + pipe + BOND + pipe + OTHR
+        return "|".join([RNC, ID_TYPE, NCF, NCM, INCOME_TYPE, INV_DATE, WH_DATE, INV_AMOUNT, INV_ITBIS, WH_ITBIS,
+                         PRC_ITBIS, WH_ISR, PCR_ISR, ISC, OTH_TAX, LEG_TIP, CASH, BANK, CARD, CRED, SWAP, BOND, OTHR])
 
     def _generate_607_txt(self, report, records, qty):
 
@@ -577,13 +570,11 @@ class DgiiReport(models.Model):
 
     def process_608_report_data(self, values):
 
-        pipe = '|'
-
         NCF = str(values['fiscal_invoice_number']).ljust(11)
         INV_DATE = str(self._get_formated_date(values['invoice_date'])).ljust(8)
         ANU_TYPE = str(values['anulation_type']).ljust(2)
 
-        return NCF + pipe + INV_DATE + pipe + ANU_TYPE
+        return "|".join([NCF, INV_DATE, ANU_TYPE])
 
     def _generate_608_txt(self, report, records, qty):
 
@@ -630,8 +621,6 @@ class DgiiReport(models.Model):
 
     def process_609_report_data(self, values):
 
-        pipe = '|'
-
         LEGAL_NAME = str(values['legal_name']).ljust(50)
         ID_TYPE = str(values['tax_id_type'] if values['identification_type'] else "")
         TAX_ID = str(values['tax_id'] if values['tax_id'] else "").ljust(50)
@@ -646,9 +635,8 @@ class DgiiReport(models.Model):
         PRM_INCM = self._get_formated_amount(values['presumed_income'])
         WH_ISR = self._get_formated_amount(values['withholded_isr'])
 
-        return LEGAL_NAME + pipe + ID_TYPE + pipe + TAX_ID + pipe + CNT_CODE + pipe + PST + pipe + STD + pipe + \
-               REL_PART + pipe + DOC_NUM + pipe + DOC_DATE + pipe + INV_AMOUNT + pipe + ISR_DATE + pipe + PRM_INCM + \
-               pipe + WH_ISR
+        return "|".join([LEGAL_NAME, ID_TYPE, TAX_ID, CNT_CODE, PST, STD, REL_PART, DOC_NUM, DOC_DATE, INV_AMOUNT,
+                         ISR_DATE, PRM_INCM, WH_ISR])
 
     def _generate_609_txt(self, report, records, qty):
 
