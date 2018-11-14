@@ -755,8 +755,7 @@ msgstr "No enviada"
 #: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid "Not setting a report as sent may throw inconsistencies\n"
 "                                    regarding invoice withholding dates."
-msgstr "No marcar el reporte como enviado puede arrojar inconsistencias\n"
-"                                    relativas a las fechas de retención de las facturas."
+msgstr "No marcar el reporte como enviado puede arrojar inconsistencias relativas a las fechas de retención de las facturas."
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_opr_income
