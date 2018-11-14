@@ -36,3 +36,13 @@ class AccountInvoice(models.Model):
             supplier = po.partner_id
             if supplier.purchase_journal_id:
                 self.journal_id = supplier.purchase_journal_id
+
+    @api.onchange('invoice_line_ids')
+    def _onchange_origin(self):
+        """This method is being inherited as Odoo uses the purchase reference and
+           puts it into the invoice reference (our NCF), we change this behaviour to
+           use the invoice name (description)"""
+        purchase_ids = self.invoice_line_ids.mapped('purchase_id')
+        if purchase_ids:
+            self.origin = ', '.join(purchase_ids.mapped('name'))
+            self.name = ', '.join(purchase_ids.filtered('partner_ref').mapped('partner_ref')) or self.reference
