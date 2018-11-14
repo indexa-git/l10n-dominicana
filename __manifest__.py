@@ -30,5 +30,6 @@
         'views/account_invoice_views.xml',
         'views/dgii_report_views.xml',
         'views/dgii_report_templates.xml',
+        'wizard/dgii_report_regenerate_wizard_views.xml',
     ],
 }

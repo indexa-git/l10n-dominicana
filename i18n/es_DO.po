@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 11.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 19:04+0000\n"
-"PO-Revision-Date: 2018-11-14 19:04+0000\n"
+"POT-Creation-Date: 2018-11-14 21:34+0000\n"
+"PO-Revision-Date: 2018-11-14 21:34+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -241,6 +241,11 @@ msgid "Bond"
 msgstr "Bonos o Certificados de Regalo"
 
 #. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_regenerate_wizard_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_filename
 msgid "Cancel Filename"
 msgstr "Cancel Filename"
@@ -302,6 +307,7 @@ msgid "Country Code"
 msgstr "Código del país"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard_create_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line_create_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_create_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_create_uid
@@ -313,6 +319,7 @@ msgid "Created by"
 msgstr "Creado por"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard_create_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line_create_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_create_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_create_date
@@ -376,6 +383,7 @@ msgid "Dgii Report"
 msgstr "Reporte DGII"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard_display_name
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line_display_name
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_display_name
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_display_name
@@ -542,6 +550,7 @@ msgid "I39 - Servicios sujetos a Retención Personas Físicas"
 msgstr "I39 - Servicios sujetos a Retención Personas Físicas"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard_id
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line_id
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_id
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_id
@@ -651,6 +660,7 @@ msgid "Isr Withholding Type"
 msgstr "Tipo de Retención en ISR"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard___last_update
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports___last_update
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line___last_update
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line___last_update
@@ -662,6 +672,7 @@ msgid "Last Modified on"
 msgstr "Última modificación en"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard_write_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line_write_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_write_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_write_uid
@@ -673,6 +684,7 @@ msgid "Last Updated by"
 msgstr "Última actualización de"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard_write_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line_write_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_write_date
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_write_date
@@ -754,8 +766,9 @@ msgstr "No enviada"
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid "Not setting a report as sent may throw inconsistencies\n"
-"                                    regarding invoice withholding dates."
-msgstr "No marcar el reporte como enviado puede arrojar inconsistencias relativas a las fechas de retención de las facturas."
+"                                    regarding invoices withholding dates."
+msgstr "No marcar el reporte como enviado puede arrojar inconsistencias\n"
+"                                    relativas a las fechas de retención de las facturas."
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_opr_income
@@ -950,6 +963,22 @@ msgid "Recalcular norma 07-2018"
 msgstr "Recalcular norma 07-2018"
 
 #. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_regenerate_wizard_form
+msgid "Regenerate"
+msgstr "Regenerar"
+
+#. module: dgii_reports
+#: model:ir.actions.act_window,name:dgii_reports.dgii_report_regenerate_wizard_action
+msgid "Regenerate Report"
+msgstr "Regenerar Reporte"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_regenerate_wizard_form
+msgid "Regenerate this report may cause data variation. Don't do that if you want to preserve equality\n"
+"                        between the report you sent and the data in your system."
+msgstr "Regenerar este reporte puede causar variación en los datos. No haga esto si desea preservar la igualdad entre el reporte que envió y los datos en el sistema."
+
+#. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_res_partner_related
 #: model:ir.model.fields,field_description:dgii_reports.field_res_users_related
 #: selection:res.partner,related:0
@@ -960,6 +989,11 @@ msgstr "Relacionada"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_related_part
 msgid "Related Part"
 msgstr "Parte Relacionada"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard_report_id
+msgid "Report"
+msgstr "Reporte"
 
 #. module: dgii_reports
 #: selection:account.invoice,fiscal_status:0
@@ -1183,6 +1217,11 @@ msgstr "Puedes crear tus declaraciones de la DGII aquí"
 #: sql_constraint:dgii.reports:0
 msgid "You cannot have more than one report by period."
 msgstr "No puede tener más de un reporte por periodo."
+
+#. module: dgii_reports
+#: model:ir.model,name:dgii_reports.model_dgii_report_regenerate_wizard
+msgid "dgii.report.regenerate.wizard"
+msgstr "dgii.report.regenerate.wizard"
 
 #. module: dgii_reports
 #: model:ir.model,name:dgii_reports.model_dgii_reports

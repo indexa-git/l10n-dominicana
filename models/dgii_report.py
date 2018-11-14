@@ -749,7 +749,7 @@ class DgiiReport(models.Model):
             self._generate_609_txt(rec, report_data, line)
 
     @api.multi
-    def generate_report(self):
+    def _generate_report(self):
         # Drop 607 NCF Operations for recompute
         self.env['dgii.reports.sale.summary'].search([('dgii_report_id', '=', self.id)]).unlink()
 
@@ -758,6 +758,15 @@ class DgiiReport(models.Model):
         self._compute_608_data()
         self._compute_609_data()
         self.state = 'generated'
+
+    @api.multi
+    def generate_report(self):
+        if self.state == 'generated':
+            action = self.env.ref('dgii_reports.dgii_report_regenerate_wizard_action').read()[0]
+            action['context'] = {'default_report_id': self.id}
+            return action
+        else:
+            self._generate_report()
 
     def _has_withholding(self, inv):
         """Validate if given invoice has an Withholding tax"""
