@@ -59,19 +59,37 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_606_fields(self):
         for rec in self:
+            data = {'purchase_records': 0, 'service_total_amount': 0, 'good_total_amount': 0,
+                    'purchase_invoiced_amount': 0, 'purchase_invoiced_itbis': 0, 'purchase_withholded_itbis': 0,
+                    'cost_itbis': 0, 'advance_itbis': 0, 'income_withholding': 0, 'purchase_selective_tax': 0,
+                    'purchase_other_taxes': 0, 'purchase_legal_tip': 0}
             purchase_line_ids = self.env['dgii.reports.purchase.line'].search([('dgii_report_id', '=', rec.id)])
-            rec.purchase_records = len(purchase_line_ids)
-            rec.service_total_amount = abs(sum([inv.service_total_amount for inv in purchase_line_ids]))
-            rec.good_total_amount = abs(sum([inv.good_total_amount for inv in purchase_line_ids]))
-            rec.purchase_invoiced_amount = abs(sum([inv.invoiced_amount for inv in purchase_line_ids]))
-            rec.purchase_invoiced_itbis = abs(sum([inv.invoiced_itbis for inv in purchase_line_ids]))
-            rec.purchase_withholded_itbis = abs(sum([inv.withholded_itbis for inv in purchase_line_ids]))
-            rec.cost_itbis = abs(sum([inv.cost_itbis for inv in purchase_line_ids]))
-            rec.advance_itbis = abs(sum([inv.advance_itbis for inv in purchase_line_ids]))
-            rec.income_withholding = abs(sum([inv.income_withholding for inv in purchase_line_ids]))
-            rec.purchase_selective_tax = abs(sum([inv.selective_tax for inv in purchase_line_ids]))
-            rec.purchase_other_taxes = abs(sum([inv.other_taxes for inv in purchase_line_ids]))
-            rec.purchase_legal_tip = abs(sum([inv.legal_tip for inv in purchase_line_ids]))
+            for inv in purchase_line_ids:
+                data['purchase_records'] += 1
+                data['service_total_amount'] += abs(inv.service_total_amount)
+                data['good_total_amount'] += abs(inv.good_total_amount)
+                data['purchase_invoiced_amount'] += abs(inv.invoiced_amount)
+                data['purchase_invoiced_itbis'] += abs(inv.invoiced_itbis)
+                data['purchase_withholded_itbis'] += abs(inv.withholded_itbis)
+                data['cost_itbis'] += abs(inv.cost_itbis)
+                data['advance_itbis'] += abs(inv.advance_itbis)
+                data['income_withholding'] += abs(inv.income_withholding)
+                data['purchase_selective_tax'] += abs(inv.selective_tax)
+                data['purchase_other_taxes'] += abs(inv.other_taxes)
+                data['purchase_legal_tip'] += abs(inv.legal_tip)
+
+            rec.purchase_records = data['purchase_records']
+            rec.service_total_amount = data['service_total_amount']
+            rec.good_total_amount = data['good_total_amount']
+            rec.purchase_invoiced_amount = data['purchase_invoiced_amount']
+            rec.purchase_invoiced_itbis = data['purchase_invoiced_itbis']
+            rec.purchase_withholded_itbis = data['purchase_withholded_itbis']
+            rec.cost_itbis = data['cost_itbis']
+            rec.advance_itbis = data['advance_itbis']
+            rec.income_withholding = data['income_withholding']
+            rec.purchase_selective_tax = data['purchase_selective_tax']
+            rec.purchase_other_taxes = data['purchase_other_taxes']
+            rec.purchase_legal_tip = data['purchase_legal_tip']
 
     @api.multi
     def _compute_607_fields(self):
