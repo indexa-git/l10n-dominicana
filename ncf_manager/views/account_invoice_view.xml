@@ -33,12 +33,12 @@
                        'invisible':[('ncf_control','!=',True)],
                        'required': [('ncf_control','=',True),('type','=','out_invoice')],
                        'readonly': [('state','!=','draft')]}"/>
-                <field name="origin_out" groups="base.group_user" attrs="{
-                       'invisible': [('type', '!=', 'out_refund')],
-                       'readonly': [('origin','=',True),('ncf_control','=',True)]}"/>
                 <field name="reference" string="NCF" readonly="1" attrs="{
                        'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)],
                        'readonly': True}"/>
+                <field name="origin_out" groups="base.group_user" attrs="{
+                       'invisible': [('type', '!=', 'out_refund')],
+                       'readonly': [('origin','=',True),('ncf_control','=',True),('state', '!=', 'draft')]}"/>
             </field>
 
             <xpath expr="//h1" position="after">
@@ -102,6 +102,12 @@
             </xpath>
 
             <field name="journal_id" position="replace"/>
+            <field name="reference" position="after">
+                <field name="origin_out" groups="base.group_user" attrs="{
+                            'invisible': [('type', '!=', 'in_refund')],
+                            'readonly': [('state', '!=', 'draft')],
+                            'required': [('type', '=', 'in_refund'), ('purchase_type', 'in', ['normal', 'minor', 'informal'])]}"/>
+            </field>
             <field name="reference" position="before">
                 <field name="purchase_type" invisible="1"/>
                 <field name="journal_id" groups="account.group_account_user"
