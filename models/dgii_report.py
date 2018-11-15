@@ -570,7 +570,7 @@ class DgiiReport(models.Model):
                 op_dict = self._process_op_dict(op_dict, inv)
                 income_dict = self._process_income_dict(income_dict, inv)
                 inv.fiscal_status = 'blocked'
-                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
+                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.sale_fiscal_type != 'unico' else self.formated_rnc_cedula(inv.company_id.vat)
                 payments = self._get_sale_payments_forms(inv)
                 values = {
                     'dgii_report_id': rec.id,
