@@ -24,6 +24,19 @@ class DgiiReportSaleSummary(models.Model):
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
 
 
+class DgiiReportConsumerSummary(models.Model):
+    _name = 'dgii.reports.consumer.summary'
+    _order = 'sequence'
+
+    name = fields.Char()
+    sequence = fields.Integer()
+    qty = fields.Integer()
+    amount = fields.Monetary()
+    currency_id = fields.Many2one('res.currency', string='Currency', required=True,
+                                  default=lambda self: self.env.user.company_id.currency_id)
+    dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
+
+
 class DgiiReport(models.Model):
     _name = 'dgii.reports'
     _inherit = ['mail.thread']
@@ -180,7 +193,7 @@ class DgiiReport(models.Model):
     exterior_filename = fields.Char()
     exterior_binary = fields.Binary(string='609 file')
 
-    # Additional Info
+    # IT-1
     ncf_sale_summary_ids = fields.One2many('dgii.reports.sale.summary', 'dgii_report_id',
                                            string='Operations by NCF type', copy=False)
     cash = fields.Monetary('Cash', copy=False)
@@ -199,6 +212,10 @@ class DgiiReport(models.Model):
     ast_income = fields.Monetary('Depreciable Assets Income', copy=False)
     otr_income = fields.Monetary('Others Income', copy=False)
     income_type_total = fields.Monetary('Total', copy=False)
+
+    # General Summary of Consumer Invoices
+    consumer_invoices_summary_ids = fields.One2many('dgii.reports.consumer.summary', 'dgii_report_id',
+                                                    string='Consumer Invoices Summary', copy=False)
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
