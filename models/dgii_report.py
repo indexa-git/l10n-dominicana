@@ -475,16 +475,15 @@ class DgiiReport(models.Model):
 
     def _process_op_dict(self, dict, invoice):
         op_dict = dict
-        amount = self._convert_to_user_currency(invoice.currency_id, invoice.amount_untaxed_signed)
         if invoice.sale_fiscal_type and invoice.type != 'out_refund':
             op_dict[invoice.sale_fiscal_type]['qty'] += 1
-            op_dict[invoice.sale_fiscal_type]['amount'] += amount
+            op_dict[invoice.sale_fiscal_type]['amount'] += invoice.amount_untaxed_signed
         if invoice.type == 'out_refund' and not invoice.is_nd:
             op_dict['nc']['qty'] += 1
-            op_dict['nc']['amount'] += amount
+            op_dict['nc']['amount'] += invoice.amount_untaxed_signed
         if invoice.is_nd:
             op_dict['nd']['qty'] += 1
-            op_dict['nd']['amount'] += amount
+            op_dict['nd']['amount'] += invoice.amount_untaxed_signed
 
         return op_dict
 
@@ -586,7 +585,7 @@ class DgiiReport(models.Model):
                 op_dict = self._process_op_dict(op_dict, inv)
                 income_dict = self._process_income_dict(income_dict, inv)
                 inv.fiscal_status = 'blocked'
-                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
+                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.sale_fiscal_type != 'unico' else self.formated_rnc_cedula(inv.company_id.vat)
                 payments = self._get_sale_payments_forms(inv)
                 values = {
                     'dgii_report_id': rec.id,
