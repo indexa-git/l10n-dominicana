@@ -458,17 +458,15 @@ class DgiiReport(models.Model):
 
     def _process_op_dict(self, dict, invoice):
         op_dict = dict
-        convert_to_local_currency = self.env['account.invoice']._convert_to_local_currency
-        amount = convert_to_local_currency(invoice, invoice.amount_untaxed_signed)
         if invoice.sale_fiscal_type and invoice.type != 'out_refund':
             op_dict[invoice.sale_fiscal_type]['qty'] += 1
-            op_dict[invoice.sale_fiscal_type]['amount'] += amount
+            op_dict[invoice.sale_fiscal_type]['amount'] += invoice.amount_untaxed_signed
         if invoice.type == 'out_refund' and not invoice.is_nd:
             op_dict['nc']['qty'] += 1
-            op_dict['nc']['amount'] += amount
+            op_dict['nc']['amount'] += invoice.amount_untaxed_signed
         if invoice.is_nd:
             op_dict['nd']['qty'] += 1
-            op_dict['nd']['amount'] += amount
+            op_dict['nd']['amount'] += invoice.amount_untaxed_signed
 
         return op_dict
 
