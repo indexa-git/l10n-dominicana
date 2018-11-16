@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 11.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 21:34+0000\n"
-"PO-Revision-Date: 2018-11-14 21:34+0000\n"
+"POT-Creation-Date: 2018-11-16 19:45+0000\n"
+"PO-Revision-Date: 2018-11-16 19:45+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -263,6 +263,7 @@ msgstr "Tarjeta"
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cash
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_cash
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_cash
 msgid "Cash"
 msgstr "Efectivo"
@@ -270,6 +271,7 @@ msgstr "Efectivo"
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_bank
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_bank
 msgid "Check / Transfer / Deposit"
 msgstr "Cheque / Transferencia / Depósito"
 
@@ -287,6 +289,11 @@ msgstr "El código debe ser único"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_company_id
 msgid "Company"
 msgstr "Compañía"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "Consumer Invoices Summary"
+msgstr "Resumen Facturas Consumo"
 
 #. module: dgii_reports
 #: model:ir.model,name:dgii_reports.model_res_partner
@@ -333,6 +340,7 @@ msgstr "Creado en"
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_credit
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_credit
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_credit
 msgid "Credit"
 msgstr "A Crédito"
@@ -340,6 +348,7 @@ msgstr "A Crédito"
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_card
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_card
 msgid "Credit Card / Debit Card"
 msgstr "Tarjeta Débito / Crédito"
 
@@ -488,6 +497,11 @@ msgstr "Gastos por Trabajos, Suministros y Servicios"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "General Summary of Consumer Invoices"
+msgstr "Resumen General de Facturas de Consumo"
+
+#. module: dgii_reports
+#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid "Generate Statements"
 msgstr "Generar Reportes"
 
@@ -498,6 +512,7 @@ msgstr "Generado"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_bond
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_bond
 msgid "Gift certificates or vouchers"
 msgstr "Bonos o Certificados de Regalo"
 
@@ -626,10 +641,20 @@ msgid "Invoiced Amount"
 msgstr "Total Monto Facturado"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_ncf_total_amount
+msgid "Invoiced Amount Total"
+msgstr "Total Monto Facturado"
+
+#. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Invoiced ITBIS"
 msgstr "ITBIS Facturado"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_ncf_total_itbis
+msgid "Invoiced ITBIS Total"
+msgstr "Total ITBIS Facturado"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_invoiced_itbis
@@ -658,6 +683,11 @@ msgstr "Fecha Retención ISR"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_isr_withholding_type
 msgid "Isr Withholding Type"
 msgstr "Tipo de Retención en ISR"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_ncf_qty
+msgid "Issued Consumer NCF Qty"
+msgstr "Cantidad NCFs Emitidos"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard___last_update
@@ -711,6 +741,11 @@ msgstr "Razón Social"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_legal_tip
 msgid "Legal Tip"
 msgstr "Propina Legal"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_ncf_total_lgl_tip
+msgid "Legal Tip Total"
+msgstr "Total Monto Propina Legal"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
@@ -796,6 +831,7 @@ msgid "Operations by Sale Type"
 msgstr "Operaciones por Tipo de Venta"
 
 #. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_others
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_others
 msgid "Other Sale Forms"
 msgstr "Otras Formas de Venta"
@@ -806,6 +842,11 @@ msgstr "Otras Formas de Venta"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_other_taxes
 msgid "Other Taxes"
 msgstr "Otros Impuestos"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_ncf_total_othr
+msgid "Other Taxes Total"
+msgstr "Total Otros Impuestos/Tasas"
 
 #. module: dgii_reports
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
@@ -1064,6 +1105,7 @@ msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_selective_tax
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_ncf_total_isc
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_selective_tax
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_selective_tax
 #: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
@@ -1119,6 +1161,7 @@ msgstr "Reportes"
 
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_swap
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_swap
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_swap
 msgid "Swap"
