@@ -104,7 +104,7 @@ class DgiiReport(models.Model):
                 data['sale_withholded_itbis'] += inv.third_withheld_itbis
                 data['sale_withholded_isr'] += inv.third_income_withholding
                 data['sale_selective_tax'] += inv.selective_tax
-                data['sale_other_taxes'] += inv.other_taes
+                data['sale_other_taxes'] += inv.other_taxes
                 data['sale_legal_tip'] += inv.legal_tip
 
             rec.sale_records = abs(data['sale_records'])
