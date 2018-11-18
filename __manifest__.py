@@ -12,7 +12,7 @@
         integrando los reportes de declaraciones fiscales""",
 
     'author': "Indexa, SRL, "
-              "iteritvo SRL",
+              "iterativo SRL",
 
     'category': 'Accounting',
     'version': '0.1',
