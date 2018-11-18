@@ -86,7 +86,8 @@ class DgiiReport(models.Model):
             rec.purchase_withholded_itbis = abs(data['purchase_withholded_itbis'])
             rec.cost_itbis = abs(data['cost_itbis'])
             rec.advance_itbis = abs(data['advance_itbis'])
-            rec.income_withholding = abs(data['income_withholding'])         rec.purchase_selective_tax = abs(data['purchase_selective_tax'])
+            rec.income_withholding = abs(data['income_withholding'])
+            rec.purchase_selective_tax = abs(data['purchase_selective_tax'])
             rec.purchase_other_taxes = abs(data['purchase_other_taxes'])
             rec.purchase_legal_tip = abs(data['purchase_legal_tip'])
 
