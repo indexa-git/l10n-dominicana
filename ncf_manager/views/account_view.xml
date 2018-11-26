@@ -23,7 +23,6 @@
             <notebook>
                 <page string="Secuencias NCF" attrs="{'invisible':[('ncf_control','!=',True)]}">
                     <group>
-                        <field name="prefix"/>
                         <field name="special_fiscal_position_id"/>
                     </group>
                     <field name="date_range_ids">
