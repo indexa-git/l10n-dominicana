@@ -592,13 +592,13 @@ class DgiiReport(models.Model):
                     'invoice_partner_id': inv.partner_id.id,
                     'invoice_id': inv.id,
                     'credit_note': True if inv.type == 'out_refund' else False,
-                    'cash': payments.get('cash'),
-                    'bank': payments.get('bank'),
-                    'card': payments.get('card'),
-                    'credit': payments.get('credit'),
-                    'swap': payments.get('swap'),
-                    'bond': payments.get('bond'),
-                    'others': payments.get('others')
+                    'cash': payments.get('cash') * -1 if inv.type == 'out_refund' else payments.get('cash'),
+                    'bank': payments.get('bank') * -1 if inv.type == 'out_refund' else payments.get('bank'),
+                    'card': payments.get('card') * -1 if inv.type == 'out_refund' else payments.get('card'),
+                    'credit': payments.get('credit') * -1 if inv.type == 'out_refund' else payments.get('credit'),
+                    'swap': payments.get('swap') * -1 if inv.type == 'out_refund' else payments.get('swap'),
+                    'bond': payments.get('bond') * -1 if inv.type == 'out_refund' else payments.get('bond'),
+                    'others': payments.get('others') * -1 if inv.type == 'out_refund' else payments.get('others')
                 }
 
                 if str(values.get('fiscal_invoice_number'))[-10:-8] == '02' and inv.amount_untaxed_signed < 250000:
@@ -611,8 +611,7 @@ class DgiiReport(models.Model):
                     report_data += self.process_607_report_data(values) + '\n'
 
                 for k in payment_dict:
-                    if inv.type != 'out_refund':
-                        payment_dict[k] += payments[k]
+                    payment_dict[k] += payments[k] * -1 if inv.type == 'out_refund' else payments[k]
 
             for k in op_dict:
                 self.env['dgii.reports.sale.summary'].create(op_dict[k])
