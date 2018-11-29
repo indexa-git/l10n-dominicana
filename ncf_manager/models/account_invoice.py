@@ -30,7 +30,7 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 try:
-    from stdnum.do import ncf as ncf_validation
+    from stdnum.do import ncf as ncf_validation, rnc
 except(ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -318,3 +318,18 @@ class AccountInvoice(models.Model):
                 self.reference = sequence_id.with_context(sale_fiscal_type=self.journal_id.purchase_type)._next()
 
         return super(AccountInvoice, self).invoice_validate()
+
+    @api.model
+    def create(self, vals):
+        if vals.get("sale_fiscal_type", None) == "fiscal":
+            partner = vals.get("partner_id", None)
+
+            if partner:
+                if len(self.env["res.partner"].browse(partner).vat) not in [9, 11] or not rnc.check_dgii(partner):
+                    raise ValidationError(_(
+                        "El RNC del cliente NO pasó la validación en DGII\n\n"
+                        "No es posible crear una factura con Crédito Fiscal si el RNC del cliente es inválido."
+                        "Verifique el RNC del cliente a fin de corregirlo y vuelva a guardar la factura"
+                    ))
+
+        return super(AccountInvoice, self).create(vals)
