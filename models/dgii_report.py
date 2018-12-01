@@ -180,7 +180,7 @@ class DgiiReport(models.Model):
     exterior_filename = fields.Char()
     exterior_binary = fields.Binary(string='609 file')
 
-    # Additional Info
+    # IT-1
     ncf_sale_summary_ids = fields.One2many('dgii.reports.sale.summary', 'dgii_report_id',
                                            string='Operations by NCF type', copy=False)
     cash = fields.Monetary('Cash', copy=False)
@@ -199,6 +199,23 @@ class DgiiReport(models.Model):
     ast_income = fields.Monetary('Depreciable Assets Income', copy=False)
     otr_income = fields.Monetary('Others Income', copy=False)
     income_type_total = fields.Monetary('Total', copy=False)
+
+    # General Summary of Consumer Invoices
+    csmr_ncf_qty = fields.Integer('Issued Consumer NCF Qty', copy=False)
+    csmr_ncf_total_amount = fields.Monetary('Invoiced Amount Total', copy=False)
+    csmr_ncf_total_itbis = fields.Monetary('Invoiced ITBIS Total', copy=False)
+    csmr_ncf_total_isc = fields.Monetary('Selective Tax', copy=False)
+    csmr_ncf_total_othr = fields.Monetary('Other Taxes Total', copy=False)
+    csmr_ncf_total_lgl_tip = fields.Monetary('Legal Tip Total', copy=False)
+
+    # General Summary of Consumer Invoices - Sale Form
+    csmr_cash = fields.Monetary('Cash', copy=False)
+    csmr_bank = fields.Monetary('Check / Transfer / Deposit', copy=False)
+    csmr_card = fields.Monetary('Credit Card / Debit Card', copy=False)
+    csmr_credit = fields.Monetary('Credit', copy=False)
+    csmr_bond = fields.Monetary('Gift certificates or vouchers', copy=False)
+    csmr_swap = fields.Monetary('Swap', copy=False)
+    csmr_others = fields.Monetary('Other Sale Forms', copy=False)
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
@@ -551,6 +568,14 @@ class DgiiReport(models.Model):
             'sale_binary': base64.b64encode(open(file_path, 'rb').read())
         })
 
+    def _get_csmr_vals_dict(self):
+        return {'csmr_ncf_qty': 0, 'csmr_ncf_total_amount': 0, 'csmr_ncf_total_itbis': 0, 'csmr_ncf_total_isc': 0,
+                'csmr_ncf_total_othr': 0, 'csmr_ncf_total_lgl_tip': 0, 'csmr_cash': 0, 'csmr_bank': 0, 'csmr_card': 0,
+                'csmr_credit': 0, 'csmr_bond': 0, 'csmr_swap': 0, 'csmr_others': 0}
+
+    def _set_csmr_fields_vals(self, report, csmr_dict):
+        report.write(csmr_dict)
+
     @api.multi
     def _compute_607_data(self):
         for rec in self:
@@ -562,6 +587,7 @@ class DgiiReport(models.Model):
             op_dict = self._get_607_operations_dict()
             payment_dict = self._get_payments_dict()
             income_dict = self._get_income_type_dict()
+            csmr_dict = self._get_csmr_vals_dict()
 
             report_data = ''
             for inv in invoice_ids:
@@ -601,6 +627,21 @@ class DgiiReport(models.Model):
                     'others': payments.get('others') * -1 if inv.type == 'out_refund' else payments.get('others')
                 }
 
+                if str(values['fiscal_invoice_number'])[-10:-8] == '02':
+                    csmr_dict['csmr_ncf_qty'] += 1
+                    csmr_dict['csmr_ncf_total_amount'] += values['invoiced_amount']
+                    csmr_dict['csmr_ncf_total_itbis'] += values['invoiced_itbis']
+                    csmr_dict['csmr_ncf_total_isc'] += values['selective_tax']
+                    csmr_dict['csmr_ncf_total_othr'] += values['other_taxes']
+                    csmr_dict['csmr_ncf_total_lgl_tip'] += values['legal_tip']
+                    csmr_dict['csmr_cash'] += values['cash']
+                    csmr_dict['csmr_bank'] += values['bank']
+                    csmr_dict['csmr_card'] += values['card']
+                    csmr_dict['csmr_credit'] += values['credit']
+                    csmr_dict['csmr_bond'] += values['bond']
+                    csmr_dict['csmr_swap'] += values['swap']
+                    csmr_dict['csmr_others'] += values['others']
+
                 if str(values.get('fiscal_invoice_number'))[-10:-8] == '02' and inv.amount_untaxed_signed < 250000:
                     # Excluye las facturas de Consumo con monto menor a 250000
                     pass
@@ -616,6 +657,7 @@ class DgiiReport(models.Model):
             for k in op_dict:
                 self.env['dgii.reports.sale.summary'].create(op_dict[k])
 
+            self._set_csmr_fields_vals(rec, csmr_dict)
             self._set_payment_form_fields(payment_dict)
             self._set_income_type_fields(income_dict)
             self._generate_607_txt(rec, report_data, line)

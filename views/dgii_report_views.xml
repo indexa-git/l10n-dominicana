@@ -147,6 +147,27 @@
                                 </group>
                             </group>
                         </page>
+                        <page name="consumer" string="Consumer Invoices Summary">
+                            <group string="General Summary of Consumer Invoices">
+                                <group col="3">
+                                    <field name="csmr_ncf_qty" readonly="1"/>
+                                    <field name="csmr_ncf_total_amount" readonly="1"/>
+                                    <field name="csmr_ncf_total_itbis" readonly="1"/>
+                                    <field name="csmr_ncf_total_isc" readonly="1"/>
+                                    <field name="csmr_ncf_total_othr" readonly="1"/>
+                                    <field name="csmr_ncf_total_lgl_tip" readonly="1"/>
+                                </group>
+                                <group col="3">
+                                    <field name="csmr_cash" readonly="1"/>
+                                    <field name="csmr_bank" readonly="1"/>
+                                    <field name="csmr_card" readonly="1"/>
+                                    <field name="csmr_credit" readonly="1"/>
+                                    <field name="csmr_bond" readonly="1"/>
+                                    <field name="csmr_swap" readonly="1"/>
+                                    <field name="csmr_others" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
 
                     </notebook>
 
