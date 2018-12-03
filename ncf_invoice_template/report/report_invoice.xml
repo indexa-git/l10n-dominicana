@@ -2,7 +2,7 @@
 <odoo>
 
     <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
-        <xpath expr="/t/t/div/div" position="replace"/>
+        <xpath expr="/t/t/t[1]" position="replace"/>
         <xpath expr="/t/t/div/h2" position="replace">
             <div class="row">
                 <div class="col-xs-5">
@@ -55,9 +55,9 @@
                 </div>
             </div>
         </xpath>
-        <xpath expr="//div[hasclass('mt32')]" position="replace">
+        <xpath expr="/t/t/div/div[1]" position="replace">
             <div class="row mt32 mb32">
-                <div name="invoice_partner_address" class="col-xs-5" t-if="o.partner_id.vat">
+                <div name="invoice_partner_address" class="col-auto" t-if="o.partner_id.vat">
                     <t t-if="len(o.partner_id.vat) == 9">
                         <strong>RNC CLIENTE:</strong>
                         <span t-field="o.partner_id.vat"/>
@@ -108,7 +108,7 @@
                 </div>
 
 
-                <div name="invoice_partner_address" class="col-xs-5" t-if="o.partner_id.vat == False">
+                <div name="invoice_partner_address" class="col-auto" t-if="o.partner_id.vat == False">
                     <t>
                         <strong>ID CLIENTE:</strong>
                         <span t-field="o.partner_id.vat"/>
@@ -126,19 +126,19 @@
                     </t>
                 </div>
 
-                <div class="col-xs-3" t-if="o.partner_id.street">
+                <div class="col-auto" t-if="o.partner_id.street" name="client_address">
                     <strong>DIRECCIÓN CLIENTE:</strong>
                     <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
                 </div>
-                <div class="col-xs-2" t-if="o.name">
+                <div class="col-auto" t-if="o.name" name="description">
                     <strong>Descripción:</strong>
                     <p t-field="o.name"/>
                 </div>
-                <div class="col-xs-2" t-if="o.origin and o.type == 'out_invoice'">
+                <div class="col-auto" t-if="o.origin" name="origin">
                     <strong>Origen:</strong>
                     <p t-field="o.origin"/>
                 </div>
-                <div name="reference" class="col-xs-2" t-if="o.number">
+                <div name="reference" class="col-auto" t-if="o.reference">
                     <strong>FACTURA NO.:</strong>
                     <p t-field="o.number"/>
                 </div>
