@@ -2,10 +2,10 @@
 <odoo>
 
     <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
-        <xpath expr="/t/t/t[1]" position="replace"/>
-        <xpath expr="/t/t/div/h2" position="replace">
+        <xpath expr="/t[1]/t[1]/t[2]/address[1]" position="replace"/>
+        <xpath expr="/t[1]/t[1]/div[1]/h2[1]" position="replace">
             <div class="row">
-                <div class="col-xs-5">
+                <div class="col-auto">
                     <strong>
                         <span t-field="o.company_id.partner_id" t-options-widget="'contact'"/>
                     </strong>
@@ -25,7 +25,7 @@
                         <span t-field="o.date_due"/>
                     </span>
                 </div>
-                <div class="pull-right col-xs-5">
+                <div class="col-auto ml-auto">
                     <div style="font-size: 18px">
                         <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
                             <strong>
@@ -57,7 +57,7 @@
         </xpath>
         <xpath expr="/t/t/div/div[1]" position="replace">
             <div class="row mt32 mb32">
-                <div name="invoice_partner_address" class="col-auto" t-if="o.partner_id.vat">
+                <div class="col-auto" t-if="o.partner_id.vat" name="invoice_partner_address">
                     <t t-if="len(o.partner_id.vat) == 9">
                         <strong>RNC CLIENTE:</strong>
                         <span t-field="o.partner_id.vat"/>
@@ -108,11 +108,8 @@
                 </div>
 
 
-                <div name="invoice_partner_address" class="col-auto" t-if="o.partner_id.vat == False">
+                <div class="col-auto" t-if="o.partner_id.vat == False" name="invoice_partner_address">
                     <t>
-                        <strong>ID CLIENTE:</strong>
-                        <span t-field="o.partner_id.vat"/>
-                        <br/>
                         <strong>NOMBRE:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
@@ -138,7 +135,7 @@
                     <strong>Origen:</strong>
                     <p t-field="o.origin"/>
                 </div>
-                <div name="reference" class="col-auto" t-if="o.reference">
+                <div class="col-auto" t-if="o.reference" name="reference" >
                     <strong>FACTURA NO.:</strong>
                     <p t-field="o.number"/>
                 </div>
