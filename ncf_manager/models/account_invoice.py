@@ -325,7 +325,7 @@ class AccountInvoice(models.Model):
             partner = vals.get("partner_id", None)
 
             if partner:
-                if len(self.env["res.partner"].browse(partner).vat) not in [9, 11] or not rnc.check_dgii(partner):
+                if len(self.env["res.partner"].browse(partner).vat) not in [9, 11] or not rnc.check_dgii(str(partner)):
                     raise ValidationError(_(
                         "El RNC del cliente NO pasó la validación en DGII\n\n"
                         "No es posible crear una factura con Crédito Fiscal si el RNC del cliente es inválido."
