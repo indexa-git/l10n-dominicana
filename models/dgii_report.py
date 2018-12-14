@@ -299,7 +299,8 @@ class DgiiReport(models.Model):
 
     def _get_formated_date(self, date):
 
-        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if date else ""
+        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if isinstance(date, str) \
+            else date.strftime('%Y%m%d') if date else ""
 
     def _get_formated_amount(self, amount):
 
@@ -604,8 +605,8 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.reference,
                     'modified_invoice_number': inv.origin_out if inv.origin_out and inv.origin_out[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
-                    'invoice_date': inv.date_invoice,
-                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding, inv.third_withheld_itbis])) else '',
+                    'invoice_date': inv.date_invoice.strftime("%Y-%m-%d"),
+                    'withholding_date': inv.payment_date.strftime("%Y-%m-%d") if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding, inv.third_withheld_itbis])) else False,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'third_withheld_itbis': inv.third_withheld_itbis if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
@@ -716,7 +717,7 @@ class DgiiReport(models.Model):
     def process_609_report_data(self, values):
 
         LEGAL_NAME = str(values['legal_name']).ljust(50)
-        ID_TYPE = str(values['tax_id_type'] if values['identification_type'] else "")
+        ID_TYPE = str(values['tax_id_type'] if values['tax_id_type'] else "")
         TAX_ID = str(values['tax_id'] if values['tax_id'] else "").ljust(50)
         CNT_CODE = str(values['country_code'] if values['country_code'] else "").ljust(3)
         PST = str(values['purchased_service_type'] if values['purchased_service_type'] else "").ljust(2)
