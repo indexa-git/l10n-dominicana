@@ -51,7 +51,6 @@
                                         <button type="object" name="get_606_tree_view">
                                             <h2>606</h2>
                                         </button>
-                                        <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
                                         <field name="purchase_records" readonly="1"/>
                                         <field name="purchase_invoiced_amount" readonly="1"/>
                                         <field name="service_total_amount" readonly="1"/>
@@ -74,7 +73,6 @@
                                         <button type="object" name="get_607_tree_view">
                                             <h2>607</h2>
                                         </button>
-                                        <field name="sale_binary" filename="sale_filename" readonly="1"/>
                                         <field name="sale_records" readonly="1"/>
                                         <field name="sale_invoiced_amount" readonly="1"/>
                                         <separator colspan="2"/>
@@ -93,7 +91,6 @@
                                         <button type="object" name="get_608_tree_view">
                                             <h2>608</h2>
                                         </button>
-                                        <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
                                         <field name="cancel_records" readonly="1"/>
                                     </group>
                                 </div>
@@ -102,7 +99,6 @@
                                         <button type="object" name="get_609_tree_view">
                                             <h2>609</h2>
                                         </button>
-                                        <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
                                         <field name="exterior_records" readonly="1"/>
                                         <field name="exterior_invoiced_amount" readonly="1"/>
                                         <separator colspan="2"/>
@@ -111,6 +107,20 @@
                                     </group>
                                 </div>
                             </div>
+                        </page>
+                        <page name="files" string="TXT Files">
+                            <group>
+                                <group>
+                                    <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
+                                    <field name="purchase_filename" invisible="1"/>
+                                    <field name="sale_binary" filename="sale_filename" readonly="1"/>
+                                    <field name="sale_filename" invisible="1"/>
+                                    <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
+                                    <field name="cancel_filename" invisible="1"/>
+                                    <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
+                                    <field name="exterior_filename" invisible="1"/>
+                                </group>
+                            </group>
                         </page>
                         <page name="it1" string="IT-1">
                             <group string="607 Reported Operations by NCF Type">
