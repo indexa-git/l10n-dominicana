@@ -13,6 +13,7 @@ from odoo.exceptions import ValidationError
 
 class DgiiReportSaleSummary(models.Model):
     _name = 'dgii.reports.sale.summary'
+    _description = "DGII Report Sale Summary"
     _order = 'sequence'
 
     name = fields.Char()
@@ -887,6 +888,7 @@ class DgiiReport(models.Model):
 
 class DgiiReportPurchaseLine(models.Model):
     _name = 'dgii.reports.purchase.line'
+    _description = "DGII Reports Purchase Line"
     _order = 'line asc'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
@@ -923,6 +925,7 @@ class DgiiReportPurchaseLine(models.Model):
 
 class DgiiReportSaleLine(models.Model):
     _name = 'dgii.reports.sale.line'
+    _description = "DGII Reports Sale Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -960,6 +963,7 @@ class DgiiReportSaleLine(models.Model):
 
 class DgiiCancelReportLine(models.Model):
     _name = 'dgii.reports.cancel.line'
+    _description = "DGII Reports Cancel Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -974,6 +978,7 @@ class DgiiCancelReportLine(models.Model):
 
 class DgiiExteriorReportLine(models.Model):
     _name = 'dgii.reports.exterior.line'
+    _description = "DGII Reports Exterior Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()

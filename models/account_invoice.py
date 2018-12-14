@@ -10,6 +10,7 @@ from odoo.exceptions import ValidationError
 
 class InvoiceServiceTypeDetail(models.Model):
     _name = 'invoice.service.type.detail'
+    _description = "Invoice Service Type Detail"
 
     name = fields.Char()
     code = fields.Char(size=2)
