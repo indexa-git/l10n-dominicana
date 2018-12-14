@@ -716,7 +716,7 @@ class DgiiReport(models.Model):
     def process_609_report_data(self, values):
 
         LEGAL_NAME = str(values['legal_name']).ljust(50)
-        ID_TYPE = str(values['tax_id_type'] if values['identification_type'] else "")
+        ID_TYPE = str(values['tax_id_type'] if values['tax_id_type'] else "")
         TAX_ID = str(values['tax_id'] if values['tax_id'] else "").ljust(50)
         CNT_CODE = str(values['country_code'] if values['country_code'] else "").ljust(3)
         PST = str(values['purchased_service_type'] if values['purchased_service_type'] else "").ljust(2)
