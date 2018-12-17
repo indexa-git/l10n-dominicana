@@ -33,7 +33,7 @@ class AccountInvoice(models.Model):
             if inv.state == 'paid':
                 dates = [dt.strptime(payment['date'], '%Y-%m-%d') for payment in self._get_invoice_payment_widget(inv)]
                 if dates:
-                    inv.payment_date = dt.strptime(max(dates), '%Y-%m-%d')
+                    inv.payment_date = max(dates).date()
 
     @api.multi
     @api.constrains('tax_line_ids')
