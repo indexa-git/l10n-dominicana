@@ -882,11 +882,19 @@ odoo.define('ncf_pos.screens', function (require) {
                         self.gui.show_popup('error', popupErrorOptions);
                         self.orderValidationDate = null;
                     } else {
-                        this.get_next_ncf(order).always(function () {
-                            console.info("Finishing Order Validation", new Date());
-                            self.finalize_validation();
-                            self.orderValidationDate = null;
-                        });
+                        this.get_next_ncf(order)
+                            .done(function () {
+                                console.info("Finishing Order Validation", new Date());
+                                self.finalize_validation();
+                                self.orderValidationDate = null;
+                            }).fail(function() {
+                                self.gui.show_popup('error', {
+                                    'title': 'No se pudo realizar la conexión con el servidor',
+                                    'body': 'Puede que haya intermitencia en la conexión a internet ' +
+                                            'o no haya conexion \n\n. Favor revisar la conexión a internet y' +
+                                            ' valide la orden nuevamente.\n\n'
+                                });
+                            });
                     }
                 }
             }
