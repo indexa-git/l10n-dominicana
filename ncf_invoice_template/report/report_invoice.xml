@@ -3,11 +3,13 @@
 
     <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
         <xpath expr="/t[1]/t[1]/t[2]/address[1]" position="replace"/>
-        <xpath expr="/t[1]/t[1]/div[1]/h2[1]" position="replace">
+        <xpath expr="/t[1]/t[1]/t[2]/div[3]" position="replace"/>
+        <xpath expr="/t[1]/t[1]/div[1]/h2[1]" position="replace"/>
+        <xpath expr="/t/t/div/div[1]" position="replace">
             <div class="row">
                 <div class="col-auto">
                     <strong>
-                        <span t-field="o.company_id.partner_id" t-options-widget="'contact'"/>
+                        <span t-field="o.company_id.partner_id.name"/>
                     </strong>
                     <br/>
                     <span>
@@ -54,15 +56,14 @@
                     </span>
                 </div>
             </div>
-        </xpath>
-        <xpath expr="/t/t/div/div[1]" position="replace">
+
             <div class="row mt32 mb32">
                 <div class="col-auto" t-if="o.partner_id.vat" name="invoice_partner_address">
                     <t t-if="len(o.partner_id.vat) == 9">
-                        <strong>RNC CLIENTE:</strong>
+                        <strong>RNC cliente:</strong>
                         <span t-field="o.partner_id.vat"/>
                         <br/>
-                        <strong>RAZÓN SOCIAL:</strong>
+                        <strong>Razón social:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
@@ -73,12 +74,11 @@
                         </t>
                         <br/>
                     </t>
-
                     <t t-elif="len(o.partner_id.vat) == 11">
-                        <strong>CED CLIENTE:</strong>
+                        <strong>Ced. cliente:</strong>
                         <span t-field="o.partner_id.vat"/>
                         <br/>
-                        <strong>NOMBRE:</strong>
+                        <strong>Nombre:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
@@ -89,12 +89,11 @@
                         </t>
                         <br/>
                     </t>
-
                     <t t-else="">
-                        <strong>ID CLIENTE:</strong>
+                        <strong>ID cliente:</strong>
                         <span t-field="o.partner_id.vat"/>
                         <br/>
-                        <strong>NOMBRE:</strong>
+                        <strong>Nombre:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
@@ -106,11 +105,9 @@
                         <br/>
                     </t>
                 </div>
-
-
                 <div class="col-auto" t-if="o.partner_id.vat == False" name="invoice_partner_address">
                     <t>
-                        <strong>NOMBRE:</strong>
+                        <strong>Nombre:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
@@ -122,10 +119,9 @@
                         <br/>
                     </t>
                 </div>
-
                 <div class="col-auto" t-if="o.partner_id.street" name="client_address">
-                    <strong>DIRECCIÓN CLIENTE:</strong>
-                    <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
+                    <strong>Dirección cliente:</strong>
+                    <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
                 </div>
                 <div class="col-auto" t-if="o.name" name="description">
                     <strong>Descripción:</strong>
@@ -135,19 +131,18 @@
                     <strong>Origen:</strong>
                     <p t-field="o.origin"/>
                 </div>
-                <div class="col-auto" t-if="o.reference" name="reference" >
-                    <strong>FACTURA NO.:</strong>
+                <div class="col-auto" t-if="o.reference" name="reference">
+                    <strong>Factura No.:</strong>
                     <p t-field="o.number"/>
                 </div>
             </div>
         </xpath>
-
         <xpath expr="//table[@name='invoice_line_table']" position="replace">
             <table class="table table-condensed" name="invoice_line_table">
                 <thead>
                     <tr>
                         <th>Descripción</th>
-                        <th class="hidden">Origin</th>
+                        <th class="hidden">Origen</th>
                         <th class="text-right">Cantidad</th>
                         <th class="text-right">Precio</th>
                         <th t-if="display_discount" class="text-right">Desc.(%)</th>
