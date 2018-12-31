@@ -695,16 +695,34 @@ odoo.define('ncf_pos.screens', function (require) {
                                 });
                             });
                     }
+                },
+                credit_card_options = {
+                    title: _t("Type reference number"),
+                    disable_keyboard_handler: true,
+                    input_name: _t("Reference Number"),
+                    text_input_value: '',
+                    confirm: function (input) {
+                        cashregister.payment_reference = input;
+                        self.pos.get_order().add_paymentline(cashregister);
+                        self.reset_input();
+                        self.render_paymentlines();
+                    }
                 };
 
             this._super(parent, options);
             this.orderValidationDate = null;
-            // Set the popup options for the payment method Credit Note
+            
             for (var n in this.pos.cashregisters) {
-                if (this.pos.cashregisters[n].journal.id == 10001) {
-                    this.pos.cashregisters[n].popup_options = popup_options;
-                    break;
+                var currentCashRegister = this.pos.cashregisters[n];
+                 
+                if (currentCashRegister.journal.id == 10001) { 
+                    // Set the popup options for the payment method Credit Note   
+                    currentCashRegister.popup_options = popup_options;
+                } else if (currentCashRegister.type === "bank" && !currentCashRegister.credit) {
+                    // Set the popup options for the payment method Credit/Debit Card
+                    currentCashRegister.popup_options = credit_card_options;
                 }
+
             }
         },
         show: function () {
