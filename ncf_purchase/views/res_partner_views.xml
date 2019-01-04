@@ -6,23 +6,21 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-
-	  <xpath expr="//field[@name='property_supplier_payment_term_id']" position="after">
-	      <field name="purchase_journal_id" attrs="{'invisible': [('supplier', '=', False)]}" />
-            </xpath>	      
-
+	  		<group name="purchase" position="inside">
+	      		<field name="purchase_journal_id" attrs="{'invisible': [('supplier', '=', False)]}" />
+			</group>
         </field>
     </record>
 
     <record id="res_partner_view_purchase_account_buttons" model="ir.ui.view">
-      <field name="name">res.partner.view.purchase.account.buttons</field>
-      <field name="model">res.partner</field>
-      <field name="inherit_id" ref="purchase.res_partner_view_purchase_account_buttons" />
-      <field name="arch" type="xml">
-	<button name="%(purchase.act_res_partner_2_supplier_invoices)d" position="attributes">
-	  <attribute name="context">{'default_journal_id': purchase_journal_id}</attribute>
-	</button>
-      </field>
+  		<field name="name">res.partner.view.purchase.account.buttons</field>
+		<field name="model">res.partner</field>
+		<field name="inherit_id" ref="purchase.res_partner_view_purchase_account_buttons" />
+		<field name="arch" type="xml">
+			<button name="%(purchase.act_res_partner_2_supplier_invoices)d" position="attributes">
+	  			<attribute name="context">{'default_journal_id': purchase_journal_id}</attribute>
+			</button>
+      	</field>
     </record>    
 
 </odoo>
