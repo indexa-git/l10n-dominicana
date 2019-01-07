@@ -83,6 +83,17 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.env.ref('ncf_manager.res_partner_demo_10')
         ]
 
+        self.sale_fiscal_type = [t[0] for t in self.env["res.partner"]._fields['sale_fiscal_type'].selection]
+
+    def test_fiscal_sequence_date_range(self):
+
+        sequence_id = self.journal.sequence_id
+
+        # Check if all sale_fiscal_type sequence created
+        self.assertEquals(len([x for x in sequence_id.date_range_ids
+                               if x.sale_fiscal_type in self.sale_fiscal_type]),
+                          len(self.sale_fiscal_type), "Not all sequence date range created.")
+
     def test_fiscal_invoices(self):
         """ Credito Fiscal NCF tests """
 
