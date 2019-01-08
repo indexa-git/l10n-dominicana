@@ -29,7 +29,11 @@ class InvoiceNCFSequenceTest(TransactionCase):
         self.account = self.env.ref('l10n_do.1_do_niif_11030201')
 
         # Setup Fiscal journal
-        self.journal = self.env['account.journal'].search([('type', '=', 'sale')])[0]
+        self.journal = self.env['account.journal'].create(
+            {'name': 'Sale Journal',
+             'type': 'sale',
+             'ncf_control': True,
+             'code': 'SJ'})
         self.journal.ncf_control = True
         self.journal.create_ncf_sequence()
 
@@ -85,9 +89,18 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
         self.sale_fiscal_type = [t[0] for t in self.env["res.partner"]._fields['sale_fiscal_type'].selection]
 
-    def test_fiscal_sequence_date_range(self):
+    def test_journal(self):
+
+        # Check if journal even exists
+        assert self.journal
+
+        # Check if ncf_control = True
+        self.assertTrue(self.journal.ncf_control, "Journal has not ncf_control activated")
 
         sequence_id = self.journal.sequence_id
+
+        # Check if both journal and sequence have ncf_control
+        self.assertEquals(self.journal.ncf_control, sequence_id.ncf_control)
 
         # Check if all sale_fiscal_type sequence created
         self.assertEquals(len([x for x in sequence_id.date_range_ids
@@ -97,11 +110,10 @@ class InvoiceNCFSequenceTest(TransactionCase):
     def test_fiscal_invoices(self):
         """ Credito Fiscal NCF tests """
 
-        i = 0
         n = 100
 
         # Loop n times so NCF sequence is tested on a high demand scenario
-        while i < n:
+        for i in range(n):
             partner_id = random.choice(self.fiscal_partners)
 
             invoice_id = self.inv_obj.create({
@@ -134,16 +146,13 @@ class InvoiceNCFSequenceTest(TransactionCase):
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
 
-            i += 1
-
     def test_final_invoices(self):
         """ Consumo NCF tests """
 
-        i = 0
         n = 100
 
         # Loop n times so NCF sequence is tested on a high demand scenario
-        while i < n:
+        for i in range(n):
             partner_id = random.choice(self.final_partners)
 
             invoice_id = self.inv_obj.create({
@@ -176,16 +185,13 @@ class InvoiceNCFSequenceTest(TransactionCase):
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
 
-            i += 1
-
     def test_gov_invoices(self):
         """ Gubernamentales NCF tests """
 
-        i = 0
         n = 100
 
         # Loop n times so NCF sequence is tested on a high demand scenario
-        while i < n:
+        for i in range(n):
             partner_id = random.choice(self.gov_partners)
 
             invoice_id = self.inv_obj.create({
@@ -218,16 +224,13 @@ class InvoiceNCFSequenceTest(TransactionCase):
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
 
-            i += 1
-
     def test_special_invoices(self):
         """ Regimenes Especiales NCF tests """
 
-        i = 0
         n = 100
 
         # Loop n times so NCF sequence is tested on a high demand scenario
-        while i < n:
+        for i in range(n):
             partner_id = random.choice(self.special_partners)
 
             invoice_id = self.inv_obj.create({
@@ -260,16 +263,13 @@ class InvoiceNCFSequenceTest(TransactionCase):
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
 
-            i += 1
-
     def test_unico_invoices(self):
         """ Unico Ingreso NCF tests """
 
-        i = 0
         n = 100
 
         # Loop n times so NCF sequence is tested on a high demand scenario
-        while i < n:
+        for i in range(n):
             partner_id = random.choice(self.special_partners)
 
             invoice_id = self.inv_obj.create({
@@ -302,4 +302,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
 
-            i += 1
+
+# TODO: Probar creacion de facturas cruzadas por sale_fiscal_type
+# TODO: Probar creacion de facturas 31 de dic de un año anterior
+# TODO: Probar que el sale fiscal type de la factura sea al mismo del partner
+# TODO: Probar que el ncf_control sea el mismo en el diario y en el sequence
