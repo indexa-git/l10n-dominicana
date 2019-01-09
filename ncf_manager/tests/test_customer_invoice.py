@@ -351,5 +351,3 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
-
-# TODO: Probar creacion de facturas 31 de dic de un año anterior
