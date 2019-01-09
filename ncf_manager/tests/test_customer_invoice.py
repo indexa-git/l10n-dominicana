@@ -90,6 +90,7 @@ class InvoiceNCFSequenceTest(TransactionCase):
         self.sale_fiscal_type = [t[0] for t in self.env["res.partner"]._fields['sale_fiscal_type'].selection]
 
     def test_journal(self):
+        """ Fiscal Journal tests """
 
         # Check if journal even exists
         assert self.journal
@@ -302,8 +303,53 @@ class InvoiceNCFSequenceTest(TransactionCase):
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
 
+    def test_cross_fiscal_type_invoices(self):
+        """ Cross Fiscal Type NCF tests """
 
-# TODO: Probar creacion de facturas cruzadas por sale_fiscal_type
+        n = 100
+        ncf_prefix_map = {
+            'final': 'B02',
+            'fiscal': 'B01',
+            'gov': 'B15',
+            'special': 'B14',
+            'unico': 'B12'
+        }
+
+        # Loop n times so NCF sequence is tested on a high demand scenario
+        for i in range(n):
+            partner_id = random.choice(self.fiscal_partners +
+                                       self.final_partners +
+                                       self.gov_partners +
+                                       self.special_partners)
+
+            invoice_id = self.inv_obj.create({
+                'type': 'out_invoice',
+                'partner_id': partner_id.id,
+                'account_id': self.account.id,
+                'sale_fiscal_type': partner_id.sale_fiscal_type,
+                'payment_term_id': self.payment_term.id,
+                'journal_id': self.journal.id,
+                'income_type': '01',
+                'invoice_line_ids': self.invoice_line_ids
+            })
+
+            # Check invoice sale_fiscal_type = partner sale_fiscal_type
+            self.assertEquals(invoice_id.sale_fiscal_type, partner_id.sale_fiscal_type)
+
+            # Validate invoice
+            invoice_id.action_invoice_open()
+
+            date_range_id = self.env['ir.sequence.date_range'].search([
+                ('sale_fiscal_type', '=', invoice_id.sale_fiscal_type),
+                ('sequence_id', '=', self.journal.sequence_id.id)])
+
+            # Check if there is only one date_rage for this sale_fiscal_type
+            self.assertEquals(len(date_range_id), 1)
+
+            # Check if current sale_fiscal_type NCF
+            self.assertEquals(str(invoice_id.reference)[:3], ncf_prefix_map[invoice_id.sale_fiscal_type])
+
+            # Check date_range sequence
+            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
+
 # TODO: Probar creacion de facturas 31 de dic de un año anterior
-# TODO: Probar que el sale fiscal type de la factura sea al mismo del partner
-# TODO: Probar que el ncf_control sea el mismo en el diario y en el sequence
