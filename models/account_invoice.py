@@ -87,6 +87,10 @@ class AccountInvoice(models.Model):
                 inv.cost_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
                     lambda tax: tax.account_id.account_fiscal_type == 'A51').mapped('amount')))
 
+                if inv.type == 'out_invoice' and any([inv.third_withheld_itbis, inv.third_income_withholding]):
+                    # Fecha Pago
+                    self._compute_invoice_payment_date(inv)
+
                 if inv.type == 'in_invoice':
                     # Monto ITBIS Retenido
                     inv.withholded_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
@@ -96,7 +100,7 @@ class AccountInvoice(models.Model):
                     inv.income_withholding = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
                         lambda tax: tax.tax_id.purchase_tax_type == 'isr').mapped('amount')))
 
-                    if inv.state == 'paid' and inv.withholded_itbis or inv.income_withholding:
+                    if inv.state == 'paid' and any([inv.withholded_itbis, inv.income_withholding]):
                         # Fecha Pago
                         self._compute_invoice_payment_date(inv)
 
