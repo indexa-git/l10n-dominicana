@@ -40,9 +40,14 @@ class AccountInvoiceRefund(models.TransientModel):
     account_id = fields.Many2one("account.account", string="Cuenta contable")
     supplier_ncf = fields.Char(string="NCF", size=19)
     invoice_type = fields.Char(default=lambda s: s._context.get("type", False))
+    journal_purchase_type = fields.Char(string="Tipo de Compra")
 
     @api.onchange("filter_refund")
     def onchange_filter_refund(self):
+        invoice_id = self.env.context.get('active_ids')
+        invoice = self.env['account.invoice'].browse(invoice_id[0])
+
+        self.journal_purchase_type = invoice.journal_id.purchase_type
         self.supplier_ncf = False
         self.account_id = False
 
