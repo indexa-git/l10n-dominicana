@@ -157,6 +157,7 @@
                 </thead>
                 <tbody class="invoice_tbody">
                     <tr t-foreach="o.invoice_line_ids" t-as="l">
+                        <t t-set="exempt_itbis" t-value="any([t for t in l.invoice_line_tax_ids if t.amount == 0.0])"/>
                         <td>
                             <span t-field="l.name"/>
                         </td>
