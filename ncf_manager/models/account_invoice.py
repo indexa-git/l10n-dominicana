@@ -325,7 +325,7 @@ class AccountInvoice(models.Model):
 
             partner_id = self.env["res.partner"].browse(vals['partner_id'])
 
-            if partner_id:
+            if partner_id and partner_id.vat:
                 if len(partner_id.vat) not in [9, 11] or not rnc.check_dgii(str(partner_id.vat)):
                     raise ValidationError(_(
                         "El RNC del cliente NO pasó la validación en DGII\n\n"
