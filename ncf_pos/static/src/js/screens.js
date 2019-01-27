@@ -186,7 +186,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
             this._super.apply(this, arguments);
             // Hide the deselect customer button if the pos generate invoices
-            if ($button && this.pos.config.iface_invoicing === true &&
+            if ($button && this.pos.config.module_account === true &&
                 this.editing_client !== true && !this.new_client) {
                 $button.addClass('oe_hidden');
             }
@@ -865,7 +865,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 if (orderValidationDate && ((now - orderValidationDate) <= 5000)) {
                     console.info("Failed attempt to execute validate_order", new Date());
                 } else {
-                    var invoicing = self.pos.config.iface_invoicing,
+                    var invoicing = self.pos.config.module_account,
                         order = self.pos.get_order(),
                         client = self.pos.get_client(),
                         popupErrorOptions = null;
@@ -968,7 +968,7 @@ odoo.define('ncf_pos.screens', function (require) {
             payButtonClickSuper = $payButton.getEvent('click', 0);
             $payButton.off('click');
             $payButton.on("click", function () {
-                var invoicing = self.pos.config.iface_invoicing;
+                var invoicing = self.pos.config.module_account;
                 var order = self.pos.get_order();
                 var client = self.pos.get_client();
                 var popupErrorOptions = '';
