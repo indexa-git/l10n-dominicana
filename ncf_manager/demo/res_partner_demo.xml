@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- For CREDITO FISCAL NCF's testing -->
+
+    <record id="res_partner_demo_1" model="res.partner">
+        <field name="name">MARCOS ORGANIZADOR DE NEGOCIOS SRL</field>
+        <field eval="1" name="is_company"/>
+        <field name="street">Avenida de Los Próceres</field>
+        <field name="country_id" ref="base.do"/>
+        <field name="city">Santo Domingo</field>
+        <field name="vat">131098193</field>
+        <field name="sale_fiscal_type">fiscal</field>
+        <field name="email">info@marcos.do</field>
+        <field name="phone">809-540-4253</field>
+        <field name="website">https://marcos.do/</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_1.png"/>
+    </record>
+
+    <record id="res_partner_demo_2" model="res.partner">
+        <field name="name">ITERATIVO SRL</field>
+        <field eval="1" name="is_company"/>
+        <field name="street">Ave. John F. Kennedy 88</field>
+        <field name="street2">Torre Pyhex</field>
+        <field name="zip">10601</field>
+        <field name="country_id" ref="base.do"/>
+        <field name="city">Santo Domingo</field>
+        <field name="vat">131566332</field>
+        <field name="sale_fiscal_type">fiscal</field>
+        <field name="email">info@iterativo.do</field>
+        <field name="phone">829-956-5191</field>
+        <field name="website">https://iterativo.do/</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_2.png"/>
+    </record>
+
+    <record id="res_partner_demo_3" model="res.partner">
+        <field name="name">NEOTECNOLOGY CYBER CITY SRL</field>
+        <field eval="1" name="is_company"/>
+        <field name="street">Nunez De Caceres, No. 60</field>
+        <field name="street2">Los Prados</field>
+        <field name="country_id" ref="base.do"/>
+        <field name="city">Santo Domingo</field>
+        <field name="vat">122026517</field>
+        <field name="sale_fiscal_type">fiscal</field>
+        <field name="email">vsantos@gruponeotec.com</field>
+        <field name="phone">809-534-0970</field>
+        <field name="website">http://gruponeotec.com/</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_3.png"/>
+    </record>
+
+    <record id="res_partner_demo_4" model="res.partner">
+        <field name="name">INDEXA SRL</field>
+        <field eval="1" name="is_company"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="street">Ave. John F. Kennedy 88</field>
+        <field name="city">Santo Domingo</field>
+        <field name="vat">131793916</field>
+        <field name="sale_fiscal_type">fiscal</field>
+        <field name="email">info@indexa.do</field>
+        <field name="phone">829-939-3231</field>
+        <field name="website">https://indexa.do/</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_4.png"/>
+    </record>
+
+    <!-- For CONSUMO AND INGRESO UNICO NCF's testing -->
+
+    <record id="res_partner_demo_5" model="res.partner">
+        <field name="name">JOSE LUIS LOPEZ GONZALEZ</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">22400559690</field>
+        <field name="sale_fiscal_type">final</field>
+        <field name="email">joselopezg8@gmail.com</field>
+        <field name="phone">829-939-3231</field>
+    </record>
+
+    <record id="res_partner_demo_6" model="res.partner">
+        <field name="name">KEVIN JIMENEZ LORENZO</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">40222200327</field>
+        <field name="sale_fiscal_type">final</field>
+        <field name="email">kevinjimenezlorenzo@gmail.com</field>
+    </record>
+
+    <!-- For GUBERNAMENTAL NCF's testing -->
+
+    <record id="res_partner_demo_7" model="res.partner">
+        <field name="name">MINISTERIO DE INDUSTRIA Y COMERCIO Y MIPYMES</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">401007355</field>
+        <field name="sale_fiscal_type">gov</field>
+        <field name="email">info@micm.gob.do</field>
+        <field name="phone">809-567-7192</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_7.png"/>
+    </record>
+
+    <record id="res_partner_demo_8" model="res.partner">
+        <field name="name">MINISTERIO DE EDUCACION SUPERIOR CIENCIA Y TECNOLOGIA</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">401505657</field>
+        <field name="sale_fiscal_type">gov</field>
+        <field name="phone">809-731-1100</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_8.png"/>
+    </record>
+
+    <!-- For REGIMEN ESPECIAL NCF's testing -->
+
+    <record id="res_partner_demo_9" model="res.partner">
+        <field name="name">ZONA FRANCA INDUSTRIAL DE LAS AMERICAS S A</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">101168481</field>
+        <field name="sale_fiscal_type">special</field>
+        <field name="phone">809-549-2031</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_9.png"/>
+    </record>
+
+    <record id="res_partner_demo_10" model="res.partner">
+        <field name="name">FOOD FOR THE HUNGRY Y DOM</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">401051842</field>
+        <field name="sale_fiscal_type">special</field>
+        <field name="phone">800-248-6437</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_10.png"/>
+    </record>
+
+</odoo>
