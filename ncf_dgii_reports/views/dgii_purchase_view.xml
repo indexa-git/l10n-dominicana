@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <menuitem id="account_dgii_menu" name="DGII" parent="account.menu_finance" sequence="5"
+                  groups="account.group_account_user"/>
+
+        <record id="dgii_purchase_report_form" model="ir.ui.view">
+            <field name="name">dgii purchase form</field>
+            <field name="model">dgii.purchase.report</field>
+            <field name="arch" type="xml">
+                <form string="Reporte 606">
+                    <header>
+                        <button class="oe_highlight" name="get_invoices" string="Generar reporte" type="object"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <group>
+                        <group col="2">
+                            <field name="company_id" readonly="[('state','=','done')]"/>
+                            <field name="year" placeholder="2018" required="1"/>
+                            <field name="month" placeholder="12" required="1"/>
+                            <field filename="txt_name" name="txt"/>
+                        </group>
+                        <group col="4">
+                            <field name="reg_count" readonly="1"/>
+                            <field name="service_amount" readonly="1"/>
+                            <field name="goods_amount" readonly="1"/>
+                            <field name="retain_tax_amount" readonly="1"/>
+                            <field name="tax_amount" readonly="1"/>
+                            <field name="invoice_amount" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Detalle">
+                            <field name="report_lines">
+                                <tree>
+                                    <field name="sequence"/>
+                                    <field name="vat"/>
+                                    <field name="vat_type"/>
+                                    <field name="expense_type"/>
+                                    <field name="reference"/>
+                                    <field name="origin_out"/>
+                                    <field name="ncf_date"/>
+                                    <field name="ncf_payment_date"/>
+                                    <field name="service_amount" sum="Amount"/>
+                                    <field name="goods_amount" sum="Amount"/>
+                                    <field name="invoice_amount" sum="Amount"/>
+                                    <field name="tax_amount" sum="Amount"/>
+                                    <field name="retain_tax_amount" sum="Amount"/>
+                                    <field name="tax_proporcional" sum="Amount"/>
+                                    <field name="tax_cost" sum="Amount"/>
+                                    <field name="tax_advance" sum="Amount"/>
+                                    <field name="tax_buy" sum="Amount"/>
+                                    <field name="isr_retention_type"/>
+                                    <field name="isr_retention_amount" sum="Amount"/>
+                                    <field name="isr_buy" sum="Amount"/>
+                                    <field name="isc_amount" sum="Amount"/>
+                                    <field name="propina_legal" sum="Amount"/>
+                                    <field name="payment_method"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </form>
+            </field>
+        </record>
+        <record id="dgii_purchase_report_tree" model="ir.ui.view">
+            <field name="name">dgii purchase report tree</field>
+            <field name="model">dgii.purchase.report</field>
+            <field name="arch" type="xml">
+                <tree string="Reportes 606">
+                    <field name="company_id"/>
+                    <field name="name"/>
+                    <field name="reg_count"/>
+                    <field name="invoice_amount"/>
+                    <field name="RETENCION_RENTA"/>
+                </tree>
+            </field>
+        </record>
+        <record id="dgii_purchase_report_action" model="ir.actions.act_window">
+            <field name="name">Reporte 606</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">dgii.purchase.report</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    <!-- Add Text Here -->
+                </p>
+                <p>
+                    <!-- More details about what a user can do with this object will be OK -->
+                </p>
+            </field>
+        </record>
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem action="dgii_purchase_report_action" id="dgii_purchase_report_menu" name="Reporte 606" parent="account_dgii_menu" sequence="1"/>
+
+    </data>
+</openerp>
