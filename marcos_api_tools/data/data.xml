@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <function model="marcos.api.tools" name="setup"/>
+
+        <record model="ir.cron" id="update_usd_rate">
+            <field name='name'>Atualizar tasas USD</field>
+            <field name='interval_number'>1</field>
+            <field name='interval_type'>days</field>
+            <field name="numbercall">-5</field>
+            <field name="active">True</field>
+            <field name="model_id" ref="model_marcos_api_tools"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_auto_update_rates()</field>
+            <field name="args">()</field>
+        </record>
+
+    </data>
+</odoo>

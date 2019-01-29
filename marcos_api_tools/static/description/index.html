@@ -1,0 +1,248 @@
+<section class="oe_container">
+    <div class="oe_row oe_spaced">
+        <div class="oe_span12">
+            <h2 class="oe_slogan">Marcos API</h2>
+
+            <h3 class="oe_slogan">Validacion de NCF, RNC y consultas de tasas</h3>
+        </div>
+
+        <p>
+        <h3>Este modulo integra Odoo con los servicios de Marcos API</h3>
+        <h4>GITHUB <a href="https://github.com/MarcosCommunity/curry">https://github.com/MarcosCommunity/curry</a></h4>
+        </p>
+        <div class="oe_span12">
+            <p class="oe_mt32">
+                <article class="markdown-body entry-content" itemprop="text">
+            <p><a href="https://travis-ci.org/MarcosCommunity/curry"><img
+                    src="https://camo.githubusercontent.com/170dc82582b60c766038f42cf2bcd79f576af907/68747470733a2f2f7472617669732d63692e6f72672f4d6172636f73436f6d6d756e6974792f63757272792e7376673f6272616e63683d6d6173746572"
+                    alt="Build Status"
+                    data-canonical-src="https://travis-ci.org/MarcosCommunity/curry.svg?branch=master"
+                    style="max-width:100%;"></a></p>
+            <h1><a href="#feature-request-for-ver-20-branch-v20" aria-hidden="true" class="anchor"
+                   id="user-content-feature-request-for-ver-20-branch-v20">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Feature request for Ver 2.0 (branch v2.0)
+            </h1>
+            <p>Currently we're planing on making many more changes, those changes will affect the way we use the
+                service. But before making any change, we'll love to hear any new feature you've in mind, currently
+                we're planing on implementing the following features:</p>
+            <ul>
+                <li>History (make rates from previous days accesible)</li>
+                <li>Faster responses (increase the service's response time)</li>
+                <li>Include new juicy API conserning employee's compensations.</li>
+                <li>BPD's TXT (Banco Popular Dominicano) (a new repo will be created and included as a dependency)</li>
+                <li>
+                    <del>Support for BHD Leon rates</del>
+                </li>
+            </ul>
+            <h2><a href="#currency-scraper-for-the-dominican-republic" aria-hidden="true" class="anchor"
+                   id="user-content-currency-scraper-for-the-dominican-republic">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Currency scraper for the Dominican Republic
+            </h2>
+            <p>This is a simple service that provides the current currency exchange rate for<br>
+                the Dominican Republic. To do so, we parse the web pages of all the major banks<br>
+                of the Dominican Republic, those pages are updated on a daily basis by every<br>
+                bank.</p>
+            <p>The method used by this application to calculate the mean of the data is the<br>
+                <em>Harmonic mean</em>.</p>
+            <p>This application is freely available as a service thanks to<br>
+                <em>Marcos Organizador de Negocios S.R.L</em> here <a
+                        href="http://api.marcos.do">http://api.marcos.do</a><br></p>
+            <p>Something is wrong with this service?<br>
+                Please contact us (at) manuel at marcos dot do.<br></p>
+            <p>or<br></p>
+            <p>you may make a pull request as well, if you see something that needs to be fixed<br>
+                or better implemented.<br></p>
+            <h2><a href="#install" aria-hidden="true" class="anchor" id="user-content-install">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Install
+            </h2>
+            <div class="highlight highlight-source-shell">
+                <pre>$ bundle install</pre>
+            </div>
+            <p>Please note that, this service not longer needs <code>imagemagik</code>, <code>ogcr</code> or
+                <code>ocrad</code>.</p>
+            <p>This application uses port 8080 by default, one may change the port passing it as<br>
+                the first parameter:</p>
+            <div class="highlight highlight-source-shell">
+                <pre>$ ruby curry.rb 1025</pre>
+            </div>
+            <h2><a href="#known-bugs" aria-hidden="true" class="anchor" id="user-content-known-bugs">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Known bugs
+            </h2>
+            <p>There's a bug in older versions of Ruby that causes this application to hang for<br>
+                an indefinite period of time. Please use Ruby 2.2 +</p>
+            <h1><a href="#available-actions" aria-hidden="true" class="anchor" id="user-content-available-actions">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Available actions
+            </h1>
+            <h2><a href="#get-requests" aria-hidden="true" class="anchor" id="user-content-get-requests">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a><code>GET /requests</code></h2>
+            <p>Returns the total number of requests successefully served up to this moment.</p>
+            <p>sample response:</p>
+            <pre><code>1092 requests.
+</code></pre>
+            <h2><a href="#get-rncrnc" aria-hidden="true" class="anchor" id="user-content-get-rncrnc">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a><code>GET /rnc/:rnc</code></h2>
+            <p>Returns information about the RNC specified by <code>:rnc</code>. [JSON serialized]<br></p>
+            <p>sample response:</p>
+            <div class="highlight highlight-source-json"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>rnc<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>131098193<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>MARCOS ORGANIZADOR DE NEGOCIOS SRL<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>comercial_name<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>MARCOS ORGANIZADOR DE NEGOCIOS<span
+                        class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span><span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>payment_regimen<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>NORMAL<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>status<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>ACTIVO<span class="pl-pds">"</span></span>
+}</pre>
+            </div>
+            <h2><a href="#get-ncfrncncf" aria-hidden="true" class="anchor" id="user-content-get-ncfrncncf">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a><code>GET /ncf/:rnc/:ncf</code></h2>
+            <p>Returns true or false, depending if the RNC and the NCF specified by :rnc and<br>
+                <code>:ncf</code> respectively belongs to the entity associated to <code>:rnc</code><br></p>
+            <p>sample response:</p>
+            <div class="highlight highlight-source-json"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>valid<span class="pl-pds">"</span></span>: <span
+                        class="pl-c1">true</span>
+}</pre>
+            </div>
+            <h2><a href="#get-rates" aria-hidden="true" class="anchor" id="user-content-get-rates">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a><code>GET /rates</code></h2>
+            <p>Returns the exchange rate for euros and dollars from all major banks of the<br>
+                Dominican Republic. [JSON serialized]<br></p>
+            <div class="highlight highlight-source-json"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>bpd<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>euro<span class="pl-pds">"</span></span>: {
+      <span class="pl-s"><span class="pl-pds">"</span>buying_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>48.15<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>selling_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>51.90<span class="pl-pds">"</span></span>
+    },
+    <span class="pl-s"><span class="pl-pds">"</span>dollar<span class="pl-pds">"</span></span>: {
+      <span class="pl-s"><span class="pl-pds">"</span>buying_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>45.05<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>selling_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>45.56<span class="pl-pds">"</span></span>
+    },
+    <span class="pl-s"><span class="pl-pds">"</span>source<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>https://www.popularenlinea.com/_api/web/lists/getbytitle('Rates')/items<span
+                        class="pl-pds">"</span></span>
+  },
+  <span class="pl-s"><span class="pl-pds">"</span>blh<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>euro<span class="pl-pds">"</span></span>: {
+      <span class="pl-s"><span class="pl-pds">"</span>buying_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>48.00<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>selling_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>51.00<span class="pl-pds">"</span></span>
+    },
+    <span class="pl-s"><span class="pl-pds">"</span>dollar<span class="pl-pds">"</span></span>: {
+      <span class="pl-s"><span class="pl-pds">"</span>buying_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>45.20<span class="pl-pds">"</span></span>,
+      <span class="pl-s"><span class="pl-pds">"</span>selling_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>45.56<span class="pl-pds">"</span></span>
+    },
+    <span class="pl-s"><span class="pl-pds">"</span>source<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>http://www.blh.com.do/Inicio.aspx<span class="pl-pds">"</span></span>
+  },
+
+  <span class="pl-ii">...</span>
+
+  <span class="pl-s"><span class="pl-pds">"</span>euro_mean<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>buying_rate<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>48.12<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>selling_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>51.68<span class="pl-pds">"</span></span>
+  },
+  <span class="pl-s"><span class="pl-pds">"</span>dollar_mean<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>buying_rate<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>45.16<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>selling_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>45.56<span class="pl-pds">"</span></span>
+  }
+}</pre>
+            </div>
+            <h2><a href="#get-central_bank_rates" aria-hidden="true" class="anchor"
+                   id="user-content-get-central_bank_rates">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a><code>GET /central_bank_rates</code></h2>
+            <p>Returns the exchange rate for the dollar according to the Central Bank of the<br>
+                Dominican Republic. [JSON serialized]</p>
+            <p>sample response:</p>
+            <div class="highlight highlight-source-json"><pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>dollar<span class="pl-pds">"</span></span>: {
+    <span class="pl-s"><span class="pl-pds">"</span>buying_rate<span class="pl-pds">"</span></span>: <span class="pl-s"><span
+                        class="pl-pds">"</span>45.76<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>selling_rate<span class="pl-pds">"</span></span>: <span
+                        class="pl-s"><span class="pl-pds">"</span>45.81<span class="pl-pds">"</span></span>
+  }
+}</pre>
+            </div>
+            <h2><a href="#license" aria-hidden="true" class="anchor" id="user-content-license">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16"
+                     width="16">
+                    <path fill-rule="evenodd"
+                          d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>License
+            </h2>
+            <p>MIT License<br></p>
+            <p>Copyright(C) 2016 Marcos Organizador de Negocios</p>
+            </article>
+
+            Info Eneldo Serrata <a src="mail:eneldo@marcos.do">eneldo@marcos.do</a> 809 224 9879
+            </p>
+        </div>
+    </div>
+</section>
