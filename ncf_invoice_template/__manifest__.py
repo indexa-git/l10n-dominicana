@@ -29,7 +29,7 @@
     'author': "Yasmany Castillo, "
               "iterativo SRL",
     'category': 'Localization',
-    'version': '11.0.2.0.0',
+    'version': '12.0',
     'depends': ['web', 'ncf_manager'],
 
     'data': [
