@@ -1,3 +1,23 @@
+// © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+// © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+// © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+// © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+
+// This file is part of NCF Manager.
+
+// NCF Manager is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// NCF Manager is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 odoo.define('ncf_pos.models', function (require) {
     "use strict";
 
@@ -289,10 +309,12 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_orders_from_server: function () {
             var self = this;
+            var day_limit = this.config.order_loading_options === 'n_days' ? this.config.number_of_days : 0;
+
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
-                args: []
+                args: [day_limit]
             }, {})
                 .then(function (result) {
                     var orders = result && result.orders || [];
@@ -328,7 +350,7 @@ odoo.define('ncf_pos.models', function (require) {
 
             this.ncf_control = this.pos.config.ncf_control;
 
-            if (this.pos.config.iface_invoicing) {
+            if (this.pos.config.iface_invoicing && !this.get_client()) {
                 var pos_default_partner = this.pos.config.default_partner_id;
 
                 this.to_invoice = true;

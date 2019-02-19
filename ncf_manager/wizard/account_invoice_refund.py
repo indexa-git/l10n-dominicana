@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
+# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
 
 # This file is part of NCF Manager.
 
@@ -18,13 +14,19 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
-import requests
+import logging
 
 from odoo import models, api, fields, _
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
+
+try:
+    from stdnum.do import ncf
+except(ImportError, IOError) as err:
+    _logger.debug(err)
 
 
 class AccountInvoiceRefund(models.TransientModel):
@@ -38,9 +40,14 @@ class AccountInvoiceRefund(models.TransientModel):
     account_id = fields.Many2one("account.account", string="Cuenta contable")
     supplier_ncf = fields.Char(string="NCF", size=19)
     invoice_type = fields.Char(default=lambda s: s._context.get("type", False))
+    journal_purchase_type = fields.Char(string="Tipo de Compra")
 
     @api.onchange("filter_refund")
     def onchange_filter_refund(self):
+        invoice_id = self.env.context.get('active_ids')
+        invoice = self.env['account.invoice'].browse(invoice_id[0])
+
+        self.journal_purchase_type = invoice.journal_id.purchase_type
         self.supplier_ncf = False
         self.account_id = False
 
@@ -122,23 +129,14 @@ class AccountInvoiceRefund(models.TransientModel):
                     raise ValidationError(_(u"Las Notas de Crédito deben ser tipo 04, este NCF no es de este tipo."))
 
             if self.supplier_ncf and invoice.journal_id.ncf_remote_validation:
-                request_params = self.env["marcos.api.tools"].get_marcos_api_request_params()
-                if request_params[0] == 1:
-                    res = requests.get('{}/ncf/{}/{}'.format(
-                        request_params[1],
-                        invoice.partner_id.vat,
-                        self.supplier_ncf),
-                        proxies=request_params[2])
-                    if res.status_code == 200 and res.json().get("valid", False) is False:
-                        raise UserError(_(
-                            u"NCF NO pasó validación en DGII\n\n"
-                            u"¡El número de comprobante *{}* del proveedor "
-                            u"*{}* no pasó la validación en "
-                            "DGII! Verifique que el NCF y el RNC del "
-                            u"proveedor estén correctamente "
-                            u"digitados, o si los números de ese NCF se "
-                            "le agotaron al proveedor".format(
-                                self.supplier_ncf,
-                                invoice.partner_id.name)))
+                if not ncf.check_dgii(invoice.partner_id.vat, self.supplier_ncf):
+                    raise UserError(_(
+                        u"NCF NO pasó validación en DGII\n\n"
+                        u"¡El número de comprobante *{}* del proveedor "
+                        u"*{}* no pasó la validación en "
+                        "DGII! Verifique que el NCF y el RNC del "
+                        u"proveedor estén correctamente "
+                        u"digitados, o si los números de ese NCF se "
+                        "le agotaron al proveedor".format(self.supplier_ncf, invoice.partner_id.name)))
 
         return super(AccountInvoiceRefund, self).invoice_refund()

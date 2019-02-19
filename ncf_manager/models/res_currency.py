@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
+# © 2016-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
 
 # This file is part of NCF Manager.
 
@@ -18,8 +14,7 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
 import re
 from odoo import api, fields, models
@@ -55,22 +50,22 @@ class Currency(models.Model):
                       "Jul": "07",
                       "Ago": "08",
                       "Sep": "09",
+                      "Sept": "09",
                       "Oct": "10",
                       "Nov": "11",
                       "Dic": "12"
                       }
 
-        self.env["res.currency.rate"].search(
-            [('currency_id', '=', 3)]).unlink()
+        self.env["res.currency.rate"].search([('currency_id', '=', 3)]).unlink()
 
-        file = self.bc_rate_xls.base64.b64encode()
+        file = base64.b64decode(self.bc_rate_xls)
         excel_fileobj = TemporaryFile('wb+')
         excel_fileobj.write(file)
         excel_fileobj.seek(0)
         # Create workbook
         workbook = openpyxl.load_workbook(excel_fileobj, data_only=True)
         # Get the first sheet of excel file
-        sheet = workbook[workbook.get_sheet_names()[0]]
+        sheet = workbook[workbook.sheetnames[0]]
 
         for row in sheet.rows:
             if row[0].row in (1, 2, 3):
@@ -80,12 +75,9 @@ class Currency(models.Model):
             year = str(row[0].value)
             month = month_dict[row[1].value.strip()]
             day = str(row[2].value).zfill(2)
-            name = u"{}-{}-{} {}".format(year, month,
-                                         day, fields.Datetime.now().split(" ")[1])
+            name = "{}-{}-{}".format(year, month, day)
             rate = float(row[4].value)
-            self.env["res.currency.rate"].create({"name": name,
-                                                  "rate": 1 / rate,
-                                                  "currency_id": 3})
+            self.env["res.currency.rate"].create({"name": name, "rate": 1 / rate, "currency_id": 3})
             _logger.info("USD rate created {}".format(name))
 
     @api.multi

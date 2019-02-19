@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-# ######################################################################
-# © 2015-2018 Marcos Organizador de Negocios SRL. (https://marcos.do/)
-#             Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 iterativo SRL. (https://iterativo.do/)
-#             Gustavo Valverde <gustavo@iterativo.do>
-# © 2017-2018 Neotecnology Cyber City SRL. (http://neotec.do/)
-#             Yasmany Castillo <yasmany003@gmail.com>
+# © 2016-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2018 Yasmany Castillo <yasmany003@gmail.com>
+# © 2018 José López <jlopez@indexa.do>
+# © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+# © 2018 Andrés Rodríguez <andres@iterativo.do>
 
 # This file is part of NCF Manager.
 
@@ -20,8 +18,8 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <http://www.gnu.org/licenses/>.
-# ######################################################################
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 import logging
 
 from odoo import models, fields, api, _
@@ -37,12 +35,6 @@ except(ImportError, IOError) as err:
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
-
-    payment_tax_on_606 = fields.Boolean("Reportar retenciones del 606 al pago")
-
-    country_id = fields.Many2one('res.country', compute='_compute_address',
-                                 inverse='_inverse_country',
-                                 string="Country", default=62)
 
     @api.onchange("name")
     def onchange_company_name(self):
@@ -76,7 +68,7 @@ class ResPartner(models.Model):
                 rec.fiscal_info_required = False
 
     sale_fiscal_type = fields.Selection(
-        [("final", "Consumidor Final"),
+        [("final", "Consumo"),
          ("fiscal", u"Crédito Fiscal"),
          ("gov", "Gubernamental"),
          ("special", u"Regímenes Especiales"),
@@ -84,7 +76,7 @@ class ResPartner(models.Model):
         string="Tipo de comprobante", default="final")
 
     sale_fiscal_type_list = [
-        {"id": "final", "name": "Consumidor Final", "ticket_label": "Consumo", "is_default": True},
+        {"id": "final", "name": "Consumo", "ticket_label": "Consumo", "is_default": True},
         {"id": "fiscal", "name": "Crédito Fiscal"},
         {"id": "gov", "name": "Gubernamental"},
         {"id": "special", "name": "Regímenes Especiales"},
@@ -114,7 +106,7 @@ class ResPartner(models.Model):
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
     country_id = fields.Many2one('res.country', string='Country',
-                                 ondelete='restrict', default=62)
+                                 ondelete='restrict', default=lambda self: self.env.ref('base.do'))
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -138,22 +130,25 @@ class ResPartner(models.Model):
 
             if number.isdigit() and len(number) in (9, 11):
                 message = "El contacto: %s, esta registrado con este RNC/Céd."
-                contact = self.search([('vat', '=', number)])
+                self_id = self.id if self.id else 0
+                contact = self.search([('vat', '=', number),
+                                       ('id', '!=', self_id),
+                                       ('parent_id', '=', False)])
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
-                        [x.name for x in contact])
+                        [x.name for x in contact if x.name])
                     raise UserError(_(message % name))
 
                 try:
                     is_rnc = len(number) == 9
                     rnc.validate(number) if is_rnc else cedula.validate(number)
                 except Exception as e:
-                    raise ValidationError(_("RNC/Ced Inválido"))
+                    _logger.warning("RNC/Ced Inválido en el contacto {}".format(self.name))
 
                 dgii_vals = rnc.check_dgii(number)
                 if dgii_vals is None:
                     if is_rnc:
-                        raise ValidationError(_("RNC no disponible en DGII"))
+                        _logger.error("RNC {} del contacto {} no está disponible en DGII".format(number, self.name))
                     result['vat'] = number
                     result['sale_fiscal_type'] = "final"
                 else:
@@ -212,11 +207,10 @@ class ResPartner(models.Model):
 
     @api.model
     def create(self, vals):
-        if self._context.get("quickcreate", False):
-            vat = vals.get("vat", False)
-            result = self.validate_rnc_cedula(vals["vat"])
-            if result:
-                vals.update({"name": result["name"]})
+        vat = vals.get("vat", False)
+        result = self.validate_rnc_cedula(vals["vat"]) if vat else None
+        if result and result.get("name", False):
+            vals.update({"name": result["name"]})
 
         return super(ResPartner, self).create(vals)
 
@@ -230,7 +224,7 @@ class ResPartner(models.Model):
                 if partner:
                     return partner.name_get()[0]
                 else:
-                    new_partner = self.with_context(quickcreate=True).create({"vat": name})
+                    new_partner = self.create({"vat": name})
                     return new_partner.name_get()[0]
             else:
                 return super(ResPartner, self).name_create(name)
