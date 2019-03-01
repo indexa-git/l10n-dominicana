@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from calendar import monthrange as mr
 from stdnum.do import rnc
@@ -39,21 +40,22 @@ class DgiiPurchaseReport(models.Model):
     def get_invoices(self):
         invoice_ids = self.env['account.invoice'].search(
             [('type', '=', 'in_invoice'), ('state', 'in', ['open', 'paid']),
-             ('date_invoice', '>=', '01-%s-%s' % (self.month, self.year)),
-             ('date_invoice', '<=', "%s-%s-%s" % (mr(self.year, self.month)[1], self.month, self.year))])
+             ('date_invoice', '>=', '%s-%s-01' % (self.year, self.month)),
+             ('date_invoice', '<=', "%s-%s-%s" % (self.year, self.month, mr(self.year, self.month)[1]))])
         paid_out_invoices = self.env['account.payment'].search(
             [('payment_type', '=', 'outbound'),
-             ('payment_date', '>=', '01-%s-%s' % (self.month, self.year)),
-             ('payment_date', '<=', "%s-%s-%s" % (mr(self.year, self.month)[1], self.month, self.year))]).mapped(
+             ('payment_date', '>=', '%s-%s-01' % (self.year, self.month)),
+             ('payment_date', '<=', "%s-%s-%s" % (self.year, self.month, mr(self.year, self.month)[1]))]).mapped(
             'invoice_ids')
 
         sequence = 1
-        self.report_lines.unlink()
+        self.report_lines.super().unlink()
         for invoice_id in list(set(invoice_ids.ids) | set(paid_out_invoices.ids)):
-            self.env['dgii.purchase.report.line'].create({"invoice_id": invoice_id,
-                                                          "sequence": sequence,
-                                                          "purchase_report_id": self.id})
-            sequence += 1
+            if self.env['account.invoice'].browse(invoice_id).journal_id.purchase_type != 'others':
+                self.env['dgii.purchase.report.line'].create({"invoice_id": invoice_id,
+                                                              "sequence": sequence,
+                                                              "purchase_report_id": self.id})
+                sequence += 1
         self.reg_count = sequence - 1
         self._get_amounts()
         self._generate_txt()
@@ -182,7 +184,7 @@ class DgiiPurchaseReportLine(models.Model):
 
     @api.one
     def _get_vat_type(self):
-        is_rnc = len(self.vat) == 9
+        is_rnc = len(self.vat or '') == 9
         if is_rnc and rnc.validate(self.vat):
             self.vat_type = "1"
         else:
@@ -217,16 +219,18 @@ class DgiiPurchaseReportLine(models.Model):
     def _get_amounts(self):
         invoice_line_ids = self.invoice_id.invoice_line_ids
         tax_line_ids = self.invoice_id.tax_line_ids
-        cuenta_bienes = self.env.ref("l10n_do.do_niif_51010100")
-        cuenta_servicios = self.env.ref("l10n_do.do_niif_51010200")
-        isc_tax = self.env.ref("l10n_do.tax_10_telco")
-        propina_legal = self.env.ref("l10n_do.tax_tip_purch")
+        cuenta_bienes = self.env.ref("l10n_do.do_niif_51010100", False)
+        cuenta_servicios = self.env.ref("l10n_do.do_niif_51010200", False)
+        isc_tax = self.env.ref("l10n_do.tax_10_telco", False)
+        propina_legal = self.env.ref("l10n_do.tax_tip_purch", False)
 
-        self.goods_amount = sum(
-            invoice_line_ids.filtered(lambda il: il.account_id.id == cuenta_bienes.id).mapped('price_subtotal'))
+        if cuenta_bienes:
+            self.goods_amount = sum(
+                invoice_line_ids.filtered(lambda il: il.account_id.id == cuenta_bienes.id).mapped('price_subtotal'))
 
-        self.service_amount = sum(invoice_line_ids.filtered(
-            lambda il: il.account_id.id == cuenta_servicios.id).mapped('price_subtotal'))
+        if cuenta_servicios:
+            self.service_amount = sum(invoice_line_ids.filtered(
+                lambda il: il.account_id.id == cuenta_servicios.id).mapped('price_subtotal'))
 
         self.tax_amount = sum(tax_line_ids.filtered(lambda tax_line: tax_line.amount_total > 0).mapped('amount_total'))
 
@@ -238,10 +242,12 @@ class DgiiPurchaseReportLine(models.Model):
 
         self.invoice_amount = self.invoice_id.amount_untaxed
 
-        self.isc_amount = sum(tax_line_ids.filtered(lambda tl: tl.tax_id.id == isc_tax.id).mapped('amount_total'))
+        if isc_tax:
+            self.isc_amount = sum(tax_line_ids.filtered(lambda tl: tl.tax_id.id == isc_tax.id).mapped('amount_total'))
 
-        self.propina_legal = sum(
-            tax_line_ids.filtered(lambda tl: tl.tax_id.id == propina_legal.id).mapped('amount_total'))
+        if propina_legal:
+            self.propina_legal = sum(
+                tax_line_ids.filtered(lambda tl: tl.tax_id.id == propina_legal.id).mapped('amount_total'))
 
     @api.one
     def _get_isr_type(self):
