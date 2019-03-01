@@ -115,14 +115,15 @@ class AccountInvoice(models.Model):
                 good_amount = 0
 
                 for line in inv.invoice_line_ids:
-                    # Si la linea no tiene un producto
-                    if not line.product_id:
-                        service_amount += line.price_subtotal
-                        continue
 
                     # Monto calculado en bienes
-                    if line.product_id.type == 'product':
+                    if line.product_id.type in ['product', 'consu']:
                         good_amount += line.price_subtotal
+
+                    # Si la linea no tiene un producto
+                    elif not line.product_id:
+                        service_amount += line.price_subtotal
+                        continue
 
                     # Monto calculado en servicio
                     else:
