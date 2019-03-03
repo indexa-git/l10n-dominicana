@@ -364,11 +364,11 @@ class DgiiReport(models.Model):
         :return: boolean
         """
 
-        payment_date = fields.Date.from_string(invoice.payment_date)
-        period = fields.Date.from_string(str(report.name).split('/')[1] + '-' + str(report.name).split('/')[0] + '-01')
+        payment_date = invoice.payment_date
+        period = dt.strptime(report.name, '%m/%Y')
+        same_period = (payment_date.month, payment_date.year) == (period.month, period.year)
 
-        return True if payment_date and (payment_date.month, payment_date.year) == (period.month, period.year) or \
-                       invoice.fiscal_status == 'normal' else False
+        return True if (payment_date and same_period) or invoice.fiscal_status == 'normal' else False
 
     @api.multi
     def _compute_606_data(self):
