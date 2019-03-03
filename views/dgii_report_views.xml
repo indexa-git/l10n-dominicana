@@ -115,7 +115,7 @@
                         <page name="it1" string="IT-1">
                             <group string="607 Reported Operations by NCF Type">
                                 <field name="ncf_sale_summary_ids" nolabel="1" widget="one2many_list" readonly="1">
-                                    <tree>
+                                    <tree create="false" edit="false">
                                         <field name="sequence" invisible="1"/>
                                         <field name="name"/>
                                         <field name="qty"/>
@@ -235,7 +235,7 @@
         <field name="name">dgii.reports.purchase.line.tree</field>
         <field name="model">dgii.reports.purchase.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="rnc_cedula"/>
@@ -271,7 +271,7 @@
         <field name="name">dgii.reports.sale.line.tree</field>
         <field name="model">dgii.reports.sale.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="rnc_cedula"/>
@@ -307,7 +307,7 @@
         <field name="name">dgii.reports.cancel.line.tree</field>
         <field name="model">dgii.reports.cancel.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="invoice_partner_id"/>
@@ -323,7 +323,7 @@
         <field name="name">dgii.exterior.cancel.line.tree</field>
         <field name="model">dgii.reports.exterior.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="legal_name"/>
