@@ -426,6 +426,15 @@ class DgiiReport(models.Model):
         ctx = context.copy()
         return base_currency_id.with_context(ctx).compute(amount, user_currency_id)
 
+    @staticmethod
+    def include_payment(invoice_id, payment_id):
+        """ Returns True if payment date is on or before current period """
+
+        p_date = dt.strptime(payment_id.payment_date, '%Y-%m-%d')
+        i_date = dt.strptime(invoice_id.date_invoice, '%Y-%m-%d')
+
+        return True if (p_date.year <= i_date.year) and (p_date.month <= i_date.month) else False
+
     def _get_sale_payments_forms(self, invoice_id):
         payments_dict = self._get_payments_dict()
         Invoice = self.env['account.invoice']
@@ -437,7 +446,12 @@ class DgiiReport(models.Model):
                 if payment_id:
                     key = payment_id.journal_id.payment_form
                     if key:
-                        payments_dict[key] += self._convert_to_user_currency(invoice_id.currency_id, payment['amount'])
+                        if self.include_payment(invoice_id, payment_id):
+                            payments_dict[key] += self._convert_to_user_currency(invoice_id.currency_id,
+                                                                                 payment['amount'])
+                        else:
+                            payments_dict['credit'] += self._convert_to_user_currency(invoice_id.currency_id,
+                                                                                      payment['amount'])
                 else:
                     # If invoices is paid, but has not payment_id, assume it is a credit note
                     payments_dict['swap'] += self._convert_to_user_currency(invoice_id.currency_id, payment['amount'])
