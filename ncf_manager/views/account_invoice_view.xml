@@ -101,12 +101,14 @@
                 'readonly': [('state', '!=', 'draft'), ('purchase_type', '=', 'normal')]}</attribute>
             </xpath>
 
+            <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='other_info']/group[1]/group[1]/field[@name='name']" position="replace"/>
             <field name="journal_id" position="replace"/>
             <field name="reference" position="after">
                 <field name="origin_out" groups="base.group_user" attrs="{
                             'invisible': [('type', '!=', 'in_refund')],
                             'readonly': [('state', '!=', 'draft')],
                             'required': [('type', '=', 'in_refund'), ('purchase_type', 'in', ['normal', 'minor', 'informal'])]}"/>
+                <field name="name"/>
             </field>
             <field name="reference" position="before">
                 <field name="purchase_type" invisible="1"/>
