@@ -2,7 +2,9 @@
 <odoo>
 
     <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
-        <xpath expr="/t/t/div/div" position="replace"/>
+        <xpath expr="/t/t/div/div" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
         <xpath expr="/t/t/div/h2" position="replace">
             <div class="row">
                 <div class="col-xs-5">
