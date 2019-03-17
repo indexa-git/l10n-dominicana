@@ -709,7 +709,7 @@ class DgiiReport(models.Model):
             CancelLine = self.env['dgii.reports.cancel.line']
             CancelLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'in_invoice'])
+            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'in_invoice', 'out_refund'])
             line = 0
             report_data = ''
             for inv in invoice_ids:
