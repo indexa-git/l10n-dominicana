@@ -428,6 +428,15 @@ class DgiiReport(models.Model):
         ctx = context.copy()
         return base_currency_id.with_context(ctx).compute(amount, user_currency_id)
 
+    @staticmethod
+    def include_payment(invoice_id, payment_id):
+        """ Returns True if payment date is on or before current period """
+
+        p_date = dt.strptime(payment_id.payment_date, '%Y-%m-%d')
+        i_date = dt.strptime(invoice_id.date_invoice, '%Y-%m-%d')
+
+        return True if (p_date.year <= i_date.year) and (p_date.month <= i_date.month) else False
+
     def _get_sale_payments_forms(self, invoice_id):
         payments_dict = self._get_payments_dict()
         Invoice = self.env['account.invoice']
@@ -439,7 +448,12 @@ class DgiiReport(models.Model):
                 if payment_id:
                     key = payment_id.journal_id.payment_form
                     if key:
-                        payments_dict[key] += self._convert_to_user_currency(invoice_id.currency_id, payment['amount'])
+                        if self.include_payment(invoice_id, payment_id):
+                            payments_dict[key] += self._convert_to_user_currency(invoice_id.currency_id,
+                                                                                 payment['amount'])
+                        else:
+                            payments_dict['credit'] += self._convert_to_user_currency(invoice_id.currency_id,
+                                                                                      payment['amount'])
                 else:
                     # If invoices is paid, but has not payment_id, assume it is a credit note
                     payments_dict['swap'] += self._convert_to_user_currency(invoice_id.currency_id, payment['amount'])
@@ -586,6 +600,7 @@ class DgiiReport(models.Model):
 
             invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['out_invoice', 'out_refund'])
             line = 0
+            excluded_line = line
             op_dict = self._get_607_operations_dict()
             payment_dict = self._get_payments_dict()
             income_dict = self._get_income_type_dict()
@@ -644,13 +659,14 @@ class DgiiReport(models.Model):
                     csmr_dict['csmr_swap'] += values['swap']
                     csmr_dict['csmr_others'] += values['others']
 
+                line += 1
+                values.update({'line': line})
+                SaleLine.create(values)
                 if str(values.get('fiscal_invoice_number'))[-10:-8] == '02' and inv.amount_untaxed_signed < 250000:
-                    # Excluye las facturas de Consumo con monto menor a 250000
+                    excluded_line += 1
+                    # Excluye las facturas de Consumo con monto menor a 250000 solo del txt
                     pass
                 else:
-                    line += 1
-                    values.update({'line': line})
-                    SaleLine.create(values)
                     report_data += self.process_607_report_data(values) + '\n'
 
                 for k in payment_dict:
@@ -662,7 +678,7 @@ class DgiiReport(models.Model):
             self._set_csmr_fields_vals(rec, csmr_dict)
             self._set_payment_form_fields(payment_dict)
             self._set_income_type_fields(income_dict)
-            self._generate_607_txt(rec, report_data, line)
+            self._generate_607_txt(rec, report_data, line - excluded_line)
 
     def process_608_report_data(self, values):
 

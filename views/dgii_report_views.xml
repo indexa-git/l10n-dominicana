@@ -125,7 +125,7 @@
                         <page name="it1" string="IT-1">
                             <group string="607 Reported Operations by NCF Type">
                                 <field name="ncf_sale_summary_ids" nolabel="1" widget="one2many_list" readonly="1">
-                                    <tree>
+                                    <tree create="false" edit="false">
                                         <field name="sequence" invisible="1"/>
                                         <field name="name"/>
                                         <field name="qty"/>
@@ -245,7 +245,7 @@
         <field name="name">dgii.reports.purchase.line.tree</field>
         <field name="model">dgii.reports.purchase.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="rnc_cedula"/>
@@ -265,7 +265,7 @@
                 <field name="cost_itbis" sum="Total"/>
                 <field name="advance_itbis" sum="Total"/>
                 <field name="purchase_perceived_itbis" sum="Total"/>
-                <field name="isr_withholding_type" sum="Total"/>
+                <field name="isr_withholding_type"/>
                 <field name="income_withholding" sum="Total"/>
                 <field name="purchase_perceived_isr" sum="Total"/>
                 <field name="selective_tax" sum="Total"/>
@@ -281,7 +281,7 @@
         <field name="name">dgii.reports.sale.line.tree</field>
         <field name="model">dgii.reports.sale.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false" decoration-muted="(invoiced_amount &lt; 250000) and (identification_type == '2')">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="rnc_cedula"/>
@@ -317,7 +317,7 @@
         <field name="name">dgii.reports.cancel.line.tree</field>
         <field name="model">dgii.reports.cancel.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="invoice_partner_id"/>
@@ -333,7 +333,7 @@
         <field name="name">dgii.exterior.cancel.line.tree</field>
         <field name="model">dgii.reports.exterior.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="legal_name"/>
@@ -350,6 +350,111 @@
                 <field name="presumed_income" sum="Total"/>
                 <field name="withholded_isr" sum="Total"/>
             </tree>
+        </field>
+    </record>
+
+
+    <!-- Search views -->
+
+    <record id="dgii_report_purchase_line_search" model="ir.ui.view">
+        <field name="name">dgii.report.purchase.line.search</field>
+        <field name="model">dgii.reports.purchase.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Purchase Line">
+                <!-- Search fields -->
+                <field name="invoice_partner_id"/>
+                <field name="rnc_cedula"/>
+                <field name="fiscal_invoice_number"/>
+                <field name="modified_invoice_number"/>
+                <!-- Filters -->
+                <filter string="Physical person" name="identification_type" domain="[('identification_type','=', '2')]"/>
+                <filter string="Legal person" name="identification_type" domain="[('identification_type','=', '1')]"/>
+                <separator/>
+                <filter string="Paid" name="paid" domain="[('invoice_id.state','=','paid')]"/>
+                <filter string="Open" name="open" domain="[('invoice_id.state','!=','paid')]"/>
+                <filter string="ITBIS withholding" name="withholding" domain="[('withholded_itbis', '!=', 0)]"/>
+                <filter string="ISR withholding" name="withholding" domain="[('income_withholding', '!=', 0)]"/>
+                <!-- Groups -->
+                <group expand="0" string="Group By">
+                    <filter string="Contact" name="invoice_partner_id" domain="[]"
+                            context="{'group_by':'invoice_partner_id'}"/>
+                    <filter string="Identification type" name="identification_type" domain="[]"
+                            context="{'group_by':'identification_type'}"/>
+                    <filter string="Expense type" name="expense_type" domain="[]"
+                            context="{'group_by':'expense_type'}"/>
+                    <filter string="Withholding type" name="isr_withholding_type" domain="[]"
+                            context="{'group_by':'isr_withholding_type'}"/>
+                    <filter string="Payment type" name="payment_type" domain="[]"
+                            context="{'group_by':'payment_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="dgii_report_sale_line_search" model="ir.ui.view">
+        <field name="name">dgii.report.sale.line.search</field>
+        <field name="model">dgii.reports.sale.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Sale Line">
+                <!-- Search fields -->
+                <field name="invoice_partner_id"/>
+                <field name="rnc_cedula"/>
+                <field name="fiscal_invoice_number"/>
+                <field name="modified_invoice_number"/>
+                <!-- Filters -->
+                <filter string="Physical person" name="identification_type" domain="[('identification_type','=', '2')]"/>
+                <filter string="Legal person" name="identification_type" domain="[('identification_type','=', '1')]"/>
+                <separator/>
+                <filter string="Paid" name="paid" domain="[('invoice_id.state','=','paid')]"/>
+                <filter string="Open" name="open" domain="[('invoice_id.state','!=','paid')]"/>
+                <filter string="ITBIS withholding" name="withholding" domain="[('third_withheld_itbis', '!=', 0)]"/>
+                <filter string="ISR withholding" name="withholding" domain="[('third_income_withholding', '!=', 0)]"/>
+                <!-- Groups -->
+                <group expand="0" string="Group By">
+                    <filter string="Contact" name="invoice_partner_id" domain="[]"
+                            context="{'group_by':'invoice_partner_id'}"/>
+                    <filter string="Identification type" name="identification_type" domain="[]"
+                            context="{'group_by':'identification_type'}"/>
+                    <filter string="Income type" name="income_type" domain="[]"
+                            context="{'group_by':'income_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="dgii_report_cancel_line_search" model="ir.ui.view">
+        <field name="name">dgii.report.cancel.line.search</field>
+        <field name="model">dgii.reports.cancel.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Cancel Line">
+                <!-- Search fields -->
+                <field name="invoice_partner_id"/>
+                <field name="fiscal_invoice_number"/>
+                <!-- Groups -->
+                <group expand="0" string="Group By">
+                    <filter string="Contact" name="invoice_partner_id" domain="[]"
+                            context="{'group_by':'invoice_partner_id'}"/>
+                    <filter string="Anulation type" name="anulation_type" domain="[]"
+                            context="{'group_by':'anulation_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="dgii_report_exterior_line_search" model="ir.ui.view">
+        <field name="name">dgii.report.exterior.line.search</field>
+        <field name="model">dgii.reports.exterior.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Sale Line">
+                <!-- Search fields -->
+                <field name="legal_name"/>
+                <field name="tax_id"/>
+                <field name="doc_number"/>
+                <!-- Filters -->
+                <filter string="Paid" name="paid" domain="[('invoice_id.state','=','paid')]"/>
+                <filter string="Open" name="open" domain="[('invoice_id.state','!=','paid')]"/>
+                <filter string="Withholded ISR" name="withholding" domain="[('withholded_isr', '!=', 0)]"/>
+            </search>
         </field>
     </record>
 
