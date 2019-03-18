@@ -43,7 +43,7 @@ odoo.define('ncf_pos.models', function (require) {
                 var validation_date = new Date(today.setDate(today.getDate() - self.config.number_of_days)).toISOString();
 
                 domain_list = [
-                    ['date_order', '>', validation_date],
+                    ['invoice_id.date_invoice', '>', validation_date],
                     ['state', 'not in', ['draft', 'cancel']],
                     ['config_id', '=', self.config.id]
                 ];
@@ -55,10 +55,10 @@ odoo.define('ncf_pos.models', function (require) {
             domain_list.push(['is_return_order', '=', false]);
             return domain_list;
         },
-        loaded: function (self, order) {
-            self.db.pos_all_orders = order || [];
+        loaded: function (self, orders) {
+            self.db.pos_all_orders = orders || [];
             self.db.order_by_id = {};
-            order.forEach(function (order) {
+            orders.forEach(function (order) {
                 var order_date = new Date(order.date_order);
                 var utc = order_date.getTime() - (order_date.getTimezoneOffset() * 60000);
 
@@ -314,7 +314,7 @@ odoo.define('ncf_pos.models', function (require) {
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
-                args: [day_limit]
+                args: [day_limit, self.config.id]
             }, {})
                 .then(function (result) {
                     var orders = result && result.orders || [];
