@@ -55,10 +55,10 @@ odoo.define('ncf_pos.models', function (require) {
             domain_list.push(['is_return_order', '=', false]);
             return domain_list;
         },
-        loaded: function (self, order) {
-            self.db.pos_all_orders = order || [];
+        loaded: function (self, orders) {
+            self.db.pos_all_orders = orders || [];
             self.db.order_by_id = {};
-            order.forEach(function (order) {
+            orders.forEach(function (order) {
                 var order_date = new Date(order.date_order);
                 var utc = order_date.getTime() - (order_date.getTimezoneOffset() * 60000);
 
