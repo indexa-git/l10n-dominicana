@@ -432,8 +432,8 @@ class DgiiReport(models.Model):
     def include_payment(invoice_id, payment_id):
         """ Returns True if payment date is on or before current period """
 
-        p_date = dt.strptime(payment_id.payment_date, '%Y-%m-%d')
-        i_date = dt.strptime(invoice_id.date_invoice, '%Y-%m-%d')
+        p_date = payment_id.payment_date
+        i_date = invoice_id.date_invoice
 
         return True if (p_date.year <= i_date.year) and (p_date.month <= i_date.month) else False
 
