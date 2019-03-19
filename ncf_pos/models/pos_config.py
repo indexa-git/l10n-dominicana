@@ -38,10 +38,10 @@ class PosConfig(models.Model):
     ncf_control = fields.Boolean(related="invoice_journal_id.ncf_control")
     seller_and_cashier_ticket = fields.Boolean("Seller and Cashier on Ticket")
 
-    @api.onchange("iface_invoicing")
-    def onchange_iface_invoicing(self):
+    @api.onchange("module_account")
+    def onchange_module_account(self):
         default_partner = self.env.ref("ncf_pos.default_partner_on_pos", raise_if_not_found=False)
-        if self.iface_invoicing and default_partner:
+        if self.module_account and default_partner:
             self.default_partner_id = default_partner.id
         else:
             self.default_partner_id = False
