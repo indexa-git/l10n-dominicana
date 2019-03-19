@@ -267,6 +267,7 @@ class PosOrderLine(models.Model):
 
 class PosOrderNcfTemp(models.Model):
     _name = 'pos.order.ncf.temp'
+    _description = "NCF constraint for por orders"
 
     pos_reference = fields.Char(index=True)
     ncf = fields.Char("NCF")
