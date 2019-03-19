@@ -138,7 +138,7 @@
         </xpath>
 
         <xpath expr="//table[hasclass('o_main_table')]/tbody//td[hasclass('o_price_total')]" position="inside">
-            <t t-if="exempt_itbis">
+            <t t-if="any([t for t in line.invoice_line_tax_ids if t.amount == 0.0])">
                 <span>
                     <strong>E</strong>
                 </span>
