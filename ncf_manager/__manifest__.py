@@ -55,6 +55,11 @@
         'views/res_view.xml',
 
     ],
+
+    'demo': [
+        'demo/res_partner_demo.xml',
+    ],
+
     'qweb': [
         'static/src/xml/ncf_manager.xml'
     ]

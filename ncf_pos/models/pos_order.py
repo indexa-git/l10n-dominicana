@@ -139,17 +139,22 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, day_limit=0):
+    def order_search_from_ui(self, day_limit=0, config_id=0):
         invoice_domain = [('type', '=', 'out_invoice')]
+        pos_order_domain = []
 
         if day_limit:
             today = fields.Date.from_string(fields.Date.context_today(self))
             limit = today - timedelta(days=day_limit)
             invoice_domain.append(('date_invoice', '>=', limit))
 
-        invoice_ids = self.env["account.invoice"].search(invoice_domain)
+        if config_id:
+            pos_order_domain.append(('config_id', '=', config_id))
 
-        order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
+        invoice_ids = self.env["account.invoice"].search(invoice_domain)
+        pos_order_domain.append(('invoice_id', 'in', invoice_ids.ids))
+
+        order_ids = self.search(pos_order_domain)
         order_list = []
         order_lines_list = []
         for order in order_ids:
@@ -262,6 +267,7 @@ class PosOrderLine(models.Model):
 
 class PosOrderNcfTemp(models.Model):
     _name = 'pos.order.ncf.temp'
+    _description = "NCF constraint for por orders"
 
     pos_reference = fields.Char(index=True)
     ncf = fields.Char("NCF")
