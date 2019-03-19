@@ -139,7 +139,7 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, day_limit=0, config_id=0):
+    def order_search_from_ui(self, day_limit=0, config_id=0, invoice_id=0):
         invoice_domain = [('type', '=', 'out_invoice')]
         pos_order_domain = []
 
@@ -147,6 +147,9 @@ class PosOrder(models.Model):
             today = fields.Date.from_string(fields.Date.context_today(self))
             limit = today - timedelta(days=day_limit)
             invoice_domain.append(('date_invoice', '>=', limit))
+
+        if invoice_id:
+            invoice_domain.append(('id', '>', invoice_id))
 
         if config_id:
             pos_order_domain.append(('config_id', '=', config_id))

@@ -310,11 +310,14 @@ odoo.define('ncf_pos.models', function (require) {
         get_orders_from_server: function () {
             var self = this;
             var day_limit = this.config.order_loading_options === 'n_days' ? this.config.number_of_days : 0;
+            var max_id = Math.max(..._.map(this.db.pos_all_orders, function(o){
+                return o.invoice_id[0];
+            }));
 
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
-                args: [day_limit, self.config.id]
+                args: [day_limit, self.config.id, max_id]
             }, {})
                 .then(function (result) {
                     var orders = result && result.orders || [];
