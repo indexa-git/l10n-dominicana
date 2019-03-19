@@ -137,7 +137,7 @@
             </div>
         </xpath>
 
-        <xpath expr="//t[@name='account_invoice_line_accountable']/td[hasclass('o_price_total')]" position="inside">
+        <xpath expr="//t[@name='account_invoice_line_accountable']/td[hasclass('o_price_total')]/span[@t-field='line.price_total']" position="after">
             <t t-if="any([t for t in line.invoice_line_tax_ids if t.amount == 0.0])">
                 <span>
                     <strong>E</strong>
