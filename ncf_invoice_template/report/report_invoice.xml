@@ -137,7 +137,7 @@
             </div>
         </xpath>
 
-        <xpath expr="/t/t/div/table/tbody/t[2]/tr/t[1]/td[hasclass('o_price_total')]" position="inside">
+        <xpath expr="//table[hasclass('o_main_table')]/tbody//td[hasclass('o_price_total')]" position="inside">
             <t t-if="exempt_itbis">
                 <span>
                     <strong>E</strong>
