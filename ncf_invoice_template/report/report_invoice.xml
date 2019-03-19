@@ -6,7 +6,7 @@
         <xpath expr="//div[hasclass('page')]/h2" position="replace"/>
         <xpath expr="//div[hasclass('page')]/div[1]" position="replace">
             <div class="row">
-                <div class="col-auto">
+                <div class="col-auto mr-auto">
                     <strong>
                         <span t-field="o.company_id.partner_id.name"/>
                     </strong>
@@ -26,8 +26,8 @@
                         <span t-field="o.date_due"/>
                     </span>
                 </div>
-                <div class="col-auto ml-auto">
-                    <div style="font-size: 18px">
+                <div class="col-5 ml-auto">
+                    <div style="font-size: 20px">
                         <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
                             <strong>
                                 Factura de
