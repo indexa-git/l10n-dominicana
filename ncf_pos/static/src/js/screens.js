@@ -186,7 +186,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
             this._super.apply(this, arguments);
             // Hide the deselect customer button if the pos generate invoices
-            if ($button && this.pos.config.iface_invoicing === true &&
+            if ($button && this.pos.config.module_account === true &&
                 this.editing_client !== true && !this.new_client) {
                 $button.addClass('oe_hidden');
             }
@@ -695,16 +695,34 @@ odoo.define('ncf_pos.screens', function (require) {
                                 });
                             });
                     }
+                },
+                credit_card_options = {
+                    title: _t("Type reference number"),
+                    disable_keyboard_handler: true,
+                    input_name: _t("Reference Number"),
+                    text_input_value: '',
+                    confirm: function (input) {
+                        cashregister.payment_reference = input;
+                        self.pos.get_order().add_paymentline(cashregister);
+                        self.reset_input();
+                        self.render_paymentlines();
+                    }
                 };
 
             this._super(parent, options);
             this.orderValidationDate = null;
-            // Set the popup options for the payment method Credit Note
+            
             for (var n in this.pos.cashregisters) {
-                if (this.pos.cashregisters[n].journal.id == 10001) {
-                    this.pos.cashregisters[n].popup_options = popup_options;
-                    break;
+                var currentCashRegister = this.pos.cashregisters[n];
+                 
+                if (currentCashRegister.journal.id == 10001) { 
+                    // Set the popup options for the payment method Credit Note   
+                    currentCashRegister.popup_options = popup_options;
+                } else if (currentCashRegister.type === "bank" && !currentCashRegister.credit) {
+                    // Set the popup options for the payment method Credit/Debit Card
+                    currentCashRegister.popup_options = credit_card_options;
                 }
+
             }
         },
         show: function () {
@@ -847,7 +865,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 if (orderValidationDate && ((now - orderValidationDate) <= 5000)) {
                     console.info("Failed attempt to execute validate_order", new Date());
                 } else {
-                    var invoicing = self.pos.config.iface_invoicing,
+                    var invoicing = self.pos.config.module_account,
                         order = self.pos.get_order(),
                         client = self.pos.get_client(),
                         popupErrorOptions = null;
@@ -882,11 +900,19 @@ odoo.define('ncf_pos.screens', function (require) {
                         self.gui.show_popup('error', popupErrorOptions);
                         self.orderValidationDate = null;
                     } else {
-                        this.get_next_ncf(order).always(function () {
-                            console.info("Finishing Order Validation", new Date());
-                            self.finalize_validation();
-                            self.orderValidationDate = null;
-                        });
+                        this.get_next_ncf(order)
+                            .done(function () {
+                                console.info("Finishing Order Validation", new Date());
+                                self.finalize_validation();
+                                self.orderValidationDate = null;
+                            }).fail(function() {
+                                self.gui.show_popup('error', {
+                                    'title': 'No se pudo realizar la conexión con el servidor',
+                                    'body': 'Puede que haya intermitencia en la conexión a internet ' +
+                                            'o no haya conexion \n\n. Favor revisar la conexión a internet y' +
+                                            ' valide la orden nuevamente.\n\n'
+                                });
+                            });
                     }
                 }
             }
@@ -942,7 +968,7 @@ odoo.define('ncf_pos.screens', function (require) {
             payButtonClickSuper = $payButton.getEvent('click', 0);
             $payButton.off('click');
             $payButton.on("click", function () {
-                var invoicing = self.pos.config.iface_invoicing;
+                var invoicing = self.pos.config.module_account;
                 var order = self.pos.get_order();
                 var client = self.pos.get_client();
                 var popupErrorOptions = '';
