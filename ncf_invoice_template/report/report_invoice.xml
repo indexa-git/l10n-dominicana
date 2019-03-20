@@ -2,10 +2,12 @@
 <odoo>
 
     <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
+
         <xpath expr="/t[1]/t[1]/t[2]/address" position="replace"/>
         <xpath expr="/t[1]/t[1]/t[2]/div[hasclass('mt16')]" position="replace"/>
         <xpath expr="/t[1]/t[1]/div[1]/h2[1]" position="replace"/>
         <xpath expr="/t/t/div/div[1]" position="replace">
+
             <div class="row">
                 <div class="col-auto">
                     <strong>

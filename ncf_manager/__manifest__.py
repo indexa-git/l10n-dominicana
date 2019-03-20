@@ -24,7 +24,7 @@
 
 {
     'name': "Gestor de Comprobantes Fiscales (NCF Manager)",
-    'version': '11.0.0.2.0',
+    'version': '12.0.1.0.0',
     'summary': """
         Este módulo implementa la administración y gestión de los números de
          comprobantes fiscales para el cumplimento de la norma 06-18 de la
