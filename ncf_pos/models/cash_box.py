@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
+import datetime
 from odoo.addons.point_of_sale.wizard.pos_box import PosBox
 from odoo import api
 
@@ -28,8 +29,8 @@ class PosBoxOut(PosBox):
         data = self._context
         res = super(PosBoxOut, self).default_get(fields)
         pos_session = self.env[data['active_model']].browse(data['active_id'])
-
+        date = datetime.datetime.strptime(pos_session.start_at, '%Y-%m-%d %H:%M:%S').date()
         res.update({
-            'name': pos_session.config_id.name + ': ' + str(abs(pos_session.cash_register_difference)),
+            'name': pos_session.config_id.name + ' ' + date.strftime('%Y-%m-%d'),
         })
         return res
