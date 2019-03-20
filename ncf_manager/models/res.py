@@ -148,7 +148,7 @@ class ResPartner(models.Model):
                 dgii_vals = rnc.check_dgii(number)
                 if dgii_vals is None:
                     if is_rnc:
-                        raise ValidationError(_("RNC no disponible en DGII"))
+                        _logger.error("RNC {} del contacto {} no está disponible en DGII".format(number, self.name))
                     result['vat'] = number
                     result['sale_fiscal_type'] = "final"
                 else:

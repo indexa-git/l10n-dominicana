@@ -17,7 +17,7 @@
 
 {
     'name': "NCF Purchase",
-    'version': '11.0.0.1.0',
+    'version': '12.0.1.0.0',
     'summary': """
     Add new field "Purchase Journal" in suppliers if this field is set
     the invoices generated for these suppliers take this journal by default.
