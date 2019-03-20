@@ -444,7 +444,8 @@ odoo.define('ncf_pos.models', function (require) {
 
             $.extend(json, {
                 credit_note_id: this.credit_note_id,
-                note: this.note
+                note: this.note,
+                payment_reference: this.cashregister.payment_reference,
             });
             return json;
         }
