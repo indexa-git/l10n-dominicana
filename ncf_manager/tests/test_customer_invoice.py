@@ -37,8 +37,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
         self.journal.ncf_control = True
         self.journal.create_ncf_sequence()
 
-        self.product_consu = self.env.ref('product.consu_delivery_03')
-        self.product_service = self.env.ref('product.service_order_01')
+        self.product_consu = self.env.ref('product.product_delivery_01')
+        self.product_service = self.env.ref('product.product_product_1')
 
         self.invoice_line_ids = [
                 (0, 0,
@@ -145,7 +145,7 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B01')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
 
     def test_final_invoices(self):
         """ Consumo NCF tests """
@@ -184,7 +184,7 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B02')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
 
     def test_gov_invoices(self):
         """ Gubernamentales NCF tests """
@@ -223,7 +223,7 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B15')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
 
     def test_special_invoices(self):
         """ Regimenes Especiales NCF tests """
@@ -262,7 +262,7 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B14')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
 
     def test_unico_invoices(self):
         """ Unico Ingreso NCF tests """
@@ -301,7 +301,7 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B12')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
 
     def test_cross_fiscal_type_invoices(self):
         """ Cross Fiscal Type NCF tests """
@@ -350,4 +350,4 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], ncf_prefix_map[invoice_id.sale_fiscal_type])
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next_actual - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
