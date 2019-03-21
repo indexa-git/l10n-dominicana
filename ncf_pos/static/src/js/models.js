@@ -41,16 +41,17 @@ odoo.define('ncf_pos.models', function (require) {
 
             if (self.config.order_loading_options == 'n_days') {
                 var today = new Date();
-                var validation_date = new Date(today.setDate(today.getDate() - self.config.number_of_days)).toISOString();
+                var validation_date = new Date(today);
+                validation_date.setDate(today.getDate() - self.config.number_of_days);
 
                 domain_list = [
-                    ['invoice_id.date_invoice', '>', validation_date],
+                    ['invoice_id.date_invoice', '>', validation_date.toISOString()],
                     ['state', 'not in', ['draft', 'cancel']],
                     ['config_id', '=', self.config.id]
                 ];
             } else
                 domain_list = [
-                    ['session_id', '=', self.pos_session.name],
+                    ['session_id', '=', self.pos_session.id],
                     ['state', 'not in', ['draft', 'cancel']]
                 ];
             domain_list.push(['is_return_order', '=', false]);
@@ -310,12 +311,22 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_orders_from_server: function () {
             var self = this;
-            var day_limit = this.config.order_loading_options === 'n_days' ? this.config.number_of_days : 0;
+
+            var kwargs = {};
+            var loading_type = posmodel.config.order_loading_options;
+
+            if (loading_type === 'n_days') {
+                kwargs.day_limit = this.config.number_of_days || 0;
+                kwargs.config_id = this.config.id;
+            } else if (loading_type === "current_session") {
+                kwargs.session_id = posmodel.pos_session.id;
+            }
 
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
-                args: [day_limit, self.config.id]
+                args: [],
+                kwargs: kwargs,
             }, {})
                 .then(function (result) {
                     var orders = result && result.orders || [];
