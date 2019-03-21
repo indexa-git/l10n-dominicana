@@ -12,11 +12,10 @@ addons:
       - expect-dev  # provides unbuffer utility
 env:
   global:
-    - VERSION="12.0" TESTS="0" LINT_CHECK="0" MAKEPOT="0"
+    - VERSION="12.0" TESTS="0" LINT_CHECK="0" EXCLUDE=E501 MAKEPOT="0"
     - PHANTOMJS_VERSION="latest"
   matrix:
     - LINT_CHECK="1"
-    - EXCLUDE=E501
     - TESTS="1" ODOO_REPO="odoo/odoo" MAKEPOT="1"
     - TESTS="1" ODOO_REPO="OCA/OCB"
 
