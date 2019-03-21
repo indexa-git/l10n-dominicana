@@ -37,8 +37,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
         self.journal.ncf_control = True
         self.journal.create_ncf_sequence()
 
-        self.product_consu = self.env.ref('product.consu_delivery_03')
-        self.product_service = self.env.ref('product.service_order_01')
+        self.product_consu = self.env.ref('product.product_delivery_01')
+        self.product_service = self.env.ref('product.product_product_1')
 
         self.invoice_line_ids = [
                 (0, 0,
