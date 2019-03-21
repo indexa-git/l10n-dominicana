@@ -13,6 +13,7 @@
                 <field name="ncf_invoice_related"/>
                 <field name="return_order_id" attrs="{'invisible':[('state','not in',['is_return_order'])]}"/>
                 <field name="sale_fiscal_type"/>
+                <field name="payment_reference" readonly="1"/>
             </field>
 
             <field name="statement_ids" position="after">
@@ -28,7 +29,7 @@
         <field name="arch" type="xml">
 
             <xpath expr="//field[@name='name']" position="after">
-                <field name="ncf_invoice_related"/>
+                <field name="ncf"/>
             </xpath>
 
         </field>

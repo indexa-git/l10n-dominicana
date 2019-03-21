@@ -1,4 +1,25 @@
-# -*- coding: utf-8 -*-
+# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2017 Raúl Ovalle <rovalle@guavana.com>
+# © 2018 Jorge Hernández <jhernandez@gruponeotec.com>
+# © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+# © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+
+# This file is part of NCF Manager.
+
+# NCF Manager is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# NCF Manager is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -27,9 +48,10 @@ class PosOrder(models.Model):
     ncf = fields.Char("NCF")
     state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
     refund_payment_account_move_line_ids = fields.Many2many("account.move.line")
-    ncf_invoice_related = fields.Char(related="invoice_id.number", string="NCF")
+    ncf_invoice_related = fields.Char(related="invoice_id.reference", string="NCF Factura")
     sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type", string="Tipo", readonly=1)
     ncf_control = fields.Boolean(related="sale_journal.ncf_control")
+    payment_reference = fields.Char(string="Authorization Number")
 
     def _prepare_invoice(self):
         """
@@ -40,12 +62,12 @@ class PosOrder(models.Model):
         if self.ncf_control:
             if self.ncf:
                 inv.update({
-                    'move_name': self.ncf,
+                    'reference': self.ncf,
                     'income_type': '01',
                     'sale_fiscal_type': self.partner_id.sale_fiscal_type
                 })
             if self.return_order_id:
-                inv.update({'origin': self.return_order_id.invoice_id.number})
+                inv.update({'origin': self.return_order_id.invoice_id.reference})
         return inv
 
     def test_paid(self):
@@ -118,17 +140,22 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, day_limit=0):
+    def order_search_from_ui(self, day_limit=0, config_id=0):
         invoice_domain = [('type', '=', 'out_invoice')]
+        pos_order_domain = []
 
         if day_limit:
             today = fields.Date.from_string(fields.Date.context_today(self))
             limit = today - timedelta(days=day_limit)
             invoice_domain.append(('date_invoice', '>=', limit))
 
-        invoice_ids = self.env["account.invoice"].search(invoice_domain)
+        if config_id:
+            pos_order_domain.append(('config_id', '=', config_id))
 
-        order_ids = self.search([('invoice_id', 'in', invoice_ids.ids)])
+        invoice_ids = self.env["account.invoice"].search(invoice_domain)
+        pos_order_domain.append(('invoice_id', 'in', invoice_ids.ids))
+
+        order_ids = self.search(pos_order_domain)
         order_list = []
         order_lines_list = []
         for order in order_ids:
@@ -140,7 +167,7 @@ class PosOrder(models.Model):
                 "pos_reference": order.pos_reference,
                 "invoice_id": [order.invoice_id.id, order.invoice_id.number],
                 "amount_total": order.amount_total,
-                "number": order.invoice_id.number,
+                "number": order.invoice_id.reference,
                 "lines": [line.id for line in order.lines],
                 "statement_ids": [statement_id.id for statement_id in order.statement_ids],
                 "is_return_order": order.is_return_order
@@ -174,7 +201,7 @@ class PosOrder(models.Model):
 
     @api.model
     def credit_note_info_from_ui(self, ncf):
-        invoice_ids = self.env["account.invoice"].search([('number', '=', ncf), ('type', '=', 'out_refund')])
+        invoice_ids = self.env["account.invoice"].search([('reference', '=', ncf), ('type', '=', 'out_refund')])
         return {"id": invoice_ids.id, "residual": invoice_ids.residual}
 
     @api.model
@@ -214,13 +241,25 @@ class PosOrder(models.Model):
         else:
             payment_name = data.get("payment_name", False)
             if payment_name:
-                out_refund_invoice = self.env["account.invoice"].sudo().search([('number', '=', payment_name)])
+                out_refund_invoice = self.env["account.invoice"].sudo().search([('reference', '=', payment_name)])
                 if out_refund_invoice:
                     move_line_ids = out_refund_invoice.move_id.line_ids
                     move_line_ids = move_line_ids.filtered(lambda
-                                                               r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
+                                                           r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
                     for move_line_id in move_line_ids:
                         self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
+
+    @api.model
+    def _process_order(self, pos_order):
+        order = super(PosOrder, self)._process_order(pos_order)
+        payment_reference = False
+        for statement in pos_order['statement_ids']:
+            payment_reference = payment_reference or statement[2].get('payment_reference', False)
+        if payment_reference:
+            order.write({
+                'payment_reference': payment_reference,
+            })
+        return order
 
 
 class PosOrderLine(models.Model):
@@ -241,6 +280,7 @@ class PosOrderLine(models.Model):
 
 class PosOrderNcfTemp(models.Model):
     _name = 'pos.order.ncf.temp'
+    _description = "NCF constraint for por orders"
 
     pos_reference = fields.Char(index=True)
     ncf = fields.Char("NCF")
