@@ -361,7 +361,9 @@ class DgiiReport(models.Model):
         :param invoice: account.invoice object
         :return: boolean
         """
-
+        if not invoice.payment_date:
+            return False
+        
         payment_date = dt.strptime(invoice.payment_date, '%Y-%m-%d')
         period = dt.strptime(report.name, '%m/%Y')
         same_period = (payment_date.month, payment_date.year) == (period.month, period.year)
