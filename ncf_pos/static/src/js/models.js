@@ -25,6 +25,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
+    models.load_fields('account.journal', ['payment_form']);
     models.load_fields('pos.config',
         ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria', 'seller_and_cashier_ticket']
     );

@@ -391,7 +391,7 @@
                 <t t-if="input_name == 'credit_card'">
                     <p>
                         <i class="fa fa-credit-card-alt" aria-hidden="true"></i>
-                        TARJETA: Número de aprobación
+                        TARJETA: Número de aprobación de la Tarjeta
                     </p>
                 </t>
                 <t t-elif="input_name == 'bank_check'">
