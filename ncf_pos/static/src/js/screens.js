@@ -643,6 +643,7 @@ odoo.define('ncf_pos.screens', function (require) {
         init: function (parent, options) {
             var self = this,
                 popup_options = {
+                    popup_name: "textinput",
                     title: 'Digite el número de NCF de la Nota de Crédito',
                     disable_keyboard_handler: true,
                     input_name: 'ncf',
@@ -697,11 +698,13 @@ odoo.define('ncf_pos.screens', function (require) {
                     }
                 },
                 credit_card_options = {
-                    title: _t("Type reference number"),
+                    popup_name: 'textinput',
+                    title: 'Digite el número de Referencia',
                     disable_keyboard_handler: true,
-                    input_name: _t("Reference Number"),
+                    input_name: 'credit_card',
                     text_input_value: '',
                     confirm: function (input) {
+                        var cashregister = this.options.cashregister;
                         cashregister.payment_reference = input;
                         self.pos.get_order().add_paymentline(cashregister);
                         self.reset_input();
@@ -718,7 +721,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 if (currentCashRegister.journal.id == 10001) { 
                     // Set the popup options for the payment method Credit Note   
                     currentCashRegister.popup_options = popup_options;
-                } else if (currentCashRegister.type === "bank" && !currentCashRegister.credit) {
+                } else if (currentCashRegister.journal.payment_form === "card" && !currentCashRegister.credit) {
                     // Set the popup options for the payment method Credit/Debit Card
                     currentCashRegister.popup_options = credit_card_options;
                 }
@@ -930,8 +933,9 @@ odoo.define('ncf_pos.screens', function (require) {
                     var cashregister = this.pos.cashregisters[i];
 
                     //Evaluamos si es una forma de pago especial que abre un popup
-                    if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
-                        this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
+                    if (cashregister.journal_id[0] === id && cashregister.popup_options) {
+                        var popup_options = _.extend(_.clone(cashregister.popup_options), {cashregister: cashregister});
+                        this.gui.show_popup(popup_options.popup_name || 'alert', popup_options);
                         return false;
                     }
                 }
