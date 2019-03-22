@@ -311,8 +311,13 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_orders_from_server: function () {
             var self = this;
+            var max_invoice_id = Math.max(..._.map(this.db.pos_all_orders, function(o){
+                return o.invoice_id[0];
+            }), 0);
 
-            var kwargs = {};
+            var kwargs = {
+                invoice_id: max_invoice_id,
+            };
             var loading_type = posmodel.config.order_loading_options;
 
             if (loading_type === 'n_days') {
