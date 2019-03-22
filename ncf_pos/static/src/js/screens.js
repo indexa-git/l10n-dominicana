@@ -1,3 +1,24 @@
+// © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+// © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+// © 2018 Jorge Hernández <jhernandez@gruponeotec.com>
+// © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+// © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+
+// This file is part of NCF Manager.
+
+// NCF Manager is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// NCF Manager is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 odoo.define('ncf_pos.screens', function (require) {
     "use strict";
 
@@ -622,6 +643,7 @@ odoo.define('ncf_pos.screens', function (require) {
         init: function (parent, options) {
             var self = this,
                 popup_options = {
+                    popup_name: "textinput",
                     title: 'Digite el número de NCF de la Nota de Crédito',
                     disable_keyboard_handler: true,
                     input_name: 'ncf',
@@ -674,16 +696,36 @@ odoo.define('ncf_pos.screens', function (require) {
                                 });
                             });
                     }
+                },
+                credit_card_options = {
+                    popup_name: 'textinput',
+                    title: 'Digite el número de Referencia',
+                    disable_keyboard_handler: true,
+                    input_name: 'credit_card',
+                    text_input_value: '',
+                    confirm: function (input) {
+                        var cashregister = this.options.cashregister;
+                        cashregister.payment_reference = input;
+                        self.pos.get_order().add_paymentline(cashregister);
+                        self.reset_input();
+                        self.render_paymentlines();
+                    }
                 };
 
             this._super(parent, options);
             this.orderValidationDate = null;
-            // Set the popup options for the payment method Credit Note
+            
             for (var n in this.pos.cashregisters) {
-                if (this.pos.cashregisters[n].journal.id == 10001) {
-                    this.pos.cashregisters[n].popup_options = popup_options;
-                    break;
+                var currentCashRegister = this.pos.cashregisters[n];
+                 
+                if (currentCashRegister.journal.id == 10001) { 
+                    // Set the popup options for the payment method Credit Note   
+                    currentCashRegister.popup_options = popup_options;
+                } else if (currentCashRegister.journal.payment_form === "card" && !currentCashRegister.credit) {
+                    // Set the popup options for the payment method Credit/Debit Card
+                    currentCashRegister.popup_options = credit_card_options;
                 }
+
             }
         },
         show: function () {
@@ -861,11 +903,19 @@ odoo.define('ncf_pos.screens', function (require) {
                         self.gui.show_popup('error', popupErrorOptions);
                         self.orderValidationDate = null;
                     } else {
-                        this.get_next_ncf(order).always(function () {
-                            console.info("Finishing Order Validation", new Date());
-                            self.finalize_validation();
-                            self.orderValidationDate = null;
-                        });
+                        this.get_next_ncf(order)
+                            .done(function () {
+                                console.info("Finishing Order Validation", new Date());
+                                self.finalize_validation();
+                                self.orderValidationDate = null;
+                            }).fail(function() {
+                                self.gui.show_popup('error', {
+                                    'title': 'No se pudo realizar la conexión con el servidor',
+                                    'body': 'Puede que haya intermitencia en la conexión a internet ' +
+                                            'o no haya conexion \n\n. Favor revisar la conexión a internet y' +
+                                            ' valide la orden nuevamente.\n\n'
+                                });
+                            });
                     }
                 }
             }
@@ -883,8 +933,9 @@ odoo.define('ncf_pos.screens', function (require) {
                     var cashregister = this.pos.cashregisters[i];
 
                     //Evaluamos si es una forma de pago especial que abre un popup
-                    if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
-                        this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
+                    if (cashregister.journal_id[0] === id && cashregister.popup_options) {
+                        var popup_options = _.extend(_.clone(cashregister.popup_options), {cashregister: cashregister});
+                        this.gui.show_popup(popup_options.popup_name || 'alert', popup_options);
                         return false;
                     }
                 }

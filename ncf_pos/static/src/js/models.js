@@ -1,3 +1,23 @@
+// © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
+// © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+// © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
+// © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
+
+// This file is part of NCF Manager.
+
+// NCF Manager is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// NCF Manager is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
 odoo.define('ncf_pos.models', function (require) {
     "use strict";
 
@@ -5,6 +25,7 @@ odoo.define('ncf_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['sale_fiscal_type']);
+    models.load_fields('account.journal', ['payment_form']);
     models.load_fields('pos.config',
         ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria', 'seller_and_cashier_ticket']
     );
@@ -20,25 +41,26 @@ odoo.define('ncf_pos.models', function (require) {
 
             if (self.config.order_loading_options == 'n_days') {
                 var today = new Date();
-                var validation_date = new Date(today.setDate(today.getDate() - self.config.number_of_days)).toISOString();
+                var validation_date = new Date(today);
+                validation_date.setDate(today.getDate() - self.config.number_of_days);
 
                 domain_list = [
-                    ['date_order', '>', validation_date],
+                    ['invoice_id.date_invoice', '>', validation_date.toISOString()],
                     ['state', 'not in', ['draft', 'cancel']],
                     ['config_id', '=', self.config.id]
                 ];
             } else
                 domain_list = [
-                    ['session_id', '=', self.pos_session.name],
+                    ['session_id', '=', self.pos_session.id],
                     ['state', 'not in', ['draft', 'cancel']]
                 ];
             domain_list.push(['is_return_order', '=', false]);
             return domain_list;
         },
-        loaded: function (self, order) {
-            self.db.pos_all_orders = order || [];
+        loaded: function (self, orders) {
+            self.db.pos_all_orders = orders || [];
             self.db.order_by_id = {};
-            order.forEach(function (order) {
+            orders.forEach(function (order) {
                 var order_date = new Date(order.date_order);
                 var utc = order_date.getTime() - (order_date.getTimezoneOffset() * 60000);
 
@@ -289,12 +311,27 @@ odoo.define('ncf_pos.models', function (require) {
         },
         get_orders_from_server: function () {
             var self = this;
-            var day_limit = this.config.order_loading_options === 'n_days' ? this.config.number_of_days : 0;
+            var max_invoice_id = Math.max(..._.map(this.db.pos_all_orders, function(o){
+                return o.invoice_id[0];
+            }), 0);
+
+            var kwargs = {
+                invoice_id: max_invoice_id,
+            };
+            var loading_type = posmodel.config.order_loading_options;
+
+            if (loading_type === 'n_days') {
+                kwargs.day_limit = this.config.number_of_days || 0;
+                kwargs.config_id = this.config.id;
+            } else if (loading_type === "current_session") {
+                kwargs.session_id = posmodel.pos_session.id;
+            }
 
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',
-                args: [day_limit]
+                args: [],
+                kwargs: kwargs,
             }, {})
                 .then(function (result) {
                     var orders = result && result.orders || [];
@@ -424,7 +461,8 @@ odoo.define('ncf_pos.models', function (require) {
 
             $.extend(json, {
                 credit_note_id: this.credit_note_id,
-                note: this.note
+                note: this.note,
+                payment_reference: this.cashregister.payment_reference,
             });
             return json;
         }
