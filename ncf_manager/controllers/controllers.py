@@ -23,6 +23,7 @@ import re
 import logging
 
 from odoo import http
+from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
@@ -42,7 +43,8 @@ class Odoojs(http.Controller):
             :param term string : the character of the client or his rnc /
         """
         term = kwargs.get("term", False)
-        if term:
+        query_dgii_wsmovil = request.env['ir.config_parameter'].sudo().get_param('dgii.wsmovil')
+        if term and query_dgii_wsmovil == 'True':
             if term.isdigit() and len(term) in [9, 11]:
                 result = rnc.check_dgii(term)
             else:

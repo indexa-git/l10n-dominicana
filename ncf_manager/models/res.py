@@ -124,7 +124,8 @@ class ResPartner(models.Model):
 
     @api.model
     def validate_rnc_cedula(self, number, model='partner'):
-        if number:
+        query_dgii_wsmovil = self.env['ir.config_parameter'].sudo().get_param('dgii.wsmovil')
+        if number and query_dgii_wsmovil == 'True':
             result, dgii_vals = {}, False
             model = 'res.partner' if model == 'partner' else 'res.company'
 
