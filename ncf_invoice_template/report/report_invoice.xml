@@ -63,14 +63,8 @@
                         <span t-field="o.partner_id.vat"/>
                         <br/>
                         <strong>RAZÓN SOCIAL:</strong>
-                        <t t-if="o.partner_id.parent_id">
-                            <span t-field="o.partner_id.parent_id.name"/>
-                            <br/>
-                        </t>
-                        <t t-else="">
-                            <span t-field="o.partner_id.name"/>
-                            <br/>
-                        </t>
+                        <span t-field="o.partner_id"
+                            t-options='{"fields": ["name"], "no_marker": True}'/>
                         <br/>
                     </t>
 
@@ -79,14 +73,8 @@
                         <span t-field="o.partner_id.vat"/>
                         <br/>
                         <strong>NOMBRE:</strong>
-                        <t t-if="o.partner_id.parent_id">
-                            <span t-field="o.partner_id.parent_id.name"/>
-                            <br/>
-                        </t>
-                        <t t-else="">
-                            <span t-field="o.partner_id.name"/>
-                            <br/>
-                        </t>
+                        <span t-field="o.partner_id"
+                            t-options='{"fields": ["name"], "no_marker": True}'/>
                         <br/>
                     </t>
 
@@ -95,14 +83,9 @@
                         <span t-field="o.partner_id.vat"/>
                         <br/>
                         <strong>NOMBRE:</strong>
-                        <t t-if="o.partner_id.parent_id">
-                            <span t-field="o.partner_id.parent_id.name"/>
+                        <span t-field="o.partner_id"
+                            t-options='{"fields": ["name"], "no_marker": True}'/>
                             <br/>
-                        </t>
-                        <t t-else="">
-                            <span t-field="o.partner_id.name"/>
-                            <br/>
-                        </t>
                         <br/>
                     </t>
                 </div>
@@ -114,14 +97,8 @@
                         <span t-field="o.partner_id.vat"/>
                         <br/>
                         <strong>NOMBRE:</strong>
-                        <t t-if="o.partner_id.parent_id">
-                            <span t-field="o.partner_id.parent_id.name"/>
-                            <br/>
-                        </t>
-                        <t t-else="">
-                            <span t-field="o.partner_id.name"/>
-                            <br/>
-                        </t>
+                        <span t-field="o.partner_id"
+                            t-options='{"fields": ["name"], "no_marker": True}'/>
                         <br/>
                     </t>
                 </div>
