@@ -131,46 +131,51 @@ odoo.define('ncf_pos.screens', function (require) {
                         fieldsRequired[0].elem.focus();
                     }
                 });
-            } else if (rnc && (rnc.length === 9 || rnc.length === 11)) {
-                $.ajax('/validate_rnc/', {
-                    dataType: 'json',
-                    type: 'GET',
-                    timeout: 3000,
-                    data: {'rnc': rnc}
-                }).done(function (data) {
-                    console.info("Validando RNC con WS DGII", data);
-                    if (data.is_valid === false) {
-                        self.gui.show_popup('error', {
-                            'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                            'body': _t('Tax ID') + ' ' + _t('is invalid'),
-                            cancel: function () {
-                                rnc_input.focus();
-                            }
-                        });
-                    } else {
-                        if (data.info && data.info.name) {
-                            name_input.val(data.info.name);
+            } else if (rnc) {
+                var show_rnc_error = function(self, request, error) {
+                    console.error("Validando RNC con WS DGII", request);
+                    self.gui.show_popup('error', {
+                        'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
+                        'body': _t(request.statusText + '\n' +
+                            ((error.data && error.data.message) || error.message || "")),
+                        cancel: function () {
+                            rnc_input.focus();
                         }
-                        _super(partner);
-                    }
-                }).fail(function (request, error) {
-                    if(rnc.length === 9 && self.mod11_validator(rnc)) {
-                        name_input.val(rnc);
-                    } else if(rnc.length === 11 && self.mod10_validator(rnc)) {
-                        name_input.val(rnc);
-                    } else {
-                        console.error("Validando RNC con WS DGII", request);
-                        self.gui.show_popup('error', {
-                            'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                            'body': _t(request.statusText + '\n' +
-                                ((error.data && error.data.message) || error.message || "")),
-                            cancel: function () {
-                                rnc_input.focus();
+                    });
+                }
+                if (rnc.length === 9 || rnc.length === 11) {
+                    $.ajax('/validate_rnc/', {
+                        dataType: 'json',
+                        type: 'GET',
+                        timeout: 3000,
+                        data: {'rnc': rnc}
+                    }).then(function (data) {
+                        console.info("Validando RNC con WS DGII", data);
+                        if (data.is_valid === false) {
+                            show_rnc_error(self,{
+                                statusText: 'Tax ID is invalid',
+                            }, {})
+                        } else {
+                            if (data.info && data.info.name) {
+                                name_input.val(data.info.name);
                             }
-                        });
-                    }
-                    _super(partner);
-                });
+                            _super(partner);
+                        }
+                    }, function (request, error) {
+                        if(rnc.length === 9 && self.mod11_validator(rnc)) {
+                            name_input.val(rnc);
+                        } else if(rnc.length === 11 && self.mod10_validator(rnc)) {
+                            name_input.val(rnc);
+                        } else {
+                            show_rnc_error(self, request, error);
+                        }
+                    });
+                } else {
+                    show_rnc_error(self, {
+                        statusText: 'Longitud incorrecta',
+                    }, {});
+                }
+
             } else {
                 this._super(partner);
             }
