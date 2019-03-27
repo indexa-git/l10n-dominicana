@@ -102,14 +102,14 @@ odoo.define('ncf_pos.screens', function (require) {
             }
         },
         save_client_details: function (partner) {
-            var self = this;
-            var _super = this._super.bind(this);
-            var rnc_input = this.$("input[name='vat']"),
-                rnc = rnc_input.val();
-            var name_input = this.$('input[name$=\'name\']');
-            var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
-                sale_fiscal_type = sale_fiscal_type_ddl.val();
-            var fieldsRequired = [];
+            var self = this,
+                _super = this._super.bind(this),
+                rnc_input = this.$("input[name='vat']"),
+                rnc = rnc_input.val(),
+                name_input = this.$("input[name$='name']"),
+                sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
+                sale_fiscal_type = sale_fiscal_type_ddl.val(),
+                fieldsRequired = [];
 
             if (!name_input.val()) {
                 fieldsRequired.push({label: 'Name', elem: name_input});
@@ -117,7 +117,7 @@ odoo.define('ncf_pos.screens', function (require) {
             if (!sale_fiscal_type) {
                 fieldsRequired.push({label: 'NCF', elem: sale_fiscal_type_ddl});
             }
-            if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) == -1 && !rnc) {
+            if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) === -1 && !rnc) {
                 fieldsRequired.push({label: 'Tax ID', elem: rnc_input});
             }
             if (fieldsRequired.length > 0) {
@@ -131,29 +131,8 @@ odoo.define('ncf_pos.screens', function (require) {
                         fieldsRequired[0].elem.focus();
                     }
                 });
-            } else if (rnc && (rnc.length == 9 || rnc.length == 11)) {
-                $.ajax('/validate_rnc/', {
-                    dataType: 'json',
-                    type: 'GET',
-                    timeout: 3000,
-                    data: {'rnc': rnc}
-                }).done(function (data) {
-                    console.info("Validando RNC con WS DGII", data);
-                    if (data.is_valid === false) {
-                        self.gui.show_popup('error', {
-                            'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                            'body': _t('Tax ID') + ' ' + _t('is invalid'),
-                            cancel: function () {
-                                rnc_input.focus();
-                            }
-                        });
-                    } else {
-                        if (data.info && data.info.name) {
-                            name_input.val(data.info.name);
-                        }
-                        _super(partner);
-                    }
-                }).fail(function (request, error) {
+            } else if (rnc) {
+                var show_rnc_error = function(self, request, error) {
                     console.error("Validando RNC con WS DGII", request);
                     self.gui.show_popup('error', {
                         'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
@@ -163,8 +142,40 @@ odoo.define('ncf_pos.screens', function (require) {
                             rnc_input.focus();
                         }
                     });
-                    _super(partner);
-                });
+                }
+                if (rnc.length === 9 || rnc.length === 11) {
+                    $.ajax('/validate_rnc/', {
+                        dataType: 'json',
+                        type: 'GET',
+                        timeout: 3000,
+                        data: {'rnc': rnc}
+                    }).then(function (data) {
+                        console.info("Validando RNC con WS DGII", data);
+                        if (data.is_valid === false) {
+                            show_rnc_error(self,{
+                                statusText: 'Tax ID is invalid',
+                            }, {})
+                        } else {
+                            if (data.info && data.info.name) {
+                                name_input.val(data.info.name);
+                            }
+                            _super(partner);
+                        }
+                    }, function (request, error) {
+                        if(rnc.length === 9 && self.mod11_validator(rnc)) {
+                            name_input.val(rnc);
+                        } else if(rnc.length === 11 && self.mod10_validator(rnc)) {
+                            name_input.val(rnc);
+                        } else {
+                            show_rnc_error(self, request, error);
+                        }
+                    });
+                } else {
+                    show_rnc_error(self, {
+                        statusText: 'Longitud incorrecta',
+                    }, {});
+                }
+
             } else {
                 this._super(partner);
             }
@@ -190,6 +201,45 @@ odoo.define('ncf_pos.screens', function (require) {
                 this.editing_client !== true && !this.new_client) {
                 $button.addClass('oe_hidden');
             }
+        },
+        mod11_validator: function(number) {
+            var weights = [7, 9, 8, 6, 5, 4, 3, 2];
+
+            var checkDigit = number.slice(-1);
+            number = number.slice(0, 8);
+
+            var zip = _.zip(weights, number.split(""));
+            var sum = [];
+
+            for(var i=0; i<zip.length; i++) {
+                var nx = zip[i];
+                sum.push(nx[0] * parseInt(nx[1]));
+            }
+
+            var check = _.reduce(sum, function(memo, num){ return memo + num; }, 0) % 11;
+
+            return ((10 - check) % 9 + 1) === checkDigit;
+        },
+        mod10_validator: function (value) {
+            if (/[^0-9-\s]+/.test(value)) return false;
+
+            // The Luhn Algorithm. It's so pretty.
+            var nCheck = 0, bEven = false;
+            value = value.replace(/\D/g, "");
+        
+            for (var n = value.length - 1; n >= 0; n--) {
+                var cDigit = value.charAt(n),
+                    nDigit = parseInt(cDigit, 10);
+
+                if (bEven) {
+                    if ((nDigit *= 2) > 9) nDigit -= 9;
+                }
+
+                nCheck += nDigit;
+                bEven = !bEven;
+            }
+
+            return (nCheck % 10) === 0;
         }
     });
 
