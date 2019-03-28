@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form>
                 <div class="alert alert-danger info_icon" role="alert">
-                    <span class="fa fa-warning fa-lg"/>
+                    <span class="fa fa-warning fa-lg" title="Warning" aria-label="Warning"/>
                     <p>Regenerate this report may cause data variation. Don't do that if you want to preserve equality
                         between the report you sent and the data in your system.
                     </p>

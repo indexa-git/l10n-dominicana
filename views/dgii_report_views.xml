@@ -27,7 +27,7 @@
                         <field name="previous_report_pending" invisible="1"/>
                         <group attrs="{'invisible': [('previous_report_pending', '=', False)]}">
                             <div class="alert alert-warning info_icon" role="alert">
-                                <span class="fa fa-lightbulb-o fa-lg"/>
+                                <span class="fa fa-lightbulb-o fa-lg" title="Info" aria-label="Info"/>
                                 <p>The previous report is still not marked as sent.</p>
                                 <p>Not setting a report as sent may throw inconsistencies
                                     regarding invoices withholding dates.
@@ -248,12 +248,12 @@
             <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="rnc_cedula"/>
+                <field name="rnc_cedula" widget="url"/>
                 <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
                 <field name="expense_type"/>
-                <field name="fiscal_invoice_number"/>
-                <field name="modified_invoice_number"/>
+                <field name="fiscal_invoice_number" widget="url"/>
+                <field name="modified_invoice_number" widget="url"/>
                 <field name="invoice_date"/>
                 <field name="payment_date"/>
                 <field name="service_total_amount" sum="Total"/>
@@ -281,14 +281,15 @@
         <field name="name">dgii.reports.sale.line.tree</field>
         <field name="model">dgii.reports.sale.line</field>
         <field name="arch" type="xml">
-            <tree create="false" edit="false" decoration-muted="(invoiced_amount &lt; 250000) and (identification_type == '2')">
+            <tree create="false" edit="false"
+                  decoration-muted="(invoiced_amount &lt; 250000) and (identification_type == '2')">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="rnc_cedula"/>
+                <field name="rnc_cedula" widget="url"/>
                 <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
-                <field name="fiscal_invoice_number"/>
-                <field name="modified_invoice_number"/>
+                <field name="fiscal_invoice_number" widget="url"/>
+                <field name="modified_invoice_number" widget="url"/>
                 <field name="income_type"/>
                 <field name="invoice_date"/>
                 <field name="withholding_date"/>
@@ -321,7 +322,7 @@
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="invoice_partner_id"/>
-                <field name="fiscal_invoice_number"/>
+                <field name="fiscal_invoice_number" widget="url"/>
                 <field name="invoice_date"/>
                 <field name="anulation_type"/>
             </tree>
@@ -338,7 +339,7 @@
                 <field name="line"/>
                 <field name="legal_name"/>
                 <field name="tax_id_type"/>
-                <field name="tax_id"/>
+                <field name="tax_id" widget="url"/>
                 <field name="country_code"/>
                 <field name="purchased_service_type"/>
                 <field name="service_type_detail"/>
