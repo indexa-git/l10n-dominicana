@@ -6,29 +6,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 12.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-03 00:01+0000\n"
-"PO-Revision-Date: 2019-03-02 20:10-0400\n"
+"POT-Creation-Date: 2019-03-28 18:13+0000\n"
+"PO-Revision-Date: 2019-03-28 14:20-0400\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: \n"
+"Content-Transfer-Encoding: \n"
 "Language: es_DO\n"
-"X-Generator: Poedit 2.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: dgii_reports
-#: model:ir.model.fields,help:dgii_reports.field_account_invoice_fiscal_status
+#: model:ir.model.fields,help:dgii_reports.field_account_invoice__fiscal_status
 msgid ""
 "* The 'Grey' status means ...\n"
 "* The 'Green' status means ...\n"
 "* The 'Red' status means ...\n"
 "* The blank status means that the invoice have not been included in a report."
 msgstr ""
-"* The 'Grey' status means ...\n"
-"* The 'Green' status means ...\n"
-"* The 'Red' status means ...\n"
-"* The blank status means that the invoice have not been included in a report."
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
@@ -230,19 +225,19 @@ msgid "Amount"
 msgstr "Importe"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/account_invoice.py:45
-#: code:addons/dominicana-premium/dgii_reports/models/account_invoice.py:45
+#: code:addons/dgii_reports/models/account_invoice.py:46
+#: code:addons/dominicana-premium/dgii_reports/models/account_invoice.py:46
 #, python-format
 msgid "An invoice cannot have multiple withholding taxes."
 msgstr "Una factura no puede tener múltiples retenciones"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line_anulation_type
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line__anulation_type
 msgid "Anulation Type"
-msgstr "Tipo de Cancelación"
+msgstr "Tipo de anulación"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
 msgid "Anulation type"
 msgstr "Tipo de anulación"
 
@@ -307,8 +302,8 @@ msgid "Code"
 msgstr "Código"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/account_invoice.py:19
-#: code:addons/dominicana-premium/dgii_reports/models/account_invoice.py:19
+#: code:addons/dgii_reports/models/account_invoice.py:20
+#: code:addons/dominicana-premium/dgii_reports/models/account_invoice.py:20
 #: sql_constraint:invoice.service.type.detail:0
 #, python-format
 msgid "Code must be unique"
@@ -326,9 +321,9 @@ msgstr "Resumen Facturas Consumo"
 
 #. module: dgii_reports
 #: model:ir.model,name:dgii_reports.model_res_partner
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Contact"
 msgstr "Contacto"
 
@@ -367,7 +362,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__create_date
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__create_date
 msgid "Created on"
-msgstr "Creado el"
+msgstr "Creado en"
 
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
@@ -463,7 +458,7 @@ msgstr "Reporte DGII"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__display_name
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__display_name
 msgid "Display Name"
-msgstr "Nombre a mostrar"
+msgstr "Nombre mostrado"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line__doc_date
@@ -476,26 +471,26 @@ msgid "Doc Number"
 msgstr "Número documento"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/dgii_report.py:223
-#: code:addons/dominicana-premium/dgii_reports/models/dgii_report.py:223
+#: code:addons/dgii_reports/models/dgii_report.py:224
+#: code:addons/dominicana-premium/dgii_reports/models/dgii_report.py:224
 #, python-format
 msgid "Error. Date format must be MM/YYYY"
 msgstr "Error. El formato de fecha debe ser MM/AAAA"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_expense_type
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line__expense_type
 msgid "Expense Type"
 msgstr "Tipo de gasto"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
 msgid "Expense type"
 msgstr "Tipo de gasto"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_filename
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__exterior_filename
 msgid "Exterior Filename"
-msgstr "Archivo 609"
+msgstr ""
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__exterior_invoiced_amount
@@ -614,9 +609,9 @@ msgid "Good Total Amount"
 msgstr "Facturado en Bienes"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Group By"
 msgstr "Agrupar por"
 
@@ -670,7 +665,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__id
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__id
 msgid "ID"
-msgstr ""
+msgstr "ID (identificación)"
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
@@ -678,38 +673,53 @@ msgid "ISR Withholding Type"
 msgstr "Tipo de Retención ISR"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "ISR withholding"
 msgstr "Retención ISR"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid "IT-1"
 msgstr ""
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "ITBIS withholding"
 msgstr "Retención ITBIS"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_identification_type
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_identification_type
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line__identification_type
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__identification_type
 msgid "Identification Type"
-msgstr "Tipo Identificación"
+msgstr "Tipo identificación"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Identification type"
 msgstr "Tipo identificación"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_income_type
+#: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_unread
+msgid "If checked new messages require your attention."
+msgstr "Si está marcado, hay nuevos mensajes que requieren su atención"
+
+#. module: dgii_reports
+#: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Si está marcado, hay nuevos mensajes que requieren su atención."
+
+#. module: dgii_reports
+#: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Si se encuentra marcado, algunos mensajes tienen error de envío."
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__income_type
 msgid "Income Type"
-msgstr "Tipo de Ingreso"
+msgstr "Tipo de ingreso"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice__income_withholding
@@ -725,7 +735,7 @@ msgid "Income Withholding by a third"
 msgstr "Retención Renta"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Income type"
 msgstr "Tipo de ingreso"
 
@@ -750,7 +760,7 @@ msgstr "Fecha factura"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line__invoice_partner_id
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__invoice_partner_id
 msgid "Invoice Partner"
-msgstr ""
+msgstr "Contacto"
 
 #. module: dgii_reports
 #: model:ir.model,name:dgii_reports.model_invoice_service_type_detail
@@ -762,7 +772,7 @@ msgstr "Contacto"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line__invoiced_amount
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__invoiced_amount
 msgid "Invoiced Amount"
-msgstr ""
+msgstr "Monto facturado"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__csmr_ncf_total_amount
@@ -840,7 +850,7 @@ msgstr "Última modificación en"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__write_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__write_uid
 msgid "Last Updated by"
-msgstr "Última actualización por"
+msgstr "Última actualización de"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard__write_date
@@ -852,7 +862,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__write_date
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__write_date
 msgid "Last Updated on"
-msgstr "Última actualización el"
+msgstr "Última actualización en"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__lea_income
@@ -869,7 +879,7 @@ msgstr "Razón Social"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line__legal_tip
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__legal_tip
 msgid "Legal Tip"
-msgstr ""
+msgstr "Propina legal"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__csmr_ncf_total_lgl_tip
@@ -877,16 +887,16 @@ msgid "Legal Tip Total"
 msgstr "Propina Legal"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Legal person"
-msgstr "Persona jurídica"
+msgstr "Persona Jurídica"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
-#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+#: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+#: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Legal tip amount"
-msgstr "Total Monto Propina Legal"
+msgstr "Monto propina legal"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line__line
@@ -900,6 +910,21 @@ msgstr "Linea"
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid "MM/YYYY"
 msgstr "MM/AAAA"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Adjuntos principales"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_has_error
+msgid "Message Delivery error"
+msgstr "Error de Envío de Mensaje"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_ids
+msgid "Messages"
+msgstr "Mensajes"
 
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
@@ -934,30 +959,55 @@ msgid "Not Sent"
 msgstr "No enviada"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid ""
 "Not setting a report as sent may throw inconsistencies\n"
 "                                    regarding invoices withholding dates."
 msgstr ""
 "No marcar el reporte como enviado puede arrojar inconsistencias\n"
-"                                    relativas a las fechas de retención de las facturas."
+"relativas a las fechas de retención de las facturas."
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número de acciones"
+
+#. module: dgii_reports
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_has_error_counter
+msgid "Number of error"
+msgstr "Número de error"
+
+#. module: dgii_reports
+#: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_needaction_counter
+msgid "Number of messages which requires an action"
+msgstr "Número de mensajes que requieren una acción"
+
+#. module: dgii_reports
+#: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensajes con error de envío"
+
+#. module: dgii_reports
+#: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_unread_counter
+msgid "Number of unread messages"
+msgstr "Número de mensajes no leidos"
+
+#. module: dgii_reports
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Open"
 msgstr "Abierto"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_opr_income
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__opr_income
 msgid "Operations Income (No-Financial)"
 msgstr "Ingresos por Operaciones (No Financieros)"
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
 msgid "Operations Total"
-msgstr ""
+msgstr "Total Operaciones"
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
@@ -1009,14 +1059,14 @@ msgid "Others Income"
 msgstr "Otros Ingresos"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Paid"
 msgstr "Pagado"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail_parent_code
+#: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__parent_code
 msgid "Parent Code"
 msgstr "Código padre"
 
@@ -1052,14 +1102,14 @@ msgid "Payment form"
 msgstr "Forma de pago"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
 msgid "Payment type"
-msgstr "Forma de pago"
+msgstr "Tipo de pago"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_perceived_isr
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__perceived_isr
 msgid "Perceived Isr"
-msgstr ""
+msgstr "ISR percibido"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__perceived_itbis
@@ -1072,16 +1122,16 @@ msgid "Period"
 msgstr "Periodo"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Physical person"
-msgstr "Persona física"
+msgstr "Persona Físca"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_presumed_income
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_presumed_income
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__presumed_income
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line__presumed_income
 msgid "Presumed Income"
-msgstr "Renta Presunta"
+msgstr "Renta presunta"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__previous_report_pending
@@ -1176,7 +1226,7 @@ msgid "Regenerate Report"
 msgstr "Regenerar Reporte"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_regenerate_wizard_form
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_regenerate_wizard_form
 msgid ""
 "Regenerate this report may cause data variation. Don't do that if you want to preserve equality\n"
 "                        between the report you sent and the data in your system."
@@ -1184,6 +1234,7 @@ msgstr "Regenerar este reporte puede causar variación en los datos. No haga est
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_res_partner__related
+#: model:ir.model.fields,field_description:dgii_reports.field_res_users__related
 #: selection:res.partner,related:0
 msgid "Related"
 msgstr "Relacionada"
@@ -1207,7 +1258,7 @@ msgstr "Reportada"
 #: model:ir.actions.act_window,name:dgii_reports.dgii_report_action
 #: model:ir.ui.menu,name:dgii_reports.dgii_report_menu
 msgid "Reports"
-msgstr "Reportes"
+msgstr "Informes"
 
 #. module: dgii_reports
 #: selection:account.account,account_fiscal_type:0
@@ -1218,7 +1269,7 @@ msgstr "Retención Renta"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line__rnc_cedula
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__rnc_cedula
 msgid "Rnc Cedula"
-msgstr ""
+msgstr "Rnc/Cédula"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__sale_filename
@@ -1266,30 +1317,30 @@ msgid "Sale Withholded Itbis"
 msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_cancel_line_search
 msgid "Search Cancel Line"
-msgstr "Búsqueda Líneas canceladas"
+msgstr "Búsqueda Lineas Cancelación"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
 msgid "Search Purchase Line"
-msgstr "Búsqueda Líneas de compra"
+msgstr "Búsqueda Lineas Compras"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_search
 msgid "Search Sale Line"
-msgstr "Búsqueda Líneas de venta"
+msgstr "Búsqueda Lineas Ventas"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_account_invoice_selective_tax
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_csmr_ncf_total_isc
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line_selective_tax
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line_selective_tax
-#: model:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
-#: model:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
+#: model:ir.model.fields,field_description:dgii_reports.field_account_invoice__selective_tax
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__csmr_ncf_total_isc
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_purchase_line__selective_tax
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_line__selective_tax
+#: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
+#: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "Selective Tax"
-msgstr "Selectivo al Consumo"
+msgstr "Impuesto Selectivo"
 
 #. module: dgii_reports
 #: selection:dgii.reports,state:0
@@ -1335,7 +1386,7 @@ msgstr "Estado"
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_search_view
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_tree_view
 msgid "Statements"
-msgstr "Reportes"
+msgstr "Extractos"
 
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
@@ -1390,7 +1441,7 @@ msgstr "ITBIS Retenido"
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_tree
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_tree
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_unread
@@ -1428,12 +1479,12 @@ msgid "Withheld ITBIS by a third"
 msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_exterior_line_search
 msgid "Withholded ISR"
 msgstr "ISR Retenido"
 
 #. module: dgii_reports
-#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line_withholded_isr
+#: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line__withholded_isr
 msgid "Withholded Isr"
 msgstr "ISR Retenido"
 
@@ -1460,18 +1511,18 @@ msgid "Withholding date"
 msgstr "Fecha de Retención"
 
 #. module: dgii_reports
-#: model:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_search
 msgid "Withholding type"
-msgstr "Tipo de Retención"
+msgstr "Tipo de Rentención"
 
 #. module: dgii_reports
-#: model:ir.actions.act_window,help:dgii_reports.dgii_report_action
+#: model_terms:ir.actions.act_window,help:dgii_reports.dgii_report_action
 msgid "You can create your DGII Tax Statements here."
 msgstr "Puedes crear tus declaraciones de la DGII aquí"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/dgii_report.py:56
-#: code:addons/dominicana-premium/dgii_reports/models/dgii_report.py:56
+#: code:addons/dgii_reports/models/dgii_report.py:57
+#: code:addons/dominicana-premium/dgii_reports/models/dgii_report.py:57
 #: sql_constraint:dgii.reports:0
 #, python-format
 msgid "You cannot have more than one report by period."
@@ -1480,34 +1531,4 @@ msgstr "No puede tener más de un reporte por periodo."
 #. module: dgii_reports
 #: model:ir.model,name:dgii_reports.model_dgii_reports
 msgid "dgii.reports"
-msgstr "dgii.reports"
-
-#. module: dgii_reports
-#: model:ir.model,name:dgii_reports.model_dgii_reports_cancel_line
-msgid "dgii.reports.cancel.line"
-msgstr "dgii.reports.cancel.line"
-
-#. module: dgii_reports
-#: model:ir.model,name:dgii_reports.model_dgii_reports_exterior_line
-msgid "dgii.reports.exterior.line"
-msgstr "dgii.reports.exterior.line"
-
-#. module: dgii_reports
-#: model:ir.model,name:dgii_reports.model_dgii_reports_purchase_line
-msgid "dgii.reports.purchase.line"
-msgstr "dgii.reports.purchase.line"
-
-#. module: dgii_reports
-#: model:ir.model,name:dgii_reports.model_dgii_reports_sale_line
-msgid "dgii.reports.sale.line"
-msgstr "dgii.reports.sale.line"
-
-#. module: dgii_reports
-#: model:ir.model,name:dgii_reports.model_dgii_reports_sale_summary
-msgid "dgii.reports.sale.summary"
-msgstr "dgii.reports.sale.summary"
-
-#. module: dgii_reports
-#: model:ir.model,name:dgii_reports.model_invoice_service_type_detail
-msgid "invoice.service.type.detail"
-msgstr "invoice.service.type.detail"
+msgstr ""
