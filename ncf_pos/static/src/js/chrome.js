@@ -18,6 +18,8 @@
 odoo.define('ncf_pos.chrome', function (require) {
     "use strict";
     var chrome = require("point_of_sale.chrome");
+    var core = require('web.core');
+    var _t = core._t;
 
     /* ------- Synch. Notifications ------- */
 
@@ -56,6 +58,29 @@ odoo.define('ncf_pos.chrome', function (require) {
                 self.pos.gui.show_screen('products');
             });
         }
+    });
+
+    chrome.HeaderButtonWidget.include({
+        init: function(parent, options){
+            options = options || {};
+            var super_action = _.bind(options.action, this);
+
+            options.action = function() {
+                if (this.pos.config.close_session_with_unsent_orders) {
+                    return super_action(parent, options);
+                }
+                var unsent_orders = this.pos.db.get_orders();
+                if (unsent_orders && unsent_orders.length) {
+                    return this.gui.show_popup('error', {
+                        'title': _t('Unable to close session'),
+                        'body': _t('There are some unsent orders.'),
+                    });
+                }
+                console.log('sadsadasd')
+                return super_action(parent, options);
+            }
+            this._super(parent, options);
+        },
     });
 
 });

@@ -37,6 +37,7 @@ class PosConfig(models.Model):
     order_search_criteria = fields.Many2many('pos.search_criteria', string=u"Criterios de Búsqueda")
     ncf_control = fields.Boolean(related="invoice_journal_id.ncf_control")
     seller_and_cashier_ticket = fields.Boolean("Seller and Cashier on Ticket")
+    close_session_with_unsent_orders = fields.Boolean("Allow close session with unsent Orders", default=True)
 
     @api.onchange("iface_invoicing")
     def onchange_iface_invoicing(self):

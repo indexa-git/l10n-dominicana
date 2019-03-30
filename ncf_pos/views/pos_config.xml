@@ -66,6 +66,15 @@
                     </div>
                 </div>
             </xpath>
+
+            <xpath expr="//field[@name='module_pos_restaurant']" position="after">
+                <div class="o_setting_left_pane">
+                    <field name="close_session_with_unsent_orders"/>
+                </div>
+                <div class="o_setting_right_pane">
+                    <label for="close_session_with_unsent_orders"/>
+                </div>
+            </xpath>
         </field>
     </record>
 
