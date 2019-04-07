@@ -24,7 +24,8 @@ from odoo.exceptions import UserError
 class AccountInvoiceCancel(models.TransientModel):
     """
     This wizard will cancel the all the selected invoices.
-    If in the journal, the option allow cancelling entry is not selected then it will give warning message.
+     If in the journal, the option allow cancelling entry is
+     not selected then it will give warning message.
     """
 
     _name = "account.invoice.cancel"
@@ -41,7 +42,8 @@ class AccountInvoiceCancel(models.TransientModel):
          ("08", "08 - Errores en Secuencia de NCF"),
          ("09", "09 - Por Cese de Operaciones"),
          ("10", u"10 - Pérdida o Hurto de Talonarios")],
-        string=u"Tipo de Anulación", required=True,
+        string=u"Tipo de Anulación",
+        required=True,
         default=lambda self: self._context.get('anulation_type', '04'))
 
     @api.multi
@@ -51,7 +53,9 @@ class AccountInvoiceCancel(models.TransientModel):
 
         for record in self.env['account.invoice'].browse(active_ids):
             if record.state in ('cancel', 'paid'):
-                raise UserError(_("Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Done' state."))
+                raise UserError(
+                    _("Selected invoice(s) cannot be cancelled as they are"
+                      " already in 'Cancelled' or 'Done' state."))
             record.anulation_type = self.anulation_type
             record.action_invoice_cancel()
         return {'type': 'ir.actions.act_window_close'}
