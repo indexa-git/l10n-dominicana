@@ -112,13 +112,13 @@ odoo.define('ncf_pos.screens', function (require) {
             var fieldsRequired = [];
 
             if (!name_input.val()) {
-                fieldsRequired.push({label: 'Name', elem: name_input});
+                fieldsRequired.push({ label: 'Name', elem: name_input });
             }
             if (!sale_fiscal_type) {
-                fieldsRequired.push({label: 'NCF', elem: sale_fiscal_type_ddl});
+                fieldsRequired.push({ label: 'NCF', elem: sale_fiscal_type_ddl });
             }
             if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) == -1 && !rnc) {
-                fieldsRequired.push({label: 'Tax ID', elem: rnc_input});
+                fieldsRequired.push({ label: 'Tax ID', elem: rnc_input });
             }
             if (fieldsRequired.length > 0) {
                 var fields = fieldsRequired.map(function (obj) {
@@ -136,7 +136,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     dataType: 'json',
                     type: 'GET',
                     timeout: 3000,
-                    data: {'rnc': rnc}
+                    data: { 'rnc': rnc }
                 }).done(function (data) {
                     console.info("Validando RNC con WS DGII", data);
                     if (data.is_valid === false) {
@@ -275,7 +275,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
             this.display_order_details('hide');
             orders.forEach(function (order) {
-                contents.append(QWeb.render('InvoicesLine', {widget: self, order: order}));
+                contents.append(QWeb.render('InvoicesLine', { widget: self, order: order }));
             });
         },
         close: function () {
@@ -423,10 +423,10 @@ odoo.define('ncf_pos.screens', function (require) {
                 }
                 contents.empty();
                 if (height > scroll) {
-                    contents.css({height: height + 'px'});
-                    contents.animate({height: 0}, 400,
+                    contents.css({ height: height + 'px' });
+                    contents.animate({ height: 0 }, 400,
                         function () {
-                            contents.css({height: ''});
+                            contents.css({ height: '' });
                         });
                 }
                 else
@@ -437,7 +437,7 @@ odoo.define('ncf_pos.screens', function (require) {
         }
     });
 
-    gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
+    gui.define_screen({ name: 'invoiceslist', widget: InvoicesListScreenWidget });
 
     var OrderRefundPopup = popups.extend({
         template: 'OrderRefundPopup',
@@ -714,11 +714,11 @@ odoo.define('ncf_pos.screens', function (require) {
 
             this._super(parent, options);
             this.orderValidationDate = null;
-            
+
             for (var n in this.pos.cashregisters) {
                 var currentCashRegister = this.pos.cashregisters[n];
-                 
-                if (currentCashRegister.journal.id == 10001) { 
+
+                if (currentCashRegister.journal.id == 10001) {
                     // Set the popup options for the payment method Credit Note   
                     currentCashRegister.popup_options = popup_options;
                 } else if (currentCashRegister.journal.payment_form === "card" && !currentCashRegister.credit) {
@@ -742,7 +742,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 refundContents.removeClass('oe_hidden');
                 this.$('.top-content h1').html(_t('Refund Order'));
                 refundConfirm.empty();
-                refundConfirm.append(QWeb.render('OrderRefundConfirm', {widget: this, order: order}));
+                refundConfirm.append(QWeb.render('OrderRefundConfirm', { widget: this, order: order }));
                 if (order.paymentlines.length == 0) {
                     var cashregister = this.pos.cashregisters[0];
 
@@ -838,16 +838,16 @@ odoo.define('ncf_pos.screens', function (require) {
                     method: 'get_next_ncf',
                     args: args
                 }, {
-                    timeout: 3000
-                });
+                        timeout: 3000
+                    });
 
                 dfd.done(function (next_ncf) {
                     var ncfs = self.pos.db.load('ncfs', []);
 
                     order.ncf = next_ncf;
-                    ncfs.push({validatedNcf: next_ncf, orderUid: order.uid});
+                    ncfs.push({ validatedNcf: next_ncf, orderUid: order.uid });
                     self.pos.db.save('ncfs', ncfs);
-                    console.info("Order NCF Validated", {ncf: next_ncf, uid: order.uid});
+                    console.info("Order NCF Validated", { ncf: next_ncf, uid: order.uid });
                 }).fail(function (request) {
                     order.ncf = '';
                     console.error("get_next_ncf", request);
@@ -879,27 +879,27 @@ odoo.define('ncf_pos.screens', function (require) {
                         popupErrorOptions = {
                             'title': 'Factura sin Cliente',
                             'body': 'Debe seleccionar un cliente para poder realizar el pago, o ' +
-                            'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
-                            'pida ayuda a su encargado para que lo establezca.'
+                                'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
+                                'pida ayuda a su encargado para que lo establezca.'
                         };
                     } else if (client && !client.vat) {
                         if (["fiscal", "gov", "special"].indexOf(client.sale_fiscal_type) > -1) {
                             popupErrorOptions = {
                                 'title': 'Para el tipo de comprobante',
                                 'body': 'No puede crear una factura con crédito fiscal si el cliente ' +
-                                'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
-                                'registrado correctamente si este desea comprobante fiscal.',
+                                    'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
+                                    'registrado correctamente si este desea comprobante fiscal.',
                             };
                         } else if (invoicing && order.get_total_without_tax() >= 50000) {
                             popupErrorOptions = {
                                 'title': 'Factura sin Cedula de Cliente',
                                 'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                                'es igual o mayor a RD$50,000.00 o mas',
+                                    'es igual o mayor a RD$50,000.00 o mas',
                             };
                         }
                     }
                     if (popupErrorOptions) {
-                        console.warn(popupErrorOptions.title, {message: popupErrorOptions.body});
+                        console.warn(popupErrorOptions.title, { message: popupErrorOptions.body });
                         self.gui.show_popup('error', popupErrorOptions);
                         self.orderValidationDate = null;
                     } else {
@@ -908,12 +908,12 @@ odoo.define('ncf_pos.screens', function (require) {
                                 console.info("Finishing Order Validation", new Date());
                                 self.finalize_validation();
                                 self.orderValidationDate = null;
-                            }).fail(function() {
+                            }).fail(function () {
                                 self.gui.show_popup('error', {
                                     'title': 'No se pudo realizar la conexión con el servidor',
                                     'body': 'Puede que haya intermitencia en la conexión a internet ' +
-                                            'o no haya conexion \n\n. Favor revisar la conexión a internet y' +
-                                            ' valide la orden nuevamente.\n\n'
+                                        'o no haya conexion \n\n. Favor revisar la conexión a internet y' +
+                                        ' valide la orden nuevamente.\n\n'
                                 });
                             });
                     }
@@ -934,7 +934,7 @@ odoo.define('ncf_pos.screens', function (require) {
 
                     //Evaluamos si es una forma de pago especial que abre un popup
                     if (cashregister.journal_id[0] === id && cashregister.popup_options) {
-                        var popup_options = _.extend(_.clone(cashregister.popup_options), {cashregister: cashregister});
+                        var popup_options = _.extend(_.clone(cashregister.popup_options), { cashregister: cashregister });
                         this.gui.show_popup(popup_options.popup_name || 'alert', popup_options);
                         return false;
                     }
@@ -986,22 +986,22 @@ odoo.define('ncf_pos.screens', function (require) {
                     popupErrorOptions = {
                         'title': 'Factura sin Cliente',
                         'body': 'Debe seleccionar un cliente para poder realizar el pago, o ' +
-                        'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
-                        'pida ayuda a su encargado para que lo establezca.'
+                            'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
+                            'pida ayuda a su encargado para que lo establezca.'
                     };
                 } else if (client && !client.vat) {
                     if (["fiscal", "gov", "special"].indexOf(client.sale_fiscal_type) > -1) {
                         popupErrorOptions = {
                             'title': 'Para el tipo de comprobante',
                             'body': 'No puede crear una factura con crédito fiscal si el cliente ' +
-                            'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
-                            'registrado correctamente si este desea comprobante fiscal.',
+                                'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
+                                'registrado correctamente si este desea comprobante fiscal.',
                         };
                     } else if (invoicing && order.get_total_without_tax() >= 250000) {
                         popupErrorOptions = {
                             'title': 'Factura sin Cedula de Cliente',
                             'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                            'es igual o mayor a RD$50,000.00 o mas',
+                                'es igual o mayor a RD$50,000.00 o mas',
                         };
                     }
                 }

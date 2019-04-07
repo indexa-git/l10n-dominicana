@@ -33,16 +33,12 @@
     'author': "Marcos SRL, "
               "iterativo SRL",
     'category': 'Localization',
-
     'external_dependencies': {
-        'python': [
-            'stdnum.do',
-        ],
+        'python': ['stdnum.do'],
     },
 
     # any module necessary for this one to work correctly
     'depends': ['account', 'l10n_do', 'account_cancel'],
-
     'data': [
         'security/ir.model.access.csv',
         'wizard/account_invoice_cancel_view.xml',
@@ -53,14 +49,7 @@
         'views/assets_backend.xml',
         'views/ir_sequence_view.xml',
         'views/res_view.xml',
-
     ],
-
-    'demo': [
-        'demo/res_partner_demo.xml',
-    ],
-
-    'qweb': [
-        'static/src/xml/ncf_manager.xml'
-    ]
+    'demo': ['demo/res_partner_demo.xml'],
+    'qweb': ['static/src/xml/ncf_manager.xml']
 }

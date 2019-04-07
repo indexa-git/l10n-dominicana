@@ -27,7 +27,7 @@ _logger = logging.getLogger(__name__)
 
 try:
     import openpyxl
-except(ImportError, IOError) as err:
+except (ImportError, IOError) as err:
     _logger.debug(err)
 
 CURRENCY_DISPLAY_PATTERN = re.compile(r'(\w+)\s*(?:\((.*)\))?')
@@ -37,26 +37,28 @@ class Currency(models.Model):
     _inherit = "res.currency"
 
     bc_rate_xls = fields.Binary(string=u"Histórico en Excel de Tasas del Banco"
-                                       " Central")
+                                " Central")
 
     @api.multi
     def update_rate_from_files(self):
-        month_dict = {"Ene": "01",
-                      "Feb": "02",
-                      "Mar": "03",
-                      "Abr": "04",
-                      "May": "05",
-                      "Jun": "06",
-                      "Jul": "07",
-                      "Ago": "08",
-                      "Sep": "09",
-                      "Sept": "09",
-                      "Oct": "10",
-                      "Nov": "11",
-                      "Dic": "12"
-                      }
+        month_dict = {
+            "Ene": "01",
+            "Feb": "02",
+            "Mar": "03",
+            "Abr": "04",
+            "May": "05",
+            "Jun": "06",
+            "Jul": "07",
+            "Ago": "08",
+            "Sep": "09",
+            "Sept": "09",
+            "Oct": "10",
+            "Nov": "11",
+            "Dic": "12"
+        }
 
-        self.env["res.currency.rate"].search([('currency_id', '=', 3)]).unlink()
+        self.env["res.currency.rate"].search([('currency_id', '=', 3)
+                                              ]).unlink()
 
         file = base64.b64decode(self.bc_rate_xls)
         excel_fileobj = TemporaryFile('wb+')
@@ -77,20 +79,26 @@ class Currency(models.Model):
             day = str(row[2].value).zfill(2)
             name = "{}-{}-{}".format(year, month, day)
             rate = float(row[4].value)
-            self.env["res.currency.rate"].create({"name": name, "rate": 1 / rate, "currency_id": 3})
+            self.env["res.currency.rate"].create({
+                "name": name,
+                "rate": 1 / rate,
+                "currency_id": 3
+            })
             _logger.info("USD rate created {}".format(name))
 
     @api.multi
     def _compute_current_rate(self):
         """
         Orveride native because whan to show rate_id on invoice to be shure
-         and do not search rate by datetime just by date because RD have rate by day
+         and do not search rate by datetime just by date because RD have rate
+         by day.
         :return:
         """
         date = self._context.get('date') or fields.Datetime.now()
         company_id = self._context.get(
             'company_id') or self.env['res.users']._get_company().id
-        # the subquery selects the last rate before 'date' for the given currency/company
+        # the subquery selects the last rate before 'date' for the given
+        # currency/company
         query = """SELECT c.id, (
             SELECT r.rate FROM res_currency_rate r
             WHERE r.currency_id = c.id AND r.name::date <= %s
@@ -140,4 +148,5 @@ class CurrencyRate(models.Model):
         return result
 
     rate = fields.Float(
-        digits=(12, 12), help='The rate of the currency to the currency of rate 1')
+        digits=(12, 12),
+        help='The rate of the currency to the currency of rate 1')

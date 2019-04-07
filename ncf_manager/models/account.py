@@ -24,8 +24,8 @@ class AccountJournal(models.Model):
     _inherit = "account.journal"
 
     @api.depends("ncf_control")
-    @api.one
     def check_ncf_ready(self):
+        self.ensure_one()
         self.ncf_ready = len(self.date_range_ids) > 1
 
     purchase_type = fields.Selection(
@@ -35,7 +35,8 @@ class AccountJournal(models.Model):
          ("exterior", "Remesas al Exterior"),
          ("import", "Importaciones"),
          ("others", "Otros (sin NCF)")],
-        string="Tipo de Compra", default="others")
+        string="Tipo de Compra",
+        default="others")
 
     payment_form = fields.Selection(
         [("cash", "Efectivo"),
@@ -45,16 +46,23 @@ class AccountJournal(models.Model):
          ("swap", "Permuta"),
          ("bond", "Bonos o Certificados de Regalo"),
          ("others", "Otras Formas de Venta")],
-        string="Forma de Pago", oldname="ipf_payment_type")
+        string="Forma de Pago",
+        oldname="ipf_payment_type")
 
     ncf_remote_validation = fields.Boolean("Validar con DGII", default=False)
 
-    ncf_control = fields.Boolean(related="sequence_id.ncf_control", readonly=False)
+    ncf_control = fields.Boolean(related="sequence_id.ncf_control",
+                                 readonly=False)
     prefix = fields.Char(related="sequence_id.prefix", readonly=False)
-    date_range_ids = fields.One2many(related="sequence_id.date_range_ids", readonly=False)
+    date_range_ids = fields.One2many(related="sequence_id.date_range_ids",
+                                     readonly=False)
     ncf_ready = fields.Boolean(compute=check_ncf_ready)
-    special_fiscal_position_id = fields.Many2one("account.fiscal.position", string=u"Posición fiscal para regímenes especiales.",
-                                                 help=u"Define la posición fiscal por defecto para los clientes que tienen definido el tipo de comprobante fiscal regímenes especiales.")
+    special_fiscal_position_id = fields.Many2one(
+        "account.fiscal.position",
+        string=u"Posición fiscal para regímenes especiales.",
+        help=u"Define la posición fiscal por defecto para los clientes que \
+               tienen definido el tipo de comprobante fiscal regímenes \
+               especiales.")
 
     @api.onchange("type")
     def onchange_type(self):
@@ -64,10 +72,13 @@ class AccountJournal(models.Model):
     @api.multi
     def create_ncf_sequence(self):
         if self.ncf_control and len(self.sequence_id.date_range_ids) <= 1:
-            # this method read Selection values from res.partner sale_fiscal_type fields
-            selection = self.env["ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
+            # this method read Selection values from res.partner
+            # sale_fiscal_type fields
+            selection = self.env[
+                "ir.sequence.date_range"].get_sale_fiscal_type_from_partner()
             for sale_fiscal_type in selection:
-                self.sequence_id.date_range_ids[0].copy({'sale_fiscal_type': sale_fiscal_type[0]})
+                self.sequence_id.date_range_ids[0].copy(
+                    {'sale_fiscal_type': sale_fiscal_type[0]})
 
             self.sequence_id.date_range_ids.invalidate_cache()
 
@@ -81,20 +92,17 @@ class AccountTax(models.Model):
          ('isr', 'ISR Retenido'),
          ('rext', 'Remesas al Exterior (Ley 253-12)'),
          ('none', 'No Deducible')],
-        default="none", string="Tipo de Impuesto en Compra"
-    )
+        default="none",
+        string="Tipo de Impuesto en Compra")
 
     isr_retention_type = fields.Selection(
-        [('01', 'Alquileres'),
-         ('02', 'Honorarios por Servicios'),
-         ('03', 'Otras Rentas'),
-         ('04', 'Rentas Presuntas'),
+        [('01', 'Alquileres'), ('02', 'Honorarios por Servicios'),
+         ('03', 'Otras Rentas'), ('04', 'Rentas Presuntas'),
          ('05', u'Intereses Pagados a Personas Jurídicas'),
          ('06', u'Intereses Pagados a Personas Físicas'),
          ('07', u'Retención por Proveedores del Estado'),
          ('08', u'Juegos Telefónicos')],
-        string="Tipo de Retención en ISR"
-    )
+        string="Tipo de Retención en ISR")
 
 
 class AccountAccount(models.Model):
@@ -112,8 +120,7 @@ class AccountAccount(models.Model):
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
          ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
-         ('03', '03 - Arrendamientos'),
-         ('04', '04 - Gastos de Activos Fijos'),
+         ('03', '03 - Arrendamientos'), ('04', '04 - Gastos de Activos Fijos'),
          ('05', u'05 - Gastos de Representación'),
          ('06', '06 - Otras Deducciones Admitidas'),
          ('07', '07 - Gastos Financieros'),

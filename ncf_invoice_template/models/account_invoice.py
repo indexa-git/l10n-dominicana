@@ -45,8 +45,10 @@ class AccountInvoiceLine(models.Model):
         tax_lst = taxes['taxes']
         if tax_lst:
             itbis_amount = sum([
-                tax['amount'] for tax in tax_lst
-                if str(self._get_tax_group_name(tax['id'])).startswith('ITBIS') and tax['amount'] > 0
+                tax['amount']
+                for tax in tax_lst
+                if str(self._get_tax_group_name(tax['id'])).startswith('ITBIS')
+                and tax['amount'] > 0
             ])
 
         return itbis_amount

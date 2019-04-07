@@ -83,7 +83,7 @@
         },
         select: function () {
             var $selectedItem = this.$menu.find('.active');
-            if($selectedItem.length) {
+            if ($selectedItem.length) {
                 var value = $selectedItem.attr('data-value');
                 var text = this.$menu.find('.active a').text();
 
@@ -113,7 +113,7 @@
                 left: pos.left
             });
 
-            if(this.options.alignWidth) {
+            if (this.options.alignWidth) {
                 var width = $(this.$element[0]).outerWidth();
                 this.$menu.css({
                     width: width
@@ -228,7 +228,7 @@
                 }
                 //Bhanu added a custom message- Result not Found when no result is found
                 if (items.length == 0) {
-                    items[0] = {'id': -21, 'name': "Result not Found"}
+                    items[0] = { 'id': -21, 'name': "Result not Found" }
                 }
                 return that.render(items.slice(0, that.options.items)).show();
             }
@@ -278,7 +278,7 @@
                 return i[0];
             });
 
-            if(that.autoSelect){
+            if (that.autoSelect) {
                 items.first().addClass('active');
             }
 
@@ -454,7 +454,7 @@
             if (!this.focused && this.shown)
                 this.hide()
         },
-        destroy: function() {
+        destroy: function () {
             this.$element
                 .off('focus', $.proxy(this.focus, this))
                 .off('blur', $.proxy(this.blur, this))

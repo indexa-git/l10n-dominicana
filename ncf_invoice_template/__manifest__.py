@@ -23,16 +23,10 @@
     Este modulo sobre escribe el formato de las facturas para adaptarlo a la
     Norma General 06-2018 de la DGII.
     """,
-    'description': """
-    Adapta el formato de las facturas a la Norma General 06-2018 de la DGII.
-    """,
     'author': "Yasmany Castillo, "
               "iterativo SRL",
     'category': 'Localization',
     'version': '12.0.2.0.0',
     'depends': ['web', 'ncf_manager'],
-
-    'data': [
-        'report/report_invoice.xml',
-    ],
+    'data': ['report/report_invoice.xml'],
 }

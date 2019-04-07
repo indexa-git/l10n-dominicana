@@ -27,7 +27,7 @@ $(function () {
          * @returns {(array|object)} the handler or object array of the events
          * created to a jQuery object
          */
-        getEvent: function (eventName, index=-1) {
+        getEvent: function (eventName, index = -1) {
             var events;
 
             if (!this.length) {

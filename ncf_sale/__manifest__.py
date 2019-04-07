@@ -24,21 +24,15 @@
     """,
     'author': "Yasmany Castillo",
     'category': 'Localization',
-
     'external_dependencies': {
-        'python': [
-            'stdnum.do',
-        ],
+        'python': ['stdnum.do'],
     },
 
     # any module necessary for this one to work correctly
     'depends': ['ncf_manager', 'sale_management'],
-
     'data': [
         'security/ir.model.access.csv',
         'views/sale_order_view.xml',
-
     ],
-    'qweb': [
-    ]
+    'qweb': []
 }

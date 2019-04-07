@@ -115,8 +115,8 @@ odoo.define('ncf_pos.models', function (require) {
             });
         }
     }], {
-        'after': 'product.product'
-    });
+            'after': 'product.product'
+        });
     models.load_models([{
         label: "Custom Account Journal",
         loaded: function (self, tmp) {
@@ -131,7 +131,7 @@ odoo.define('ncf_pos.models', function (require) {
             cashregister_credit_note = $.extend(cashregister_credit_note, {
                 id: 10001,
                 journal_id: [10001, 'Nota de Credito'],
-                journal: {type: 'cash', id: 10001, sequence: 10001},
+                journal: { type: 'cash', id: 10001, sequence: 10001 },
                 css_class: 'altlight',
                 show_popup: true,
                 popup_name: 'textinput',
@@ -143,18 +143,18 @@ odoo.define('ncf_pos.models', function (require) {
             self.cashregisters_by_id[cashregister_credit_note.id] = cashregister_credit_note;
         }
     }], {
-        'after': 'account.journal'
-    });
+            'after': 'account.journal'
+        });
     models.load_models([{
         label: 'Search Criteria',
         model: 'pos.search_criteria',
         fields: ['id', 'name', 'criteria'],
         loaded: function (self, criterias) {
             _.each(self.config.order_search_criteria, function (criteria_id, index) {
-                self.config.order_search_criteria[index] = _.findWhere(criterias, {id: criteria_id}).criteria;
+                self.config.order_search_criteria[index] = _.findWhere(criterias, { id: criteria_id }).criteria;
             });
         }
-    }], {'after': 'pos.config'})
+    }], { 'after': 'pos.config' })
 
     var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
@@ -268,8 +268,8 @@ odoo.define('ncf_pos.models', function (require) {
             var date = new Date(),
                 time = new Date(),
                 timezone = 'es-ES',
-                dateOptions = {day: '2-digit', month: '2-digit', year: 'numeric'},
-                timeOptions = {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true};
+                dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' },
+                timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
 
             return {
                 date: date.toLocaleDateString(timezone, dateOptions),
