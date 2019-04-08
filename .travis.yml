@@ -21,6 +21,7 @@ env:
 
 install:
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
+  - find ${HOME}/maintainer-quality-tools/travis/cfg -name travis_run_pylint_pr.cfg -exec sed -i "s/manifest-required-author//g" {} \;
   - export PATH=${HOME}/maintainer-quality-tools/travis:$PATH
   - travis_install_nightly
 
