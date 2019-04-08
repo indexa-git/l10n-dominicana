@@ -21,19 +21,16 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
-
 {
     'name': "NCF POS",
-
     'summary': """
         Incorpora funcionalidades de facturación con NCF al POS
         """,
-
     'author': "Marcos SRL, "
               "iterativo SRL, "
               "Grupo Neotec SRL",
     'category': 'Localization',
-    'version': '11.0.0.2.0',
+    'version': '11.0.1.0.0',
 
     # any module necessary for this one to work correctly
     'depends': ['ncf_manager', 'point_of_sale'],

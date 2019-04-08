@@ -25,10 +25,6 @@
     'author': "iterativo SRL, "
               "Manuel Marquez",
     'category': 'Localization',
-
     'depends': ['ncf_manager', 'purchase'],
-
-    'data': [
-        'views/res_partner_views.xml',
-    ],
+    'data': ['views/res_partner_views.xml'],
 }
