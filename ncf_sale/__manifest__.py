@@ -23,6 +23,7 @@
         para realizar algunas validaciones antes de crear la factura.
     """,
     'author': "Yasmany Castillo",
+    'license': 'LGPL-3',
     'category': 'Localization',
     'external_dependencies': {
         'python': ['stdnum.do'],

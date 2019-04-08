@@ -24,6 +24,7 @@
     """,
     'author': "iterativo SRL, "
               "Manuel Marquez",
+    'license': 'LGPL-3',
     'category': 'Localization',
     'depends': ['ncf_manager', 'purchase'],
     'data': ['views/res_partner_views.xml'],

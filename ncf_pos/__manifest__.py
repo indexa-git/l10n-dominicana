@@ -29,6 +29,7 @@
     'author': "Marcos SRL, "
               "iterativo SRL, "
               "Grupo Neotec SRL",
+    'license': 'LGPL-3',
     'category': 'Localization',
     'version': '11.0.1.0.0',
 

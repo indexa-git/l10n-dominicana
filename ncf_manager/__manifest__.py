@@ -32,6 +32,7 @@
     """,
     'author': "Marcos SRL, "
               "iterativo SRL",
+    'license': 'LGPL-3',
     'category': 'Localization',
     'external_dependencies': {
         'python': ['stdnum.do'],
