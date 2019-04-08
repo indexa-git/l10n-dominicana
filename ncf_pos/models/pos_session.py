@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
-from odoo import api, fields, models, SUPERUSER_ID, _
-from odoo.exceptions import UserError, ValidationError
+from odoo import models, _
+from odoo.exceptions import UserError
 
 
 class PosSession(models.Model):
