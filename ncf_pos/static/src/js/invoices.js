@@ -27,7 +27,7 @@ odoo.define('ncf_pos.invoices', function (require) {
         button_click: function () {
             this.pos.get_orders_from_server();
             this.gui.show_screen('invoiceslist');
-        }
+        },
     });
 
     screens.define_action_button({
@@ -35,6 +35,6 @@ odoo.define('ncf_pos.invoices', function (require) {
         'widget': QueryInvoicesButton,
         'condition': function () {
             return true;
-        }
+        },
     });
 });
