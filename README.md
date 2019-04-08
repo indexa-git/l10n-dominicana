@@ -1,6 +1,6 @@
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/odoo-dominicana/l10n-dominicana.svg?columns=all)](https://waffle.io/odoo-dominicana/l10n-dominicana)
-
-[![Throughput Graph](https://graphs.waffle.io/odoo-dominicana/l10n-dominicana/throughput.svg)](https://waffle.io/odoo-dominicana/l10n-dominicana/metrics/throughput)
+[![License: AGPL-3](https://img.shields.io/badge/licence-LGPL--3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
+[![Build Status](https://travis-ci.org/odoo-dominicana/l10n-dominicana.svg?branch=11.0)](https://travis-ci.org/odoo-dominicana/l10n-dominicana)
+[![codecov](https://codecov.io/gh/odoo-dominicana/l10n-dominicana/branch/11.0/graph/badge.svg)](https://codecov.io/gh/odoo-dominicana/l10n-dominicana)
 
 # Localización RD para Facturación Fiscal
 
