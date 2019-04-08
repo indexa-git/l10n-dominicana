@@ -25,15 +25,17 @@ class InvoiceNCFSequenceTest(TransactionCase):
         super(InvoiceNCFSequenceTest, self).setUp()
 
         self.inv_obj = self.env['account.invoice']
-        self.payment_term = self.env.ref('account.account_payment_term_immediate')
+        self.payment_term = self.env.ref(
+            'account.account_payment_term_immediate')
         self.account = self.env.ref('l10n_do.1_do_niif_11030201')
 
         # Setup Fiscal journal
-        self.journal = self.env['account.journal'].create(
-            {'name': 'Sale Journal',
-             'type': 'sale',
-             'ncf_control': True,
-             'code': 'SJ'})
+        self.journal = self.env['account.journal'].create({
+            'name': 'Sale Journal',
+            'type': 'sale',
+            'ncf_control': True,
+            'code': 'SJ'
+        })
         self.journal.ncf_control = True
         self.journal.create_ncf_sequence()
 
@@ -41,29 +43,33 @@ class InvoiceNCFSequenceTest(TransactionCase):
         self.product_service = self.env.ref('product.product_product_1')
 
         self.invoice_line_ids = [
-                (0, 0,
-                 {
-                     'product_id': self.product_consu.id,
-                     'quantity': 10.0,
-                     'account_id': self.env['account.account'].search(
-                         [('user_type_id', '=', self.env.ref('account.data_account_type_revenue').id)], limit=1).id,
-                     'name': 'test product consu',
-                     'price_unit': 100.00,
-                     'invoice_line_tax_ids': [(4, self.env.ref('l10n_do.1_tax_18_sale').id)]
-                 }
-                 ),
-                (0, 0,
-                 {
-                     'product_id': self.product_service.id,
-                     'quantity': 10.0,
-                     'account_id': self.env['account.account'].search(
-                         [('user_type_id', '=', self.env.ref('account.data_account_type_revenue').id)], limit=1).id,
-                     'name': 'test product consu',
-                     'price_unit': 100.00,
-                     'invoice_line_tax_ids': [(4, self.env.ref('l10n_do.1_tax_18_sale').id)]
-                 }
-                 )
-            ]
+            (0, 0, {
+                'product_id': self.product_consu.id,
+                'quantity': 10.0,
+                'account_id': self.env['account.account'].search(
+                    [('user_type_id', '=',
+                      self.env.ref('account.data_account_type_revenue').id)],
+                    limit=1).id,
+                'name': 'test product consu',
+                'price_unit': 100.00,
+                'invoice_line_tax_ids': [
+                    (4, self.env.ref('l10n_do.1_tax_18_sale').id)
+                ]
+            }),
+            (0, 0, {
+                'product_id': self.product_service.id,
+                'quantity': 10.0,
+                'account_id': self.env['account.account'].search(
+                    [('user_type_id', '=',
+                      self.env.ref('account.data_account_type_revenue').id)],
+                    limit=1).id,
+                'name': 'test product consu',
+                'price_unit': 100.00,
+                'invoice_line_tax_ids': [
+                    (4, self.env.ref('l10n_do.1_tax_18_sale').id)
+                ]
+            })
+        ]
 
         self.fiscal_partners = [
             self.env.ref('ncf_manager.res_partner_demo_1'),
@@ -87,7 +93,10 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.env.ref('ncf_manager.res_partner_demo_10')
         ]
 
-        self.sale_fiscal_type = [t[0] for t in self.env["res.partner"]._fields['sale_fiscal_type'].selection]
+        self.sale_fiscal_type = [
+            t[0] for t in
+            self.env["res.partner"]._fields['sale_fiscal_type'].selection
+        ]
 
     def test_journal(self):
         """ Fiscal Journal tests """
@@ -96,7 +105,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
         assert self.journal
 
         # Check if ncf_control = True
-        self.assertTrue(self.journal.ncf_control, "Journal has not ncf_control activated")
+        self.assertTrue(self.journal.ncf_control,
+                        "Journal has not ncf_control activated")
 
         sequence_id = self.journal.sequence_id
 
@@ -104,9 +114,12 @@ class InvoiceNCFSequenceTest(TransactionCase):
         self.assertEquals(self.journal.ncf_control, sequence_id.ncf_control)
 
         # Check if all sale_fiscal_type sequence created
-        self.assertEquals(len([x for x in sequence_id.date_range_ids
-                               if x.sale_fiscal_type in self.sale_fiscal_type]),
-                          len(self.sale_fiscal_type), "Not all sequence date range created.")
+        self.assertEquals(
+            len([
+                x for x in sequence_id.date_range_ids
+                if x.sale_fiscal_type in self.sale_fiscal_type
+            ]), len(self.sale_fiscal_type),
+            "Not all sequence date range created.")
 
     def test_fiscal_invoices(self):
         """ Credito Fiscal NCF tests """
@@ -136,7 +149,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             date_range_id = self.env['ir.sequence.date_range'].search([
                 ('sale_fiscal_type', '=', partner_id.sale_fiscal_type),
-                ('sequence_id', '=', self.journal.sequence_id.id)])
+                ('sequence_id', '=', self.journal.sequence_id.id)
+            ])
 
             # Check if there is only one date_rage for this sale_fiscal_type
             self.assertEquals(len(date_range_id), 1)
@@ -145,7 +159,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B01')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]),
+                              date_range_id.number_next - 1)
 
     def test_final_invoices(self):
         """ Consumo NCF tests """
@@ -175,7 +190,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             date_range_id = self.env['ir.sequence.date_range'].search([
                 ('sale_fiscal_type', '=', partner_id.sale_fiscal_type),
-                ('sequence_id', '=', self.journal.sequence_id.id)])
+                ('sequence_id', '=', self.journal.sequence_id.id)
+            ])
 
             # Check if there is only one date_rage for this sale_fiscal_type
             self.assertEquals(len(date_range_id), 1)
@@ -184,7 +200,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B02')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]),
+                              date_range_id.number_next - 1)
 
     def test_gov_invoices(self):
         """ Gubernamentales NCF tests """
@@ -214,7 +231,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             date_range_id = self.env['ir.sequence.date_range'].search([
                 ('sale_fiscal_type', '=', partner_id.sale_fiscal_type),
-                ('sequence_id', '=', self.journal.sequence_id.id)])
+                ('sequence_id', '=', self.journal.sequence_id.id)
+            ])
 
             # Check if there is only one date_rage for this sale_fiscal_type
             self.assertEquals(len(date_range_id), 1)
@@ -223,7 +241,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B15')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]),
+                              date_range_id.number_next - 1)
 
     def test_special_invoices(self):
         """ Regimenes Especiales NCF tests """
@@ -253,7 +272,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             date_range_id = self.env['ir.sequence.date_range'].search([
                 ('sale_fiscal_type', '=', partner_id.sale_fiscal_type),
-                ('sequence_id', '=', self.journal.sequence_id.id)])
+                ('sequence_id', '=', self.journal.sequence_id.id)
+            ])
 
             # Check if there is only one date_rage for this sale_fiscal_type
             self.assertEquals(len(date_range_id), 1)
@@ -262,7 +282,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B14')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]),
+                              date_range_id.number_next - 1)
 
     def test_unico_invoices(self):
         """ Unico Ingreso NCF tests """
@@ -292,7 +313,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             date_range_id = self.env['ir.sequence.date_range'].search([
                 ('sale_fiscal_type', '=', 'unico'),
-                ('sequence_id', '=', self.journal.sequence_id.id)])
+                ('sequence_id', '=', self.journal.sequence_id.id)
+            ])
 
             # Check if there is only one date_rage for this sale_fiscal_type
             self.assertEquals(len(date_range_id), 1)
@@ -301,7 +323,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(str(invoice_id.reference)[:3], 'B12')
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]),
+                              date_range_id.number_next - 1)
 
     def test_cross_fiscal_type_invoices(self):
         """ Cross Fiscal Type NCF tests """
@@ -334,20 +357,25 @@ class InvoiceNCFSequenceTest(TransactionCase):
             })
 
             # Check invoice sale_fiscal_type = partner sale_fiscal_type
-            self.assertEquals(invoice_id.sale_fiscal_type, partner_id.sale_fiscal_type)
+            self.assertEquals(invoice_id.sale_fiscal_type,
+                              partner_id.sale_fiscal_type)
 
             # Validate invoice
             invoice_id.action_invoice_open()
 
             date_range_id = self.env['ir.sequence.date_range'].search([
                 ('sale_fiscal_type', '=', invoice_id.sale_fiscal_type),
-                ('sequence_id', '=', self.journal.sequence_id.id)])
+                ('sequence_id', '=', self.journal.sequence_id.id)
+            ])
 
             # Check if there is only one date_rage for this sale_fiscal_type
             self.assertEquals(len(date_range_id), 1)
 
             # Check if current sale_fiscal_type NCF
-            self.assertEquals(str(invoice_id.reference)[:3], ncf_prefix_map[invoice_id.sale_fiscal_type])
+            self.assertEquals(
+                str(invoice_id.reference)[:3],
+                ncf_prefix_map[invoice_id.sale_fiscal_type])
 
             # Check date_range sequence
-            self.assertEquals(int(str(invoice_id.reference)[3:]), date_range_id.number_next - 1)
+            self.assertEquals(int(str(invoice_id.reference)[3:]),
+                              date_range_id.number_next - 1)
