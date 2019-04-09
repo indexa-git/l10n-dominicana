@@ -28,7 +28,7 @@ odoo.define('ncf_pos.db', function (require) {
             if (partner.vat) {
                 str += '|' + partner.vat;
             }
-             return str + '\n';
-        }
+            return str + '\n';
+        },
     });
 });
