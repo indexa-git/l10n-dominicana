@@ -30,6 +30,6 @@ class PosBoxOut(PosBox):
         pos_session = self.env[data['active_model']].browse(data['active_id'])
         date = pos_session.start_at
         res.update({
-            'name': pos_session.config_id.name + ' ' + date
+            'name': pos_session.config_id.name + ' ' + str(date)
         })
         return res
