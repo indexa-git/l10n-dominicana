@@ -22,5 +22,5 @@ class PosSearchCriteria(models.Model):
     _name = "pos.search_criteria"
     _description = "Criterias used to search invoices"
 
-    name = fields.Char("Name")
-    criteria = fields.Char("Criteria")
+    name = fields.Char()
+    criteria = fields.Char()

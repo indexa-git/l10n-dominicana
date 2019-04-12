@@ -17,15 +17,15 @@ odoo.define('ncf_manager.ncf_manager', function (require) {
                     $rnc.val(ui.item.rnc).trigger("change");
 
                     return false;
-                }
+                },
             });
-        }
+        },
     });
 
     field_registry.add('dgii_autocomplete', FieldDgiiAutoComplete);
 
     return {
-        FieldDgiiAutoComplete: FieldDgiiAutoComplete
+        FieldDgiiAutoComplete: FieldDgiiAutoComplete,
     };
 
 });
