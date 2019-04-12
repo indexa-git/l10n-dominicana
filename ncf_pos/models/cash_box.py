@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
-import datetime
 from odoo.addons.point_of_sale.wizard.pos_box import PosBox
 from odoo import api
 
