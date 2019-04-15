@@ -173,9 +173,13 @@ class AccountInvoice(models.Model):
                 if payment_id.journal_id.type in ['cash', 'bank']:
                     p_string = payment_id.journal_id.payment_form
 
+            move_id = self.env['account.move'].browse(payment.get('move_id'))
+            if move_id:
+                p_string = 'swap'
+
             # If invoice is paid, but the payment doesn't come from
             # a journal, assume it is a credit note
-            payment = p_string if payment_id else 'credit_note'
+            payment = p_string if payment_id or move_id else 'credit_note'
             payments.append(payment)
 
         methods = {p for p in payments}
