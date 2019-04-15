@@ -81,7 +81,7 @@ class AccountInvoice(models.Model):
 
                 # ITBIS sujeto a proporcionalidad
                 inv.proportionality_tax = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
-                    lambda tax: tax.account_id.account_fiscal_type == 'A29').mapped('amount')))
+                    lambda tax: tax.account_id.account_fiscal_type in ['A29', 'A30']).mapped('amount')))
 
                 # ITBIS llevado al Costo
                 inv.cost_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
@@ -219,12 +219,12 @@ class AccountInvoice(models.Model):
                         # ITBIS Retenido por Terceros
                         inv.third_withheld_itbis = self._convert_to_local_currency(
                             inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                      if move_line.account_id.account_fiscal_type == 'A36']))
+                                      if move_line.account_id.account_fiscal_type in ['A34', 'A36']]))
 
                         # Retención de Renta por Terceros
                         inv.third_income_withholding = self._convert_to_local_currency(
                             inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                      if move_line.account_id.account_fiscal_type == 'ISR']))
+                                      if move_line.account_id.account_fiscal_type in ['ISR', 'A38']]))
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')
