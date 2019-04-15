@@ -253,8 +253,6 @@ class DgiiReport(models.Model):
             invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += ExteriorLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            for inv in invoice_ids:
-                inv.fiscal_status = False
         return super(DgiiReport, self).unlink()
 
     def _get_pending_invoices(self):
@@ -381,7 +379,7 @@ class DgiiReport(models.Model):
             line = 0
             report_data = ''
             for inv in invoice_ids:
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 values = {
@@ -610,7 +608,7 @@ class DgiiReport(models.Model):
             for inv in invoice_ids:
                 op_dict = self._process_op_dict(op_dict, inv)
                 income_dict = self._process_income_dict(income_dict, inv)
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.sale_fiscal_type != 'unico' else self.formated_rnc_cedula(inv.company_id.vat)
                 payments = self._get_sale_payments_forms(inv)
                 values = {
@@ -715,7 +713,7 @@ class DgiiReport(models.Model):
             line = 0
             report_data = ''
             for inv in invoice_ids:
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
                 values = {
                     'dgii_report_id': rec.id,
@@ -782,7 +780,7 @@ class DgiiReport(models.Model):
             line = 0
             report_data = ''
             for inv in invoice_ids:
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
                 values = {
                     'dgii_report_id': rec.id,
