@@ -241,20 +241,6 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
-    @api.multi
-    def unlink(self):
-        """When report is deleted, set all implied invoices fiscal_status to False"""
-        for report in self:
-            PurchaseLine = self.env['dgii.reports.purchase.line']
-            SaleLine = self.env['dgii.reports.sale.line']
-            CancelLine = self.env['dgii.reports.cancel.line']
-            ExteriorLine = self.env['dgii.reports.exterior.line']
-            invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            invoice_ids += ExteriorLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-        return super(DgiiReport, self).unlink()
-
     def _get_pending_invoices(self):
         return self.env['account.invoice'].search([('fiscal_status', '=', 'normal'), ('state', '=', 'paid')])
 
