@@ -213,18 +213,33 @@ class AccountInvoice(models.Model):
     def _compute_third_withheld(self):
         for inv in self:
             if inv.state == 'paid':
+                witheld_itbis_types = ['A34', 'A36']
+                witheld_isr_types = ['ISR', 'A38']
                 for payment in self._get_invoice_payment_widget(inv):
                     payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
                     if payment_id:
                         # ITBIS Retenido por Terceros
                         inv.third_withheld_itbis = self._convert_to_local_currency(
                             inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                      if move_line.account_id.account_fiscal_type in ['A34', 'A36']]))
+                                      if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
 
                         # Retención de Renta por Terceros
                         inv.third_income_withholding = self._convert_to_local_currency(
                             inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                      if move_line.account_id.account_fiscal_type in ['ISR', 'A38']]))
+                                      if move_line.account_id.account_fiscal_type in witheld_isr_types]))
+
+                    elif not payment_id:
+                        move_id = self.env['account.move'].browse(payment.get('move_id'))
+                        if move_id:
+                            # ITBIS Retenido por Terceros
+                            inv.third_withheld_itbis = self._convert_to_local_currency(
+                                inv, sum([move_line.debit for move_line in move_id.line_ids
+                                          if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
+
+                            # Retención de Renta por Terceros
+                            inv.third_income_withholding = self._convert_to_local_currency(
+                                inv, sum([move_line.debit for move_line in move_id.line_ids
+                                          if move_line.account_id.account_fiscal_type in witheld_isr_types]))
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')
