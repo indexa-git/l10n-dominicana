@@ -241,8 +241,18 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
-    def _get_pending_invoices(self):
-        return self.env['account.invoice'].search([('fiscal_status', '=', 'normal'), ('state', '=', 'paid')])
+    def _get_pending_invoices(self, rec):
+
+        month, year = rec.name.split('/')
+        start_date = '{}-{}-01'.format(year, month)
+        invoice_ids = self.env['account.invoice'].search(
+            [('fiscal_status', '=', 'normal'),
+             ('state', '=', 'paid')
+             ('payment_date', '<=', start_date)
+             ]
+        )
+
+        return invoice_ids
 
     def _get_invoices(self, rec, states, types):
         """
@@ -267,7 +277,7 @@ class DgiiReport(models.Model):
                                                            (inv.journal_id.ncf_control is True))
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
-        invoice_ids += self._get_pending_invoices()
+        invoice_ids += self._get_pending_invoices(rec)
 
         return invoice_ids
 
@@ -347,12 +357,12 @@ class DgiiReport(models.Model):
         """
         if not invoice.payment_date:
             return False
-        
+
         payment_date = dt.strptime(invoice.payment_date, '%Y-%m-%d')
         period = dt.strptime(report.name, '%m/%Y')
-        same_period = (payment_date.month, payment_date.year) == (period.month, period.year)
+        same_minor_period = (payment_date.month, payment_date.year) <= (period.month, period.year)
 
-        return True if (payment_date and same_period) or invoice.fiscal_status == 'normal' else False
+        return True if (payment_date and same_minor_period) else False
 
     @api.multi
     def _compute_606_data(self):

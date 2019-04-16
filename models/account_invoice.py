@@ -64,8 +64,6 @@ class AccountInvoice(models.Model):
         """Compute invoice common taxes fields"""
         for inv in self:
 
-            fiscal_taxes = ['ISC', 'ITBIS', 'ISR', 'Propina']
-
             tax_line_ids = self._get_tax_line_ids(inv)
 
             if inv.state != 'draft':
@@ -171,13 +169,15 @@ class AccountInvoice(models.Model):
 
         for payment in self._get_invoice_payment_widget(invoice_id):
             payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
+            move_id = False
             if payment_id:
                 if payment_id.journal_id.type in ['cash', 'bank']:
                     p_string = payment_id.journal_id.payment_form
 
-            move_id = self.env['account.move'].browse(payment.get('move_id'))
-            if move_id:
-                p_string = 'swap'
+            if not payment_id:
+                move_id = self.env['account.move'].browse(payment.get('move_id'))
+                if move_id:
+                    p_string = 'swap'
 
             # If invoice is paid, but the payment doesn't come from
             # a journal, assume it is a credit note
