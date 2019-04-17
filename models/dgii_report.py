@@ -245,12 +245,11 @@ class DgiiReport(models.Model):
 
         month, year = rec.name.split('/')
         start_date = '{}-{}-01'.format(year, month)
-        invoice_ids = self.env['account.invoice'].search(
-            [('fiscal_status', '=', 'normal'),
-             ('state', '=', 'paid'),
-             ('payment_date', '<=', start_date)
-             ]
-        )
+        invoice_ids = self.env['account.invoice'].search([
+            ('fiscal_status', '=', 'normal'),
+            ('state', '=', 'paid'),
+            ('payment_date', '<=', start_date)
+        ])
 
         return invoice_ids
 
