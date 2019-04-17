@@ -241,7 +241,13 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
+    @staticmethod
+    def get_date_tuple(date):
+        return dt.strptime(date, '%Y-%m-%d').year, dt.strptime(date, '%Y-%m-%d').month
+
     def _get_pending_invoices(self, rec, types):
+
+        period = dt.strptime(rec.name, '%m/%Y')
 
         month, year = rec.name.split('/')
         start_date = '{}-{}-01'.format(year, month)
@@ -251,7 +257,7 @@ class DgiiReport(models.Model):
             ('payment_date', '<=', start_date),
             ('company_id', '=', rec.company_id.id),
             ('type', 'in', types),
-        ])
+        ]).filtered(lambda inv: self.get_date_tuple(inv.payment_date) == (period.year, period.month))
 
         return invoice_ids
 
