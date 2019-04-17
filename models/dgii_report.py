@@ -241,14 +241,16 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
-    def _get_pending_invoices(self, rec):
+    def _get_pending_invoices(self, rec, types):
 
         month, year = rec.name.split('/')
         start_date = '{}-{}-01'.format(year, month)
         invoice_ids = self.env['account.invoice'].search([
             ('fiscal_status', '=', 'normal'),
             ('state', '=', 'paid'),
-            ('payment_date', '<=', start_date)
+            ('payment_date', '<=', start_date),
+            ('company_id', '=', rec.company_id.id),
+            ('type', 'in', types),
         ])
 
         return invoice_ids
@@ -276,7 +278,7 @@ class DgiiReport(models.Model):
                                                            (inv.journal_id.ncf_control is True))
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
-        invoice_ids += self._get_pending_invoices(rec)
+        invoice_ids += self._get_pending_invoices(rec, types)
 
         return invoice_ids
 
