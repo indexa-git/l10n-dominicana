@@ -388,7 +388,7 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.reference,
                     'modified_invoice_number': inv.origin_out if inv.type == 'in_refund' else False,
                     'invoice_date': inv.date_invoice,
-                    'payment_date': inv.payment_date if inv.payment_date and self._include_in_current_report(rec, inv) else False,
+                    'payment_date': inv.payment_date if inv.payment_date else False,
                     'service_total_amount': inv.service_total_amount,
                     'good_total_amount': inv.good_total_amount,
                     'invoiced_amount': inv.amount_untaxed_signed,
@@ -399,8 +399,8 @@ class DgiiReport(models.Model):
                     'purchase_perceived_itbis': 0,  # Falta computarlo en la factura
                     'purchase_perceived_isr': 0,  # Falta computarlo en la factura
                     'isr_withholding_type': inv.isr_withholding_type,
-                    'withholded_itbis': inv.withholded_itbis if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
-                    'income_withholding': inv.income_withholding if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'withholded_itbis': inv.withholded_itbis if inv.payment_date else 0,
+                    'income_withholding': inv.income_withholding if inv.payment_date else 0,
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
@@ -617,12 +617,12 @@ class DgiiReport(models.Model):
                     'modified_invoice_number': inv.origin_out if inv.origin_out and inv.origin_out[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
-                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding, inv.third_withheld_itbis])) and self._include_in_current_report(rec, inv) else '',
+                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding, inv.third_withheld_itbis])) else False,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
-                    'third_withheld_itbis': inv.third_withheld_itbis if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'third_withheld_itbis': inv.third_withheld_itbis if inv.payment_date else 0,
                     'perceived_itbis': 0,  # Pendiente
-                    'third_income_withholding': inv.third_income_withholding if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'third_income_withholding': inv.third_income_withholding if inv.payment_date else 0,
                     'perceived_isr': 0,  # Pendiente
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
@@ -792,9 +792,9 @@ class DgiiReport(models.Model):
                     'doc_number': inv.number,
                     'doc_date': inv.date_invoice,
                     'invoiced_amount': inv.amount_untaxed_signed,
-                    'isr_withholding_date': inv.payment_date if inv.payment_date and self._include_in_current_report(rec, inv) else False,
+                    'isr_withholding_date': inv.payment_date if inv.payment_date else False,
                     'presumed_income': 0,  # Pendiente
-                    'withholded_isr': inv.income_withholding if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'withholded_isr': inv.income_withholding if inv.payment_date else 0,
                     'invoice_id': inv.id
                 }
                 ExteriorLine.create(values)
