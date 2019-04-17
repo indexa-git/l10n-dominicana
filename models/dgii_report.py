@@ -31,7 +31,7 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_previous_report_pending(self):
         for report in self:
-            previous = self.search([('company_id', '=', self.env.user.company_id.id),
+            previous = self.search([('company_id', '=', report.company_id.id),
                                     ('state', 'in', ('draft', 'generated')),
                                     ('id', '!=', self.id)], order='create_date asc', limit=1)
             if previous:
