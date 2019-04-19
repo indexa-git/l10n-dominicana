@@ -27,13 +27,13 @@ odoo.define('ncf_pos.chrome', function (require) {
     // not be submitted, and how many.
 
     chrome.SynchNotificationWidget = chrome.SynchNotificationWidget.include({
-        start: function(){
+        start: function () {
             var self = this;
-            this.pos.bind('change:synch', function(pos,synch){
+            this.pos.bind('change:synch', function (pos, synch) {
                 self.set_status(synch.state, synch.pending);
             });
-            this.$el.click(function(){
-                self.pos.push_and_invoice_order(null,{'show_error':true});
+            this.$el.click(function () {
+                self.pos.push_and_invoice_order(null, {'show_error':true});
             });
         },
     });
@@ -43,10 +43,11 @@ odoo.define('ncf_pos.chrome', function (require) {
      *
      */
     chrome.DebugWidget = chrome.DebugWidget.include({
+
         /**
          * Adding 'view ticket' option to debug ticket layout with easy
          */
-        start: function(){
+        start: function () {
             this._super.apply(this, arguments);
 
             var self = this;
@@ -57,7 +58,7 @@ odoo.define('ncf_pos.chrome', function (require) {
             this.$('.button.view_products').click(function () {
                 self.pos.gui.show_screen('products');
             });
-        }
+        },
     });
 
     chrome.HeaderButtonWidget.include({

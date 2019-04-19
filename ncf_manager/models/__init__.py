@@ -1,4 +1,3 @@
-
 from . import account
 from . import res_currency
 from . import account_invoice
