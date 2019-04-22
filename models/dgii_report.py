@@ -858,7 +858,7 @@ class DgiiReport(models.Model):
     @api.multi
     def state_sent(self):
         for report in self:
-            self._invoice_status_sent()
+            report._invoice_status_sent()
             report.state = 'sent'
 
     def get_606_tree_view(self):
