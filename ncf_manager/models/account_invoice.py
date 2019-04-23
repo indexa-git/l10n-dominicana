@@ -353,6 +353,7 @@ class AccountInvoice(models.Model):
             elif self.type == 'in_invoice':
                 self.reference = sequence_id.with_context(
                     sale_fiscal_type=self.journal_id.purchase_type)._next()
+            self.move_id.write({'ref': self.reference})
 
         return super(AccountInvoice, self).invoice_validate()
 
