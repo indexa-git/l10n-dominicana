@@ -143,6 +143,15 @@ class AccountInvoice(models.Model):
     def validate_fiscal_purchase(self):
         NCF = self.reference if self.reference else None
 
+        purchase_id = self.env.context.get('default_purchase_id', False)
+        if purchase_id and NCF and NCF[0:3] not in ['B01', 'B04']:
+            self.update({
+                'name': self.env.context.get('default_origin'),
+                'purchase_id': self.env.context.get('default_purchase_id'),
+                'reference': '',
+            })
+            NCF = None
+
         if NCF and self.journal_id.purchase_type == 'normal':
             if NCF[-10:-8] == '02':
                 raise ValidationError(_(
