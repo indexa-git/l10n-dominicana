@@ -138,9 +138,9 @@
                     <strong>Origen:</strong>
                     <p t-field="o.origin"/>
                 </div>
-                <div name="reference" class="col-xs-2" t-if="o.number">
+                <div name="reference" class="col-xs-2" t-if="o.move_name">
                     <strong>FACTURA NO.:</strong>
-                    <p t-field="o.number"/>
+                    <p t-field="o.move_name"/>
                 </div>
             </div>
         </xpath>
