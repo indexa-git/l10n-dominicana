@@ -140,6 +140,25 @@ class AccountInvoice(models.Model):
                                       compute="_compute_ncf_expiration_date",
                                       store=True)
 
+    @api.multi
+    @api.constrains('state', 'tax_line_ids')
+    def validate_special_exempt(self):
+        """ Validates an invoice with Regímenes Especiales sale_fiscal_type
+            does not contain nor ITBIS or ISC.
+
+            See DGII Norma 05-19, Art 3 for further information.
+        """
+
+        for inv in self:
+
+            if inv.type == 'out_invoice' and inv.state in ('open', 'cancel') and inv.sale_fiscal_type == 'special':
+
+                # If any invoice tax in ITBIS or ISC
+                if any([tax for tax in inv.tax_line_ids.mapped('tax_id').filtered(
+                        lambda tax: tax.tax_group_id.name in ('ITBIS', 'ISC') and tax.amount != 0)]):
+                    raise UserError("No puede validar una factura para Regímen Especial con ITBIS/ISC.\n\n"
+                                    "Consulte Norma General 05-19, Art. 3 de la DGII")
+
     def validate_fiscal_purchase(self):
         NCF = self.reference if self.reference else None
 
