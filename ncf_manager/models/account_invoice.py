@@ -82,10 +82,8 @@ class AccountInvoice(models.Model):
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
     sale_fiscal_type = fields.Selection(
-        [("final", "Consumo"),
-         ("fiscal", u"Crédito Fiscal"),
-         ("gov", "Gubernamentales"),
-         ("special", u"Regímenes Especiales"),
+        [("final", "Consumo"), ("fiscal", u"Crédito Fiscal"),
+         ("gov", "Gubernamentales"), ("special", u"Regímenes Especiales"),
          ("unico", u"Único Ingreso")],
         string='NCF para',
         default=lambda self: self._context.get('sale_fiscal_type', 'final'))
@@ -103,8 +101,7 @@ class AccountInvoice(models.Model):
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
          ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
-         ('03', '03 - Arrendamientos'),
-         ('04', '04 - Gastos de Activos Fijos'),
+         ('03', '03 - Arrendamientos'), ('04', '04 - Gastos de Activos Fijos'),
          ('05', u'05 - Gastos de Representación'),
          ('06', '06 - Otras Deducciones Admitidas'),
          ('07', '07 - Gastos Financieros'),
@@ -151,13 +148,18 @@ class AccountInvoice(models.Model):
 
         for inv in self:
 
-            if inv.type == 'out_invoice' and inv.state in ('open', 'cancel') and inv.sale_fiscal_type == 'special':
+            if inv.type == 'out_invoice' and inv.state in (
+                    'open', 'cancel') and inv.sale_fiscal_type == 'special':
 
                 # If any invoice tax in ITBIS or ISC
-                if any([tax for tax in inv.tax_line_ids.mapped('tax_id').filtered(
-                        lambda tax: tax.tax_group_id.name in ('ITBIS', 'ISC') and tax.amount != 0)]):
-                    raise UserError("No puede validar una factura para Regímen Especial con ITBIS/ISC.\n\n"
-                                    "Consulte Norma General 05-19, Art. 3 de la DGII")
+                if any([
+                        tax for tax in inv.tax_line_ids.mapped('tax_id')
+                        .filtered(lambda tax: tax.tax_group_id.name in (
+                            'ITBIS', 'ISC') and tax.amount != 0)
+                ]):
+                    raise UserError(
+                        "No puede validar una factura para Regímen Especial con ITBIS/ISC.\n\n"
+                        "Consulte Norma General 05-19, Art. 3 de la DGII")
 
     def validate_fiscal_purchase(self):
         NCF = self.reference if self.reference else None
@@ -167,14 +169,14 @@ class AccountInvoice(models.Model):
                 raise ValidationError(_(
                     "NCF *{}* NO corresponde con el tipo de documento\n\n"
                     "No puede registrar Comprobantes Consumidor Final (02)")
-                    .format(NCF))
+                                      .format(NCF))
 
             elif not ncf_validation.is_valid(NCF):
                 raise UserError(_(
                     "NCF mal digitado\n\n"
                     "El comprobante *{}* no tiene la estructura correcta "
                     "valide si lo ha digitado correctamente")
-                    .format(NCF))
+                                .format(NCF))
 
             elif (self.journal_id.ncf_remote_validation and
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
@@ -186,7 +188,7 @@ class AccountInvoice(models.Model):
                     u"proveedor estén correctamente "
                     u"digitados, o si los números de ese NCF se "
                     "le agotaron al proveedor")
-                    .format(NCF, self.partner_id.name))
+                                      .format(NCF, self.partner_id.name))
 
             ncf_in_invoice = self.search_count([
                 ('id', '!=', self.id), ('company_id', '=', self.company_id.id),
@@ -194,12 +196,17 @@ class AccountInvoice(models.Model):
                 ('reference', '=', NCF),
                 ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
                 ('type', 'in', ('in_invoice', 'in_refund'))
-            ]) if self.id else self.search_count([
-                ('partner_id', '=', self.partner_id.id),
-                ('company_id', '=',  self.company_id.id),
-                ('reference', '=', NCF),
-                ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
-                ('type', 'in', ('in_invoice', 'in_refund'))])
+            ]) if self.id else self.search_count([('partner_id', '=',
+                                                   self.partner_id.id),
+                                                  ('company_id', '=',
+                                                   self.company_id.id),
+                                                  ('reference', '=', NCF),
+                                                  ('state', 'in',
+                                                   ('draft', 'open',
+                                                    'paid', 'cancel')),
+                                                  ('type',
+                                                   'in', ('in_invoice',
+                                                          'in_refund'))])
 
             if ncf_in_invoice:
                 raise ValidationError(_(
@@ -292,14 +299,14 @@ class AccountInvoice(models.Model):
                     raise ValidationError(_(
                         u"El cliente [{}]{} no tiene Tipo de comprobante, y es"
                         "requerido para este tipo de factura.")
-                        .format(inv.partner_id.id, inv.partner_id.name))
+                                          .format(inv.partner_id.id, inv.partner_id.name))
 
                 if inv.sale_fiscal_type in (
                         "fiscal", "gov", "special") and not inv.partner_id.vat:
                     raise UserError(_(
                         u"El cliente [{}]{} no tiene RNC/Céd, y es requerido"
                         "para este tipo de factura.")
-                        .format(inv.partner_id.id, inv.partner_id.name))
+                                    .format(inv.partner_id.id, inv.partner_id.name))
 
                 if (inv.amount_untaxed_signed >= 250000 and
                         inv.sale_fiscal_type != 'unico' and
