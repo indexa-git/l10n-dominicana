@@ -261,6 +261,23 @@ class AccountInvoice(models.Model):
                         "valide si lo ha digitado correctamente").format(ncf))
 
     @api.multi
+    @api.constrains('state', 'tax_line_ids')
+    def validate_buy_ncf_withholding(self):
+        """ Validates an invoice with Comprobante de Compras has 100% ITBIS
+            withholding.
+
+            See DGII Norma 05-19, Art 7 for further information.
+        """
+
+        for inv in self:
+            if inv.type == 'in_invoice' and inv.state == 'open' and inv.journal_id.purchase_type == 'buy_ncf':
+
+                # If the sum of all taxes of category ITBIS is not 0
+                if sum([tax.amount for tax in inv.tax_line_ids.mapped('tax_id').filtered(
+                    lambda t: t.tax_group_id.name == 'ITBIS')]):
+                        raise UserError("Debe retener el 100% del ITBIS")
+
+    @api.multi
     def action_invoice_open(self):
         for inv in self:
             if inv.amount_untaxed == 0:
