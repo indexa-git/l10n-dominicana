@@ -28,13 +28,15 @@ class AccountJournal(models.Model):
         self.ensure_one()
         self.ncf_ready = len(self.date_range_ids) > 1
 
-    purchase_type = fields.Selection(
-        [("normal", "Compras Fiscales"),
-         ("minor", "Gastos Menores"),
-         ("informal", "Proveedores Informales"),
-         ("exterior", "Remesas al Exterior"),
-         ("import", "Importaciones"),
-         ("others", "Otros (sin NCF)")],
+    purchase_type = fields.Selection([
+        ("normal", "Compras Fiscales"),
+        ("minor", "Gastos Menores"),
+        ("informal", "Proveedores Informales"),
+        ("exterior", "Remesas al Exterior"),
+        ("import", "Importaciones"),
+        ("ext_payment", "Pagos al Exterior"),
+        ("others", "Otros (sin NCF)"),
+    ],
         string="Tipo de Compra",
         default="others")
 

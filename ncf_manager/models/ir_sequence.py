@@ -35,7 +35,8 @@ class IrSequence(models.Model):
         "debit_note": "03",
         "credit_note": "04",
         "minor": "13",
-        "informal": "11"
+        "informal": "11",
+        "ext_payment": "17",
     }
 
     ncf_control = fields.Boolean("Control de NCF", default=False)
@@ -101,7 +102,9 @@ class IrSequenceDateRange(models.Model):
                 [("credit_note", u"Nota de Crédito"),
                  ("debit_note", u"Nota de Débito"),
                  ("minor", "Gastos Menores"),
-                 ("informal", "Proveedores Informales")])
+                 ("informal", "Proveedores Informales"),
+                 ("ext_payment", "Pagos al Exterior"),
+                 ])
 
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
