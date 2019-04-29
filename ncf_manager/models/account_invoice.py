@@ -245,13 +245,13 @@ class AccountInvoice(models.Model):
 
     @api.onchange("reference", "origin_out")
     def onchange_ncf(self):
-        if self.journal_id.purchase_type in ('normal', 'informal', 'minor'):
+        if self.journal_id.purchase_type in ('normal', 'buy_ncf', 'minor'):
             self.validate_fiscal_purchase()
 
         if self.origin_out and (self.type == 'out_refund' or
                                 self.type == 'in_refund'):
             if self.journal_id.purchase_type in (
-                    'normal', 'informal',
+                    'normal', 'buy_ncf',
                     'minor') or self.journal_id.ncf_control:
                 ncf = self.origin_out
                 if not ncf_validation.is_valid(ncf) and ncf[-10:-8] != '04':
@@ -291,7 +291,7 @@ class AccountInvoice(models.Model):
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.reference and inv.journal_id.purchase_type in (
-                        'normal', 'informal', 'minor'):
+                        'normal', 'buy_ncf', 'minor'):
                     if not inv.partner_id.vat:
                         raise ValidationError(_(
                             u"¡Para este tipo de Compra el Proveedor"
@@ -338,7 +338,7 @@ class AccountInvoice(models.Model):
          """
         if not self.reference and (
                 self.journal_id.ncf_control or
-                self.journal_id.purchase_type in ['minor', 'informal']):
+                self.journal_id.purchase_type in ['minor', 'buy_ncf']):
             sequence_id = self.journal_id.sequence_id
             if self.type == 'out_invoice':
                 if self.is_nd:
