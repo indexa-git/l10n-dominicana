@@ -263,6 +263,26 @@ class AccountInvoice(models.Model):
                         "valide si lo ha digitado correctamente").format(ncf))
 
     @api.multi
+    @api.constrains('state', 'invoice_line_ids', 'partner_id')
+    def validate_products_export_ncf(self):
+        """ Validates that an invoices with a partner from country != DO
+            and products type != service must have Exportaciones NCF.
+
+            See DGII Norma 05-19, Art 10 for further information.
+        """
+        for inv in self:
+            if inv.type == 'out_invoice' and inv.state in (
+            'open', 'cancel') and inv.partner_id.country_id and inv.partner_id.country_id.code != 'do':
+                if any([p for p in inv.invoice_line_ids.mapped('product_id') if p.type != 'service']):
+                    if inv.sale_fiscal_type != 'export':
+                        raise UserError("La venta de bienes a clientes no extranjeros deben realizarse con "
+                                        "comprobante tipo Exportaciones")
+                else:
+                    if inv.sale_fiscal_type != 'final':
+                        raise UserError("La venta de servicios a clientes no extranjeros deben realizarse con "
+                                        "comprobante tipo Consumo")
+
+    @api.multi
     def action_invoice_open(self):
         for inv in self:
             if inv.amount_untaxed == 0:
