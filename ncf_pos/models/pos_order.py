@@ -313,13 +313,16 @@ class PosOrder(models.Model):
                 'payment_reference', False)
             if statement['journal_id'] == 10001 and statement['note']:
                 invoice = self.env['account.invoice'].search([
-                  ('reference', '=', statement['note'])
+                    ('reference', '=', statement['note'])
                 ])
-                acc_move_line_ids = order.refund_payment_account_move_line_ids.filtered(
-                    lambda p: p.ref == statement['note']
+                acc_move_line_ids = (
+                    order.refund_payment_account_move_line_ids.filtered(
+                        lambda p: p.ref == statement['note'])
                 )
                 invoice.write({
-                    'payment_move_line_ids': [(4, id, 0) for id in acc_move_line_ids.ids],
+                    'payment_move_line_ids': [
+                        (4, id, 0) for id in acc_move_line_ids.ids
+                    ],
                 })
         if payment_reference:
             order.write({
