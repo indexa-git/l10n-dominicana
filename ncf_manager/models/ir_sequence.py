@@ -32,10 +32,11 @@ class IrSequence(models.Model):
         "gov": "15",
         "special": "14",
         "unico": '12',
+        "export": '16',
         "debit_note": "03",
         "credit_note": "04",
         "minor": "13",
-        "informal": "11"
+        "informal": "11",
     }
 
     ncf_control = fields.Boolean("Control de NCF", default=False)
