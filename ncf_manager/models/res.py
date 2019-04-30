@@ -67,12 +67,14 @@ class ResPartner(models.Model):
             else:
                 rec.fiscal_info_required = False
 
-    sale_fiscal_type = fields.Selection(
-        [("final", "Consumo"),
-         ("fiscal", u"Crédito Fiscal"),
-         ("gov", "Gubernamental"),
-         ("special", u"Regímenes Especiales"),
-         ("unico", u"Único Ingreso")],
+    sale_fiscal_type = fields.Selection([
+        ("final", "Consumo"),
+        ("fiscal", u"Crédito Fiscal"),
+        ("gov", "Gubernamental"),
+        ("special", u"Regímenes Especiales"),
+        ("unico", u"Único Ingreso"),
+        ("export", u"Exportaciones"),
+    ],
         string="Tipo de comprobante",
         default="final")
 
@@ -93,13 +95,16 @@ class ResPartner(models.Model):
     }, {
         "id": "unico",
         "name": "Único Ingreso"
+    }, {
+        "id": "export",
+        "name": "Exportaciones"
     }]
 
     sale_fiscal_type_vat = {
         "rnc": ["fiscal", "gov", "special"],
         "ced": ["final", "fiscal"],
         "other": ["final"],
-        "no_vat": ["final", "unico"]
+        "no_vat": ["final", "unico", "export"]
     }
 
     expense_type = fields.Selection(
@@ -176,7 +181,7 @@ class ResPartner(models.Model):
                     result['vat'] = dgii_vals.get('rnc')
 
                     if model == 'res.partner':
-                        result['is_company'] = True if is_rnc else False,
+                        result['is_company'] = True if is_rnc else False
                         result['sale_fiscal_type'] = "fiscal"
             return result
 
