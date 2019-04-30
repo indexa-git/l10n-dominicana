@@ -31,7 +31,7 @@ class AccountJournal(models.Model):
     purchase_type = fields.Selection(
         [("normal", "Compras Fiscales"),
          ("minor", "Gastos Menores"),
-         ("buy_ncf", "Comprobante de Compras"),
+         ("informal", "Comprobante de Compras"),
          ("exterior", "Remesas al Exterior"),
          ("import", "Importaciones"),
          ("others", "Otros (sin NCF)")],

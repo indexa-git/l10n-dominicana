@@ -247,13 +247,13 @@ class AccountInvoice(models.Model):
 
     @api.onchange("reference", "origin_out")
     def onchange_ncf(self):
-        if self.journal_id.purchase_type in ('normal', 'buy_ncf', 'minor'):
+        if self.journal_id.purchase_type in ('normal', 'informal', 'minor'):
             self.validate_fiscal_purchase()
 
         if self.origin_out and (self.type == 'out_refund' or
                                 self.type == 'in_refund'):
             if self.journal_id.purchase_type in (
-                    'normal', 'buy_ncf',
+                    'normal', 'informal',
                     'minor') or self.journal_id.ncf_control:
                 ncf = self.origin_out
                 if not ncf_validation.is_valid(ncf) and ncf[-10:-8] != '04':
@@ -264,7 +264,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     @api.constrains('state', 'tax_line_ids')
-    def validate_buy_ncf_withholding(self):
+    def validate_informal_withholding(self):
         """ Validates an invoice with Comprobante de Compras has 100% ITBIS
             withholding.
 
@@ -272,7 +272,7 @@ class AccountInvoice(models.Model):
         """
 
         for inv in self:
-            if inv.type == 'in_invoice' and inv.state == 'open' and inv.journal_id.purchase_type == 'buy_ncf':
+            if inv.type == 'in_invoice' and inv.state == 'open' and inv.journal_id.purchase_type == 'informal':
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
@@ -312,7 +312,7 @@ class AccountInvoice(models.Model):
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.reference and inv.journal_id.purchase_type in (
-                        'normal', 'buy_ncf', 'minor'):
+                        'normal', 'informal', 'minor'):
                     if not inv.partner_id.vat:
                         raise ValidationError(_(
                             u"¡Para este tipo de Compra el Proveedor"
@@ -359,7 +359,7 @@ class AccountInvoice(models.Model):
          """
         if not self.reference and (
                 self.journal_id.ncf_control or
-                self.journal_id.purchase_type in ['minor', 'buy_ncf']):
+                self.journal_id.purchase_type in ['minor', 'informal']):
             sequence_id = self.journal_id.sequence_id
             if self.type == 'out_invoice':
                 if self.is_nd:
