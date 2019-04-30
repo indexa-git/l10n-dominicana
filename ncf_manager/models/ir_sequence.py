@@ -101,7 +101,7 @@ class IrSequenceDateRange(models.Model):
                 [("credit_note", u"Nota de Crédito"),
                  ("debit_note", u"Nota de Débito"),
                  ("minor", "Gastos Menores"),
-                 ("informal", "Proveedores Informales")])
+                 ("informal", "Comprobante de Compras")])
 
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
