@@ -23,13 +23,13 @@
 import logging
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
 try:
     from stdnum.do import rnc, cedula
-except(ImportError, IOError) as err:
+except (ImportError, IOError) as err:
     _logger.debug(err)
 
 
@@ -73,15 +73,27 @@ class ResPartner(models.Model):
          ("gov", "Gubernamental"),
          ("special", u"Regímenes Especiales"),
          ("unico", u"Único Ingreso")],
-        string="Tipo de comprobante", default="final")
+        string="Tipo de comprobante",
+        default="final")
 
-    sale_fiscal_type_list = [
-        {"id": "final", "name": "Consumo", "ticket_label": "Consumo", "is_default": True},
-        {"id": "fiscal", "name": "Crédito Fiscal"},
-        {"id": "gov", "name": "Gubernamental"},
-        {"id": "special", "name": "Regímenes Especiales"},
-        {"id": "unico", "name": "Único Ingreso"}
-    ]
+    sale_fiscal_type_list = [{
+        "id": "final",
+        "name": "Consumo",
+        "ticket_label": "Consumo",
+        "is_default": True
+    }, {
+        "id": "fiscal",
+        "name": "Crédito Fiscal"
+    }, {
+        "id": "gov",
+        "name": "Gubernamental"
+    }, {
+        "id": "special",
+        "name": "Regímenes Especiales"
+    }, {
+        "id": "unico",
+        "name": "Único Ingreso"
+    }]
 
     sale_fiscal_type_vat = {
         "rnc": ["fiscal", "gov", "special"],
@@ -105,13 +117,17 @@ class ResPartner(models.Model):
         string="Tipo de gasto")
 
     fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
-    country_id = fields.Many2one('res.country', string='Country',
-                                 ondelete='restrict', default=lambda self: self.env.ref('base.do'))
+    country_id = fields.Many2one('res.country',
+                                 string='Country',
+                                 ondelete='restrict',
+                                 default=lambda self: self.env.ref('base.do'))
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
-        res = super(ResPartner, self).name_search(name, args=args,
-                                                  operator=operator, limit=100)
+        res = super(ResPartner, self).name_search(name,
+                                                  args=args,
+                                                  operator=operator,
+                                                  limit=100)
         if not res and name:
             if len(name) in (9, 11):
                 partners = self.search([('vat', '=', name)])
@@ -124,8 +140,7 @@ class ResPartner(models.Model):
 
     @api.model
     def validate_rnc_cedula(self, number, model='partner'):
-        query_dgii_wsmovil = self.env['ir.config_parameter'].sudo().get_param('dgii.wsmovil')
-        if number and query_dgii_wsmovil == 'True':
+        if number:
             result, dgii_vals = {}, False
             model = 'res.partner' if model == 'partner' else 'res.company'
 
@@ -138,18 +153,21 @@ class ResPartner(models.Model):
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
                         [x.name for x in contact if x.name])
-                    raise UserError(_(message % name))
+                    raise UserError(_(message) % name)
 
                 try:
                     is_rnc = len(number) == 9
                     rnc.validate(number) if is_rnc else cedula.validate(number)
-                except Exception as e:
-                    _logger.warning("RNC/Ced Inválido en el contacto {}".format(self.name))
+                except Exception:
+                    _logger.warning(
+                        "RNC/Ced Inválido en el contacto {}".format(self.name))
 
                 dgii_vals = rnc.check_dgii(number)
                 if dgii_vals is None:
                     if is_rnc:
-                        _logger.error("RNC {} del contacto {} no está disponible en DGII".format(number, self.name))
+                        _logger.error(
+                            "RNC {} del contacto {} no está disponible en DGII"
+                            .format(number, self.name))
                     result['vat'] = number
                     result['sale_fiscal_type'] = "final"
                 else:
@@ -158,7 +176,7 @@ class ResPartner(models.Model):
                     result['vat'] = dgii_vals.get('rnc')
 
                     if model == 'res.partner':
-                        result['is_company'] = True if is_rnc else False,
+                        result['is_company'] = True if is_rnc else False
                         result['sale_fiscal_type'] = "fiscal"
             return result
 
@@ -185,13 +203,16 @@ class ResPartner(models.Model):
     @api.multi
     def rewrite_due_date(self):
         for rec in self:
-            invoice_ids = self.env["account.invoice"].search(
-                [('state', '=', 'open'), ('partner_id', '=', self.id)])
+            invoice_ids = self.env["account.invoice"].search([
+                ('state', '=', 'open'), ('partner_id', '=', self.id)
+            ])
             for inv in invoice_ids:
-                pterm = rec.property_payment_term_id or rec.property_supplier_payment_term_id
+                pterm = rec.property_payment_term_id or \
+                    rec.property_supplier_payment_term_id
                 if pterm:
-                    pterm_list = pterm.with_context(currency_id=inv.company_id.currency_id.id).compute(
-                        value=1, date_ref=inv.date_invoice)[0]
+                    pterm_list = pterm.with_context(
+                        currency_id=inv.company_id.currency_id.id).compute(
+                            value=1, date_ref=inv.date_invoice)[0]
                     date_due = max(line[0] for line in pterm_list)
                     inv.date_due = date_due
                     for line in inv.move_id.line_ids:
@@ -202,9 +223,11 @@ class ResPartner(models.Model):
 
     @api.model
     def get_sale_fiscal_type_selection(self):
-        return {"sale_fiscal_type": self._fields['sale_fiscal_type'].selection,
-                "sale_fiscal_type_list": self.sale_fiscal_type_list,
-                "sale_fiscal_type_vat": self.sale_fiscal_type_vat}
+        return {
+            "sale_fiscal_type": self._fields['sale_fiscal_type'].selection,
+            "sale_fiscal_type_list": self.sale_fiscal_type_list,
+            "sale_fiscal_type_vat": self.sale_fiscal_type_vat
+        }
 
     @api.model
     def create(self, vals):

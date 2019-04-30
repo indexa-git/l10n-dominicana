@@ -31,25 +31,40 @@ _logger = logging.getLogger(__name__)
 class PosOrder(models.Model):
     _inherit = "pos.order"
 
-    @api.depends('statement_ids', 'lines.price_subtotal_incl', 'lines.discount')
+    @api.depends('statement_ids', 'lines.price_subtotal_incl',
+                 'lines.discount')
     def _compute_amount_all(self):
         super(PosOrder, self)._compute_amount_all()
         for order in self:
             refund_payments = 0
-            refund_payments += sum(payment.credit for payment in order.refund_payment_account_move_line_ids)
+            refund_payments += sum(
+                payment.credit
+                for payment in order.refund_payment_account_move_line_ids)
             order.amount_paid += refund_payments
 
     is_return_order = fields.Boolean(string='Devolver Orden', copy=False)
-    return_order_id = fields.Many2one('pos.order', 'Afecta', readonly=True, copy=False)
-    return_status = fields.Selection([('-', 'No Devuelta'), ('Fully-Returned', 'Totalmente Devuelta'),
-                                      ('Partially-Returned', 'Parcialmente Devuelta'),
-                                      ('Non-Returnable', 'No Retornable')], default='-', copy=False,
-                                     string=u'Estatus de Devolución')
+    return_order_id = fields.Many2one('pos.order',
+                                      'Afecta',
+                                      readonly=True,
+                                      copy=False)
+    return_status = fields.Selection(
+        [('-', 'No Devuelta'),
+         ('Fully-Returned', 'Totalmente Devuelta'),
+         ('Partially-Returned', 'Parcialmente Devuelta'),
+         ('Non-Returnable', 'No Retornable')],
+        default='-',
+        copy=False,
+        string=u'Estatus de Devolución')
     ncf = fields.Char("NCF")
-    state = fields.Selection(selection_add=[('is_return_order', 'Nota de crédito')])
-    refund_payment_account_move_line_ids = fields.Many2many("account.move.line")
-    ncf_invoice_related = fields.Char(related="invoice_id.reference", string="NCF Factura")
-    sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type", string="Tipo", readonly=1)
+    state = fields.Selection(selection_add=[('is_return_order',
+                                             'Nota de crédito')])
+    refund_payment_account_move_line_ids = fields.Many2many(
+        "account.move.line")
+    ncf_invoice_related = fields.Char(related="invoice_id.reference",
+                                      string="NCF Factura")
+    sale_fiscal_type = fields.Selection(related="invoice_id.sale_fiscal_type",
+                                        string="Tipo",
+                                        readonly=1)
     ncf_control = fields.Boolean(related="sale_journal.ncf_control")
     payment_reference = fields.Char(string="Authorization Number")
 
@@ -67,7 +82,8 @@ class PosOrder(models.Model):
                     'sale_fiscal_type': self.partner_id.sale_fiscal_type
                 })
             if self.return_order_id:
-                inv.update({'origin': self.return_order_id.invoice_id.reference})
+                inv.update(
+                    {'origin': self.return_order_id.invoice_id.reference})
         return inv
 
     def test_paid(self):
@@ -92,24 +108,33 @@ class PosOrder(models.Model):
         for order in orders:
             if order.get("data", {}).get("ncf_control", {}):
                 if order.get("data", {}).get("is_return_order", {}):
-                    order["data"]["amount_paid"] = abs(order["data"]["amount_paid"]) * -1
-                    order["data"]["amount_tax"] = abs(order["data"]["amount_tax"]) * -1
-                    order["data"]["amount_total"] = abs(order["data"]["amount_total"]) * -1
-                    order["data"]["amount_paid"] = order["data"]["amount_return"] = 0
+                    order["data"]["amount_paid"] = abs(
+                        order["data"]["amount_paid"]) * -1
+                    order["data"]["amount_tax"] = abs(
+                        order["data"]["amount_tax"]) * -1
+                    order["data"]["amount_total"] = abs(
+                        order["data"]["amount_total"]) * -1
+                    order["data"]["amount_paid"] = order["data"][
+                        "amount_return"] = 0
 
                     for line in order["data"]["lines"]:
                         line_dict = line[2]
                         line_dict["qty"] = abs(line_dict["qty"]) * -1
-                        original_line = self.env['pos.order.line'].browse(line_dict["original_line_id"])
-                        original_line.line_qty_returned += abs(line_dict.get('qty', 0))
+                        original_line = self.env['pos.order.line'].browse(
+                            line_dict["original_line_id"])
+                        original_line.line_qty_returned += abs(
+                            line_dict.get('qty', 0))
 
                     order["data"]["statement_ids"] = []
                 # searching the ncf referenced to pos order
-                ncf_ids = self.env['pos.order.ncf.temp'].search(
-                    [("pos_reference", "=", order.get("data", {}).get("uid", False))])
+                ncf_ids = self.env['pos.order.ncf.temp'].search([
+                    ("pos_reference", "=", order.get("data",
+                                                     {}).get("uid", False))
+                ])
                 if ncf_ids:
                     if not order.get("data", {}).get("ncf", False):
-                        _logger.warning("Assign NCF: {} to Order: {}".format(ncf_ids.ncf, ncf_ids.pos_reference))
+                        _logger.warning("Assign NCF: {} to Order: {}".format(
+                            ncf_ids.ncf, ncf_ids.pos_reference))
                         order["data"]["ncf"] = ncf_ids.ncf
                     ncf_ids.unlink()
             else:
@@ -140,7 +165,11 @@ class PosOrder(models.Model):
         return res
 
     @api.model
-    def order_search_from_ui(self, day_limit=0, config_id=0, invoice_id=0, session_id=0):
+    def order_search_from_ui(self,
+                             day_limit=0,
+                             config_id=0,
+                             invoice_id=0,
+                             session_id=0):
         invoice_domain = [('type', '=', 'out_invoice')]
         pos_order_domain = []
 
@@ -175,7 +204,9 @@ class PosOrder(models.Model):
                 "amount_total": order.amount_total,
                 "number": order.invoice_id.reference,
                 "lines": [line.id for line in order.lines],
-                "statement_ids": [statement_id.id for statement_id in order.statement_ids],
+                "statement_ids": [
+                    statement_id.id for statement_id in order.statement_ids
+                ],
                 "is_return_order": order.is_return_order
             }
             if not order.is_return_order:
@@ -183,7 +214,8 @@ class PosOrder(models.Model):
             else:
                 order.return_order_id.return_status = order.return_status
                 order_json['return_order_id'] = order.return_order_id.id
-                order_json['return_status'] = order.return_order_id.return_status
+                order_json[
+                    'return_status'] = order.return_order_id.return_status
 
             for line in order.lines:
                 order_lines_json = {
@@ -200,29 +232,33 @@ class PosOrder(models.Model):
                 order_lines_list.append(order_lines_json)
             # order_json["lines"] = order_lines_list
             order_list.append(order_json)
-        return {
-            "orders": order_list,
-            "orderlines": order_lines_list
-        }
+        return {"orders": order_list, "orderlines": order_lines_list}
 
     @api.model
     def credit_note_info_from_ui(self, ncf):
-        invoice_ids = self.env["account.invoice"].search([('reference', '=', ncf), ('type', '=', 'out_refund')])
+        invoice_ids = self.env["account.invoice"].search([
+            ('reference', '=', ncf), ('type', '=', 'out_refund')
+        ])
         return {"id": invoice_ids.id, "residual": invoice_ids.residual}
 
     @api.model
-    def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id, is_return_order):
-        if not self.env["pos.order.ncf.temp"].search([('pos_reference', '=', order_uid)]):
+    def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
+                     is_return_order):
+        if not self.env["pos.order.ncf.temp"].search(
+           [('pos_reference', '=', order_uid)]):
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
-                    raise ValidationError(_("You have not specified a sales journal"))
+                    raise ValidationError(
+                        _("You have not specified a sales journal"))
                 elif not is_return_order:
-                    ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                              sale_fiscal_type=sale_fiscal_type).next_by_id()
+                    ncf = journal_id.sequence_id.with_context(
+                        ir_sequence_date=fields.Date.today(),
+                        sale_fiscal_type=sale_fiscal_type).next_by_id()
                 elif is_return_order:
-                    ncf = journal_id.sequence_id.with_context(ir_sequence_date=fields.Date.today(),
-                                                              sale_fiscal_type="credit_note").next_by_id()
+                    ncf = journal_id.sequence_id.with_context(
+                        ir_sequence_date=fields.Date.today(),
+                        sale_fiscal_type="credit_note").next_by_id()
                 # saving the ncf referenced to pos order
                 self.env['pos.order.ncf.temp'].create({
                     'ncf': ncf,
@@ -247,20 +283,28 @@ class PosOrder(models.Model):
         else:
             payment_name = data.get("payment_name", False)
             if payment_name:
-                out_refund_invoice = self.env["account.invoice"].sudo().search([('reference', '=', payment_name)])
+                out_refund_invoice = self.env["account.invoice"].sudo().search(
+                    [('reference', '=', payment_name)])
                 if out_refund_invoice:
                     move_line_ids = out_refund_invoice.move_id.line_ids
-                    move_line_ids = move_line_ids.filtered(lambda
-                                                           r: not r.reconciled and r.account_id.internal_type == 'receivable' and r.partner_id == self.partner_id.commercial_partner_id)
+                    move_line_ids = move_line_ids.filtered(
+                        lambda r: not r.reconciled and r.account_id.
+                        internal_type == 'receivable' and r.partner_id == self.
+                        partner_id.commercial_partner_id)
                     for move_line_id in move_line_ids:
-                        self.write({"refund_payment_account_move_line_ids": [(4, move_line_id.id, _)]})
+                        self.write({
+                            "refund_payment_account_move_line_ids": [
+                                (4, move_line_id.id, _)
+                            ]
+                        })
 
     @api.model
     def _process_order(self, pos_order):
         order = super(PosOrder, self)._process_order(pos_order)
         payment_reference = False
         for statement in pos_order['statement_ids']:
-            payment_reference = payment_reference or statement[2].get('payment_reference', False)
+            payment_reference = payment_reference or statement[2].get(
+                'payment_reference', False)
         if payment_reference:
             order.write({
                 'payment_reference': payment_reference,
@@ -276,10 +320,13 @@ class PosOrderLine(models.Model):
 
     @api.model
     def _order_line_fields(self, line, session_id=None):
-        fields_return = super(PosOrderLine, self)._order_line_fields(line, session_id)
+        fields_return = super(PosOrderLine,
+                              self)._order_line_fields(line, session_id)
 
-        fields_return[2].update({'line_qty_returned': line[2].get('line_qty_returned', ''),
-                                 'original_line_id': line[2].get('original_line_id', '')})
+        fields_return[2].update({
+            'line_qty_returned': line[2].get('line_qty_returned', ''),
+            'original_line_id': line[2].get('original_line_id', '')
+        })
 
         return fields_return
 
@@ -291,5 +338,5 @@ class PosOrderNcfTemp(models.Model):
     pos_reference = fields.Char(index=True)
     ncf = fields.Char("NCF")
 
-    _sql_constraints = [
-        ('pos_reference_unique_constrain', 'unique(pos_reference)', 'Duplicate pos UID!')]
+    _sql_constraints = [('pos_reference_unique_constrain',
+                         'unique(pos_reference)', 'Duplicate pos UID!')]

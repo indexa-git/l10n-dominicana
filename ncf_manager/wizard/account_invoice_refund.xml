@@ -77,7 +77,7 @@
                             <field name="description"/>
                             <field name="journal_purchase_type" invisible="1"/>
                             <field name="supplier_ncf" attrs="{'invisible': ['|',('journal_purchase_type', 'in', ['others','exterior']),('invoice_type','not in',['in_refund','out_refund','in_invoice'])],
-                            'required': [('invoice_type','in',('in_invoice'))]}"/>
+                            'required': [('invoice_type','in',('in_invoice')), ('journal_purchase_type', 'not in', ['others','exterior'])]}"/>
                             <field name="account_id" attrs="{'invisible': [('filter_refund','not in',('discount','debit'))],
                             'required': [('filter_refund','in', ('discount','debit'))]}"/>
                             <field name="amount" attrs="{'invisible': [('filter_refund','not in',('discount','debit'))],
