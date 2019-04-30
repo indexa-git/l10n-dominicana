@@ -275,11 +275,11 @@ class AccountInvoice(models.Model):
             'open', 'cancel') and inv.partner_id.country_id and inv.partner_id.country_id.code != 'do':
                 if any([p for p in inv.invoice_line_ids.mapped('product_id') if p.type != 'service']):
                     if inv.sale_fiscal_type != 'export':
-                        raise UserError("La venta de bienes a clientes no extranjeros deben realizarse con "
+                        raise UserError("La venta de bienes a clientes extranjeros deben realizarse con "
                                         "comprobante tipo Exportaciones")
                 else:
                     if inv.sale_fiscal_type != 'final':
-                        raise UserError("La venta de servicios a clientes no extranjeros deben realizarse con "
+                        raise UserError("La venta de servicios a clientes extranjeros deben realizarse con "
                                         "comprobante tipo Consumo")
 
     @api.multi
