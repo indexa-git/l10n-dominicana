@@ -32,6 +32,7 @@ class IrSequence(models.Model):
         "gov": "15",
         "special": "14",
         "unico": '12',
+        "export": '16',
         "debit_note": "03",
         "credit_note": "04",
         "minor": "13",

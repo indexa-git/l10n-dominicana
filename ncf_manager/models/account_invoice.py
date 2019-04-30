@@ -81,10 +81,14 @@ class AccountInvoice(models.Model):
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
 
-    sale_fiscal_type = fields.Selection(
-        [("final", "Consumo"), ("fiscal", u"Crédito Fiscal"),
-         ("gov", "Gubernamentales"), ("special", u"Regímenes Especiales"),
-         ("unico", u"Único Ingreso")],
+    sale_fiscal_type = fields.Selection([
+        ("final", "Consumo"),
+        ("fiscal", u"Crédito Fiscal"),
+        ("gov", "Gubernamentales"),
+        ("special", u"Regímenes Especiales"),
+        ("unico", u"Único Ingreso"),
+        ("export", u"Exportaciones"),
+    ],
         string='NCF para',
         default=lambda self: self._context.get('sale_fiscal_type', 'final'))
 
@@ -282,6 +286,32 @@ class AccountInvoice(models.Model):
                         "valide si lo ha digitado correctamente").format(ncf))
 
     @api.multi
+    @api.constrains('state', 'invoice_line_ids', 'partner_id')
+    def validate_products_export_ncf(self):
+        """ Validates that an invoices with a partner from country != DO
+            and products type != service must have Exportaciones NCF.
+
+            See DGII Norma 05-19, Art 10 for further information.
+        """
+        for inv in self:
+            if (inv.type == 'out_invoice' and
+                    inv.state in ('open', 'cancel') and
+                    inv.partner_id.country_id and
+                    inv.partner_id.country_id.code != 'DO'):
+                if any([
+                        p for p in inv.invoice_line_ids.mapped('product_id')
+                        if p.type != 'service'
+                ]):
+                    if inv.sale_fiscal_type != 'export':
+                        raise UserError(_(
+                            "La venta de bienes a clientes extranjeros deben "
+                            "realizarse con comprobante tipo Exportaciones"))
+                else:
+                    if inv.sale_fiscal_type != 'final':
+                        raise UserError(_(
+                            "La venta de servicios a clientes extranjeros "
+                            "deben realizarse con comprobante tipo Consumo"))
+
     @api.constrains('state', 'tax_line_ids')
     def validate_informal_withholding(self):
         """ Validates an invoice with Comprobante de Compras has 100% ITBIS
