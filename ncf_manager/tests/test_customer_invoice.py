@@ -93,6 +93,11 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.env.ref('ncf_manager.res_partner_demo_10')
         ]
 
+        self.export_partners = [
+            self.env.ref('ncf_manager.res_partner_demo_11'),
+            self.env.ref('ncf_manager.res_partner_demo_12')
+        ]
+
         self.sale_fiscal_type = [
             t[0] for t in
             self.env["res.partner"]._fields['sale_fiscal_type'].selection
@@ -335,7 +340,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             'fiscal': 'B01',
             'gov': 'B15',
             'special': 'B14',
-            'unico': 'B12'
+            'unico': 'B12',
+            'export': 'B16',
         }
 
         # Loop n times so NCF sequence is tested on a high demand scenario
@@ -343,7 +349,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             partner_id = random.choice(self.fiscal_partners +
                                        self.final_partners +
                                        self.gov_partners +
-                                       self.special_partners)
+                                       self.special_partners +
+                                       self.export_partners)
 
             invoice_id = self.inv_obj.create({
                 'type': 'out_invoice',
