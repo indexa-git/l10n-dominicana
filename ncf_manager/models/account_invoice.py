@@ -272,7 +272,7 @@ class AccountInvoice(models.Model):
         """
         for inv in self:
             if inv.type == 'out_invoice' and inv.state in (
-            'open', 'cancel') and inv.partner_id.country_id and inv.partner_id.country_id.code != 'do':
+            'open', 'cancel') and inv.partner_id.country_id and inv.partner_id.country_id.code != 'DO':
                 if any([p for p in inv.invoice_line_ids.mapped('product_id') if p.type != 'service']):
                     if inv.sale_fiscal_type != 'export':
                         raise UserError("La venta de bienes a clientes extranjeros deben realizarse con "
