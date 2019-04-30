@@ -267,7 +267,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             # Check sale_fiscal_type = special
             self.assertEquals(invoice_id.sale_fiscal_type, 'special')
 
-            # Because of Norma 05-19, remove taxes from Regímenes Especiales invoices
+            # Because of Norma 05-19, remove taxes from Regímenes Especiales
+            # invoices
             invoice_id.tax_line_ids = [(5, 0, 0)]
 
             # Validate invoice
@@ -363,7 +364,8 @@ class InvoiceNCFSequenceTest(TransactionCase):
             self.assertEquals(invoice_id.sale_fiscal_type,
                               partner_id.sale_fiscal_type)
 
-            # Because of Norma 05-19, remove taxes from Regímenes Especiales invoices
+            # Because of Norma 05-19, remove taxes from Regímenes Especiales
+            # invoices
             if partner_id in self.special_partners:
                 invoice_id.tax_line_ids = [(5, 0, 0)]
 

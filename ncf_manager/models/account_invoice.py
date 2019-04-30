@@ -359,7 +359,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def invoice_validate(self):
-        """ After all invoice validation routine, consume a NCF sequence and 
+        """ After all invoice validation routine, consume a NCF sequence and
             write it into reference field.
          """
         if not self.reference and (
