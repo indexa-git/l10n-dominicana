@@ -145,9 +145,7 @@ class AccountInvoice(models.Model):
 
             See DGII Norma 05-19, Art 3 for further information.
         """
-
         for inv in self:
-
             if inv.type == 'out_invoice' and inv.state in (
                     'open', 'cancel') and inv.sale_fiscal_type == 'special':
 
@@ -157,9 +155,11 @@ class AccountInvoice(models.Model):
                         .filtered(lambda tax: tax.tax_group_id.name in (
                             'ITBIS', 'ISC') and tax.amount != 0)
                 ]):
-                    raise UserError(
-                        "No puede validar una factura para Regímen Especial con ITBIS/ISC.\n\n"
+                    raise UserError(_(
+                        "No puede validar una factura para Regímen Especial "
+                        " con ITBIS/ISC.\n\n"
                         "Consulte Norma General 05-19, Art. 3 de la DGII")
+                    )
 
     def validate_fiscal_purchase(self):
         NCF = self.reference if self.reference else None
@@ -169,14 +169,14 @@ class AccountInvoice(models.Model):
                 raise ValidationError(_(
                     "NCF *{}* NO corresponde con el tipo de documento\n\n"
                     "No puede registrar Comprobantes Consumidor Final (02)")
-                                      .format(NCF))
+                    .format(NCF))
 
             elif not ncf_validation.is_valid(NCF):
                 raise UserError(_(
                     "NCF mal digitado\n\n"
                     "El comprobante *{}* no tiene la estructura correcta "
                     "valide si lo ha digitado correctamente")
-                                .format(NCF))
+                    .format(NCF))
 
             elif (self.journal_id.ncf_remote_validation and
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
@@ -188,7 +188,7 @@ class AccountInvoice(models.Model):
                     u"proveedor estén correctamente "
                     u"digitados, o si los números de ese NCF se "
                     "le agotaron al proveedor")
-                                      .format(NCF, self.partner_id.name))
+                    .format(NCF, self.partner_id.name))
 
             ncf_in_invoice = self.search_count([
                 ('id', '!=', self.id), ('company_id', '=', self.company_id.id),
@@ -298,15 +298,15 @@ class AccountInvoice(models.Model):
                 if not inv.partner_id.sale_fiscal_type:
                     raise ValidationError(_(
                         u"El cliente [{}]{} no tiene Tipo de comprobante, y es"
-                        "requerido para este tipo de factura.")
-                                          .format(inv.partner_id.id, inv.partner_id.name))
+                        "requerido para este tipo de factura.").format(
+                            inv.partner_id.id, inv.partner_id.name))
 
                 if inv.sale_fiscal_type in (
                         "fiscal", "gov", "special") and not inv.partner_id.vat:
                     raise UserError(_(
                         u"El cliente [{}]{} no tiene RNC/Céd, y es requerido"
-                        "para este tipo de factura.")
-                                    .format(inv.partner_id.id, inv.partner_id.name))
+                        "para este tipo de factura.".format(
+                            inv.partner_id.id, inv.partner_id.name)))
 
                 if (inv.amount_untaxed_signed >= 250000 and
                         inv.sale_fiscal_type != 'unico' and
@@ -359,8 +359,8 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def invoice_validate(self):
-        """ After all invoice validation routine, consume a NCF sequence and write it
-            into reference field.
+        """ After all invoice validation routine, consume a NCF sequence and 
+            write it into reference field.
          """
         if not self.reference and (
                 self.journal_id.ncf_control or
