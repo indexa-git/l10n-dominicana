@@ -196,17 +196,12 @@ class AccountInvoice(models.Model):
                 ('reference', '=', NCF),
                 ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
                 ('type', 'in', ('in_invoice', 'in_refund'))
-            ]) if self.id else self.search_count([('partner_id', '=',
-                                                   self.partner_id.id),
-                                                  ('company_id', '=',
-                                                   self.company_id.id),
-                                                  ('reference', '=', NCF),
-                                                  ('state', 'in',
-                                                   ('draft', 'open',
-                                                    'paid', 'cancel')),
-                                                  ('type',
-                                                   'in', ('in_invoice',
-                                                          'in_refund'))])
+            ]) if self.id else self.search_count(
+                [('partner_id', '=', self.partner_id.id),
+                 ('company_id', '=', self.company_id.id),
+                 ('reference', '=', NCF),
+                 ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
+                 ('type', 'in', ('in_invoice', 'in_refund'))])
 
             if ncf_in_invoice:
                 raise ValidationError(_(
@@ -287,6 +282,26 @@ class AccountInvoice(models.Model):
                         "valide si lo ha digitado correctamente").format(ncf))
 
     @api.multi
+    @api.constrains('state', 'tax_line_ids')
+    def validate_informal_withholding(self):
+        """ Validates an invoice with Comprobante de Compras has 100% ITBIS
+            withholding.
+
+            See DGII Norma 05-19, Art 7 for further information.
+        """
+
+        for inv in self:
+            if (inv.type == 'in_invoice' and inv.state == 'open' and
+                    inv.journal_id.purchase_type == 'informal'):
+
+                # If the sum of all taxes of category ITBIS is not 0
+                if sum([
+                        tax.amount for tax in inv.tax_line_ids.mapped('tax_id')
+                        .filtered(lambda t: t.tax_group_id.name == 'ITBIS')
+                ]):
+                    raise UserError(_("Debe retener el 100% del ITBIS"))
+
+    @api.multi
     def action_invoice_open(self):
         for inv in self:
             if inv.amount_untaxed == 0:
@@ -305,8 +320,8 @@ class AccountInvoice(models.Model):
                         "fiscal", "gov", "special") and not inv.partner_id.vat:
                     raise UserError(_(
                         u"El cliente [{}]{} no tiene RNC/Céd, y es requerido"
-                        "para este tipo de factura.".format(
-                            inv.partner_id.id, inv.partner_id.name)))
+                        "para este tipo de factura.").format(
+                            inv.partner_id.id, inv.partner_id.name))
 
                 if (inv.amount_untaxed_signed >= 250000 and
                         inv.sale_fiscal_type != 'unico' and
