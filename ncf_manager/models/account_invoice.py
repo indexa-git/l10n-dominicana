@@ -169,14 +169,14 @@ class AccountInvoice(models.Model):
                 raise ValidationError(_(
                     "NCF *{}* NO corresponde con el tipo de documento\n\n"
                     "No puede registrar Comprobantes Consumidor Final (02)")
-                                      .format(NCF))
+                    .format(NCF))
 
             elif not ncf_validation.is_valid(NCF):
                 raise UserError(_(
                     "NCF mal digitado\n\n"
                     "El comprobante *{}* no tiene la estructura correcta "
                     "valide si lo ha digitado correctamente")
-                                .format(NCF))
+                    .format(NCF))
 
             elif (self.journal_id.ncf_remote_validation and
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
@@ -188,7 +188,7 @@ class AccountInvoice(models.Model):
                     u"proveedor estén correctamente "
                     u"digitados, o si los números de ese NCF se "
                     "le agotaron al proveedor")
-                                      .format(NCF, self.partner_id.name))
+                    .format(NCF, self.partner_id.name))
 
             ncf_in_invoice = self.search_count([
                 ('id', '!=', self.id), ('company_id', '=', self.company_id.id),
@@ -196,17 +196,12 @@ class AccountInvoice(models.Model):
                 ('reference', '=', NCF),
                 ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
                 ('type', 'in', ('in_invoice', 'in_refund'))
-            ]) if self.id else self.search_count([('partner_id', '=',
-                                                   self.partner_id.id),
-                                                  ('company_id', '=',
-                                                   self.company_id.id),
-                                                  ('reference', '=', NCF),
-                                                  ('state', 'in',
-                                                   ('draft', 'open',
-                                                    'paid', 'cancel')),
-                                                  ('type',
-                                                   'in', ('in_invoice',
-                                                          'in_refund'))])
+            ]) if self.id else self.search_count(
+                [('partner_id', '=', self.partner_id.id),
+                 ('company_id', '=', self.company_id.id),
+                 ('reference', '=', NCF),
+                 ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
+                 ('type', 'in', ('in_invoice', 'in_refund'))])
 
             if ncf_in_invoice:
                 raise ValidationError(_(
@@ -296,14 +291,15 @@ class AccountInvoice(models.Model):
         """
 
         for inv in self:
-            if inv.type == 'in_invoice' and inv.state == 'open' and inv.journal_id.purchase_type == 'informal':
+            if (inv.type == 'in_invoice' and inv.state == 'open' and
+                    inv.journal_id.purchase_type == 'informal'):
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
                         tax.amount for tax in inv.tax_line_ids.mapped('tax_id')
                         .filtered(lambda t: t.tax_group_id.name == 'ITBIS')
                 ]):
-                    raise UserError("Debe retener el 100% del ITBIS")
+                    raise UserError(_("Debe retener el 100% del ITBIS"))
 
     @api.multi
     def action_invoice_open(self):
@@ -324,8 +320,8 @@ class AccountInvoice(models.Model):
                         "fiscal", "gov", "special") and not inv.partner_id.vat:
                     raise UserError(_(
                         u"El cliente [{}]{} no tiene RNC/Céd, y es requerido"
-                        "para este tipo de factura.".format(
-                            inv.partner_id.id, inv.partner_id.name)))
+                        "para este tipo de factura.").format(
+                            inv.partner_id.id, inv.partner_id.name))
 
                 if (inv.amount_untaxed_signed >= 250000 and
                         inv.sale_fiscal_type != 'unico' and
