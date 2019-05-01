@@ -117,13 +117,13 @@ class AccountTax(models.Model):
 
     isr_retention_type = fields.Selection([
         ('01', 'Alquileres'),
-         ('02', 'Honorarios por Servicios'),
-         ('03', 'Otras Rentas'),
-         ('04', 'Rentas Presuntas'),
-         ('05', u'Intereses Pagados a Personas Jurídicas'),
-         ('06', u'Intereses Pagados a Personas Físicas'),
-         ('07', u'Retención por Proveedores del Estado'),
-         ('08', u'Juegos Telefónicos'),
+        ('02', 'Honorarios por Servicios'),
+        ('03', 'Otras Rentas'),
+        ('04', 'Rentas Presuntas'),
+        ('05', u'Intereses Pagados a Personas Jurídicas'),
+        ('06', u'Intereses Pagados a Personas Físicas'),
+        ('07', u'Retención por Proveedores del Estado'),
+        ('08', u'Juegos Telefónicos'),
     ],
         string="Tipo de Retención en ISR",
     )
