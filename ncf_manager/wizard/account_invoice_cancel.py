@@ -30,20 +30,22 @@ class AccountInvoiceCancel(models.TransientModel):
     _name = "account.invoice.cancel"
     _description = "Cancel the Selected Invoices"
 
-    anulation_type = fields.Selection(
-        [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
-         ("03", u"03 - Impresión Defectuosa"),
-         ("04", u"04 - Corrección de la Información"),
-         ("05", "05 - Cambio de Productos"),
-         ("06", u"06 - Devolución de Productos"),
-         ("07", u"07 - Omisión de Productos"),
-         ("08", "08 - Errores en Secuencia de NCF"),
-         ("09", "09 - Por Cese de Operaciones"),
-         ("10", u"10 - Pérdida o Hurto de Talonarios")],
+    anulation_type = fields.Selection([
+        ("01", "01 - Deterioro de Factura Pre-impresa"),
+        ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
+        ("03", u"03 - Impresión Defectuosa"),
+        ("04", u"04 - Corrección de la Información"),
+        ("05", "05 - Cambio de Productos"),
+        ("06", u"06 - Devolución de Productos"),
+        ("07", u"07 - Omisión de Productos"),
+        ("08", "08 - Errores en Secuencia de NCF"),
+        ("09", "09 - Por Cese de Operaciones"),
+        ("10", u"10 - Pérdida o Hurto de Talonarios"),
+    ],
         string=u"Tipo de Anulación",
         required=True,
-        default=lambda self: self._context.get('anulation_type', '04'))
+        default=lambda self: self._context.get('anulation_type', '04'),
+    )
 
     @api.multi
     def invoice_cancel(self):

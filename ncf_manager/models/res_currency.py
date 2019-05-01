@@ -36,8 +36,9 @@ CURRENCY_DISPLAY_PATTERN = re.compile(r'(\w+)\s*(?:\((.*)\))?')
 class Currency(models.Model):
     _inherit = "res.currency"
 
-    bc_rate_xls = fields.Binary(string=u"Histórico en Excel de Tasas del Banco"
-                                " Central")
+    bc_rate_xls = fields.Binary(
+        string=u"Histórico en Excel de Tasas del Banco Central",
+    )
 
     @api.multi
     def update_rate_from_files(self):
@@ -54,7 +55,7 @@ class Currency(models.Model):
             "Sept": "09",
             "Oct": "10",
             "Nov": "11",
-            "Dic": "12"
+            "Dic": "12",
         }
 
         self.env["res.currency.rate"].search([('currency_id', '=', 3)
@@ -137,7 +138,10 @@ class CurrencyRate(models.Model):
             if rec.rate > 0:
                 rec.converted = 1 / rec.rate
 
-    converted = fields.Float(compute=_get_converted, digits=(12, 4))
+    converted = fields.Float(
+        compute=_get_converted,
+        digits=(12, 4),
+    )
 
     @api.multi
     def name_get(self):
@@ -149,4 +153,5 @@ class CurrencyRate(models.Model):
 
     rate = fields.Float(
         digits=(12, 12),
-        help='The rate of the currency to the currency of rate 1')
+        help='The rate of the currency to the currency of rate 1',
+    )

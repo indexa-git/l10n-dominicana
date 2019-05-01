@@ -22,9 +22,11 @@ from odoo import models, fields, api
 class IrSequence(models.Model):
     _inherit = 'ir.sequence'
 
-    ncf_padding = fields.Integer(required=True,
-                                 default=8,
-                                 help="Padding legally use by NCF sequences")
+    ncf_padding = fields.Integer(
+        required=True,
+        default=8,
+        help="Padding legally use by NCF sequences",
+    )
 
     ncf_dict = {
         "fiscal": "01",
@@ -40,7 +42,10 @@ class IrSequence(models.Model):
         "ext_payment": "17",
     }
 
-    ncf_control = fields.Boolean("Control de NCF", default=False)
+    ncf_control = fields.Boolean(
+        "Control de NCF",
+        default=False,
+    )
 
     def get_next_char(self, number_next):
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)
@@ -107,6 +112,11 @@ class IrSequenceDateRange(models.Model):
                  ("ext_payment", "Pagos al Exterior"),
                  ])
 
-    sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
-                                        string="NCF para")
-    max_number_next = fields.Integer(u"Número Máximo", default=100)
+    sale_fiscal_type = fields.Selection(
+        "get_sale_fiscal_type_from_partner",
+        string="NCF para",
+    )
+    max_number_next = fields.Integer(
+        u"Número Máximo",
+        default=100,
+    )

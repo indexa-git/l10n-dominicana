@@ -76,56 +76,65 @@ class ResPartner(models.Model):
         ("export", u"Exportaciones"),
     ],
         string="Tipo de comprobante",
-        default="final")
+        default="final",
+    )
 
-    sale_fiscal_type_list = [{
-        "id": "final",
-        "name": "Consumo",
-        "ticket_label": "Consumo",
-        "is_default": True
-    }, {
-        "id": "fiscal",
-        "name": "Crédito Fiscal"
-    }, {
-        "id": "gov",
-        "name": "Gubernamental"
-    }, {
-        "id": "special",
-        "name": "Regímenes Especiales"
-    }, {
-        "id": "unico",
-        "name": "Único Ingreso"
-    }, {
-        "id": "export",
-        "name": "Exportaciones"
-    }]
+    sale_fiscal_type_list = [
+        {
+            "id": "final",
+            "name": "Consumo",
+            "ticket_label": "Consumo",
+            "is_default": True
+        }, {
+            "id": "fiscal",
+            "name": "Crédito Fiscal"
+        }, {
+            "id": "gov",
+            "name": "Gubernamental"
+        }, {
+            "id": "special",
+            "name": "Regímenes Especiales"
+        }, {
+            "id": "unico",
+            "name": "Único Ingreso"
+        }, {
+            "id": "export",
+            "name": "Exportaciones"
+        },
+    ]
 
     sale_fiscal_type_vat = {
         "rnc": ["fiscal", "gov", "special"],
         "ced": ["final", "fiscal"],
         "other": ["final"],
-        "no_vat": ["final", "unico", "export"]
+        "no_vat": ["final", "unico", "export"],
     }
 
-    expense_type = fields.Selection(
-        [('01', '01 - Gastos de Personal'),
-         ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
-         ('03', '03 - Arrendamientos'),
-         ('04', '04 - Gastos de Activos Fijos'),
-         ('05', u'05 - Gastos de Representación'),
-         ('06', '06 - Otras Deducciones Admitidas'),
-         ('07', '07 - Gastos Financieros'),
-         ('08', '08 - Gastos Extraordinarios'),
-         ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
-         ('10', '10 - Adquisiciones de Activos'),
-         ('11', '11 - Gastos de Seguro')],
-        string="Tipo de gasto")
+    expense_type = fields.Selection([
+        ('01', '01 - Gastos de Personal'),
+        ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
+        ('03', '03 - Arrendamientos'),
+        ('04', '04 - Gastos de Activos Fijos'),
+        ('05', u'05 - Gastos de Representación'),
+        ('06', '06 - Otras Deducciones Admitidas'),
+        ('07', '07 - Gastos Financieros'),
+        ('08', '08 - Gastos Extraordinarios'),
+        ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
+        ('10', '10 - Adquisiciones de Activos'),
+        ('11', '11 - Gastos de Seguro'),
+    ],
+        string="Tipo de gasto",
+    )
 
-    fiscal_info_required = fields.Boolean(compute=_fiscal_info_required)
-    country_id = fields.Many2one('res.country',
-                                 string='Country',
-                                 ondelete='restrict',
-                                 default=lambda self: self.env.ref('base.do'))
+    fiscal_info_required = fields.Boolean(
+        compute=_fiscal_info_required,
+    )
+    country_id = fields.Many2one(
+        'res.country',
+        string='Country',
+        ondelete='restrict',
+        default=lambda self: self.env.ref('base.do'),
+    )
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
