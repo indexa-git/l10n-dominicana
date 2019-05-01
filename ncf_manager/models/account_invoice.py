@@ -151,8 +151,7 @@ class AccountInvoice(models.Model):
         """
         for inv in self:
             if inv.type == 'out_invoice' and inv.state in (
-                    'open', 'cancel') and inv.sale_fiscal_type == 'special' \
-                    and inv.journal_id.ncf_control:
+                    'open', 'cancel') and inv.sale_fiscal_type == 'special':
 
                 # If any invoice tax in ITBIS or ISC
                 if any([
@@ -324,8 +323,7 @@ class AccountInvoice(models.Model):
 
         for inv in self:
             if (inv.type == 'in_invoice' and inv.state == 'open' and
-                    inv.journal_id.purchase_type == 'informal' and
-                    inv.journal_id.ncf_control):
+                    inv.journal_id.purchase_type == 'informal'):
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
