@@ -11,10 +11,13 @@ Principalmente se enfoca en la gestión de los Números de Comprobantes Fiscal (
    - Facturas con Valor Fiscal (para Ventas)
    - Facturas para Consumidores Finales
    - Gubernamentales
+   - Regímenes Especiales
+   - Comprobante para Exportaciones
    - Notas de Débito y Crédito
    - Registro de Ingreso Único
-   - Registro de Proveedores Informales
+   - Comprobantes de Compras
    - Registro de Gastos Menores
+   - Pagos al Exterior
 
 - Validación en **tiempo real** de comprobantes
 	- Estructura correcta del NCF digitado

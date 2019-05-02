@@ -103,7 +103,7 @@ class IrSequenceDateRange(models.Model):
                 [("credit_note", u"Nota de Crédito"),
                  ("debit_note", u"Nota de Débito"),
                  ("minor", "Gastos Menores"),
-                 ("informal", "Proveedores Informales"),
+                 ("informal", "Comprobante de Compras"),
                  ("ext_payment", "Pagos al Exterior"),
                  ])
 
