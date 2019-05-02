@@ -150,6 +150,11 @@ class PosOrder(models.Model):
         orders = self.check_ncf_control_from_ui(orders)
         res = super(PosOrder, self).create_from_ui(orders)
         self = self.browse(res)
+        for record in self:
+            if record.refund_payment_account_move_line_ids:
+                for aml in record.refund_payment_account_move_line_ids:
+                    for p_id in aml.invoice_id.payment_move_line_ids.ids:
+                        record.invoice_id.assign_outstanding_credit(p_id)
         return res
 
     @api.model
@@ -302,9 +307,23 @@ class PosOrder(models.Model):
     def _process_order(self, pos_order):
         order = super(PosOrder, self)._process_order(pos_order)
         payment_reference = False
-        for statement in pos_order['statement_ids']:
-            payment_reference = payment_reference or statement[2].get(
+        for st in pos_order['statement_ids']:
+            statement = st[2]
+            payment_reference = payment_reference or statement.get(
                 'payment_reference', False)
+            if statement['journal_id'] == 10001 and statement['note']:
+                invoice = self.env['account.invoice'].search([
+                    ('reference', '=', statement['note'])
+                ])
+                acc_move_line_ids = (
+                    order.refund_payment_account_move_line_ids.filtered(
+                        lambda p: p.ref == statement['note'])
+                )
+                invoice.write({
+                    'payment_move_line_ids': [
+                        (4, id, 0) for id in acc_move_line_ids.ids
+                    ],
+                })
         if payment_reference:
             order.write({
                 'payment_reference': payment_reference,
