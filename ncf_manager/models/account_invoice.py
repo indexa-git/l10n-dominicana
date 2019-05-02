@@ -181,6 +181,13 @@ class AccountInvoice(models.Model):
                     "valide si lo ha digitado correctamente")
                     .format(NCF))
 
+            elif not self.partner_id.vat:
+                raise ValidationError(_(
+                    u"Proveedor sin RNC/Céd\n\n"
+                    u"El proveedor *{}* no tiene RNC o Cédula y es requerido "
+                    u"para registrar compras Fiscales")
+                    .format(self.partner_id.name))
+
             elif (self.journal_id.ncf_remote_validation and
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
                 raise ValidationError(_(
