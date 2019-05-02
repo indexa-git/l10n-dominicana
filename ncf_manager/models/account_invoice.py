@@ -318,7 +318,8 @@ class AccountInvoice(models.Model):
             if (inv.type == 'out_invoice' and
                     inv.state in ('open', 'cancel') and
                     inv.partner_id.country_id and
-                    inv.partner_id.country_id.code != 'DO'):
+                    inv.partner_id.country_id.code != 'DO' and
+                    inv.journal_id.ncf_control):
                 if any([
                         p for p in inv.invoice_line_ids.mapped('product_id')
                         if p.type != 'service'
