@@ -394,7 +394,7 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]),
-                              date_range_id.number_next_actual - 1)
+                              date_range_id.number_next - 1)
 
     def test_export_invoices(self):
         """ Exportaciones NCF tests """
@@ -435,4 +435,4 @@ class InvoiceNCFSequenceTest(TransactionCase):
 
             # Check date_range sequence
             self.assertEquals(int(str(invoice_id.reference)[3:]),
-                              date_range_id.number_next_actual - 1)
+                              date_range_id.number_next - 1)
