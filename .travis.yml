@@ -17,7 +17,6 @@ env:
   matrix:
     - LINT_CHECK="1"
     - TESTS="1" ODOO_REPO="odoo/odoo" MAKEPOT="1"
-    - TESTS="1" ODOO_REPO="OCA/OCB"
 
 install:
   - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
