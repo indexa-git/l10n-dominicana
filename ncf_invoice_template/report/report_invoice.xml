@@ -67,6 +67,8 @@
                         <t t-if="o.partner_id.parent_id">
                             <span class="m-0" t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
                         </t>
                         <t t-else="">
                             <span class="m-0" t-field="o.partner_id.name"/>
@@ -82,6 +84,8 @@
                         <t t-if="o.partner_id.parent_id">
                             <span class="m-0" t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
                         </t>
                         <t t-else="">
                             <span class="m-0" t-field="o.partner_id.name"/>
@@ -90,13 +94,17 @@
                         <br/>
                     </t>
                     <t t-else="">
-                        <strong>ID cliente:</strong>
-                        <span class="m-0" t-field="o.partner_id.vat"/>
+                        <t t-if="o.partner_id.vat">
+                            <strong>ID cliente:</strong>
+                            <span class="m-0" t-field="o.partner_id.vat"/>
+                        </t>
                         <br/>
                         <strong>Nombre:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span class="m-0" t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
                         </t>
                         <t t-else="">
                             <span class="m-0" t-field="o.partner_id.name"/>
@@ -111,6 +119,8 @@
                         <t t-if="o.partner_id.parent_id">
                             <span class="m-0" t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
                         </t>
                         <t t-else="">
                             <span class="m-0" t-field="o.partner_id.name"/>
@@ -131,9 +141,9 @@
                     <strong>Origen:</strong>
                     <p class="m-0" t-field="o.origin"/>
                 </div>
-                <div class="col-auto mw-100 mb-2" t-if="o.reference" name="reference">
+                <div class="col-auto mw-100 mb-2" t-if="o.move_name" name="number">
                     <strong>Factura No.:</strong>
-                    <p class="m-0" t-field="o.number"/>
+                    <p t-field="o.move_name"/>
                 </div>
             </div>
         </xpath>
