@@ -416,7 +416,7 @@ class AccountInvoice(models.Model):
          """
         if not self.reference and (self.journal_id.ncf_control or
                                    self.journal_id.purchase_type in [
-                                       'minor', 'informal', 'ext_payment'
+                                       'minor', 'informal', 'exterior'
                                    ]):
             sequence_id = self.journal_id.sequence_id
             if self.type == 'out_invoice':

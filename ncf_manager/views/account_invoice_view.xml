@@ -96,7 +96,7 @@
             <xpath expr="//field[@name='reference']" position="attributes">
                 <attribute name="string">NCF</attribute>
                 <attribute name="attrs">{
-                'size': 19, 'invisible': [('purchase_type', 'not in', ['normal','minor','informal'])],
+                'size': 19, 'invisible': [('purchase_type', 'not in', ['normal','minor','informal', 'exterior'])],
                 'required': [('purchase_type', '=', 'normal')],
                 'readonly': [('state', '!=', 'draft'), ('purchase_type', '=', 'normal')]}</attribute>
             </xpath>
@@ -105,9 +105,9 @@
             <field name="journal_id" position="replace"/>
             <field name="reference" position="after">
                 <field name="origin_out" groups="base.group_user" attrs="{
-                            'invisible': ['|', ('type', '!=', 'in_refund'), ('purchase_type', 'not in', ['normal', 'minor', 'informal'])],
+                            'invisible': ['|', ('type', '!=', 'in_refund'), ('purchase_type', 'not in', ['normal', 'minor', 'informal', 'exterior'])],
                             'readonly': [('state', '!=', 'draft')],
-                            'required': [('type', '=', 'in_refund'), ('purchase_type', 'in', ['normal', 'minor', 'informal'])]}"/>
+                            'required': [('type', '=', 'in_refund'), ('purchase_type', 'in', ['normal', 'minor', 'informal', 'exterior'])]}"/>
                 <field name="name"/>
             </field>
             <field name="reference" position="before">
@@ -116,8 +116,8 @@
                        options="{'no_create': True, 'no_open': True}"
                        attrs="{'readonly':[('state', '!=', 'draft')]}"/>
                 <field name="expense_type" attrs="{
-                       'invisible':[('purchase_type', 'not in', ['normal', 'minor', 'informal'])],
-                       'required': [('purchase_type', 'in', ['normal', 'minor', 'informal'])],
+                       'invisible':[('purchase_type', 'not in', ['normal', 'minor', 'informal', 'exterior'])],
+                       'required': [('purchase_type', 'in', ['normal', 'minor', 'informal', 'exterior'])],
                        'readonly': [('state', '!=', 'draft')]}"/>
             </field>
 
