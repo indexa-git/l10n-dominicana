@@ -31,7 +31,7 @@
               "Grupo Neotec SRL",
     'license': 'LGPL-3',
     'category': 'Localization',
-    'version': '11.0.1.0.0',
+    'version': '11.0.1.1.0',
 
     # any module necessary for this one to work correctly
     'depends': ['ncf_manager', 'point_of_sale'],
