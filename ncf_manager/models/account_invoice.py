@@ -181,6 +181,13 @@ class AccountInvoice(models.Model):
                     "valide si lo ha digitado correctamente")
                     .format(NCF))
 
+            elif not self.partner_id.vat:
+                raise ValidationError(_(
+                    u"Proveedor sin RNC/Céd\n\n"
+                    u"El proveedor *{}* no tiene RNC o Cédula y es requerido "
+                    u"para registrar compras Fiscales")
+                    .format(self.partner_id.name))
+
             elif (self.journal_id.ncf_remote_validation and
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
                 raise ValidationError(_(
@@ -270,14 +277,6 @@ class AccountInvoice(models.Model):
     @api.onchange("reference", "origin_out")
     def onchange_ncf(self):
         if self.journal_id.purchase_type in ('normal', 'informal', 'minor'):
-            NCF = self.reference if self.reference else None
-            purchase_id = self.env.context.get('default_purchase_id', False)
-            if purchase_id and NCF and NCF[0:3] not in ['B01', 'B04']:
-                self.update({
-                    'name': self.env.context.get('default_origin'),
-                    'purchase_id': self.env.context.get('default_purchase_id'),
-                    'reference': '',
-                })
             self.validate_fiscal_purchase()
 
         if self.origin_out and (self.type == 'out_refund' or
@@ -417,7 +416,7 @@ class AccountInvoice(models.Model):
          """
         if not self.reference and (self.journal_id.ncf_control or
                                    self.journal_id.purchase_type in [
-                                       'minor', 'informal', 'ext_payment'
+                                       'minor', 'informal', 'exterior'
                                    ]):
             sequence_id = self.journal_id.sequence_id
             if self.type == 'out_invoice':

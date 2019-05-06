@@ -17,7 +17,7 @@
 
 {
     'name': "NCF Sale",
-    'version': '12.0.1.0.1',
+    'version': '12.0.1.0.0',
     'summary': """
         Este módulo extiende la funcionalidad de NCF Manager hacia ventas,
         para realizar algunas validaciones antes de crear la factura.
