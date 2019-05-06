@@ -2,7 +2,6 @@
 # Part of Domincana Premium. See LICENSE file for full copyright and licensing details.
 
 import json
-from datetime import datetime as dt
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -31,9 +30,11 @@ class AccountInvoice(models.Model):
     def _compute_invoice_payment_date(self, invoices):
         for inv in invoices:
             if inv.state == 'paid':
-                dates = [dt.strptime(payment['date'], '%Y-%m-%d') for payment in self._get_invoice_payment_widget(inv)]
+                dates = [payment['date'] for payment in self._get_invoice_payment_widget(inv)]
                 if dates:
-                    inv.payment_date = max(dates).date()
+                    max_date = max(dates)
+                    date_invoice = inv.date_invoice
+                    inv.payment_date = max_date if max_date >= date_invoice else date_invoice
 
     @api.multi
     @api.constrains('tax_line_ids')
@@ -63,8 +64,6 @@ class AccountInvoice(models.Model):
         """Compute invoice common taxes fields"""
         for inv in self:
 
-            fiscal_taxes = ['ISC', 'ITBIS', 'ISR', 'Propina']
-
             tax_line_ids = self._get_tax_line_ids(inv)
 
             if inv.state != 'draft':
@@ -82,7 +81,7 @@ class AccountInvoice(models.Model):
 
                 # ITBIS sujeto a proporcionalidad
                 inv.proportionality_tax = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
-                    lambda tax: tax.account_id.account_fiscal_type == 'A29').mapped('amount')))
+                    lambda tax: tax.account_id.account_fiscal_type in ['A29', 'A30']).mapped('amount')))
 
                 # ITBIS llevado al Costo
                 inv.cost_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
@@ -170,13 +169,19 @@ class AccountInvoice(models.Model):
 
         for payment in self._get_invoice_payment_widget(invoice_id):
             payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
+            move_id = False
             if payment_id:
                 if payment_id.journal_id.type in ['cash', 'bank']:
                     p_string = payment_id.journal_id.payment_form
 
+            if not payment_id:
+                move_id = self.env['account.move'].browse(payment.get('move_id'))
+                if move_id:
+                    p_string = 'swap'
+
             # If invoice is paid, but the payment doesn't come from
             # a journal, assume it is a credit note
-            payment = p_string if payment_id else 'credit_note'
+            payment = p_string if payment_id or move_id else 'credit_note'
             payments.append(payment)
 
         methods = {p for p in payments}
@@ -214,18 +219,35 @@ class AccountInvoice(models.Model):
     def _compute_third_withheld(self):
         for inv in self:
             if inv.state == 'paid':
+                inv.third_withheld_itbis = 0
+                inv.third_income_withholding = 0
+                witheld_itbis_types = ['A34', 'A36']
+                witheld_isr_types = ['ISR', 'A38']
                 for payment in self._get_invoice_payment_widget(inv):
                     payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
                     if payment_id:
                         # ITBIS Retenido por Terceros
-                        inv.third_withheld_itbis = self._convert_to_local_currency(
+                        inv.third_withheld_itbis += self._convert_to_local_currency(
                             inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                      if move_line.account_id.account_fiscal_type == 'A36']))
+                                      if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
 
                         # Retención de Renta por Terceros
-                        inv.third_income_withholding = self._convert_to_local_currency(
+                        inv.third_income_withholding += self._convert_to_local_currency(
                             inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                      if move_line.account_id.account_fiscal_type == 'ISR']))
+                                      if move_line.account_id.account_fiscal_type in witheld_isr_types]))
+
+                    if not payment_id:
+                        move_id = self.env['account.move'].browse(payment.get('move_id'))
+                        if move_id:
+                            # ITBIS Retenido por Terceros
+                            inv.third_withheld_itbis += self._convert_to_local_currency(
+                                inv, sum([move_line.debit for move_line in move_id.line_ids
+                                          if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
+
+                            # Retención de Renta por Terceros
+                            inv.third_income_withholding += self._convert_to_local_currency(
+                                inv, sum([move_line.debit for move_line in move_id.line_ids
+                                          if move_line.account_id.account_fiscal_type in witheld_isr_types]))
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')

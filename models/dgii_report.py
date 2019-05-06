@@ -32,7 +32,7 @@ class DgiiReport(models.Model):
     @api.multi
     def _compute_previous_report_pending(self):
         for report in self:
-            previous = self.search([('company_id', '=', self.env.user.company_id.id),
+            previous = self.search([('company_id', '=', report.company_id.id),
                                     ('state', 'in', ('draft', 'generated')),
                                     ('id', '!=', self.id)], order='create_date asc', limit=1)
             if previous:
@@ -242,24 +242,25 @@ class DgiiReport(models.Model):
 
         return super(DgiiReport, self).write(vals)
 
-    @api.multi
-    def unlink(self):
-        """When report is deleted, set all implied invoices fiscal_status to False"""
-        for report in self:
-            PurchaseLine = self.env['dgii.reports.purchase.line']
-            SaleLine = self.env['dgii.reports.sale.line']
-            CancelLine = self.env['dgii.reports.cancel.line']
-            ExteriorLine = self.env['dgii.reports.exterior.line']
-            invoice_ids = PurchaseLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            invoice_ids += SaleLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            invoice_ids += ExteriorLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
-            for inv in invoice_ids:
-                inv.fiscal_status = False
-        return super(DgiiReport, self).unlink()
+    @staticmethod
+    def get_date_tuple(date):
+        return date.year, date.month
 
-    def _get_pending_invoices(self):
-        return self.env['account.invoice'].search([('fiscal_status', '=', 'normal'), ('state', '=', 'paid')])
+    def _get_pending_invoices(self, rec, types):
+
+        period = dt.strptime(rec.name, '%m/%Y')
+
+        month, year = rec.name.split('/')
+        start_date = '{}-{}-01'.format(year, month)
+        invoice_ids = self.env['account.invoice'].search([
+            ('fiscal_status', '=', 'normal'),
+            ('state', '=', 'paid'),
+            ('payment_date', '<=', start_date),
+            ('company_id', '=', rec.company_id.id),
+            ('type', 'in', types),
+        ]).filtered(lambda inv: self.get_date_tuple(inv.payment_date) == (period.year, period.month))
+
+        return invoice_ids
 
     def _get_invoices(self, rec, states, types):
         """
@@ -284,7 +285,7 @@ class DgiiReport(models.Model):
                                                            (inv.journal_id.ncf_control is True))
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
-        invoice_ids += self._get_pending_invoices()
+        invoice_ids += self._get_pending_invoices(rec, types)
 
         return invoice_ids
 
@@ -363,12 +364,14 @@ class DgiiReport(models.Model):
         :param invoice: account.invoice object
         :return: boolean
         """
+        if not invoice.payment_date:
+            return False
 
         payment_date = invoice.payment_date
         period = dt.strptime(report.name, '%m/%Y')
-        same_period = (payment_date.month, payment_date.year) == (period.month, period.year)
+        same_minor_period = (payment_date.month, payment_date.year) <= (period.month, period.year)
 
-        return True if (payment_date and same_period) or invoice.fiscal_status == 'normal' else False
+        return True if (payment_date and same_minor_period) else False
 
     @api.multi
     def _compute_606_data(self):
@@ -381,7 +384,7 @@ class DgiiReport(models.Model):
             line = 0
             report_data = ''
             for inv in invoice_ids:
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
                 values = {
@@ -393,7 +396,7 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.reference,
                     'modified_invoice_number': inv.origin_out if inv.type == 'in_refund' else False,
                     'invoice_date': inv.date_invoice,
-                    'payment_date': inv.payment_date if inv.payment_date and self._include_in_current_report(rec, inv) else False,
+                    'payment_date': inv.payment_date if inv.payment_date else False,
                     'service_total_amount': inv.service_total_amount,
                     'good_total_amount': inv.good_total_amount,
                     'invoiced_amount': inv.amount_untaxed_signed,
@@ -404,8 +407,8 @@ class DgiiReport(models.Model):
                     'purchase_perceived_itbis': 0,  # Falta computarlo en la factura
                     'purchase_perceived_isr': 0,  # Falta computarlo en la factura
                     'isr_withholding_type': inv.isr_withholding_type,
-                    'withholded_itbis': inv.withholded_itbis if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
-                    'income_withholding': inv.income_withholding if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'withholded_itbis': inv.withholded_itbis if inv.payment_date else 0,
+                    'income_withholding': inv.income_withholding if inv.payment_date else 0,
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
@@ -610,7 +613,7 @@ class DgiiReport(models.Model):
             for inv in invoice_ids:
                 op_dict = self._process_op_dict(op_dict, inv)
                 income_dict = self._process_income_dict(income_dict, inv)
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.sale_fiscal_type != 'unico' else self.formated_rnc_cedula(inv.company_id.vat)
                 payments = self._get_sale_payments_forms(inv)
                 values = {
@@ -625,9 +628,9 @@ class DgiiReport(models.Model):
                     'withholding_date': inv.payment_date.strftime("%Y-%m-%d") if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding, inv.third_withheld_itbis])) else False,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
-                    'third_withheld_itbis': inv.third_withheld_itbis if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'third_withheld_itbis': inv.third_withheld_itbis if inv.payment_date else 0,
                     'perceived_itbis': 0,  # Pendiente
-                    'third_income_withholding': inv.third_income_withholding if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'third_income_withholding': inv.third_income_withholding if inv.payment_date else 0,
                     'perceived_isr': 0,  # Pendiente
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
@@ -711,11 +714,11 @@ class DgiiReport(models.Model):
             CancelLine = self.env['dgii.reports.cancel.line']
             CancelLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'in_invoice'])
+            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'in_invoice', 'out_refund'])
             line = 0
             report_data = ''
             for inv in invoice_ids:
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
                 values = {
                     'dgii_report_id': rec.id,
@@ -782,7 +785,7 @@ class DgiiReport(models.Model):
             line = 0
             report_data = ''
             for inv in invoice_ids:
-                inv.fiscal_status = 'blocked'
+                inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
                 values = {
                     'dgii_report_id': rec.id,
@@ -797,9 +800,9 @@ class DgiiReport(models.Model):
                     'doc_number': inv.number,
                     'doc_date': inv.date_invoice,
                     'invoiced_amount': inv.amount_untaxed_signed,
-                    'isr_withholding_date': inv.payment_date if inv.payment_date and self._include_in_current_report(rec, inv) else False,
+                    'isr_withholding_date': inv.payment_date if inv.payment_date else False,
                     'presumed_income': 0,  # Pendiente
-                    'withholded_isr': inv.income_withholding if inv.payment_date and self._include_in_current_report(rec, inv) else 0,
+                    'withholded_isr': inv.income_withholding if inv.payment_date else 0,
                     'invoice_id': inv.id
                 }
                 ExteriorLine.create(values)
