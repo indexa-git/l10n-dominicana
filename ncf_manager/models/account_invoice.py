@@ -241,7 +241,7 @@ class AccountInvoice(models.Model):
         return res
 
     @api.onchange('partner_id')
-    def onchange_partner_id(self):
+    def _onchange_partner_id(self):
         res = super(AccountInvoice, self)._onchange_partner_id()
         if self.partner_id and self.type == 'out_invoice':
             if self.journal_id.ncf_control:
