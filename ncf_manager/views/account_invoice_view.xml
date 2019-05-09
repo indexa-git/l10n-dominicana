@@ -96,9 +96,10 @@
             <xpath expr="//field[@name='reference']" position="attributes">
                 <attribute name="string">NCF</attribute>
                 <attribute name="attrs">{
-                'size': 19, 'invisible': [('purchase_type', 'not in', ['normal','minor','informal', 'exterior'])],
+                'invisible': [('purchase_type', 'not in', ['normal','minor','informal', 'exterior'])],
                 'required': [('purchase_type', '=', 'normal')],
-                'readonly': [('state', '!=', 'draft'), ('purchase_type', '=', 'normal')]}</attribute>
+                'readonly': ['|', '&',('state', '!=', 'draft'),('purchase_type', '=', 'normal'),('purchase_type', 'in', ['minor','informal', 'exterior'])]}
+                </attribute>
             </xpath>
 
             <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='other_info']/group[1]/group[1]/field[@name='name']" position="replace"/>
