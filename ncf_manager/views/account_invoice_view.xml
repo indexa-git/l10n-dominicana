@@ -98,7 +98,7 @@
                 <attribute name="attrs">{
                 'invisible': [('purchase_type', 'not in', ['normal','minor','informal', 'exterior'])],
                 'required': [('purchase_type', '=', 'normal')],
-                'readonly': ['|', '&',('state', '!=', 'draft'),('purchase_type', '=', 'normal'),('purchase_type', 'in', ['minor','informal', 'exterior'])]}
+                'readonly': ['|', '&amp;',('state', '!=', 'draft'),('purchase_type', '=', 'normal'),('purchase_type', 'in', ['minor','informal', 'exterior'])]}
                 </attribute>
             </xpath>
 
