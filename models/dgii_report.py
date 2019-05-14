@@ -250,7 +250,7 @@ class DgiiReport(models.Model):
         period = dt.strptime(rec.name, '%m/%Y')
 
         month, year = rec.name.split('/')
-        start_date = '{}-{}-01'.format(year, month)
+        start_date = '{}-{}-{}'.format(year, month, calendar.monthrange(int(year), int(month))[1])
         invoice_ids = self.env['account.invoice'].search([
             ('fiscal_status', '=', 'normal'),
             ('state', '=', 'paid'),
