@@ -240,7 +240,7 @@ class AccountInvoice(models.Model):
                 self.journal_id = journal_id.id
         return res
 
-    @api.onchange('partner_id')
+    @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
         res = super(AccountInvoice, self)._onchange_partner_id()
         if self.partner_id and self.type == 'out_invoice':
