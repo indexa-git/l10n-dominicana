@@ -32,7 +32,7 @@ class AccountInvoice(models.Model):
             if inv.state == 'paid':
                 dates = [payment['date'] for payment in self._get_invoice_payment_widget(inv)]
                 if dates:
-                    max_date = max(dates)
+                    max_date = fields.Date.from_string(max(dates))
                     date_invoice = inv.date_invoice
                     inv.payment_date = max_date if max_date >= date_invoice else date_invoice
 
