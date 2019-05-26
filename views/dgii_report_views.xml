@@ -228,7 +228,7 @@
     </record>
 
     <menuitem id="marcos_account_dgii_menu" name="DGII"
-              parent="account_accountant.menu_accounting"
+              parent="account.menu_finance"
               sequence="5"
               groups="account.group_account_user"/>
 
