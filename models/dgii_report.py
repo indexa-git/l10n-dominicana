@@ -27,6 +27,7 @@ class DgiiReportSaleSummary(models.Model):
 
 class DgiiReport(models.Model):
     _name = 'dgii.reports'
+    _description = "DGII Report"
     _inherit = ['mail.thread']
 
     @api.multi
