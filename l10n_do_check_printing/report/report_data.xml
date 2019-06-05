@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <report
+            id="printing_check_report_action"
+            model="account.payment"
+            string="Cheques"
+            report_type="qweb-pdf"
+            name="l10n_do_check_printing.check_print_report"
+            file="l10n_do_check_printing.check_print_report"
+    />
+<!--
+
+            attachment_use="True"
+            attachment="(object.state in ('open','paid')) and
+    ('CHK'+(object.number or '').replace('/','')+'.pdf')"
+-->
+    <record id="l10n_do_check_printing.printing_check_report_action" model="ir.actions.report">
+        <field name="paperformat_id" ref="l10n_do_check_printing.paper_format_check"/>
+    </record>
+</odoo>

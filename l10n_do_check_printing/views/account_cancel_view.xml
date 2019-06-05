@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_account_payment_form_inherited" model="ir.ui.view">
+        <field name="name">account.payment.form.inherited</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='post']" position="after">
+                <button name="action_draft" class="oe_highlight" states="cancelled" string="Set To Draft" type="object"/>
+            </xpath>
+
+            <field name='state' position="attributes">
+                <attribute name="statusbar_visible">draft,posted,reconciled,cancelled</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

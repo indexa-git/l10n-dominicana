@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_do_check_printing_check_report_config_form" model="ir.ui.view">
+        <field name="name">Platilla de chques</field>
+        <field name="model">check.report.config</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="font_zise"/>
+                    </group>
+
+                    <group string="Cabecera">
+                        <field name="check_header_top"/>
+                        <field name="check_header_left"/>
+                        <field name="check_header"/>
+                    </group>
+
+                    <group string="Coletilla">
+                        <field name="header"/>
+                        <field name="without_date"/>
+                        <field name="header_date"/>
+                        <field name="header_date_left"/>
+                        <field name="header_concept"/>
+                        <field name="header_concept_left"/>
+                        <field name="without_amount"/>
+                        <field name="header_amount"/>
+                        <field name="header_amount_left"/>
+                    </group>
+
+                    <group string="Cuerpo">
+                        <field name="body_top"/>
+                        <field name="date_top"/>
+                        <field name="date_left"/>
+                        <field name="name_top"/>
+                        <field name="name_left"/>
+                        <field name="amount_top"/>
+                        <field name="amount_left"/>
+                        <field name="amount_letter_top"/>
+                        <field name="amount_letter_left"/>
+                    </group>
+
+                    <group>
+                    <group string="Pie contable del cheque">
+                        <field name="without_foot"/>
+                        <field name="check_accounting_footer_top"/>
+                        <field name="account_footer_left"/>
+                        <field name="sub_account_footer_left"/>
+                        <field name="description_footer_left"/>
+                        <field name="aux_footer_left"/>
+                        <field name="debit_footer_left"/>
+                        <field name="credit_footer_left"/>
+                    </group>
+                </group>
+
+                    <group string="Detalle">
+                        <field name="check_footer_top"/>
+                        <field name="check_footer_left"/>
+                        <field name="check_footer"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="l10n_do_check_printing_check_report_config_tree" model="ir.ui.view">
+        <field name="name">Plantillas de cheques</field>
+        <field name="model">check.report.config</field>
+        <field name="arch" type="xml">
+            <tree string="">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <record id="l10n_do_check_printing_check_report_config_action" model="ir.actions.act_window">
+        <field name="name">Platilla de chques</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">check.report.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                <!-- Add Text Here -->
+            </p>
+            <p>
+                <!-- More details about what a user can do with this object will be OK -->
+            </p>
+        </field>
+    </record>
+
+    <!-- This Menu Item must have a parent and an action -->
+    <menuitem id="l10n_do_check_printing_check_report_config_menu" name="Plantillas de cheques"
+              parent="account.account_account_menu" action="l10n_do_check_printing_check_report_config_action"
+              sequence="10"/>
+</odoo>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template name="ck_footer_banco_popular" id="ck_footer_banco_popular">
+        <style type="text/css">
+            .tg {border-collapse:collapse;border-spacing:0;}
+            .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;overflow:hidden;word-break:normal;}
+            .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px
+            5px;overflow:hidden;word-break:normal;}
+            .tg .tg-rg0h{font-size:12px;text-align:center;vertical-align:top}
+            .tg .tg-dx8v{font-size:12px;vertical-align:top}
+        </style>
+        <table class="tg" style="undefined;table-layout: fixed; width: 915px">
+            <colgroup>
+                <col style="width: 138px"/>
+                <col style="width: 600px"/>
+                <col style="width: 177px"/>
+            </colgroup>
+            <tr>
+                <th class="tg-rg0h">
+                    <span t-field="o.payment_date"/>
+                </th>
+                <th class="tg-dx8v">
+                    <span t-field="o.communication"/>
+                </th>
+                <th class="tg-dx8v">
+                    <span t-field="o.amount"/>
+                </th>
+            </tr>
+        </table>
+    </template>
+
+    <template id="check_print_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article">
+                    <style>
+                        body {
+                            font-size:<t t-esc="o.journal_id.check_layout.font_zise"/>px;
+                        }
+                        .header {
+                           margin-top:<t t-esc="o.journal_id.check_layout.header"/>in;
+                           position: fixed;
+                        }
+                       .header_date {
+                           margin-top:<t t-esc="o.journal_id.check_layout.header_date"/>in;
+                           margin-left:<t t-esc="o.journal_id.check_layout.header_date_left"/>in;
+                           position: fixed;
+                       }
+                       .header_concept {
+                           margin-top:<t t-esc="o.journal_id.check_layout.header_concept"/>in;
+                           margin-left:<t t-esc="o.journal_id.check_layout.header_concept_left"/>in;
+                           text-transform: uppercase;
+                           position: fixed;
+                       }
+                       .header_amount {
+                           margin-top:<t t-esc="o.journal_id.check_layout.header_amount"/>in;
+                           margin-left:<t t-esc="o.journal_id.check_layout.header_amount_left"/>in;
+                           position: fixed;
+                       }
+                        .check_header{
+                            margin-top:<t t-esc="o.journal_id.check_layout.check_header_top"/>mm;
+                            margin-top:<t t-esc="o.journal_id.check_layout.check_header_left"/>mm;
+                            position: absolute;
+                        }
+                        .check_body{
+                            margin-top:<t t-esc="o.journal_id.check_layout.body_top"/>mm;
+                            position: absolute;
+                        }
+                        .check_name {
+                            margin-top:<t t-esc="o.journal_id.check_layout.name_top"/>mm;
+                            margin-left:<t t-esc="o.journal_id.check_layout.name_left"/>mm;
+                            width: 200mm;
+                            position: absolute;
+                            text-transform: uppercase;
+                        }
+                        .check_date {
+                            margin-top:<t t-esc="o.journal_id.check_layout.date_top"/>mm;
+                            margin-left:<t t-esc="o.journal_id.check_layout.date_left"/>mm;
+                            width: 40mm;
+                            position: absolute;
+                        }
+                        .check_amount {
+                            margin-top:<t t-esc="o.journal_id.check_layout.amount_top"/>mm;
+                            margin-left:<t t-esc="o.journal_id.check_layout.amount_left"/>mm;
+                            position: absolute;
+                            font-size: 18px;
+                            font-weight: bold !important;
+                        }
+                        .check_in_words {
+                            margin-top:<t t-esc="o.journal_id.check_layout.amount_letter_top"/>mm;
+                            margin-left:<t t-esc="o.journal_id.check_layout.amount_letter_left"/>mm;
+                            width: 200mm;
+                            position: absolute;
+                        }
+
+                        .check_accounting_footer_top{
+                            margin-top:<t t-esc="o.journal_id.check_layout.check_accounting_footer_top"/>in;
+                            <!--position: absolute;-->
+                        }
+                        .account_footer_left{
+                            margin-left:: 2.5in;<!--t t-esc="o.journal_id.check_layout.account_footer_left" /-->
+                            position: fixed;
+                        }
+                        .description_footer_left{
+                            margin-left:<t t-esc="o.journal_id.check_layout.description_footer_left"/>in;
+                            position: fixed;
+                        }
+                        .debit_footer_left{
+                            margin-left:<t t-esc="o.journal_id.check_layout.debit_footer_left"/>in;
+                            position: fixed;
+                        }
+                        .credit_footer_left{
+                            margin-left:<t t-esc="o.journal_id.check_layout.credit_footer_left"/>in;
+                            position: fixed;
+                        }
+                        .check_footer{
+                            margin-top:<t t-esc="o.journal_id.check_layout.check_footer_top"/>mm;
+                            margin-left:<t t-esc="o.journal_id.check_layout.check_footer_left"/>mm;
+                        position: absolute;
+                        }
+                    </style>
+                    <span class="check_header" t-if="o.journal_id.check_layout.check_header">
+                        <t t-call="{{o.journal_id.check_layout.check_header.id}}"/>
+                    </span>
+
+                    <table class="header">
+                        <tr>
+                            <td t-if="o.journal_id.check_layout.without_date"><span class="header_date" style="word-spacing: 3px;" t-esc="o.payment_date"/></td>
+                            <td><span class="header_concept" t-esc="o.communication"/></td>
+                            <td t-if="o.journal_id.check_layout.without_amount"><span class="header_amount" t-esc="o.amount"/></td>
+                        </tr>
+                    </table>
+
+                    <span class="check_body">
+                        <t t-if="o.check_name">
+                            <span class="check_name" t-field="o.check_name.name"/>
+                        </t>
+                        <t t-if="not o.check_name">
+                            <span class="check_name" t-field="o.partner_id.name"/>
+                        </t>
+                        <span class="check_date" style="word-spacing: 7px;" t-esc="o.payment_date"/>
+                        <span class="check_amount" t-esc="o.amount"/>
+                        <span class="check_in_words" t-field="o.amont_in_word"/>
+
+                        <t t-if="o.journal_id.check_layout.without_foot">
+                        <table class="check_accounting_footer_top" style="margin-left:0.51in;" t-if="o.move_line_ids">
+                            <tr t-foreach="o.move_line_ids" t-as="line">
+                                <td><span class="account_footer_left" t-field="line.account_id.code"/></td>
+                                <td><span class="description_footer_left" t-field="line.account_id.name"/></td>
+                                <td><span class="debit_footer_left" t-field="line.debit"/></td>
+                                <td><span class="credit_footer_left" t-field="line.credit"/></td>
+                            </tr>
+                    </table>
+                        </t>
+
+                    </span>
+                    <span class="check_footer" t-if="o.journal_id.check_layout.check_footer">
+                        <t t-call="{{o.journal_id.check_layout.check_footer.id}}"/>
+                    </span>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
