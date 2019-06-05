@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
-#  Copyright (c) 2015 - Marcos Organizador de Negocios SRL.
-#  (<https://marcos.do/>) 
+#  Copyright (c) 2018 - Grupo de Consultoria Henca.
+#  (<https://consultoriahenca.com/>) 
 #  Write by Eneldo Serrata (eneldo@marcos.do)
+#  Updated by Juliano Henriquez (juliano@consultoriahenca.com)
 #  See LICENSE file for full copyright and licensing details.
 #
 # Odoo Proprietary License v1.0

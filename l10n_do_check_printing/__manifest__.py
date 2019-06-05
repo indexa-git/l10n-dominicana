@@ -39,9 +39,9 @@
 
 {
     'name': 'Impresion de cheques bancos Domnicanos',
-    'version': '1.0',
-    'author': 'Eneldo Serrata - Marcos Organizador de Negocios, SRL.',
-    'website': "http://marcos.do",
+    'version': '1.1',
+    'author': 'Juliano Henriquez Grupo de Consultoria Henca, Eneldo Serrata',
+    'website': "http://consultoriahenca.com",
     'category': 'Localization',
 
     'summary': """
