@@ -68,10 +68,17 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <br/>
                             <t t-if="o.partner_id.parent_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.parent_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <t t-else="">
@@ -80,7 +87,13 @@
                             <t t-if="o.partner_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <br/>
@@ -96,10 +109,17 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <br/>
                             <t t-if="o.partner_id.parent_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.parent_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <t t-else="">
@@ -108,7 +128,13 @@
                             <t t-if="o.partner_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <br/>
@@ -126,10 +152,17 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <br/>
                             <t t-if="o.partner_id.parent_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.parent_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <t t-else="">
@@ -138,7 +171,13 @@
                             <t t-if="o.partner_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <br/>
@@ -157,10 +196,17 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <br/>
                             <t t-if="o.partner_id.parent_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.parent_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <t t-else="">
@@ -169,7 +215,13 @@
                             <t t-if="o.partner_id.phone">
                                 <strong>TEL.:</strong>
                                 <span t-field="o.partner_id.phone"/>
-                                <br/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
                             </t>
                         </t>
                         <br/>
