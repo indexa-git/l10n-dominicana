@@ -68,10 +68,20 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <br/>
                     </t>
@@ -86,10 +96,20 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <br/>
                     </t>
@@ -106,10 +126,20 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <br/>
                     </t>
@@ -127,10 +157,20 @@
                             <br/>
                             <strong>CONTACTO:</strong>
                             <Span t-field="o.partner_id.name"/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <br/>
+                            </t>
                         </t>
                         <br/>
                     </t>
