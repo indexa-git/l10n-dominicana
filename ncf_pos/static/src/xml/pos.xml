@@ -384,6 +384,16 @@
     </t>
 
     <t t-extend="TextInputPopupWidget">
+        <t t-jquery="input" t-operation="replace">
+            <t t-if="widget.options.input_name">
+                <div>
+                    <input type='text' t-att-value="widget.options.value || ''"></input>
+                </div>
+            </t>
+            <t t-else="">
+                <input type='text' t-att-value="widget.options.value || ''"></input>
+            </t>
+        </t>
         <t t-jquery=".footer" t-operation="before">
             <t t-set="input_name" t-value="widget.options.input_name"></t>
             <t t-if="input_name">
