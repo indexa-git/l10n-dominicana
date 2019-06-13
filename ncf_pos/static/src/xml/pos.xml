@@ -448,6 +448,7 @@
                         <tr>
                             <th>Product</th>
                             <th class="col-right">Quantity</th>
+                            <th class="col-right">Taxes</th>
                             <th class="col-right">Amount</th>
                         </tr>
                     </thead>
@@ -461,13 +462,17 @@
                                     <t t-esc="line.quantity"/>
                                 </td>
                                 <td class="col-right">
-                                    <t t-esc="Math.round(line.price * 100) / 100"/>
+                                    <t t-esc="widget.format_currency_no_symbol(line.taxes)"/>
+                                </td>
+                                <td class="col-right">
+                                    <t t-esc="Math.round(line.price_unit * 100) / 100"/>
                                 </td>
                             </tr>
                         </t>
                     </tbody>
                     <tfoot>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td class="col-right highlight-2">
