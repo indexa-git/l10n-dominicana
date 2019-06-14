@@ -152,9 +152,15 @@ class ResPartner(models.Model):
             if number.isdigit() and len(number) in (9, 11):
                 message = "El contacto: %s, esta registrado con este RNC/Céd."
                 self_id = self.id if self.id else 0
-                contact = self.search([('vat', '=', number),
-                                       ('id', '!=', self_id),
-                                       ('parent_id', '=', False)])
+                # Considering multi-company scenarios
+                domain = [('vat', '=', number),
+                          ('id', '!=', self_id),
+                          ('parent_id', '=', False)]
+                if self.env.ref('base.res_partner_rule').active:
+                    domain.extend([('company_id', '=',
+                                    self.env.user.company_id.id)])
+                contact = self.search(domain)
+
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
                         [x.name for x in contact if x.name])

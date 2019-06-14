@@ -224,7 +224,6 @@ class AccountInvoice(models.Model):
     def onchange_journal_id(self):
         res = super(AccountInvoice, self)._onchange_journal_id()
         if self.journal_id.type == 'purchase':
-            self.reference = False
             if self.journal_id.purchase_type == "minor":
                 self.partner_id = self.company_id.partner_id.id
 
