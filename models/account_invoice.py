@@ -216,6 +216,8 @@ class AccountInvoice(models.Model):
                 witheld_isr_types = ['ISR', 'A38']
 
                 if inv.type == 'in_invoice':
+                    tax_line_ids = self._get_tax_line_ids(inv)
+
                     # Monto ITBIS Retenido por impuesto
                     inv.withholded_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
                         lambda tax: tax.tax_id.purchase_tax_type == 'ritbis').mapped('amount')))
