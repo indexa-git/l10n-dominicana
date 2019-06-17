@@ -252,7 +252,7 @@ class DgiiReport(models.Model):
         period = dt.strptime(rec.name, '%m/%Y')
 
         month, year = rec.name.split('/')
-        start_date = '{}-{}-01'.format(year, month)
+        start_date = '{}-{}-{}'.format(year, month, calendar.monthrange(int(year), int(month))[1])
         invoice_ids = self.env['account.invoice'].search([
             ('fiscal_status', '=', 'normal'),
             ('state', '=', 'paid'),
@@ -477,19 +477,21 @@ class DgiiReport(models.Model):
                        'dgii_report_id': self.id},
             'final': {'sequence': 2, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE CONSUMIDOR FINAL',
                       'dgii_report_id': self.id},
-            'nd': {'sequence': 3, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE DÉBITO',
-                   'dgii_report_id': self.id},
-            'nc': {'sequence': 4, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE CRÉDITO',
-                   'dgii_report_id': self.id},
-            'unico': {'sequence': 5, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO ÚNICO DE INGRESOS',
+            'export': {'sequence': 3, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE DE EXPORTACIONES',
                       'dgii_report_id': self.id},
-            'special': {'sequence': 6, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO REGIMENES ESPECIALES',
+            'nd': {'sequence': 4, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE DÉBITO',
+                   'dgii_report_id': self.id},
+            'nc': {'sequence': 5, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES NOTA DE CRÉDITO',
+                   'dgii_report_id': self.id},
+            'unico': {'sequence': 6, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO ÚNICO DE INGRESOS',
+                      'dgii_report_id': self.id},
+            'special': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTE REGISTRO REGIMENES ESPECIALES',
                         'dgii_report_id': self.id},
-            'gov': {'sequence': 7, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES GUBERNAMENTALES',
+            'gov': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'COMPROBANTES GUBERNAMENTALES',
                     'dgii_report_id': self.id},
-            'positive': {'sequence': 8, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS) - *PENDIENTE*',
+            'positive': {'sequence': 10, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (POSITIVAS) - *PENDIENTE*',
                          'dgii_report_id': self.id},
-            'negative': {'sequence': 9, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS) - *PENDIENTE*',
+            'negative': {'sequence': 11, 'qty': 0, 'amount': 0, 'name': 'OTRAS OPERACIONES (NEGATIVAS) - *PENDIENTE*',
                          'dgii_report_id': self.id},
         }
 
@@ -715,7 +717,7 @@ class DgiiReport(models.Model):
             CancelLine = self.env['dgii.reports.cancel.line']
             CancelLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'in_invoice', 'out_refund'])
+            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'in_invoice', 'out_refund']).filtered(lambda inv: (inv.journal_id.purchase_type != 'normal'))
             line = 0
             report_data = ''
             for inv in invoice_ids:
