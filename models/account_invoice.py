@@ -205,6 +205,25 @@ class AccountInvoice(models.Model):
                         amount += tax.amount
                     inv.invoiced_itbis = self._convert_to_local_currency(inv, amount)
 
+    def _get_payment_move_iterator(self, payment, inv_type, witheld_type):
+        payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
+        if payment_id:
+            if inv_type == 'out_invoice':
+                return [move_line.debit for move_line in payment_id.move_line_ids
+                        if move_line.account_id.account_fiscal_type in witheld_type]
+            else:
+                return [move_line.credit for move_line in payment_id.move_line_ids
+                        if move_line.account_id.account_fiscal_type in witheld_type]
+        else:
+            move_id = self.env['account.move'].browse(payment.get('move_id'))
+            if move_id:
+                if inv_type == 'out_invoice':
+                    return [move_line.debit for move_line in move_id.line_ids
+                            if move_line.account_id.account_fiscal_type in witheld_type]
+                else:
+                    return [move_line.credit for move_line in move_id.line_ids
+                            if move_line.account_id.account_fiscal_type in witheld_type]
+
     @api.multi
     @api.depends('state')
     def _compute_withheld_taxes(self):
@@ -227,54 +246,23 @@ class AccountInvoice(models.Model):
                         lambda tax: tax.tax_id.purchase_tax_type == 'isr').mapped('amount')))
 
                 for payment in self._get_invoice_payment_widget(inv):
-                    payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
-                    if payment_id:
-                        if inv.type == 'out_invoice':
-                            # ITBIS Retenido por Terceros
-                            inv.third_withheld_itbis += self._convert_to_local_currency(
-                                inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                         if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
 
-                            # Retención de Renta por Terceros
-                            inv.third_income_withholding += self._convert_to_local_currency(
-                                inv, sum([move_line.debit for move_line in payment_id.move_line_ids
-                                         if move_line.account_id.account_fiscal_type in witheld_isr_types]))
+                    if inv.type == 'out_invoice':
+                        # ITBIS Retenido por Terceros
+                        inv.third_withheld_itbis += self._convert_to_local_currency(
+                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_itbis_types)))
 
-                        if inv.type == 'in_invoice':
-                            # ITBIS Retenido a Terceros
-                            inv.withholded_itbis += self._convert_to_local_currency(
-                                inv, sum([move_line.credit for move_line in payment_id.move_line_ids
-                                         if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
+                        # Retención de Renta por Terceros
+                        inv.third_income_withholding += self._convert_to_local_currency(
+                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_isr_types)))
+                    elif inv.type == 'in_invoice':
+                        # ITBIS Retenido a Terceros
+                        inv.withholded_itbis += self._convert_to_local_currency(
+                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_itbis_types)))
 
-                            # Retención de Renta a Terceros
-                            inv.income_withholding += self._convert_to_local_currency(
-                                inv, sum([move_line.credit for move_line in payment_id.move_line_ids
-                                         if move_line.account_id.account_fiscal_type in witheld_isr_types]))
-
-                    if not payment_id:
-                        move_id = self.env['account.move'].browse(payment.get('move_id'))
-                        if move_id:
-                            if inv.type == 'out_invoice':
-                                # ITBIS Retenido por Terceros
-                                inv.third_withheld_itbis += self._convert_to_local_currency(
-                                    inv, sum([move_line.debit for move_line in move_id.line_ids
-                                             if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
-
-                                # Retención de Renta por Terceros
-                                inv.third_income_withholding += self._convert_to_local_currency(
-                                    inv, sum([move_line.debit for move_line in move_id.line_ids
-                                             if move_line.account_id.account_fiscal_type in witheld_isr_types]))
-
-                            if inv.type == 'in_invoice':
-                                # ITBIS Retenido a Terceros
-                                inv.withholded_itbis += self._convert_to_local_currency(
-                                    inv, sum([move_line.credit for move_line in move_id.line_ids
-                                             if move_line.account_id.account_fiscal_type in witheld_itbis_types]))
-
-                                # Retención de Renta a Terceros
-                                inv.income_withholding += self._convert_to_local_currency(
-                                    inv, sum([move_line.credit for move_line in move_id.line_ids
-                                             if move_line.account_id.account_fiscal_type in witheld_isr_types]))
+                        # Retención de Renta a Terceros
+                        inv.income_withholding += self._convert_to_local_currency(
+                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_isr_types)))
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')
