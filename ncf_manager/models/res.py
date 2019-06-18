@@ -156,7 +156,7 @@ class ResPartner(models.Model):
                 domain = [('vat', '=', number),
                           ('id', '!=', self_id),
                           ('parent_id', '=', False)]
-                if self.env.ref('base.res_partner_rule').active:
+                if self.sudo().env.ref('base.res_partner_rule').active:
                     domain.extend([('company_id', '=',
                                     self.env.user.company_id.id)])
                 contact = self.search(domain)
