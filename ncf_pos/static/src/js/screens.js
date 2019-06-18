@@ -46,8 +46,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 select: function (event, ui) {
                     name_input.val(ui.item.name);
                     rnc_input.val(ui.item.rnc);
-                    sale_fiscal_type_ddl.val("fiscal");
-
+                    if (rnc_input.val().length == 9){
+                        sale_fiscal_type_ddl.val("fiscal");
+                    }
                     return false;
                 },
                 response: function (event, ui) {
