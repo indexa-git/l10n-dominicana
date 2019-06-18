@@ -189,7 +189,7 @@ class ResPartner(models.Model):
                     if model == 'res.partner':
                         result['is_company'] = True if is_rnc else False
                         result['sale_fiscal_type'] = "fiscal" if is_rnc \
-                        else "final"
+                            else "final"
             return result
 
     @api.onchange("name")
