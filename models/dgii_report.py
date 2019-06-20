@@ -284,7 +284,7 @@ class DgiiReport(models.Model):
                                                            (inv.journal_id.ncf_control is True))
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
-        invoice_ids += self._get_pending_invoices(rec, types)
+        invoice_ids |= self._get_pending_invoices(rec, types)
 
         return invoice_ids
 
