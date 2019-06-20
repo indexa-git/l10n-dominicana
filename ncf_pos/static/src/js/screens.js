@@ -716,6 +716,12 @@ odoo.define('ncf_pos.screens', function (require) {
                     input_name: 'ncf',
                     text_input_value: '',
                     confirm: function (input_value) {
+                        var selection_val = $('.pos .popup select.credit_notes').val();
+                        if (selection_val) {
+                            var credit_note = self.pos.db.credit_note_by_id[selection_val]
+                            input_value = credit_note.reference;
+                        }
+
                         var msg_error = "";
 
                         rpc.query({

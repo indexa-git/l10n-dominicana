@@ -415,6 +415,20 @@
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                         NCF: Número de Comprobante Fiscal
                     </p>
+                    <t t-set="partner" t-value="widget.pos.get_client()"/>
+                    <t t-set="partner_notes" t-value="widget.pos.db.credit_notes_by_partner_id[partner.id]"/>
+                    <t t-if="partner &amp;&amp; partner_notes">
+                        <div>
+                            <select class='credit_notes' name='credit_note_id'>
+                                <option value=''>None</option>
+                                <t t-foreach='partner_notes' t-as='note'>
+                                    <option t-att-value='note.id'>
+                                        <t t-esc='note.reference'/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </t>
                 </t>
             </t>
         </t>
