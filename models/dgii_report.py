@@ -385,6 +385,7 @@ class DgiiReport(models.Model):
                 inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
+                show_payment_date = self._include_in_current_report(rec, inv)
                 values = {
                     'dgii_report_id': rec.id,
                     'line': line,
@@ -394,7 +395,7 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.reference,
                     'modified_invoice_number': inv.origin_out if inv.type == 'in_refund' else False,
                     'invoice_date': inv.date_invoice,
-                    'payment_date': inv.payment_date if inv.payment_date else False,
+                    'payment_date': inv.payment_date if show_payment_date else False,
                     'service_total_amount': inv.service_total_amount,
                     'good_total_amount': inv.good_total_amount,
                     'invoiced_amount': inv.amount_untaxed_signed,
@@ -405,8 +406,8 @@ class DgiiReport(models.Model):
                     'purchase_perceived_itbis': 0,  # Falta computarlo en la factura
                     'purchase_perceived_isr': 0,  # Falta computarlo en la factura
                     'isr_withholding_type': inv.isr_withholding_type,
-                    'withholded_itbis': inv.withholded_itbis if inv.payment_date else 0,
-                    'income_withholding': inv.income_withholding if inv.payment_date else 0,
+                    'withholded_itbis': inv.withholded_itbis if show_payment_date else 0,
+                    'income_withholding': inv.income_withholding if show_payment_date else 0,
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
                     'legal_tip': inv.legal_tip,
