@@ -731,9 +731,11 @@ odoo.define('ncf_pos.screens', function (require) {
                         }, {})
                             .then(function (result) {
                                 var residual = parseFloat(result.residual) || 0;
-
+                                var client = self.pos.get_client();
                                 if (result.id === false) {
                                     msg_error = _t("La nota de credito no existe.");
+                                } else if (!client || (client && client.id !== result.partner_id)){
+                                    msg_error = _t("La Nota de Crédito Pertenece a Otro Cliente");
                                 } else if (residual < 1) {
                                     msg_error = _t("El balance de la Nota de Credito es 0.");
                                 } else {

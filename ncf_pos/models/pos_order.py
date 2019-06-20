@@ -244,7 +244,7 @@ class PosOrder(models.Model):
         invoice_ids = self.env["account.invoice"].search([
             ('reference', '=', ncf), ('type', '=', 'out_refund')
         ])
-        return {"id": invoice_ids.id, "residual": invoice_ids.residual}
+        return {"id": invoice_ids.id, "residual": invoice_ids.residual, "partner_id": invoice_ids.partner_id.id}
 
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
