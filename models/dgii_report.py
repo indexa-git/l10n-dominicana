@@ -616,6 +616,7 @@ class DgiiReport(models.Model):
                 income_dict = self._process_income_dict(income_dict, inv)
                 inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.sale_fiscal_type != 'unico' else self.formated_rnc_cedula(inv.company_id.vat)
+                show_payment_date = self._include_in_current_report(rec, inv)
                 payments = self._get_sale_payments_forms(inv)
                 values = {
                     'dgii_report_id': rec.id,
@@ -626,12 +627,12 @@ class DgiiReport(models.Model):
                     'modified_invoice_number': inv.origin_out if inv.origin_out and inv.origin_out[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
-                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and any([inv.withholded_itbis, inv.income_withholding, inv.third_withheld_itbis])) else False,
+                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and show_payment_date) else False,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
-                    'third_withheld_itbis': inv.third_withheld_itbis if inv.payment_date else 0,
+                    'third_withheld_itbis': inv.third_withheld_itbis if show_payment_date else 0,
                     'perceived_itbis': 0,  # Pendiente
-                    'third_income_withholding': inv.third_income_withholding if inv.payment_date else 0,
+                    'third_income_withholding': inv.third_income_withholding if show_payment_date else 0,
                     'perceived_isr': 0,  # Pendiente
                     'selective_tax': inv.selective_tax,
                     'other_taxes': inv.other_taxes,
