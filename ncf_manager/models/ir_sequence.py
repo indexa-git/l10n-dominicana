@@ -41,6 +41,11 @@ class IrSequence(models.Model):
     }
 
     ncf_control = fields.Boolean("Control de NCF", default=False)
+    ncf_id = fields.Many2one(
+        comodel_name='ncf.manager',
+        string="NCF Structure",
+        readonly=True,
+    )
 
     def get_next_char(self, number_next):
         sale_fiscal_type = self._context.get("sale_fiscal_type", False)

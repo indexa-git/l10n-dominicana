@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	
+    <!-- Menuitem -->
+	<menuitem name="NCF" id="ncf_manager_root_menu" parent="account.menu_finance_configuration" groups="ncf_manager.group_ncf_manager"/>
+	
+    <!-- Ncf Manager Views -->
+    <record id="ncf_manager_tree_view" model="ir.ui.view">
+        <field name="name">ncf.manager.tree</field>
+        <field name="model">ncf.manager</field>
+        <field name="arch" type="xml">
+            <tree string="NCF Sequences">
+                <field name="name"/>
+				<field name="number_next"/>
+				<field name="type"/>
+				<field name="journal_id"/>
+				<field name="company_id"/>
+				<field name="state" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="ncf_manager_form" model="ir.ui.view">
+        <field name="name">ncf.manager.form</field>
+        <field name="model">ncf.manager</field>
+        <field name="arch" type="xml">
+            <form string="NCF Sequence">
+				<header>
+					<button name="action_done" string="Validate" class="oe_highlight" states="draft" type="object"/>
+					<button name="action_cancel" string="Cancel" class="oe_highlight" states="done" type="object"/>
+					<button name="create_sequence" string="Create sequence" class="oe_highlight" states="done" type="object" atrrs="{'invisible': [('has_sequence', '=', True)]"/>
+				    <field name="state" widget="statusbar" statusbar_visible="draft,done,cancel"/>
+				    <field name="has_sequence" invisible="0"/>
+				</header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+						<button name="toggle_active" type="object"
+								class="oe_stat_button" icon="fa-archive">
+							<field name="active" widget="boolean_button"
+								options='{"terminology": "active"}'/>
+						</button>
+                    </div>
+                    <div class="oe_title oe_inline">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+						<div>
+							<field name="ncf_control"/>
+							<label for="ncf_control"/>
+						</div>
+                    </div>
+                    <group>
+						<group>
+                            <field name="type"/>
+                            <field name="sale_type" attrs="{'invisible': [('type', '!=', 'sale')], 'required': [('type', '=', 'sale')]}"/>
+                            <field name="purchase_type" attrs="{'invisible': [('type', '!=', 'purchase')], 'required': [('type', '=', 'purchase')]}"/>
+                            <field name="company_id"/>
+                        </group>
+						<group>
+							<field name="journal_id"/>
+							<field name="sequence_id"/> <!-- options="{'no_open': True} -->
+							<field name="number_next"/>
+						</group>
+					</group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ncf_manager_view" model="ir.actions.act_window">
+        <field name="name">NCF Structure</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">ncf.manager</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="ncf_manager_tree_view"/>
+    </record>
+	
+    <menuitem name="NCF Structure"
+        id="ncf_manager_structure"
+        parent="ncf_manager_root_menu"
+        action="action_ncf_manager_view"
+        groups="ncf_manager.group_ncf_manager"
+        sequence="1"/>
+</odoo>

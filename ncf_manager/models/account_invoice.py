@@ -37,8 +37,6 @@ except (ImportError, IOError) as err:
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
-    reference = fields.Char(string='NCF')
-
     @api.multi
     @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
@@ -78,68 +76,91 @@ class AccountInvoice(models.Model):
                             _('Error. No sequence range for NCF para: {}')
                             .format(inv.sale_fiscal_type))
 
+    reference = fields.Char(string='NCF')
+    ncf_number = fields.Char(
+        related='ncf_id.number',
+        string='Fiscal Number',
+        size=11,
+        readonly=True,
+        store=True,
+        copy=False,
+    )
     ncf_control = fields.Boolean(related="journal_id.ncf_control")
     purchase_type = fields.Selection(related="journal_id.purchase_type")
-
-    sale_fiscal_type = fields.Selection([
-        ("final", "Consumo"),
-        ("fiscal", u"Crédito Fiscal"),
-        ("gov", "Gubernamentales"),
-        ("special", u"Regímenes Especiales"),
-        ("unico", u"Único Ingreso"),
-        ("export", u"Exportaciones"),
-    ],
+    sale_fiscal_type = fields.Selection(
         string='NCF para',
-        default=lambda self: self._context.get('sale_fiscal_type', 'final'))
-
+        selection=[
+            ("final", "Consumo"),
+            ("fiscal", u"Crédito Fiscal"),
+            ("gov", "Gubernamentales"),
+            ("special", u"Regímenes Especiales"),
+            ("unico", u"Único Ingreso"),
+            ("export", u"Exportaciones"),
+        ],
+        default=lambda self: self._context.get('sale_fiscal_type', 'final'),
+    )
     income_type = fields.Selection(
-        [('01', '01 - Ingresos por Operaciones (No Financieros)'),
-         ('02', '02 - Ingresos Financieros'),
-         ('03', '03 - Ingresos Extraordinarios'),
-         ('04', '04 - Ingresos por Arrendamientos'),
-         ('05', '05 - Ingresos por Venta de Activo Depreciable'),
-         ('06', '06 - Otros Ingresos')],
         string='Tipo de Ingreso',
-        default=lambda self: self._context.get('income_type', '01'))
-
+        selection=[
+            ('01', '01 - Ingresos por Operaciones (No Financieros)'),
+            ('02', '02 - Ingresos Financieros'),
+            ('03', '03 - Ingresos Extraordinarios'),
+            ('04', '04 - Ingresos por Arrendamientos'),
+            ('05', '05 - Ingresos por Venta de Activo Depreciable'),
+            ('06', '06 - Otros Ingresos'),
+        ],
+        default=lambda self: self._context.get('income_type', '01'),
+    )
     expense_type = fields.Selection(
-        [('01', '01 - Gastos de Personal'),
-         ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
-         ('03', '03 - Arrendamientos'), ('04', '04 - Gastos de Activos Fijos'),
-         ('05', u'05 - Gastos de Representación'),
-         ('06', '06 - Otras Deducciones Admitidas'),
-         ('07', '07 - Gastos Financieros'),
-         ('08', '08 - Gastos Extraordinarios'),
-         ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
-         ('10', '10 - Adquisiciones de Activos'),
-         ('11', '11 - Gastos de Seguros')],
-        string="Tipo de Costos y Gastos")
-
+        string="Tipo de Costos y Gastos",
+        selection=[
+            ('01', '01 - Gastos de Personal'),
+            ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
+            ('03', '03 - Arrendamientos'), ('04', '04 - Gastos de Activos Fijos'),
+            ('05', u'05 - Gastos de Representación'),
+            ('06', '06 - Otras Deducciones Admitidas'),
+            ('07', '07 - Gastos Financieros'),
+            ('08', '08 - Gastos Extraordinarios'),
+            ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
+            ('10', '10 - Adquisiciones de Activos'),
+            ('11', '11 - Gastos de Seguros'),
+        ],
+    )
     anulation_type = fields.Selection(
-        [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
-         ("03", u"03 - Impresión Defectuosa"),
-         ("04", u"04 - Corrección de la Información"),
-         ("05", "05 - Cambio de Productos"),
-         ("06", u"06 - Devolución de Productos"),
-         ("07", u"07 - Omisión de Productos"),
-         ("08", "08 - Errores en Secuencia de NCF"),
-         ("09", "09 - Por Cese de Operaciones"),
-         ("10", u"10 - Pérdida o Hurto de Talonarios")],
         string=u"Tipo de anulación",
-        copy=False)
-
+        selection=[
+            ("01", "01 - Deterioro de Factura Pre-impresa"),
+            ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
+            ("03", u"03 - Impresión Defectuosa"),
+            ("04", u"04 - Corrección de la Información"),
+            ("05", "05 - Cambio de Productos"),
+            ("06", u"06 - Devolución de Productos"),
+            ("07", u"07 - Omisión de Productos"),
+            ("08", "08 - Errores en Secuencia de NCF"),
+            ("09", "09 - Por Cese de Operaciones"),
+            ("10", u"10 - Pérdida o Hurto de Talonarios"),
+        ],
+        copy=False,
+    )
     is_company_currency = fields.Boolean(compute=_is_company_currency)
-
-    invoice_rate = fields.Monetary(string="Tasa",
-                                   compute=_get_rate,
-                                   currency_field='currency_id')
-
+    invoice_rate = fields.Monetary(
+        string="Tasa",
+        compute=_get_rate,
+        currency_field='currency_id',
+    )
     is_nd = fields.Boolean()
     origin_out = fields.Char("Afecta a")
-    ncf_expiration_date = fields.Date('Válido hasta',
-                                      compute="_compute_ncf_expiration_date",
-                                      store=True)
+    ncf_expiration_date = fields.Date(
+        string='Válido hasta',
+        compute="_compute_ncf_expiration_date",
+        store=True,
+    )
+    ncf_id = fields.Many2one(
+        comodel_name='ncf.manager',
+        string="NCF Structure",
+        required=False,
+        readonly=True,
+    )
 
     @api.multi
     @api.constrains('state', 'tax_line_ids')

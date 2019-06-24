@@ -43,6 +43,7 @@
     'data': [
         'data/ir_config_parameters.xml',
         'security/ir.model.access.csv',
+        'security/security.xml',
         'wizard/account_invoice_cancel_view.xml',
         'wizard/account_invoice_refund.xml',
         'views/account_invoice_view.xml',
@@ -51,6 +52,7 @@
         'views/assets_backend.xml',
         'views/ir_sequence_view.xml',
         'views/res_view.xml',
+        'views/ncf_manager_view.xml',
     ],
     'demo': ['demo/res_partner_demo.xml'],
     'qweb': ['static/src/xml/ncf_manager.xml']
