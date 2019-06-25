@@ -78,7 +78,6 @@ class AccountInvoice(models.Model):
 
     reference = fields.Char(string='NCF')
     ncf_number = fields.Char(
-        related='ncf_id.number',
         string='Fiscal Number',
         size=11,
         readonly=True,
