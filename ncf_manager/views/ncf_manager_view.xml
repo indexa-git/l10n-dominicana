@@ -15,7 +15,7 @@
 				<field name="type"/>
 				<field name="journal_id"/>
 				<field name="company_id"/>
-				<field name="state" invisible="1"/>
+				<field name="state"/>
             </tree>
         </field>
     </record>
@@ -26,11 +26,11 @@
         <field name="arch" type="xml">
             <form string="NCF Sequence">
 				<header>
+					<field name="has_sequence" invisible="0"/>
 					<button name="action_done" string="Validate" class="oe_highlight" states="draft" type="object"/>
 					<button name="action_cancel" string="Cancel" class="oe_highlight" states="done" type="object"/>
 					<button name="create_sequence" string="Create sequence" class="oe_highlight" states="done" type="object" atrrs="{'invisible': [('has_sequence', '=', True)]"/>
-				    <field name="state" widget="statusbar" statusbar_visible="draft,done,cancel"/>
-				    <field name="has_sequence" invisible="0"/>
+					<field name="state" widget="statusbar" statusbar_visible="draft,done,cancel"/>
 				</header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -72,6 +72,31 @@
             </form>
         </field>
     </record>
+	
+	<record id="ncf_manager_search_view" model="ir.ui.view">
+		<field name="name">ncf.manager.search.view</field>
+		<field name="model">ncf.manager</field>
+		<field name="type">search</field>
+		<field name="arch" type="xml">
+			<search string="NCF Manager Search">
+				<field string="NCF" name="name" filter_domain="[('name', 'ilike', self)]"/>
+				<field string="Company" name="company_id" filter_domain="[('company_id', 'child_of', self)]"/>
+				<field string="Journal" name="journal_id" filter_domain="[('journal_id', 'ilike', self)]"/>
+				<separator/>
+				<filter string="Done" name="state" domain="[('state', '=', 'done')]"/>
+				<filter string="Cancel" name="state" domain="[('state', '=', 'cancel')]"/>
+				<separator/>
+				<filter string="Sale" name="type" domain="[('type', '=', 'sale')]"/>
+				<filter string="Purchase" name="type" domain="[('type', '=', 'purchase')]"/>
+				<group expand="0" string="Group By...">
+					<filter string="Type" context="{'group_by':'type'}"/>
+					<filter string="Journal" context="{'group_by':'journal_id'}"/>
+					<filter string="Company" context="{'group_by':'company_id'}"/>
+					<filter string="Status" context="{'group_by':'state'}"/>
+				</group>
+			</search>
+		</field>
+	</record>
 
     <record id="action_ncf_manager_view" model="ir.actions.act_window">
         <field name="name">NCF Structure</field>
@@ -79,6 +104,7 @@
         <field name="res_model">ncf.manager</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="ncf_manager_tree_view"/>
+		<field name="search_view_id" ref="ncf_manager_search_view"/>
     </record>
 	
     <menuitem name="NCF Structure"
