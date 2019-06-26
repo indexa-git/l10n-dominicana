@@ -73,7 +73,6 @@ class NcfManager(models.Model):
     number_next = fields.Char(
         string='Next Number',
         readonly=True,
-        store=True,
         copy=False,
         compute="_compute_sequence_next",
     )
@@ -137,6 +136,12 @@ class NcfManager(models.Model):
         string='Sequence',
         readonly=True,
         required=False,
+    )
+    fiscal_position_id = fields.Many2one(
+        comodel_name='account.fiscal.position',
+        string='Fiscal Position',
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
     state = fields.Selection(
         string="State",
@@ -276,6 +281,25 @@ class NcfManager(models.Model):
             'sequence_id': sequence_id.id,
             'state': 'confirmed',
         })
+
+    @api.multi
+    def get_ncf_structure_for_refund(self, invoice_type):
+        """Return NCF for refund"""
+        if invoice_type not in ['out_refund', 'in_refund']:
+            raise ValidationError(_("This invoice type must be a refund type."))
+
+        if invoice_type == 'out_refund':
+            ncf_structure = self.search([
+                ('type', '=', 'sale'),
+                ('sale_type', '=', 'credit_note'),
+            ])
+        else:
+            ncf_structure = self.search([
+                ('type', '=', 'purchase'),
+                ('purchase_type', '=', 'debit_note'),
+            ])
+
+        return ncf_structure
 
 
 

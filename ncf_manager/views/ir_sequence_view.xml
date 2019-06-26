@@ -8,12 +8,9 @@
            <field name="model">ir.sequence</field>
            <field name="inherit_id" ref="base.sequence_view"/>
            <field name="arch" type="xml">
-
-               <xpath expr="//tree//field[@name='number_next_actual']" position="after">
-                   <field name="max_number_next"/>
-                   <field name="sale_fiscal_type"/>
+               <xpath expr="//field[@name='implementation']" position="after">
+                   <field name="ncf_id" invisible="1"/>
                </xpath>
-
            </field>
        </record>
 

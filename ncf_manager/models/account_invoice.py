@@ -292,8 +292,7 @@ class AccountInvoice(models.Model):
 
     def special_check(self):
         if self.sale_fiscal_type == "special":
-            self.fiscal_position_id = \
-                self.journal_id.special_fiscal_position_id
+            self.fiscal_position_id = self.ncf_id.fiscal_position_id.id
         else:
             self.fiscal_position_id = False
 
@@ -410,8 +409,38 @@ class AccountInvoice(models.Model):
                 raise ValidationError(_("Para poder emitir una NC mayor a "
                                         " RD$250,000 se requiere que el "
                                         " cliente tenga RNC o Cédula."))
-
         return super(AccountInvoice, self).action_invoice_open()
+
+    @api.multi
+    def action_move_create(self):
+        res = super(AccountInvoice, self).action_move_create()
+        for inv in self:
+            if not inv.ncf_number:
+                sequence = inv.ncf_id.sequence_id
+                if inv.type in {'out_refund', 'in_refund'}:
+                    ncf_refund = inv.ncf_id.get_ncf_structure_for_refund(
+                        inv.type)
+                    sequence = ncf_refund.sequence_id
+                if sequence:
+                    sequence = sequence.with_context(
+                        ir_sequence_date=inv.date or inv.date_invoice,
+                    )
+                    number = sequence.next_by_id()
+                else:  # pragma: no cover
+                    # Other localizations or not configured journals
+                    number = inv.move_id.name
+                inv.write({
+                    'ncf_number': number,
+                })
+            else:  # pragma: no cover
+                inv.number = inv.ncf_number
+        for inv in self:
+            # Include the invoice reference on the created journal item
+            # This is done for displaying the number on the conciliation
+            inv.move_id.ref = (
+                "{0} - {1}" if inv.move_id.ref else "{1}"
+            ).format(inv.move_id.ref, inv.ncf_number)
+        return res
 
     @api.model
     def _prepare_refund(self,
@@ -428,41 +457,41 @@ class AccountInvoice(models.Model):
                                           journal_id=journal_id)
 
         if self.type == "out_invoice" and self.journal_id.ncf_control:
-            res.update({"reference": False, "origin_out": self.reference})
+            res.update({"reference": False, "origin_out": self.ncf_number})
 
         if self._context.get("credit_note_supplier_ncf", False):
             res.update({
                 "reference": self._context["credit_note_supplier_ncf"],
-                "origin_out": self.reference
+                "origin_out": self.ncf_number
             })
         return res
 
-    @api.multi
-    def invoice_validate(self):
-        """ After all invoice validation routine, consume a NCF sequence and
-            write it into reference field.
-         """
-        if not self.reference and (self.journal_id.ncf_control or
-                                   self.journal_id.purchase_type in [
-                                       'minor', 'informal', 'exterior'
-                                   ]):
-            sequence_id = self.journal_id.sequence_id
-            if self.type == 'out_invoice':
-                if self.is_nd:
-                    self.reference = sequence_id.with_context(
-                        sale_fiscal_type='debit_note')._next()
-                else:
-                    self.reference = sequence_id.with_context(
-                        sale_fiscal_type=self.sale_fiscal_type)._next()
-            elif self.type == 'out_refund':
-                self.reference = sequence_id.with_context(
-                    sale_fiscal_type='credit_note')._next()
-            elif self.type == 'in_invoice':
-                self.reference = sequence_id.with_context(
-                    sale_fiscal_type=self.journal_id.purchase_type)._next()
-            self.move_id.write({'ref': self.reference})
-
-        return super(AccountInvoice, self).invoice_validate()
+    # @api.multi
+    # def invoice_validate(self):
+    #     """ After all invoice validation routine, consume a NCF sequence and
+    #         write it into reference field.
+    #      """
+    #     if not self.reference and (self.journal_id.ncf_control or
+    #                                self.journal_id.purchase_type in [
+    #                                    'minor', 'informal', 'exterior'
+    #                                ]):
+    #         sequence_id = self.journal_id.sequence_id
+    #         if self.type == 'out_invoice':
+    #             if self.is_nd:
+    #                 self.reference = sequence_id.with_context(
+    #                     sale_fiscal_type='debit_note')._next()
+    #             else:
+    #                 self.reference = sequence_id.with_context(
+    #                     sale_fiscal_type=self.sale_fiscal_type)._next()
+    #         elif self.type == 'out_refund':
+    #             self.reference = sequence_id.with_context(
+    #                 sale_fiscal_type='credit_note')._next()
+    #         elif self.type == 'in_invoice':
+    #             self.reference = sequence_id.with_context(
+    #                 sale_fiscal_type=self.journal_id.purchase_type)._next()
+    #         self.move_id.write({'ref': self.reference})
+    #
+    #     return super(AccountInvoice, self).invoice_validate()
 
     @api.model
     def create(self, vals):

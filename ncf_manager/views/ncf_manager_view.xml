@@ -60,6 +60,7 @@
                         </group>
 						<group>
 							<field name="journal_id"/>
+							<field name="fiscal_position_id" attrs="{'invisible': ['|',('type', '!=', 'sale'), ('sale_type', '!=', 'special')], 'required': [('sale_type', '=', 'special')]}"/>
 							<field name="sequence_id" options="{'no_open': True}"/>
 							<field name="number_next"/>
 						</group>

@@ -1,5 +1,6 @@
 # © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
 # © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
+# © 2019 Yasmany Castillo <yasmany003@@gmail.com>
 
 # This file is part of NCF Manager.
 
@@ -104,15 +105,12 @@ class AccountInvoiceRefund(models.TransientModel):
                         {"invoice_line_ids": [(6, False, [new_line.id])]})
 
                     if mode == "debit":
-
                         vals.update({"is_nd": True})
-
                         if refund.type == "out_refund":
                             vals.update({"type": "out_invoice"})
                             if result.get("domain", False):
                                 result["domain"][0] = ('type', '=',
                                                        'out_invoice')
-
                         if refund.type == "in_refund":
                             vals.update({
                                 "type": "in_invoice",
@@ -125,6 +123,9 @@ class AccountInvoiceRefund(models.TransientModel):
                                         self.supplier_ncf
                                 })
 
+                ncf_refund = origin_inv.ncf_id.get_ncf_structure_for_refund(
+                    refund.type)
+                vals['ncf_id'] = ncf_refund.id
                 refund.write(vals)
 
         return result

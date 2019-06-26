@@ -33,6 +33,8 @@
                        'invisible':[('ncf_control','!=',True)],
                        'required': [('ncf_control','=',True),('type','=','out_invoice')],
                        'readonly': [('state','!=','draft')]}"/>
+                <field name="ncf_number" string="NCF" readonly="1" attrs="{
+                       'invisible': [('state', '=', 'draft')], 'readonly': [('type', '=', 'in_invoice')]}"/>
                 <field name="reference" string="NCF" readonly="1" attrs="{
                        'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('ncf_control','=',False)],
                        'readonly': True}"/>
@@ -64,13 +66,12 @@
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_tree"/>
         <field name="arch" type="xml">
-
-            <xpath expr="//field[@name='reference']" position="attributes">
-                <attribute name="invisible"/>
-                <attribute name="attrs">{"readonly": [["state","not in",["draft"]]]}</attribute>
-                <attribute name="string">NCF</attribute>
-            </xpath>
-
+			<xpath expr="//field[@name='number']" position="after">
+				<field name="ncf_number" string="NCF" attrs="{'readonly': [['state', 'not in', ['draft']]]}"/>
+			</xpath>
+			<xpath expr="//field[@name='user_id']" position="before">
+				<field name="origin_out" attrs="{'invisible': [('type', '!=', 'out_refund')]}"/>
+			</xpath>
         </field>
     </record>
 
