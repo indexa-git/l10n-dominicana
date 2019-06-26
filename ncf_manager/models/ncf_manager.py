@@ -19,6 +19,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 READONLY_STATES = {
     'draft': [('readonly', False)],
+    'confirmed': [('readonly', True)],
     'done': [('readonly', True)],
     'cancel': [('readonly', True)],
 }
@@ -41,23 +42,21 @@ NCF_TYPE = {
 
 
 class NcfManager(models.Model):
+    """
+    This model contains the necessary information to be able to handle the
+    receipts of the DGII in a simple way.
+    """
     _name = 'ncf.manager'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "NCF Structure"
     _order = "number_next desc, id desc"
 
     @api.multi
-    @api.depends('sequence_id')
-    def _compute_has_sequence(self):
-        for ncf in self:
-            ncf.has_sequence = bool(ncf.sequence_id)
-
-    @api.multi
     @api.depends('state', 'sequence_id')
     def _compute_sequence_next(self):
-        ''' Set the number_next on the sequence related to the invoice/bill/refund'''
+        """Set the number_next on the sequence related to this NCF."""
         for ncf in self:
-            if ncf.state == 'done' and ncf.sequence_id:
+            if ncf.state not in ['draft', 'cancel'] and ncf.sequence_id:
                 seq = ncf.sequence_id._get_current_sequence()
                 number_next = seq.number_next_actual
                 sequence = '%%0%sd' % seq.padding % number_next
@@ -139,14 +138,11 @@ class NcfManager(models.Model):
         readonly=True,
         required=False,
     )
-    has_sequence = fields.Boolean(
-        help="Technical field used for usability purposes",
-        compute="_compute_has_sequence",
-    )
     state = fields.Selection(
         string="State",
         selection=[
             ("draft", "Draft"),
+            ("confirmed", "Confirmed"),
             ("done", "Done"),
             ("cancel", "Cancel"),
         ],
@@ -170,6 +166,13 @@ class NcfManager(models.Model):
         required=False,
         readonly=True,
     )
+
+    _sql_constraints = [
+        ('sale_uniq', 'unique(sale_type, company_id)',
+         'Sale type must be unique per company!'),
+        ('purchase_uniq', 'unique(purchase_type, company_id)',
+         'Purchase type must be unique per company!'),
+    ]
 
     @api.onchange('journal_id', 'type')
     def _onchange_journal_id(self):
@@ -195,17 +198,19 @@ class NcfManager(models.Model):
     @api.multi
     @api.depends('type', 'sale_type', 'purchase_type', 'credit_note_control')
     def name_get(self):
+        """Set how the name should be displayed."""
         result = []
         for record in self:
-            type = record.sale_type or record.purchase_type
-            name = NCF_TYPE.get(type)[1]
+            ncf_type = record.sale_type or record.purchase_type
+            name = NCF_TYPE.get(ncf_type)[1]
             result.append((record.id, name))
         return result
 
     @api.model
     def create(self, values):
-        type = values.get('sale_type') or values.get('purchase_type')
-        values['name'] = NCF_TYPE.get(type)[1]
+        """Override create method to to set name according to NCF type"""
+        ncf_type = values.get('sale_type') or values.get('purchase_type')
+        values['name'] = NCF_TYPE.get(ncf_type)[1]
         return super(NcfManager, self).create(values)
 
     @api.multi
@@ -215,15 +220,27 @@ class NcfManager(models.Model):
             if record.state != 'draft':
                 raise UserError(
                     _("You only can delete a record in draft state."))
-            record.unlink()
+        return super(NcfManager, self).unlink()
+
+    @api.multi
+    def action_confirm(self):
+        """Change state to confimed"""
+        return self.write({'state': 'confirmed'})
 
     @api.multi
     def action_done(self):
+        """Set state to done"""
         return self.write({'state': 'done'})
 
     @api.multi
     def action_cancel(self):
+        """Cancel record"""
         return self.write({'state': 'cancel'})
+
+    @api.multi
+    def action_set_to_draft(self):
+        """Change record to draft to allow modify record"""
+        return self.write({'state': 'draft'})
 
     @api.multi
     def create_sequence(self):
@@ -236,7 +253,10 @@ class NcfManager(models.Model):
             ],
         )
         if sequence:
-            return self.write({'sequence_id': sequence.id})
+            return self.write({
+                'sequence_id': sequence.id,
+                'state': 'confirmed',
+            })
 
         sequence_values = {
             'implementation': 'no_gap',
@@ -247,14 +267,14 @@ class NcfManager(models.Model):
             'ncf_id': self.id,
         }
 
-        type = self.sale_type or self.purchase_type
-        sequence_values['name'] = NCF_TYPE.get(type)[1]
-        sequence_values['prefix'] = "B%s" % NCF_TYPE.get(type)[0]
+        ncf_type = self.sale_type or self.purchase_type
+        sequence_values['name'] = NCF_TYPE.get(ncf_type)[1]
+        sequence_values['prefix'] = "B%s" % NCF_TYPE.get(ncf_type)[0]
 
         sequence_id = sequence_obj.create(sequence_values)
         return self.write({
             'sequence_id': sequence_id.id,
-            'has_sequence': True,
+            'state': 'confirmed',
         })
 
 
