@@ -1,3 +1,1168 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ncf_manager
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 11.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-06-26 09:00+0000\n"
+"PO-Revision-Date: 2019-06-26 05:10-0400\n"
+"Last-Translator: <Yasmany Castillo>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: es_DO\n"
+"X-Generator: Poedit 2.0.7\n"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "01 - Deterioro de Factura Pre-impresa"
+msgstr "01 - Deterioro de Factura Pre-impresa"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "01 - Gastos de Personal"
+msgstr "01 - Gastos de Personal"
+
+#. module: ncf_manager
+#: selection:account.invoice,income_type:0
+msgid "01 - Ingresos por Operaciones (No Financieros)"
+msgstr "01 - Ingresos por Operaciones (No Financieros)"
+
+#. module: ncf_manager
+#: selection:account.account,income_type:0
+msgid "01 - Ingresos por operaciones (No financieros)"
+msgstr "01 - Ingresos por operaciones (No financieros)"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "02 - Errores de Impresión (Factura Pre-impresa)"
+msgstr "02 - Errores de Impresión (Factura Pre-impresa)"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "02 - Gastos por Trabajo, Suministros y Servicios"
+msgstr "02 - Gastos por Trabajo, Suministros y Servicios"
+
+#. module: ncf_manager
+#: selection:account.account,income_type:0
+#: selection:account.invoice,income_type:0
+msgid "02 - Ingresos Financieros"
+msgstr "02 - Ingresos Financieros"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "03 - Arrendamientos"
+msgstr "03 - Arrendamientos"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "03 - Impresión Defectuosa"
+msgstr "03 - Impresión Defectuosa"
+
+#. module: ncf_manager
+#: selection:account.account,income_type:0
+#: selection:account.invoice,income_type:0
+msgid "03 - Ingresos Extraordinarios"
+msgstr "03 - Ingresos Extraordinarios"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "04 - Corrección de la Información"
+msgstr "04 - Corrección de la Información"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "04 - Gastos de Activos Fijos"
+msgstr "04 - Gastos de Activos Fijos"
+
+#. module: ncf_manager
+#: selection:account.account,income_type:0
+#: selection:account.invoice,income_type:0
+msgid "04 - Ingresos por Arrendamientos"
+msgstr "04 - Ingresos por Arrendamientos"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "05 - Cambio de Productos"
+msgstr "05 - Cambio de Productos"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "05 - Gastos de Representación"
+msgstr "05 - Gastos de Representación"
+
+#. module: ncf_manager
+#: selection:account.account,income_type:0
+#: selection:account.invoice,income_type:0
+msgid "05 - Ingresos por Venta de Activo Depreciable"
+msgstr "05 - Ingresos por Venta de Activo Depreciable"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "06 - Devolución de Productos"
+msgstr "06 - Devolución de Productos"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "06 - Otras Deducciones Admitidas"
+msgstr "06 - Otras Deducciones Admitidas"
+
+#. module: ncf_manager
+#: selection:account.account,income_type:0
+#: selection:account.invoice,income_type:0
+msgid "06 - Otros Ingresos"
+msgstr "06 - Otros Ingresos"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "07 - Gastos Financieros"
+msgstr "07 - Gastos Financieros"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "07 - Omisión de Productos"
+msgstr "07 - Omisión de Productos"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "08 - Errores en Secuencia de NCF"
+msgstr "08 - Errores en Secuencia de NCF"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "08 - Gastos Extraordinarios"
+msgstr "08 - Gastos Extraordinarios"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "09 - Compras y Gastos que forman parte del Costo de Venta"
+msgstr "09 - Compras y Gastos que forman parte del Costo de Venta"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "09 - Por Cese de Operaciones"
+msgstr "09 - Por Cese de Operaciones"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+#: selection:res.partner,expense_type:0
+msgid "10 - Adquisiciones de Activos"
+msgstr "10 - Adquisiciones de Activos"
+
+#. module: ncf_manager
+#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice.cancel,anulation_type:0
+msgid "10 - Pérdida o Hurto de Talonarios"
+msgstr "10 - Pérdida o Hurto de Talonarios"
+
+#. module: ncf_manager
+#: selection:res.partner,expense_type:0
+msgid "11 - Gastos de Seguro"
+msgstr "11 - Gastos de Seguro"
+
+#. module: ncf_manager
+#: selection:account.account,expense_type:0
+#: selection:account.invoice,expense_type:0
+msgid "11 - Gastos de Seguros"
+msgstr "11 - Gastos de Seguros"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid ""
+"<strong>Esta opción no es válida para facturas pagadas.</strong>\n"
+"                                            Utilice esta opción si desea cancelar la factura que\n"
+"                                            Han emitido, La nota de crédito será creada, validada y reconciliada\n"
+"                                            Con la factura. No podrá modificar la nota de crédito."
+msgstr ""
+"<strong>Esta opción no es válida para facturas pagadas.</strong>\n"
+"                                            Utilice esta opción si desea cancelar la factura que\n"
+"                                            Han emitido, La nota de crédito será creada, validada y reconciliada\n"
+"                                            Con la factura. No podrá modificar la nota de crédito."
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid ""
+"<strong>Esta opción no es válida para facturas pagadas.</strong>\n"
+"                                            Utilice esta opción si desea cancelar una factura y crear una nueva.\n"
+"                                            La nota de crédito será creada, validada y reconciliada\n"
+"                                            Con la factura actual. Se creará una nueva factura en estado borrador\n"
+"                                            Para\n"
+"                                            que pueda editarla."
+msgstr ""
+"<strong>Esta opción no es válida para facturas pagadas.</strong>\n"
+"                                            Utilice esta opción si desea cancelar una factura y crear una nueva.\n"
+"                                            La nota de crédito será creada, validada y reconciliada\n"
+"                                            Con la factura actual. Se creará una nueva factura en estado borrador\n"
+"                                            Para\n"
+"                                            que pueda editarla."
+
+#. module: ncf_manager
+#: selection:account.journal,payment_form:0
+msgid "A Crédito"
+msgstr "A Crédito"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_account_account
+msgid "Account"
+msgstr "Cuenta"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_active
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "Active"
+msgstr "Activo"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_currency_form
+msgid "Actualizar desde el archivo del BC"
+msgstr "Actualizar desde el archivo del BC"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_origin_out
+msgid "Afecta a"
+msgstr "Afecta a"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Alquileres"
+msgstr "Alquileres"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_account_invoice_form
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_supplier_account_invoice_form
+msgid "Aplicar NC o ND"
+msgstr "Aplicar NC o ND"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "Archived"
+msgstr "Archivado"
+
+#. module: ncf_manager
+#: selection:account.journal,payment_form:0
+msgid "Bonos o Certificados de Regalo"
+msgstr "Bonos o Certificados de Regalo"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.account_invoice_cancel_view
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_form
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+#: selection:ncf.manager,state:0
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.account_invoice_cancel_view
+msgid "Cancel Invoices"
+msgstr "Cancelar facturas"
+
+#. module: ncf_manager
+#: model:ir.actions.act_window,name:ncf_manager.action_account_invoice_cancel
+#: model:ir.ui.view,arch_db:ncf_manager.account_invoice_cancel_view
+msgid "Cancel Selected Invoices"
+msgstr "Cancelar facturas seleccionadas"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_account_invoice_cancel
+msgid "Cancel the Selected Invoices"
+msgstr "Cancelar la factura seleccionada"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_account_invoice_form
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_supplier_account_invoice_form
+msgid "Cancelar Factura"
+msgstr "Cancelar Factura"
+
+#. module: ncf_manager
+#: selection:account.journal,payment_form:0
+msgid "Cheque / Transferencia / Depósito"
+msgstr "Cheque / Transferencia / Depósito"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_res_company
+msgid "Companies"
+msgstr "Compañías"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_company_id
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "Company"
+msgstr "Compañía"
+
+#. module: ncf_manager
+#: selection:account.journal,purchase_type:0
+#: selection:ncf.manager,purchase_type:0
+msgid "Compras Fiscales"
+msgstr "Compras Fiscales"
+
+#. module: ncf_manager
+#: selection:account.journal,purchase_type:0
+#: selection:ncf.manager,purchase_type:0
+msgid "Comprobante de Compras"
+msgstr "Comprobante de Compras"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_form
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: ncf_manager
+#: selection:ncf.manager,state:0
+msgid "Confirmed"
+msgstr "Confirmado"
+
+#. module: ncf_manager
+#: selection:account.invoice,sale_fiscal_type:0
+#: selection:ncf.manager,sale_type:0 selection:res.partner,sale_fiscal_type:0
+msgid "Consumo"
+msgstr "Consumo"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_ncf_control
+#: model:ir.model.fields,field_description:ncf_manager.field_account_journal_ncf_control
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_ncf_control
+msgid "Control de NCF"
+msgstr "Control de NCF"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_res_currency_rate_converted
+msgid "Converted"
+msgstr "Convertir"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid "Crear"
+msgstr "Crear"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_form
+msgid "Create sequence"
+msgstr "Create sequence"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel_create_uid
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel_create_date
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_create_date
+msgid "Created on"
+msgstr "Creado en"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_account_invoice_refund
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+#: selection:ncf.manager,sale_type:0
+msgid "Credit Note"
+msgstr "Nota de Crédito"
+
+#. module: ncf_manager
+#: selection:account.invoice,sale_fiscal_type:0
+#: selection:ncf.manager,sale_type:0 selection:res.partner,sale_fiscal_type:0
+msgid "Crédito Fiscal"
+msgstr "Crédito Fiscal"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_refund_account_id
+msgid "Cuenta contable"
+msgstr "Cuenta contable"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_res_currency
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_res_currency_rate
+msgid "Currency Rate"
+msgstr "Tasa"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/res.py:233
+#, python-format
+msgid "Debe especificar el tÃ©rmino de pago del contacto"
+msgstr "Debe especificar el tÃ©rmino de pago del contacto"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:361
+#, python-format
+msgid "Debe retener el 100% del ITBIS"
+msgstr "Debe retener el 100% del ITBIS"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid "Descripción de la opción"
+msgstr "Descripción de la opción"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel_display_name
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_display_name
+msgid "Display Name"
+msgstr "Display Name"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+#: selection:ncf.manager,state:0
+msgid "Done"
+msgstr "Hecho"
+
+#. module: ncf_manager
+#: selection:ncf.manager,state:0
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: ncf_manager
+#: selection:account.journal,payment_form:0
+msgid "Efectivo"
+msgstr "Efectivo"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:506
+#, python-format
+msgid ""
+"El RNC del cliente NO pasÃ³ la validaciÃ³n en DGII\n"
+"\n"
+"No es posible crear una factura con CrÃ©dito Fiscal si el RNC del cliente es invÃ¡lido.Verifique el RNC del cliente a fin de corregirlo y vuelva a guardar la factura"
+msgstr ""
+"El RNC del cliente NO pasÃ³ la validaciÃ³n en DGII\n"
+"\n"
+"No es posible crear una factura con CrÃ©dito Fiscal si el RNC del cliente es invÃ¡lido.Verifique el RNC del cliente a fin de corregirlo y vuelva a guardar la factura"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:380
+#, python-format
+msgid "El cliente [{}]{} no tiene RNC/CÃ©d, y es requeridopara este tipo de factura."
+msgstr "El cliente [{}]{} no tiene RNC/CÃ©d, y es requeridopara este tipo de factura."
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:373
+#, python-format
+msgid "El cliente [{}]{} no tiene Tipo de comprobante, y esrequerido para este tipo de factura."
+msgstr "El cliente [{}]{} no tiene Tipo de comprobante, y esrequerido para este tipo de factura."
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:76
+#, python-format
+msgid "Error. No sequence range for NCF para: {}"
+msgstr "Error. No sequence range for NCF para: {}"
+
+#. module: ncf_manager
+#: selection:account.invoice,sale_fiscal_type:0
+#: selection:ncf.manager,sale_type:0 selection:res.partner,sale_fiscal_type:0
+msgid "Exportaciones"
+msgstr "Exportaciones"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_res_partner_fiscal_info_required
+#: model:ir.model.fields,field_description:ncf_manager.field_res_users_fiscal_info_required
+msgid "Fiscal Info Required"
+msgstr "Información Fiscal requerida"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_ncf_number
+msgid "Fiscal Number"
+msgstr "NCF"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_fiscal_position_id
+msgid "Fiscal Position"
+msgstr "Posición Fiscal"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_journal_payment_form
+msgid "Forma de Pago"
+msgstr "Forma de Pago"
+
+#. module: ncf_manager
+#: selection:account.journal,purchase_type:0
+#: selection:ncf.manager,purchase_type:0
+msgid "Gastos Menores"
+msgstr "Gastos Menores"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "Group By..."
+msgstr "Agrupar por"
+
+#. module: ncf_manager
+#: selection:res.partner,sale_fiscal_type:0
+msgid "Gubernamental"
+msgstr "Gubernamental"
+
+#. module: ncf_manager
+#: selection:account.invoice,sale_fiscal_type:0
+#: selection:ncf.manager,sale_type:0
+msgid "Gubernamentales"
+msgstr "Gubernamentales"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_res_currency_bc_rate_xls
+msgid "Histórico en Excel de Tasas del Banco Central"
+msgstr "Histórico en Excel de Tasas del Banco Central"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Honorarios por Servicios"
+msgstr "Honorarios por Servicios"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel_id
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_id
+msgid "ID"
+msgstr "ID"
+
+#. module: ncf_manager
+#: selection:account.tax,purchase_tax_type:0
+msgid "ISR Retenido"
+msgstr "ISR Retenido"
+
+#. module: ncf_manager
+#: selection:account.tax,purchase_tax_type:0
+msgid "ITBIS Pagado"
+msgstr "ITBIS Pagado"
+
+#. module: ncf_manager
+#: selection:account.tax,purchase_tax_type:0
+msgid "ITBIS Retenido"
+msgstr "ITBIS Retenido"
+
+#. module: ncf_manager
+#: selection:account.journal,purchase_type:0
+#: selection:ncf.manager,purchase_type:0
+msgid "Importaciones"
+msgstr "Importaciones"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid "Información de la nota de crédito"
+msgstr "Información de la nota de crédito"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid "Información de la nota de débito"
+msgstr "Información de la nota de débito"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid "Información del descuento"
+msgstr "Información del descuento"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Intereses Pagados a Personas Físicas"
+msgstr "Intereses Pagados a Personas Físicas"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Intereses Pagados a Personas Jurídicas"
+msgstr "Intereses Pagados a Personas Jurídicas"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_account_invoice
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_refund_invoice_type
+msgid "Invoice Type"
+msgstr "Tipo de Factura"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_invoice_ids
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_is_company_currency
+msgid "Is Company Currency"
+msgstr "Es la moneda de la compañía"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_is_nd
+msgid "Is Nd"
+msgstr "Es Nota de Crédito"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_account_journal
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_journal_id
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "Journal"
+msgstr "Diario"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Juegos Telefónicos"
+msgstr "Juegos Telefónicos"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:335
+#, python-format
+msgid "La venta de bienes a clientes extranjeros deben realizarse con comprobante tipo Exportaciones"
+msgstr "La venta de bienes a clientes extranjeros deben realizarse con comprobante tipo Exportaciones"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:340
+#, python-format
+msgid "La venta de servicios a clientes extranjeros deben realizarse con comprobante tipo Consumo"
+msgstr "La venta de servicios a clientes extranjeros deben realizarse con comprobante tipo Consumo"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/wizard/account_invoice_refund.py:148
+#, python-format
+msgid "Las Notas de CrÃ©dito deben ser tipo 04, este NCF no es de este tipo."
+msgstr "Las Notas de CrÃ©dito deben ser tipo 04, este NCF no es de este tipo."
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/wizard/account_invoice_refund.py:143
+#, python-format
+msgid "Las Notas de DÃ©bito deben ser tipo 03, este NCF no es de este tipo."
+msgstr "Las Notas de DÃ©bito deben ser tipo 03, este NCF no es de este tipo."
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel___last_update
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager___last_update
+msgid "Last Modified on"
+msgstr "Last Modified on"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel_write_uid
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_write_uid
+msgid "Last Updated by"
+msgstr "Last Updated by"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel_write_date
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_write_date
+msgid "Last Updated on"
+msgstr "Last Updated on"
+
+#. module: ncf_manager
+#: model:res.groups,name:ncf_manager.group_ncf_manager
+msgid "Manage NCF structure"
+msgstr "Manejar Estructura NCF"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_refund_amount
+msgid "Monto"
+msgstr "Monto"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_refund_supplier_ncf
+#: model:ir.ui.menu,name:ncf_manager.ncf_manager_root_menu
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_account_invoice_form
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_account_invoice_tree
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_supplier_account_invoice_form
+msgid "NCF"
+msgstr "NCF"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:193
+#, python-format
+msgid ""
+"NCF *{}* NO corresponde con el tipo de documento\n"
+"\n"
+"No puede registrar Comprobantes Consumidor Final (02)"
+msgstr ""
+"NCF *{}* NO corresponde con el tipo de documento\n"
+"\n"
+"No puede registrar Comprobantes Consumidor Final (02)"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:238
+#, python-format
+msgid ""
+"NCF Duplicado en otra Factura\n"
+"\n"
+"El comprobante *{}* ya se encuentra registrado con este mismo proveedor en una factura en borrador o cancelada"
+msgstr ""
+"NCF Duplicado en otra Factura\n"
+"\n"
+"El comprobante *{}* ya se encuentra registrado con este mismo proveedor en una factura en borrador o cancelada"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "NCF Manager Search"
+msgstr "NCF Manager Search"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:214
+#: code:addons/ncf_manager/wizard/account_invoice_refund.py:154
+#, python-format
+msgid ""
+"NCF NO pasÃ³ validaciÃ³n en DGII\n"
+"\n"
+"Â¡El nÃºmero de comprobante *{}* del proveedor *{}* no pasÃ³ la validaciÃ³n en DGII! Verifique que el NCF y el RNC del proveedor estÃ©n correctamente digitados, o si los nÃºmeros de ese NCF se le agotaron al proveedor"
+msgstr ""
+"NCF NO pasÃ³ validaciÃ³n en DGII\n"
+"\n"
+"Â¡El nÃºmero de comprobante *{}* del proveedor *{}* no pasÃ³ la validaciÃ³n en DGII! Verifique que el NCF y el RNC del proveedor estÃ©n correctamente digitados, o si los nÃºmeros de ese NCF se le agotaron al proveedor"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_form
+msgid "NCF Sequence"
+msgstr "Secuencia de NCF"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_tree_view
+msgid "NCF Sequences"
+msgstr "Secuencias de NCF"
+
+#. module: ncf_manager
+#: model:ir.actions.act_window,name:ncf_manager.action_ncf_manager_view
+#: model:ir.model,name:ncf_manager.model_ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_ncf_id
+#: model:ir.model.fields,field_description:ncf_manager.field_ir_sequence_ncf_id
+#: model:ir.ui.menu,name:ncf_manager.ncf_manager_structure
+msgid "NCF Structure"
+msgstr "Estructura de NCF"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_type
+msgid "NCF for"
+msgstr "NCF para"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:199
+#: code:addons/ncf_manager/models/account_invoice.py:311
+#, python-format
+msgid ""
+"NCF mal digitado\n"
+"\n"
+"El comprobante *{}* no tiene la estructura correcta valide si lo ha digitado correctamente"
+msgstr ""
+"NCF mal digitado\n"
+"\n"
+"El comprobante *{}* no tiene la estructura correcta valide si lo ha digitado correctamente"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_sale_fiscal_type
+msgid "NCF para"
+msgstr "NCF para"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/ncf_manager.py:71
+#, python-format
+msgid "New"
+msgstr "Nuevo"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_number_next
+msgid "Next Number"
+msgstr "Número siguiente"
+
+#. module: ncf_manager
+#: selection:account.tax,purchase_tax_type:0
+msgid "No Deducible"
+msgstr "No Deducible"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:259
+#, python-format
+msgid "No existe un Diario de Gastos Menores, debe crear uno."
+msgstr "No existe un Diario de Gastos Menores, debe crear uno."
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/wizard/account_invoice_refund.py:92
+#, python-format
+msgid "No puede hacer un descuento mayor al saldo de la factura."
+msgstr "No puede hacer un descuento mayor al saldo de la factura."
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:183
+#, python-format
+msgid ""
+"No puede validar una factura para RegÃ­men Especial  con ITBIS/ISC.\n"
+"\n"
+"Consulte Norma General 05-19, Art. 3 de la DGII"
+msgstr ""
+"No puede validar una factura para RegÃ­men Especial  con ITBIS/ISC.\n"
+"\n"
+"Consulte Norma General 05-19, Art. 3 de la DGII"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:367
+#, python-format
+msgid "No se puede validar una factura cuyo monto total sea igual a 0."
+msgstr "No se puede validar una factura cuyo monto total sea igual a 0."
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_partner_form
+msgid "Nombre, RNC o Cédula"
+msgstr "Nombre, RNC o Cédula"
+
+#. module: ncf_manager
+#: selection:account.journal,payment_form:0
+msgid "Otras Formas de Venta"
+msgstr "Otras Formas de Venta"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Otras Rentas"
+msgstr "Otras Rentas"
+
+#. module: ncf_manager
+#: selection:account.journal,purchase_type:0
+msgid "Otros (sin NCF)"
+msgstr "Otros (sin NCF)"
+
+#. module: ncf_manager
+#: selection:account.journal,purchase_type:0
+#: selection:ncf.manager,purchase_type:0
+msgid "Pagos al Exterior"
+msgstr "Pagos al Exterior"
+
+#. module: ncf_manager
+#: selection:account.tax,purchase_tax_type:0
+msgid "Pagos al Exterior (Ley 253-12)"
+msgstr "Pagos al Exterior (Ley 253-12)"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:409
+#, python-format
+msgid "Para poder emitir una NC mayor a  RD$250,000 se requiere que el  cliente tenga RNC o CÃ©dula."
+msgstr "Para poder emitir una NC mayor a  RD$250,000 se requiere que el  cliente tenga RNC o CÃ©dula."
+
+#. module: ncf_manager
+#: selection:account.journal,payment_form:0
+msgid "Permuta"
+msgstr "Permuta"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:206
+#, python-format
+msgid ""
+"Proveedor sin RNC/CÃ©d\n"
+"\n"
+"El proveedor *{}* no tiene RNC o CÃ©dula y es requerido para registrar compras Fiscales"
+msgstr ""
+"Proveedor sin RNC/CÃ©d\n"
+"\n"
+"El proveedor *{}* no tiene RNC o CÃ©dula y es requerido para registrar compras Fiscales"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+#: selection:ncf.manager,type:0
+msgid "Purchase"
+msgstr "Compra"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_purchase_type
+msgid "Purchase type"
+msgstr "Tipo de Compra"
+
+#. module: ncf_manager
+#: sql_constraint:ncf.manager:0
+msgid "Purchase type must be unique per company!"
+msgstr "El tipo de compra debe ser único por compañía!"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_partner_form
+msgid "RNC/Cédula"
+msgstr "RNC/Cédula"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_account_invoice_form
+msgid "Razón de Cancelación:<br/>"
+msgstr "Razón de Cancelación:<br/>"
+
+#. module: ncf_manager
+#: selection:account.invoice,sale_fiscal_type:0
+#: selection:ncf.manager,sale_type:0 selection:res.partner,sale_fiscal_type:0
+msgid "Regímenes Especiales"
+msgstr "Regímenes Especiales"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Rentas Presuntas"
+msgstr "Rentas Presuntas"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_res_currency_res_currency_rate_id
+msgid "Res Currency Rate"
+msgstr "Res Currency Rate"
+
+#. module: ncf_manager
+#: selection:account.tax,isr_retention_type:0
+msgid "Retención por Proveedores del Estado"
+msgstr "Retención por Proveedores del Estado"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+#: selection:ncf.manager,type:0
+msgid "Sale"
+msgstr "Venta"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_sale_type
+msgid "Sale type"
+msgstr "Tipo de venta"
+
+#. module: ncf_manager
+#: sql_constraint:ncf.manager:0
+msgid "Sale type must be unique per company!"
+msgstr "El tipo de venta debe ser único por compañía!"
+
+#. module: ncf_manager
+#. openerp-web
+#: code:addons/ncf_manager/static/src/xml/ncf_manager.xml:7
+#, python-format
+msgid "Search cities..."
+msgstr "Buscar ciudades ..."
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid "Seleccione una opción"
+msgstr "Seleccione una opción"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/wizard/account_invoice_cancel.py:56
+#, python-format
+msgid "Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Done' state."
+msgstr "Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Done' state."
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_sequence_id
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_form
+msgid "Set to draft"
+msgstr "Establecer a Borrador"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:388
+#, python-format
+msgid "Si el monto es mayor a RD$250,000 el cliente debe tener un RNC o CÃ©d para emitir la factura"
+msgstr "Si el monto es mayor a RD$250,000 el cliente debe tener un RNC o CÃ©d para emitir la factura"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_ncf_manager_state
+msgid "State"
+msgstr "Estado"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "Status"
+msgstr "Estatus"
+
+#. module: ncf_manager
+#: selection:account.journal,payment_form:0
+msgid "Tarjeta Crédito / Débito"
+msgstr "Tarjeta Crédito / Débito"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_invoice_rate
+msgid "Tasa"
+msgstr "Tasa"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_account_tax
+msgid "Tax"
+msgstr "Tax"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/ncf_manager.py:282
+#, python-format
+msgid "This invoice type must be a refund type."
+msgstr "This invoice type must be a refund type."
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_cancel_anulation_type
+msgid "Tipo de Anulación"
+msgstr "Tipo de Anulación"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_purchase_type
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_refund_journal_purchase_type
+#: model:ir.model.fields,field_description:ncf_manager.field_account_journal_purchase_type
+msgid "Tipo de Compra"
+msgstr "Tipo de Compra"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_account_expense_type
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_expense_type
+msgid "Tipo de Costos y Gastos"
+msgstr "Tipo de Costos y Gastos"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_tax_purchase_tax_type
+msgid "Tipo de Impuesto en Compra"
+msgstr "Tipo de Impuesto en Compra"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_account_income_type
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_income_type
+msgid "Tipo de Ingreso"
+msgstr "Tipo de Ingreso"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_tax_isr_retention_type
+msgid "Tipo de Retención en ISR"
+msgstr "Tipo de Retención en ISR"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_anulation_type
+msgid "Tipo de anulación"
+msgstr "Tipo de anulación"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_res_partner_sale_fiscal_type
+#: model:ir.model.fields,field_description:ncf_manager.field_res_users_sale_fiscal_type
+msgid "Tipo de comprobante"
+msgstr "Tipo de comprobante"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_res_partner_expense_type
+#: model:ir.model.fields,field_description:ncf_manager.field_res_users_expense_type
+msgid "Tipo de gasto"
+msgstr "Tipo de gasto"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_search_view
+msgid "Type"
+msgstr "Tipo"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid ""
+"Utilice esta opción\n"
+"                                            si desea crea una nota de\n"
+"                                            crédito en estado borrador idéntica\n"
+"                                            a la factura para luego ser modificada."
+msgstr ""
+"Utilice esta opción\n"
+"                                            si desea crea una nota de\n"
+"                                            crédito en estado borrador idéntica\n"
+"                                            a la factura para luego ser modificada."
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid ""
+"Utilice esta opción si desea aplicar una nota de débito a una factura o\n"
+"                                            a\n"
+"                                            una nota de crédito, La nota de débito será creada, validada y\n"
+"                                            reconciliada. No podrá modificar la nota de débito."
+msgstr ""
+"Utilice esta opción si desea aplicar una nota de débito a una factura o\n"
+"                                            a\n"
+"                                            una nota de crédito, La nota de débito será creada, validada y\n"
+"                                            reconciliada. No podrá modificar la nota de débito."
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.view_account_invoice_refund
+msgid ""
+"Utilice esta opción si desea crea una nota de\n"
+"                                            crédito para aplicar un descuento, La nota de crédito será creada,\n"
+"                                            validada\n"
+"                                            y reconciliada Con la factura. No podrá modificar la nota de crédito."
+msgstr ""
+"Utilice esta opción si desea crea una nota de\n"
+"                                            crédito para aplicar un descuento, La nota de crédito será creada,\n"
+"                                            validada\n"
+"                                            y reconciliada Con la factura. No podrá modificar la nota de crédito."
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_journal_ncf_remote_validation
+msgid "Validar con DGII"
+msgstr "Validar con DGII"
+
+#. module: ncf_manager
+#: model:ir.ui.view,arch_db:ncf_manager.ncf_manager_form
+msgid "Validate"
+msgstr "Validar"
+
+#. module: ncf_manager
+#: model:ir.model.fields,field_description:ncf_manager.field_account_invoice_ncf_expiration_date
+msgid "Válido hasta"
+msgstr "Válido hasta"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:537
+#, python-format
+msgid "You have not defined an NCF structure for this voucher."
+msgstr "No se ha definido una estructura de NCF para este comprobante!"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/ncf_manager.py:220
+#, python-format
+msgid "You only can delete a record in draft state."
+msgstr "Solo puede eliminar un registro en estado Borrador."
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_ir_sequence
+msgid "ir.sequence"
+msgstr "ir.sequence"
+
+#. module: ncf_manager
+#: model:ir.model,name:ncf_manager.model_ir_sequence_date_range
+msgid "ir.sequence.date_range"
+msgstr "ir.sequence.date_range"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:402
+#, python-format
+msgid "Â¡Para Remesas al Exterior el Proveedor debe tener paÃ­s diferente a RepÃºblica Dominicana!"
+msgstr "Â¡Para Remesas al Exterior el Proveedor debe tener paÃ­s diferente a RepÃºblica Dominicana!"
+
+#. module: ncf_manager
+#: code:addons/ncf_manager/models/account_invoice.py:396
+#, python-format
+msgid "Â¡Para este tipo de Compra el Proveedor debe de tener un RNC/CÃ©dula/NIT establecido!"
+msgstr "Â¡Para este tipo de Compra el Proveedor debe de tener un RNC/CÃ©dula/NIT establecido!"
+
+#. module: ncf_manager
+#: selection:account.invoice,sale_fiscal_type:0
+#: selection:ncf.manager,sale_type:0 selection:res.partner,sale_fiscal_type:0
+msgid "Único Ingreso"
+msgstr "Único Ingreso"
+
 #. module: account
 #: model:ir.ui.menu,name:account.menu_finance
 #: model:ir.ui.view,arch_db:account.product_template_form_view

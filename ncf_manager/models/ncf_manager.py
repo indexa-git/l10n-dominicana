@@ -76,13 +76,6 @@ class NcfManager(models.Model):
         copy=False,
         compute="_compute_sequence_next",
     )
-    ncf_control = fields.Boolean(
-        string='Control de NCF',
-        default=False,
-        copy=False,
-        readonly=True,
-        states=READONLY_STATES,
-    )
     type = fields.Selection(
         string='NCF for',
         selection=[

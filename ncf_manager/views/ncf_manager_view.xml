@@ -46,10 +46,6 @@
                         <h1>
                             <field name="name"/>
                         </h1>
-						<div>
-							<field name="ncf_control"/>
-							<label for="ncf_control"/>
-						</div>
                     </div>
                     <group>
 						<group>
