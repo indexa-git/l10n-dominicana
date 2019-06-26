@@ -159,6 +159,7 @@ class AccountInvoice(models.Model):
         string="NCF Structure",
         required=False,
         readonly=True,
+        store=True,
     )
 
     @api.multi
@@ -244,6 +245,7 @@ class AccountInvoice(models.Model):
     def onchange_journal_id(self):
         res = super(AccountInvoice, self)._onchange_journal_id()
         if self.journal_id.type == 'purchase':
+            self._set_ncf_structure(self.purchase_type)
             if self.journal_id.purchase_type == "minor":
                 self.partner_id = self.company_id.partner_id.id
 
@@ -279,11 +281,13 @@ class AccountInvoice(models.Model):
     def _onchange_fiscal_type(self):
         if self.partner_id:
             if self.type == 'out_invoice' and self.journal_id.ncf_control:
+                self._set_ncf_structure(self.sale_fiscal_type)
                 self.partner_id.write(
                     {'sale_fiscal_type': self.sale_fiscal_type})
                 self.special_check()
 
             if self.type == 'in_invoice':
+                self._set_ncf_structure(self.purchase_type)
                 self.partner_id.write({'expense_type': self.expense_type})
 
     def special_check(self):
@@ -478,3 +482,24 @@ class AccountInvoice(models.Model):
                         "vuelva a guardar la factura"))
 
         return super(AccountInvoice, self).create(vals)
+
+    @api.multi
+    def _set_ncf_structure(self, fiscal_type):
+        """
+        Search and establish the NCF structure corresponding to the
+        type of voucher.
+        """
+        domain = [('company_id', '=', self.company_id.id)]
+        ncf_structure = False
+        if self.type in ['out_invoice','out_refund']:
+            domain.append(('type', '=', 'sale'))
+            domain.append(('sale_type', '=', fiscal_type))
+        else:
+            domain.append(('type', '=', 'purchase'))
+            domain.append(('purchase_type', '=', fiscal_type))
+
+        ncf_id = self.env['ncf.manager'].search(domain, limit=1)
+        if ncf_id:
+            ncf_structure = ncf_id.id
+
+        return self.update({'ncf_id': ncf_structure})

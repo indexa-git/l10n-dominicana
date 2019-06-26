@@ -38,7 +38,6 @@ class AccountJournal(models.Model):
     ],
         string="Tipo de Compra",
         default="others")
-
     payment_form = fields.Selection(
         [("cash", "Efectivo"),
          ("bank", u"Cheque / Transferencia / Depósito"),
