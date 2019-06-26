@@ -38,6 +38,7 @@ NCF_TYPE = {
     'export': ('16', 'Comprobantes para Exportaciones'),
     'exterior': ('17', 'Comprobantes de Pagos al Exterior'),
     'import': ('E', 'Comprobante Fiscal Electrónico'),
+    'others': ('SCF', 'Sin Comprobante Fiscal'),
 }
 
 
@@ -123,12 +124,14 @@ class NcfManager(models.Model):
         required=True,
         readonly=True,
         states=READONLY_STATES,
+        ondelete='restrict',
     )
     sequence_id = fields.Many2one(
         comodel_name='ir.sequence',
         string='Sequence',
         readonly=True,
         required=False,
+        ondelete='cascade',
     )
     fiscal_position_id = fields.Many2one(
         comodel_name='account.fiscal.position',
@@ -214,10 +217,10 @@ class NcfManager(models.Model):
     @api.multi
     def unlink(self):
         """Allow to remove ncf."""
-        for record in self:
-            if record.state != 'draft':
-                raise UserError(
-                    _("You only can delete a record in draft state."))
+        # for record in self:
+        #     if record.state != 'draft':
+        #         raise UserError(
+        #             _("You only can delete a record in draft state."))
         return super(NcfManager, self).unlink()
 
     @api.multi
@@ -274,6 +277,25 @@ class NcfManager(models.Model):
             'sequence_id': sequence_id.id,
             'state': 'confirmed',
         })
+
+    @api.multi
+    def configure(self):
+        """Configure a sequence and journal for this ncf."""
+        journal_values = {}
+        if self.type == 'sale':
+            self.create_sequence()
+            if self.sale_type == 'fiscal':
+                journal_values['ncf_control'] = True
+        else:
+            if self.purchase_type == 'normal':
+                journal_values['purchase_type'] = self.purchase_type
+                journal_values['ncf_remote_validation'] = True
+            else:
+                self.create_sequence()
+                journal_values['purchase_type'] = self.purchase_type
+
+        self.journal_id.write(journal_values)
+        return self.action_done()
 
     @api.multi
     def get_ncf_structure_for_refund(self, invoice_type):

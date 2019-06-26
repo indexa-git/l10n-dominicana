@@ -244,6 +244,7 @@ class AccountInvoice(models.Model):
     @api.onchange('journal_id', 'partner_id')
     def onchange_journal_id(self):
         res = super(AccountInvoice, self)._onchange_journal_id()
+
         if self.journal_id.type == 'purchase':
             self._set_ncf_structure(self.purchase_type)
             if self.journal_id.purchase_type == "minor":
