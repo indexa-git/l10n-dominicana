@@ -518,7 +518,10 @@ class AccountInvoice(models.Model):
         Search and establish the NCF structure corresponding to the
         type of voucher.
         """
-        domain = [('company_id', '=', self.company_id.id)]
+        domain = [
+            ('company_id', '=', self.company_id.id),
+            ('journal_id', '=', self.journal_id.id)
+        ]
         ncf_structure = False
         if self.type in ['out_invoice','out_refund']:
             domain.append(('type', '=', 'sale'))
@@ -530,5 +533,8 @@ class AccountInvoice(models.Model):
         ncf_id = self.env['ncf.manager'].search(domain, limit=1)
         if ncf_id:
             ncf_structure = ncf_id.id
+        else:
+            raise ValidationError(_("You have not defined an NCF structure "
+                                    "for this voucher."))
 
         return self.update({'ncf_id': ncf_structure})
