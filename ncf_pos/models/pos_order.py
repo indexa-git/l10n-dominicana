@@ -154,7 +154,7 @@ class PosOrder(models.Model):
             if record.refund_payment_account_move_line_ids:
                 for aml in record.refund_payment_account_move_line_ids:
                     for p_id in aml.invoice_id.payment_move_line_ids.ids:
-                        record.invoice_id.assign_outstanding_credit(p_id)
+                        record.invoice_id[0].assign_outstanding_credit(p_id)
         return res
 
     @api.model
