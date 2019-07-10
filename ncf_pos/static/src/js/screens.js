@@ -46,8 +46,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 select: function (event, ui) {
                     name_input.val(ui.item.name);
                     rnc_input.val(ui.item.rnc);
-                    sale_fiscal_type_ddl.val("fiscal");
-
+                    if (rnc_input.val().length == 9){
+                        sale_fiscal_type_ddl.val("fiscal");
+                    }
                     return false;
                 },
                 response: function (event, ui) {
@@ -396,7 +397,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     if (clickpos < scroll + new_height + 20) {
                         parent.scrollTop(clickpos - 20);
                     } else {
- parent.scrollTop(parent.scrollTop() + new_height);
+                        parent.scrollTop(parent.scrollTop() + new_height);
                     }
                 } else {
                     parent.scrollTop(parent.scrollTop() - height + new_height);
@@ -624,13 +625,20 @@ odoo.define('ncf_pos.screens', function (require) {
                     discount: line.discount,
                 });
                 refund_order.selected_orderline.original_line_id = line.id;
-                refund_order.amount_total += parseFloat(line.price_subtotal_incl) * qty;
+                var apply_discounts = function (price, discount) {
+                    return price - (price * Math.max(Math.min(discount, 100), 0))/100;
+                };
+                var unit_price_with_discounts = apply_discounts(line.price_unit, line.discount);
+                var unit_price_with_taxes = line.qty ? parseFloat(line.price_subtotal_incl) / line.qty : 0;
+                refund_order.amount_total += unit_price_with_taxes * qty;
                 refund_order.orderlineList.push({
                     line_id: line_id,
                     product_id: line.product_id[0],
                     product_name: line.product_id[1],
                     quantity: qty,
                     price: line.price_subtotal_incl,
+                    price_unit: unit_price_with_discounts,
+                    taxes: qty ? ( unit_price_with_taxes - unit_price_with_discounts ) : 0
                 });
             });
             this.click_confirm();
@@ -709,6 +717,12 @@ odoo.define('ncf_pos.screens', function (require) {
                     input_name: 'ncf',
                     text_input_value: '',
                     confirm: function (input_value) {
+                        var selection_val = $('.pos .popup select.credit_notes').val();
+                        if (selection_val) {
+                            var credit_note = self.pos.db.credit_note_by_id[selection_val]
+                            input_value = credit_note.reference;
+                        }
+
                         var msg_error = "";
 
                         rpc.query({
@@ -718,9 +732,11 @@ odoo.define('ncf_pos.screens', function (require) {
                         }, {})
                             .then(function (result) {
                                 var residual = parseFloat(result.residual) || 0;
-
+                                var client = self.pos.get_client();
                                 if (result.id === false) {
                                     msg_error = _t("La nota de credito no existe.");
+                                } else if (!client || (client && client.id !== result.partner_id)){
+                                    msg_error = _t("La Nota de Crédito Pertenece a Otro Cliente");
                                 } else if (residual < 1) {
                                     msg_error = _t("El balance de la Nota de Credito es 0.");
                                 } else {
