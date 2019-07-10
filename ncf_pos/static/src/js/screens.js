@@ -46,8 +46,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 select: function (event, ui) {
                     name_input.val(ui.item.name);
                     rnc_input.val(ui.item.rnc);
-                    sale_fiscal_type_ddl.val("fiscal");
-
+                    if (rnc_input.val().length == 9){
+                        sale_fiscal_type_ddl.val("fiscal");
+                    }
                     return false;
                 },
                 response: function (event, ui) {
@@ -962,11 +963,11 @@ odoo.define('ncf_pos.screens', function (require) {
                                 'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
                                 'registrado correctamente si este desea comprobante fiscal.',
                             };
-                        } else if (invoicing && order.get_total_without_tax() >= 50000) {
+                        } else if (invoicing && order.get_total_without_tax() >= 250000) {
                             popupErrorOptions = {
                                 'title': 'Factura sin Cedula de Cliente',
                                 'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                                'es igual o mayor a RD$50,000.00 o mas',
+                                'es igual o mayor a RD$250,000.00 o mas',
                             };
                         }
                     }
@@ -1073,7 +1074,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         popupErrorOptions = {
                             'title': 'Factura sin Cedula de Cliente',
                             'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                            'es igual o mayor a RD$50,000.00 o mas',
+                            'es igual o mayor a RD$250,000.00 o mas',
                         };
                     }
                 }

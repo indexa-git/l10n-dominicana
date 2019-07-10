@@ -224,7 +224,6 @@ class AccountInvoice(models.Model):
     def onchange_journal_id(self):
         res = super(AccountInvoice, self)._onchange_journal_id()
         if self.journal_id.type == 'purchase':
-            self.reference = False
             if self.journal_id.purchase_type == "minor":
                 self.partner_id = self.company_id.partner_id.id
 
@@ -369,12 +368,17 @@ class AccountInvoice(models.Model):
 
             elif inv.type in ("in_invoice", "in_refund"):
                 if inv.reference and inv.journal_id.purchase_type in (
-                        'normal', 'informal', 'minor'):
+                        'normal', 'informal', 'minor', 'exterior'):
                     if not inv.partner_id.vat:
                         raise ValidationError(_(
                             u"¡Para este tipo de Compra el Proveedor"
-                            u" debe de tener un RNC/Cédula establecido!"))
-                    self.validate_fiscal_purchase()
+                            u" debe de tener un RNC/Cédula/NIT establecido!"))
+
+                    if (inv.journal_id.purchase_type == 'exterior' and
+                            inv.partner_id.country_id.code == 'DO'):
+                        raise ValidationError(_(
+                            u"¡Para Remesas al Exterior el Proveedor debe"
+                            u" tener país diferente a República Dominicana!"))
 
             elif (inv.type == 'out_refund' and inv.journal_id.ncf_control and
                   inv.amount_untaxed_signed >= 250000 and
