@@ -41,7 +41,8 @@ class PosConfig(models.Model):
                                              string=u"Criterios de Búsqueda")
     ncf_control = fields.Boolean(related="invoice_journal_id.ncf_control")
     seller_and_cashier_ticket = fields.Boolean("Seller and Cashier on Ticket")
-    credit_notes_number_of_days = fields.Integer(string=u'Cantidad de Días Anteriores', default=10)
+    credit_notes_number_of_days = fields.Integer(
+        string=u'Cantidad de Días Anteriores', default=10)
 
     @api.onchange("iface_invoicing")
     def onchange_iface_invoicing(self):

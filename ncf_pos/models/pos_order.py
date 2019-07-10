@@ -48,8 +48,7 @@ class PosOrder(models.Model):
                                       readonly=True,
                                       copy=False)
     return_status = fields.Selection(
-        [('-', 'No Devuelta'),
-         ('Fully-Returned', 'Totalmente Devuelta'),
+        [('-', 'No Devuelta'), ('Fully-Returned', 'Totalmente Devuelta'),
          ('Partially-Returned', 'Parcialmente Devuelta'),
          ('Non-Returnable', 'No Retornable')],
         default='-',
@@ -249,13 +248,17 @@ class PosOrder(models.Model):
         invoice_ids = self.env["account.invoice"].search([
             ('reference', '=', ncf), ('type', '=', 'out_refund')
         ])
-        return {"id": invoice_ids.id, "residual": invoice_ids.residual, "partner_id": invoice_ids.partner_id.id}
+        return {
+            "id": invoice_ids.id,
+            "residual": invoice_ids.residual,
+            "partner_id": invoice_ids.partner_id.id
+        }
 
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
                      is_return_order):
         if not self.env["pos.order.ncf.temp"].search(
-           [('pos_reference', '=', order_uid)]):
+            [('pos_reference', '=', order_uid)]):
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
@@ -322,8 +325,7 @@ class PosOrder(models.Model):
                 ])
                 acc_move_line_ids = (
                     order.refund_payment_account_move_line_ids.filtered(
-                        lambda p: p.ref == statement['note'])
-                )
+                        lambda p: p.ref == statement['note']))
                 invoice.write({
                     'payment_move_line_ids': [
                         (4, id, 0) for id in acc_move_line_ids.ids
