@@ -258,7 +258,7 @@ class PosOrder(models.Model):
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
                      is_return_order):
         if not self.env["pos.order.ncf.temp"].search(
-            [('pos_reference', '=', order_uid)]):
+           [('pos_reference', '=', order_uid)]):
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
