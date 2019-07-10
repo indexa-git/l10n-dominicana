@@ -27,7 +27,7 @@
                         <field name="previous_report_pending" invisible="1"/>
                         <group attrs="{'invisible': [('previous_report_pending', '=', False)]}">
                             <div class="alert alert-warning info_icon" role="alert">
-                                <span class="fa fa-lightbulb-o fa-lg"/>
+                                <span class="fa fa-lightbulb-o fa-lg" title="Info" aria-label="Info"/>
                                 <p>The previous report is still not marked as sent.</p>
                                 <p>Not setting a report as sent may throw inconsistencies
                                     regarding invoices withholding dates.
@@ -51,7 +51,6 @@
                                         <button type="object" name="get_606_tree_view">
                                             <h2>606</h2>
                                         </button>
-                                        <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
                                         <field name="purchase_records" readonly="1"/>
                                         <field name="purchase_invoiced_amount" readonly="1"/>
                                         <field name="service_total_amount" readonly="1"/>
@@ -74,7 +73,6 @@
                                         <button type="object" name="get_607_tree_view">
                                             <h2>607</h2>
                                         </button>
-                                        <field name="sale_binary" filename="sale_filename" readonly="1"/>
                                         <field name="sale_records" readonly="1"/>
                                         <field name="sale_invoiced_amount" readonly="1"/>
                                         <separator colspan="2"/>
@@ -93,7 +91,6 @@
                                         <button type="object" name="get_608_tree_view">
                                             <h2>608</h2>
                                         </button>
-                                        <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
                                         <field name="cancel_records" readonly="1"/>
                                     </group>
                                 </div>
@@ -102,7 +99,6 @@
                                         <button type="object" name="get_609_tree_view">
                                             <h2>609</h2>
                                         </button>
-                                        <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
                                         <field name="exterior_records" readonly="1"/>
                                         <field name="exterior_invoiced_amount" readonly="1"/>
                                         <separator colspan="2"/>
@@ -111,6 +107,20 @@
                                     </group>
                                 </div>
                             </div>
+                        </page>
+                        <page name="files" string="TXT Files">
+                            <group>
+                                <group>
+                                    <field name="purchase_binary" filename="purchase_filename" readonly="1"/>
+                                    <field name="purchase_filename" invisible="1"/>
+                                    <field name="sale_binary" filename="sale_filename" readonly="1"/>
+                                    <field name="sale_filename" invisible="1"/>
+                                    <field name="cancel_binary" filename="cancel_filename" readonly="1"/>
+                                    <field name="cancel_filename" invisible="1"/>
+                                    <field name="exterior_binary" filename="exterior_filename" readonly="1"/>
+                                    <field name="exterior_filename" invisible="1"/>
+                                </group>
+                            </group>
                         </page>
                         <page name="it1" string="IT-1">
                             <group string="607 Reported Operations by NCF Type">
@@ -238,12 +248,12 @@
             <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="rnc_cedula"/>
+                <field name="rnc_cedula" widget="url"/>
                 <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
                 <field name="expense_type"/>
-                <field name="fiscal_invoice_number"/>
-                <field name="modified_invoice_number"/>
+                <field name="fiscal_invoice_number" widget="url"/>
+                <field name="modified_invoice_number" widget="url"/>
                 <field name="invoice_date"/>
                 <field name="payment_date"/>
                 <field name="service_total_amount" sum="Total"/>
@@ -271,14 +281,15 @@
         <field name="name">dgii.reports.sale.line.tree</field>
         <field name="model">dgii.reports.sale.line</field>
         <field name="arch" type="xml">
-            <tree create="false" edit="false" decoration-muted="(invoiced_amount &lt; 250000) and (identification_type == '2')">
+            <tree create="false" edit="false"
+                  decoration-muted="(invoiced_amount &lt; 250000) and (identification_type == '2')">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="rnc_cedula"/>
+                <field name="rnc_cedula" widget="url"/>
                 <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
-                <field name="fiscal_invoice_number"/>
-                <field name="modified_invoice_number"/>
+                <field name="fiscal_invoice_number" widget="url"/>
+                <field name="modified_invoice_number" widget="url"/>
                 <field name="income_type"/>
                 <field name="invoice_date"/>
                 <field name="withholding_date"/>
@@ -311,7 +322,7 @@
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="invoice_partner_id"/>
-                <field name="fiscal_invoice_number"/>
+                <field name="fiscal_invoice_number" widget="url"/>
                 <field name="invoice_date"/>
                 <field name="anulation_type"/>
             </tree>
@@ -328,7 +339,7 @@
                 <field name="line"/>
                 <field name="legal_name"/>
                 <field name="tax_id_type"/>
-                <field name="tax_id"/>
+                <field name="tax_id" widget="url"/>
                 <field name="country_code"/>
                 <field name="purchased_service_type"/>
                 <field name="service_type_detail"/>

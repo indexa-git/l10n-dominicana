@@ -2,7 +2,6 @@
 # Part of Domincana Premium. See LICENSE file for full copyright and licensing details.
 
 import json
-from datetime import datetime as dt
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -10,6 +9,7 @@ from odoo.exceptions import ValidationError
 
 class InvoiceServiceTypeDetail(models.Model):
     _name = 'invoice.service.type.detail'
+    _description = "Invoice Service Type Detail"
 
     name = fields.Char()
     code = fields.Char(size=2)
@@ -30,10 +30,10 @@ class AccountInvoice(models.Model):
     def _compute_invoice_payment_date(self, invoices):
         for inv in invoices:
             if inv.state == 'paid':
-                dates = [dt.strptime(payment['date'], '%Y-%m-%d') for payment in self._get_invoice_payment_widget(inv)]
+                dates = [payment['date'] for payment in self._get_invoice_payment_widget(inv)]
                 if dates:
-                    max_date = max(dates)
-                    date_invoice = dt.strptime(inv.date_invoice, '%Y-%m-%d')
+                    max_date = fields.Date.from_string(max(dates))
+                    date_invoice = inv.date_invoice
                     inv.payment_date = max_date if max_date >= date_invoice else date_invoice
 
     @api.multi

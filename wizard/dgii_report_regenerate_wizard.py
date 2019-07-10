@@ -11,6 +11,7 @@ class DgiiReportRegenerateWizard(models.TransientModel):
     is about to be regenerated.
     """
     _name = 'dgii.report.regenerate.wizard'
+    _description = "DGII Report Regenerate Wizard"
 
     report_id = fields.Many2one('dgii.reports', 'Report')
 

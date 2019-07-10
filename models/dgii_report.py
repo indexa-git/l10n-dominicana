@@ -13,6 +13,7 @@ from odoo.exceptions import ValidationError
 
 class DgiiReportSaleSummary(models.Model):
     _name = 'dgii.reports.sale.summary'
+    _description = "DGII Report Sale Summary"
     _order = 'sequence'
 
     name = fields.Char()
@@ -26,6 +27,7 @@ class DgiiReportSaleSummary(models.Model):
 
 class DgiiReport(models.Model):
     _name = 'dgii.reports'
+    _description = "DGII Report"
     _inherit = ['mail.thread']
 
     @api.multi
@@ -243,7 +245,7 @@ class DgiiReport(models.Model):
 
     @staticmethod
     def get_date_tuple(date):
-        return dt.strptime(date, '%Y-%m-%d').year, dt.strptime(date, '%Y-%m-%d').month
+        return date.year, date.month
 
     def _get_pending_invoices(self, rec, types):
 
@@ -300,7 +302,8 @@ class DgiiReport(models.Model):
 
     def _get_formated_date(self, date):
 
-        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if date else ""
+        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if isinstance(date, str) \
+            else date.strftime('%Y%m%d') if date else ""
 
     def _get_formated_amount(self, amount):
 
@@ -365,7 +368,7 @@ class DgiiReport(models.Model):
         if not invoice.payment_date:
             return False
 
-        payment_date = dt.strptime(invoice.payment_date, '%Y-%m-%d')
+        payment_date = invoice.payment_date
         period = dt.strptime(report.name, '%m/%Y')
         same_minor_period = (payment_date.month, payment_date.year) <= (period.month, period.year)
 
@@ -377,7 +380,7 @@ class DgiiReport(models.Model):
             PurchaseLine = self.env['dgii.reports.purchase.line']
             PurchaseLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['in_invoice', 'in_refund'])
+            invoice_ids = self._get_invoices(rec, ['open', 'in_payment', 'paid'], ['in_invoice', 'in_refund'])
 
             line = 0
             report_data = ''
@@ -434,8 +437,8 @@ class DgiiReport(models.Model):
     def include_payment(invoice_id, payment_id):
         """ Returns True if payment date is on or before current period """
 
-        p_date = dt.strptime(payment_id.payment_date, '%Y-%m-%d')
-        i_date = dt.strptime(invoice_id.date_invoice, '%Y-%m-%d')
+        p_date = payment_id.payment_date
+        i_date = invoice_id.date_invoice
 
         return True if (p_date.year <= i_date.year) and (p_date.month <= i_date.month) else False
 
@@ -602,7 +605,7 @@ class DgiiReport(models.Model):
             SaleLine = self.env['dgii.reports.sale.line']
             SaleLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['open', 'paid'], ['out_invoice', 'out_refund'])
+            invoice_ids = self._get_invoices(rec, ['open', 'in_payment', 'paid'], ['out_invoice', 'out_refund'])
             line = 0
             excluded_line = line
             op_dict = self._get_607_operations_dict()
@@ -626,8 +629,8 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.reference,
                     'modified_invoice_number': inv.origin_out if inv.origin_out and inv.origin_out[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
-                    'invoice_date': inv.date_invoice,
-                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and show_payment_date) else False,
+                    'invoice_date': inv.date_invoice.strftime("%Y-%m-%d"),
+                    'withholding_date': inv.payment_date.strftime("%Y-%m-%d") if (inv.type != 'out_refund' and show_payment_date) else False,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'third_withheld_itbis': inv.third_withheld_itbis if show_payment_date else 0,
@@ -779,7 +782,7 @@ class DgiiReport(models.Model):
             ExteriorLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
             invoice_ids = self._get_invoices(rec,
-                                             ['open', 'paid'],
+                                             ['open', 'in_payment', 'paid'],
                                              ['in_invoice',
                                               'in_refund']
                                              ).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO') and
@@ -863,7 +866,7 @@ class DgiiReport(models.Model):
     @api.multi
     def state_sent(self):
         for report in self:
-            self._invoice_status_sent()
+            report._invoice_status_sent()
             report.state = 'sent'
 
     def get_606_tree_view(self):
@@ -909,6 +912,7 @@ class DgiiReport(models.Model):
 
 class DgiiReportPurchaseLine(models.Model):
     _name = 'dgii.reports.purchase.line'
+    _description = "DGII Reports Purchase Line"
     _order = 'line asc'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
@@ -945,6 +949,7 @@ class DgiiReportPurchaseLine(models.Model):
 
 class DgiiReportSaleLine(models.Model):
     _name = 'dgii.reports.sale.line'
+    _description = "DGII Reports Sale Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -982,6 +987,7 @@ class DgiiReportSaleLine(models.Model):
 
 class DgiiCancelReportLine(models.Model):
     _name = 'dgii.reports.cancel.line'
+    _description = "DGII Reports Cancel Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -996,6 +1002,7 @@ class DgiiCancelReportLine(models.Model):
 
 class DgiiExteriorReportLine(models.Model):
     _name = 'dgii.reports.exterior.line'
+    _description = "DGII Reports Exterior Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
