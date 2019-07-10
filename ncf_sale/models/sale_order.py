@@ -17,16 +17,9 @@
 
 import logging
 
-
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo import models, api
 
 _logger = logging.getLogger(__name__)
-
-try:
-    from stdnum.do import ncf
-except(ImportError, IOError) as err:
-    _logger.debug(err)
 
 
 class SaleOrder(models.Model):
@@ -35,9 +28,9 @@ class SaleOrder(models.Model):
     @api.multi
     def _prepare_invoice(self):
         """
-        Prepare the dict of values to create the new invoice for a sales order. This method may be
-        overridden to implement custom invoice generation (making sure to call super() to establish
-        a clean extension chain).
+        Prepare the dict of values to create the new invoice for a sales order.
+         This method may be overridden to implement custom invoice generation
+         (making sure to call super() to establish a clean extension chain).
         """
         self.ensure_one()
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
