@@ -249,21 +249,20 @@ class AccountInvoice(models.Model):
 
                     if inv.type == 'out_invoice':
                         # ITBIS Retenido por Terceros
-                        inv.third_withheld_itbis += abs(self._convert_to_local_currency(
-                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_itbis_types))))
+                        inv.third_withheld_itbis += sum(self._get_payment_move_iterator(
+                            payment, inv.type, witheld_itbis_types))
 
-                        # Retención de Renta por Terceros
-                        inv.third_income_withholding += abs(self._convert_to_local_currency(
-                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_isr_types))))
-
+                        # Retención de Renta pr Terceros
+                        inv.third_income_withholding += sum(self._get_payment_move_iterator(
+                            payment, inv.type, witheld_isr_types))
                     elif inv.type == 'in_invoice':
                         # ITBIS Retenido a Terceros
-                        inv.withholded_itbis += abs(self._convert_to_local_currency(
-                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_itbis_types))))
+                        inv.withholded_itbis += sum(self._get_payment_move_iterator(
+                            payment, inv.type, witheld_itbis_types))
 
                         # Retención de Renta a Terceros
-                        inv.income_withholding += abs(self._convert_to_local_currency(
-                            inv, sum(self._get_payment_move_iterator(payment, inv.type, witheld_isr_types))))
+                        inv.income_withholding += sum(self._get_payment_move_iterator(
+                            payment, inv.type, witheld_isr_types))
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')
