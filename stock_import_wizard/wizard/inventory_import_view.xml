@@ -1,0 +1,68 @@
+<odoo>
+    <data>
+
+        <record id="marco_import_inventory_view" model="ir.ui.view">
+            <field name="name">marco.rim.import.inventory.view</field>
+            <field name="model">invetory.import</field>
+            <field name="arch" type="xml">
+                <form string="Enviar picking a contabilidad" version="7.0">
+                    <p>
+                        Pegue la lista de TUID y debe de ser uno por linea.
+                    </p>
+                    <group>
+                        <field name="to_consider_forecast"/>
+                        <field name="ref_list" required="1"/>
+                    </group>
+                    <footer>
+                        <button string="Importar" name="import_product_ref" type="object" default_focus="1"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="launch_serial_label_import_the_wizard"
+                    name="Importar inventario"
+                    src_model="stock.inventory"
+                    res_model="invetory.import"
+                    view_mode="form"
+                    target="new"
+                    key2="client_action_multi"/>
+
+        <record id="marco_import_inventory_view_by_product_qty" model="ir.ui.view">
+            <field name="name">marco.rim.import.inventory.view.by.product.qty</field>
+            <field name="model">invetory.import</field>
+            <field name="arch" type="xml">
+                <form string="Enviar picking a contabilidad" version="7.0">
+                    <p>
+                        Debe de colocar la referecia y la cantidad
+                    </p>
+                    <field name="ref_lines">
+                        <tree string="Productos" editable="bottom">
+                            <field name="ref_item"/>
+                            <field name="qty"/>
+                        </tree>
+                    </field>
+                    <footer>
+                        <button string="Importar" name="import_product_ref" type="object" default_focus="1"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancelar" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="launch_serial_label_import_the_wizard_by_product_qty"
+                    name="Importar cantidad por producto"
+                    src_model="stock.inventory"
+                    res_model="invetory.import"
+                    view_mode="form"
+                    target="new"
+                    view_id="marco_import_inventory_view_by_product_qty"
+                    key2="client_action_multi"
+                    context="{'qty': True}"/>
+    </data>
+</odoo>
