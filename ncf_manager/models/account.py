@@ -23,8 +23,10 @@ from odoo import models, fields, api
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
+    @api.one
     @api.depends("ncf_control")
     def check_ncf_ready(self):
+        print(self)
         self.ensure_one()
         self.ncf_ready = len(self.date_range_ids) > 1
 
