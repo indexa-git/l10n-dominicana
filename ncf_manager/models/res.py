@@ -250,6 +250,28 @@ class ResPartner(models.Model):
         return super(ResPartner, self).create(vals)
 
     @api.model
+    @api.onchange('child_ids')
+    def autocomplete_child(self):
+        # detail = []
+        if not self.parent_id:
+            # for record in self.child_ids:
+            #     detail.append((0,0,{
+            #         'vat': self.vat,
+            #         'property_account_position_id': self.property_account_position_id,
+            #         'trust': self.trust
+            #         'sale_fiscal_type': self.sale_fiscal_type
+            #     }))
+
+            values = {
+                    'vat': self.vat,
+                    'property_account_position_id': self.property_account_position_id,
+                    'trust': self.trust
+                    'sale_fiscal_type': self.sale_fiscal_type
+                }
+
+        return {'value': {'child_ids': values}}
+
+    @api.model
     def name_create(self, name):
         if self._context.get("install_mode", False):
             return super(ResPartner, self).name_create(name)
