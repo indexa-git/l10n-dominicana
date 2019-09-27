@@ -252,24 +252,19 @@ class ResPartner(models.Model):
     @api.model
     @api.onchange('child_ids')
     def autocomplete_child(self):
-        # detail = []
+        detail = []
         if not self.parent_id:
-            # for record in self.child_ids:
-            #     detail.append((0,0,{
-            #         'vat': self.vat,
-            #         'property_account_position_id': self.property_account_position_id,
-            #         'trust': self.trust
-            #         'sale_fiscal_type': self.sale_fiscal_type
-            #     }))
+            for record in self.child_ids:
 
-            values = {
-                    'vat': self.vat,
-                    'property_account_position_id': self.property_account_position_id,
-                    'trust': self.trust
-                    'sale_fiscal_type': self.sale_fiscal_type
-                }
-
-        return {'value': {'child_ids': values}}
+                record.vat = self.vat
+                record.phone = self.phone
+                record.category_id = self.category_id
+                record.website = self.website
+                record.property_account_position_id = self.property_account_position_id
+                if record.customer:
+                    record.sale_fiscal_type = self.sale_fiscal_type
+                if record.supplier:
+                    record.expense_type = self.expense_type
 
     @api.model
     def name_create(self, name):
