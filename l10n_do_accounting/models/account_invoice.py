@@ -5,6 +5,7 @@
 # © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
 # © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
 # © 2018 Andrés Rodríguez <andres@iterativo.do>
+# © 2019 Raul Ovalle <raulovallet@gmail.com>
 
 from odoo import models, fields, api
 
@@ -63,3 +64,22 @@ class AccountInvoice(models.Model):
         # compute="_compute_ncf_expiration_date",
         store=True,
     )
+
+    is_fiscal_invoice = fields.Boolean()
+
+    @api.onchange('journal_id')
+    def _onchange_custom_journal_id(self):
+        self.is_fiscal_invoice = self.journal_id.fiscal_journal
+
+    @api.multi
+    def action_invoice_open(self):
+        for invoice in self:
+            if invoice.is_fiscal_invoice:
+                if invoice.type == 'out_invoice':
+                    if not invoice.partner_id.sale_fiscal_type_id:
+                        invoice.partner_id.sale_fiscal_type_id = invoice.fiscal_type_id
+                if invoice.type == 'in_invoice':
+                    if not invoice.partner_id.purchase_fiscal_type_id:
+                        invoice.partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id
+
+        return super(AccountInvoice, self).action_invoice_open()

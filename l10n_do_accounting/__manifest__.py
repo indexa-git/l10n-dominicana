@@ -20,7 +20,10 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'account'],
+    'depends': [
+        'base',
+        'account'
+    ],
 
     # always loaded
     'data': [
@@ -28,6 +31,9 @@
         'data/account_fiscal_type_data.xml',
         'views/account_fiscal_sequence_views.xml',
         'views/templates.xml',
+        'views/account_invoice_views.xml',
+        'views/account_journal_views.xml',
+        'views/res_partner_views.xml'
     ],
     # only loaded in demonstration mode
     'demo': [
