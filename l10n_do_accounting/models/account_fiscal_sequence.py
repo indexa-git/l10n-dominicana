@@ -83,11 +83,14 @@ class AccountFiscalSequence(models.Model):
 class AccountFiscalType(models.Model):
     _name = 'account.fiscal.type'
     _description = "Account Fiscal Type"
+    _order = 'sequence'
+
 
     name = fields.Char(
         required=True,
         copy=False,
     )
+    sequence = fields.Integer()
     prefix = fields.Char(
         copy=False,
     )
@@ -112,3 +115,4 @@ class AccountFiscalType(models.Model):
     required_document = fields.Boolean(
         string="Required document",
     )
+

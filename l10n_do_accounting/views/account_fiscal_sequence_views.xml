@@ -142,6 +142,7 @@
         <field name="model">account.fiscal.type</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="prefix"/>
                 <field name="type"/>

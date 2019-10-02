@@ -1,75 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo noupdate="1">
-
+    <!--sale-->
     <record id="fiscal_type_credito_fiscal" model="account.fiscal.type">
         <field name="name">Crédito Fiscal</field>
         <field name="prefix">B01</field>
         <field name="type">sale</field>
+        <field name="sequence">1</field>
         <field name="required_document" eval="True"/>
     </record>
     <record id="fiscal_type_consumo" model="account.fiscal.type">
         <field name="name">Consumo</field>
         <field name="prefix">B02</field>
         <field name="type">sale</field>
-    </record>
-    <record id="fiscal_type_gubernamental" model="account.fiscal.type">
-        <field name="name">Gubernamental</field>
-        <field name="prefix">B15</field>
-        <field name="type">sale</field>
-        <field name="required_document" eval="True"/>
-    </record>
-    <record id="fiscal_type_especial" model="account.fiscal.type">
-        <field name="name">Regimen Especial</field>
-        <field name="prefix">B14</field>
-        <field name="type">sale</field>
-        <field name="required_document" eval="True"/>
+        <field name="sequence">2</field>
     </record>
     <record id="fiscal_type_unico" model="account.fiscal.type">
         <field name="name">Único Ingreso</field>
         <field name="prefix">B12</field>
         <field name="type">sale</field>
+        <field name="sequence">3</field>
+    </record>
+    <record id="fiscal_type_especial" model="account.fiscal.type">
+        <field name="name">Regimen Especial</field>
+        <field name="prefix">B14</field>
+        <field name="type">sale</field>
+        <field name="sequence">4</field>
+        <field name="required_document" eval="True"/>
+    </record>
+    <record id="fiscal_type_gubernamental" model="account.fiscal.type">
+        <field name="name">Gubernamental</field>
+        <field name="prefix">B15</field>
+        <field name="type">sale</field>
+        <field name="sequence">5</field>
+        <field name="required_document" eval="True"/>
     </record>
     <record id="fiscal_type_exportacion" model="account.fiscal.type">
         <field name="name">Exportación</field>
         <field name="prefix">B16</field>
         <field name="type">sale</field>
+        <field name="sequence">6</field>
     </record>
+
+    <!--special-->
     <record id="fiscal_type_debit_note" model="account.fiscal.type">
         <field name="name">Nota de Débito</field>
         <field name="prefix">B03</field>
         <field name="type">special</field>
+        <field name="sequence">7</field>
     </record>
     <record id="fiscal_type_credit_note" model="account.fiscal.type">
         <field name="name">Nota de Crédito</field>
         <field name="prefix">B04</field>
         <field name="type">special</field>
+        <field name="sequence">8</field>
     </record>
-    <record id="fiscal_type_minor" model="account.fiscal.type">
-        <field name="name">Gastos Menores</field>
-        <field name="prefix">B13</field>
+
+    <!--purchase-->
+    <record id="fiscal_type_fiscal_purchase" model="account.fiscal.type">
+        <field name="name">Compras Fiscales</field>
+        <field name="prefix">B01</field>
         <field name="type">purchase</field>
+        <field name="sequence">9</field>
+        <field name="internal_generate" eval="False"/>
+        <field name="required_document" eval="True"/>
     </record>
     <record id="fiscal_type_informal" model="account.fiscal.type">
         <field name="name">Proveedor Informal</field>
         <field name="prefix">B11</field>
         <field name="type">purchase</field>
+        <field name="sequence">10</field>
         <field name="required_document" eval="True"/>
+    </record>
+    <record id="fiscal_type_minor" model="account.fiscal.type">
+        <field name="name">Gastos Menores</field>
+        <field name="prefix">B13</field>
+        <field name="type">purchase</field>
+        <field name="sequence">11</field>
     </record>
     <record id="fiscal_type_exterior" model="account.fiscal.type">
         <field name="name">Pagos al Exterior</field>
         <field name="prefix">B17</field>
         <field name="type">purchase</field>
-    </record>
-    <record id="fiscal_type_fiscal_purchase" model="account.fiscal.type">
-        <field name="name">Compras Fiscales</field>
-        <field name="prefix">B01</field>
-        <field name="type">purchase</field>
-        <field name="internal_generate" eval="False"/>
-        <field name="required_document" eval="True"/>
+        <field name="sequence">12</field>
     </record>
     <record id="fiscal_type_fiscal_import" model="account.fiscal.type">
         <field name="name">Importaciones</field>
         <field name="type">purchase</field>
+        <field name="sequence">13</field>
         <field name="internal_generate" eval="False"/>
     </record>
 
