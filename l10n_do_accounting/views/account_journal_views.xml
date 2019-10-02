@@ -10,9 +10,9 @@
                 <field name="fiscal_journal"
                        widget="boolean_toggle"
                        attrs="{'invisible':[('type', 'in', ('cash','bank','general'))]}"/>
-
                 <field name="payment_form"
                        attrs="{'invisible':[('type', 'in', ('sale','purchase','general'))]}"/>
+
             </xpath>
 
         </field>

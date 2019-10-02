@@ -122,6 +122,15 @@
                         <field name="name"/>
                         <field name="prefix"/>
                         <field name="type"/>
+                        <field name="internal_generate"/>
+                        <field name="required_document"/>
+
+                    </group>
+                    <group>
+                        <field name="journal_id"
+                               domain="[('fiscal_journal', '=', True), ('type', '=', type)]"
+                        />
+                        <field name="fiscal_position_id"/>
                     </group>
                 </group>
             </form>

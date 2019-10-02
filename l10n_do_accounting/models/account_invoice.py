@@ -5,9 +5,29 @@
 # © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
 # © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
 # © 2018 Andrés Rodríguez <andres@iterativo.do>
-# © 2019 Raul Ovalle <raulovallet@gmail.com>
+# © 2019 Raul Ovalle <rovalle@guavana.com>
 
-from odoo import models, fields, api
+
+# This file is part of l10n_do_accounting.
+
+# l10n_do_accounting is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# l10n_do_accounting is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
+
+import logging
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountInvoice(models.Model):
@@ -58,7 +78,6 @@ class AccountInvoice(models.Model):
         string=u"Tipo de anulación",
         copy=False)
 
-    origin_out = fields.Char("Afecta a")
     ncf_expiration_date = fields.Date(
         'Válido hasta',
         # compute="_compute_ncf_expiration_date",
@@ -66,20 +85,69 @@ class AccountInvoice(models.Model):
     )
 
     is_fiscal_invoice = fields.Boolean()
+    internal_generate = fields.Boolean()
+    origin_out = fields.Char("Afecta a")
 
     @api.onchange('journal_id')
     def _onchange_custom_journal_id(self):
+
         self.is_fiscal_invoice = self.journal_id.fiscal_journal
+
+        if not self.is_fiscal_invoice:
+            self.fiscal_type_id = False
+
+    @api.onchange('fiscal_type_id')
+    def _onchange_fiscal_type(self):
+
+        self.internal_generate = self.fiscal_type_id.internal_generate
+        self.fiscal_position_id = self.fiscal_type_id.fiscal_position_id
+
+        if self.fiscal_type_id.journal_id:
+            self.journal_id = self.fiscal_type_id.journal_id
+
+
+    @api.onchange('partner_id')
+    def _onchange_custom_partner_id(self):
+
+        if self.is_fiscal_invoice:
+            if self.type == 'out_invoice':
+                self.fiscal_type_id = self.partner_id.sale_fiscal_type_id
+
+            if self.type == 'in_invoice':
+                self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
+                self.expense_type = self.expense_type
 
     @api.multi
     def action_invoice_open(self):
-        for invoice in self:
-            if invoice.is_fiscal_invoice:
-                if invoice.type == 'out_invoice':
-                    if not invoice.partner_id.sale_fiscal_type_id:
-                        invoice.partner_id.sale_fiscal_type_id = invoice.fiscal_type_id
-                if invoice.type == 'in_invoice':
-                    if not invoice.partner_id.purchase_fiscal_type_id:
-                        invoice.partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id
+
+
+        for inv in self:
+
+            if inv.amount_untaxed == 0:
+                raise UserError(_(u"You cannot validate an invoice whose total amount is equal to 0"))
+
+            if inv.is_fiscal_invoice:
+
+                if inv.type == 'out_invoice':
+                    if not inv.partner_id.sale_fiscal_type_id:
+                        inv.partner_id.sale_fiscal_type_id = inv.fiscal_type_id
+
+                if inv.type == 'in_invoice':
+                    if not inv.partner_id.purchase_fiscal_type_id:
+                        inv.partner_id.purchase_fiscal_type_id = inv.fiscal_type_id
+                    if not inv.partner_id.expense_type:
+                        inv.partner_id.expense_type = inv.expense_type
+
+                if inv.fiscal_type_id.required_document and not inv.partner_id.vat:
+                    raise UserError(_("Partner [{}] {} doesn't have RNC/Céd, is required for this fiscal type").format(
+                        inv.partner_id.id, inv.partner_id.name))
+
+                if inv.type in ("out_invoice", "out_refund"):
+                    if (inv.amount_untaxed_signed >= 250000 and
+                            inv.fiscal_type_id.name != 'Único Ingreso' and
+                            not inv.partner_id.vat):
+                        raise UserError(_(
+                            u"if the invoice amount is greater than RD$250,000.00 the costumer should have RNC or Céd"
+                            u"for make invoice"))
 
         return super(AccountInvoice, self).action_invoice_open()

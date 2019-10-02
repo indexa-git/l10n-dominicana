@@ -6,16 +6,92 @@
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="is_fiscal_invoice" invisible="1"/>
-                <field name="fiscal_type_id"
-                       attrs="{'invisible': [('is_fiscal_invoice', '=', False)], 'required': [('is_fiscal_invoice', '=', True)]}"
-                       domain="[('type', '=', 'sale')]"
-                />
-                <field name="income_type"
-                       attrs="{'invisible': [('is_fiscal_invoice', '=', False)], 'required': [('is_fiscal_invoice', '=', True)]}"
-                />
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_fiscal_invoice"
+                       invisible="1"/>
+                <field name="fiscal_type_id"
+                       attrs="{
+                       'invisible':['|',('type','=','out_refund'),('is_fiscal_invoice','=',False)],
+                       'required': [('is_fiscal_invoice','=',True),('type','=','out_invoice')],
+                       'readonly': ['|',('state','!=','draft'),('reference','!=',False)]}"
+                       domain="[('type', '=', 'sale')]"/>
+                <field name="income_type"
+                       attrs="{
+                       'invisible':[('is_fiscal_invoice','!=',True)],
+                       'required': [('is_fiscal_invoice','=',True),('type','=','out_invoice')],
+                       'readonly': [('state','!=','draft')]}"/>
+                <field name="reference"
+                       string="NCF"
+                       readonly="1"
+                       attrs="{
+                       'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('is_fiscal_invoice','=',False)],
+                       'readonly': True}"/>
+                <field name="origin_out"
+                       groups="base.group_user"
+                       attrs="{
+                       'invisible': [('type', '!=', 'out_refund')],
+                       'readonly': [('state', '!=', 'draft')]}"/>
+            </xpath>
+
+            <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='other_info']/group[1]/group[1]/field[@name='reference']" position="replace"/>
+
+
+        </field>
+    </record>
+
+    <record id="l10n_do_accounting_invoice_supplier_form" model="ir.ui.view">
+        <field name="name">l10n.do.accounting.invoice.supplier.form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_form"/>
+        <field name="arch" type="xml">
+
+
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="string">Aplicar NC o ND</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="string">NCF</attribute>
+                <attribute name="attrs">{
+                    'invisible': [('is_fiscal_invoice', '=', False)],
+                    'required': [('internal_generate', '=', False), ('is_fiscal_invoice', '=', False)],
+                    'readonly': ['|', '&amp;',('state', '!=', 'draft'),('internal_generate', '=', True)]}
+                </attribute>
+            </xpath>
+
+            <!--<field name="journal_id" position="replace"/>-->
+
+            <field name="reference" position="after">
+                <field name="origin_out"
+                       groups="base.group_user"
+                       attrs="{
+                            'invisible': ['|', ('type', '!=', 'in_refund'), ('is_fiscal_invoice', '=', False)],
+                            'readonly': [('state', '!=', 'draft')],
+                            'required': [('type', '=', 'in_refund'), ('is_fiscal_invoice', '=', True)]}"/>
+            </field>
+            <field name="reference" position="before">
+                <field name="is_fiscal_invoice"
+                       invisible="1"/>
+                <field name="internal_generate"
+                       invisible="1"/>
+                <!--<field name="journal_id" groups="account.group_account_user"-->
+                       <!--options="{'no_create': True, 'no_open': True}"-->
+                       <!--attrs="{'readonly':[('state', '!=', 'draft')]}"/>-->
+                <field name="fiscal_type_id"
+                       attrs="{
+                       'invisible':['|',('type','=','in_refund'),('is_fiscal_invoice','=',False)],
+                       'required': [('is_fiscal_invoice','=',True),('type','=','in_invoice')],
+                       'readonly': ['|',('state','!=','draft'),('reference','!=',False)]}"
+                       domain="[('type', '=', 'purchase')]"/>
+                <field name="expense_type" attrs="{
+                       'invisible':[('is_fiscal_invoice', '=', False)],
+                       'required': [('is_fiscal_invoice', '=', True)],
+                       'readonly': [('state', '!=', 'draft')]}"/>
+            </field>
+
 
         </field>
     </record>
