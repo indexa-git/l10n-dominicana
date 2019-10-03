@@ -84,15 +84,12 @@ class AccountInvoice(models.Model):
         store=True,
     )
 
-    is_fiscal_invoice = fields.Boolean()
-    internal_generate = fields.Boolean()
+    is_fiscal_invoice = fields.Boolean(related='journal_id.fiscal_journal')
+    internal_generate = fields.Boolean(related='fiscal_type_id.internal_generate')
     origin_out = fields.Char("Afecta a")
 
-    @api.onchange('journal_id')
-    def _onchange_custom_journal_id(self):
-
-        self.is_fiscal_invoice = self.journal_id.fiscal_journal
-
+    @api.onchange('journal')
+    def _onchange_custom_journal(self):
         if not self.is_fiscal_invoice:
             self.fiscal_type_id = False
 
@@ -115,7 +112,7 @@ class AccountInvoice(models.Model):
 
             if self.type == 'in_invoice':
                 self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
-                self.expense_type = self.expense_type
+                self.expense_type = self.partner_id.expense_type
 
     @api.multi
     def action_invoice_open(self):
@@ -133,6 +130,7 @@ class AccountInvoice(models.Model):
                         inv.partner_id.sale_fiscal_type_id = inv.fiscal_type_id
 
                 if inv.type == 'in_invoice':
+
                     if not inv.partner_id.purchase_fiscal_type_id:
                         inv.partner_id.purchase_fiscal_type_id = inv.fiscal_type_id
                     if not inv.partner_id.expense_type:

@@ -53,26 +53,24 @@
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
 
+
+                    <field name="name" class="oe_inline"
+                           attrs="{
+                           'invisible' : [('purchase_type', '=', 'others')],
+                           'readonly' : ['|',('state', '!=', 'draft'),('purchase_type','!=','normal')],
+                           'required' : [('purchase_type', '=', 'normal')]}"/>
+
             <xpath expr="//field[@name='reference']" position="attributes">
                 <attribute name="string">NCF</attribute>
                 <attribute name="attrs">{
                     'invisible': [('is_fiscal_invoice', '=', False)],
-                    'required': [('internal_generate', '=', False), ('is_fiscal_invoice', '=', False)],
-                    'readonly': ['|', '&amp;',('state', '!=', 'draft'),('internal_generate', '=', True)]}
+                    'required': [('is_fiscal_invoice', '=', True), ('internal_generate', '=', False)],
+                    'readonly': ['|',('state', '!=', 'draft'),('internal_generate','=', True)]}
                 </attribute>
             </xpath>
 
             <!--<field name="journal_id" position="replace"/>-->
-
-            <field name="reference" position="after">
-                <field name="origin_out"
-                       groups="base.group_user"
-                       attrs="{
-                            'invisible': ['|', ('type', '!=', 'in_refund'), ('is_fiscal_invoice', '=', False)],
-                            'readonly': [('state', '!=', 'draft')],
-                            'required': [('type', '=', 'in_refund'), ('is_fiscal_invoice', '=', True)]}"/>
-            </field>
-            <field name="reference" position="before">
+            <xpath expr="//field[@name='reference']" position="before">
                 <field name="is_fiscal_invoice"
                        invisible="1"/>
                 <field name="internal_generate"
@@ -84,13 +82,22 @@
                        attrs="{
                        'invisible':['|',('type','=','in_refund'),('is_fiscal_invoice','=',False)],
                        'required': [('is_fiscal_invoice','=',True),('type','=','in_invoice')],
-                       'readonly': ['|',('state','!=','draft'),('reference','!=',False)]}"
+                       'readonly': ['|',('state','!=','draft')]}"
                        domain="[('type', '=', 'purchase')]"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('is_fiscal_invoice', '=', False)],
                        'required': [('is_fiscal_invoice', '=', True)],
                        'readonly': [('state', '!=', 'draft')]}"/>
-            </field>
+            </xpath>
+
+            <xpath expr="//field[@name='reference']" position="after">
+                <field name="origin_out"
+                       groups="base.group_user"
+                       attrs="{
+                            'invisible': ['|', ('type', '!=', 'in_refund'), ('is_fiscal_invoice', '=', False)],
+                            'readonly': [('state', '!=', 'draft')],
+                            'required': [('type', '=', 'in_refund'), ('is_fiscal_invoice', '=', True)]}"/>
+            </xpath>
 
 
         </field>
