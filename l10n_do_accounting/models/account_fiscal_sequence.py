@@ -159,6 +159,13 @@ class AccountFiscalSequence(models.Model):
                 # Preserve internal sequence just for audit purpose.
                 rec.sequence_id.active = False
 
+    @api.multi
+    def name_get(self):
+        result = []
+        for sequence in self:
+            result.append((sequence.id, "%s - %s" % (sequence.name, sequence.fiscal_type_id.name)))
+        return result
+
 
 class AccountFiscalType(models.Model):
     _name = 'account.fiscal.type'
