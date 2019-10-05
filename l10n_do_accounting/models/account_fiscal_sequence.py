@@ -242,6 +242,19 @@ class AccountFiscalSequence(models.Model):
         for seq in fiscal_sequence_ids.filtered(lambda s: l10n_do_date >= s.date_end):
             seq.state = 'expired'
 
+    def get_fiscal_number(self):
+        if self.sequence_remaining > 0:
+            sequence_next = self.sequence_id._next()
+
+            # After consume a sequence, evaluate if sequence
+            # is depleted and set state to depleted
+            if (self.sequence_remaining - 1) < 1:
+                self.state = 'depleted'
+
+            return "%s%s" % (self.fiscal_type_id.prefix, str(sequence_next).zfill(self.sequence_id.padding))
+        else:
+            raise ValidationError(_('No Fiscal Sequence available for this type of document.'))
+
 
 class AccountFiscalType(models.Model):
     _name = 'account.fiscal.type'
