@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_do_accounting_view_account_journal_form" model="ir.ui.view">
+        <field name="name">l10n.do.accounting.view.account.journal.form</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="fiscal_journal"
+                       widget="boolean_toggle"
+                       attrs="{'invisible':[('type', 'in', ('cash','bank','general'))]}"/>
+                <field name="payment_form"
+                       attrs="{'invisible':[('type', 'in', ('sale','purchase','general'))]}"/>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

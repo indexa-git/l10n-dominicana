@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_do_accounting_view_partner_form" model="ir.ui.view">
+        <field name="name">l10n.do.accounting.view.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <group name="sale" position ="inside">
+                <field name="sale_fiscal_type_id"/>
+            </group>
+            <group name="purchase" position ="inside">
+                <field name="expense_type"/>
+                <field name="purchase_fiscal_type_id"/>
+            </group>
+
+
+        </field>
+    </record>
+</odoo>
