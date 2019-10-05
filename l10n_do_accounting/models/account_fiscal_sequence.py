@@ -228,7 +228,7 @@ class AccountFiscalSequence(models.Model):
         Function called from ir.cron that check all active sequence
         date_end and set state = expired if necessary
         """
-        # Use Honduras local time
+        # Use DR local time
         l10n_do_date = get_l10n_do_datetime().date()
         fiscal_sequence_ids = self.search([('state', '=', 'active')])
 
