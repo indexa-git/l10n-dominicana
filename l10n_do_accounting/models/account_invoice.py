@@ -1,10 +1,4 @@
-# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
-# © 2018 Yasmany Castillo <yasmany003@gmail.com>
-# © 2018 José López <jlopez@indexa.do>
-# © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
-# © 2018 Francisco Peñaló <frankpenalo24@gmail.com>
-# © 2018 Andrés Rodríguez <andres@iterativo.do>
+# TODO: poner authorship en todos los archivos .py (xml tamb?)
 
 from odoo import models, fields, api
 
