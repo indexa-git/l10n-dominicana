@@ -68,7 +68,7 @@ class AccountFiscalSequence(models.Model):
         related='sequence_id.number_next_actual',
     )
     next_fiscal_number = fields.Char(
-        # TODO: implement compute method
+        compute='_compute_next_fiscal_number',
     )
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -85,6 +85,14 @@ class AccountFiscalSequence(models.Model):
         readonly=True,
         states={'draft': [('readonly', False)]},
     )
+
+    @api.multi
+    @api.depends('fiscal_type_id.prefix', 'sequence_id.padding', 'sequence_id.number_next_actual')
+    def _compute_next_fiscal_number(self):
+        for seq in self:
+            seq.next_fiscal_number = "%s%s" % (
+                seq.fiscal_type_id.prefix,
+                str(seq.sequence_id.number_next_actual).zfill(seq.sequence_id.padding))
 
     @api.multi
     def action_view_sequence(self):
