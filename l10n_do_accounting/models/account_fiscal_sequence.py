@@ -110,8 +110,8 @@ class AccountFiscalSequence(models.Model):
     def _compute_sequence_remaining(self):
         for rec in self:
             if rec.sequence_id:
-                remaining = rec.sequence_end - \
-                            rec.sequence_id.number_next_actual + 1
+                next_number = rec.sequence_id.number_next_actual + 1
+                remaining = rec.sequence_end - next_number
                 rec.sequence_remaining = remaining
 
     @api.multi
