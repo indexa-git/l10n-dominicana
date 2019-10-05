@@ -28,4 +28,5 @@ class AccountFiscalSequenceValidateWizard(models.TransientModel):
             elif action == 'cancel':
                 self.fiscal_sequence_id._action_cancel()
         else:
-            raise ValidationError(_("There is no Fiscal Sequence to perform this action."))
+            raise ValidationError(
+                _("There is no Fiscal Sequence to perform this action."))

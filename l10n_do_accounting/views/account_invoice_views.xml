@@ -4,6 +4,7 @@
         <field name="name">l10n.do.accounting.invoice.form</field>
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="priority">100</field>
         <field name="arch" type="xml">
 
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">

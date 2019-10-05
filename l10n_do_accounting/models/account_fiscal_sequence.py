@@ -110,16 +110,19 @@ class AccountFiscalSequence(models.Model):
     def _compute_sequence_remaining(self):
         for rec in self:
             if rec.sequence_id:
-                remaining = rec.sequence_end - rec.sequence_id.number_next_actual + 1
+                remaining = rec.sequence_end - \
+                            rec.sequence_id.number_next_actual + 1
                 rec.sequence_remaining = remaining
 
     @api.multi
-    @api.depends('fiscal_type_id.prefix', 'sequence_id.padding', 'sequence_id.number_next_actual')
+    @api.depends('fiscal_type_id.prefix', 'sequence_id.padding',
+                 'sequence_id.number_next_actual')
     def _compute_next_fiscal_number(self):
         for seq in self:
             seq.next_fiscal_number = "%s%s" % (
                 seq.fiscal_type_id.prefix,
-                str(seq.sequence_id.number_next_actual).zfill(seq.sequence_id.padding))
+                str(seq.sequence_id.number_next_actual).zfill(
+                    seq.sequence_id.padding))
 
     @api.constrains('fiscal_type_id', 'state')
     def _validate_unique_active_type(self):
@@ -132,16 +135,21 @@ class AccountFiscalSequence(models.Model):
             ('company_id', '=', self.company_id.id),
         ]
         if self.search_count(domain) > 1:
-            raise ValidationError(_("Another sequence is active for this type."))
+            raise ValidationError(
+                _("Another sequence is active for this type."))
 
     @api.multi
-    @api.constrains('sequence_start', 'sequence_end', 'state', 'fiscal_type_id')
+    @api.constrains('sequence_start', 'sequence_end', 'state',
+                    'fiscal_type_id')
     def _validate_sequence_range(self):
         for rec in self.filtered(lambda s: s.state != 'cancelled'):
-            if any([True for value in [rec.sequence_start, rec.sequence_end] if value <= 0]):
-                raise ValidationError(_('Sequence values must be greater than zero.'))
+            if any([True for value in [rec.sequence_start, rec.sequence_end]
+                    if value <= 0]):
+                raise ValidationError(
+                    _('Sequence values must be greater than zero.'))
             if rec.sequence_start >= rec.sequence_end:
-                raise ValidationError(_('End sequence must be greater than start sequence.'))
+                raise ValidationError(
+                    _('End sequence must be greater than start sequence.'))
             domain = [
                 ('sequence_end', '<=', rec.sequence_start),
                 ('fiscal_type_id', '=', rec.fiscal_type_id.id),
@@ -149,7 +157,8 @@ class AccountFiscalSequence(models.Model):
                 ('company_id', '=', rec.company_id.id),
             ]
             if self.search_count(domain) > 1:
-                raise ValidationError(_("You cannot use another Fiscal Sequence range."))
+                raise ValidationError(
+                    _("You cannot use another Fiscal Sequence range."))
 
     @api.multi
     def unlink(self):
@@ -162,7 +171,8 @@ class AccountFiscalSequence(models.Model):
     def name_get(self):
         result = []
         for sequence in self:
-            result.append((sequence.id, "%s - %s" % (sequence.name, sequence.fiscal_type_id.name)))
+            result.append((sequence.id, "%s - %s" % (
+                sequence.name, sequence.fiscal_type_id.name)))
         return result
 
     @api.multi
@@ -171,7 +181,8 @@ class AccountFiscalSequence(models.Model):
         sequence_id = self.sequence_id
         action = self.env.ref('base.ir_sequence_form').read()[0]
         if sequence_id:
-            action['views'] = [(self.env.ref('base.sequence_view').id, 'form')]
+            action['views'] = [
+                (self.env.ref('base.sequence_view').id, 'form')]
             action['res_id'] = sequence_id.id
         else:
             action = {'type': 'ir.actions.act_window_close'}
@@ -182,8 +193,12 @@ class AccountFiscalSequence(models.Model):
         self.ensure_one()
         msg = _('Are you sure want to confirm this Fiscal Sequence? '
                 'Once you confirm this Fiscal Sequence cannot be edited.')
-        action = self.env.ref('l10n_do_accounting.account_fiscal_sequence_validate_wizard_action').read()[0]
-        action['context'] = {'default_name': msg, 'default_fiscal_sequence_id': self.id, 'action': 'confirm'}
+        action = self.env.ref(
+            'l10n_do_accounting.account_fiscal_sequence_validate_wizard_action'
+        ).read()[0]
+        action['context'] = {'default_name': msg,
+                             'default_fiscal_sequence_id': self.id,
+                             'action': 'confirm'}
         return action
 
     @api.multi
@@ -198,7 +213,8 @@ class AccountFiscalSequence(models.Model):
             else:
                 # Creates a new sequence of this Fiscal Sequence
                 sequence_id = self.env['ir.sequence'].create({
-                    'name': _('%s %s Sequence') % (rec.fiscal_type_id.name, rec.name[-9:]),
+                    'name': _('%s %s Sequence') % (rec.fiscal_type_id.name,
+                                                   rec.name[-9:]),
                     'implementation': 'standard',
                     'padding': 8,
                     'number_increment': 1,
@@ -217,8 +233,12 @@ class AccountFiscalSequence(models.Model):
         self.ensure_one()
         msg = _('Are you sure want to cancel this Fiscal Sequence? '
                 'Once you cancel this Fiscal Sequence cannot be used.')
-        action = self.env.ref('l10n_do_accounting.account_fiscal_sequence_validate_wizard_action').read()[0]
-        action['context'] = {'default_name': msg, 'default_fiscal_sequence_id': self.id, 'action': 'cancel'}
+        action = self.env.ref(
+            'l10n_do_accounting.account_fiscal_sequence_validate_wizard_action'
+        ).read()[0]
+        action['context'] = {'default_name': msg,
+                             'default_fiscal_sequence_id': self.id,
+                             'action': 'cancel'}
         return action
 
     @api.multi
@@ -239,7 +259,8 @@ class AccountFiscalSequence(models.Model):
         l10n_do_date = get_l10n_do_datetime().date()
         fiscal_sequence_ids = self.search([('state', '=', 'active')])
 
-        for seq in fiscal_sequence_ids.filtered(lambda s: l10n_do_date >= s.date_end):
+        for seq in fiscal_sequence_ids.filtered(
+                lambda s: l10n_do_date >= s.date_end):
             seq.state = 'expired'
 
     def get_fiscal_number(self):
@@ -251,16 +272,18 @@ class AccountFiscalSequence(models.Model):
             if (self.sequence_remaining - 1) < 1:
                 self.state = 'depleted'
 
-            return "%s%s" % (self.fiscal_type_id.prefix, str(sequence_next).zfill(self.sequence_id.padding))
+            return "%s%s" % (
+                self.fiscal_type_id.prefix,
+                str(sequence_next).zfill(self.sequence_id.padding))
         else:
-            raise ValidationError(_('No Fiscal Sequence available for this type of document.'))
+            raise ValidationError(
+                _('No Fiscal Sequence available for this type of document.'))
 
 
 class AccountFiscalType(models.Model):
     _name = 'account.fiscal.type'
     _description = "Account Fiscal Type"
     _order = 'sequence'
-
 
     name = fields.Char(
         required=True,
@@ -291,4 +314,3 @@ class AccountFiscalType(models.Model):
     required_document = fields.Boolean(
         string="Required document",
     )
-
