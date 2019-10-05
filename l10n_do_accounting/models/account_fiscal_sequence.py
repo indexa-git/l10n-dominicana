@@ -223,6 +223,18 @@ class AccountFiscalSequence(models.Model):
                 # Preserve internal sequence just for audit purpose.
                 rec.sequence_id.active = False
 
+    def _expire_sequences(self):
+        """
+        Function called from ir.cron that check all active sequence
+        date_end and set state = expired if necessary
+        """
+        # Use Honduras local time
+        l10n_do_date = get_l10n_do_datetime().date()
+        fiscal_sequence_ids = self.search([('state', '=', 'active')])
+
+        for seq in fiscal_sequence_ids.filtered(lambda s: l10n_do_date >= s.date_end):
+            seq.state = 'expired'
+
     @api.multi
     def name_get(self):
         result = []
