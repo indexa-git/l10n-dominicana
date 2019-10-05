@@ -31,17 +31,20 @@ class AccountFiscalSequence(models.Model):
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
+        track_visibility='onchange',
     )
     expiration_date = fields.Date(
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
+        track_visibility='onchange',
     )
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
+        track_visibility='onchange',
     )
     type = fields.Selection(
         related='fiscal_type_id.type',
@@ -51,11 +54,13 @@ class AccountFiscalSequence(models.Model):
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
+        track_visibility='onchange',
     )
     sequence_end = fields.Integer(
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
+        track_visibility='onchange',
     )
     sequence_id = fields.Many2one(
         'ir.sequence',
@@ -77,13 +82,16 @@ class AccountFiscalSequence(models.Model):
         ('depleted', 'Depleted'),
         ('expired', 'Expired'),
         ('cancelled', 'Cancelled'),
-    ], default='draft',
+    ],
+        default='draft',
+        track_visibility='onchange',
     )
     company_id = fields.Many2one(
         'res.company',
         default=lambda self: self.env.user.company_id,
         readonly=True,
         states={'draft': [('readonly', False)]},
+        track_visibility='onchange',
     )
 
     @api.multi
