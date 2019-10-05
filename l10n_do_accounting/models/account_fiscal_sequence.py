@@ -56,12 +56,14 @@ class AccountFiscalSequence(models.Model):
         readonly=True,
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
+        default=1,
     )
     sequence_end = fields.Integer(
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
+        default=1,
     )
     sequence_remaining = fields.Integer(
         string='Remaining',
@@ -127,6 +129,23 @@ class AccountFiscalSequence(models.Model):
         ]
         if self.search_count(domain) > 1:
             raise ValidationError(_("Another sequence is active for this type."))
+
+    @api.multi
+    @api.constrains('sequence_start', 'sequence_end', 'state', 'fiscal_type_id')
+    def _validate_sequence_range(self):
+        for rec in self.filtered(lambda s: s.state != 'cancelled'):
+            if any([True for value in [rec.sequence_start, rec.sequence_end] if value <= 0]):
+                raise ValidationError(_('Sequence values must be greater than zero.'))
+            if rec.sequence_start >= rec.sequence_end:
+                raise ValidationError(_('End sequence must be greater than start sequence.'))
+            domain = [
+                ('sequence_end', '<=', rec.sequence_start),
+                ('fiscal_type_id', '=', rec.fiscal_type_id.id),
+                ('state', 'not in', ('draft', 'cancelled', 'queue')),
+                ('company_id', '=', rec.company_id.id),
+            ]
+            if self.search_count(domain) > 1:
+                raise ValidationError(_("You cannot use another Fiscal Sequence range."))
 
     @api.multi
     def action_view_sequence(self):
