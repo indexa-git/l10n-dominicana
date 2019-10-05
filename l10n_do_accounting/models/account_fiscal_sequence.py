@@ -259,17 +259,21 @@ class AccountFiscalSequence(models.Model):
 class AccountFiscalType(models.Model):
     _name = 'account.fiscal.type'
     _description = "Account Fiscal Type"
+    _order = 'sequence'
+
 
     name = fields.Char(
         required=True,
         copy=False,
     )
+    sequence = fields.Integer()
     prefix = fields.Char(
         copy=False,
     )
     type = fields.Selection([
         ('sale', 'Sale'),
         ('purchase', 'Purchase'),
+        ('special', 'Special')
     ],
         required=True,
     )
@@ -277,6 +281,14 @@ class AccountFiscalType(models.Model):
         "account.fiscal.position",
         string="Fiscal Position",
     )
+    journal_id = fields.Many2one(
+        "account.journal",
+        string="Journal"
+    )
     internal_generate = fields.Boolean(
         default=True,
     )
+    required_document = fields.Boolean(
+        string="Required document",
+    )
+

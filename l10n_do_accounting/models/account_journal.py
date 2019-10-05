@@ -18,10 +18,6 @@ class AccountJournal(models.Model):
     #     string="Purchase Type",
     #     default="others",
     # )
-    fiscal_type_id = fields.Many2one(
-        'account.fiscal.type',
-        string="Fiscal Type",
-    )
 
     payment_form = fields.Selection(
         [("cash", "Efectivo"),
