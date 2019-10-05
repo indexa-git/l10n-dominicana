@@ -97,7 +97,7 @@ class AccountFiscalType(models.Model):
     type = fields.Selection([
         ('sale', 'Sale'),
         ('purchase', 'Purchase'),
-        ('speacial', 'Special')
+        ('special', 'Special')
     ],
         required=True,
     )
