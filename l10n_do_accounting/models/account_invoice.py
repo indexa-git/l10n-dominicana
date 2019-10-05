@@ -23,7 +23,7 @@ class AccountInvoice(models.Model):
          ('05', '05 - Ingresos por Venta de Activo Depreciable'),
          ('06', '06 - Otros Ingresos')],
         string='Tipo de Ingreso',
-        default=lambda self: self._context.get('income_type', '01'))
+        default=lambda self: self._context.get('income_type', '01')),
 
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
@@ -36,7 +36,8 @@ class AccountInvoice(models.Model):
          ('09', '09 - Compras y Gastos que forman parte del Costo de Venta'),
          ('10', '10 - Adquisiciones de Activos'),
          ('11', '11 - Gastos de Seguros')],
-        string="Tipo de Costos y Gastos")
+        string="Tipo de Costos y Gastos",
+    )
 
     anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
@@ -50,7 +51,8 @@ class AccountInvoice(models.Model):
          ("09", "09 - Por Cese de Operaciones"),
          ("10", u"10 - Pérdida o Hurto de Talonarios")],
         string=u"Tipo de anulación",
-        copy=False)
+        copy=False,
+    )
 
     origin_out = fields.Char("Afecta a")
     ncf_expiration_date = fields.Date(
