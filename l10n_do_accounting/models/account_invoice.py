@@ -57,22 +57,16 @@ class AccountInvoice(models.Model):
         string="Annulment Type",
         copy=False,
     )
-
-<<<<<<< HEAD
     origin_out = fields.Char(
         "Affects",
     )
-=======
->>>>>>> 12.0-pro
     ncf_expiration_date = fields.Date(
         'Valid until',
         # compute="_compute_ncf_expiration_date",
         store=True,
     )
-
     is_fiscal_invoice = fields.Boolean(related='journal_id.fiscal_journal')
     internal_generate = fields.Boolean(related='fiscal_type_id.internal_generate')
-    origin_out = fields.Char("Afecta a")
 
     @api.onchange('journal')
     def _onchange_custom_journal(self):
