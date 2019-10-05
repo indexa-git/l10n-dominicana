@@ -6,9 +6,10 @@
         subtitle on modules listing or apps.openerp.com""",
 
     'author': "My Company",
+    'license': 'LGPL-3',
     'website': "http://www.yourcompany.com",
     'category': 'Accounting',
-    'version': '0.1',
+    'version': '12.0.1',
 
     # any module necessary for this one to work correctly
     'depends': [
