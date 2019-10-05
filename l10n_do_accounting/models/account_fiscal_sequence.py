@@ -152,6 +152,13 @@ class AccountFiscalSequence(models.Model):
                 raise ValidationError(_("You cannot use another Fiscal Sequence range."))
 
     @api.multi
+    def unlink(self):
+        for rec in self:
+            if rec.sequence_id:
+                rec.sequence_id.sudo().unlink()
+        return super(AccountFiscalSequence, self).unlink()
+
+    @api.multi
     def action_view_sequence(self):
         self.ensure_one()
         sequence_id = self.sequence_id
