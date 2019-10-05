@@ -57,6 +57,7 @@ class AccountFiscalSequence(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
         default=1,
+        copy=False,
     )
     sequence_end = fields.Integer(
         required=True,
@@ -64,6 +65,7 @@ class AccountFiscalSequence(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
         default=1,
+        copy=False,
     )
     sequence_remaining = fields.Integer(
         string='Remaining',
@@ -72,6 +74,7 @@ class AccountFiscalSequence(models.Model):
     sequence_id = fields.Many2one(
         'ir.sequence',
         string="Internal Sequence",
+        copy=False,
     )
     warning_gap = fields.Integer()
     number_next_actual = fields.Integer(
@@ -92,6 +95,7 @@ class AccountFiscalSequence(models.Model):
     ],
         default='draft',
         track_visibility='onchange',
+        copy=False,
     )
     company_id = fields.Many2one(
         'res.company',
