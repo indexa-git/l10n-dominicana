@@ -12,7 +12,8 @@ class AccountInvoice(models.Model):
     )
     fiscal_sequence_id = fields.Many2one(
         'account.fiscal.sequence',
-        string="Fiscal Sequence"
+        string="Fiscal Sequence",
+        copy=False,
     )
     income_type = fields.Selection(
         [('01', '01 - Ingresos por Operaciones (No Financieros)'),
