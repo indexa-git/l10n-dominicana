@@ -9,7 +9,7 @@
     'license': 'LGPL-3',
     'website': "http://www.yourcompany.com",
     'category': 'Accounting',
-    'version': '12.0.1',
+    'version': '12.0.1.0.0',
 
     # any module necessary for this one to work correctly
     'depends': [
