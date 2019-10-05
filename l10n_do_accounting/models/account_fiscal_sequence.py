@@ -4,6 +4,7 @@ import pytz
 from datetime import datetime
 
 from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 
 def get_l10n_do_datetime():
@@ -113,6 +114,19 @@ class AccountFiscalSequence(models.Model):
             seq.next_fiscal_number = "%s%s" % (
                 seq.fiscal_type_id.prefix,
                 str(seq.sequence_id.number_next_actual).zfill(seq.sequence_id.padding))
+
+    @api.constrains('fiscal_type_id', 'state')
+    def _validate_unique_active_type(self):
+        """
+        Validate an active sequence type uniqueness
+        """
+        domain = [
+            ('state', '=', 'active'),
+            ('fiscal_type_id', '=', self.fiscal_type_id.id),
+            ('company_id', '=', self.company_id.id),
+        ]
+        if self.search_count(domain) > 1:
+            raise ValidationError(_("Another sequence is active for this type."))
 
     @api.multi
     def action_view_sequence(self):
