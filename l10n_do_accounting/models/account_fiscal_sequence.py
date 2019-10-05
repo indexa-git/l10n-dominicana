@@ -62,6 +62,10 @@ class AccountFiscalSequence(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
     )
+    sequence_remaining = fields.Integer(
+        string='Remaining',
+        compute='_compute_sequence_remaining',
+    )
     sequence_id = fields.Many2one(
         'ir.sequence',
         string="Internal Sequence",
@@ -93,6 +97,14 @@ class AccountFiscalSequence(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
     )
+
+    @api.multi
+    @api.depends('sequence_end', 'sequence_id.number_next')
+    def _compute_sequence_remaining(self):
+        for rec in self:
+            if rec.sequence_id:
+                remaining = rec.sequence_end - rec.sequence_id.number_next_actual + 1
+                rec.sequence_remaining = remaining
 
     @api.multi
     @api.depends('fiscal_type_id.prefix', 'sequence_id.padding', 'sequence_id.number_next_actual')
