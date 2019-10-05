@@ -1,7 +1,24 @@
 # © 2019 José López <jlopez@indexa.do>
 
+import pytz
+from datetime import datetime
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+
+
+def get_l10n_do_datetime():
+    """
+    Multipurpose Dominican Republic local datetime
+    """
+
+    # *-*-*-*-*- Remove this comment *-*-*-*-*-*
+    # Because an user can use a distinct timezone,
+    # this method ensure that DR localtime stuff like
+    # auto expire Fiscal Sequence by its date works,
+    # no matter server/client date.
+
+    date_now = datetime.now()
+    return pytz.timezone('America/Santo_Domingo').localize(date_now)
 
 
 class AccountFiscalSequence(models.Model):
@@ -12,13 +29,19 @@ class AccountFiscalSequence(models.Model):
     name = fields.Char(
         string="Authorization number",
         required=True,
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
     expiration_date = fields.Date(
         required=True,
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
         required=True,
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
     type = fields.Selection(
         related='fiscal_type_id.type',
@@ -26,9 +49,13 @@ class AccountFiscalSequence(models.Model):
     )
     sequence_start = fields.Integer(
         required=True,
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
     sequence_end = fields.Integer(
         required=True,
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
     sequence_id = fields.Many2one(
         'ir.sequence',
@@ -55,6 +82,8 @@ class AccountFiscalSequence(models.Model):
     company_id = fields.Many2one(
         'res.company',
         default=lambda self: self.env.user.company_id,
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
 
     @api.multi
@@ -72,12 +101,55 @@ class AccountFiscalSequence(models.Model):
     @api.multi
     def action_confirm(self):
         self.ensure_one()
-        pass
+        msg = _('Are you sure want to confirm this Fiscal Sequence? '
+                'Once you confirm this Fiscal Sequence cannot be edited.')
+        action = self.env.ref('l10n_do_accounting.account_fiscal_sequence_validate_wizard_action').read()[0]
+        action['context'] = {'default_name': msg, 'default_fiscal_sequence_id': self.id, 'action': 'confirm'}
+        return action
+
+    @api.multi
+    def _action_confirm(self):
+        for rec in self:
+
+            # Use DR local time
+            l10n_do_date = get_l10n_do_datetime().date()
+
+            if l10n_do_date >= rec.expiration_date:
+                rec.state = 'expired'
+            else:
+                # Creates a new sequence of this Fiscal Sequence
+                sequence_id = self.env['ir.sequence'].create({
+                    'name': _('%s %s Sequence') % (rec.fiscal_type_id.name, rec.name[-9:]),
+                    'implementation': 'standard',
+                    'padding': 8,
+                    'number_increment': 1,
+                    'number_next_actual': rec.sequence_start,
+                    'number_next': rec.sequence_start,
+                    'use_date_range': False,
+                    'company_id': rec.company_id.id,
+                })
+                rec.write({
+                    'state': 'active',
+                    'sequence_id': sequence_id.id,
+                })
 
     @api.multi
     def action_cancel(self):
         self.ensure_one()
-        pass
+        msg = _('Are you sure want to cancel this Fiscal Sequence? '
+                'Once you cancel this Fiscal Sequence cannot be used.')
+        action = self.env.ref('l10n_do_accounting.account_fiscal_sequence_validate_wizard_action').read()[0]
+        action['context'] = {'default_name': msg, 'default_fiscal_sequence_id': self.id, 'action': 'cancel'}
+        return action
+
+    @api.multi
+    def _action_cancel(self):
+        for rec in self:
+            rec.state = 'cancelled'
+            if rec.sequence_id:
+                # *-*-*-*-*- Remove this comment *-*-*-*-*-*
+                # Preserve internal sequence just for audit purpose.
+                rec.sequence_id.active = False
 
 
 class AccountFiscalType(models.Model):

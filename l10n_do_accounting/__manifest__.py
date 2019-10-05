@@ -27,6 +27,7 @@
         'security/ir.model.access.csv',
         'data/account_fiscal_type_data.xml',
         'views/account_fiscal_sequence_views.xml',
+        'wizard/account_fiscal_sequence_validate_wizard_views.xml',
         'views/templates.xml',
     ],
     # only loaded in demonstration mode
