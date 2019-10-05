@@ -159,6 +159,13 @@ class AccountFiscalSequence(models.Model):
         return super(AccountFiscalSequence, self).unlink()
 
     @api.multi
+    def name_get(self):
+        result = []
+        for sequence in self:
+            result.append((sequence.id, "%s - %s" % (sequence.name, sequence.fiscal_type_id.name)))
+        return result
+
+    @api.multi
     def action_view_sequence(self):
         self.ensure_one()
         sequence_id = self.sequence_id
@@ -234,13 +241,6 @@ class AccountFiscalSequence(models.Model):
 
         for seq in fiscal_sequence_ids.filtered(lambda s: l10n_do_date >= s.date_end):
             seq.state = 'expired'
-
-    @api.multi
-    def name_get(self):
-        result = []
-        for sequence in self:
-            result.append((sequence.id, "%s - %s" % (sequence.name, sequence.fiscal_type_id.name)))
-        return result
 
 
 class AccountFiscalType(models.Model):
