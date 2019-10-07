@@ -32,6 +32,9 @@ lint:
   variables:
     LINT_CHECK: "1"
     TESTS: "0"
+  cache:
+    paths:
+      - ${HOME}/maintainer-quality-tools
   script:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
@@ -52,6 +55,11 @@ test:
   variables:
     LINT_CHECK: "0"
     TESTS: "1"
+  cache:
+    paths:
+      - ${HOME}/maintainer-quality-tools
+      - ${HOME}/odoo-$ODOO_BRANCH
+      - ${HOME}/dependencies
   script:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
