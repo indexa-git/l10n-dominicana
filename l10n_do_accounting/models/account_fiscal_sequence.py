@@ -1,13 +1,16 @@
 # © 2019 José López <jlopez@indexa.do>
-
+# © 2019 Raul Ovalle <rovalle@guavana.com>
 
 from odoo import models, fields, api
-
+import datetime
 
 class AccountFiscalSequence(models.Model):
     _name = 'account.fiscal.sequence'
     _description = "Account Fiscal Sequence"
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    def _default_expiration_date(self):
+        return datetime.datetime.strptime(str(int(str(fields.Date.today())[0:4])+1)+'-12-31', '%Y-%m-%d').date()
 
     name = fields.Char(
         string="Authorization number",
@@ -15,6 +18,7 @@ class AccountFiscalSequence(models.Model):
     )
     expiration_date = fields.Date(
         required=True,
+        default=_default_expiration_date
     )
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
