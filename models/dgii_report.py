@@ -387,7 +387,7 @@ class DgiiReport(models.Model):
             for inv in invoice_ids:
                 inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
-                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
+                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.purchase_type != 'exterior' else self.formated_rnc_cedula(inv.company_id.vat)
                 show_payment_date = self._include_in_current_report(rec, inv)
                 values = {
                     'dgii_report_id': rec.id,
