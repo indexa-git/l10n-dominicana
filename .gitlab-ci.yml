@@ -26,7 +26,8 @@ variables:
 lint:
   stage: test
   tags:
-    - lint
+    - postgres
+    - docker
   variables:
     LINT_CHECK: "1"
     TESTS: "0"
@@ -44,7 +45,8 @@ lint:
 test:
   stage: test
   tags:
-    - test
+    - postgres
+    - docker
   variables:
     LINT_CHECK: "0"
     TESTS: "1"
