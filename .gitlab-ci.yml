@@ -8,7 +8,7 @@ services:
 variables:
   POSTGRES_DB: project_ci_test
   POSTGRES_USER: odoo
-  POSTGRES_PASSWORD: "odoo"
+  POSTGRES_PASSWORD: ""
   TEST_DBNAME: '${CI_PROJECT_PATH_SLUG}-pipeline-${CI_PIPELINE_ID}'
   DEPLOY_DBNAME: '${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}'
   RUNNER_HOME: '/home/gitlab-runner'
@@ -39,7 +39,7 @@ lint:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
     - export PGHOST="postgres"
-    - export PGUSER="postgres"
+    - export PGUSER="odoo"
     - export PGPASSWORD=""
     - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
@@ -64,7 +64,7 @@ test:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
     - export PGHOST="postgres"
-    - export PGUSER="postgres"
+    - export PGUSER="odoo"
     - export PGPASSWORD=""
     - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
