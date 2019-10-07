@@ -58,7 +58,7 @@ test:
     - export PGHOST="postgres"
     - export PGUSER="postgres"
     - export PGPASSWORD=""
-    - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests
