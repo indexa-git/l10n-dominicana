@@ -7,8 +7,8 @@ services:
 
 variables:
   POSTGRES_DB: project_ci_test
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: ""
+  POSTGRES_USER: odoo
+  POSTGRES_PASSWORD: "odoo"
   TEST_DBNAME: '${CI_PROJECT_PATH_SLUG}-pipeline-${CI_PIPELINE_ID}'
   DEPLOY_DBNAME: '${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}'
   RUNNER_HOME: '/home/gitlab-runner'
