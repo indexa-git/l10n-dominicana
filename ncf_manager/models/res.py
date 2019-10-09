@@ -244,27 +244,18 @@ class ResPartner(models.Model):
     def create(self, vals):
         vat = vals.get("vat", False)
         result = self.validate_rnc_cedula(vals["vat"]) if vat else None
+        parent_id = self.browse(vals.get("parent_id", False))
         if result and result.get("name", False):
             vals.update({"name": result["name"]})
-
+        if parent_id:
+            if parent_id.sale_fiscal_type:
+                vals.update({"sale_fiscal_type": parent_id.sale_fiscal_type})
+            if parent_id.expense_type:
+                vals.update({
+                    "supplier": 1,
+                    "expense_type": parent_id.expense_type
+                    })
         return super(ResPartner, self).create(vals)
-
-    @api.model
-    @api.onchange('child_ids')
-    def autocomplete_child(self):
-        detail = []
-        if not self.parent_id:
-            for record in self.child_ids:
-
-                record.vat = self.vat
-                record.phone = self.phone
-                record.category_id = self.category_id
-                record.website = self.website
-                record.property_account_position_id = self.property_account_position_id
-                if record.customer:
-                    record.sale_fiscal_type = self.sale_fiscal_type
-                if record.supplier:
-                    record.expense_type = self.expense_type
 
     @api.model
     def name_create(self, name):
