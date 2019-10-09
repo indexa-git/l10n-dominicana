@@ -1,7 +1,7 @@
 image: python:3.5
 stages:
-  - install
   - test
+  - post-mortem
 
 services:
   - postgres:10
@@ -24,19 +24,7 @@ before_script:
   - curl -sL https://deb.nodesource.com/setup_10.x | bash -
   - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
   - pip install coverage coveralls codecov
-
-install_linter:
-  stage: install
-  tags:
-    - docker
-  cache:
-    paths:
-      - ./maintainer-quality-tools
-  script:
-    - pwd
-    - ls
-    - ls maintainer-quality-tools
-    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master maintainer-quality-tools
+  - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
 
 lint:
   stage: test
@@ -52,10 +40,9 @@ lint:
     - export PGUSER="odoo"
     - export PGPASSWORD=""
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
-    - ls ./maintainer-quality-tools
-    - ./maintainer-quality-tools/travis/travis_install_nightly
-    - ./maintainer-quality-tools/travis/travis_run_tests
-    - ./maintainer-quality-tools/travis/travis_after_tests_success || true
+    - travis_install_nightly
+    - travis_run_tests
+    - travis_after_tests_success || true
 
 test:
   stage: test
@@ -65,20 +52,23 @@ test:
   variables:
     LINT_CHECK: "0"
     TESTS: "1"
-  cache:
-    paths:
-      - ${HOME}/maintainer-quality-tools
-      - ${HOME}/odoo-$ODOO_BRANCH
-      - ${HOME}/dependencies
   script:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
     - export PGHOST="postgres"
     - export PGUSER="odoo"
     - export PGPASSWORD=""
-    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests
     - travis_after_tests_success || true
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
+  
+debug:
+  stage: post-mortem
+  tags:
+    - docker
+  when: manual
+  script:
+    - pwd
+    - ls -la
