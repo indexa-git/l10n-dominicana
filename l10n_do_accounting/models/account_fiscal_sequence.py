@@ -40,7 +40,8 @@ class AccountFiscalSequence(models.Model):
         readonly=True,
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
-        default=datetime.strptime(str(int(str(fields.Date.today())[0:4])+1)+'-12-31', '%Y-%m-%d').date()
+        default=datetime.strptime(str(int(str(
+            fields.Date.today())[0:4])+1)+'-12-31', '%Y-%m-%d').date()
     )
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
@@ -316,4 +317,3 @@ class AccountFiscalType(models.Model):
     required_document = fields.Boolean(
         string="Required document",
     )
-
