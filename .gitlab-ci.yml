@@ -49,7 +49,7 @@ lint:
     - export PGUSER="odoo"
     - export PGPASSWORD=""
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
-    - ls ${HOME}/maintainer-quality-tools
+    - ls ./maintainer-quality-tools
     - ./maintainer-quality-tools/travis/travis_install_nightly
     - ./maintainer-quality-tools/travis/travis_run_tests
     - ./maintainer-quality-tools/travis/travis_after_tests_success || true
