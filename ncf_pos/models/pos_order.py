@@ -259,8 +259,10 @@ class PosOrder(models.Model):
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
                      is_return_order):
-        if not self.env["pos.order.ncf.temp"].search(
-            [('pos_reference', '=', order_uid)]):
+        pos_order_ncf_temp = self.env["pos.order.ncf.temp"].search([
+            ('pos_reference', '=', order_uid)
+            ])
+        if not pos_order_ncf_temp:
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
