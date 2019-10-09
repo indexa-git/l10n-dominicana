@@ -34,7 +34,6 @@ install_linter:
       - ${HOME}/maintainer-quality-tools
   script:
     - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
-    - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
 
 lint:
   stage: test
@@ -49,6 +48,8 @@ lint:
     - export PGHOST="postgres"
     - export PGUSER="odoo"
     - export PGPASSWORD=""
+    - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
+    - ls ${HOME}/maintainer-quality-tools
     - travis_install_nightly
     - travis_run_tests
     - travis_after_tests_success || true
