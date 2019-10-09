@@ -21,8 +21,6 @@ variables:
   PGHOST: ${POSTGRES_DB}
   PGUSER: ${POSTGRES_USER}
   PGPASSWORD: ${POSTGRES_PASSWORD}
-  PATH: ${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
-
 
 before_script:
   - curl -sL https://deb.nodesource.com/setup_10.x | bash -
