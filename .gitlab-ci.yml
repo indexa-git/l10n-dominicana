@@ -31,9 +31,9 @@ install_linter:
     - docker
   cache:
     paths:
-      - ${HOME}/maintainer-quality-tools
+      - ./maintainer-quality-tools
   script:
-    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master maintainer-quality-tools
 
 lint:
   stage: test
@@ -50,9 +50,9 @@ lint:
     - export PGPASSWORD=""
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - ls ${HOME}/maintainer-quality-tools
-    - travis_install_nightly
-    - travis_run_tests
-    - travis_after_tests_success || true
+    - ./maintainer-quality-tools/travis/travis_install_nightly
+    - ./maintainer-quality-tools/travis/travis_run_tests
+    - ./maintainer-quality-tools/travis/travis_after_tests_success || true
 
 test:
   stage: test
