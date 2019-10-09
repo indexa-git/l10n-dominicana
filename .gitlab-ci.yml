@@ -3,9 +3,6 @@ stages:
   - test
   - post-mortem
 
-services:
-  - postgres:10
-
 variables:
   POSTGRES_DB: project_ci_test
   POSTGRES_USER: odoo
@@ -43,6 +40,8 @@ test:
   tags:
     - postgres
     - docker
+  services:
+    - postgres:10
   variables:
     LINT_CHECK: "0"
     TESTS: "1"
