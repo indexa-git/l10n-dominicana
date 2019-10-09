@@ -18,9 +18,6 @@ variables:
   VERSION: "12.0"
   ODOO_BRANCH: "12.0"
   ODOO_REPO: "odoo/odoo"
-  PGHOST: ${POSTGRES_DB}
-  PGUSER: ${POSTGRES_USER}
-  PGPASSWORD: ${POSTGRES_PASSWORD}
 
 before_script:
   - curl -sL https://deb.nodesource.com/setup_10.x | bash -
@@ -36,11 +33,6 @@ lint:
     LINT_CHECK: "1"
     TESTS: "0"
   script:
-    # We need to export the PG* here, otherwise the postgresql container
-    # Wil pick them up
-    #- export PGHOST="postgres"
-    #- export PGUSER="odoo"
-    #- export PGPASSWORD=""
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests
@@ -57,9 +49,9 @@ test:
   script:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
-    #- export PGHOST="postgres"
-    #- export PGUSER="odoo"
-    #- export PGPASSWORD=""
+    - export PGHOST="postgres"
+    - export PGUSER="odoo"
+    - export PGPASSWORD=""
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests
