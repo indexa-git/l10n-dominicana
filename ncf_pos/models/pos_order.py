@@ -153,7 +153,9 @@ class PosOrder(models.Model):
             if record.refund_payment_account_move_line_ids:
                 for aml in record.refund_payment_account_move_line_ids:
                     for p_id in aml.invoice_id.payment_move_line_ids.ids:
-                        record.invoice_id[0].assign_outstanding_credit(p_id)
+                        if record.invoice_id:
+                            record.invoice_id[0].assign_outstanding_credit(
+                                p_id)
             if record.is_return_order:
                 record.invoice_id.write({
                     'origin_out': record.return_order_id.invoice_id.reference,
@@ -257,8 +259,10 @@ class PosOrder(models.Model):
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
                      is_return_order):
-        if not self.env["pos.order.ncf.temp"].search(
-           [('pos_reference', '=', order_uid)]):
+        pos_order_ncf_temp = self.env["pos.order.ncf.temp"].search([
+            ('pos_reference', '=', order_uid)
+            ])
+        if not pos_order_ncf_temp:
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
