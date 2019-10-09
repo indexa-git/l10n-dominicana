@@ -33,6 +33,9 @@ install_linter:
     paths:
       - ./maintainer-quality-tools
   script:
+    - pwd
+    - ls
+    - ls maintainer-quality-tools
     - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master maintainer-quality-tools
 
 lint:
