@@ -28,9 +28,6 @@ class AccountFiscalSequence(models.Model):
     _description = "Account Fiscal Sequence"
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    def _default_expiration_date(self):
-        return datetime.datetime.strptime(str(int(str(fields.Date.today())[0:4])+1)+'-12-31', '%Y-%m-%d').date()
-
     name = fields.Char(
         string="Authorization number",
         required=True,
@@ -43,7 +40,7 @@ class AccountFiscalSequence(models.Model):
         readonly=True,
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
-        default=_default_expiration_date
+        default=datetime.strptime(str(int(str(fields.Date.today())[0:4])+1)+'-12-31', '%Y-%m-%d').date()
     )
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
