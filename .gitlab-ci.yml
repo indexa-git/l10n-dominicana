@@ -1,5 +1,6 @@
 image: python:3.5
 stages:
+  - install
   - test
 
 services:
@@ -24,25 +25,30 @@ before_script:
   - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
   - pip install coverage coveralls codecov
 
+install_linter:
+  stage: install
+  tags:
+    - docker
+  cache:
+    paths:
+      - ${HOME}/maintainer-quality-tools
+  script:
+    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+    - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
+
 lint:
   stage: test
   tags:
-    - postgres
     - docker
   variables:
     LINT_CHECK: "1"
     TESTS: "0"
-  cache:
-    paths:
-      - ${HOME}/maintainer-quality-tools
   script:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
     - export PGHOST="postgres"
     - export PGUSER="odoo"
     - export PGPASSWORD=""
-    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
-    - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests
     - travis_after_tests_success || true
