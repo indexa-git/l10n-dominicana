@@ -26,7 +26,11 @@
         'wizard/account_fiscal_sequence_validate_wizard_views.xml',
         'views/account_invoice_views.xml',
         'views/account_journal_views.xml',
-        'views/res_partner_views.xml'
+        'views/res_partner_views.xml',
+        'views/assets.xml'
+    ],
+    'qweb': [
+        "static/src/xml/fiscal_sequence_warning_template.xml",
     ],
     # only loaded in demonstration mode
     'demo': [

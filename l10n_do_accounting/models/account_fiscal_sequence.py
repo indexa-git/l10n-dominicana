@@ -1,4 +1,5 @@
 # © 2019 José López <jlopez@indexa.do>
+# © 2019 Raul Ovalle <rovalle@guavana.com>
 
 import pytz
 from datetime import datetime
@@ -39,6 +40,8 @@ class AccountFiscalSequence(models.Model):
         readonly=True,
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
+        default=datetime.strptime(str(int(str(
+            fields.Date.today())[0:4])+1)+'-12-31', '%Y-%m-%d').date()
     )
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',

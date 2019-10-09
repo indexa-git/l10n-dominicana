@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="l10n_do_accounting.FiscalSequenceWarning">
+        <div class="o_fiscal_sequence_warning" t-if="values.length">
+            <div class="o_low_ncf_message">
+                <div class="o_low_ncf_image">
+                    <i class="fa fa-exclamation-triangle fa-4x"></i>
+                </div>
+                <div class="o_low_ncf_content">
+                    <h2>¡NCF almost deplete!</h2>
+                    <t t-foreach="values" t-as="fiscal_sequence">
+                        <h5>
+                            <t t-esc="fiscal_sequence.fiscal_type_id[1]"/> - Remains: <t t-esc="fiscal_sequence.sequence_remaining"/>
+                        </h5>
+                    </t>
+                    <button class="btn btn-primary o_go_to_fiscal_sequences">
+                        Go to Fiscal Sequences
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
