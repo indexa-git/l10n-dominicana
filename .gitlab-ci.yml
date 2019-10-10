@@ -2,6 +2,9 @@ image: python:3.5
 stages:
   - test
   - post-mortem
+  
+include:
+  - template: Auto-DevOps.gitlab-ci.yml
 
 variables:
   POSTGRES_DB: project_ci_test
