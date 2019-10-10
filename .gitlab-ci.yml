@@ -18,11 +18,11 @@ variables:
 include:
   - template: Auto-DevOps.gitlab-ci.yml
 
-before_script:
+#before_script:
   #- curl -sL https://deb.nodesource.com/setup_10.x | bash -
-  - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
-  - pip install coverage coveralls codecov
-  - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+  #- apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
+  #- pip install coverage coveralls codecov
+  #- git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
 
 lint:
   stage: test
@@ -32,6 +32,10 @@ lint:
     LINT_CHECK: "1"
     TESTS: "0"
   script:
+    - curl -sL https://deb.nodesource.com/setup_10.x | bash -
+    - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
+    - pip install coverage coveralls codecov
+    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests
@@ -50,6 +54,10 @@ test:
   script:
     # We need to export the PG* here, otherwise the postgresql container
     # Wil pick them up
+    - curl -sL https://deb.nodesource.com/setup_10.x | bash -
+    - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
+    - pip install coverage coveralls codecov
+    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PGHOST="postgres"
     - export PGUSER="odoo"
     - export PGPASSWORD=""
