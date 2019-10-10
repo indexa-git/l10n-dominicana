@@ -110,7 +110,7 @@
                        attrs="{
                        'invisible':['|',('type','=','in_refund'),('is_fiscal_invoice','=',False)],
                        'required': [('is_fiscal_invoice','=',True),('type','=','in_invoice')],
-                       'readonly': ['|',('state','!=','draft')]}"
+                       'readonly': [('state','!=','draft')]}"
                        domain="[('type', '=', 'purchase')]"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('is_fiscal_invoice', '=', False)],
