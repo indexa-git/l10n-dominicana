@@ -72,7 +72,7 @@ class AccountInvoice(models.Model):
         related='fiscal_type_id.internal_generate',
     )
 
-    @api.onchange('journal')
+    @api.onchange('journal_id')
     def _onchange_custom_journal(self):
         if not self.is_fiscal_invoice:
             self.fiscal_type_id = False
@@ -80,18 +80,35 @@ class AccountInvoice(models.Model):
     @api.onchange('fiscal_type_id')
     def _onchange_fiscal_type(self):
 
-        self.internal_generate = self.fiscal_type_id.internal_generate
-        self.fiscal_position_id = self.fiscal_type_id.fiscal_position_id
+        if self.is_fiscal_invoice and self.fiscal_type_id:
+            fiscal_type = self.fiscal_type_id
 
-        if self.fiscal_type_id.journal_id:
-            self.journal_id = self.fiscal_type_id.journal_id
+            if fiscal_type.internal_generate:
+                fiscal_sequence = self.env['account.fiscal.sequence']\
+                    .search([('fiscal_type_id', '=', self.fiscal_type_id.id)
+                             , ('state', '=', 'active'),
+                             ('company_id', '=', self.company_id.id)],
+                            limit=1)
+                if not fiscal_sequence:
+                    raise UserError(_(u"There is no current active NCF of {}"
+                                      u", please create a new fiscal sequence "
+                                      u"of type {}.").format(
+                                    fiscal_type.name,
+                                    fiscal_type.name))
+                self.fiscal_sequence_id = fiscal_sequence.id
+
+            self.internal_generate = fiscal_type.internal_generate
+            self.fiscal_position_id = fiscal_type.fiscal_position_id
+            if fiscal_type.journal_id:
+                self.journal_id = fiscal_type.journal_id
 
     @api.onchange('partner_id')
     def _onchange_custom_partner_id(self):
 
         if self.is_fiscal_invoice:
             if self.type == 'out_invoice':
-                self.fiscal_type_id = self.partner_id.sale_fiscal_type_id
+                if not self.fiscal_type_id:
+                    self.fiscal_type_id = self.partner_id.sale_fiscal_type_id
 
             if self.type == 'in_invoice':
                 self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
@@ -123,8 +140,10 @@ class AccountInvoice(models.Model):
                         and not inv.partner_id.vat:
                     raise UserError(
                         _("Partner [{}] {} doesn't have RNC/Céd, "
-                          "is required for this fiscal type").format(
-                            inv.partner_id.id, inv.partner_id.name))
+                          "is required for NCF type {}").format(
+                            inv.partner_id.id,
+                            inv.partner_id.name,
+                            inv.fiscal_type_id.name))
 
                 if inv.type in ("out_invoice", "out_refund"):
                     if (inv.amount_untaxed_signed >= 250000 and
@@ -135,5 +154,8 @@ class AccountInvoice(models.Model):
                             u"RD$250,000.00 "
                             u"the costumer should have RNC or Céd"
                             u"for make invoice"))
+
+                if not inv.reference and inv.fiscal_type_id.internal_generate:
+                    inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
 
         return super(AccountInvoice, self).action_invoice_open()
