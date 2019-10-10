@@ -2,19 +2,24 @@
     'name': "Fiscal Accounting (Rep. Dominicana)",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Este módulo implementa la administración y gestión de los números de
+         comprobantes fiscales para el cumplimento de la norma 06-18 de la
+         Dirección de Impuestos Internos en la República Dominicana.""",
 
-    'author': "My Company",
+    'author': "Guavana, "
+              "Indexa, "
+              "Iterativo SRL",
+
     'license': 'LGPL-3',
-    'website': "http://www.yourcompany.com",
-    'category': 'Accounting',
+    'website': "https://github.com/odoo-dominicana",
+    'category': 'Localization',
     'version': '12.0.1.0.0',
 
     # any module necessary for this one to work correctly
     'depends': [
         'base',
-        'account'
+        'account',
+        'l10n_do'
     ],
 
     # always loaded

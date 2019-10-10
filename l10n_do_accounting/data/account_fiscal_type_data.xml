@@ -54,13 +54,29 @@
         <field name="type">special</field>
         <field name="sequence">8</field>
     </record>
+    <record id="fiscal_type_purchase_debit_note" model="account.fiscal.type">
+        <field name="name">Nota de Débito Compras Fiscales</field>
+        <field name="prefix">B03</field>
+        <field name="type">special</field>
+        <field name="sequence">9</field>
+        <field name="internal_generate" eval="False"/>
+        <field name="required_document" eval="True"/>
+    </record>
+    <record id="fiscal_type_purchase_credit_note" model="account.fiscal.type">
+        <field name="name">Nota de Crédito Compras Fiscales</field>
+        <field name="prefix">B04</field>
+        <field name="type">special</field>
+        <field name="sequence">10</field>
+        <field name="internal_generate" eval="False"/>
+        <field name="required_document" eval="True"/>
+    </record>
 
     <!--purchase-->
     <record id="fiscal_type_fiscal_purchase" model="account.fiscal.type">
         <field name="name">Compras Fiscales</field>
         <field name="prefix">B01</field>
         <field name="type">purchase</field>
-        <field name="sequence">9</field>
+        <field name="sequence">11</field>
         <field name="internal_generate" eval="False"/>
         <field name="required_document" eval="True"/>
     </record>
@@ -68,25 +84,25 @@
         <field name="name">Proveedor Informal</field>
         <field name="prefix">B11</field>
         <field name="type">purchase</field>
-        <field name="sequence">10</field>
+        <field name="sequence">12</field>
         <field name="required_document" eval="True"/>
     </record>
     <record id="fiscal_type_minor" model="account.fiscal.type">
         <field name="name">Gastos Menores</field>
         <field name="prefix">B13</field>
         <field name="type">purchase</field>
-        <field name="sequence">11</field>
+        <field name="sequence">13</field>
     </record>
     <record id="fiscal_type_exterior" model="account.fiscal.type">
         <field name="name">Pagos al Exterior</field>
         <field name="prefix">B17</field>
         <field name="type">purchase</field>
-        <field name="sequence">12</field>
+        <field name="sequence">14</field>
     </record>
     <record id="fiscal_type_fiscal_import" model="account.fiscal.type">
         <field name="name">Importaciones</field>
         <field name="type">purchase</field>
-        <field name="sequence">13</field>
+        <field name="sequence">15</field>
         <field name="internal_generate" eval="False"/>
     </record>
 
