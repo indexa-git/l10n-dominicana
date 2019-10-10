@@ -12,12 +12,14 @@ variables:
   VERSION: "12.0"
   ODOO_BRANCH: "12.0"
   ODOO_REPO: "odoo/odoo"
+  TEST_DISABLE: 1
+  BUILD_DISABLE: 1
   
 include:
   - template: Auto-DevOps.gitlab-ci.yml
 
 before_script:
-  - curl -sL https://deb.nodesource.com/setup_10.x | bash -
+  #- curl -sL https://deb.nodesource.com/setup_10.x | bash -
   - apt-get install -y  sudo postgresql-client expect-dev python-lxml nodejs python-dev python-pip build-essential libsasl2-dev python-dev libldap2-dev libssl-dev
   - pip install coverage coveralls codecov
   - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
