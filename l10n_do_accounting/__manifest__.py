@@ -18,7 +18,8 @@
     # any module necessary for this one to work correctly
     'depends': [
         'base',
-        'account'
+        'account',
+        'l10n_do'
     ],
 
     # always loaded
