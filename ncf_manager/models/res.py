@@ -204,14 +204,14 @@ class ResPartner(models.Model):
                     self.sale_fiscal_type = result.get('sale_fiscal_type')
 
         except:
-            res= {'title': _('Warning'),
+            res = {'title': _('Warning'),\
                 'message': _('Favor modificar contacto.')}
 
             return {'warning': res}
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
-        
+
         try:
             if self.vat:
                 result = self.validate_rnc_cedula(self.vat)
@@ -222,7 +222,7 @@ class ResPartner(models.Model):
                     self.sale_fiscal_type = result.get('sale_fiscal_type')
 
         except:
-            res ={'title': _('Warning'),
+            res = {'title': _('Warning'),\
                 'message': _('Favor modificar contacto.')}
 
             return {'warning': res}
@@ -258,13 +258,13 @@ class ResPartner(models.Model):
 
     @api.model
     def create(self, vals):
-    
+
         vat = vals.get("vat", False)
         try:
             result = self.validate_rnc_cedula(vals["vat"]) if vat else None
         except:
             result = None
-        
+
         parent_id = self.browse(vals.get("parent_id", False))
         if result and result.get("name", False):
             vals.update({"name": result["name"]})
