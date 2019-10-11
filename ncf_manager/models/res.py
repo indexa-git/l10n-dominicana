@@ -204,7 +204,8 @@ class ResPartner(models.Model):
                     self.sale_fiscal_type = result.get('sale_fiscal_type')
 
         except:
-            res = {'title': _('Warning'),
+            res = {
+                'title': _('Warning'),
                 'message': _('Favor modificar contacto.'),
             }
 
@@ -223,7 +224,8 @@ class ResPartner(models.Model):
                     self.sale_fiscal_type = result.get('sale_fiscal_type')
 
         except:
-            res = {'title': _('Warning'), 
+            res = {
+                'title': _('Warning'), 
                 'message': _('Favor modificar contacto.'),
             }
 
