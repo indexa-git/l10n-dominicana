@@ -225,7 +225,7 @@ class ResPartner(models.Model):
 
         except:
             res = {
-                'title': _('Warning'), 
+                'title': _('Warning'),
                 'message': _('Favor modificar contacto.'),
             }
 
