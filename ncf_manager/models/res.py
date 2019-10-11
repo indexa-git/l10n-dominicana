@@ -205,7 +205,8 @@ class ResPartner(models.Model):
 
         except:
             res = {'title': _('Warning'),
-                ('message': _('Favor modificar contacto.')})
+                'message': _('Favor modificar contacto.'),
+            }
 
             return {'warning': res}
 
@@ -223,7 +224,8 @@ class ResPartner(models.Model):
 
         except:
             res = {'title': _('Warning'), 
-                ('message': _('Favor modificar contacto.')})
+                'message': _('Favor modificar contacto.'),
+            }
 
             return {'warning': res}
 
