@@ -193,7 +193,7 @@ class ResPartner(models.Model):
 
     @api.onchange("name")
     def onchange_partner_name(self):
-        
+
         try:
             if self.name:
                 result = self.validate_rnc_cedula(self.name)
@@ -202,11 +202,10 @@ class ResPartner(models.Model):
                     self.vat = result.get('vat')
                     self.is_company = result.get('is_company', False)
                     self.sale_fiscal_type = result.get('sale_fiscal_type')
-        
+
         except:
-            res ={
-                    'title': _('Warning'),
-                    'message': _('Favor modificar contacto.')}
+            res= {'title': _('Warning'),
+                'message': _('Favor modificar contacto.')}
 
             return {'warning': res}
 
@@ -223,9 +222,8 @@ class ResPartner(models.Model):
                     self.sale_fiscal_type = result.get('sale_fiscal_type')
 
         except:
-            res ={
-                    'title': _('Warning'),
-                    'message': _('Favor modificar contacto.')}
+            res ={'title': _('Warning'),
+                'message': _('Favor modificar contacto.')}
 
             return {'warning': res}
 
