@@ -242,12 +242,19 @@ class ResPartner(models.Model):
 
     @api.model
     def create(self, vals):
+        self.validate_on_create(vals)
+        return super(ResPartner, self).create(vals)
+
+    @api.model
+    def validate_on_create(self, vals):
         vat = vals.get("vat", False)
-        result = self.validate_rnc_cedula(vals["vat"]) if vat else None
+        result = self.validate_vat(vat)
         if result and result.get("name", False):
             vals.update({"name": result["name"]})
 
-        return super(ResPartner, self).create(vals)
+    @api.model
+    def validate_vat(self, vat):
+        return self.validate_rnc_cedula(vat) if vat else None
 
     @api.model
     def name_create(self, name):
