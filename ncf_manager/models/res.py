@@ -193,18 +193,16 @@ class ResPartner(models.Model):
 
     @api.onchange("name")
     def onchange_partner_name(self):
-        if self.name:
-            result = self.validate_rnc_cedula(self.name)
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-                self.is_company = result.get('is_company', False)
-                self.sale_fiscal_type = result.get('sale_fiscal_type')
+        self.validate_vat_onchange(self.name)
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
-        if self.vat:
-            result = self.validate_rnc_cedula(self.vat)
+        self.validate_vat_onchange(self.vat)
+
+    @api.model
+    def validate_vat_onchange(self, vat):
+        if vat:
+            result = self.validate_rnc_cedula(vat)
             if result:
                 self.name = result.get('name')
                 self.vat = result.get('vat')
