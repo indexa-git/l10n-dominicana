@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="PaymentScreenWidget">
+        <t t-jquery=".payment-buttons" t-operation="append">
+            <div class='button js_set_fiscal_type'>
+                <i class='fa fa-edit' aria-label="Fiscal type" title="Fiscal type"/>
+                <t t-if="widget.pos.invoice_journal.fiscal_journal">
+                    <span class='js_fiscal_type_name' style="color:red">
+                        <t t-if="widget.pos.get_order().fiscal_type">
+                            <t t-esc="widget.pos.get_order().fiscal_type.name" />
+                        </t>
+                        <t t-if="!widget.pos.get_order().fiscal_type">
+                            Select fiscal type
+                        </t>
+                    </span>
+                </t>
+            </div>
+        </t>
+    </t>
+
+    <t t-extend="ActionpadWidget">
+        <t t-jquery=".fa.fa-user" t-operation="after">
+            <t t-if="widget.pos.invoice_journal.fiscal_journal">
+                <t t-set="order" t-value="widget.pos.get_order()"/>
+                <t t-if="order">
+                    <span class="js_fiscal_type_name" style="color:red">
+                        <t t-esc="order.get_fiscal_type().name"/>
+                        <!--TODO this part is for return orders-->
+                        <!--<t t-if="order.get_mode() != 'return'">-->
+                            <!--<t t-if='partner and partner.sale_fiscal_type'>-->
+                                <!--<span style="color:red">-->
+                                    <!--<t t-esc="widget.pos.db.get_sale_fiscal_sequence(partner.sale_fiscal_type).name"/>-->
+                                <!--</span>-->
+                            <!--</t>-->
+                            <!--<t t-if="!widget.pos.get_client()">-->
+                                <!--<span style="color:red">-->
+                                    <!--<t t-esc="widget.pos.db.get_sale_fiscal_sequence('consumo').name"/>-->
+                                <!--</span>-->
+                            <!--</t>-->
+                        <!--</t>-->
+                        <!--<t t-if="order.get_mode() == 'return'">-->
+                            <!--<span style="color:red">-->
+                                <!--Nota de Crédito-->
+                            <!--</span>-->
+                        <!--</t>-->
+                        <!--<br/>-->
+                    </span>
+                    <br/>
+                </t>
+            </t>
+        </t>
+    </t>
+</templates>
