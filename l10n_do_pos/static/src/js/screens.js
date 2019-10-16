@@ -126,7 +126,6 @@ odoo.define('l10n_do_pos.screens', function(require) {
             var client = current_order.get_client();
             var total = current_order.get_total_with_tax();
             var all_payment_lines = current_order.get_paymentlines();
-            var sale_fiscal_sequence = null;
             var total_in_bank = 0;
             var has_cash = false;
 
@@ -316,6 +315,8 @@ odoo.define('l10n_do_pos.screens', function(require) {
             // }
 
             if(self.pos.invoice_journal.fiscal_journal){
+                $('.freeze_screen').addClass("active_state");
+                $(".lds-spinner").show();
                 rpc.query({
                     model: 'account.fiscal.type',
                     method: 'get_next_fiscal_sequence',
@@ -331,11 +332,16 @@ odoo.define('l10n_do_pos.screens', function(require) {
                     console.log(type);
                     console.log(err)
                 }).done(function () {
-
+                    $('.freeze_screen').removeClass("active_state");
+                    $(".lds-spinner").hide();
                     _super()
-
                 }).fail(function () {
-                    console.log('fail')
+                    $('.freeze_screen').removeClass("active_state");
+                    $(".lds-spinner").hide();
+                    self.gui.show_popup('error', {
+                        'title': 'Error connection',
+                        'body': 'Please check your internet connection'
+                    });
                 })
 
             }else{

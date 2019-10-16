@@ -51,4 +51,50 @@
             </t>
         </t>
     </t>
+
+    <t t-extend="Chrome">
+        <t t-jquery=".pos-topheader" t-operation="after">
+            <div class="freeze_screen">
+                <div class="lds-spinner">
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+
 </templates>

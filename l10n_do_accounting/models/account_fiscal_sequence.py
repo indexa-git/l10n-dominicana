@@ -296,6 +296,7 @@ class AccountFiscalType(models.Model):
     prefix = fields.Char(
         copy=False,
     )
+    padding = fields.Integer()
     type = fields.Selection([
         ('sale', 'Sale'),
         ('purchase', 'Purchase'),

@@ -125,9 +125,9 @@
                         <field name="name"/>
                         <field name="prefix"/>
                         <field name="type"/>
+                        <field name="padding">8</field>
                         <field name="internal_generate"/>
                         <field name="required_document"/>
-
                     </group>
                     <group>
                         <field name="journal_id"

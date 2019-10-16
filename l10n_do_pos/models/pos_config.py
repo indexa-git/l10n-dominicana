@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields
 
 
 class PosConfig(models.Model):
@@ -9,5 +8,3 @@ class PosConfig(models.Model):
         "res.partner",
         string=u"Default partner",
     )
-
-
