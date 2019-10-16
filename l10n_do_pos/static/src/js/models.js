@@ -36,7 +36,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     models.load_models({
         model:  'account.fiscal.type',
-        fields: ['name', 'fiscal_position_id', 'required_document', 'prefix'],
+        fields: ['name', 'fiscal_position_id', 'required_document', 'prefix', 'internal_generate'],
         domain: function(self){
             return [['type', '=', 'sale']];
         },
@@ -91,6 +91,8 @@ odoo.define('l10n_do_pos.models', function (require) {
 			this.ncf_origin_out = '';
 			this.ncf_expiration_date = '';
 			this.fiscal_type = false;
+			this.fiscal_type_id = false;
+			this.fiscal_sequence_id = false;
 			var client = self.get_client();
 			if(client){
 			    if(client.sale_fiscal_type_id){
@@ -127,10 +129,22 @@ odoo.define('l10n_do_pos.models', function (require) {
 
         set_fiscal_type: function (fiscal_type) {
             this.fiscal_type = fiscal_type;
+            this.fiscal_type_changed()
         },
         get_fiscal_type: function () {
             return this.fiscal_type
-        }
+        },
+        fiscal_type_changed: function () {
+            var current_order = this.pos.get_order();
+            var fiscal_type_name = current_order.fiscal_type.name || false;
+            this.pos.gui.screen_instances.payment.$('.js_fiscal_type_name').text(
+                fiscal_type_name
+            );
+            this.pos.gui.screen_instances.products.$('.js_fiscal_type_name').text(
+                fiscal_type_name
+            )
+        },
+
 
         // export_as_JSON: function() {
         //

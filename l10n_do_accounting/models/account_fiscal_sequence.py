@@ -5,7 +5,7 @@ import pytz
 from datetime import datetime
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 def get_l10n_do_datetime():
@@ -317,3 +317,22 @@ class AccountFiscalType(models.Model):
     required_document = fields.Boolean(
         string="Required document",
     )
+
+    def get_next_fiscal_sequence(self, company_id):
+        fiscal_sequence = self.env['account.fiscal.sequence'] \
+            .search([('fiscal_type_id', '=', self.id)
+                        , ('state', '=', 'active'),
+                     ('company_id', '=', company_id)],
+                    limit=1)
+        if not fiscal_sequence:
+            raise UserError(_(u"There is no current active NCF of {}"
+                              u", please create a new fiscal sequence "
+                              u"of type {}.").format(
+                self.name,
+                self.name))
+
+        return {
+            'ncf': fiscal_sequence.get_fiscal_number(),
+            'fiscal_sequence_id': fiscal_sequence.id,
+            'ncf_expiration_date': fiscal_sequence.expiration_date
+        }

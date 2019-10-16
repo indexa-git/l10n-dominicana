@@ -25,7 +25,8 @@
         'views/assets.xml'
     ],
     'qweb': [
-        'static/src/xml/pos.xml'
+        'static/src/xml/pos.xml',
+        'static/src/xml/posticket.xml'
     ],
     # only loaded in demonstration mode
     'demo': [

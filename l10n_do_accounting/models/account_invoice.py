@@ -152,7 +152,7 @@ class AccountInvoice(models.Model):
                         raise UserError(_(
                             u"if the invoice amount is greater than "
                             u"RD$250,000.00 "
-                            u"the costumer should have RNC or Céd"
+                            u"the customer should have RNC or Céd"
                             u"for make invoice"))
 
                 if not inv.reference and inv.fiscal_type_id.internal_generate:
