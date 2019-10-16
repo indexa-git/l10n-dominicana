@@ -316,7 +316,6 @@ odoo.define('l10n_do_pos.screens', function(require) {
             // }
 
             if(self.pos.invoice_journal.fiscal_journal){
-
                 rpc.query({
                     model: 'account.fiscal.type',
                     method: 'get_next_fiscal_sequence',
@@ -333,7 +332,6 @@ odoo.define('l10n_do_pos.screens', function(require) {
                     console.log(err)
                 }).done(function () {
 
-                    self.pos.set_order(current_order);
                     _super()
 
                 }).fail(function () {

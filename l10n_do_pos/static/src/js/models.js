@@ -146,21 +146,23 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
 
 
-        // export_as_JSON: function() {
-        //
-		// 	// var self = this;
-		// 	// var loaded = SuperOrder.prototype.export_as_JSON.call(this);
-		// 	// var current_order = self.pos.get_order();
-		// 	// if(self.pos.get_order()){
-		// 	//     loaded.move_name = current_order.move_name;
-		// 	//     loaded.ncf_expiration_date = current_order.ncf_expiration_date;
-        //     //     loaded.origin_move_name = current_order.origin_move_name;
-        //     // }
-        //     //
-        //     //
-		// 	// return loaded;
-        //
-		// },
+        export_as_JSON: function() {
+
+			var self = this;
+			var loaded = _super_order.export_as_JSON.call(this);
+			var current_order = self.pos.get_order();
+
+			if(self.pos.get_order()){
+			    loaded.ncf = current_order.ncf;
+			    loaded.ncf_origin_out = current_order.ncf_origin_out;
+			    loaded.ncf_expiration_date = current_order.ncf_expiration_date;
+                loaded.fiscal_type_id = current_order.fiscal_type_id;
+                loaded.fiscal_sequence_id = current_order.fiscal_sequence_id;
+            }
+
+			return loaded;
+
+		},
 
         //TODO: this part is for credit note
 

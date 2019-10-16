@@ -319,11 +319,16 @@ class AccountFiscalType(models.Model):
     )
 
     def get_next_fiscal_sequence(self, company_id):
-        fiscal_sequence = self.env['account.fiscal.sequence'] \
-            .search([('fiscal_type_id', '=', self.id)
-                        , ('state', '=', 'active'),
-                     ('company_id', '=', company_id)],
-                    limit=1)
+        """
+        search active fiscal sequence dependent with fiscal type
+        :param company_id:
+        :return: {ncf, expiration date, fiscal sequence}
+        """
+        fiscal_sequence = self.env['account.fiscal.sequence'].search([
+            ('fiscal_type_id', '=', self.id),
+            ('state', '=', 'active'),
+            ('company_id', '=', company_id)
+        ], limit=1)
         if not fiscal_sequence:
             raise UserError(_(u"There is no current active NCF of {}"
                               u", please create a new fiscal sequence "

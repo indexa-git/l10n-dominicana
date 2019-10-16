@@ -62,7 +62,6 @@ class AccountInvoice(models.Model):
     )
     ncf_expiration_date = fields.Date(
         'Valid until',
-        # compute="_compute_ncf_expiration_date",
         store=True,
     )
     is_fiscal_invoice = fields.Boolean(
@@ -84,11 +83,11 @@ class AccountInvoice(models.Model):
             fiscal_type = self.fiscal_type_id
 
             if fiscal_type.internal_generate:
-                fiscal_sequence = self.env['account.fiscal.sequence']\
-                    .search([('fiscal_type_id', '=', self.fiscal_type_id.id)
-                             , ('state', '=', 'active'),
-                             ('company_id', '=', self.company_id.id)],
-                            limit=1)
+                fiscal_sequence = self.env['account.fiscal.sequence'].search([
+                    ('fiscal_type_id', '=', self.fiscal_type_id.id),
+                    ('state', '=', 'active'),
+                    ('company_id', '=', self.company_id.id)
+                ], limit=1)
                 if not fiscal_sequence:
                     raise UserError(_(u"There is no current active NCF of {}"
                                       u", please create a new fiscal sequence "
@@ -157,5 +156,6 @@ class AccountInvoice(models.Model):
 
                 if not inv.reference and inv.fiscal_type_id.internal_generate:
                     inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
+                    inv.ncf_expiration_date = inv.fiscal_type_id.expiration_date
 
         return super(AccountInvoice, self).action_invoice_open()

@@ -22,7 +22,9 @@
 
     # always loaded
     'data': [
-        'views/assets.xml'
+        'views/assets.xml',
+        'views/pos_config_views.xml',
+        'views/pos_order_views.xml'
     ],
     'qweb': [
         'static/src/xml/pos.xml',
