@@ -132,7 +132,7 @@ var FiscalSequenceWarningModel = KanbanModel.extend({
         return $.when(super_def, dashboard_def)
             .then(function(id, fiscalSequenceValues) {
                 var lowFiscalSequence = [];
-                fiscalSequenceValues.forEach((item) => {
+                fiscalSequenceValues.forEach(function (item) {
                     if(item.warning_gap >= item.sequence_remaining){
                         lowFiscalSequence.push(item)
                     }
