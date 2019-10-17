@@ -206,7 +206,7 @@ class PosOrder(models.Model):
 
             pos_order['amount_return'] = 0
 
-        return super(PosOrder,self)._process_order(pos_order)
+        return super(PosOrder, self)._process_order(pos_order)
 
     @api.model
     def create_from_ui(self, orders):
@@ -228,7 +228,7 @@ class PosOrder(models.Model):
                 order_obj.action_pos_order_invoice_no_return_pdf()
                 order_obj.invoice_id.sudo().action_invoice_open()
 
-                #TODO: THIS PART IS FOR OFFLINE MODE
+                # TODO: THIS PART IS FOR OFFLINE MODE
                 # if order_obj.invoice_id.name != order_obj.move_name:
                 #     raise UserError(_(
                 #         u'El número de comprobante fiscal posee un error, '

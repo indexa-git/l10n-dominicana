@@ -2,7 +2,6 @@ odoo.define('pos_ncf_manager.DB', function (require) {
     "use strict";
 
     var PosDB = require('point_of_sale.DB');
-
     var PosDBHistory = require('pos_orders_history.db');
 
     PosDB.include({

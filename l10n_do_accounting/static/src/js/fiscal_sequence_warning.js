@@ -43,7 +43,8 @@ var FiscalSequenceWarningRenderer = KanbanRenderer.extend({
         var self = this;
         return this._super.apply(this, arguments).then(function () {
             var values = self.state.fiscalSequencesValues;
-            var fiscal_sequence_dashboard = QWeb.render('l10n_do_accounting.FiscalSequenceWarning', {
+            var fiscal_sequence_dashboard = QWeb.render(
+                'l10n_do_accounting.FiscalSequenceWarning', {
                 widget: self,
                 values: values,
             });
@@ -111,11 +112,11 @@ var FiscalSequenceWarningModel = KanbanModel.extend({
     reload: function () {
         return this._loadFiscalSequence(this._super.apply(this, arguments));
     },
-    //
-    // //--------------------------------------------------------------------------
-    // // Private
-    // //--------------------------------------------------------------------------
-    //
+
+    //--------------------------------------------------------------------------
+    // Private
+    //--------------------------------------------------------------------------
+
     /**
      * @private
      * @param {Deferred} super_def a deferred that resolves with a dataPoint id
@@ -128,19 +129,19 @@ var FiscalSequenceWarningModel = KanbanModel.extend({
                 method: 'search_read',
                 args: [[['state', '=', 'active']]]
         });
-        return $.when(super_def, dashboard_def).then(function(id, fiscalSequenceValues) {
-            var lowFiscalSequence = [];
-            fiscalSequenceValues.forEach((item) => {
-                if(item.warning_gap >= item.sequence_remaining){
-                    lowFiscalSequence.push(item)
-                }
+        return $.when(super_def, dashboard_def)
+            .then(function(id, fiscalSequenceValues) {
+                var lowFiscalSequence = [];
+                fiscalSequenceValues.forEach((item) => {
+                    if(item.warning_gap >= item.sequence_remaining){
+                        lowFiscalSequence.push(item)
+                    }
+                });
+                self.fiscalSequencesValues[id] = lowFiscalSequence;
+                return id;
             });
-            self.fiscalSequencesValues[id] = lowFiscalSequence;
-            return id;
-        });
     },
 });
-
 
 var FiscalSequenceWarningView = KanbanView.extend({
     config: _.extend({}, KanbanView.prototype.config, {

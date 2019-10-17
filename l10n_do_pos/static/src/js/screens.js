@@ -600,5 +600,4 @@ odoo.define('l10n_do_pos.screens', function(require) {
     //         }
     //     },
     // });
-
 });

@@ -256,14 +256,14 @@ class AccountFiscalSequence(models.Model):
     def _expire_sequences(self):
         """
         Function called from ir.cron that check all active sequence
-        date_end and set state = expired if necessary
+        expiration_date and set state = expired if necessary
         """
         # Use DR local time
         l10n_do_date = get_l10n_do_datetime().date()
         fiscal_sequence_ids = self.search([('state', '=', 'active')])
 
         for seq in fiscal_sequence_ids.filtered(
-                lambda s: l10n_do_date >= s.date_end):
+                lambda s: l10n_do_date >= s.expiration_date):
             seq.state = 'expired'
 
     def get_fiscal_number(self):

@@ -6,7 +6,6 @@
             <script type="text/javascript" src="/l10n_do_pos/static/src/js/models.js"></script>
             <!--<script type="text/javascript" src="/l10n_do_pos/static/src/js/popups.js"></script>-->
             <script type="text/javascript" src="/l10n_do_pos/static/src/js/screens.js"></script>
-            <link rel="stylesheet" href="/l10n_do_pos/static/src/css/pos.css"/>
-        </xpath>
+a        </xpath>
     </template>
 </odoo>
