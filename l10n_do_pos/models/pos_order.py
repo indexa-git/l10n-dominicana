@@ -36,12 +36,11 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new pos order.
         """
         fields = super(PosOrder, self)._order_fields(ui_order)
-        if self.config_id.invoice_journal_id.fiscal_journal:
-            fields['ncf'] = ui_order['ncf']
-            fields['ncf_origin_out'] = ui_order['ncf_origin_out']
-            fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
-            fields['fiscal_type_id'] = ui_order['fiscal_type_id']
-            fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
+        fields['ncf'] = ui_order['ncf']
+        fields['ncf_origin_out'] = ui_order['ncf_origin_out']
+        fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
+        fields['fiscal_type_id'] = ui_order['fiscal_type_id']
+        fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
 
         return fields
 
@@ -90,13 +89,13 @@ class PosOrder(models.Model):
                 for statement in order.statement_ids:
                     # TODO:his part is for return order (credits notes)
                     # if statement.journal_id.is_for_credit_notes:
-                    #    #note in statement line is equals to returned_move_name
+                    #   #note in statement line is equals to returned_move_name
                     #     # (NCF credit note)
                     #     credit_note_order = self.env['pos.order']\
                     #         .search([('move_name', '=', statement.note)])
                     #     if not credit_note_order:
                     #         raise UserError(
-                    #        ('La no ta de credito no existe, favor verificar.')
+                    #       ('La no ta de credito no existe, favor verificar.')
                     #         )
                     #     if credit_note_order.invoice_id.state == 'paid':
                     #         raise UserError(
@@ -116,8 +115,8 @@ class PosOrder(models.Model):
                         statement.sudo().fast_counterpart_creation()
                     elif not statement.journal_entry_ids.ids:
                         raise UserError(
-                            _('All the account entries lines must be processed '
-                              'in order to close the statement.')
+                            _('All the account entries lines must be processed'
+                              ' in order to close the statement.')
                         )
 
     @api.multi
@@ -137,7 +136,7 @@ class PosOrder(models.Model):
             if not order.partner_id:
                 if not order.config_id.default_partner_id:
                     raise UserError(
-                        _('This point of sale not have default customer, please'
+                        _('This point of sale not have default customer,'
                           ' please set default customer in config POS'))
                 order.write({
                     'partner_id': order.config_id.default_partner_id.id
@@ -151,7 +150,8 @@ class PosOrder(models.Model):
             inv = invoice._convert_to_write({
                 name: invoice[name] for name in invoice._cache
             })
-            new_invoice = invoice.with_context(local_context).sudo().create(inv)
+            new_invoice = invoice\
+                .with_context(local_context).sudo().create(inv)
             message = _("This invoice has been created from the point of sale "
                         "session: <a href=# data-oe-model=pos.order "
                         "data-oe-id=%d>%s</a>") % (order.id, order.name)
@@ -184,7 +184,7 @@ class PosOrder(models.Model):
             )
             cash_journal_id = pos_session_obj.cash_journal_id.id
             if not cash_journal_id:
-                # If none, select for change one of the cash journals of the POS
+                # If none, select for change one of the cash journals of the PO
                 # This is used for example when a customer pays by credit card
                 # an amount higher than total amount of the order and gets cash
                 # back
@@ -222,8 +222,11 @@ class PosOrder(models.Model):
 
         for order in order_list:
 
-            order_obj = self.env['pos.order'].search([('id', '=', order['id'])])
-            if order_obj.config_id.invoice_journal_id.fiscal_journal:
+            order_obj = self.env['pos.order'].search([
+                ('id', '=', order['id'])
+            ])
+            if order_obj.config_id.invoice_journal_id.fiscal_journal \
+                    and order_obj.state != 'invoiced':
 
                 order_obj.action_pos_order_invoice_no_return_pdf()
                 order_obj.invoice_id.sudo().action_invoice_open()
@@ -261,7 +264,7 @@ class PosOrder(models.Model):
     #         if returned_order.state == 'draft':
     #             returned_order.create_pos_order_refund_invoice()
     #             returned_order.invoice_id.sudo().action_invoice_open()
-    #             if returned_order.invoice_id.name != returned_order.move_name:
+    #             if returned_order.invoice_id.name !=returned_order.move_name:
     #                 raise UserError(_(
     #                     u'El número de comprobante fiscal posee un error, '
     #                     u'favor contacte al administrador: I:'
@@ -319,7 +322,8 @@ class PosOrder(models.Model):
     #                 total_quantity = 0
     #
     #                 for refund_order_line in refund_order_lines:
-    #                    total_quantity = total_quantity + refund_order_line.qty
+    #                    total_quantity = total_quantity
+    #                    + refund_order_line.qty
     #
     #                 refund_invoice_line.write({
     #                     'quantity': abs(total_quantity)

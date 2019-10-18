@@ -164,7 +164,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 });
                 return false;
             }
-            if(self.pos.invoice_journal.fiscal_journal){
+            if(self.pos.invoice_journal.fiscal_journal && !current_order.to_invoice){
                 // if(current_order.get_mode() === 'return'){
                 //
                 //     sale_fiscal_sequence = self.pos.db.get_sale_fiscal_sequence('credit_note');
@@ -314,7 +314,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
             //
             // }
 
-            if(self.pos.invoice_journal.fiscal_journal){
+            if(self.pos.invoice_journal.fiscal_journal && !current_order.to_invoice){
                 $('.freeze_screen').addClass("active_state");
                 $(".lds-spinner").show();
                 rpc.query({

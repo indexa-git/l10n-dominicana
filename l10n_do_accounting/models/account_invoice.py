@@ -156,6 +156,7 @@ class AccountInvoice(models.Model):
 
                 if not inv.reference and inv.fiscal_type_id.internal_generate:
                     inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
-                    inv.ncf_expiration_date = inv.fiscal_type_id.expiration_date
+                    inv.ncf_expiration_date = \
+                        inv.fiscal_sequence_id.expiration_date
 
         return super(AccountInvoice, self).action_invoice_open()
