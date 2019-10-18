@@ -269,10 +269,11 @@ class PosOrder(models.Model):
                     raise ValidationError(
                         _("You have not specified a sales journal"))
                 elif not is_return_order:
-                    # If max NCF number reached return max_ncf_number_reached message,
-                    # POS will use this message to display an error popup to the user
-                    # prompting them to get help to extend the max number in the sequence.
-                    # If max number is not reached get next number in sequence and return.
+                    # If max NCF number reached return max_ncf_number_reached
+                    # message, POS will use this message to display an error
+                    # popup to the user prompting them to get help to extend
+                    # the max number in the sequence. If max number is not
+                    # reached get next number in sequence and return.
                     sequence = self.env['ir.sequence.date_range'].search([
                         ('sequence_id', '=', journal_id.sequence_id.id),
                         ('sale_fiscal_type', '=', sale_fiscal_type)
@@ -285,8 +286,8 @@ class PosOrder(models.Model):
                         sale_fiscal_type=sale_fiscal_type).next_by_id()
                 elif is_return_order:
                     sequence = self.env['ir.sequence.date_range'].search([
-                            ('sequence_id', '=', journal_id.sequence_id.id),
-                            ('sale_fiscal_type', '=', 'credit_note')
+                        ('sequence_id', '=', journal_id.sequence_id.id),
+                        ('sale_fiscal_type', '=', 'credit_note')
                     ])[0]
                     if sequence.number_next_actual > sequence.max_number_next:
                         return 'max_ncf_number_reached'
