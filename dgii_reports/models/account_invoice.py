@@ -9,7 +9,6 @@ from odoo.exceptions import ValidationError
 
 class InvoiceServiceTypeDetail(models.Model):
     _name = 'invoice.service.type.detail'
-    _description = "Invoice Service Type Detail"
 
     name = fields.Char()
     code = fields.Char(size=2)
@@ -23,18 +22,17 @@ class InvoiceServiceTypeDetail(models.Model):
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
-    def _get_invoice_payment_widget(self, invoice_id):
-        j = json.loads(invoice_id.payments_widget)
+    def _get_invoice_payment_widget(self):
+        j = json.loads(self.payments_widget)
         return j['content'] if j else []
 
-    def _compute_invoice_payment_date(self, invoices):
-        for inv in invoices:
-            if inv.state == 'paid':
-                dates = [payment['date'] for payment in self._get_invoice_payment_widget(inv)]
-                if dates:
-                    max_date = fields.Date.from_string(max(dates))
-                    date_invoice = inv.date_invoice
-                    inv.payment_date = max_date if max_date >= date_invoice else date_invoice
+    def _compute_invoice_payment_date(self):
+        for inv in self:
+            dates = [payment['date'] for payment in inv._get_payments_vals()]
+            if dates:
+                max_date = max(dates)
+                date_invoice = fields.Date.from_string(inv.date_invoice)
+                inv.payment_date = max_date if max_date >= date_invoice else date_invoice
 
     @api.multi
     @api.constrains('tax_line_ids')
@@ -46,17 +44,17 @@ class AccountInvoice(models.Model):
             if len(line) != len(set(line)):
                 raise ValidationError(_('An invoice cannot have multiple withholding taxes.'))
 
-    def _convert_to_local_currency(self, inv, amount):
-        sign = -1 if inv.type in ['in_refund', 'out_refund'] else 1
-        if inv.currency_id != inv.company_id.currency_id:
-            currency_id = inv.currency_id.with_context(date=inv.date_invoice)
+    def _convert_to_local_currency(self, amount):
+        sign = -1 if self.type in ['in_refund', 'out_refund'] else 1
+        if self.currency_id != self.company_id.currency_id:
+            currency_id = self.currency_id.with_context(date=self.date_invoice)
             round_curr = currency_id.round
-            amount = round_curr(currency_id.compute(amount, inv.company_id.currency_id))
+            amount = round_curr(currency_id.compute(amount, self.company_id.currency_id))
 
         return amount * sign
 
-    def _get_tax_line_ids(self, invoice):
-        return invoice.tax_line_ids
+    def _get_tax_line_ids(self):
+        return self.tax_line_ids
 
     @api.multi
     @api.depends('tax_line_ids', 'tax_line_ids.amount', 'state')
@@ -64,36 +62,36 @@ class AccountInvoice(models.Model):
         """Compute invoice common taxes fields"""
         for inv in self:
 
-            tax_line_ids = self._get_tax_line_ids(inv)
+            tax_line_ids = inv._get_tax_line_ids()
 
             if inv.state != 'draft':
                 # Monto Impuesto Selectivo al Consumo
-                inv.selective_tax = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                inv.selective_tax = inv._convert_to_local_currency(sum(tax_line_ids.filtered(
                     lambda tax: tax.tax_id.tax_group_id.name == 'ISC').mapped('amount')))
 
                 # Monto Otros Impuestos/Tasas
-                inv.other_taxes = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                inv.other_taxes = inv._convert_to_local_currency(sum(tax_line_ids.filtered(
                     lambda tax: tax.tax_id.tax_group_id.name == "Otros Impuestos").mapped('amount')))
 
                 # Monto Propina Legal
-                inv.legal_tip = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                inv.legal_tip = inv._convert_to_local_currency(sum(tax_line_ids.filtered(
                     lambda tax: tax.tax_id.tax_group_id.name == 'Propina').mapped('amount')))
 
                 # ITBIS sujeto a proporcionalidad
-                inv.proportionality_tax = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                inv.proportionality_tax = inv._convert_to_local_currency(sum(tax_line_ids.filtered(
                     lambda tax: tax.account_id.account_fiscal_type in ['A29', 'A30']).mapped('amount')))
 
                 # ITBIS llevado al Costo
-                inv.cost_itbis = self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                inv.cost_itbis = inv._convert_to_local_currency(sum(tax_line_ids.filtered(
                     lambda tax: tax.account_id.account_fiscal_type == 'A51').mapped('amount')))
 
                 if inv.type == 'out_invoice' and any([inv.third_withheld_itbis, inv.third_income_withholding]):
                     # Fecha Pago
-                    self._compute_invoice_payment_date(inv)
+                    inv._compute_invoice_payment_date()
 
                 if inv.type == 'in_invoice' and any([inv.withholded_itbis, inv.income_withholding]):
                     # Fecha Pago
-                    self._compute_invoice_payment_date(inv)
+                    inv._compute_invoice_payment_date()
 
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
@@ -119,8 +117,8 @@ class AccountInvoice(models.Model):
                     else:
                         service_amount += line.price_subtotal
 
-                inv.service_total_amount = self._convert_to_local_currency(inv, service_amount)
-                inv.good_total_amount = self._convert_to_local_currency(inv, good_amount)
+                inv.service_total_amount = inv._convert_to_local_currency(service_amount)
+                inv.good_total_amount = inv._convert_to_local_currency(good_amount)
 
     @api.multi
     @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
@@ -143,7 +141,7 @@ class AccountInvoice(models.Model):
                 if isr:
                     inv.isr_withholding_type = isr.pop(0).isr_retention_type
 
-    def _get_payment_string(self, invoice_id):
+    def _get_payment_string(self):
         """Compute Vendor Bills payment method string
 
         Keyword / Values:
@@ -158,7 +156,7 @@ class AccountInvoice(models.Model):
         payments = []
         p_string = ""
 
-        for payment in self._get_invoice_payment_widget(invoice_id):
+        for payment in self._get_invoice_payment_widget():
             payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
             move_id = False
             if payment_id:
@@ -188,7 +186,7 @@ class AccountInvoice(models.Model):
             if inv.state == 'paid':
                 payment_dict = {'cash': '01', 'bank': '02', 'card': '03', 'credit': '04', 'swap': '05',
                                 'credit_note': '06', 'mixed': '07'}
-                inv.payment_form = payment_dict.get(self._get_payment_string(inv))
+                inv.payment_form = payment_dict.get(inv._get_payment_string())
             else:
                 inv.payment_form = '04'
 
@@ -200,10 +198,10 @@ class AccountInvoice(models.Model):
             if inv.state != 'draft':
                 amount = 0
                 itbis_taxes = ['ITBIS', 'ITBIS 18%']
-                for tax in self._get_tax_line_ids(inv):
+                for tax in inv._get_tax_line_ids():
                     if tax.tax_id.tax_group_id.name in itbis_taxes and tax.tax_id.purchase_tax_type != 'ritbis':
                         amount += tax.amount
-                    inv.invoiced_itbis = self._convert_to_local_currency(inv, amount)
+                    inv.invoiced_itbis = inv._convert_to_local_currency(amount)
 
     def _get_payment_move_iterator(self, payment, inv_type, witheld_type):
         payment_id = self.env['account.payment'].browse(payment.get('account_payment_id'))
@@ -235,17 +233,17 @@ class AccountInvoice(models.Model):
                 witheld_isr_types = ['ISR', 'A38']
 
                 if inv.type == 'in_invoice':
-                    tax_line_ids = self._get_tax_line_ids(inv)
+                    tax_line_ids = inv._get_tax_line_ids()
 
                     # Monto ITBIS Retenido por impuesto
-                    inv.withholded_itbis = abs(self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                    inv.withholded_itbis = abs(inv._convert_to_local_currency(sum(tax_line_ids.filtered(
                         lambda tax: tax.tax_id.purchase_tax_type == 'ritbis').mapped('amount'))))
 
                     # Monto Retención Renta por impuesto
-                    inv.income_withholding = abs(self._convert_to_local_currency(inv, sum(tax_line_ids.filtered(
+                    inv.income_withholding = abs(inv._convert_to_local_currency(sum(tax_line_ids.filtered(
                         lambda tax: tax.tax_id.purchase_tax_type == 'isr').mapped('amount'))))
 
-                for payment in self._get_invoice_payment_widget(inv):
+                for payment in inv._get_invoice_payment_widget():
 
                     if inv.type == 'out_invoice':
                         # ITBIS Retenido por Terceros
@@ -326,7 +324,6 @@ class AccountInvoice(models.Model):
              "* The \'Green\' status means ...\n"
              "* The \'Red\' status means ...\n"
              "* The blank status means that the invoice have not been included in a report.")
-
 
     @api.model
     def norma_recompute(self):
