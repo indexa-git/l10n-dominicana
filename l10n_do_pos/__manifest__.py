@@ -17,7 +17,9 @@
         'base',
         'point_of_sale',
         'l10n_do_accounting',
+        'pos_orders_history_return'
     ],
+    # pos_orders_history_return repo: https://github.com/it-projects-llc/pos-addons
 
     # always loaded
     'data': [

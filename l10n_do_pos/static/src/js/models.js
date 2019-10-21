@@ -166,78 +166,78 @@ odoo.define('l10n_do_pos.models', function (require) {
 
         //TODO: this part is for credit note
 
-        // add_payment_credit_note: function (credit_note_ncf, cashregister) {
-        //     var self = this;
-        //     var payment_lines = self.get_paymentlines();
-        //     var is_on_payment_line = false;
-        //
-        //     payment_lines.forEach(function(payment_line) {
-        //           if(payment_line.get_returned_move_name() != null){
-        //               if(payment_line.get_returned_move_name() === credit_note_ncf){
-        //                   is_on_payment_line = true
-        //               }
-        //           }
-        //     });
-        //
-        //     if(is_on_payment_line){
-        //         self.pos.gui.show_popup('error', {
-        //             'title': 'Nota de crédito Registrada',
-        //             'body': 'Esta nota de crédito '+ credit_note_ncf +' ya esta en la orden de venta, favor intentarlo nuevamente'
-        //         });
-        //
-        //         return false
-        //
-        //     }else{
-        //
-        //         $('.freeze_screen').addClass("active_state");
-        //         $(".lds-spinner").show();
-        //
-        //         new Model('pos.order').call('search_read',[[['move_name', '=', credit_note_ncf],['returned_order', '=', true],['is_used_in_order', '=', false]]])
-        //         .done(function(result){
-        //
-        //             if(result.length > 0){
-        //
-        //                 self.add_paymentline( cashregister );
-        //                 var select_paymentline = self.selected_paymentline;
-        //                 select_paymentline.set_returned_move_name(credit_note_ncf);
-        //                 select_paymentline.set_returned_order_amount(-1*result[0].amount_total);
-        //                 select_paymentline.set_amount(-1*result[0].amount_total);
-        //                 self.pos.gui.screen_instances.payment.reset_input();
-        //                 self.pos.gui.screen_instances.payment.render_paymentlines();
-        //
-        //                 $('.freeze_screen').removeClass("active_state");
-        //                 $(".lds-spinner").hide();
-        //
-        //                 return true
-        //
-        //             }else{
-        //                 $('.freeze_screen').removeClass("active_state");
-        //                 $(".lds-spinner").hide();
-        //
-        //                 self.pos.gui.show_popup('error', {
-        //                     'title': 'No existe',
-        //                     'body': 'La nota de crédito '+ credit_note_ncf + ' no existe o ya fue utliziada'
-        //                 });
-        //
-        //                 return false
-        //             }
-        //
-        //
-        //         })
-        //         .fail(function(unused, event) {
-        //             $('.freeze_screen').removeClass("active_state");
-        //             $(".lds-spinner").hide();
-        //
-        //             self.pos.gui.show_popup('error', {
-        //                 'title': 'Error en la conexión',
-        //                 'body': 'Favor confirmar si la conexión con el servidor'
-        //             });
-        //
-        //             return false
-        //
-        //         });
-        //     }
-        // }
+        add_payment_credit_note: function (credit_note_ncf, cashregister) {
+            var self = this;
+            var payment_lines = self.get_paymentlines();
+            var is_on_payment_line = false;
+
+            payment_lines.forEach(function(payment_line) {
+                  if(payment_line.get_returned_move_name() != null){
+                      if(payment_line.get_returned_move_name() === credit_note_ncf){
+                          is_on_payment_line = true
+                      }
+                  }
+            });
+
+            if(is_on_payment_line){
+                self.pos.gui.show_popup('error', {
+                    'title': 'Nota de crédito Registrada',
+                    'body': 'Esta nota de crédito '+ credit_note_ncf +' ya esta en la orden de venta, favor intentarlo nuevamente'
+                });
+
+                return false
+
+            }else{
+
+                $('.freeze_screen').addClass("active_state");
+                $(".lds-spinner").show();
+
+                new Model('pos.order').call('search_read',[[['move_name', '=', credit_note_ncf],['returned_order', '=', true],['is_used_in_order', '=', false]]])
+                .done(function(result){
+
+                    if(result.length > 0){
+
+                        self.add_paymentline( cashregister );
+                        var select_paymentline = self.selected_paymentline;
+                        select_paymentline.set_returned_move_name(credit_note_ncf);
+                        select_paymentline.set_returned_order_amount(-1*result[0].amount_total);
+                        select_paymentline.set_amount(-1*result[0].amount_total);
+                        self.pos.gui.screen_instances.payment.reset_input();
+                        self.pos.gui.screen_instances.payment.render_paymentlines();
+
+                        $('.freeze_screen').removeClass("active_state");
+                        $(".lds-spinner").hide();
+
+                        return true
+
+                    }else{
+                        $('.freeze_screen').removeClass("active_state");
+                        $(".lds-spinner").hide();
+
+                        self.pos.gui.show_popup('error', {
+                            'title': 'No existe',
+                            'body': 'La nota de crédito '+ credit_note_ncf + ' no existe o ya fue utliziada'
+                        });
+
+                        return false
+                    }
+
+
+                })
+                .fail(function(unused, event) {
+                    $('.freeze_screen').removeClass("active_state");
+                    $(".lds-spinner").hide();
+
+                    self.pos.gui.show_popup('error', {
+                        'title': 'Error en la conexión',
+                        'body': 'Favor confirmar si la conexión con el servidor'
+                    });
+
+                    return false
+
+                });
+            }
+        }
     });
 
     // //this part is used for return orders:

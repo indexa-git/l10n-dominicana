@@ -6,7 +6,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
 
     // var core = require('web.core');
     // var screens_history = require('pos_orders_history.screens');
-    // var screens_return = require('pos_orders_history_return.screens')
+    var screens_return = require('pos_orders_history_return.screens')
     // var Model = require('web.Model');
     // var _t = core._t;
 
@@ -466,66 +466,72 @@ odoo.define('l10n_do_pos.screens', function(require) {
         // },
     // });
 
-    // screens.ScreenWidget.include({
-    //     barcode_product_action: function(code) {
-    //         var self = this;
-    //         var screen_name = this.gui.get_current_screen();
-    //
-    //         var order = this.pos.db.get_sorted_orders_history(1000).find(function(o) {
-    //             var move_name = o.move_name;
-    //             return move_name === code.code
-    //         });
-    //         if (screen_name === "orders_history_screen") {
-    //             console.log(code.code)
-    //             if (order) {
-    //                 this.gui.current_screen.search_order_on_history(order);
-    //                 return;
-    //             }
-    //             var popup = this.pos.gui.current_popup;
-    //             if (popup && popup.options.barcode) {
-    //                 popup.$('input,textarea').val(code.code);
-    //                 popup.click_confirm();
-    //             } else {
-    //                 this.gui.show_popup('error',{
-    //                     'title': _t('Error: Could not find the Order'),
-    //                     'body': _t('There is no order with this barcode.')
-    //                 });
-    //             }
-    //         }else if (screen_name === "payment") {
-    //
-    //             var current_order = self.pos.get_order();
-    //             var cashregister = null;
-    //
-    //             for (var i = 0; i < this.pos.cashregisters.length; i++) {
-    //
-    //                 if (this.pos.cashregisters[i].journal.is_for_credit_notes === true) {
-    //                     cashregister = this.pos.cashregisters[i];
-    //                     break;
-    //                 }
-    //
-    //             }
-    //             if(cashregister === null){
-    //                 self.gui.show_popup('error', {
-    //                     'title': 'Método de pago no existe',
-    //                     'body': 'El metodo de pago de nota de crédito no existe, favor configurarlo'
-    //                 });
-    //             }else{
-    //                 current_order.add_payment_credit_note(code.code, cashregister);
-    //             }
-    //
-    //
-    //
-    //         }else {
-    //             this._super(code);
-    //         }
-    //     },
-    //     // // what happens when a barcode is scanned :
-    //     // // it will add the order reference to the search in orders history screen
-    //     // search_order_on_history: function(order) {
-    //     //     this.gui.current_screen.$('.searchbox input').val(order.pos_reference);
-    //     //     this.gui.current_screen.$('.searchbox input').keypress();
-    //     // },
-    // });
+    screens.ScreenWidget.include({
+        barcode_product_action: function(code) {
+            var self = this;
+            var screen_name = this.gui.get_current_screen();
+
+            var order = this.pos.db.get_sorted_orders_history(1000).find(function(o) {
+                var ncf = o.ncf;
+                return ncf === code.code
+            });
+
+            if (screen_name === "orders_history_screen") {
+                if (order) {
+                    this.gui.current_screen.search_order_on_history(order);
+                    return;
+                }
+                var popup = this.pos.gui.current_popup;
+                if (popup && popup.options.barcode) {
+                    popup.$('input,textarea').val(code.code);
+                    popup.click_confirm();
+                } else {
+                    this.gui.show_popup('error',{
+                        'title': _t('Error: Could not find the Order'),
+                        'body': _t('There is no order with this barcode.')
+                    });
+                }
+            }
+            // else if (screen_name === "payment") {
+            //
+            //     var current_order = self.pos.get_order();
+            //     var cashregister = null;
+            //
+            //     for (var i = 0; i < this.pos.cashregisters.length; i++) {
+            //
+            //         if (this.pos.cashregisters[i].journal.is_for_credit_notes === true) {
+            //             cashregister = this.pos.cashregisters[i];
+            //             break;
+            //         }
+            //
+            //     }
+            //     if(cashregister === null){
+            //         self.gui.show_popup('error', {
+            //             'title': _t('Payment method does not exist'),
+            //             'body': _t('Payment method type "Credit Note" does not'+
+            //                 'exist on payment methods, please config payment' +
+            //                 'method withe check is Is For Credit Notes.')
+            //         });
+            //     }else{
+            //         current_order.add_payment_credit_note(
+            //             code.code,
+            //             cashregister);
+            //     }
+
+
+
+            //}
+            else {
+                this._super(code);
+            }
+        },
+        // // what happens when a barcode is scanned :
+        // // it will add the order reference to the search in orders history screen
+        search_order_on_history: function(order) {
+            this.gui.current_screen.$('.searchbox input').val(order.pos_reference);
+            this.gui.current_screen.$('.searchbox input').keypress();
+        },
+    });
 
 
     // screens_history.OrdersHistoryScreenWidget.include({
@@ -547,57 +553,50 @@ odoo.define('l10n_do_pos.screens', function(require) {
     //
     // });
 
-    // screens_return.OrdersHistoryScreenWidget.include({
-    //     load_order_by_barcode: function(barcode) {
-    //         console.log(barcode)
-    //         if (this.pos.config.return_orders) {
-    //             var self = this;
-    //             new Model('pos.order').call('search_read', [[['move_name', '=', barcode], ['returned_order','=', false]]]).then(function(order) {
-    //                 console.log(order)
-    //                 if (order && order.length) {
-    //                     new Model('pos.order').call('search_read', [[['pos_history_reference_uid', '=', order[0].pos_history_reference_uid]]]).then(function (o) {
-    //                         console.log(o);
-    //                         if (o && o.length) {
-    //                             self.pos.update_orders_history(o);
-    //                             o.forEach(function (exist_order) {
-    //                                 self.pos.get_order_history_lines_by_order_id(exist_order.id).done(function (lines) {
-    //                                     self.pos.update_orders_history_lines(lines);
-    //                                     if (!exist_order.returned_order) {
-    //                                         self.search_order_on_history(exist_order);
-    //                                     }
-    //                                 });
-    //                             });
-    //                         } else {
-    //                             self.gui.show_popup('error', {
-    //                                 'title': _t('Error: No se encontro la orden'),
-    //                                 'body': _t('No existe una orden con este NCF (' + barcode + ').')
-    //                             });
-    //                         }
-    //                     }, function (err, event) {
-    //                         event.preventDefault();
-    //                         console.error(err);
-    //                         self.gui.show_popup('error', {
-    //                             'title': _t('Error: Could not find the Order'),
-    //                             'body': err.data,
-    //                         });
-    //                     });
-    //                 }else {
-    //                     self.gui.show_popup('error', {
-    //                         'title': _t('Error: No se encontro la orden'),
-    //                         'body': _t('No existe una orden con este NCF (' + barcode + ').')
-    //                     });
-    //                 }
-    //             }, function (err, event) {
-    //                 event.preventDefault();
-    //                 console.error(err);
-    //                 self.gui.show_popup('error', {
-    //                     'title': _t('Error: Could not find the Order'),
-    //                     'body': err.data,
-    //                 });
-    //             });
-    //         } else {
-    //             this._super(barcode);
-    //         }
-    //     },
-    // });
+    screens_return.OrdersHistoryScreenWidget.include({
+        load_order_by_barcode: function(barcode) {
+            var self = this;
+            var _super = this._super.bind(this);
+            if (self.pos.config.return_orders && self.pos.invoice_journal.fiscal_journal) {
+                var order_custom = false;
+                var self = this;
+                var domain = [
+                    ['ncf', '=', barcode],
+                    ['returned_order','=', false]
+                ];
+                var fields =[
+                    'pos_history_reference_uid'
+                ];
+                rpc.query({
+                    model: 'pos.order',
+                    method: 'search_read',
+                    args: [domain, fields],
+                    limit: 1,
+                }, {
+                    timeout: 3000,
+                    shadow: true,
+                }).then(function(order) {
+                    order_custom = order
+                }, function (err, event) {
+                    event.preventDefault();
+                    console.error(err);
+                    self.gui.show_popup('error', {
+                        'title': _t('Error: Could not find the Order'),
+                        'body': err.data,
+                    });
+                }).done(function () {
+                    if(order_custom && order_custom.length){
+                        _super(order_custom[0].pos_history_reference_uid)
+                    }else {
+                        self.gui.show_popup('error',{
+                            'title': _t('Error: Could not find the Order'),
+                            'body': _t('There is no order with this barcode.')
+                        });
+                    }
+                });
+            } else {
+                this._super(barcode);
+            }
+        },
+    });
 });
