@@ -13,7 +13,6 @@ from odoo.exceptions import ValidationError
 
 class DgiiReportSaleSummary(models.Model):
     _name = 'dgii.reports.sale.summary'
-    _description = "DGII Report Sale Summary"
     _order = 'sequence'
 
     name = fields.Char()
@@ -27,7 +26,6 @@ class DgiiReportSaleSummary(models.Model):
 
 class DgiiReport(models.Model):
     _name = 'dgii.reports'
-    _description = "DGII Report"
     _inherit = ['mail.thread']
 
     @api.multi
@@ -245,33 +243,32 @@ class DgiiReport(models.Model):
 
     @staticmethod
     def get_date_tuple(date):
-        return date.year, date.month
+        return dt.strptime(date, '%Y-%m-%d').year, dt.strptime(date, '%Y-%m-%d').month
 
-    def _get_pending_invoices(self, rec, types):
+    def _get_pending_invoices(self, types):
 
-        period = dt.strptime(rec.name, '%m/%Y')
+        period = dt.strptime(self.name, '%m/%Y')
 
-        month, year = rec.name.split('/')
+        month, year = self.name.split('/')
         start_date = '{}-{}-{}'.format(year, month, calendar.monthrange(int(year), int(month))[1])
         invoice_ids = self.env['account.invoice'].search([
             ('fiscal_status', '=', 'normal'),
             ('state', '=', 'paid'),
             ('payment_date', '<=', start_date),
-            ('company_id', '=', rec.company_id.id),
+            ('company_id', '=', self.company_id.id),
             ('type', 'in', types),
         ]).filtered(lambda inv: self.get_date_tuple(inv.payment_date) == (period.year, period.month))
 
         return invoice_ids
 
-    def _get_invoices(self, rec, states, types):
+    def _get_invoices(self, states, types):
         """
         Given rec and state, return a recordset of invoices
-        :param rec: dgii.reports object
         :param state: a list of invoice state
         :param type: a list of invoice type
         :return: filtered invoices
         """
-        month, year = rec.name.split('/')
+        month, year = self.name.split('/')
         last_day = calendar.monthrange(int(year), int(month))[1]
         start_date = '{}-{}-01'.format(year, month)
         end_date = '{}-{}-{}'.format(year, month, last_day)
@@ -286,7 +283,7 @@ class DgiiReport(models.Model):
                                                            (inv.journal_id.ncf_control is True))
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
-        invoice_ids |= self._get_pending_invoices(rec, types)
+        invoice_ids |= self._get_pending_invoices(types)
 
         return invoice_ids
 
@@ -302,8 +299,7 @@ class DgiiReport(models.Model):
 
     def _get_formated_date(self, date):
 
-        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if isinstance(date, str) \
-            else date.strftime('%Y%m%d') if date else ""
+        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if date else ""
 
     def _get_formated_amount(self, amount):
 
@@ -339,10 +335,10 @@ class DgiiReport(models.Model):
                          INV_ITBIS, WH_ITBIS, PROP_ITBIS, COST_ITBIS, ADV_ITBIS, PP_ITBIS, WH_TYPE, INC_WH, PP_ISR,
                          ISC, OTHR, LEG_TIP, PAY_FORM])
 
-    def _generate_606_txt(self, report, records, qty):
+    def _generate_606_txt(self, records, qty):
 
-        company_vat = report.company_id.vat
-        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
+        company_vat = self.company_id.vat
+        period = dt.strptime(self.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
         header = "606|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
@@ -351,25 +347,24 @@ class DgiiReport(models.Model):
         with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_606:
             txt_606.write(str(data))
 
-        report.write({
+        self.write({
             'purchase_filename': file_path.replace('/tmp/', ''),
             'purchase_binary': base64.b64encode(open(file_path, 'rb').read())
         })
 
-    def _include_in_current_report(self, report, invoice):
+    def _include_in_current_report(self, invoice):
         """
         Evaluate if invoice was paid in current month or was included in a previous period.
         New reported invoices should not include any withholding amount nor payment date
         if payment was made after current period.
-        :param report: dgii.reports object
         :param invoice: account.invoice object
         :return: boolean
         """
         if not invoice.payment_date:
             return False
 
-        payment_date = invoice.payment_date
-        period = dt.strptime(report.name, '%m/%Y')
+        payment_date = dt.strptime(invoice.payment_date, '%Y-%m-%d')
+        period = dt.strptime(self.name, '%m/%Y')
         same_minor_period = (payment_date.month, payment_date.year) <= (period.month, period.year)
 
         return True if (payment_date and same_minor_period) else False
@@ -380,15 +375,15 @@ class DgiiReport(models.Model):
             PurchaseLine = self.env['dgii.reports.purchase.line']
             PurchaseLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['open', 'in_payment', 'paid'], ['in_invoice', 'in_refund'])
+            invoice_ids = self._get_invoices(['open', 'paid'], ['in_invoice', 'in_refund'])
 
             line = 0
             report_data = ''
             for inv in invoice_ids:
                 inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
-                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.purchase_type != 'exterior' else self.formated_rnc_cedula(inv.company_id.vat)
-                show_payment_date = self._include_in_current_report(rec, inv)
+                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
+                show_payment_date = self._include_in_current_report(inv)
                 values = {
                     'dgii_report_id': rec.id,
                     'line': line,
@@ -421,7 +416,7 @@ class DgiiReport(models.Model):
                 }
                 PurchaseLine.create(values)
                 report_data += self.process_606_report_data(values) + '\n'
-            self._generate_606_txt(rec, report_data, line)
+            self._generate_606_txt(report_data, line)
 
     def _get_payments_dict(self):
         return {'cash': 0, 'bank': 0, 'card': 0, 'credit': 0, 'swap': 0, 'bond': 0, 'others': 0}
@@ -437,8 +432,8 @@ class DgiiReport(models.Model):
     def include_payment(invoice_id, payment_id):
         """ Returns True if payment date is on or before current period """
 
-        p_date = payment_id.payment_date
-        i_date = invoice_id.date_invoice
+        p_date = dt.strptime(payment_id.payment_date, '%Y-%m-%d')
+        i_date = dt.strptime(invoice_id.date_invoice, '%Y-%m-%d')
 
         return True if (p_date.year <= i_date.year) and (p_date.month <= i_date.month) else False
 
@@ -574,10 +569,10 @@ class DgiiReport(models.Model):
         return "|".join([RNC, ID_TYPE, NCF, NCM, INCOME_TYPE, INV_DATE, WH_DATE, INV_AMOUNT, INV_ITBIS, WH_ITBIS,
                          PRC_ITBIS, WH_ISR, PCR_ISR, ISC, OTH_TAX, LEG_TIP, CASH, BANK, CARD, CRED, SWAP, BOND, OTHR])
 
-    def _generate_607_txt(self, report, records, qty):
+    def _generate_607_txt(self, records, qty):
 
-        company_vat = report.company_id.vat
-        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
+        company_vat = self.company_id.vat
+        period = dt.strptime(self.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
         header = "607|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
@@ -586,7 +581,7 @@ class DgiiReport(models.Model):
         with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_607:
             txt_607.write(str(data))
 
-        report.write({
+        self.write({
             'sale_filename': file_path.replace('/tmp/', ''),
             'sale_binary': base64.b64encode(open(file_path, 'rb').read())
         })
@@ -596,8 +591,8 @@ class DgiiReport(models.Model):
                 'csmr_ncf_total_othr': 0, 'csmr_ncf_total_lgl_tip': 0, 'csmr_cash': 0, 'csmr_bank': 0, 'csmr_card': 0,
                 'csmr_credit': 0, 'csmr_bond': 0, 'csmr_swap': 0, 'csmr_others': 0}
 
-    def _set_csmr_fields_vals(self, report, csmr_dict):
-        report.write(csmr_dict)
+    def _set_csmr_fields_vals(self, csmr_dict):
+        self.write(csmr_dict)
 
     @api.multi
     def _compute_607_data(self):
@@ -605,7 +600,7 @@ class DgiiReport(models.Model):
             SaleLine = self.env['dgii.reports.sale.line']
             SaleLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['open', 'in_payment', 'paid'], ['out_invoice', 'out_refund'])
+            invoice_ids = self._get_invoices(['open', 'paid'], ['out_invoice', 'out_refund'])
             line = 0
             excluded_line = line
             op_dict = self._get_607_operations_dict()
@@ -619,7 +614,7 @@ class DgiiReport(models.Model):
                 income_dict = self._process_income_dict(income_dict, inv)
                 inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.sale_fiscal_type != 'unico' else self.formated_rnc_cedula(inv.company_id.vat)
-                show_payment_date = self._include_in_current_report(rec, inv)
+                show_payment_date = self._include_in_current_report(inv)
                 payments = self._get_sale_payments_forms(inv)
                 values = {
                     'dgii_report_id': rec.id,
@@ -629,8 +624,8 @@ class DgiiReport(models.Model):
                     'fiscal_invoice_number': inv.reference,
                     'modified_invoice_number': inv.origin_out if inv.origin_out and inv.origin_out[-10:-8] in ['01', '02', '14', '15'] else False,
                     'income_type': inv.income_type,
-                    'invoice_date': inv.date_invoice.strftime("%Y-%m-%d"),
-                    'withholding_date': inv.payment_date.strftime("%Y-%m-%d") if (inv.type != 'out_refund' and show_payment_date) else False,
+                    'invoice_date': inv.date_invoice,
+                    'withholding_date': inv.payment_date if (inv.type != 'out_refund' and show_payment_date) else False,
                     'invoiced_amount': inv.amount_untaxed_signed,
                     'invoiced_itbis': inv.invoiced_itbis,
                     'third_withheld_itbis': inv.third_withheld_itbis if show_payment_date else 0,
@@ -683,10 +678,10 @@ class DgiiReport(models.Model):
             for k in op_dict:
                 self.env['dgii.reports.sale.summary'].create(op_dict[k])
 
-            self._set_csmr_fields_vals(rec, csmr_dict)
+            self._set_csmr_fields_vals(csmr_dict)
             self._set_payment_form_fields(payment_dict)
             self._set_income_type_fields(income_dict)
-            self._generate_607_txt(rec, report_data, line - excluded_line)
+            self._generate_607_txt(report_data, line - excluded_line)
 
     def process_608_report_data(self, values):
 
@@ -696,10 +691,10 @@ class DgiiReport(models.Model):
 
         return "|".join([NCF, INV_DATE, ANU_TYPE])
 
-    def _generate_608_txt(self, report, records, qty):
+    def _generate_608_txt(self, records, qty):
 
-        company_vat = report.company_id.vat
-        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
+        company_vat = self.company_id.vat
+        period = dt.strptime(self.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
         header = "608|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
@@ -708,7 +703,7 @@ class DgiiReport(models.Model):
         with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_608:
             txt_608.write(str(data))
 
-        report.write({
+        self.write({
             'cancel_filename': file_path.replace('/tmp/', ''),
             'cancel_binary': base64.b64encode(open(file_path, 'rb').read())
         })
@@ -719,7 +714,7 @@ class DgiiReport(models.Model):
             CancelLine = self.env['dgii.reports.cancel.line']
             CancelLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec, ['cancel'], ['out_invoice', 'in_invoice', 'out_refund']).filtered(lambda inv: (inv.journal_id.purchase_type != 'normal'))
+            invoice_ids = self._get_invoices(['cancel'], ['out_invoice', 'in_invoice', 'out_refund']).filtered(lambda inv: (inv.journal_id.purchase_type != 'normal'))
             line = 0
             report_data = ''
             for inv in invoice_ids:
@@ -737,7 +732,7 @@ class DgiiReport(models.Model):
                 CancelLine.create(values)
                 report_data += self.process_608_report_data(values) + '\n'
 
-            self._generate_608_txt(rec, report_data, line)
+            self._generate_608_txt(report_data, line)
 
     def process_609_report_data(self, values):
 
@@ -758,10 +753,10 @@ class DgiiReport(models.Model):
         return "|".join([LEGAL_NAME, ID_TYPE, TAX_ID, CNT_CODE, PST, STD, REL_PART, DOC_NUM, DOC_DATE, INV_AMOUNT,
                          ISR_DATE, PRM_INCM, WH_ISR])
 
-    def _generate_609_txt(self, report, records, qty):
+    def _generate_609_txt(self, records, qty):
 
-        company_vat = report.company_id.vat
-        period = dt.strptime(report.name.replace('/', ''), '%m%Y').strftime('%Y%m')
+        company_vat = self.company_id.vat
+        period = dt.strptime(self.name.replace('/', ''), '%m%Y').strftime('%Y%m')
 
         header = "609|{}|{}|{}".format(str(company_vat).ljust(11), period, qty) + '\n'
         data = header + records
@@ -770,7 +765,7 @@ class DgiiReport(models.Model):
         with open(file_path, 'w', encoding="utf-8", newline='\r\n') as txt_609:
             txt_609.write(str(data))
 
-        report.write({
+        self.write({
             'exterior_filename': file_path.replace('/tmp/', ''),
             'exterior_binary': base64.b64encode(open(file_path, 'rb').read())
         })
@@ -781,8 +776,7 @@ class DgiiReport(models.Model):
             ExteriorLine = self.env['dgii.reports.exterior.line']
             ExteriorLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(rec,
-                                             ['open', 'in_payment', 'paid'],
+            invoice_ids = self._get_invoices(['open', 'paid'],
                                              ['in_invoice',
                                               'in_refund']
                                              ).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO') and
@@ -813,7 +807,7 @@ class DgiiReport(models.Model):
                 ExteriorLine.create(values)
                 report_data += self.process_609_report_data(values) + '\n'
 
-            self._generate_609_txt(rec, report_data, line)
+            self._generate_609_txt(report_data, line)
 
     @api.multi
     def _generate_report(self):
@@ -854,7 +848,7 @@ class DgiiReport(models.Model):
             invoice_ids += CancelLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             invoice_ids += ExteriorLine.search([('dgii_report_id', '=', report.id)]).mapped('invoice_id')
             for inv in invoice_ids:
-                if inv.state in ['paid', 'cancel'] and self._include_in_current_report(report, inv):
+                if inv.state in ['paid', 'cancel'] and self._include_in_current_report(inv):
                     inv.fiscal_status = 'done'
                     continue
 
@@ -866,7 +860,7 @@ class DgiiReport(models.Model):
     @api.multi
     def state_sent(self):
         for report in self:
-            report._invoice_status_sent()
+            self._invoice_status_sent()
             report.state = 'sent'
 
     def get_606_tree_view(self):
@@ -912,7 +906,6 @@ class DgiiReport(models.Model):
 
 class DgiiReportPurchaseLine(models.Model):
     _name = 'dgii.reports.purchase.line'
-    _description = "DGII Reports Purchase Line"
     _order = 'line asc'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
@@ -949,7 +942,6 @@ class DgiiReportPurchaseLine(models.Model):
 
 class DgiiReportSaleLine(models.Model):
     _name = 'dgii.reports.sale.line'
-    _description = "DGII Reports Sale Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -987,7 +979,6 @@ class DgiiReportSaleLine(models.Model):
 
 class DgiiCancelReportLine(models.Model):
     _name = 'dgii.reports.cancel.line'
-    _description = "DGII Reports Cancel Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -1002,7 +993,6 @@ class DgiiCancelReportLine(models.Model):
 
 class DgiiExteriorReportLine(models.Model):
     _name = 'dgii.reports.exterior.line'
-    _description = "DGII Reports Exterior Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
