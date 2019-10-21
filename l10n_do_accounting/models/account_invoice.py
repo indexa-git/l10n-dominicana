@@ -71,6 +71,36 @@ class AccountInvoice(models.Model):
     internal_generate = fields.Boolean(
         related='fiscal_type_id.internal_generate',
     )
+    fiscal_sequence_status = fields.Selection([
+        ('no_fiscal', 'No fiscal'),
+        ('fiscal_ok', 'Ok'),
+        ('almost_no_sequence', 'Almost no sequence'),
+        ('no_sequence', 'Depleted'),
+    ],
+        compute='_compute_fiscal_sequence_status',
+    )
+
+    @api.multi
+    @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
+                 'fiscal_sequence_id.remaining_percentage', 'state',
+                 'journal_id.fiscal_journal')
+    def _compute_fiscal_sequence_status(self):
+        for inv in self:
+
+            if not inv.journal_id.fiscal_journal or not inv.fiscal_sequence_id:
+                inv.fiscal_sequence_status = 'no_fiscal'
+            else:
+                fs_id = inv.fiscal_sequence_id  # Fiscal Sequence
+                remaining = fs_id.sequence_remaining
+                remaining_percentage = fs_id.remaining_percentage
+                consumed = remaining * (remaining_percentage / 100)
+
+                if consumed < remaining_percentage:
+                    inv.fiscal_sequence_status = 'fiscal_ok'
+                elif remaining > 0 and consumed >= remaining_percentage:
+                    inv.fiscal_sequence_status = 'almost_no_sequence'
+                else:
+                    inv.fiscal_sequence_status = 'no_sequence'
 
     @api.onchange('journal_id')
     def _onchange_custom_journal(self):

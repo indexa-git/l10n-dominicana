@@ -79,7 +79,15 @@ class AccountFiscalSequence(models.Model):
         string="Internal Sequence",
         copy=False,
     )
-    warning_gap = fields.Integer()
+    warning_gap = fields.Integer(
+        compute='_compute_warning_gap',
+    )
+    remaining_percentage = fields.Float(
+        default=35,
+        required=True,
+        help="Fiscal Sequence remaining percentage to reach to start "
+             "warning notifications.",
+    )
     number_next_actual = fields.Integer(
         string='Next Number',
         help="Next number of this sequence",
@@ -107,6 +115,13 @@ class AccountFiscalSequence(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
     )
+
+    @api.multi
+    @api.depends('remaining_percentage')
+    def _compute_warning_gap(self):
+        for rec in self:
+            rec.warning_gap = (rec.sequence_end - rec.sequence_start) * \
+                              (rec.remaining_percentage / 100)
 
     @api.multi
     @api.depends('sequence_end', 'sequence_id.number_next')

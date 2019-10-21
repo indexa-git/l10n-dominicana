@@ -6,7 +6,19 @@
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="priority">100</field>
         <field name="arch" type="xml">
-
+            <xpath expr="//field[@name='has_outstanding']" position="after">
+                <field name="fiscal_sequence_status" invisible="0"/>
+            </xpath>
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                <div groups="account.group_account_invoice" class="alert alert-warning" role="alert" style="margin-bottom:0px;"
+                     attrs="{'invisible': ['|', ('fiscal_sequence_status','in', ('no_fiscal', 'fiscal_ok', 'no_sequence')), ('state', 'not in', ('draft', 'open'))]}">
+                    Fiscal Sequence almost depleted.
+                </div>
+                <div groups="account.group_account_invoice" class="alert alert-danger" role="alert" style="margin-bottom:0px;"
+                     attrs="{'invisible': ['|', ('fiscal_sequence_status','in', ('no_fiscal', 'fiscal_ok', 'almost_no_sequence')), ('state', 'not in', ('draft', 'open'))]}">
+                    Fiscal Sequence depleted.
+                </div>
+            </xpath>
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>
             </xpath>
@@ -64,7 +76,19 @@
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
-
+            <xpath expr="//field[@name='has_outstanding']" position="after">
+                <field name="fiscal_sequence_status" invisible="0"/>
+            </xpath>
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                <div groups="account.group_account_invoice" class="alert alert-warning" role="alert" style="margin-bottom:0px;"
+                     attrs="{'invisible': ['|', ('fiscal_sequence_status','in', ('no_fiscal', 'fiscal_ok', 'no_sequence')), ('state', 'not in', ('draft', 'open'))]}">
+                    Fiscal Sequence almost depleted.
+                </div>
+                <div groups="account.group_account_invoice" class="alert alert-danger" role="alert" style="margin-bottom:0px;"
+                     attrs="{'invisible': ['|', ('fiscal_sequence_status','in', ('no_fiscal', 'fiscal_ok', 'almost_no_sequence')), ('state', 'not in', ('draft', 'open'))]}">
+                    Fiscal Sequence depleted.
+                </div>
+            </xpath>
 
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>
