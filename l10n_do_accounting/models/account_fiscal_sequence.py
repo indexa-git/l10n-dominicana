@@ -141,9 +141,10 @@ class AccountFiscalSequence(models.Model):
     def _compute_sequence_remaining(self):
         for rec in self:
             if rec.sequence_id:
-                remaining = rec.sequence_end - \
-                            rec.sequence_id.number_next_actual + 1
-                rec.sequence_remaining = remaining
+                rec.write(
+                    {'sequence_remaining':
+                     rec.sequence_end - rec.sequence_id.number_next_actual + 1
+                     })
 
     @api.multi
     @api.depends('fiscal_type_id.prefix', 'sequence_id.padding',
