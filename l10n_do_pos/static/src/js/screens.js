@@ -19,10 +19,11 @@ odoo.define('l10n_do_pos.screens', function(require) {
             if(client){
 
                 if(client.sale_fiscal_type_id && current_order.fiscal_type.prefix === 'B02'){
-                    current_order.set_fiscal_type(this.pos.get_fiscal_type(client.sale_fiscal_type_id[0]));
+                    current_order.set_fiscal_type(this.pos.get_fiscal_type_by_id(client.sale_fiscal_type_id[0]));
                 }
+
             }else{
-                current_order.set_fiscal_type(current_order.get_consumo());
+                current_order.set_fiscal_type(this.pos.get_fiscal_type_by_prefix('B02'));
             }
         },
 
@@ -77,7 +78,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 },
                 cancel: function () {
                     if(!current_order.get_client()){
-                        current_order.set_fiscal_type(current_order.get_consumo())
+                        current_order.set_fiscal_type(this.pos.get_fiscal_type_by_prefix('B02'))
                     }
                     // that one comes from BarcodeEvents
                     $('body').keypress(this.keyboard_handler);

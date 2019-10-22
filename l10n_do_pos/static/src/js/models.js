@@ -30,7 +30,6 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
         loaded: function(self, fiscal_sequences){
             self.fiscal_sequences = fiscal_sequences
-
         },
     });
 
@@ -38,7 +37,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         model:  'account.fiscal.type',
         fields: ['name', 'fiscal_position_id', 'required_document', 'prefix', 'internal_generate'],
         domain: function(self){
-            return [['type', '=', 'sale']];
+            return [['type', '=', ['sale', 'special_sale']]];
         },
         loaded: function(self, fiscal_types){
             self.fiscal_types = fiscal_types
@@ -94,37 +93,23 @@ odoo.define('l10n_do_pos.models', function (require) {
 			this.fiscal_type_id = false;
 			this.fiscal_sequence_id = false;
 			var client = self.get_client();
-			if(client){
-			    if(client.sale_fiscal_type_id){
-			        self.fiscal_type = self.pos.get_fiscal_type(client.sale_fiscal_type_id[0]);
-                }else{
-			        self.fiscal_type = self.get_consumo();
-                }
+
+            if(this.get_mode() === 'return'){
+
+                this.fiscal_type = self.pos.get_fiscal_type_by_prefix('B04')
+
             }else{
-			    self.fiscal_type = self.get_consumo();
+                if(client){
+                    if(client.sale_fiscal_type_id){
+                        this.fiscal_type = self.pos.get_fiscal_type_by_id(client.sale_fiscal_type_id[0]);
+                    }else{
+                        this.fiscal_type = self.pos.get_fiscal_type_by_prefix('B02')
+                    }
+                }else{
+                    this.fiscal_type = self.pos.get_fiscal_type_by_prefix('B02')
+                }
             }
             this.save_to_db();
-        },
-
-        get_consumo: function(){
-            //TODO: try optimize this part
-            var self = this;
-            var consumo = false;
-            self.pos.fiscal_types.forEach(function (fiscal_type) {
-                if(fiscal_type.prefix === 'B02'){
-                    consumo = fiscal_type
-                }
-            });
-
-            if(consumo){
-                return consumo
-            }else{
-                self.pos.gui.show_popup('error', {
-                    'title':_t('Fiscal type not found'),
-                    'body': _t('Default fiscal type not exist'),
-                });
-                return false
-            }
         },
 
         set_fiscal_type: function (fiscal_type) {
@@ -324,12 +309,32 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     // var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
-        get_fiscal_type(id){
+        get_fiscal_type_by_id(id){
             var self = this;
             var res_fiscal_type = false;
             //TODO: try make at best performance
             self.fiscal_types.forEach(function (fiscal_type) {
 			    if(fiscal_type.id === id){
+			        res_fiscal_type = fiscal_type;
+                }
+            });
+            if(res_fiscal_type){
+                return res_fiscal_type
+            }else{
+                self.gui.show_popup('error', {
+                    'title':_t('Fiscal type not found'),
+                    'body': _t('This fiscal type not exist.'),
+                });
+                return false
+            }
+        },
+        get_fiscal_type_by_prefix(prefix){
+            var self = this;
+            var res_fiscal_type = false;
+            console.log(self)
+            //TODO: try make at best performance
+            self.fiscal_types.forEach(function (fiscal_type) {
+			    if(fiscal_type.prefix === prefix){
 			        res_fiscal_type = fiscal_type;
                 }
             });
