@@ -143,7 +143,7 @@ class AccountFiscalSequence(models.Model):
             if rec.sequence_id:
                 rec.write(
                     {'sequence_remaining':
-                     rec.sequence_end - rec.sequence_id.number_next_actual + 1
+                         rec.sequence_end - rec.sequence_id.number_next_actual + 1
                      })
 
     @api.multi
@@ -155,6 +155,23 @@ class AccountFiscalSequence(models.Model):
                 seq.fiscal_type_id.prefix,
                 str(seq.sequence_id.number_next_actual).zfill(
                     seq.sequence_id.padding))
+
+    @api.onchange('fiscal_type_id')
+    def _onchange_fiscal_type_id(self):
+        """
+        Compute draft Fiscal Sequence default sequence_start
+        """
+        if self.fiscal_type_id and self.state == 'draft':
+            # Last active or depleted Fiscal Sequence
+            fs_id = self.search([
+                ('fiscal_type_id', '=', self.fiscal_type_id.id),
+                ('state', 'in', ('depleted', 'active')),
+                ('company_id', '=', self.company_id.id),
+            ],
+                order='sequence_end desc',
+                limit=1,
+            )
+            self.sequence_start = fs_id.sequence_end + 1 if fs_id else 1
 
     @api.constrains('fiscal_type_id', 'state')
     def _validate_unique_active_type(self):
