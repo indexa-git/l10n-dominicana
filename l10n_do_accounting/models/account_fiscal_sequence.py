@@ -128,8 +128,7 @@ class AccountFiscalSequence(models.Model):
     def _compute_sequence_remaining(self):
         for rec in self:
             if rec.sequence_id:
-                next_number = rec.sequence_id.number_next_actual + 1
-                remaining = rec.sequence_end - next_number
+                remaining = rec.sequence_end - rec.sequence_id.number_next_actual + 1
                 rec.sequence_remaining = remaining
 
     @api.multi
@@ -157,8 +156,11 @@ class AccountFiscalSequence(models.Model):
                 _("Another sequence is active for this type."))
 
     @api.multi
-    @api.constrains('sequence_start', 'sequence_end', 'state',
-                    'fiscal_type_id')
+    @api.constrains('sequence_start',
+                    'sequence_end',
+                    'state',
+                    'fiscal_type_id',
+                    'company_id')
     def _validate_sequence_range(self):
         for rec in self.filtered(lambda s: s.state != 'cancelled'):
             if any([True for value in [rec.sequence_start, rec.sequence_end]
@@ -171,9 +173,10 @@ class AccountFiscalSequence(models.Model):
             domain = [
                 ('sequence_end', '<=', rec.sequence_start),
                 ('fiscal_type_id', '=', rec.fiscal_type_id.id),
-                ('state', 'not in', ('draft', 'cancelled', 'queue')),
+                ('state', '=', 'active'),
                 ('company_id', '=', rec.company_id.id),
             ]
+
             if self.search_count(domain) > 1:
                 raise ValidationError(
                     _("You cannot use another Fiscal Sequence range."))
