@@ -85,7 +85,6 @@ class AccountInvoice(models.Model):
     @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
                  'date_invoice')
     def _compute_fiscal_sequence(self):
-        self.ensure_one()
         fiscal_type = self.fiscal_type_id
         if self.journal_id.fiscal_journal and fiscal_type and \
                 fiscal_type.internal_generate:
