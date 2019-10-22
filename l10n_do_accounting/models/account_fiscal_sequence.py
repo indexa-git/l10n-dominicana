@@ -281,7 +281,7 @@ class AccountFiscalSequence(models.Model):
         fiscal_sequence_ids = self.search([('state', '=', 'active')])
 
         for seq in fiscal_sequence_ids.filtered(
-                lambda s: l10n_do_date >= s.date_end):
+                lambda s: l10n_do_date >= s.expiration_date):
             seq.state = 'expired'
 
     def get_fiscal_number(self):

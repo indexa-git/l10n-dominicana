@@ -7,7 +7,7 @@
         <field name="priority">100</field>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='has_outstanding']" position="after">
-                <field name="fiscal_sequence_status" invisible="0"/>
+                <field name="fiscal_sequence_status" invisible="1"/>
             </xpath>
             <xpath expr="/form/div[hasclass('alert')]" position="after">
                 <div groups="account.group_account_invoice" class="alert alert-warning" role="alert" style="margin-bottom:0px;"
