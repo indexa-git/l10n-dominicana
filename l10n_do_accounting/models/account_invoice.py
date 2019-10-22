@@ -132,9 +132,9 @@ class AccountInvoice(models.Model):
                 fs_id = inv.fiscal_sequence_id  # Fiscal Sequence
                 remaining = fs_id.sequence_remaining
                 remaining_percent = fs_id.remaining_percentage
-                length = fs_id.sequence_end - fs_id.sequence_start + 1
+                seq_length = fs_id.sequence_end - fs_id.sequence_start + 1
 
-                consumed_percent = round(1 - (remaining / length), 2) * 100
+                consumed_percent = round(1 - (remaining / seq_length), 2) * 100
 
                 if consumed_percent < remaining_percent:
                     inv.fiscal_sequence_status = 'fiscal_ok'
