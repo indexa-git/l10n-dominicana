@@ -225,4 +225,3 @@ class AccountInvoice(models.Model):
                     inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
 
         return super(AccountInvoice, self).action_invoice_open()
-
