@@ -328,7 +328,7 @@ class AccountFiscalType(models.Model):
     )
     journal_id = fields.Many2one(
         "account.journal",
-        string="Journal"
+        string="Journal",
     )
     internal_generate = fields.Boolean(
         default=True,
