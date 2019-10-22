@@ -302,8 +302,8 @@ class AccountFiscalSequence(models.Model):
 
     @api.multi
     def action_queue(self):
-        self.ensure_one()
-        self.state = 'queue'
+        for rec in self:
+            rec.state = 'queue'
 
     def _expire_sequences(self):
         """
