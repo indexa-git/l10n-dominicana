@@ -164,7 +164,6 @@
                                domain="[('fiscal_journal', '=', True), ('type', '=', type)]"
                         />
                         <field name="fiscal_position_id"/>
-                        <label for="remaining_percentage"/>
                     </group>
                 </group>
             </form>
