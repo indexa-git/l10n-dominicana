@@ -18,7 +18,7 @@ class AccountInvoice(models.Model):
         'account.fiscal.sequence',
         string="Fiscal Sequence",
         copy=False,
-        compute='compute_fiscal_sequence',
+        compute='_compute_fiscal_sequence',
         store=True,
     )
     income_type = fields.Selection(
@@ -84,7 +84,7 @@ class AccountInvoice(models.Model):
 
     @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
                  'date_invoice')
-    def compute_fiscal_sequence(self):
+    def _compute_fiscal_sequence(self):
         self.ensure_one()
         fiscal_type = self.fiscal_type_id
         if self.journal_id.fiscal_journal and fiscal_type and \
@@ -187,7 +187,7 @@ class AccountInvoice(models.Model):
                 # Because a Fiscal Sequence can be depleted while an invoice
                 # is waiting to be validated, compute fiscal_sequence_id again
                 # on invoice validate.
-                inv.compute_fiscal_sequence()
+                inv._compute_fiscal_sequence()
 
                 if inv.type == 'out_invoice':
                     if not inv.partner_id.sale_fiscal_type_id:
