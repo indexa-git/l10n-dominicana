@@ -35,7 +35,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             });
         },
 
-        open_vat_popup() {
+        open_vat_popup: function() {
             var self = this;
             var current_order = self.pos.get_order();
 

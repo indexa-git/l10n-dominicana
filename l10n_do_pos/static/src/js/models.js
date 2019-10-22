@@ -321,7 +321,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     // var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
-        get_fiscal_type_by_id(id) {
+        get_fiscal_type_by_id: function (id) {
             var self = this;
             var res_fiscal_type = false;
             //TODO: try make at best performance
@@ -340,7 +340,7 @@ odoo.define('l10n_do_pos.models', function (require) {
                 return false
             }
         },
-        get_fiscal_type_by_prefix(prefix) {
+        get_fiscal_type_by_prefix: function (prefix) {
             var self = this;
             var res_fiscal_type = false;
             console.log(self)

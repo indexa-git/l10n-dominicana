@@ -16,12 +16,13 @@ odoo.define('pos_ncf_manager.DB', function (require) {
         },
 
         get_sale_fiscal_sequence: function (sale_fiscal_type) {
-            var sale_fiscal_type_sequence = this.sale_fiscal_sequences_by_id[sale_fiscal_type];
+            var sale_fiscal_type_sequence =
+                this.sale_fiscal_sequences_by_id[sale_fiscal_type];
             if (!sale_fiscal_type_sequence) {
                 this.gui.show_popup('error', {
                     'title': 'Error en el tipo de comprobante',
                     'body': 'Favor confirme el tipo de comprobante ya que' +
-                        ' este tipo de comprobante no existe'
+                        ' este tipo de comprobante no existe',
                 });
                 return;
             }
@@ -31,14 +32,23 @@ odoo.define('pos_ncf_manager.DB', function (require) {
         get_next_ncf_sequence: function (sale_fiscal_type) {
 
             function padLeft(nr, n, str) {
-                return Array(n - String(nr).length + 1).join(str || '0') + nr;
+                return Array(n - String(nr).length + 1)
+                    .join(str || '0') + nr;
             }
 
-            var sale_fiscal_sequence = this.get_sale_fiscal_sequence(sale_fiscal_type);
+            var sale_fiscal_sequence =
+                this.get_sale_fiscal_sequence(sale_fiscal_type);
 
-            var sequence = sale_fiscal_sequence.prefix + padLeft(sale_fiscal_sequence.number_next_actual, sale_fiscal_sequence.padding);
+            var sequence =
+                sale_fiscal_sequence.prefix +
+                padLeft(
+                    sale_fiscal_sequence.number_next_actual,
+                    sale_fiscal_sequence.padding
+                );
 
-            this.update_sale_fiscal_sequence(sale_fiscal_type, sale_fiscal_sequence.number_next_actual + 1);
+            this.update_sale_fiscal_sequence(
+                sale_fiscal_type,
+                sale_fiscal_sequence.number_next_actual + 1);
 
             return sequence
         },
@@ -48,7 +58,8 @@ odoo.define('pos_ncf_manager.DB', function (require) {
             var all_sale_fiscal_sequence = this.all_sale_fiscal_sequence;
             var sale_fiscal_sequences_by_id = this.sale_fiscal_sequences_by_id;
 
-            sale_fiscal_sequences_by_id[sale_fiscal_type].number_next_actual = nex_sequence;
+            sale_fiscal_sequences_by_id[sale_fiscal_type]
+                .number_next_actual = nex_sequence;
 
             for (var i = 0; i < all_sale_fiscal_sequence.length; i++) {
                 if (all_sale_fiscal_sequence[i].sale_fiscal_type === sale_fiscal_type) {
@@ -56,8 +67,14 @@ odoo.define('pos_ncf_manager.DB', function (require) {
                 }
             }
 
-            this.save('all_sale_fiscal_sequence', all_sale_fiscal_sequence);
-            this.save('sale_fiscal_sequences_by_id', sale_fiscal_sequences_by_id);
+            this.save(
+                'all_sale_fiscal_sequence',
+                all_sale_fiscal_sequence
+            );
+            this.save(
+                'sale_fiscal_sequences_by_id',
+                sale_fiscal_sequences_by_id
+            );
         },
 
     });
