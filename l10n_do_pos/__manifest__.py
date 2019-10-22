@@ -26,7 +26,8 @@
     'data': [
         'views/assets.xml',
         'views/pos_config_views.xml',
-        'views/pos_order_views.xml'
+        'views/pos_order_views.xml',
+        'views/account_journal_views.xml'
     ],
     'qweb': [
         'static/src/xml/pos.xml',

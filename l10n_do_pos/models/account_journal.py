@@ -1,10 +1,10 @@
-from odoo import fields, models
+from odoo import fields, models, _
 
 
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
     is_for_credit_notes = fields.Boolean(
-        string="This payment method is for credit note",
+        help="This payment method is for credit note",
         default=False
     )
