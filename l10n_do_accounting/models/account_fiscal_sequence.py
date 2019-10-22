@@ -41,7 +41,7 @@ class AccountFiscalSequence(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
         default=datetime.strptime(str(int(str(
-            fields.Date.today())[0:4])+1)+'-12-31', '%Y-%m-%d').date()
+            fields.Date.today())[0:4]) + 1) + '-12-31', '%Y-%m-%d').date()
     )
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
@@ -108,6 +108,9 @@ class AccountFiscalSequence(models.Model):
         track_visibility='onchange',
         copy=False,
     )
+    can_be_queue = fields.Boolean(
+        compute='_compute_can_be_queue',
+    )
     company_id = fields.Many2one(
         'res.company',
         default=lambda self: self.env.user.company_id,
@@ -115,6 +118,16 @@ class AccountFiscalSequence(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
     )
+
+    @api.multi
+    @api.depends('state')
+    def _compute_can_be_queue(self):
+        for rec in self:
+            rec.can_be_queue = bool(self.search_count(
+                [('state', '=', 'active'),
+                 ('fiscal_type_id', '=', self.fiscal_type_id.id),
+                 ('company_id', '=', self.company_id.id)]) > 0) if \
+                rec.state == 'draft' else False
 
     @api.multi
     @api.depends('remaining_percentage')
@@ -128,8 +141,8 @@ class AccountFiscalSequence(models.Model):
     def _compute_sequence_remaining(self):
         for rec in self:
             if rec.sequence_id:
-                number_next_actual = rec.sequence_id.number_next_actual + 1
-                remaining = rec.sequence_end - number_next_actual
+                remaining = rec.sequence_end - \
+                            rec.sequence_id.number_next_actual + 1
                 rec.sequence_remaining = remaining
 
     @api.multi
@@ -157,11 +170,8 @@ class AccountFiscalSequence(models.Model):
                 _("Another sequence is active for this type."))
 
     @api.multi
-    @api.constrains('sequence_start',
-                    'sequence_end',
-                    'state',
-                    'fiscal_type_id',
-                    'company_id')
+    @api.constrains('sequence_start', 'sequence_end',
+                    'state', 'fiscal_type_id', 'company_id')
     def _validate_sequence_range(self):
         for rec in self.filtered(lambda s: s.state != 'cancelled'):
             if any([True for value in [rec.sequence_start, rec.sequence_end]
@@ -174,7 +184,7 @@ class AccountFiscalSequence(models.Model):
             domain = [
                 ('sequence_end', '<=', rec.sequence_start),
                 ('fiscal_type_id', '=', rec.fiscal_type_id.id),
-                ('state', '=', 'active'),
+                ('state', 'in', ('active', 'queue')),
                 ('company_id', '=', rec.company_id.id),
             ]
 
@@ -272,6 +282,11 @@ class AccountFiscalSequence(models.Model):
                 # Preserve internal sequence just for audit purpose.
                 rec.sequence_id.active = False
 
+    @api.multi
+    def action_queue(self):
+        self.ensure_one()
+        self.state = 'queue'
+
     def _expire_sequences(self):
         """
         Function called from ir.cron that check all active sequence
@@ -285,6 +300,16 @@ class AccountFiscalSequence(models.Model):
                 lambda s: l10n_do_date >= s.expiration_date):
             seq.state = 'expired'
 
+    def _get_queued_fiscal_sequence(self):
+        fiscal_sequence_id = self.search(
+            [('state', '=', 'queue'),
+             ('fiscal_type_id', '=', self.fiscal_type_id.id),
+             ('company_id', '=', self.company_id.id)],
+            order='sequence_start asc',
+            limit=1,
+        )
+        return fiscal_sequence_id
+
     def get_fiscal_number(self):
         if self.sequence_remaining > 0:
             sequence_next = self.sequence_id._next()
@@ -293,6 +318,9 @@ class AccountFiscalSequence(models.Model):
             # is depleted and set state to depleted
             if (self.sequence_remaining - 1) < 1:
                 self.state = 'depleted'
+                queue_sequence_id = self._get_queued_fiscal_sequence()
+                if queue_sequence_id:
+                    queue_sequence_id._action_confirm()
 
             return "%s%s" % (
                 self.fiscal_type_id.prefix,
