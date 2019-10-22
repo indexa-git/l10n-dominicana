@@ -134,8 +134,8 @@ class AccountInvoice(models.Model):
             if fiscal_type.journal_id:
                 self.journal_id = fiscal_type.journal_id
 
-    @api.onchange('partner_id')
-    def _onchange_custom_partner_id(self):
+    @api.onchange('partner_id', 'company_id')
+    def _onchange_partner_id(self):
 
         if self.is_fiscal_invoice:
             if self.type == 'out_invoice':
@@ -145,6 +145,8 @@ class AccountInvoice(models.Model):
             if self.type == 'in_invoice':
                 self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
                 self.expense_type = self.partner_id.expense_type
+                
+        return super(AccountInvoice, self)._onchange_partner_id()
 
     @api.multi
     def action_invoice_open(self):
