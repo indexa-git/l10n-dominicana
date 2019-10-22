@@ -39,6 +39,7 @@
     ],
     # only loaded in demonstration mode
     'demo': [
-        'demo/demo.xml',
+        'demo/res_partner_demo.xml',
+        'demo/account_fiscal_sequence_demo.xml',
     ],
 }
