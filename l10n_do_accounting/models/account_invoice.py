@@ -82,41 +82,43 @@ class AccountInvoice(models.Model):
         compute='_compute_fiscal_sequence_status',
     )
 
+    @api.multi
     @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
                  'date_invoice')
     def _compute_fiscal_sequence(self):
-        fiscal_type = self.fiscal_type_id
-        if self.journal_id.fiscal_journal and fiscal_type and \
-                fiscal_type.internal_generate:
+        for inv in self:
+            fiscal_type = inv.fiscal_type_id
+            if inv.journal_id.fiscal_journal and fiscal_type and \
+                    fiscal_type.internal_generate:
 
-            self.internal_generate = fiscal_type.internal_generate
-            self.fiscal_position_id = fiscal_type.fiscal_position_id
+                inv.internal_generate = fiscal_type.internal_generate
+                inv.fiscal_position_id = fiscal_type.fiscal_position_id
 
-            domain = [
-                ('company_id', '=', self.company_id.id),
-                ('fiscal_type_id', '=', self.fiscal_type_id.id),
-                ('state', '=', 'active'),
-            ]
-            if self.date_invoice:
-                domain.append(('expiration_date', '>=', self.date_invoice))
+                domain = [
+                    ('company_id', '=', inv.company_id.id),
+                    ('fiscal_type_id', '=', inv.fiscal_type_id.id),
+                    ('state', '=', 'active'),
+                ]
+                if inv.date_invoice:
+                    domain.append(('expiration_date', '>=', inv.date_invoice))
+                else:
+                    domain.append(
+                        ('expiration_date', '>=', fields.Date.context_today(inv)))
+
+                fiscal_sequence_id = inv.env['account.fiscal.sequence'].search(
+                    domain,
+                    order='expiration_date, id desc',
+                    limit=1,
+                )
+
+                if not fiscal_sequence_id:
+                    pass
+                elif fiscal_sequence_id.state == 'active':
+                    inv.fiscal_sequence_id = fiscal_sequence_id
+                else:
+                    inv.fiscal_sequence_id = False
             else:
-                domain.append(
-                    ('expiration_date', '>=', fields.Date.context_today(self)))
-
-            fiscal_sequence_id = self.env['account.fiscal.sequence'].search(
-                domain,
-                order='expiration_date, id desc',
-                limit=1,
-            )
-
-            if not fiscal_sequence_id:
-                pass
-            elif fiscal_sequence_id.state == 'active':
-                self.fiscal_sequence_id = fiscal_sequence_id
-            else:
-                self.fiscal_sequence_id = False
-        else:
-            self.fiscal_sequence_id = False
+                inv.fiscal_sequence_id = False
 
     @api.multi
     @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
