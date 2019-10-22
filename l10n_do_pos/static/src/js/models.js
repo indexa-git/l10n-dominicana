@@ -9,37 +9,47 @@ odoo.define('l10n_do_pos.models', function (require) {
     models.load_fields('account.journal', ['is_for_credit_notes']);
 
     models.load_models({
-        model:  'account.journal',
+        model: 'account.journal',
         fields: ['name', 'fiscal_journal'],
-        domain: function(self){
+        domain: function (self) {
             return [['id', '=', self.config.invoice_journal_id[0]]];
         },
-        loaded: function(self, journals){
+        loaded: function (self, journals) {
             self.invoice_journal = false;
-            if(journals[0]){
+            if (journals[0]) {
                 self.invoice_journal = journals[0];
             }
         },
     });
 
     models.load_models({
-        model:  'account.fiscal.sequence',
+        model: 'account.fiscal.sequence',
         fields: ['name', 'fiscal_type_id'],
-        domain: function(self){
-            return [['state', '=', 'active'],['type', '=', 'sale'], ['company_id', '=', self.company.id]];
+        domain: function (self) {
+            return [
+                ['state', '=', 'active'],
+                ['type', '=', 'sale'],
+                ['company_id', '=', self.company.id]
+            ];
         },
-        loaded: function(self, fiscal_sequences){
+        loaded: function (self, fiscal_sequences) {
             self.fiscal_sequences = fiscal_sequences
         },
     });
 
     models.load_models({
-        model:  'account.fiscal.type',
-        fields: ['name', 'fiscal_position_id', 'required_document', 'prefix', 'internal_generate'],
-        domain: function(self){
-            return [['type', '=', ['sale', 'special_sale']]];
+        model: 'account.fiscal.type',
+        fields: [
+            'name',
+            'fiscal_position_id',
+            'required_document',
+            'prefix',
+            'internal_generate'
+        ],
+        domain: function (self) {
+            return [['type', 'in', ['sale', 'special_sale']]];
         },
-        loaded: function(self, fiscal_types){
+        loaded: function (self, fiscal_types) {
             self.fiscal_types = fiscal_types
         },
     });
@@ -83,29 +93,29 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     models.Order = models.Order.extend({
         initialize: function () {
-            _super_order.initialize.apply(this,arguments);
+            _super_order.initialize.apply(this, arguments);
 
             var self = this;
-			this.ncf = '';
-			this.ncf_origin_out = '';
-			this.ncf_expiration_date = '';
-			this.fiscal_type = false;
-			this.fiscal_type_id = false;
-			this.fiscal_sequence_id = false;
-			var client = self.get_client();
+            this.ncf = '';
+            this.ncf_origin_out = '';
+            this.ncf_expiration_date = '';
+            this.fiscal_type = false;
+            this.fiscal_type_id = false;
+            this.fiscal_sequence_id = false;
+            var client = self.get_client();
 
-            if(this.get_mode() === 'return'){
+            if (this.get_mode() === 'return') {
 
                 this.fiscal_type = self.pos.get_fiscal_type_by_prefix('B04')
 
-            }else{
-                if(client){
-                    if(client.sale_fiscal_type_id){
+            } else {
+                if (client) {
+                    if (client.sale_fiscal_type_id) {
                         this.fiscal_type = self.pos.get_fiscal_type_by_id(client.sale_fiscal_type_id[0]);
-                    }else{
+                    } else {
                         this.fiscal_type = self.pos.get_fiscal_type_by_prefix('B02')
                     }
-                }else{
+                } else {
                     this.fiscal_type = self.pos.get_fiscal_type_by_prefix('B02')
                 }
             }
@@ -131,23 +141,23 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
 
 
-        export_as_JSON: function() {
+        export_as_JSON: function () {
 
-			var self = this;
-			var loaded = _super_order.export_as_JSON.call(this);
-			var current_order = self.pos.get_order();
+            var self = this;
+            var loaded = _super_order.export_as_JSON.call(this);
+            var current_order = self.pos.get_order();
 
-			if(self.pos.get_order()){
-			    loaded.ncf = current_order.ncf;
-			    loaded.ncf_origin_out = current_order.ncf_origin_out;
-			    loaded.ncf_expiration_date = current_order.ncf_expiration_date;
+            if (self.pos.get_order()) {
+                loaded.ncf = current_order.ncf;
+                loaded.ncf_origin_out = current_order.ncf_origin_out;
+                loaded.ncf_expiration_date = current_order.ncf_expiration_date;
                 loaded.fiscal_type_id = current_order.fiscal_type_id;
                 loaded.fiscal_sequence_id = current_order.fiscal_sequence_id;
             }
 
-			return loaded;
+            return loaded;
 
-		},
+        },
 
         //TODO: this part is for credit note
 
@@ -156,71 +166,73 @@ odoo.define('l10n_do_pos.models', function (require) {
             var payment_lines = self.get_paymentlines();
             var is_on_payment_line = false;
 
-            payment_lines.forEach(function(payment_line) {
-                  if(payment_line.get_returned_move_name() != null){
-                      if(payment_line.get_returned_move_name() === credit_note_ncf){
-                          is_on_payment_line = true
-                      }
-                  }
+            payment_lines.forEach(function (payment_line) {
+                if (payment_line.get_returned_move_name() != null) {
+                    if (payment_line.get_returned_move_name() === credit_note_ncf) {
+                        is_on_payment_line = true
+                    }
+                }
             });
 
-            if(is_on_payment_line){
+            if (is_on_payment_line) {
                 self.pos.gui.show_popup('error', {
                     'title': 'Nota de crédito Registrada',
-                    'body': 'Esta nota de crédito '+ credit_note_ncf +' ya esta en la orden de venta, favor intentarlo nuevamente'
+                    'body': 'Esta nota de crédito ' + credit_note_ncf +
+                        ' ya esta en la orden de venta, favor intentarlo' +
+                        ' nuevamente'
                 });
 
                 return false
 
-            }else{
+            } else {
 
                 $('.freeze_screen').addClass("active_state");
                 $(".lds-spinner").show();
 
-                new Model('pos.order').call('search_read',[[['move_name', '=', credit_note_ncf],['returned_order', '=', true],['is_used_in_order', '=', false]]])
-                .done(function(result){
+                new Model('pos.order').call('search_read', [[['move_name', '=', credit_note_ncf], ['returned_order', '=', true], ['is_used_in_order', '=', false]]])
+                    .done(function (result) {
 
-                    if(result.length > 0){
+                        if (result.length > 0) {
 
-                        self.add_paymentline( cashregister );
-                        var select_paymentline = self.selected_paymentline;
-                        select_paymentline.set_returned_move_name(credit_note_ncf);
-                        select_paymentline.set_returned_order_amount(-1*result[0].amount_total);
-                        select_paymentline.set_amount(-1*result[0].amount_total);
-                        self.pos.gui.screen_instances.payment.reset_input();
-                        self.pos.gui.screen_instances.payment.render_paymentlines();
+                            self.add_paymentline(cashregister);
+                            var select_paymentline = self.selected_paymentline;
+                            select_paymentline.set_returned_move_name(credit_note_ncf);
+                            select_paymentline.set_returned_order_amount(-1 * result[0].amount_total);
+                            select_paymentline.set_amount(-1 * result[0].amount_total);
+                            self.pos.gui.screen_instances.payment.reset_input();
+                            self.pos.gui.screen_instances.payment.render_paymentlines();
 
-                        $('.freeze_screen').removeClass("active_state");
-                        $(".lds-spinner").hide();
+                            $('.freeze_screen').removeClass("active_state");
+                            $(".lds-spinner").hide();
 
-                        return true
+                            return true
 
-                    }else{
+                        } else {
+                            $('.freeze_screen').removeClass("active_state");
+                            $(".lds-spinner").hide();
+
+                            self.pos.gui.show_popup('error', {
+                                'title': 'No existe',
+                                'body': 'La nota de crédito ' + credit_note_ncf + ' no existe o ya fue utliziada'
+                            });
+
+                            return false
+                        }
+
+
+                    })
+                    .fail(function (unused, event) {
                         $('.freeze_screen').removeClass("active_state");
                         $(".lds-spinner").hide();
 
                         self.pos.gui.show_popup('error', {
-                            'title': 'No existe',
-                            'body': 'La nota de crédito '+ credit_note_ncf + ' no existe o ya fue utliziada'
+                            'title': 'Error en la conexión',
+                            'body': 'Favor confirmar si la conexión con el servidor'
                         });
 
                         return false
-                    }
 
-
-                })
-                .fail(function(unused, event) {
-                    $('.freeze_screen').removeClass("active_state");
-                    $(".lds-spinner").hide();
-
-                    self.pos.gui.show_popup('error', {
-                        'title': 'Error en la conexión',
-                        'body': 'Favor confirmar si la conexión con el servidor'
                     });
-
-                    return false
-
-                });
             }
         }
     });
@@ -309,40 +321,40 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     // var _super_posmodel = models.PosModel.prototype;
     models.PosModel = models.PosModel.extend({
-        get_fiscal_type_by_id(id){
+        get_fiscal_type_by_id(id) {
             var self = this;
             var res_fiscal_type = false;
             //TODO: try make at best performance
             self.fiscal_types.forEach(function (fiscal_type) {
-			    if(fiscal_type.id === id){
-			        res_fiscal_type = fiscal_type;
+                if (fiscal_type.id === id) {
+                    res_fiscal_type = fiscal_type;
                 }
             });
-            if(res_fiscal_type){
+            if (res_fiscal_type) {
                 return res_fiscal_type
-            }else{
+            } else {
                 self.gui.show_popup('error', {
-                    'title':_t('Fiscal type not found'),
+                    'title': _t('Fiscal type not found'),
                     'body': _t('This fiscal type not exist.'),
                 });
                 return false
             }
         },
-        get_fiscal_type_by_prefix(prefix){
+        get_fiscal_type_by_prefix(prefix) {
             var self = this;
             var res_fiscal_type = false;
             console.log(self)
             //TODO: try make at best performance
             self.fiscal_types.forEach(function (fiscal_type) {
-			    if(fiscal_type.prefix === prefix){
-			        res_fiscal_type = fiscal_type;
+                if (fiscal_type.prefix === prefix) {
+                    res_fiscal_type = fiscal_type;
                 }
             });
-            if(res_fiscal_type){
+            if (res_fiscal_type) {
                 return res_fiscal_type
-            }else{
+            } else {
                 self.gui.show_popup('error', {
-                    'title':_t('Fiscal type not found'),
+                    'title': _t('Fiscal type not found'),
                     'body': _t('This fiscal type not exist.'),
                 });
                 return false

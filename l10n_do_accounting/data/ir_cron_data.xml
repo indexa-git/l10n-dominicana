@@ -8,7 +8,7 @@
         <field name="numbercall">-1</field>
         <field name="doall" eval="False"/>
         <field name="nextcall"
-               eval="(DateTime.now()).replace(hour=00, minute=00, second=00, microsecond=00)" />
+               eval="(DateTime.now()).replace(hour=00, minute=00, second=00, microsecond=00)"/>
         <field name="model_id" ref="model_account_fiscal_sequence"/>
         <field name="state">code</field>
         <field name="code">model._expire_sequences()</field>

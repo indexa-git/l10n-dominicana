@@ -1,4 +1,4 @@
-odoo.define('l10n_do_pos.screens', function(require) {
+odoo.define('l10n_do_pos.screens', function (require) {
     "use strict";
 
     var screens = require('point_of_sale.screens');
@@ -16,13 +16,13 @@ odoo.define('l10n_do_pos.screens', function(require) {
             this._super.apply(this, arguments);
             var client = this.pos.get_client();
             var current_order = this.pos.get_order();
-            if(client){
+            if (client) {
 
-                if(client.sale_fiscal_type_id && current_order.fiscal_type.prefix === 'B02'){
+                if (client.sale_fiscal_type_id && current_order.fiscal_type.prefix === 'B02') {
                     current_order.set_fiscal_type(this.pos.get_fiscal_type_by_id(client.sale_fiscal_type_id[0]));
                 }
 
-            }else{
+            } else {
                 current_order.set_fiscal_type(this.pos.get_fiscal_type_by_prefix('B02'));
             }
         },
@@ -30,12 +30,12 @@ odoo.define('l10n_do_pos.screens', function(require) {
         renderElement: function () {
             this._super();
             var self = this;
-            this.$('.js_set_fiscal_type').click(function(){
+            this.$('.js_set_fiscal_type').click(function () {
                 self.click_set_fiscal_type();
             });
         },
 
-        open_vat_popup(){
+        open_vat_popup() {
             var self = this;
             var current_order = self.pos.get_order();
 
@@ -51,25 +51,25 @@ odoo.define('l10n_do_pos.screens', function(require) {
             self.gui.show_popup('textinput', {
                 'title': _t('You need to select a customer with RNC/Céd for this fiscal type, place writes RNC/Céd'),
                 'vat': '',
-                confirm: function(vat) {
+                confirm: function (vat) {
                     // that one comes from BarcodeEvents
                     $('body').keypress(this.keyboard_handler);
                     // that one comes from the pos, but we prefer to cover all the basis
                     $('body').keydown(this.keyboard_keydown_handler);
-                    if(!(vat.length === 9 || vat.length === 11) || Number.isNaN(Number(vat))){
+                    if (!(vat.length === 9 || vat.length === 11) || Number.isNaN(Number(vat))) {
                         self.gui.show_popup('error', {
-                            'title':_t('This not RNC or Cédula'),
+                            'title': _t('This not RNC or Cédula'),
                             'body': _t('Please check if RNC or Cédula is correct'),
                             cancel: function () {
                                 self.open_vat_popup()
                             }
                         });
-                    }else{
+                    } else {
                         //TODO: in future try optimize seatch partners linke get_partner_by_id
                         var partner = self.pos.partners.find(partner => partner.vat === vat);
-                        if(partner){
+                        if (partner) {
                             current_order.set_client(partner)
-                        }else{
+                        } else {
                             //TODO: in future create automatic partner
                             self.gui.show_screen('clientlist')
                         }
@@ -77,7 +77,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
 
                 },
                 cancel: function () {
-                    if(!current_order.get_client()){
+                    if (!current_order.get_client()) {
                         current_order.set_fiscal_type(this.pos.get_fiscal_type_by_prefix('B02'))
                     }
                     // that one comes from BarcodeEvents
@@ -103,13 +103,13 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 list: fiscal_type_list,
                 confirm: function (fiscal_type) {
                     var current_order = self.pos.get_order();
-                    var client  = self.pos.get_client();
+                    var client = self.pos.get_client();
                     current_order.set_fiscal_type(fiscal_type);
-                    if(fiscal_type.required_document && !client){
+                    if (fiscal_type.required_document && !client) {
                         self.open_vat_popup()
                     }
-                    if(fiscal_type.required_document && client){
-                        if(!client.vat){
+                    if (fiscal_type.required_document && client) {
+                        if (!client.vat) {
                             self.open_vat_popup()
                         }
                     }
@@ -120,7 +120,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
             });
         },
 
-        order_is_valid: function (force_validation){
+        order_is_valid: function (force_validation) {
 
             var self = this;
             var current_order = this.pos.get_order();
@@ -138,19 +138,19 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 return false
             }
 
-            for (var line in all_payment_lines){
+            for (var line in all_payment_lines) {
                 var payment_line = all_payment_lines[line];
 
-                if (payment_line.cashregister.journal.type == 'bank'){
-                    total_in_bank =+ payment_line.amount
+                if (payment_line.cashregister.journal.type == 'bank') {
+                    total_in_bank = +payment_line.amount
                 }
-                if(payment_line.cashregister.journal.type == 'cash'){
+                if (payment_line.cashregister.journal.type == 'cash') {
                     has_cash = true
                 }
 
             }
 
-            if (Math.abs(Math.round(Math.abs(total) * 100) / 100) < Math.round(Math.abs(total_in_bank) * 100) / 100 ) {
+            if (Math.abs(Math.round(Math.abs(total) * 100) / 100) < Math.round(Math.abs(total_in_bank) * 100) / 100) {
                 this.gui.show_popup('error', {
                     'title': 'Card payment',
                     'body': 'Card payments cannot exceed the total order'
@@ -166,7 +166,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 return false;
             }
 
-            if(self.pos.invoice_journal.fiscal_journal && !current_order.to_invoice){
+            if (self.pos.invoice_journal.fiscal_journal && !current_order.to_invoice) {
                 // if(current_order.get_mode() === 'return'){
                 //
                 //     sale_fiscal_sequence = self.pos.db.get_sale_fiscal_sequence('credit_note');
@@ -195,77 +195,77 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 //
                 // }else{
 
-                    if (current_order.fiscal_type.required_document && !client) {
+                if (current_order.fiscal_type.required_document && !client) {
+                    this.gui.show_popup('error', {
+                        'title': 'Required document (RNC/Céd.)',
+                        'body': 'For invoice fiscal type ' + current_order.fiscal_type.name + ' its necessary customer, please select customer'
+                    });
+                    return false
+                }
+
+                if (client) {
+                    if (current_order.fiscal_type.required_document && !client.vat) {
                         this.gui.show_popup('error', {
                             'title': 'Required document (RNC/Céd.)',
-                            'body': 'For invoice fiscal type ' + current_order.fiscal_type.name + ' its necessary customer, please select customer'
+                            'body': 'For invoice fiscal type ' + current_order.fiscal_type.name + ' it is necessary for the customer have RNC or Céd.'
                         });
                         return false
                     }
+                }
 
-                    if(client){
-                        if (current_order.fiscal_type.required_document && !client.vat) {
-                            this.gui.show_popup('error', {
-                                'title': 'Required document (RNC/Céd.)',
-                                'body': 'For invoice fiscal type ' + current_order.fiscal_type.name + ' it is necessary for the customer have RNC or Céd.'
-                            });
-                            return false
-                        }
-                    }
+                if (current_order.fiscal_type.required_document && !client) {
+                    this.gui.show_popup('error', {
+                        'title': 'Required customer',
+                        'body': 'For invoice fiscal type ' + current_order.fiscal_type.name + ' it is necessary customer, please select customer'
+                    });
+                    return false
+                }
 
-                    if (current_order.fiscal_type.required_document && !client) {
-                        this.gui.show_popup('error', {
-                            'title': 'Required customer',
-                            'body': 'For invoice fiscal type ' + current_order.fiscal_type.name + ' it is necessary customer, please select customer'
-                        });
-                        return false
-                    }
+                if (total >= 250000.00 && (!client || !client.vat)) {
+                    this.gui.show_popup('error', {
+                        'title': 'Sale greater than RD$ 250,000.00',
+                        'body': 'For this sale it is necessary for the customer have ID'
+                    });
+                    return false
+                }
 
-                    if (total >= 250000.00 && (!client || !client.vat)) {
-                        this.gui.show_popup('error', {
-                            'title': 'Sale greater than RD$ 250,000.00',
-                            'body': 'For this sale it is necessary for the customer have ID'
-                        });
-                        return false
-                    }
+                // //for payment with credit note
+                // var has_return_move_name = true;
+                // var payment_and_return_mount_equals = true;
+                //
+                // all_payment_lines.forEach(function (payment_line) {
+                //     if(payment_line.cashregister.journal.is_for_credit_notes){
+                //
+                //         if(payment_line.get_returned_move_name() === null){
+                //             has_return_move_name = false;
+                //         }
+                //
+                //         var amount_in_payment_line = Math.round(payment_line.amount*100)/100;
+                //         var amount_in_return_order = Math.abs(payment_line.get_returned_order_amount()*100)/100;
+                //
+                //         if(amount_in_return_order != amount_in_payment_line){
+                //             payment_and_return_mount_equals = false;
+                //         }
+                //     };
+                // });
+                //
+                // if(!has_return_move_name){
+                //     this.gui.show_popup('error', {
+                //         'title': 'Error en pago con nota de crédito',
+                //         'body': 'Existe un error con el pago de nota de crédito, favor borrar el pago de la nota de crédito y escanearlo nuevamente.'
+                //     });
+                //
+                //     return false
+                // }
 
-                    // //for payment with credit note
-                    // var has_return_move_name = true;
-                    // var payment_and_return_mount_equals = true;
-                    //
-                    // all_payment_lines.forEach(function (payment_line) {
-                    //     if(payment_line.cashregister.journal.is_for_credit_notes){
-                    //
-                    //         if(payment_line.get_returned_move_name() === null){
-                    //             has_return_move_name = false;
-                    //         }
-                    //
-                    //         var amount_in_payment_line = Math.round(payment_line.amount*100)/100;
-                    //         var amount_in_return_order = Math.abs(payment_line.get_returned_order_amount()*100)/100;
-                    //
-                    //         if(amount_in_return_order != amount_in_payment_line){
-                    //             payment_and_return_mount_equals = false;
-                    //         }
-                    //     };
-                    // });
-                    //
-                    // if(!has_return_move_name){
-                    //     this.gui.show_popup('error', {
-                    //         'title': 'Error en pago con nota de crédito',
-                    //         'body': 'Existe un error con el pago de nota de crédito, favor borrar el pago de la nota de crédito y escanearlo nuevamente.'
-                    //     });
-                    //
-                    //     return false
-                    // }
-
-                    // if(!payment_and_return_mount_equals){
-                    //     this.gui.show_popup('error', {
-                    //         'title': 'Error en pago con nota de crédito',
-                    //         'body': 'Existe un error con el monto de nota de crédito, favor borrar el pago de la nota de crédito y escanearlo nuevamente.'
-                    //     });
-                    //
-                    //     return false
-                    // }
+                // if(!payment_and_return_mount_equals){
+                //     this.gui.show_popup('error', {
+                //         'title': 'Error en pago con nota de crédito',
+                //         'body': 'Existe un error con el monto de nota de crédito, favor borrar el pago de la nota de crédito y escanearlo nuevamente.'
+                //     });
+                //
+                //     return false
+                // }
 
 
                 // }
@@ -316,24 +316,24 @@ odoo.define('l10n_do_pos.screens', function(require) {
             //
             // }
 
-            if(self.pos.invoice_journal.fiscal_journal && !current_order.to_invoice){
+            if (self.pos.invoice_journal.fiscal_journal && !current_order.to_invoice) {
                 $('.freeze_screen').addClass("active_state");
                 $(".lds-spinner").show();
                 rpc.query({
                     model: 'account.fiscal.type',
                     method: 'get_next_fiscal_sequence',
-                    args: [[current_order.fiscal_type.id],[self.pos.company.id]],
+                    args: [[current_order.fiscal_type.id], [self.pos.company.id]],
                 })
-                .then(function (res){
-                    current_order.ncf = res.ncf;
-                    current_order.fiscal_type_id = current_order.fiscal_type.id;
-                    current_order.ncf_expiration_date = res.ncf_expiration_date;
-                    current_order.fiscal_sequence_id = res.fiscal_sequence_id;
-                    console.log(res)
-                }, function(type,err) {
-                    console.log(type);
-                    console.log(err)
-                }).done(function () {
+                    .then(function (res) {
+                        current_order.ncf = res.ncf;
+                        current_order.fiscal_type_id = current_order.fiscal_type.id;
+                        current_order.ncf_expiration_date = res.ncf_expiration_date;
+                        current_order.fiscal_sequence_id = res.fiscal_sequence_id;
+                        console.log(res)
+                    }, function (type, err) {
+                        console.log(type);
+                        console.log(err)
+                    }).done(function () {
                     $('.freeze_screen').removeClass("active_state");
                     $(".lds-spinner").hide();
                     _super()
@@ -346,7 +346,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
                     });
                 })
 
-            }else{
+            } else {
                 this._super()
             }
 
@@ -369,32 +369,32 @@ odoo.define('l10n_do_pos.screens', function(require) {
         //     }
         // },
 
-    //     click_paymentmethods: function (id) {
-    //         var self = this;
-    //         var cashregister = null;
-    //         for (var i = 0; i < this.pos.cashregisters.length; i++) {
-    //             if (this.pos.cashregisters[i].journal_id[0] === id) {
-    //                 cashregister = this.pos.cashregisters[i];
-    //                 break;
-    //             }
-    //         }
-    //         var current_order = self.pos.get_order();
-    //
-    //
-    //         if (cashregister.journal.is_for_credit_notes == true) {
-    //
-    //             self.gui.show_popup('textinputpaymentscreen', {
-    //                 title: "Digite el NCF de la nota de crédito",
-    //                 confirm: function (input) {
-    //                     console.log(input);
-    //                     current_order.add_payment_credit_note(input, cashregister)
-    //                 }
-    //             })
-    //         } else {
-    //             this._super(id);
-    //         }
-    //     }
-    //
+        //     click_paymentmethods: function (id) {
+        //         var self = this;
+        //         var cashregister = null;
+        //         for (var i = 0; i < this.pos.cashregisters.length; i++) {
+        //             if (this.pos.cashregisters[i].journal_id[0] === id) {
+        //                 cashregister = this.pos.cashregisters[i];
+        //                 break;
+        //             }
+        //         }
+        //         var current_order = self.pos.get_order();
+        //
+        //
+        //         if (cashregister.journal.is_for_credit_notes == true) {
+        //
+        //             self.gui.show_popup('textinputpaymentscreen', {
+        //                 title: "Digite el NCF de la nota de crédito",
+        //                 confirm: function (input) {
+        //                     console.log(input);
+        //                     current_order.add_payment_credit_note(input, cashregister)
+        //                 }
+        //             })
+        //         } else {
+        //             this._super(id);
+        //         }
+        //     }
+        //
     });
 
     // screens.ActionpadWidget.include({
@@ -444,28 +444,28 @@ odoo.define('l10n_do_pos.screens', function(require) {
     //         // }
     //     },
 
-        //TODO: esta parte es para usar con el posbox
+    //TODO: esta parte es para usar con el posbox
 
-        // print_xml: function() {
-        //     if (this.pos.config.show_barcode_in_receipt) {
-        //         var env = {
-        //             widget:  this,
-        //             pos: this.pos,
-        //             order: this.pos.get_order(),
-        //             receipt: this.pos.get_order().export_for_printing(),
-        //             paymentlines: this.pos.get_order().get_paymentlines()
-        //         };
-        //         var receipt = QWeb.render('XmlReceipt',env);
-        //         var barcode = this.$el.find('#barcode').parent().html();
-        //         receipt = receipt.split('<img id="barcode"/>');
-        //         receipt[0] = receipt[0] + barcode + '</img>';
-        //         receipt = receipt.join('');
-        //         this.pos.proxy.print_receipt(receipt);
-        //         this.pos.get_order()._printed = true;
-        //     } else {
-        //         this._super();
-        //     }
-        // },
+    // print_xml: function() {
+    //     if (this.pos.config.show_barcode_in_receipt) {
+    //         var env = {
+    //             widget:  this,
+    //             pos: this.pos,
+    //             order: this.pos.get_order(),
+    //             receipt: this.pos.get_order().export_for_printing(),
+    //             paymentlines: this.pos.get_order().get_paymentlines()
+    //         };
+    //         var receipt = QWeb.render('XmlReceipt',env);
+    //         var barcode = this.$el.find('#barcode').parent().html();
+    //         receipt = receipt.split('<img id="barcode"/>');
+    //         receipt[0] = receipt[0] + barcode + '</img>';
+    //         receipt = receipt.join('');
+    //         this.pos.proxy.print_receipt(receipt);
+    //         this.pos.get_order()._printed = true;
+    //     } else {
+    //         this._super();
+    //     }
+    // },
     // });
 
     // screens.ScreenWidget.include({
@@ -556,7 +556,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
     // });
 
     screens_return.OrdersHistoryScreenWidget.include({
-        load_order_by_barcode: function(barcode) {
+        load_order_by_barcode: function (barcode) {
             var self = this;
             var _super = this._super.bind(this);
             if (self.pos.config.return_orders && self.pos.invoice_journal.fiscal_journal) {
@@ -564,9 +564,9 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 var self = this;
                 var domain = [
                     ['ncf', '=', barcode],
-                    ['returned_order','=', false]
+                    ['returned_order', '=', false]
                 ];
-                var fields =[
+                var fields = [
                     'pos_history_reference_uid'
                 ];
                 rpc.query({
@@ -577,7 +577,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 }, {
                     timeout: 3000,
                     shadow: true,
-                }).then(function(order) {
+                }).then(function (order) {
                     order_custom = order
                 }, function (err, event) {
                     event.preventDefault();
@@ -587,10 +587,10 @@ odoo.define('l10n_do_pos.screens', function(require) {
                         'body': err.data,
                     });
                 }).done(function () {
-                    if(order_custom && order_custom.length){
+                    if (order_custom && order_custom.length) {
                         _super(order_custom[0].pos_history_reference_uid)
-                    }else {
-                        self.gui.show_popup('error',{
+                    } else {
+                        self.gui.show_popup('error', {
                             'title': _t('Error: Could not find the Order'),
                             'body': _t('There is no order with this barcode.')
                         });

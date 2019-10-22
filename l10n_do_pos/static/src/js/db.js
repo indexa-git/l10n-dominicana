@@ -12,25 +12,26 @@ odoo.define('pos_ncf_manager.DB', function (require) {
             if (partner.vat) {
                 str += '|' + partner.vat;
             }
-             return str + '\n';
+            return str + '\n';
         },
 
-        get_sale_fiscal_sequence: function (sale_fiscal_type){
+        get_sale_fiscal_sequence: function (sale_fiscal_type) {
             var sale_fiscal_type_sequence = this.sale_fiscal_sequences_by_id[sale_fiscal_type];
-            if(!sale_fiscal_type_sequence){
+            if (!sale_fiscal_type_sequence) {
                 this.gui.show_popup('error', {
                     'title': 'Error en el tipo de comprobante',
-                    'body': 'Favor confirme el tipo de comprobante ya que este tipo de comprobante no existe'
+                    'body': 'Favor confirme el tipo de comprobante ya que' +
+                        ' este tipo de comprobante no existe'
                 });
                 return;
             }
             return sale_fiscal_type_sequence
         },
 
-        get_next_ncf_sequence: function(sale_fiscal_type){
+        get_next_ncf_sequence: function (sale_fiscal_type) {
 
-            function padLeft(nr, n, str){
-                return Array(n-String(nr).length+1).join(str||'0')+nr;
+            function padLeft(nr, n, str) {
+                return Array(n - String(nr).length + 1).join(str || '0') + nr;
             }
 
             var sale_fiscal_sequence = this.get_sale_fiscal_sequence(sale_fiscal_type);
@@ -50,7 +51,7 @@ odoo.define('pos_ncf_manager.DB', function (require) {
             sale_fiscal_sequences_by_id[sale_fiscal_type].number_next_actual = nex_sequence;
 
             for (var i = 0; i < all_sale_fiscal_sequence.length; i++) {
-                if(all_sale_fiscal_sequence[i].sale_fiscal_type === sale_fiscal_type){
+                if (all_sale_fiscal_sequence[i].sale_fiscal_type === sale_fiscal_type) {
                     all_sale_fiscal_sequence[i].number_next_actual = nex_sequence;
                 }
             }
@@ -63,7 +64,7 @@ odoo.define('pos_ncf_manager.DB', function (require) {
 
     PosDBHistory.include({
 
-        _order_search_string: function(order){
+        _order_search_string: function (order) {
             var str = this._super(order);
 
             str = str.replace('\n', '');

@@ -7,7 +7,8 @@
 
             <xpath expr="//div[@id='iface_invoicing']//div[2]//div[2]">
                 <div class="row mt16">
-                    <label string="Default customer" for="default_partner_id" class="col-md-3 o_light_label"/>
+                    <label string="Default customer" for="default_partner_id"
+                           class="col-md-3 o_light_label"/>
                     <field name="default_partner_id"/>
                 </div>
             </xpath>

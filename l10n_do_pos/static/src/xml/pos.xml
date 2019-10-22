@@ -4,11 +4,12 @@
     <t t-extend="PaymentScreenWidget">
         <t t-jquery=".payment-buttons" t-operation="append">
             <div class='button js_set_fiscal_type'>
-                <i class='fa fa-edit' aria-label="Fiscal type" title="Fiscal type"/>
+                <i class='fa fa-edit' aria-label="Fiscal type"
+                   title="Fiscal type"/>
                 <t t-if="widget.pos.invoice_journal.fiscal_journal">
                     <span class='js_fiscal_type_name' style="color:red">
                         <t t-if="widget.pos.get_order().fiscal_type">
-                            <t t-esc="widget.pos.get_order().fiscal_type.name" />
+                            <t t-esc="widget.pos.get_order().fiscal_type.name"/>
                         </t>
                         <t t-if="!widget.pos.get_order().fiscal_type">
                             Select fiscal type
@@ -68,12 +69,12 @@
     <t t-extend="OrderHistory">
         <t t-jquery=".details" t-operation="replace">
             <t t-if="widget.pos.invoice_journal.fiscal_journal">
-                <span class='details' >
+                <span class='details'>
                     <t t-esc='order.ncf'/>
                 </span>
             </t>
             <t t-if="!widget.pos.invoice_journal.fiscal_journal">
-                <span class='details' >
+                <span class='details'>
                     <t t-esc='order.pos_reference'/>
                 </span>
             </t>
