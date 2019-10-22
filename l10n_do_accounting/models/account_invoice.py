@@ -184,6 +184,11 @@ class AccountInvoice(models.Model):
 
             if inv.is_fiscal_invoice:
 
+                # Because a Fiscal Sequence can be depleted while an invoice
+                # is waiting to be validated, compute fiscal_sequence_id again
+                # on invoice validate.
+                inv.compute_fiscal_sequence()
+
                 if inv.type == 'out_invoice':
                     if not inv.partner_id.sale_fiscal_type_id:
                         inv.partner_id.sale_fiscal_type_id = inv.fiscal_type_id
