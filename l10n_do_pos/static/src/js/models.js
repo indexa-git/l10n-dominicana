@@ -3,6 +3,8 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     var models = require('point_of_sale.models');
     var _super_order = models.Order.prototype;
+    var core = require('web.core');
+    var _t = core._t;
 
     models.load_fields('res.partner', ['sale_fiscal_type_id']);
     models.load_fields('account.journal', ['is_for_credit_notes']);

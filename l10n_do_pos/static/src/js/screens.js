@@ -4,6 +4,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
     var screens = require('point_of_sale.screens');
     var rpc = require('web.rpc');
     var screens_return = require('pos_orders_history_return.screens');
+    var core = require('web.core');
+    var _t = core._t;
 
     screens.PaymentScreenWidget.include({
 
@@ -37,7 +39,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             });
         },
 
-        open_vat_popup: function() {
+        open_vat_popup: function () {
             var self = this;
             var current_order = self.pos.get_order();
 
@@ -69,8 +71,10 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         //TODO: in future try optimize search partners
                         // link get_partner_by_id
                         var partner = self.pos.partners.find(
-                                function (partner) {return partner.vat === vat}
-                            );
+                            function (partner) {
+                                return partner.vat === vat
+                            }
+                        );
                         if (partner) {
                             current_order.set_client(partner)
                         } else {
@@ -104,7 +108,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         label: fiscal_type.name,
                         item: fiscal_type
                     };
-            });
+                });
 
             self.gui.show_popup('selection', {
                 title: _t('Select Fiscal Type'),

@@ -6,9 +6,7 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
     var KanbanRenderer = require('web.KanbanRenderer');
     var KanbanView = require('web.KanbanView');
     var view_registry = require('web.view_registry');
-
     var QWeb = core.qweb;
-
     var _lt = core._lt;
 
     var FiscalSequenceWarningRenderer = KanbanRenderer.extend({
@@ -19,7 +17,7 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
         //---------------------------------------------------------------------
         // Private
         //---------------------------------------------------------------------
-        //TODO: implement similar for changes
+        // TODO: implement similar for changes
         // /**
         //  * Notifies the controller that the target has changed.
         //  *
