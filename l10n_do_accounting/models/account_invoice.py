@@ -18,6 +18,8 @@ class AccountInvoice(models.Model):
         'account.fiscal.sequence',
         string="Fiscal Sequence",
         copy=False,
+        compute='compute_fiscal_sequence',
+        store=True,
     )
     income_type = fields.Selection(
         [('01', '01 - Ingresos por Operaciones (No Financieros)'),
@@ -80,6 +82,43 @@ class AccountInvoice(models.Model):
         compute='_compute_fiscal_sequence_status',
     )
 
+    @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
+                 'date_invoice')
+    def compute_fiscal_sequence(self):
+        self.ensure_one()
+        fiscal_type = self.fiscal_type_id
+        if self.journal_id.fiscal_journal and fiscal_type and \
+                fiscal_type.internal_generate:
+
+            self.internal_generate = fiscal_type.internal_generate
+            self.fiscal_position_id = fiscal_type.fiscal_position_id
+
+            domain = [
+                ('company_id', '=', self.company_id.id),
+                ('fiscal_type_id', '=', self.fiscal_type_id.id),
+                ('state', '=', 'active'),
+            ]
+            if self.date_invoice:
+                domain.append(('expiration_date', '>=', self.date_invoice))
+            else:
+                domain.append(
+                    ('expiration_date', '>=', fields.Date.context_today(self)))
+
+            fiscal_sequence_id = self.env['account.fiscal.sequence'].search(
+                domain,
+                order='expiration_date, id desc',
+                limit=1,
+            )
+
+            if not fiscal_sequence_id:
+                pass
+            elif fiscal_sequence_id.state == 'active':
+                self.fiscal_sequence_id = fiscal_sequence_id
+            else:
+                self.fiscal_sequence_id = False
+        else:
+            self.fiscal_sequence_id = False
+
     @api.multi
     @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
                  'fiscal_sequence_id.remaining_percentage', 'state',
@@ -108,6 +147,7 @@ class AccountInvoice(models.Model):
     def _onchange_journal_id(self):
         if not self.is_fiscal_invoice:
             self.fiscal_type_id = False
+            self.fiscal_sequence_id = False
 
         return super(AccountInvoice, self)._onchange_journal_id()
 
@@ -116,25 +156,9 @@ class AccountInvoice(models.Model):
 
         if self.is_fiscal_invoice and self.fiscal_type_id:
             fiscal_type = self.fiscal_type_id
-
-            if fiscal_type.internal_generate:
-                fiscal_sequence = self.env['account.fiscal.sequence']\
-                    .search([('fiscal_type_id', '=', self.fiscal_type_id.id)
-                             , ('state', '=', 'active'),
-                             ('company_id', '=', self.company_id.id)],
-                            limit=1)
-                if not fiscal_sequence:
-                    raise UserError(_(u"There is no current active NCF of {}"
-                                      u", please create a new fiscal sequence "
-                                      u"of type {}.").format(
-                                    fiscal_type.name,
-                                    fiscal_type.name))
-                self.fiscal_sequence_id = fiscal_sequence.id
-
-            self.internal_generate = fiscal_type.internal_generate
-            self.fiscal_position_id = fiscal_type.fiscal_position_id
-            if fiscal_type.journal_id:
-                self.journal_id = fiscal_type.journal_id
+            fiscal_type_journal = fiscal_type.journal_id
+            if fiscal_type_journal and fiscal_type_journal != self.journal_id:
+                self.journal_id = fiscal_type_journal
 
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
@@ -195,3 +219,4 @@ class AccountInvoice(models.Model):
                     inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
 
         return super(AccountInvoice, self).action_invoice_open()
+
