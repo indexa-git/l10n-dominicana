@@ -197,9 +197,6 @@
                              <t t-esc="widget.format_currency(order.get_total_with_tax())"/>
                         </td>
                     </tr>
-
-
-
                 </table>
             </t>
             <t t-jquery=".receipt-paymentlines" t-operation="replace">

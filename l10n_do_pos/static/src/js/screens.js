@@ -6,7 +6,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
 
     // var core = require('web.core');
     // var screens_history = require('pos_orders_history.screens');
-    var screens_return = require('pos_orders_history_return.screens')
+    var screens_return = require('pos_orders_history_return.screens');
     // var Model = require('web.Model');
     // var _t = core._t;
 
@@ -129,13 +129,13 @@ odoo.define('l10n_do_pos.screens', function(require) {
             var total_in_bank = 0;
             var has_cash = false;
 
-            // if (total == 0) {
-            //     this.gui.show_popup('error', {
-            //         'title': 'Sale in',
-            //         'body': 'You cannot make sales in 0, please add a product with value'
-            //     });
-            //     return false
-            // }
+            if (total == 0) {
+                this.gui.show_popup('error', {
+                    'title': 'Sale in',
+                    'body': 'You cannot make sales in 0, please add a product with value'
+                });
+                return false
+            }
 
             for (var line in all_payment_lines){
                 var payment_line = all_payment_lines[line];
@@ -164,6 +164,7 @@ odoo.define('l10n_do_pos.screens', function(require) {
                 });
                 return false;
             }
+
             if(self.pos.invoice_journal.fiscal_journal && !current_order.to_invoice){
                 // if(current_order.get_mode() === 'return'){
                 //
@@ -466,72 +467,72 @@ odoo.define('l10n_do_pos.screens', function(require) {
         // },
     // });
 
-    screens.ScreenWidget.include({
-        barcode_product_action: function(code) {
-            var self = this;
-            var screen_name = this.gui.get_current_screen();
-
-            var order = this.pos.db.get_sorted_orders_history(1000).find(function(o) {
-                var ncf = o.ncf;
-                return ncf === code.code
-            });
-
-            if (screen_name === "orders_history_screen") {
-                if (order) {
-                    this.gui.current_screen.search_order_on_history(order);
-                    return;
-                }
-                var popup = this.pos.gui.current_popup;
-                if (popup && popup.options.barcode) {
-                    popup.$('input,textarea').val(code.code);
-                    popup.click_confirm();
-                } else {
-                    this.gui.show_popup('error',{
-                        'title': _t('Error: Could not find the Order'),
-                        'body': _t('There is no order with this barcode.')
-                    });
-                }
-            }
-            // else if (screen_name === "payment") {
-            //
-            //     var current_order = self.pos.get_order();
-            //     var cashregister = null;
-            //
-            //     for (var i = 0; i < this.pos.cashregisters.length; i++) {
-            //
-            //         if (this.pos.cashregisters[i].journal.is_for_credit_notes === true) {
-            //             cashregister = this.pos.cashregisters[i];
-            //             break;
-            //         }
-            //
-            //     }
-            //     if(cashregister === null){
-            //         self.gui.show_popup('error', {
-            //             'title': _t('Payment method does not exist'),
-            //             'body': _t('Payment method type "Credit Note" does not'+
-            //                 'exist on payment methods, please config payment' +
-            //                 'method withe check is Is For Credit Notes.')
-            //         });
-            //     }else{
-            //         current_order.add_payment_credit_note(
-            //             code.code,
-            //             cashregister);
-            //     }
-
-
-
-            //}
-            else {
-                this._super(code);
-            }
-        },
-        // // what happens when a barcode is scanned :
-        // // it will add the order reference to the search in orders history screen
-        search_order_on_history: function(order) {
-            this.gui.current_screen.$('.searchbox input').val(order.pos_reference);
-            this.gui.current_screen.$('.searchbox input').keypress();
-        },
-    });
+    // screens.ScreenWidget.include({
+    //     barcode_product_action: function(code) {
+    //         var self = this;
+    //         var screen_name = this.gui.get_current_screen();
+    //
+    //         var order = this.pos.db.get_sorted_orders_history(1000).find(function(o) {
+    //             var ncf = o.ncf;
+    //             return ncf === code.code
+    //         });
+    //
+    //         if (screen_name === "orders_history_screen") {
+    //             if (order) {
+    //                 this.gui.current_screen.search_order_on_history(order);
+    //                 return;
+    //             }
+    //             var popup = this.pos.gui.current_popup;
+    //             if (popup && popup.options.barcode) {
+    //                 popup.$('input,textarea').val(code.code);
+    //                 popup.click_confirm();
+    //             } else {
+    //                 this.gui.show_popup('error',{
+    //                     'title': _t('Error: Could not find the Order'),
+    //                     'body': _t('There is no order with this barcode.')
+    //                 });
+    //             }
+    //         }
+    //         else if (screen_name === "payment") {
+    //
+    //             var current_order = self.pos.get_order();
+    //             var cashregister = null;
+    //
+    //             for (var i = 0; i < this.pos.cashregisters.length; i++) {
+    //
+    //                 if (this.pos.cashregisters[i].journal.is_for_credit_notes === true) {
+    //                     cashregister = this.pos.cashregisters[i];
+    //                     break;
+    //                 }
+    //
+    //             }
+    //             if(cashregister === null){
+    //                 self.gui.show_popup('error', {
+    //                     'title': _t('Payment method does not exist'),
+    //                     'body': _t('Payment method type "Credit Note" does not'+
+    //                         'exist on payment methods, please config payment' +
+    //                         'method withe check is Is For Credit Notes.')
+    //                 });
+    //             }else{
+    //                 current_order.add_payment_credit_note(
+    //                     code.code,
+    //                     cashregister);
+    //             }
+    //
+    //
+    //
+    //         }
+    //         else {
+    //             this._super(code);
+    //         }
+    //     },
+    //     // // what happens when a barcode is scanned :
+    //     // // it will add the order reference to the search in orders history screen
+    //     search_order_on_history: function(order) {
+    //         this.gui.current_screen.$('.searchbox input').val(order.pos_reference);
+    //         this.gui.current_screen.$('.searchbox input').keypress();
+    //     },
+    // });
 
 
     // screens_history.OrdersHistoryScreenWidget.include({

@@ -26,28 +26,94 @@
                 <t t-if="order">
                     <span class="js_fiscal_type_name" style="color:red">
                         <t t-esc="order.get_fiscal_type().name"/>
-                        <!--TODO this part is for return orders-->
-                        <!--<t t-if="order.get_mode() != 'return'">-->
-                            <!--<t t-if='partner and partner.sale_fiscal_type'>-->
-                                <!--<span style="color:red">-->
-                                    <!--<t t-esc="widget.pos.db.get_sale_fiscal_sequence(partner.sale_fiscal_type).name"/>-->
-                                <!--</span>-->
-                            <!--</t>-->
-                            <!--<t t-if="!widget.pos.get_client()">-->
-                                <!--<span style="color:red">-->
-                                    <!--<t t-esc="widget.pos.db.get_sale_fiscal_sequence('consumo').name"/>-->
-                                <!--</span>-->
-                            <!--</t>-->
-                        <!--</t>-->
-                        <!--<t t-if="order.get_mode() == 'return'">-->
-                            <!--<span style="color:red">-->
-                                <!--Nota de Crédito-->
-                            <!--</span>-->
-                        <!--</t>-->
-                        <!--<br/>-->
                     </span>
                     <br/>
                 </t>
+            </t>
+        </t>
+    </t>
+
+    <t t-extend="OrdersHistoryScreenWidget">
+            <t t-jquery=".button.return-no-receipt" t-operation="replace">
+                <t t-if="!widget.pos.invoice_journal.fiscal_journal">
+                    <span class="button return-no-receipt">No Receipt</span>
+                </t>
+            </t>
+
+        <t t-jquery=".order-list" t-operation="replace">
+            <table class='order-list'>
+                <thead>
+                    <tr>
+                        <t t-if="widget.pos.invoice_journal.fiscal_journal">
+                            <th>NCF</th>
+                        </t>
+                        <t t-if="!widget.pos.invoice_journal.fiscal_journal">
+                            <th>Order Ref</th>
+                        </t>
+                        <th>Customer</th>
+                        <th>POS</th>
+                        <th>Order Date</th>
+                        <th>Salesman</th>
+                        <th>Status</th>
+                        <th class="actions oe_hidden">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class='order-list-contents'>
+
+                </tbody>
+            </table>
+        </t>
+    </t>
+
+    <t t-extend="OrderHistory">
+        <t t-jquery=".details" t-operation="replace">
+            <t t-if="widget.pos.invoice_journal.fiscal_journal">
+                <span class='details' >
+                    <t t-esc='order.ncf'/>
+                </span>
+            </t>
+            <t t-if="!widget.pos.invoice_journal.fiscal_journal">
+                <span class='details' >
+                    <t t-esc='order.pos_reference'/>
+                </span>
+            </t>
+        </t>
+
+        <t t-jquery="t[t-if='!order.computed_state']" t-operation="replace">
+            <t t-if="!order.computed_state">
+                <td>
+                    <t t-if="order.state == 'done'">
+                        Posted
+                    </t>
+                    <t t-if="order.state == 'paid'">
+                        Paid
+                    </t>
+                    <t t-if="order.state == 'cancel'">
+                        Cancelled
+                    </t>
+                    <t t-if="order.state == 'invoiced'">
+                        Invoiced
+                    </t>
+                </td>
+            </t>
+        </t>
+
+        <t t-jquery="t[t-if='order.computed_state']" t-operation="replace">
+            <t t-if="order.computed_state">
+                <td>
+                    <t t-if="order.computed_state == 'done'">
+                        Posted
+                    </t>
+                    <t t-if="order.computed_state == 'paid'">
+                        Paid
+                    </t>
+                    <t t-if="order.computed_state == 'cancel'">
+                        Cancelled
+                    </t>
+                    <t t-if="order.computed_state == 'invoiced'">
+                        Invoiced
+                    </t>
+                </td>
             </t>
         </t>
     </t>

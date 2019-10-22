@@ -6,7 +6,7 @@ odoo.define('l10n_do_pos.models', function (require) {
     // var Model = require('web.Model');
 
     models.load_fields('res.partner', ['sale_fiscal_type_id']);
-    // models.load_fields('account.journal', ['is_for_credit_notes']);
+    models.load_fields('account.journal', ['is_for_credit_notes']);
 
     models.load_models({
         model:  'account.journal',
