@@ -105,9 +105,11 @@ class AccountInvoice(models.Model):
                     inv.fiscal_sequence_status = 'no_sequence'
 
     @api.onchange('journal_id')
-    def _onchange_custom_journal(self):
+    def _onchange_journal_id(self):
         if not self.is_fiscal_invoice:
             self.fiscal_type_id = False
+
+        return super(AccountInvoice, self)._onchange_journal_id()
 
     @api.onchange('fiscal_type_id')
     def _onchange_fiscal_type(self):
@@ -145,7 +147,7 @@ class AccountInvoice(models.Model):
             if self.type == 'in_invoice':
                 self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
                 self.expense_type = self.partner_id.expense_type
-                
+
         return super(AccountInvoice, self)._onchange_partner_id()
 
     @api.multi
