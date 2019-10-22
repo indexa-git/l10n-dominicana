@@ -10,12 +10,15 @@
                     <button name="action_confirm" string="Confirm" type="object"
                             class="oe_highlight"
                             attrs="{'invisible':[('state','!=','draft')]}"/>
+                    <button name="action_queue" string="Queue" type="object"
+                            attrs="{'invisible':['|', ('state','!=','draft'), ('can_be_queue', '=', False)]}"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             attrs="{'invisible':[('state','in', ('cancelled', 'draft'))]}"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="active,depleted"/>
                 </header>
                 <sheet>
+                    <field name="can_be_queue" invisible="1"/>
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button"
                                 name="action_view_sequence"
