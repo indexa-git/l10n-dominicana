@@ -94,7 +94,8 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
         get: function (localID) {
             var result = this._super.apply(this, arguments);
             if (_.isObject(result)) {
-                result.fiscalSequencesValues = this.fiscalSequencesValues[localID];
+                result.fiscalSequencesValues =
+                    this.fiscalSequencesValues[localID];
             }
             return result;
         },
@@ -103,14 +104,18 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
          * @returns {Deferred}
          */
         load: function () {
-            return this._loadFiscalSequence(this._super.apply(this, arguments));
+            return this._loadFiscalSequence(
+                this._super.apply(this, arguments)
+            );
         },
         /**
          * @œverride
          * @returns {Deferred}
          */
         reload: function () {
-            return this._loadFiscalSequence(this._super.apply(this, arguments));
+            return this._loadFiscalSequence(
+                this._super.apply(this, arguments)
+            );
         },
 
         //---------------------------------------------------------------------
