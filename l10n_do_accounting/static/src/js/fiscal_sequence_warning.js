@@ -14,9 +14,9 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
             'click .o_go_to_fiscal_sequences': '_goToFiscalSequences',
         }),
 
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Private
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TODO: implement similar for changes
         // /**
         //  * Notifies the controller that the target has changed.
@@ -50,30 +50,29 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
             });
         },
 
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Handlers
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         /**
          * @private
-         * @param {MouseEvent}
+         * @param {Event}
          */
-        _goToFiscalSequences: function (ev) {
-            ev.preventDefault();
-            // let $action_click = $(ev.currentTarget);
-            // let journal_id = $action_click.context.value;
+        _goToFiscalSequences: function (Event) {
+            Event.preventDefault();
             this.do_action({
                 name: 'Fiscal Sequences',
                 res_model: 'account.fiscal.sequence',
                 views: [[false, 'list'], [false, 'form']],
                 type: 'ir.actions.act_window',
                 view_type: "list",
-                view_mode: "list"
+                view_mode: "list",
             });
         },
     });
 
     var FiscalSequenceWarningModel = KanbanModel.extend({
+
         /**
          * @override
          */
@@ -82,9 +81,9 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
             this._super.apply(this, arguments);
         },
 
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Public
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         /**
          * @override
@@ -97,8 +96,9 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
             }
             return result;
         },
+
         /**
-         * @œverride
+         * @override
          * @returns {Deferred}
          */
         load: function () {
@@ -106,8 +106,9 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
                 this._super.apply(this, arguments)
             );
         },
+        
         /**
-         * @œverride
+         * @override
          * @returns {Deferred}
          */
         reload: function () {
@@ -116,9 +117,9 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
             );
         },
 
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Private
-        //---------------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         /**
          * @private
@@ -131,14 +132,14 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
             var dashboard_def = this._rpc({
                 model: 'account.fiscal.sequence',
                 method: 'search_read',
-                args: [[['state', '=', 'active']]]
+                args: [[['state', '=', 'active']]],
             });
             return $.when(super_def, dashboard_def)
                 .then(function (id, fiscalSequenceValues) {
                     var lowFiscalSequence = [];
                     fiscalSequenceValues.forEach(function (item) {
                         if (item.warning_gap >= item.sequence_remaining) {
-                            lowFiscalSequence.push(item)
+                            lowFiscalSequence.push(item);
                         }
                     });
                     self.fiscalSequencesValues[id] = lowFiscalSequence;
