@@ -54,10 +54,10 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
         // Handlers
         // --------------------------------------------------------------------
 
-        /**
-         * @private
-         * @param {Event}
-         */
+        // TODO:/**
+        //  * @private
+        //  * @param {Event}
+        //  */
         _goToFiscalSequences: function (Event) {
             Event.preventDefault();
             this.do_action({
@@ -106,7 +106,7 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
                 this._super.apply(this, arguments)
             );
         },
-        
+
         /**
          * @override
          * @returns {Deferred}
@@ -121,12 +121,12 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
         // Private
         // --------------------------------------------------------------------
 
-        /**
-         * @private
-         * @param {Deferred} super_def a deferred that resolves with a
-         * dataPoint id
-         * @returns {Deferred -> string} resolves to the dataPoint id
-         */
+        // TODO: TESTING PASS/**
+        //  * @private
+        //  * @param {Deferred} super_def a deferred that resolves with a
+        //  * dataPoint id
+        //  * @returns {Deferred -> string} resolves to the dataPoint id
+        //  */
         _loadFiscalSequence: function (super_def) {
             var self = this;
             var dashboard_def = this._rpc({

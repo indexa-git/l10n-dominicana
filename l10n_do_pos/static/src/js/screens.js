@@ -257,20 +257,19 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         [current_order.fiscal_type.id],
                         [self.pos.company.id],
                     ],
-                })
-                    .then(function (res) {
-                        current_order.ncf = res.ncf;
-                        current_order.fiscal_type_id =
-                            current_order.fiscal_type.id;
-                        current_order.ncf_expiration_date =
-                            res.ncf_expiration_date;
-                        current_order.fiscal_sequence_id =
-                            res.fiscal_sequence_id;
-                        console.log(res);
+                }).then(function (res) {
+                    current_order.ncf = res.ncf;
+                    current_order.fiscal_type_id =
+                        current_order.fiscal_type.id;
+                    current_order.ncf_expiration_date =
+                        res.ncf_expiration_date;
+                    current_order.fiscal_sequence_id =
+                        res.fiscal_sequence_id;
+                    console.log(res);
                     }, function (type, err) {
                         console.log(type);
                         console.log(err);
-                    }).done(function () {
+                }).done(function () {
                     $('.freeze_screen').removeClass("active_state");
                     $(".lds-spinner").hide();
                     _super();
