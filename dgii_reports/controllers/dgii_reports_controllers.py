@@ -25,7 +25,7 @@ class DgiiReportsControllers(Controller):
                     'in_refund': request.env.ref('account.action_invoice_in_refund')
                 }
                 action = action_map[invoice_id.type]
-                url = f"{base_url}/web#id={invoice_id.id}&action={action.id}&model=account.invoice&view_type=form"
+                url = "%s/web#id=%s&action=%s&model=account.invoice&view_type=form" % (base_url, invoice_id.id, action.id)
 
                 return redirect(url)  # Returns invoice form view
 
@@ -34,7 +34,7 @@ class DgiiReportsControllers(Controller):
         else:
             partner_id = env['res.partner'].search([('vat', '=', ncf_rnc)], limit=1)
             if partner_id:
-                url = f"{base_url}/web#id={partner_id.id}&model=res.partner&view_type=form"
+                url = "%s/web#id=%s&model=res.partner&view_type=form" % (base_url, partner_id.id)
                 return redirect(url)  # Returns partner form view
 
             return redirect(base_url)
