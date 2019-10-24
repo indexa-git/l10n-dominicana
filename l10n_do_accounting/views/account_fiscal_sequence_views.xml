@@ -38,7 +38,10 @@
                     </group>
                     <group>
                         <group>
-                            <field name="fiscal_type_id" widget="selection"/>
+                            <field name="fiscal_type_id"
+                                   widget="selection"
+                                   domain="[('internal_generate', '=', True)]"
+                            />
                             <field name="sequence_start"/>
                             <field name="sequence_end"/>
                             <field name="expiration_date"/>
@@ -156,9 +159,9 @@
                         <field name="name"/>
                         <field name="prefix"/>
                         <field name="type"/>
+                        <field name="padding">8</field>
                         <field name="internal_generate"/>
                         <field name="required_document"/>
-
                     </group>
                     <group>
                         <field name="journal_id"

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_do_pos_view_pos_pos_form" model="ir.ui.view">
+        <field name="name">l10n.do.pos.view.pos.pos.form</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+        <field name="arch" type="xml">
+
+            <field name="sale_journal" position="replace">
+                <field name="ncf"/>
+                <field name="ncf_expiration_date"/>
+                <field name="fiscal_type_id"/>
+                <!--<field name="ncf_origin_out" attrs="{'invisible':[('is_return_order','=',False)]}"/>-->
+            </field>
+
+        </field>
+    </record>
+
+    <record id="l10n_do_pos_view_pos_order_tree" model="ir.ui.view">
+        <field name="name">l10n.do.pos.view.pos.order.tree</field>
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="ncf"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

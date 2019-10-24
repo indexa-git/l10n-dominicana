@@ -10,7 +10,9 @@
                     <h2>¡NCF almost deplete!</h2>
                     <t t-foreach="values" t-as="fiscal_sequence">
                         <h5>
-                            <t t-esc="fiscal_sequence.fiscal_type_id[1]"/> - Remains: <t t-esc="fiscal_sequence.sequence_remaining"/>
+                            <t t-esc="fiscal_sequence.fiscal_type_id[1]"/>
+                            - Remains:
+                            <t t-esc="fiscal_sequence.sequence_remaining"/>
                         </h5>
                     </t>
                     <button class="btn btn-primary o_go_to_fiscal_sequences">

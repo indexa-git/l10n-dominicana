@@ -64,7 +64,6 @@ class AccountInvoice(models.Model):
     )
     ncf_expiration_date = fields.Date(
         'Valid until',
-        # compute="_compute_ncf_expiration_date",
         store=True,
     )
     is_fiscal_invoice = fields.Boolean(
@@ -218,10 +217,12 @@ class AccountInvoice(models.Model):
                         raise UserError(_(
                             u"if the invoice amount is greater than "
                             u"RD$250,000.00 "
-                            u"the costumer should have RNC or Céd"
+                            u"the customer should have RNC or Céd"
                             u"for make invoice"))
 
                 if not inv.reference and inv.fiscal_type_id.internal_generate:
                     inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
+                    inv.ncf_expiration_date = \
+                        inv.fiscal_sequence_id.expiration_date
 
         return super(AccountInvoice, self).action_invoice_open()
