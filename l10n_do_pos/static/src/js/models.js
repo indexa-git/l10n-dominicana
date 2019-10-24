@@ -59,14 +59,15 @@ odoo.define('l10n_do_pos.models', function (require) {
         initialize: function () {
             _super_order.initialize.apply(this, arguments);
 
-            var self = this;
             this.ncf = '';
             this.ncf_origin_out = '';
             this.ncf_expiration_date = '';
             this.fiscal_type = false;
             this.fiscal_type_id = false;
             this.fiscal_sequence_id = false;
+
             // TODO: FOR CREDIT ORDER AND PASS TEST
+            // var self = this;
             // var client = self.get_client();
             // if (this.get_mode() === 'return') {
             //
