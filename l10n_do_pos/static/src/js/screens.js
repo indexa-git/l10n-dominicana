@@ -21,6 +21,22 @@ odoo.define('l10n_do_pos.screens', function (require) {
         }
     });
 
+    screens.OrdersHistoryButton.include({
+        button_click: function () {
+            if(this.pos.invoice_journal.fiscal_journal &&
+                !this.pos.config.load_barcode_order_only){
+                this.gui.show_popup('error', {
+                    'title': _t('Config'),
+                    'body': _t('Please active Load Specific Orders only it ' +
+                        'on point of sale config'),
+                });
+            }else{
+                this._super();
+            }
+
+        },
+    });
+
     screens.PaymentScreenWidget.include({
 
         customer_changed: function () {
@@ -71,15 +87,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 this.$('.js_invoice').hide();
             }
         },
-
-        // render_numpad: function() {
-        //     var self = this;
-        //     var numpad = $(QWeb.render('PaymentScreen-Numpad', { widget:this }));
-        //     numpad.on('click','button',function(){
-        //         self.click_numpad($(this));
-        //     });
-        //     return numpad;
-        // },
 
         open_vat_popup: function () {
             var self = this;

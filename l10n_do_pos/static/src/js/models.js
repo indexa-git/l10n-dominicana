@@ -17,7 +17,6 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
         loaded: function (self, journals) {
             self.invoice_journal = false;
-            console.log(self)
             if (journals[0]) {
                 self.invoice_journal = journals[0];
             }
