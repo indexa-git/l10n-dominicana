@@ -56,15 +56,30 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 this.pos.invoice_journal.fiscal_journal) {
                 this.$('.js_set_fiscal_type').addClass('disable');
                 this.$('.js_set_customer').addClass('disable');
+                this.$('.input-button').addClass('disable');
+                this.$('.mode-button').addClass('disable');
+                this.$('.paymentmethod').addClass('disable');
 
             } else {
                 this.$('.js_set_fiscal_type').removeClass('disable');
                 this.$('.js_set_customer').removeClass('disable');
+                this.$('.input-button').removeClass('disable');
+                this.$('.mode-button').removeClass('disable');
+                this.$('.paymentmethod').removeClass('disable');
             }
             if(this.pos.invoice_journal.fiscal_journal){
                 this.$('.js_invoice').hide();
             }
         },
+
+        // render_numpad: function() {
+        //     var self = this;
+        //     var numpad = $(QWeb.render('PaymentScreen-Numpad', { widget:this }));
+        //     numpad.on('click','button',function(){
+        //         self.click_numpad($(this));
+        //     });
+        //     return numpad;
+        // },
 
         open_vat_popup: function () {
             var self = this;
