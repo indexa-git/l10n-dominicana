@@ -17,6 +17,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
         loaded: function (self, journals) {
             self.invoice_journal = false;
+            console.log(self)
             if (journals[0]) {
                 self.invoice_journal = journals[0];
             }
@@ -46,6 +47,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             'required_document',
             'prefix',
             'internal_generate',
+            'type'
         ],
         domain: function () {
             return [['type', 'in', ['sale', 'special_sale']]];
@@ -66,36 +68,36 @@ odoo.define('l10n_do_pos.models', function (require) {
             this.fiscal_type_id = false;
             this.fiscal_sequence_id = false;
 
-            // TODO: FOR CREDIT ORDER AND PASS TEST
-            // var self = this;
-            // var client = self.get_client();
-            // if (this.get_mode() === 'return') {
-            //
-            //     this.fiscal_type =
-            //         self.pos.get_fiscal_type_by_prefix(
-            //             'B04'
-            //         );
-            //
-            // } else {
-            //     if (client) {
-            //         if (client.sale_fiscal_type_id) {
-            //             this.fiscal_type =
-            //                 self.pos.get_fiscal_type_by_id(
-            //                     client.sale_fiscal_type_id[0]
-            //                 );
-            //         } else {
-            //             this.fiscal_type =
-            //                 self.pos.get_fiscal_type_by_prefix(
-            //                     'B02'
-            //                 );
-            //         }
-            //     } else {
-            //         this.fiscal_type =
-            //             self.pos.get_fiscal_type_by_prefix(
-            //                 'B02'
-            //             );
-            //     }
-            // }
+            var self = this;
+            var client = self.get_client();
+
+            if (this.get_mode() === 'return') {
+
+                this.fiscal_type =
+                    self.pos.get_fiscal_type_by_prefix(
+                        'B04'
+                    );
+
+            } else {
+                if (client) {
+                    if (client.sale_fiscal_type_id) {
+                        this.fiscal_type =
+                            self.pos.get_fiscal_type_by_id(
+                                client.sale_fiscal_type_id[0]
+                            );
+                    } else {
+                        this.fiscal_type =
+                            self.pos.get_fiscal_type_by_prefix(
+                                'B02'
+                            );
+                    }
+                } else {
+                    this.fiscal_type =
+                        self.pos.get_fiscal_type_by_prefix(
+                            'B02'
+                        );
+                }
+            }
             this.save_to_db();
         },
 
@@ -159,7 +161,6 @@ odoo.define('l10n_do_pos.models', function (require) {
         get_fiscal_type_by_prefix: function (prefix) {
             var self = this;
             var res_fiscal_type = false;
-            console.log(self);
             // TODO: try make at best performance
             self.fiscal_types.forEach(function (fiscal_type) {
                 if (fiscal_type.prefix === prefix) {
