@@ -1,6 +1,6 @@
 [![License: AGPL-3](https://img.shields.io/badge/licence-LGPL--3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
-[![Build Status](https://travis-ci.org/odoo-dominicana/l10n-dominicana.svg?branch=12.0)](https://travis-ci.org/odoo-dominicana/l10n-dominicana)
-[![codecov](https://codecov.io/gh/odoo-dominicana/l10n-dominicana/branch/12.0/graph/badge.svg)](https://codecov.io/gh/odoo-dominicana/l10n-dominicana)
+[![Build Status](https://travis-ci.org/odoo-dominicana/l10n-dominicana.svg?branch=12.0-pro)](https://travis-ci.org/odoo-dominicana/l10n-dominicana)
+[![codecov](https://codecov.io/gh/odoo-dominicana/l10n-dominicana/branch/12.0-pro/graph/badge.svg)](https://codecov.io/gh/odoo-dominicana/l10n-dominicana)
 
 # Localización RD para Facturación Fiscal
 
