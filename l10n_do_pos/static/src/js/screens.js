@@ -329,6 +329,14 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         res.ncf_expiration_date;
                     current_order.fiscal_sequence_id =
                         res.fiscal_sequence_id;
+                    // For credit notes
+                    if(current_order.get_mode() === 'return'){
+                        var origin_order =
+                            self.pos.db.orders_history_by_id[
+                                current_order.return_lines[0].order_id[0]
+                                ];
+                        current_order.ncf_origin_out = origin_order.ncf;
+                    }
                     console.log(res);
                     }, function (type, err) {
                         console.log(type);
