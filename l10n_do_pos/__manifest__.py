@@ -10,7 +10,7 @@
     'license': 'LGPL-3',
     'website': "https://github.com/odoo-dominicana",
     'category': 'Localization',
-    'version': '12.2.0.0.0',
+    'version': '12.0.2.0.0',
 
     # any module necessary for this one to work correctly
     'depends': [
