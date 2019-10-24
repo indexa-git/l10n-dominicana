@@ -241,13 +241,14 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
             // TODO: for passing testing
             // var self = this;
-            var current_order = this.pos.get_order();
             // var _super = this._super.bind(this);
+            var current_order = this.pos.get_order();
 
             if (self.pos.invoice_journal.fiscal_journal &&
                 !current_order.to_invoice) {
 
                 console.log('im fiscal');
+                
                 // TODO: for passing testing
                 // $('.freeze_screen').addClass("active_state");
                 // $(".lds-spinner").show();
