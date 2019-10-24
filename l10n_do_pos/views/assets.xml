@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="assets_l10_do_pos" name="l10_do_pos assets" inherit_id="point_of_sale.assets">
+    <template id="assets_l10_do_pos" name="l10_do_pos assets"
+              inherit_id="point_of_sale.assets">
         <xpath expr="." position="inside">
             <!--<script type="text/javascript" src="/l10n_do_pos/static/src/js/db.js"></script>-->
-            <script type="text/javascript" src="/l10n_do_pos/static/src/js/models.js"></script>
+            <script type="text/javascript"
+                    src="/l10n_do_pos/static/src/js/models.js"></script>
             <!--<script type="text/javascript" src="/l10n_do_pos/static/src/js/popups.js"></script>-->
-            <script type="text/javascript" src="/l10n_do_pos/static/src/js/screens.js"></script>
-            <!--<link rel="stylesheet" href="/l10n_do_pos/static/src/css/pos.css"/>-->
+            <script type="text/javascript"
+                    src="/l10n_do_pos/static/src/js/screens.js"></script>
+            a
         </xpath>
     </template>
 </odoo>

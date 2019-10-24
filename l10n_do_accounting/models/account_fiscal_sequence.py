@@ -256,14 +256,14 @@ class AccountFiscalSequence(models.Model):
     def _expire_sequences(self):
         """
         Function called from ir.cron that check all active sequence
-        date_end and set state = expired if necessary
+        expiration_date and set state = expired if necessary
         """
         # Use DR local time
         l10n_do_date = get_l10n_do_datetime().date()
         fiscal_sequence_ids = self.search([('state', '=', 'active')])
 
         for seq in fiscal_sequence_ids.filtered(
-                lambda s: l10n_do_date >= s.date_end):
+                lambda s: l10n_do_date >= s.expiration_date):
             seq.state = 'expired'
 
     def get_fiscal_number(self):
@@ -296,10 +296,12 @@ class AccountFiscalType(models.Model):
     prefix = fields.Char(
         copy=False,
     )
+    padding = fields.Integer()
     type = fields.Selection([
         ('sale', 'Sale'),
         ('purchase', 'Purchase'),
-        ('special', 'Special')
+        ('special_sale', 'Special sale'),
+        ('special_purchase', 'Special purchase')
     ],
         required=True,
     )
@@ -319,11 +321,16 @@ class AccountFiscalType(models.Model):
     )
 
     def get_next_fiscal_sequence(self, company_id):
-        fiscal_sequence = self.env['account.fiscal.sequence'] \
-            .search([('fiscal_type_id', '=', self.id)
-                        , ('state', '=', 'active'),
-                     ('company_id', '=', company_id)],
-                    limit=1)
+        """
+        search active fiscal sequence dependent with fiscal type
+        :param company_id:
+        :return: {ncf, expiration date, fiscal sequence}
+        """
+        fiscal_sequence = self.env['account.fiscal.sequence'].search([
+            ('fiscal_type_id', '=', self.id),
+            ('state', '=', 'active'),
+            ('company_id', '=', company_id)
+        ], limit=1)
         if not fiscal_sequence:
             raise UserError(_(u"There is no current active NCF of {}"
                               u", please create a new fiscal sequence "
