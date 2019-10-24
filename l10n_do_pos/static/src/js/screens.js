@@ -7,6 +7,20 @@ odoo.define('l10n_do_pos.screens', function (require) {
     var core = require('web.core');
     var _t = core._t;
 
+    screens.ActionpadWidget.include({
+        renderElement: function () {
+            this._super();
+            var current_order = this.pos.get_order();
+
+            if (current_order.get_mode() === 'return' &&
+                this.pos.invoice_journal.fiscal_journal) {
+                this.$('.set-customer').addClass('disable');
+            } else {
+                this.$('.set-customer').removeClass('disable');
+            }
+        }
+    });
+
     screens.PaymentScreenWidget.include({
 
         customer_changed: function () {
@@ -34,10 +48,38 @@ odoo.define('l10n_do_pos.screens', function (require) {
         renderElement: function () {
             this._super();
             var self = this;
+            var current_order = self.pos.get_order();
             this.$('.js_set_fiscal_type').click(function () {
                 self.click_set_fiscal_type();
             });
+            if (current_order.get_mode() === 'return' &&
+                this.pos.invoice_journal.fiscal_journal) {
+                this.$('.js_set_fiscal_type').addClass('disable');
+                this.$('.js_set_customer').addClass('disable');
+                this.$('.input-button').addClass('disable');
+                this.$('.mode-button').addClass('disable');
+                this.$('.paymentmethod').addClass('disable');
+
+            } else {
+                this.$('.js_set_fiscal_type').removeClass('disable');
+                this.$('.js_set_customer').removeClass('disable');
+                this.$('.input-button').removeClass('disable');
+                this.$('.mode-button').removeClass('disable');
+                this.$('.paymentmethod').removeClass('disable');
+            }
+            if(this.pos.invoice_journal.fiscal_journal){
+                this.$('.js_invoice').hide();
+            }
         },
+
+        // render_numpad: function() {
+        //     var self = this;
+        //     var numpad = $(QWeb.render('PaymentScreen-Numpad', { widget:this }));
+        //     numpad.on('click','button',function(){
+        //         self.click_numpad($(this));
+        //     });
+        //     return numpad;
+        // },
 
         open_vat_popup: function () {
             var self = this;
@@ -101,13 +143,15 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
         click_set_fiscal_type: function () {
             var self = this;
-
             var fiscal_type_list = _.map(self.pos.fiscal_types,
                 function (fiscal_type) {
-                    return {
-                        label: fiscal_type.name,
-                        item: fiscal_type,
-                    };
+                    if(fiscal_type.type === 'sale'){
+                        return {
+                            label: fiscal_type.name,
+                            item: fiscal_type,
+                        };
+                    }
+                    return false;
                 });
 
             self.gui.show_popup('selection', {
@@ -132,44 +176,35 @@ odoo.define('l10n_do_pos.screens', function (require) {
             });
         },
 
-        order_is_valid: function (force_validation) {
+        analyze_payment_methods: function (){
 
-            var self = this;
             var current_order = this.pos.get_order();
-            var client = current_order.get_client();
-            var total = current_order.get_total_with_tax();
             var total_in_bank = 0;
             var has_cash = false;
+            var all_payment_lines = current_order.get_paymentlines();
+            var total = current_order.get_total_with_tax();
 
-            // TODO: var all_payment_lines = current_order.get_paymentlines();
-            // TODO: for pass testing if (total === 0) {
-            //     this.gui.show_popup('error', {
-            //         'title': 'Sale in',
-            //         'body': 'You cannot make sales in 0, please add a ' +
-            //             'product with value',
-            //     });
-            //     return false;
-            // }
-            // for (var line in all_payment_lines) {
-            //     var payment_line = all_payment_lines[line];
-            //
-            //     if (payment_line.cashregister.journal.type === 'bank') {
-            //         total_in_bank =+ payment_line.amount;
-            //     }
-            //     if (payment_line.cashregister.journal.type === 'cash') {
-            //         has_cash = true;
-            //     }
-            // }
-            // if (Math.abs(Math.round(Math.abs(total) * 100) / 100) <
-            //     Math.round(Math.abs(total_in_bank) * 100) / 100) {
-            //
-            //     this.gui.show_popup('error', {
-            //         'title': 'Card payment',
-            //         'body': 'Card payments cannot exceed the total order',
-            //     });
-            //
-            //     return false;
-            // }
+            for (var line in all_payment_lines) {
+                var payment_line = all_payment_lines[line];
+
+                if (payment_line.cashregister.journal.type === 'bank') {
+                    total_in_bank =+ payment_line.amount;
+                }
+                if (payment_line.cashregister.journal.type === 'cash') {
+                    has_cash = true;
+                }
+            }
+
+            if (Math.abs(Math.round(Math.abs(total) * 100) / 100) <
+                Math.round(Math.abs(total_in_bank) * 100) / 100) {
+
+                this.gui.show_popup('error', {
+                    'title': 'Card payment',
+                    'body': 'Card payments cannot exceed the total order',
+                });
+
+                return false;
+            }
 
             if (Math.round(Math.abs(total_in_bank) * 100) / 100 ===
                 Math.round(Math.abs(total) * 100) / 100 && has_cash) {
@@ -182,7 +217,31 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 });
 
                 return false;
+            }
 
+            return true;
+
+
+        },
+
+        order_is_valid: function (force_validation) {
+
+            var self = this;
+            var current_order = this.pos.get_order();
+            var client = current_order.get_client();
+            var total = current_order.get_total_with_tax();
+
+            if (total === 0) {
+                this.gui.show_popup('error', {
+                    'title': 'Sale in',
+                    'body': 'You cannot make sales in 0, please add a ' +
+                        'product with value',
+                });
+                return false;
+            }
+
+            if(!self.analyze_payment_methods()){
+                return false;
             }
 
             if (self.pos.invoice_journal.fiscal_journal &&
@@ -239,50 +298,46 @@ odoo.define('l10n_do_pos.screens', function (require) {
         },
         finalize_validation: function () {
 
-            // TODO: for passing testing
-            // var self = this;
-            // var _super = this._super.bind(this);
+            var self = this;
+            var _super = this._super.bind(this);
             var current_order = this.pos.get_order();
 
             if (self.pos.invoice_journal.fiscal_journal &&
                 !current_order.to_invoice) {
 
-                console.log('im fiscal');
-
-                // TODO: for passing testing
-                // $('.freeze_screen').addClass("active_state");
-                // $(".lds-spinner").show();
-                // rpc.query({
-                //     model: 'account.fiscal.type',
-                //     method: 'get_next_fiscal_sequence',
-                //     args: [
-                //         [current_order.fiscal_type.id],
-                //         [self.pos.company.id],
-                //     ],
-                // }).then(function (res) {
-                //     current_order.ncf = res.ncf;
-                //     current_order.fiscal_type_id =
-                //         current_order.fiscal_type.id;
-                //     current_order.ncf_expiration_date =
-                //         res.ncf_expiration_date;
-                //     current_order.fiscal_sequence_id =
-                //         res.fiscal_sequence_id;
-                //     console.log(res);
-                //     }, function (type, err) {
-                //         console.log(type);
-                //         console.log(err);
-                // }).done(function () {
-                //     $('.freeze_screen').removeClass("active_state");
-                //     $(".lds-spinner").hide();
-                //     _super();
-                // }).fail(function () {
-                //     $('.freeze_screen').removeClass("active_state");
-                //     $(".lds-spinner").hide();
-                //     self.gui.show_popup('error', {
-                //         'title': 'Error connection',
-                //         'body': 'Please check your internet connection',
-                //     });
-                // });
+                $('.freeze_screen').addClass("active_state");
+                $(".lds-spinner").show();
+                rpc.query({
+                    model: 'account.fiscal.type',
+                    method: 'get_next_fiscal_sequence',
+                    args: [
+                        [current_order.fiscal_type.id],
+                        [self.pos.company.id],
+                    ],
+                }).then(function (res) {
+                    current_order.ncf = res.ncf;
+                    current_order.fiscal_type_id =
+                        current_order.fiscal_type.id;
+                    current_order.ncf_expiration_date =
+                        res.ncf_expiration_date;
+                    current_order.fiscal_sequence_id =
+                        res.fiscal_sequence_id;
+                    console.log(res);
+                    }, function (type, err) {
+                        console.log(type);
+                        console.log(err);
+                }).done(function () {
+                    $('.freeze_screen').removeClass("active_state");
+                    $(".lds-spinner").hide();
+                    _super();
+                }).fail(function () {
+                    $('.freeze_screen').removeClass("active_state");
+                    $(".lds-spinner").hide();
+                    self.gui.show_popup('error', {
+                        'title': 'Error connection',
+                        'body': 'Please check your internet connection',
+                    });
+                });
 
             } else {
                 this._super();
