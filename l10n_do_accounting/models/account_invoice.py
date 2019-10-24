@@ -101,8 +101,8 @@ class AccountInvoice(models.Model):
                 if inv.date_invoice:
                     domain.append(('expiration_date', '>=', inv.date_invoice))
                 else:
-                    domain.append(
-                        ('expiration_date', '>=', fields.Date.context_today(inv)))
+                    today = fields.Date.context_today(inv)
+                    domain.append(('expiration_date', '>=', today))
 
                 fiscal_sequence_id = inv.env['account.fiscal.sequence'].search(
                     domain,
