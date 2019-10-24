@@ -7,16 +7,24 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_confirm" string="Confirm" type="object" class="oe_highlight"
+                    <button name="action_confirm" string="Confirm" type="object"
+                            class="oe_highlight"
                             attrs="{'invisible':[('state','!=','draft')]}"/>
+                    <button name="action_queue" string="Queue" type="object"
+                            attrs="{'invisible':['|', ('state','!=','draft'), ('can_be_queue', '=', False)]}"/>
                     <button name="action_cancel" string="Cancel" type="object"
                             attrs="{'invisible':[('state','in', ('cancelled', 'draft'))]}"/>
-                    <field name="state" widget="statusbar" statusbar_visible="active,depleted"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="active,depleted"/>
                 </header>
                 <sheet>
+                    <field name="can_be_queue" invisible="1"/>
                     <div class="oe_button_box" name="button_box">
-                        <button class="oe_stat_button" name="action_view_sequence" icon="fa-arrow-right" type="object"
-                                groups="base.group_system" attrs="{'invisible': [('sequence_id', '=', False)] }">
+                        <button class="oe_stat_button"
+                                name="action_view_sequence"
+                                icon="fa-arrow-right" type="object"
+                                groups="base.group_system"
+                                attrs="{'invisible': [('sequence_id', '=', False)] }">
                             <span class="o_stat_text">Sequence</span>
                         </button>
                     </div>
@@ -24,8 +32,7 @@
                         <div class="oe_title">
                             <h2>
                                 <field name="name"
-                                       placeholder="Eg : 8001695033"
-                                />
+                                       placeholder="Eg : 8001695033"/>
                             </h2>
                         </div>
                     </group>
@@ -40,24 +47,28 @@
                             <field name="expiration_date"/>
                         </group>
                         <group>
-                            <field name="warning_gap"/>
-                            <field name="number_next_actual"
-                                   invisible="1"/>
+                            <field name="warning_gap" invisible="1"/>
+                            <label string="Remaining warning"
+                                   for="remaining_percentage"/>
+                            <div class="o_row" name="remaining_percentage">
+                                <field name="remaining_percentage"/>
+                                <span>%</span>
+                            </div>
+                            <field name="number_next_actual" invisible="1"/>
                             <field name="sequence_remaining"
                                    attrs="{'invisible': [('state', 'in', ('draft', 'cancelled'))]}"/>
                             <field name="next_fiscal_number"
                                    attrs="{'invisible': [('state', 'in', ('draft', 'cancelled'))]}"/>
-                            <field name="type"
-                                   invisible="1"/>
-                            <field name="sequence_id"
-                                   invisible="1"/>
+                            <field name="type" invisible="1"/>
+                            <field name="sequence_id" invisible="1"/>
                             <field name="company_id"
                                    groups="base.group_multi_company"/>
                         </group>
                     </group>
                 </sheet>
                 <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="message_follower_ids" widget="mail_followers"
+                           groups="base.group_user"/>
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>
@@ -86,21 +97,34 @@
             <search>
                 <field name="name"/>
                 <field name="fiscal_type_id"/>
-                <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
-                <filter name="active" string="Active" domain="[('state','in',('active', 'draft'))]"/>
-                <filter name="queue" string="Queue" domain="[('state','=','queue')]"/>
-                <filter name="depleted" string="Depleted" domain="[('state','=','depleted')]"/>
-                <filter name="expired" string="Expired" domain="[('state','=','expired')]"/>
-                <filter name="cancelled" string="Cancelled" domain="[('state','=','cancelled')]"/>
+                <filter name="draft" string="Draft"
+                        domain="[('state','=','draft')]"/>
+                <filter name="active" string="Active"
+                        domain="[('state','in',('active', 'draft'))]"/>
+                <filter name="queue" string="Queue"
+                        domain="[('state','=','queue')]"/>
+                <filter name="depleted" string="Depleted"
+                        domain="[('state','=','depleted')]"/>
+                <filter name="expired" string="Expired"
+                        domain="[('state','=','expired')]"/>
+                <filter name="cancelled" string="Cancelled"
+                        domain="[('state','=','cancelled')]"/>
                 <separator/>
-                <filter name="sale" string="Sale" domain="[('type','=','sale')]"/>
-                <filter name="purchase" string="Purchase" domain="[('type','=','purchase')]"/>
-                <filter name="credit_note" string="Credit Note" domain="[('type','=','credit_note')]"/>
-                <filter name="debit_note" string="Debit Note" domain="[('type','=','debit_note')]"/>
+                <filter name="sale" string="Sale"
+                        domain="[('type','=','sale')]"/>
+                <filter name="purchase" string="Purchase"
+                        domain="[('type','=','purchase')]"/>
+                <filter name="credit_note" string="Credit Note"
+                        domain="[('type','=','credit_note')]"/>
+                <filter name="debit_note" string="Debit Note"
+                        domain="[('type','=','debit_note')]"/>
                 <group expand="0" string="Group By">
-                    <filter name="type" string="Type" domain="[]" context="{'group_by':'fiscal_type_id'}"/>
-                    <filter name="state" string="State" domain="[]" context="{'group_by':'state'}"/>
-                    <filter name="company_id" string="Company" domain="[]" context="{'group_by':'company_id'}"
+                    <filter name="type" string="Type" domain="[]"
+                            context="{'group_by':'fiscal_type_id'}"/>
+                    <filter name="state" string="State" domain="[]"
+                            context="{'group_by':'state'}"/>
+                    <filter name="company_id" string="Company" domain="[]"
+                            context="{'group_by':'company_id'}"
                             groups="base.group_multi_company"/>
                 </group>
             </search>
@@ -164,7 +188,7 @@
     </record>
 
     <record id="account_fiscal_type_action" model="ir.actions.act_window">
-        <field name="name">Fiscal  Types</field>
+        <field name="name">Fiscal Types</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">account.fiscal.type</field>
         <field name="view_type">form</field>
