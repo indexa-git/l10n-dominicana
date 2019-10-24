@@ -248,7 +248,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 !current_order.to_invoice) {
 
                 console.log('im fiscal');
-                
+
                 // TODO: for passing testing
                 // $('.freeze_screen').addClass("active_state");
                 // $(".lds-spinner").show();
