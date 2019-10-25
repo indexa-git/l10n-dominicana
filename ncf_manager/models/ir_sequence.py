@@ -49,6 +49,7 @@ class IrSequence(models.Model):
                 sale_fiscal_type] + '%%0%sd' % self.ncf_padding % number_next
         return super(IrSequence, self).get_next_char(number_next)
 
+
     def _next(self):
         """ Returns the next number in the preferred sequence in all the
          ones given in self."""

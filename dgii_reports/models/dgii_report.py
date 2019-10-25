@@ -299,7 +299,7 @@ class DgiiReport(models.Model):
 
     def _get_formated_date(self, date):
 
-        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if date else ""
+        return dt.strptime(str(date),'%Y-%m-%d').strftime('%Y%m%d') if date else ""
 
     def _get_formated_amount(self, amount):
 
