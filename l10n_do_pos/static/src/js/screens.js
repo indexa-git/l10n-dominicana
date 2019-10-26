@@ -18,20 +18,24 @@ odoo.define('l10n_do_pos.screens', function (require) {
             } else {
                 this.$('.set-customer').removeClass('disable');
             }
-        }
+        },
     });
 
     screens.OrdersHistoryButton.include({
         button_click: function () {
             if(this.pos.invoice_journal.fiscal_journal &&
                 !this.pos.config.load_barcode_order_only){
+
                 this.gui.show_popup('error', {
                     'title': _t('Config'),
                     'body': _t('Please active Load Specific Orders only it ' +
                         'on point of sale config'),
                 });
+
             }else{
+
                 this._super();
+
             }
 
         },
@@ -55,9 +59,11 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 }
 
             } else {
+
                 current_order.set_fiscal_type(
                     this.pos.get_fiscal_type_by_prefix('B02')
                 );
+
             }
         },
 
@@ -82,6 +88,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             });
             if (current_order.get_mode() === 'return' &&
                 this.pos.invoice_journal.fiscal_journal) {
+
                 this.$('.js_set_fiscal_type').addClass('disable');
                 this.$('.js_set_customer').addClass('disable');
                 this.$('.input-button').addClass('disable');
@@ -89,14 +96,18 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 this.$('.paymentmethod').addClass('disable');
 
             } else {
+
                 this.$('.js_set_fiscal_type').removeClass('disable');
                 this.$('.js_set_customer').removeClass('disable');
                 this.$('.input-button').removeClass('disable');
                 this.$('.mode-button').removeClass('disable');
                 this.$('.paymentmethod').removeClass('disable');
+
             }
             if(this.pos.invoice_journal.fiscal_journal){
+
                 this.$('.js_invoice').hide();
+
             }
         },
 
@@ -143,9 +154,11 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 cancel: function () {
                     self.keyboard_off();
                     if (!current_order.get_client()) {
+
                         current_order.set_fiscal_type(
                             this.pos.get_fiscal_type_by_prefix('B02')
                         );
+
                     }
                 },
             });
@@ -172,12 +185,18 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     var client = self.pos.get_client();
                     current_order.set_fiscal_type(fiscal_type);
                     if (fiscal_type.required_document && !client) {
+
                         self.open_vat_popup();
+
                     }
                     if (fiscal_type.required_document && client) {
+
                         if (!client.vat) {
+
                             self.open_vat_popup();
+
                         }
+
                     }
                 },
                 is_selected: function (fiscal_type) {
@@ -193,15 +212,35 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var has_cash = false;
             var all_payment_lines = current_order.get_paymentlines();
             var total = current_order.get_total_with_tax();
+            var has_return_ncf = true;
+            var payment_and_return_mount_equals = true;
+
 
             for (var line in all_payment_lines) {
                 var payment_line = all_payment_lines[line];
 
                 if (payment_line.cashregister.journal.type === 'bank') {
-                    total_in_bank =+ payment_line.amount;
+                    total_in_bank =+ Number(payment_line.amount);
                 }
                 if (payment_line.cashregister.journal.type === 'cash') {
                     has_cash = true;
+                }
+                if(payment_line.cashregister.journal.is_for_credit_notes){
+
+                    if(payment_line.get_returned_ncf() === null){
+                        has_return_ncf = false;
+                    }
+
+                    var amount_in_payment_line =
+                        Math.round(payment_line.amount*100)/100;
+                    var amount_in_return_order =
+                        Math.abs(
+                            payment_line.get_returned_order_amount()*100
+                        )/100;
+
+                    if(amount_in_return_order !== amount_in_payment_line){
+                        payment_and_return_mount_equals = false;
+                    }
                 }
             }
 
@@ -225,6 +264,31 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         'sufficient to pay the order, please eliminate the ' +
                         'payment in cash or reduce the amount to be paid by ' +
                         'card'),
+                });
+
+                return false;
+            }
+
+            if(!has_return_ncf){
+
+                this.gui.show_popup('error', {
+                    'title': _t('Error in credit note'),
+                    'body': _t('There is an error with the payment of ' +
+                        'credit note, please delete the payment of the ' +
+                        'credit note and enter it again.'),
+                });
+
+                return false;
+                
+            }
+
+            if(!payment_and_return_mount_equals){
+
+                this.gui.show_popup('error', {
+                    'title': _t('Error in credit note'),
+                    'body': _t('The amount of the credit note does not ' +
+                        'correspond, delete the credit note and enter it' +
+                        ' again.')
                 });
 
                 return false;
@@ -316,55 +380,10 @@ odoo.define('l10n_do_pos.screens', function (require) {
                             'body': _t('The customer of the credit note must' +
                                 ' be the same as the original'),
                         });
-                        return false
+                        return false;
                     }
                 }
 
-                var has_return_ncf = true;
-                var payment_and_return_mount_equals = true;
-                var all_payment_lines = current_order.get_paymentlines();
-
-                all_payment_lines.forEach(function (payment_line) {
-                    if(payment_line.cashregister.journal.is_for_credit_notes){
-
-                        if(payment_line.get_returned_ncf() === null){
-                            has_return_ncf = false;
-                        }
-
-                        var amount_in_payment_line =
-                            Math.round(payment_line.amount*100)/100;
-                        var amount_in_return_order =
-                            Math.abs(
-                                payment_line.get_returned_order_amount()*100
-                            )/100;
-
-                        if(amount_in_return_order !== amount_in_payment_line){
-                            payment_and_return_mount_equals = false;
-                        }
-                    }
-                });
-
-                if(!has_return_ncf){
-                    this.gui.show_popup('error', {
-                        'title': _t('Error in credit note'),
-                        'body': _t('There is an error with the payment of ' +
-                            'credit note, please delete the payment of the ' +
-                            'credit note and enter it again.'),
-                    });
-
-                    return false
-                }
-
-                if(!payment_and_return_mount_equals){
-                    this.gui.show_popup('error', {
-                        'title': _t('Error in credit note'),
-                        'body': _t('The amount of the credit note does not ' +
-                            'correspond, delete the credit note and enter it' +
-                            ' again.')
-                    });
-
-                    return false
-                }
             }
 
             return this._super(force_validation);
