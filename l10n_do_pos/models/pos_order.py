@@ -25,10 +25,9 @@ class PosOrder(models.Model):
         string="Fiscal Sequence",
         copy=False,
     )
-    # is_used_in_order = fields.Boolean(
-    #     string="Fue usado en una venta",
-    #     default=False
-    # )
+    is_used_in_order = fields.Boolean(
+        default=False
+    )
 
     @api.model
     def _order_fields(self, ui_order):
@@ -59,61 +58,65 @@ class PosOrder(models.Model):
         return invoice_vals
 
     # TODO: this part is for credit note
-    # @api.model
-    # def _payment_fields(self, ui_paymentline):
-    #     fields = super(PosOrder, self)._payment_fields(ui_paymentline)
-    #
-    #     fields.update({
-    #         'note': ui_paymentline.get('returned_move_name'),
-    #     })
-    #
-    #     return fields
+    @api.model
+    def _payment_fields(self, ui_paymentline):
+        fields = super(PosOrder, self)._payment_fields(ui_paymentline)
 
-    # def _prepare_bank_statement_line_payment_values(self, data):
-    #
-    #     args = super(PosOrder, self)\
-    #         ._prepare_bank_statement_line_payment_values(data)
-    #
-    #     if 'note' in data:
-    #         args.update({
-    #             'note': data['note']
-    #         })
-    #
-    #     return args
+        fields.update({
+            'note': ui_paymentline.get('returned_ncf'),
+        })
+
+        return fields
+
+    def _prepare_bank_statement_line_payment_values(self, data):
+
+        args = super(PosOrder, self)\
+            ._prepare_bank_statement_line_payment_values(data)
+
+        if 'note' in data:
+            args.update({
+                'note': data['note']
+            })
+
+        return args
 
     @api.multi
-    def create_order_payments(self):
+    def _create_order_payments(self):
         # create all orders payment from statements
         for order in self:
             if order.config_id.invoice_journal_id.fiscal_journal:
                 for statement in order.statement_ids:
-                    # TODO:his part is for return order (credits notes)
-                    # if statement.journal_id.is_for_credit_notes:
-                    #   #note in statement line is equals to returned_move_name
-                    #     # (NCF credit note)
-                    #     credit_note_order = self.env['pos.order']\
-                    #         .search([('move_name', '=', statement.note)])
-                    #     if not credit_note_order:
-                    #         raise UserError(
-                    #       ('La no ta de credito no existe, favor verificar.')
-                    #         )
-                    #     if credit_note_order.invoice_id.state == 'paid':
-                    #         raise UserError(
-                    #             _('Fue usado en otra factura, '
-                    #               'favor desvincular esa factura.'))
-                    #     credit_note_order.update({
-                    #         'is_used_in_order': True
-                    #     })
-                    #     statement.update({
-                    #         'move_name':
-                    #             credit_note_order.invoice_id.move_name,
-                    #         'journal_entry_ids':
-                    #             (4, credit_note_order.invoice_id.move_id.id)
-                    #     })
-                    if statement.account_id \
-                            and not statement.journal_entry_ids.ids:
+                    # TODO: his part is for return order (credits notes)
+                    if statement.journal_id.is_for_credit_notes:
+                      # Note in statement line is equals to returned_ncf
+                        # (NCF credit note)
+                        credit_note_order = self.env['pos.order']\
+                            .search([('ncf', '=', statement.note)])
+                        if not credit_note_order:
+                            raise UserError(_('Credit note not exist'))
+
+                        if credit_note_order.invoice_id.state == 'paid':
+                            raise UserError(
+                                _('The credit note used in another invoice,'
+                                  ' please unlink that invoice.')
+                            )
+                        credit_note_order.update({
+                            'is_used_in_order': True
+                        })
+                        lines = credit_note_order.invoice_id.move_id.line_ids
+                        statement.update({
+                            'move_name':
+                                credit_note_order.invoice_id.move_name,
+                            'journal_entry_ids':
+                                (4, [line.id for line in lines])
+                        })
+                        order._reconcile_refund_invoice(
+                            credit_note_order.invoice_id
+                        )
+                    else:
                         statement.sudo().fast_counterpart_creation()
-                    elif not statement.journal_entry_ids.ids:
+
+                    if not statement.journal_entry_ids.ids:
                         raise UserError(
                             _('All the account entries lines must be processed'
                               ' in order to close the statement.')
@@ -240,7 +243,7 @@ class PosOrder(models.Model):
                 #           + order_obj.move_name)
                 #     )
 
-                order_obj.sudo().create_order_payments()
+                order_obj.sudo()._create_order_payments()
                 order_obj.sudo()._reconcile_payments()
                 order_obj.account_move = order_obj.invoice_id.move_id
                 if not order_obj.picking_id:
@@ -248,7 +251,26 @@ class PosOrder(models.Model):
 
         return res
 
-    #for returns orders (nota de credito)
+    # For returns orders (nota de credito)
+
+    def _reconcile_refund_invoice(self, refund_invoice):
+        invoice = self.invoice_id
+        movelines = invoice.move_id.line_ids
+        to_reconcile_ids = {}
+        to_reconcile_lines = self.env['account.move.line']
+        for line in movelines:
+            if line.account_id.id == invoice.account_id.id:
+                to_reconcile_lines += line
+                to_reconcile_ids.setdefault(line.account_id.id, []).append(
+                    line.id)
+            if line.reconciled:
+                line.remove_move_reconcile()
+        for tmpline in refund_invoice.move_id.line_ids:
+            if tmpline.account_id.id == invoice.account_id.id:
+                to_reconcile_lines += tmpline
+        to_reconcile_lines.filtered(
+            lambda l: l.reconciled == False).reconcile()
+
     @api.multi
     def return_from_ui(self, orders):
         super(PosOrder, self).return_from_ui(orders)
@@ -299,9 +321,17 @@ class PosOrder(models.Model):
                 self.session_id.config_id.invoice_journal_id.id
             )
 
+            refund_invoice.write({
+                'reference': self.ncf,
+                'origin_out': self.ncf_origin_out,
+                'ncf_expiration_date': self.ncf_expiration_date,
+                'fiscal_type_id': self.fiscal_type_id.id,
+                'fiscal_sequence_id': self.fiscal_sequence_id.id,
+            })
+
             # TODO: es probable que las lineas tengan el mismo producto
-            # pero con diferentes precios,
-            # queda pendeiente buscar una solucion futura para este preoblema
+            # pero con diferentes precios, queda pendeiente buscar una
+            # solucion futura para este preoblema
 
             products_ids = []
 
@@ -339,34 +369,35 @@ class PosOrder(models.Model):
             if round(refund_invoice.amount_total, -2) != \
                     round(abs(self.amount_total), -2):
                 raise UserError(_(
-                    'Credit note has error pleas contact your manager '
+                    'Credit note has error please contact your manager '
                     + str(refund_invoice.amount_total) + ' '
                     + str(self.amount_total)))
 
-            movelines = origin_invoice.move_id.line_ids
-            to_reconcile_ids = {}
-            to_reconcile_lines = self.env['account.move.line']
-            to_reconcile_lines_from_payments = self.env['account.move.line']
-            to_reconcile_lines_from_credit_notes =\
-                self.env['account.move.line']
-
-            for line in movelines:
-                if line.account_id.id == origin_invoice.account_id.id:
-                    to_reconcile_lines += line
-                    to_reconcile_lines_from_payments += line
-                    to_reconcile_lines_from_credit_notes += line
-                    to_reconcile_ids.setdefault(line.account_id.id, [])\
-                        .append(line.id)
-                if line.reconciled:
-                    for matched_credit in line.matched_credit_ids:
-                        if matched_credit.credit_move_id.payment_id:
-                            to_reconcile_lines_from_payments \
-                                += matched_credit.credit_move_id
-                        if matched_credit.credit_move_id.invoice_id:
-                            to_reconcile_lines_from_credit_notes \
-                                += matched_credit.credit_move_id
-
-                    line.remove_move_reconcile()
+            # TODO: this part is used for cancel invoice with credit note
+            # movelines = origin_invoice.move_id.line_ids
+            # to_reconcile_ids = {}
+            # to_reconcile_lines = self.env['account.move.line']
+            # to_reconcile_lines_from_payments = self.env['account.move.line']
+            # to_reconcile_lines_from_credit_notes =\
+            #     self.env['account.move.line']
+            #
+            # for line in movelines:
+            #     if line.account_id.id == origin_invoice.account_id.id:
+            #         to_reconcile_lines += line
+            #         to_reconcile_lines_from_payments += line
+            #         to_reconcile_lines_from_credit_notes += line
+            #         to_reconcile_ids.setdefault(line.account_id.id, [])\
+            #             .append(line.id)
+            #     if line.reconciled:
+            #         for matched_credit in line.matched_credit_ids:
+            #             if matched_credit.credit_move_id.payment_id:
+            #                 to_reconcile_lines_from_payments \
+            #                     += matched_credit.credit_move_id
+            #             if matched_credit.credit_move_id.invoice_id:
+            #                 to_reconcile_lines_from_credit_notes \
+            #                     += matched_credit.credit_move_id
+            #
+            #         line.remove_move_reconcile()
 
             refund_invoice.write({'is_from_pos': True})
 
@@ -378,21 +409,21 @@ class PosOrder(models.Model):
             #         u'I:' + refund_invoice.name + u' vs P:'
             #         + self.move_name
             #     ))
-
-            for tmpline in refund_invoice.move_id.line_ids:
-                if tmpline.account_id.id == origin_invoice.account_id.id:
-                    to_reconcile_lines += tmpline
-
-            to_reconcile_lines\
-                .filtered(lambda l: l.reconciled == False).reconcile()
-
-            if len(to_reconcile_lines_from_credit_notes) > 1:
-                to_reconcile_lines_from_credit_notes\
-                    .filtered(lambda l: l.reconciled == False).reconcile()
-
-            if len(to_reconcile_lines_from_payments) > 1:
-                to_reconcile_lines_from_payments\
-                    .filtered(lambda l: l.reconciled == False).reconcile()
+            # TODO: this part is used for cancel invoice with credit note
+            # for tmpline in refund_invoice.move_id.line_ids:
+            #     if tmpline.account_id.id == origin_invoice.account_id.id:
+            #         to_reconcile_lines += tmpline
+            #
+            # to_reconcile_lines\
+            #     .filtered(lambda l: l.reconciled == False).reconcile()
+            #
+            # if len(to_reconcile_lines_from_credit_notes) > 1:
+            #     to_reconcile_lines_from_credit_notes\
+            #         .filtered(lambda l: l.reconciled == False).reconcile()
+            #
+            # if len(to_reconcile_lines_from_payments) > 1:
+            #     to_reconcile_lines_from_payments\
+            #         .filtered(lambda l: l.reconciled == False).reconcile()
 
 
             self.sudo().write({
@@ -405,42 +436,3 @@ class PosOrder(models.Model):
             raise UserError(
                 _('Order not found, pleas contact your manager')
             )
-
-    @api.model
-    def _process_return_order(self, pos_order):
-
-        if pos_order.get('returned_order'):
-
-            pos_session = self.env['pos.session']\
-                .browse(pos_order['pos_session_id'])
-            if pos_session.state == 'closing_control' or \
-                    pos_session.state == 'closed':
-                pos_order['pos_session_id'] = \
-                    self._get_valid_session(pos_order).id
-            order = self.create(self._order_fields(pos_order))
-            order.write({'returned_order': True})
-            if pos_session.sequence_number <= pos_order['sequence_number']:
-                pos_session.write({
-                    'sequence_number': pos_order['sequence_number'] + 1
-                })
-                pos_session.refresh()
-            order.create_picking()
-
-            return order
-
-        else:
-
-            return False
-
-    @api.multi
-    def create_return_from_ui_custom(self, orders):
-
-        for order in orders:
-
-            order['data']['returned_order'] = True
-
-            refund_order = self._process_return_order(order['data'])
-            refund_order.create_pos_order_refund_invoice(
-                order['data']['return_lines'][0]['order_id'][0]
-            )
-            refund_order.account_move = refund_order.invoice_id.move_id
