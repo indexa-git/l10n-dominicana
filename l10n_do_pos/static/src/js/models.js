@@ -61,15 +61,15 @@ odoo.define('l10n_do_pos.models', function (require) {
     models.Order = models.Order.extend({
         initialize: function () {
             _super_order.initialize.apply(this, arguments);
-
+            var self = this;
             this.ncf = '';
             this.ncf_origin_out = '';
             this.ncf_expiration_date = '';
-            this.fiscal_type = false;
+            this.fiscal_type = self.pos.get_fiscal_type_by_prefix(
+                'B02'
+            );
             this.fiscal_type_id = false;
             this.fiscal_sequence_id = false;
-
-            var self = this;
             var client = self.get_client();
 
             if (this.get_mode() === 'return') {
@@ -92,11 +92,6 @@ odoo.define('l10n_do_pos.models', function (require) {
                                 'B02'
                             );
                     }
-                } else {
-                    this.fiscal_type =
-                        self.pos.get_fiscal_type_by_prefix(
-                            'B02'
-                        );
                 }
             }
             this.save_to_db();
@@ -147,7 +142,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
             payment_lines.forEach(
                 function (payment_line) {
-                    if (payment_line.get_returned_ncf() != null) {
+                    if (payment_line.get_returned_ncf()) {
                         if (payment_line.get_returned_ncf() ===
                             credit_note_ncf) {
                             is_on_payment_line = true;
@@ -163,60 +158,60 @@ odoo.define('l10n_do_pos.models', function (require) {
                         ' is in the order, please try again'),
                 });
 
-                return false
+                return false;
 
-            } else {
-                self.pos.loading_screen_on();
-                var domain = [
-                    ['ncf', '=', credit_note_ncf],
-                    ['returned_order', '=', true],
-                    ['is_used_in_order', '=', false]
-                ];
-
-                rpc.query({
-                    model: 'pos.order',
-                    method: 'search_read',
-                    args: [domain],
-                    limit: 1,
-                }, {
-                    timeout: 3000,
-                    shadow: true,
-                }).then(function (result) {
-
-                    if (result.length > 0) {
-                        self.add_paymentline(cashregister);
-                        var select_paymentline = self.selected_paymentline;
-                        select_paymentline.set_returned_ncf(credit_note_ncf);
-                        select_paymentline.set_returned_order_amount(
-                            -1 * result[0].amount_total
-                        );
-                        select_paymentline.set_amount(
-                            -1 * result[0].amount_total
-                        );
-                        self.pos.gui.screen_instances
-                            .payment.reset_input();
-                        self.pos.gui.screen_instances
-                            .payment.render_paymentlines();
-                        self.pos.loading_screen_off();
-
-                    } else {
-                        self.pos.loading_screen_off();
-                        self.pos.gui.show_popup('error', {
-                            'title': _t('Not exist'),
-                            'body': _t('Credit mote number ' + credit_note_ncf +
-                                ' does exist'),
-                        });
-                    }
-                }, function (err, event) {
-                    event.preventDefault();
-                    console.error(err);
-                    self.gui.show_popup('error', {
-                        'title': _t('Error: Could not find the Order'),
-                        'body': err.data,
-                    });
-                });
             }
-        }
+
+            self.pos.loading_screen_on();
+            var domain = [
+                ['ncf', '=', credit_note_ncf],
+                ['returned_order', '=', true],
+                ['is_used_in_order', '=', false],
+            ];
+
+            rpc.query({
+                model: 'pos.order',
+                method: 'search_read',
+                args: [domain],
+                limit: 1,
+            }, {
+                timeout: 3000,
+                shadow: true,
+            }).then(function (result) {
+
+                if (result.length > 0) {
+                    self.add_paymentline(cashregister);
+                    var select_paymentline = self.selected_paymentline;
+                    select_paymentline.set_returned_ncf(credit_note_ncf);
+                    select_paymentline.set_returned_order_amount(
+                        -1 * result[0].amount_total
+                    );
+                    select_paymentline.set_amount(
+                        -1 * result[0].amount_total
+                    );
+                    self.pos.gui.screen_instances
+                        .payment.reset_input();
+                    self.pos.gui.screen_instances
+                        .payment.render_paymentlines();
+                    self.pos.loading_screen_off();
+
+                } else {
+                    self.pos.loading_screen_off();
+                    self.pos.gui.show_popup('error', {
+                        'title': _t('Not exist'),
+                        'body': _t('Credit mote number ' + credit_note_ncf +
+                            ' does exist'),
+                    });
+                }
+            }, function (err, event) {
+                event.preventDefault();
+                console.error(err);
+                self.gui.show_popup('error', {
+                    'title': _t('Error: Could not find the Order'),
+                    'body': err.data,
+                });
+            });
+        },
     });
 
     models.PosModel = models.PosModel.extend({
@@ -263,15 +258,16 @@ odoo.define('l10n_do_pos.models', function (require) {
         loading_screen_off: function () {
             $('.freeze_screen').removeClass("active_state");
             $(".lds-spinner").hide();
-        }
+        },
 
     });
     var _paylineproto = models.Paymentline.prototype;
     models.Paymentline = models.Paymentline.extend({
-        initialize: function (attributes, options) {
+        initialize: function () {
             _paylineproto.initialize.apply(this, arguments);
             this.returned_ncf = null;
             this.returned_order_amount = 0;
+
 
         },
 
@@ -290,7 +286,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         export_as_JSON: function () {
             var loaded = _paylineproto.export_as_JSON.call(this);
             loaded.returned_ncf = this.get_returned_ncf();
-            return loaded
+            return loaded;
         },
     });
 

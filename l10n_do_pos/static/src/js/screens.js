@@ -116,7 +116,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var self = this;
             var current_order = self.pos.get_order();
 
-            this.keyboard_on();
+            self.keyboard_on();
             self.gui.show_popup('textinput', {
                 'title': _t('You need to select a customer with RNC/Céd for' +
                     ' this fiscal type, place writes RNC/Céd'),
@@ -138,6 +138,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     } else {
                         // TODO: in future try optimize search partners
                         // link get_partner_by_id
+                        self.keyboard_off();
                         var partner = self.pos.partners.find(
                             function (partner_obj) {
                                 return partner_obj.vat === vat;
@@ -155,11 +156,9 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 cancel: function () {
                     self.keyboard_off();
                     if (!current_order.get_client()) {
-
                         current_order.set_fiscal_type(
                             this.pos.get_fiscal_type_by_prefix('B02')
                         );
-
                     }
                 },
             });
@@ -338,27 +337,15 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
                 }
 
-                if (client) {
-                    if (current_order.fiscal_type.required_document &&
-                        !client.vat) {
+                if (current_order.fiscal_type.required_document &&
+                    !client.vat) {
 
-                        this.gui.show_popup('error', {
-                            'title': _t('Required document (RNC/Céd.)'),
-                            'body': _t('For invoice fiscal type ' +
-                                current_order.fiscal_type.name +
-                                ' it is necessary for the customer have ' +
-                                'RNC or Céd.'),
-                        });
-                        return false;
-                    }
-                }
-
-                if (current_order.fiscal_type.required_document && !client) {
                     this.gui.show_popup('error', {
-                        'title': _t('Required customer'),
+                        'title': _t('Required document (RNC/Céd.)'),
                         'body': _t('For invoice fiscal type ' +
-                            current_order.fiscal_type.name + ' it is ' +
-                            'necessary customer, please select customer'),
+                            current_order.fiscal_type.name +
+                            ' it is necessary for the customer have ' +
+                            'RNC or Céd.'),
                     });
                     return false;
                 }
