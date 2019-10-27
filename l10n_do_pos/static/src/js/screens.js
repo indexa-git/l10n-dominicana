@@ -289,7 +289,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     'title': _t('Error in credit note'),
                     'body': _t('The amount of the credit note does not ' +
                         'correspond, delete the credit note and enter it' +
-                        ' again.')
+                        ' again.'),
                 });
 
                 return false;
@@ -344,7 +344,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
                         this.gui.show_popup('error', {
                             'title': _t('Required document (RNC/Céd.)'),
-                            'body': ('For invoice fiscal type ' +
+                            'body': _t('For invoice fiscal type ' +
                                 current_order.fiscal_type.name +
                                 ' it is necessary for the customer have ' +
                                 'RNC or Céd.'),
@@ -374,11 +374,11 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
                 // This part is for credit note
                 if (current_order.get_mode() === 'return') {
-                    var origin_order = self.pos.db.orders_history_by_id[
-                        current_order.return_lines[0].order_id[0]
-                        ];
+                    var origin_order =
+                        self.pos.db.orders_history_by_id[
+                            current_order.return_lines[0].order_id[0]];
 
-                    if (origin_order.partner_id[0] != client.id) {
+                    if (origin_order.partner_id[0] !== client.id) {
                         this.gui.show_popup('error', {
                             'title': _t('Error in credit note'),
                             'body': _t('The customer of the credit note must' +
@@ -422,8 +422,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     if (current_order.get_mode() === 'return') {
                         var origin_order =
                             self.pos.db.orders_history_by_id[
-                                current_order.return_lines[0].order_id[0]
-                                ];
+                                current_order.return_lines[0].order_id[0]];
                         current_order.ncf_origin_out = origin_order.ncf;
                     }
                     console.log(res);
@@ -473,11 +472,11 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     cancel: function () {
                         self.keyboard_off();
                     },
-                })
+                });
             } else {
                 this._super(id);
             }
-        }
+        },
     });
 
     screens_return.OrdersHistoryScreenWidget.include({
@@ -505,7 +504,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     shadow: true,
                 }).then(function (order) {
                     order_custom = order;
-                    self.pos.loading_screen_off()
+                    self.pos.loading_screen_off();
                 }, function (err, event) {
                     self.pos.loading_screen_off();
                     event.preventDefault();

@@ -48,7 +48,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             'required_document',
             'prefix',
             'internal_generate',
-            'type'
+            'type',
         ],
         domain: function () {
             return [['type', 'in', ['sale', 'special_sale']]];
@@ -146,26 +146,26 @@ odoo.define('l10n_do_pos.models', function (require) {
             var is_on_payment_line = false;
 
             payment_lines.forEach(
-                function(payment_line) {
-                  if(payment_line.get_returned_ncf() != null){
-                      if(payment_line.get_returned_ncf() ===
-                          credit_note_ncf){
-                          is_on_payment_line = true;
-                      }
-                  }
+                function (payment_line) {
+                    if (payment_line.get_returned_ncf() != null) {
+                        if (payment_line.get_returned_ncf() ===
+                            credit_note_ncf) {
+                            is_on_payment_line = true;
+                        }
+                    }
                 });
 
-            if(is_on_payment_line){
+            if (is_on_payment_line) {
 
                 self.pos.gui.show_popup('error', {
                     'title': _t('The credit note is in the order'),
-                    'body': _t('Credit note '+ credit_note_ncf +
+                    'body': _t('Credit note ' + credit_note_ncf +
                         ' is in the order, please try again'),
                 });
 
                 return false
 
-            }else{
+            } else {
                 self.pos.loading_screen_on();
                 var domain = [
                     ['ncf', '=', credit_note_ncf],
@@ -181,17 +181,17 @@ odoo.define('l10n_do_pos.models', function (require) {
                 }, {
                     timeout: 3000,
                     shadow: true,
-                }).then(function(result){
+                }).then(function (result) {
 
-                    if(result.length > 0){
-                        self.add_paymentline( cashregister );
+                    if (result.length > 0) {
+                        self.add_paymentline(cashregister);
                         var select_paymentline = self.selected_paymentline;
                         select_paymentline.set_returned_ncf(credit_note_ncf);
                         select_paymentline.set_returned_order_amount(
-                            -1*result[0].amount_total
+                            -1 * result[0].amount_total
                         );
                         select_paymentline.set_amount(
-                            -1*result[0].amount_total
+                            -1 * result[0].amount_total
                         );
                         self.pos.gui.screen_instances
                             .payment.reset_input();
@@ -199,11 +199,11 @@ odoo.define('l10n_do_pos.models', function (require) {
                             .payment.render_paymentlines();
                         self.pos.loading_screen_off();
 
-                    }else{
+                    } else {
                         self.pos.loading_screen_off();
                         self.pos.gui.show_popup('error', {
                             'title': _t('Not exist'),
-                            'body': _t('Credit mote number '+ credit_note_ncf +
+                            'body': _t('Credit mote number ' + credit_note_ncf +
                                 ' does exist'),
                         });
                     }
@@ -271,20 +271,20 @@ odoo.define('l10n_do_pos.models', function (require) {
         initialize: function (attributes, options) {
             _paylineproto.initialize.apply(this, arguments);
             this.returned_ncf = null;
-            this.returned_order_amount = 0 ;
+            this.returned_order_amount = 0;
 
         },
 
         set_returned_ncf: function (returned_move_name) {
             this.returned_ncf = returned_move_name;
         },
-        get_returned_ncf: function() {
+        get_returned_ncf: function () {
             return this.returned_ncf;
         },
         set_returned_order_amount: function (returned_order_amount) {
             this.returned_order_amount = returned_order_amount;
         },
-        get_returned_order_amount: function() {
+        get_returned_order_amount: function () {
             return this.returned_order_amount;
         },
         export_as_JSON: function () {
