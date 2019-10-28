@@ -164,6 +164,7 @@
                         <field name="required_document"/>
                     </group>
                     <group>
+                        <field name="active"/>
                         <field name="journal_id"
                                domain="[('fiscal_journal', '=', True), ('type', '=', type)]"
                         />
