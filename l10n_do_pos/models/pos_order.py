@@ -268,8 +268,7 @@ class PosOrder(models.Model):
         for tmpline in refund_invoice.move_id.line_ids:
             if tmpline.account_id.id == invoice.account_id.id:
                 to_reconcile_lines += tmpline
-        to_reconcile_lines.filtered(
-            lambda l: l.reconciled == False).reconcile()
+        to_reconcile_lines.filtered(lambda l: not l.reconciled).reconcile()
 
     @api.multi
     def return_from_ui(self, orders):
@@ -341,9 +340,9 @@ class PosOrder(models.Model):
 
             for refund_invoice_line in refund_invoice.invoice_line_ids:
 
+                product = refund_invoice_line.product_id
                 refund_order_lines = self.lines.filtered(
-                    lambda line: line.product_id.id ==
-                                 refund_invoice_line.product_id.id
+                    lambda line: line.product_id.id == product.id
                 )
 
                 if refund_order_lines:
