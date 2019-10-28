@@ -88,7 +88,7 @@ class PosOrder(models.Model):
                 for statement in order.statement_ids:
                     # TODO: his part is for return order (credits notes)
                     if statement.journal_id.is_for_credit_notes:
-                      # Note in statement line is equals to returned_ncf
+                        # Note in statement line is equals to returned_ncf
                         # (NCF credit note)
                         credit_note_order = self.env['pos.order']\
                             .search([('ncf', '=', statement.note)])
@@ -301,9 +301,7 @@ class PosOrder(models.Model):
 
     def create_pos_order_refund_invoice(self):
 
-        origin_order = self.search([
-          ('ncf', '=', self.ncf_origin_out)
-        ])
+        origin_order = self.search([('ncf', '=', self.ncf_origin_out)])
 
         if origin_order:
 
@@ -353,7 +351,7 @@ class PosOrder(models.Model):
                     total_quantity = 0
 
                     for refund_order_line in refund_order_lines:
-                       total_quantity = total_quantity + refund_order_line.qty
+                        total_quantity = total_quantity + refund_order_line.qty
 
                     refund_invoice_line.write({
                         'quantity': abs(total_quantity)
@@ -424,7 +422,6 @@ class PosOrder(models.Model):
             # if len(to_reconcile_lines_from_payments) > 1:
             #     to_reconcile_lines_from_payments\
             #         .filtered(lambda l: l.reconciled == False).reconcile()
-
 
             self.sudo().write({
                 'invoice_id': refund_invoice.id,
