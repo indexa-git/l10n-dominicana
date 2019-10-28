@@ -79,19 +79,17 @@ odoo.define('l10n_do_pos.models', function (require) {
                         'B04'
                     );
 
-            } else {
-                if (client) {
-                    if (client.sale_fiscal_type_id) {
-                        this.fiscal_type =
-                            self.pos.get_fiscal_type_by_id(
-                                client.sale_fiscal_type_id[0]
-                            );
-                    } else {
-                        this.fiscal_type =
-                            self.pos.get_fiscal_type_by_prefix(
-                                'B02'
-                            );
-                    }
+            } else if (client) {
+                if (client.sale_fiscal_type_id) {
+                    this.fiscal_type =
+                        self.pos.get_fiscal_type_by_id(
+                            client.sale_fiscal_type_id[0]
+                        );
+                } else {
+                    this.fiscal_type =
+                        self.pos.get_fiscal_type_by_prefix(
+                            'B02'
+                        );
                 }
             }
             this.save_to_db();
