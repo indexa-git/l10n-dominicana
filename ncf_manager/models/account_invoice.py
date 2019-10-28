@@ -361,6 +361,7 @@ class AccountInvoice(models.Model):
                         dict(self._fields['sale_fiscal_type'].selection)
                             .get(self.sale_fiscal_type), sequence.max_number_next))
 
+
                 if inv.sale_fiscal_type in (
                         "fiscal", "gov", "special") and not inv.partner_id.vat:
                     raise UserError(_(
@@ -376,6 +377,20 @@ class AccountInvoice(models.Model):
                         u"tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
+
+                if not inv.reference and inv.journal_id.purchase_type in ('informal', 'minor', 'exterior'):
+                    sequence1 = inv.journal_id.date_range_ids.filtered(
+                        lambda seq: seq.sale_fiscal_type == inv.journal_id.purchase_type)
+
+                    if sequence1.number_next_actual >= sequence1.max_number_next:
+                        raise ValidationError(_(
+                            u"El NFS para {} se a agotado, por favor"
+                            " aumente el limite maximo ({}).").format(
+                            dict(self._fields['sale_fiscal_type'].selection)
+                                .get(self.sale_fiscal_type), sequence1.max_number_next))
+
+
+
                 if inv.reference and inv.journal_id.purchase_type in (
                         'normal', 'informal', 'minor', 'exterior'):
                     if not inv.partner_id.vat:
