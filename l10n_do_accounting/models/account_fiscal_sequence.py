@@ -356,6 +356,7 @@ class AccountFiscalType(models.Model):
         required=True,
         copy=False,
     )
+    active = fields.Boolean(default=True)
     sequence = fields.Integer()
     prefix = fields.Char(
         copy=False,
