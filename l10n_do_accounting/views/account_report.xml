@@ -4,7 +4,7 @@
     <report
             id="l10n_do_account_invoice"
             model="account.invoice"
-            string="Fiscal Invoice without payments"
+            string="Fiscal Invoices without Payment"
             report_type="qweb-pdf"
             name="l10n_do_accounting.l10n_do_report_invoice"
             file="l10n_do_accounting.l10n_do_report_invoice"
