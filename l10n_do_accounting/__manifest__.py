@@ -30,6 +30,7 @@
         'views/account_fiscal_sequence_views.xml',
         'wizard/account_fiscal_sequence_validate_wizard_views.xml',
         'views/report_templates.xml',
+        'data/mail_template_data.xml',
         'data/report_layout_data.xml',
         'views/account_report.xml',
         'views/report_invoice.xml',
