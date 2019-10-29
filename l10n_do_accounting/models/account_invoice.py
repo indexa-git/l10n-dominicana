@@ -226,3 +226,16 @@ class AccountInvoice(models.Model):
                         inv.fiscal_sequence_id.expiration_date
 
         return super(AccountInvoice, self).action_invoice_open()
+
+    @api.multi
+    def invoice_print(self):
+
+        # Companies which has installed l10n_do localization use
+        # l10n_do fiscal invoice template
+        l10n_do_coa = self.env.ref('l10n_do.do_chart_template')
+        if self.journal_id.company_id.chart_template_id.id == l10n_do_coa.id:
+            report_id = self.env.ref(
+                'l10n_do_accounting.l10n_do_account_invoice')
+            return report_id.report_action(self)
+
+        return super(AccountInvoice, self).invoice_print()
