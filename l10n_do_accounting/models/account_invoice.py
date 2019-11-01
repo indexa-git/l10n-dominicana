@@ -252,6 +252,15 @@ class AccountInvoice(models.Model):
         if not self.journal_id.fiscal_journal:
             return res
 
+        # def get_special_fiscal_type(inv_type, mode):
+        #     """
+        #     Returns a Fiscal Type depending on invoice type
+        #     and if it is a refund or debit note
+        #     """
+        #     if mode in
+        #     fiscal_type_id = self.env['account.fiscal.type'].search(
+        #         [('', '')], limit=1)
+
         if self.type == 'out_invoice':
             res.update({'reference': False,
                         'origin_out': self.reference,
