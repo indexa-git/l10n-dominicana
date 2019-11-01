@@ -239,3 +239,21 @@ class AccountInvoice(models.Model):
             return report_id.report_action(self)
 
         return super(AccountInvoice, self).invoice_print()
+
+    @api.model
+    def _prepare_refund(self, invoice, date_invoice=None, date=None,
+                        description=None, journal_id=None):
+
+        res = super(AccountInvoice, self)._prepare_refund(
+            invoice, date_invoice=date_invoice, date=date,
+            description=description, journal_id=journal_id)
+
+        if not self.journal_id.fiscal_journal:
+            return res
+
+        if self.type == 'out_invoice':
+            res.update({'reference': False,
+                        'origin_out': self.reference,
+                        'income_type': self.income_type,
+                        'fiscal_type_id': self.income_type,
+                        })
