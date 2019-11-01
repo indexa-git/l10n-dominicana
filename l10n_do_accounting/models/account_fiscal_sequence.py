@@ -133,7 +133,7 @@ class AccountFiscalSequence(models.Model):
     @api.depends('remaining_percentage')
     def _compute_warning_gap(self):
         for rec in self:
-            rec.warning_gap = (rec.sequence_end - rec.sequence_start) * \
+            rec.warning_gap = (rec.sequence_end - (rec.sequence_start-1)) * \
                               (rec.remaining_percentage / 100)
 
     @api.multi
