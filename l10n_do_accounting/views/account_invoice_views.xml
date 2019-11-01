@@ -87,10 +87,6 @@
                 </div>
             </xpath>
 
-            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
-                <attribute name="string">Aplicar NC o ND</attribute>
-            </xpath>
-
             <!--<xpath expr="//sheet/div/h1[@class='mt0']" position="before">-->
                 <!--<h1 class="mt0">-->
                     <!--<field name="name" class="oe_inline"-->
@@ -132,7 +128,7 @@
                        'invisible':['|',('type','=','in_refund'),('is_fiscal_invoice','=',False)],
                        'required': [('is_fiscal_invoice','=',True),('type','=','in_invoice')],
                        'readonly': [('state','!=','draft')]}"
-                       domain="[('type', '=', 'purchase')]"/>
+                       domain="[('type', '=', 'in_invoice')]"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('is_fiscal_invoice', '=', False)],
                        'required': [('is_fiscal_invoice', '=', True)],
