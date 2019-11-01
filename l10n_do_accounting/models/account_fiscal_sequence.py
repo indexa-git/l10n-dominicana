@@ -387,6 +387,11 @@ class AccountFiscalType(models.Model):
         string="Required document",
     )
 
+    _sql_constraints = [
+        ('type_prefix_uniq', 'unique (type, prefix)',
+         'There must be only one Fiscal Type of this Type and Prefix')
+    ]
+
     def get_next_fiscal_sequence(self, company_id):
         """
         search active fiscal sequence dependent with fiscal type
