@@ -41,7 +41,7 @@
                        'invisible':['|',('type','=','out_refund'),('is_fiscal_invoice','=',False)],
                        'required': [('is_fiscal_invoice','=',True),('type','=','out_invoice')],
                        'readonly': ['|',('state','!=','draft'),('reference','!=',False)]}"
-                       domain="[('type', '=', 'sale')]"/>
+                       domain="[('type', '=', 'out_invoice')]"/>
                 <field name="fiscal_sequence_id"
                        invisible="1"/>
                 <field name="income_type"
