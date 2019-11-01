@@ -13,6 +13,7 @@ class AccountInvoice(models.Model):
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
         string="Fiscal Type",
+        index=True,
     )
     fiscal_sequence_id = fields.Many2one(
         'account.fiscal.sequence',

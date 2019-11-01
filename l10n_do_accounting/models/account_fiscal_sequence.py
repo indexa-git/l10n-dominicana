@@ -363,10 +363,12 @@ class AccountFiscalType(models.Model):
     )
     padding = fields.Integer()
     type = fields.Selection([
-        ('sale', 'Sale'),
-        ('purchase', 'Purchase'),
-        ('special_sale', 'Special sale'),
-        ('special_purchase', 'Special purchase')
+        ('out_invoice', 'Sale'),
+        ('in_invoice', 'Purchase'),
+        ('out_refund', 'Customer Credit Note'),
+        ('in_refund', 'Supplier Credit Note'),
+        ('out_debit', 'Customer Debit Note'),
+        ('in_debit', 'Supplier Debit Note'),
     ],
         required=True,
     )
