@@ -25,6 +25,7 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'security/res_groups.xml',
         'data/ir_cron_data.xml',
         'data/account_fiscal_type_data.xml',
         'views/account_fiscal_sequence_views.xml',

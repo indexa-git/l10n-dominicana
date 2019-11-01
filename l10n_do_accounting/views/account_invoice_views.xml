@@ -19,6 +19,9 @@
                     Fiscal Sequence depleted.
                 </div>
             </xpath>
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="groups">l10n_do_accounting.credit_note_group</attribute>
+            </xpath>
             <!--<xpath expr="//h1[@class='mt0']" position="before">-->
                 <!--<h1 class="mt0">-->
                     <!--<field name="reference" -->
@@ -86,6 +89,9 @@
                     Fiscal Sequence depleted.
                 </div>
             </xpath>
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
+                <attribute name="groups">l10n_do_accounting.credit_note_group</attribute>
+            </xpath>
 
             <!--<xpath expr="//sheet/div/h1[@class='mt0']" position="before">-->
                 <!--<h1 class="mt0">-->
@@ -147,4 +153,13 @@
 
         </field>
     </record>
+
+    <menuitem id="account.menu_action_invoice_out_refund"
+              groups="l10n_do_accounting.credit_note_group"
+    />
+
+    <menuitem id="account.menu_action_invoice_in_refund"
+              groups="l10n_do_accounting.credit_note_group"
+    />
+
 </odoo>
