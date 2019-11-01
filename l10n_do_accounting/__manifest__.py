@@ -19,7 +19,7 @@
     'depends': [
         'base',
         'account',
-        # 'l10n_do'
+        'l10n_do',
     ],
 
     # always loaded
