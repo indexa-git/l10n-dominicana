@@ -2,7 +2,7 @@
 
 import logging
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -240,3 +240,32 @@ class AccountInvoice(models.Model):
             return report_id.report_action(self)
 
         return super(AccountInvoice, self).invoice_print()
+
+    @api.model
+    def _prepare_refund(self, invoice, date_invoice=None, date=None,
+                        description=None, journal_id=None):
+
+        res = super(AccountInvoice, self)._prepare_refund(
+            invoice, date_invoice=date_invoice, date=date,
+            description=description, journal_id=journal_id)
+
+        if not self.journal_id.fiscal_journal:
+            return res
+
+        fiscal_type = {'out_invoice': 'out_refund',
+                       'in_invoice': 'in_refund'}
+
+        fiscal_type_id = self.env['account.fiscal.type'].search(
+            [('type', '=', fiscal_type[self.type])], limit=1)
+
+        if not fiscal_type_id:
+            raise ValidationError(_('No Fiscal Type found for Credit Note'))
+
+        res.update({'reference': False,
+                    'origin_out': self.reference,
+                    'income_type': self.income_type,
+                    'expense_type': self.expense_type,
+                    'fiscal_type_id': fiscal_type_id.id,
+                    })
+
+        return res
