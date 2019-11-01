@@ -10,6 +10,16 @@
                 <attribute name="icon">fa-paper-plane</attribute>
             </button>
 
+
+
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                 <field name="has_ncf_almost_available" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_ncf_almost_available','=',False)]}">
+                    Los comprobantes de este tipo estan por agotarse
+                </div>
+            </xpath>
+
+
             <form>
                 <field name="ncf_control" invisible="1"/>
                 <field name="is_company_currency" invisible="1"/>
@@ -76,6 +86,14 @@
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
+
+
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                 <field name="has_ncf_almost_available" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_ncf_almost_available','=',False)]}">
+                    Los comprobantes de este tipo estan por agotarse
+                </div>
+            </xpath>
 
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>

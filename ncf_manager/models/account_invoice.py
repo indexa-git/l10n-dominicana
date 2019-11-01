@@ -39,6 +39,32 @@ class AccountInvoice(models.Model):
 
     reference = fields.Char(string='NCF')
 
+
+    has_ncf_almost_available = fields.Boolean(
+        compute = "_compute_has_almost_available"
+    )
+    @api.depends('journal_id','sale_fiscal_type')
+    def _compute_has_almost_available(self):
+        for invoice in self:
+            if invoice.journal_id.ncf_control and invoice.type == "out_invoice":
+                sequence = invoice.journal_id.date_range_ids.filtered(
+                    lambda seq: seq.sale_fiscal_type == invoice.sale_fiscal_type)
+                if sequence:
+                    if sequence.number_next_actual >= sequence.warning_ncf:
+                        self.has_ncf_almost_available = True
+                    else:
+                        self.has_ncf_almost_available = False
+
+            if invoice.journal_id.purchase_type in ('informal', 'minor', 'exterior') and invoice.type == "in_invoice":
+                sequence = invoice.journal_id.date_range_ids.filtered(
+                    lambda seq: seq.sale_fiscal_type == invoice.journal_id.purchase_type)
+                if sequence:
+                    if sequence.number_next_actual >= sequence.warning_ncf:
+                        self.has_ncf_almost_available = True
+                    else:
+                        self.has_ncf_almost_available = False
+
+
     @api.multi
     @api.depends('currency_id', "date_invoice")
     def _get_rate(self):
