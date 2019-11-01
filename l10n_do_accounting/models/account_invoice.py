@@ -2,7 +2,7 @@
 
 import logging
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -252,23 +252,19 @@ class AccountInvoice(models.Model):
         if not self.journal_id.fiscal_journal:
             return res
 
-        def get_special_fiscal_type(inv_type, mode):
-            """
-            Returns a Fiscal Type depending on invoice type
-            and if it is a refund or debit note
-            """
-            if mode != 'debit':
-                fiscal_type = 'out_refund' if self.type == 'out_invoice' \
-                    else 'in_refund'
-            else:
-                fiscal_type = ''
+        fiscal_type = {'out_invoice': 'out_refund',
+                       'in_invoice': 'in_refund'}
 
-            return self.env['account.fiscal.type'].search(
-                [('type', fiscal_type)], limit=1)
+        fiscal_type_id = self.env['account.fiscal.type'].search(
+            [('type', '=', fiscal_type[self.type])], limit=1)
 
-        if self.type == 'out_invoice':
-            res.update({'reference': False,
-                        'origin_out': self.reference,
-                        'income_type': self.income_type,
-                        'fiscal_type_id': get_special_fiscal_type(),
-                        })
+        if not fiscal_type_id:
+            raise ValidationError(_('No Fiscal Type found for Credit Note'))
+
+        res.update({'reference': False,
+                    'origin_out': self.reference,
+                    'income_type': self.income_type,
+                    'fiscal_type_id': fiscal_type_id.id,
+                    })
+
+        return res
