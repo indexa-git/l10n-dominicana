@@ -328,6 +328,10 @@ class AccountFiscalSequence(models.Model):
         return fiscal_sequence_id
 
     def get_fiscal_number(self):
+
+        if not self.fiscal_type_id.internal_generate:
+            return False
+
         if self.sequence_remaining > 0:
             sequence_next = self.sequence_id._next()
 
