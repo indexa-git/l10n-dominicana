@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="0">
+
+    <record id="credit_note_group" model="res.groups">
+        <field name="name">Can create Credit Notes</field>
+    </record>
+
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="implied_ids" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+    </record>
+
+    <record id="account.group_account_user" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+    </record>
+
+    <record id="account.group_account_manager" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+    </record>
+
+</odoo>
