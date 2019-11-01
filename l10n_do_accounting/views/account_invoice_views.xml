@@ -125,7 +125,7 @@
                        <!--attrs="{'readonly':[('state', '!=', 'draft')]}"/>-->
                 <field name="fiscal_type_id"
                        attrs="{
-                       'invisible':['|',('type','=','in_refund'),('is_fiscal_invoice','=',False)],
+                       'invisible':[('is_fiscal_invoice','=',False)],
                        'required': [('is_fiscal_invoice','=',True),('type','=','in_invoice')],
                        'readonly': [('state','!=','draft')]}"
                        domain="[('type', '=', 'in_invoice')]"/>

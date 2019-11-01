@@ -264,6 +264,7 @@ class AccountInvoice(models.Model):
         res.update({'reference': False,
                     'origin_out': self.reference,
                     'income_type': self.income_type,
+                    'expense_type': self.expense_type,
                     'fiscal_type_id': fiscal_type_id.id,
                     })
 
