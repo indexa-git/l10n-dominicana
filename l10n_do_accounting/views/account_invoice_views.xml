@@ -19,9 +19,6 @@
                     Fiscal Sequence depleted.
                 </div>
             </xpath>
-            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
-                <attribute name="string">Aplicar NC o ND</attribute>
-            </xpath>
             <!--<xpath expr="//h1[@class='mt0']" position="before">-->
                 <!--<h1 class="mt0">-->
                     <!--<field name="reference" -->
