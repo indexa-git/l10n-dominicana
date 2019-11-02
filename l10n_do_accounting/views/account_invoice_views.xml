@@ -154,12 +154,12 @@
         </field>
     </record>
 
-    <menuitem id="account.menu_action_invoice_out_refund"
-              groups="l10n_do_accounting.credit_note_group"
-    />
+    <record id="account.menu_action_invoice_out_refund" model="ir.ui.menu">
+        <field name="groups" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+    </record>
 
-    <menuitem id="account.menu_action_invoice_in_refund"
-              groups="l10n_do_accounting.credit_note_group"
-    />
+    <record id="account.menu_action_invoice_in_refund" model="ir.ui.menu">
+        <field name="groups" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+    </record>
 
 </odoo>
