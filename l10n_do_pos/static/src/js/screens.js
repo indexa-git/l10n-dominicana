@@ -168,7 +168,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var self = this;
             var fiscal_type_list = _.map(self.pos.fiscal_types,
                 function (fiscal_type) {
-                    if (fiscal_type.type === 'sale') {
+                    if (fiscal_type.type === 'out_invoice') {
                         return {
                             label: fiscal_type.name,
                             item: fiscal_type,

@@ -31,7 +31,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         domain: function (self) {
             return [
                 ['state', '=', 'active'],
-                ['type', '=', 'sale'],
+                ['type', 'in', ['out_invoice', 'out_refund']],
                 ['company_id', '=', self.company.id],
             ];
         },
@@ -51,7 +51,10 @@ odoo.define('l10n_do_pos.models', function (require) {
             'type',
         ],
         domain: function () {
-            return [['type', 'in', ['sale', 'special_sale']]];
+            return [
+                ['type', 'in', ['out_invoice', 'out_refund']],
+                ['active', '=', true]
+            ];
         },
         loaded: function (self, fiscal_types) {
             self.fiscal_types = fiscal_types;
@@ -265,8 +268,6 @@ odoo.define('l10n_do_pos.models', function (require) {
             _paylineproto.initialize.apply(this, arguments);
             this.returned_ncf = null;
             this.returned_order_amount = 0;
-
-
         },
 
         set_returned_ncf: function (returned_move_name) {
