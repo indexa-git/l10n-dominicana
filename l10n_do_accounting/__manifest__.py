@@ -34,6 +34,7 @@
         'data/report_layout_data.xml',
         'views/account_report.xml',
         'views/report_invoice.xml',
+        'wizard/account_invoice_refund_views.xml',
         'data/mail_template_data.xml',
         'views/account_invoice_views.xml',
         'views/account_journal_views.xml',
