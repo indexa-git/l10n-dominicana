@@ -33,12 +33,12 @@
                 <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
             </xpath>
             <xpath expr="//form/group/*[2]" position="after">
-                <group>
-                    <div attrs="{'invisible':['|',('refund_type','=','full_refund'),('refund_method','!=','draft_refund')]}" class="oe_grey" colspan="4">
+                <group attrs="{'invisible': [('refund_type','=','full_refund')]}">
+                    <div attrs="{'invisible':[('refund_method','!=','draft_refund')]}" class="oe_grey" colspan="4">
                         You will be able to edit and validate this
                         credit note directly or keep it draft.
                      </div>
-                    <div attrs="{'invisible':['|',('refund_type','=','full_refund'),('refund_method','!=','apply_refund')]}" class="oe_grey" colspan="4">
+                    <div attrs="{'invisible':[('refund_method','!=','apply_refund')]}" class="oe_grey" colspan="4">
                         Use this option if you want to fully apply a credit note.
                         The credit note will be created, validated and reconciled
                         with the invoice. You will not be able to modify the credit note.
