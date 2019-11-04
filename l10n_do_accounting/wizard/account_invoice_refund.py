@@ -29,6 +29,7 @@ class AccountInvoiceRefund(models.TransientModel):
         ('apply_refund', 'Create credit note and reconcile'),
     ],
         default='draft_refund',
+        string="Credit Method",
     )
     percentage = fields.Float()
     amount = fields.Float()
