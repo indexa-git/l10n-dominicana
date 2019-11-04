@@ -82,14 +82,11 @@ class AccountInvoiceRefund(models.TransientModel):
                     inv.assign_outstanding_credit(aml_id.id)
 
                 created_inv.append(refund.id)
-                xml_id = inv.type == 'out_invoice' and \
-                         'action_invoice_out_refund' or \
-                         inv.type == 'out_refund' and \
-                         'action_invoice_tree1' or \
-                         inv.type == 'in_invoice' and \
-                         'action_invoice_in_refund' or \
-                         inv.type == 'in_refund' and \
-                         'action_invoice_tree2'
+                action_map = {'out_invoice': 'action_invoice_out_refund',
+                              'out_refund': 'action_invoice_tree1',
+                              'in_invoice': 'action_invoice_in_refund',
+                              'in_refund': 'action_invoice_tree2'}
+                xml_id = action_map[inv.type]
         if xml_id:
             result = self.env.ref('account.%s' % (xml_id)).read()[0]
             invoice_domain = safe_eval(result['domain'])
