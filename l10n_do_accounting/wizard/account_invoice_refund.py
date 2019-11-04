@@ -69,7 +69,8 @@ class AccountInvoiceRefund(models.TransientModel):
 
                 date = wizard.date or False
                 description = wizard.description or inv.name
-                amount = wizard.amount if wizard.refund_type == 'fixed_amount' \
+                refund_type = wizard.refund_type
+                amount = wizard.amount if refund_type == 'fixed_amount' \
                     else inv.amount_untaxed * (wizard.percentage/100)
                 refund = inv.with_context(
                     refund_type=wizard.refund_type, amount=amount,
