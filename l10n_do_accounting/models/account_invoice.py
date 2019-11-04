@@ -244,10 +244,20 @@ class AccountInvoice(models.Model):
     @api.model
     def _prepare_refund(self, invoice, date_invoice=None, date=None,
                         description=None, journal_id=None):
+        context = dict(self._context or {})
+        refund_type = context.get('refund_type')
+        amount = context.get('amount')
+        account = context.get('account')
 
         res = super(AccountInvoice, self)._prepare_refund(
             invoice, date_invoice=date_invoice, date=date,
             description=description, journal_id=journal_id)
+
+        if refund_type and refund_type != 'full_refund':
+            res['tax_line_ids'] = False
+            res['invoice_line_ids'] = [(0, 0, {'name': _("Discount"),
+                                               'price_unit': amount,
+                                               'account_id': account})]
 
         if not self.journal_id.fiscal_journal:
             return res
@@ -269,3 +279,45 @@ class AccountInvoice(models.Model):
                     })
 
         return res
+
+    @api.multi
+    @api.returns('self')
+    def refund(self, date_invoice=None, date=None, description=None,
+               journal_id=None):
+
+        context = dict(self._context or {})
+        refund_type = context.get('refund_type')
+        amount = context.get('amount')
+        account = context.get('account')
+
+        if not refund_type:
+            return super(AccountInvoice, self).refund(
+                date_invoice=date_invoice, date=date, description=description,
+                journal_id=journal_id)
+
+        new_invoices = self.browse()
+        for invoice in self:
+            # create the new invoice
+            values = self.with_context(
+                refund_type=refund_type, amount=amount,
+                account=account)._prepare_refund(
+                invoice, date_invoice=date_invoice, date=date,
+                description=description, journal_id=journal_id)
+            refund_invoice = self.create(values)
+            if invoice.type == 'out_invoice':
+                message = _(
+                    "This customer invoice credit note has been created from: "
+                    "<a href=# data-oe-model=account.invoice data-oe-id=%d>%s"
+                    "</a><br>Reason: %s") % (invoice.id, invoice.number,
+                                             description)
+            else:
+                message = _(
+                    "This vendor bill credit note has been created from: <a "
+                    "href=# data-oe-model=account.invoice data-oe-id=%d>%s</a>"
+                    "<br>Reason: %s") % (invoice.id, invoice.number,
+                                         description)
+
+            refund_invoice.message_post(body=message)
+            refund_invoice._compute_fiscal_sequence()
+            new_invoices += refund_invoice
+        return new_invoices
