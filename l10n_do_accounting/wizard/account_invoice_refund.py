@@ -167,7 +167,6 @@ class AccountInvoiceRefund(models.TransientModel):
                     'fiscal_type_id': fiscal_type.id,
                     'invoice_line_ids': [
                         (0, 0, {'name': description,
-                                'date_invoice': date,
                                 'account_id': wizard.account_id.id,
                                 'price_unit': amount})],
                     'journal_id': inv.journal_id.id,
