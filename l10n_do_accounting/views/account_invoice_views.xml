@@ -162,4 +162,12 @@
         <field name="groups" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
     </record>
 
+    <record id="account.action_invoice_tree1" model="ir.actions.act_window">
+        <field name="domain">[('type','=','out_invoice'), ('is_debit_note', '=', False)]</field>
+    </record>
+
+    <record id="account.action_vendor_bill_template" model="ir.actions.act_window">
+        <field name="domain">[('type','=','in_invoice'), ('is_debit_note', '=', False)]</field>
+    </record>
+
 </odoo>
