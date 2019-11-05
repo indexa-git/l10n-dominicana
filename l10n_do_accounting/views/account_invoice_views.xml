@@ -8,6 +8,19 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='has_outstanding']" position="after">
                 <field name="fiscal_sequence_status" invisible="1"/>
+                <field name="is_debit_note" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet/span" position="after">
+                <span class="o_form_label" attrs="{'invisible': ['|',('state','=','draft'), ('is_debit_note','=',False)]}">Debit Note</span>
+            </xpath>
+            <xpath expr="//field[@name='number']/.." position="attributes">
+                <attribute name="attrs">{'invisible': ['|',('sequence_number_next_prefix','!=',False),('is_debit_note', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='number']/.." position="before">
+                <div attrs="{'invisible': ['|', ('sequence_number_next_prefix','!=',False),('is_debit_note', '=', False)]}">
+                    <label for="number" string="Draft Debit Note" attrs="{'invisible': ['|','|',('state','not in',('draft',)), ('type','!=','out_invoice'), ('is_debit_note','=',False)]}"/>
+                    <field name="number" readonly="1" class="oe_inline" attrs="{'invisible': [('state','in',('draft',))]}"/>
+                </div>
             </xpath>
             <xpath expr="/form/div[hasclass('alert')]" position="after">
                 <div groups="account.group_account_invoice" class="alert alert-warning" role="alert" style="margin-bottom:0px;"
@@ -41,8 +54,8 @@
                        invisible="1"/>
                 <field name="fiscal_type_id"
                        attrs="{
-                       'invisible':['|',('type','=','out_refund'),('is_fiscal_invoice','=',False)],
-                       'required': [('is_fiscal_invoice','=',True),('type','=','out_invoice')],
+                       'invisible':['|', '|',('type','=','out_refund'),('is_fiscal_invoice','=',False), ('is_debit_note', '=', True)],
+                       'required': [('is_fiscal_invoice','=',True),('type','=','out_invoice'), ('is_debit_note', '=', False)],
                        'readonly': ['|',('state','!=','draft'),('reference','!=',False)]}"
                        domain="[('type', '=', 'out_invoice')]"/>
                 <field name="fiscal_sequence_id"
@@ -169,5 +182,32 @@
     <record id="account.action_vendor_bill_template" model="ir.actions.act_window">
         <field name="domain">[('type','=','in_invoice'), ('is_debit_note', '=', False)]</field>
     </record>
+
+    <record id="action_invoice_out_debit_note" model="ir.actions.act_window">
+        <field name="name">Debit Notes</field>
+        <field name="res_model">account.invoice</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="view_ids"
+                   eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'tree', 'view_id': ref('account.invoice_tree')}),
+                          (0, 0, {'view_mode': 'form', 'view_id': ref('account.invoice_form')})]"/>
+        <field name="domain">[('type','=','out_invoice'), ('is_debit_note', '=', True)]</field>
+        <field name="context">{'default_type': 'out_invoice', 'type': 'out_invoice', 'journal_type': 'sale', 'default_is_debit_note': True}</field>
+        <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a debit note
+          </p><p>
+            Note that the easiest way to create a debit note is to do it directly
+            from the customer invoice.
+          </p>
+        </field>
+    </record>
+
+    <menuitem action="action_invoice_out_debit_note"
+              id="menu_action_invoice_out_debit_note"
+              parent="account.menu_finance_receivables"
+              sequence="2"/>
 
 </odoo>
