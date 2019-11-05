@@ -253,6 +253,7 @@ class AccountInvoice(models.Model):
         refund_type = context.get('refund_type')
         amount = context.get('amount')
         account = context.get('account')
+        vendor_ref = context.get('vendor_ref')
 
         res = super(AccountInvoice, self)._prepare_refund(
             invoice, date_invoice=date_invoice, date=date,
@@ -276,7 +277,7 @@ class AccountInvoice(models.Model):
         if not fiscal_type_id:
             raise ValidationError(_('No Fiscal Type found for Credit Note'))
 
-        res.update({'reference': False,
+        res.update({'reference': vendor_ref,
                     'origin_out': self.reference,
                     'income_type': self.income_type,
                     'expense_type': self.expense_type,
@@ -294,6 +295,7 @@ class AccountInvoice(models.Model):
         refund_type = context.get('refund_type')
         amount = context.get('amount')
         account = context.get('account')
+        vendor_ref = context.get('vendor_ref')
 
         if not refund_type:
             return super(AccountInvoice, self).refund(
@@ -305,7 +307,7 @@ class AccountInvoice(models.Model):
             # create the new invoice
             values = self.with_context(
                 refund_type=refund_type, amount=amount,
-                account=account)._prepare_refund(
+                account=account, vendor_ref=vendor_ref)._prepare_refund(
                 invoice, date_invoice=date_invoice, date=date,
                 description=description, journal_id=journal_id)
             refund_invoice = self.create(values)

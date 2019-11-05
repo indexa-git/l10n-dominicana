@@ -9,6 +9,12 @@ class AccountInvoiceRefund(models.TransientModel):
     _inherit = "account.invoice.refund"
 
     @api.model
+    def _get_default_is_vendor_refund(self):
+        if self._context.get('type') == 'in_invoice':
+            return True
+        return False
+
+    @api.model
     def _default_account(self):
         journal = self.env['account.journal'].search(
             [('type', '=', 'sale'),
@@ -39,6 +45,10 @@ class AccountInvoiceRefund(models.TransientModel):
         domain=[('deprecated', '=', False)],
         default=_default_account,
     )
+    is_vendor_refund = fields.Boolean(
+        default=_get_default_is_vendor_refund,
+    )
+    refund_reference = fields.Char()
 
     @api.onchange('refund_type')
     def onchange_refund_type(self):
@@ -71,11 +81,14 @@ class AccountInvoiceRefund(models.TransientModel):
                 date = wizard.date or False
                 description = wizard.description or inv.name
                 refund_type = wizard.refund_type
+                vendor_ref = wizard.refund_reference
                 amount = wizard.amount if refund_type == 'fixed_amount' \
                     else inv.amount_untaxed * (wizard.percentage/100)
                 refund = inv.with_context(
-                    refund_type=wizard.refund_type, amount=amount,
-                    account=wizard.account_id.id).refund(
+                    refund_type=wizard.refund_type,
+                    amount=amount,
+                    account=wizard.account_id.id,
+                    vendor_ref=vendor_ref).refund(
                     wizard.date_invoice, date, description, inv.journal_id.id)
 
                 if wizard.refund_method == 'apply_refund':
