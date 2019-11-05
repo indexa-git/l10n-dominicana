@@ -81,6 +81,7 @@ class AccountInvoice(models.Model):
     ],
         compute='_compute_fiscal_sequence_status',
     )
+    is_debit_note = fields.Boolean()
 
     @api.multi
     @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
