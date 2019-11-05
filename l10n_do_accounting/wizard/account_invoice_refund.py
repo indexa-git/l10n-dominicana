@@ -17,17 +17,36 @@ class AccountInvoiceRefund(models.TransientModel):
             return journal.default_credit_account_id.id
         return journal.default_debit_account_id.id
 
-    refund_type = fields.Selection([
-        ('full_refund', 'Full Refund'),
-        ('percentage', 'Percentage'),
-        ('fixed_amount', 'Amount'),
-    ],
-        default='full_refund',
+    @api.model
+    def _get_refund_type_selection(self):
+        selection = [('full_refund', 'Full Refund'),
+                     ('percentage', 'Percentage'),
+                     ('fixed_amount', 'Amount')]
+        if self._context.get('debit_note'):
+            selection.pop(0)
+
+        return selection
+
+    @api.model
+    def _get_default_refund_type(self):
+        if self._context.get('debit_note'):
+            return 'percentage'
+        return 'full_refund'
+
+    @api.model
+    def _get_refund_method_selection(self):
+        if self._context.get('debit_note'):
+            return [('draft_refund', 'Create a draft debit note'),
+                    ('apply_refund', 'Create debit note and reconcile')]
+        return [('draft_refund', 'Create a draft credit note'),
+                ('apply_refund', 'Create credit note and reconcile')]
+
+    refund_type = fields.Selection(
+        selection=_get_refund_type_selection,
+        default=_get_default_refund_type,
     )
-    refund_method = fields.Selection([
-        ('draft_refund', 'Create a draft credit note'),
-        ('apply_refund', 'Create credit note and reconcile'),
-    ],
+    refund_method = fields.Selection(
+        selection=_get_refund_method_selection,
         default='draft_refund',
         string="Credit Method",
     )
@@ -91,6 +110,67 @@ class AccountInvoiceRefund(models.TransientModel):
                 xml_id = action_map[inv.type]
         if xml_id:
             result = self.env.ref('account.%s' % (xml_id)).read()[0]
+            invoice_domain = safe_eval(result['domain'])
+            invoice_domain.append(('id', 'in', created_inv))
+            result['domain'] = invoice_domain
+            return result
+        return True
+
+    @api.multi
+    def invoice_debit_note(self):
+        xml_id = False
+        created_inv = []
+        for wizard in self:
+            inv_obj = self.env['account.invoice']
+            context = dict(self._context or {})
+            for inv in inv_obj.browse(context.get('active_ids')):
+                if inv.state in ['draft', 'cancel']:
+                    raise UserError(_(
+                        'Cannot create debit note for the draft/cancelled '
+                        'invoice.'))
+
+                debit_map = {'out_debit': 'out_invoice',
+                             'in_debit': 'in_invoice'}
+
+                date = wizard.date or wizard.date_invoice
+                description = wizard.description or inv.name
+                refund_type = wizard.refund_type
+                amount = wizard.amount if refund_type == 'fixed_amount' \
+                    else inv.amount_untaxed * (wizard.percentage / 100)
+
+                fiscal_type = self.env['account.fiscal.type'].search([
+                    ('type', '=', context.get('debit_note'))], limit=1)
+
+                values = {
+                    'partner_id': inv.partner_id.id,
+                    'date_invoice': date,
+                    'is_debit_note': True,
+                    'origin_out': inv.reference,
+                    'type': debit_map[context.get('debit_note')],
+                    'fiscal_type_id': fiscal_type.id,
+                    'invoice_line_ids': [
+                        (0, 0, {'name': description,
+                                'date_invoice': date,
+                                'account_id': wizard.account_id.id,
+                                'price_unit': amount})],
+                    'journal_id': inv.journal_id.id,
+                }
+                debit_note = inv_obj.create(values)
+                created_inv.append(debit_note.id)
+                invoice_type = {'out_invoice': ('customer debit note'),
+                                'in_invoice': ('vendor debit note')}
+                message = _("This %s has been created from: <a href=# data-oe-"
+                            "model=account.invoice data-oe-id=%d>%s</a>") % (
+                          invoice_type[inv.type], inv.id,inv.number)
+                debit_note.message_post(body=message)
+                if wizard.refund_method == 'apply_refund':
+                    debit_note.action_invoice_open()
+
+                action_map = {'out_invoice': 'action_invoice_out_debit_note',
+                              'in_invoice': 'action_invoice_tree1'}
+                xml_id = action_map[inv.type]
+        if xml_id:
+            result = self.env.ref('l10n_do_accounting.%s' % (xml_id)).read()[0]
             invoice_domain = safe_eval(result['domain'])
             invoice_domain.append(('id', 'in', created_inv))
             result['domain'] = invoice_domain

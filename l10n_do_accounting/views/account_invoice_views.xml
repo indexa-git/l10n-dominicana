@@ -10,6 +10,13 @@
                 <field name="fiscal_sequence_status" invisible="1"/>
                 <field name="is_debit_note" invisible="1"/>
             </xpath>
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="after">
+                <button name="%(l10n_do_accounting.action_account_invoice_debit)d" type='action'
+                        string='Add Debit Note'
+                        groups="account.group_account_invoice"
+                        context="{'debit_note': 'out_debit'}"
+                        attrs="{'invisible': ['|', '|',('type', '=', 'out_refund'), ('state', 'not in', ('open','in_payment','paid')), ('is_debit_note', '=', True)]}"/>
+            </xpath>
             <xpath expr="//sheet/span" position="after">
                 <span class="o_form_label" attrs="{'invisible': ['|',('state','=','draft'), ('is_debit_note','=',False)]}">Debit Note</span>
             </xpath>
