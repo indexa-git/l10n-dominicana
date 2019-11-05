@@ -84,10 +84,15 @@ class AccountInvoice(models.Model):
 
     @api.multi
     @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
-                 'date_invoice')
+                 'date_invoice', 'type', 'state')
     def _compute_fiscal_sequence(self):
-        for inv in self:
-            fiscal_type = inv.fiscal_type_id
+        for inv in self.filtered(lambda i: i.state == 'draft'):
+            if inv.type in ('out_refund', 'in_refund'):
+                fiscal_type = self.env['account.fiscal.type'].search([
+                    ('type', '=', inv.type)], limit=1)
+                inv.fiscal_type_id = fiscal_type.id
+            else:
+                fiscal_type = inv.fiscal_type_id
             if inv.journal_id.fiscal_journal and fiscal_type and \
                     fiscal_type.internal_generate:
 
@@ -96,7 +101,7 @@ class AccountInvoice(models.Model):
 
                 domain = [
                     ('company_id', '=', inv.company_id.id),
-                    ('fiscal_type_id', '=', inv.fiscal_type_id.id),
+                    ('fiscal_type_id', '=', fiscal_type.id),
                     ('state', '=', 'active'),
                 ]
                 if inv.date_invoice:
