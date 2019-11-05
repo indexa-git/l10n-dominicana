@@ -74,7 +74,7 @@
                 <field name="origin_out"
                        groups="base.group_user"
                        attrs="{
-                       'invisible': [('type', '!=', 'out_refund')],
+                       'invisible': [('type', '!=', 'out_refund'), ('is_debit_note', '=', False)],
                        'readonly': [('state', '!=', 'draft')]}"/>
             </xpath>
 
