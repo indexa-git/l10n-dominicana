@@ -98,6 +98,25 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='has_outstanding']" position="after">
                 <field name="fiscal_sequence_status" invisible="1"/>
+                <field name="is_debit_note" invisible="1"/>
+            </xpath>
+            <xpath expr="//sheet/div" position="replace">
+                <div>
+                    <span class="o_form_label" attrs="{'invisible': ['|', '|',('state','!=','draft'), ('type','!=','in_invoice'), ('is_debit_note', '=', True)]}">Draft Bill</span>
+                    <span class="o_form_label" attrs="{'invisible': [('sequence_number_next_prefix','=',False)]}">- First Number:</span>
+                    <span class="o_form_label" attrs="{'invisible': ['|', '|',('state','!=','draft'), ('type','!=','in_refund'), ('is_debit_note', '=', True)]}">Draft Credit Note</span>
+                    <span class="o_form_label" attrs="{'invisible': ['|', '|',('state', '=', 'draft'), ('type','!=','in_invoice'), ('is_debit_note', '=', True)]}">Bill </span>
+                    <span class="o_form_label" attrs="{'invisible': ['|', '|', ('state', '=', 'draft'), ('type','!=','in_refund'), ('is_debit_note', '=', True)]}">Credit Note </span>
+                    <span class="o_form_label" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Debit Note </span>
+                    <span class="o_form_label" attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('is_debit_note', '=', False)]}">Draft Debit Note</span>
+                    <h1 class="mt0">
+                        <field name="number" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                        <div  attrs="{'invisible': [('sequence_number_next_prefix','=',False)]}">
+                            <field name="sequence_number_next_prefix" class="oe_inline"/>
+                            <field name="sequence_number_next" class="oe_inline"/>
+                        </div>
+                    </h1>
+                </div>
             </xpath>
             <xpath expr="/form/div[hasclass('alert')]" position="after">
                 <div groups="account.group_account_invoice" class="alert alert-warning" role="alert" style="margin-bottom:0px;"
@@ -111,6 +130,13 @@
             </xpath>
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="groups">l10n_do_accounting.credit_note_group</attribute>
+            </xpath>
+            <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="after">
+                <button name="%(l10n_do_accounting.action_account_invoice_debit)d" type='action'
+                        string='Add Debit Note'
+                        groups="account.group_account_invoice"
+                        context="{'debit_note': 'in_debit'}"
+                        attrs="{'invisible': ['|', '|',('type', '=', 'in_refund'), ('state', 'not in', ('open','in_payment','paid')), ('is_debit_note', '=', True)]}"/>
             </xpath>
 
             <!--<xpath expr="//sheet/div/h1[@class='mt0']" position="before">-->
@@ -216,5 +242,26 @@
               id="menu_action_invoice_out_debit_note"
               parent="account.menu_finance_receivables"
               sequence="2"/>
+
+    <record id="action_vendor_in_debit_note" model="ir.actions.act_window">
+        <field name="name">Vendor Debit Notes</field>
+        <field name="res_model">account.invoice</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        <field eval="False" name="view_id"/>
+        <field name="domain">[('type','=','in_invoice'), ('is_debit_note', '=', True)]</field>
+        <field name="context">{'default_type': 'in_invoice', 'type': 'in_invoice', 'journal_type': 'purchase', 'default_is_debit_note': True}</field>
+        <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Record a new vendor debit note
+          </p>
+        </field>
+    </record>
+
+    <menuitem action="action_vendor_in_debit_note"
+              id="menu_action_invoice_in_debit_note"
+              parent="account.menu_finance_payables"
+              sequence="10"/>
 
 </odoo>

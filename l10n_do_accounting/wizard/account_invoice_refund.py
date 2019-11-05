@@ -148,6 +148,7 @@ class AccountInvoiceRefund(models.TransientModel):
                 date = wizard.date or wizard.date_invoice
                 description = wizard.description or inv.name
                 refund_type = wizard.refund_type
+                vendor_ref = wizard.refund_reference
                 amount = wizard.amount if refund_type == 'fixed_amount' \
                     else inv.amount_untaxed * (wizard.percentage / 100)
 
@@ -156,7 +157,10 @@ class AccountInvoiceRefund(models.TransientModel):
 
                 values = {
                     'partner_id': inv.partner_id.id,
+                    'reference': vendor_ref,
                     'date_invoice': date,
+                    'income_type': inv.income_type,
+                    'expense_type': inv.expense_type,
                     'is_debit_note': True,
                     'origin_out': inv.reference,
                     'type': debit_map[context.get('debit_note')],
@@ -180,7 +184,7 @@ class AccountInvoiceRefund(models.TransientModel):
                     debit_note.action_invoice_open()
 
                 action_map = {'out_invoice': 'action_invoice_out_debit_note',
-                              'in_invoice': 'action_invoice_tree1'}
+                              'in_invoice': 'action_vendor_in_debit_note'}
                 xml_id = action_map[inv.type]
         if xml_id:
             result = self.env.ref('l10n_do_accounting.%s' % (xml_id)).read()[0]
