@@ -39,3 +39,11 @@
 
 # TODO: a random number of random types invoices always get the
 #  right NCF when validate
+
+# TODO: fiscal customer refunds are created with all correct data
+
+# TODO: fiscal vendor refunds are created with all correct data
+
+# TODO: fiscal customer debit notes are created with all correct data
+
+# TODO: fiscal vendor debit notes are created with all correct data
