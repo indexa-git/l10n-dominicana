@@ -2,7 +2,7 @@
 <odoo noupdate="0">
 
     <record id="credit_note_group" model="res.groups">
-        <field name="name">Can create Credit Notes</field>
+        <field name="name">Access to Credit Notes</field>
     </record>
 
     <record id="base.group_system" model="res.groups">
