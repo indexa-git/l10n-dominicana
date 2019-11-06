@@ -203,6 +203,11 @@ class AccountInvoice(models.Model):
                 # on invoice validate.
                 inv._compute_fiscal_sequence()
 
+                if not inv.fiscal_sequence_id:
+                    raise ValidationError(
+                        _('There is not active Fiscal Sequence for this type'
+                          'of document.'))
+
                 if inv.type == 'out_invoice':
                     if not inv.partner_id.sale_fiscal_type_id:
                         inv.partner_id.sale_fiscal_type_id = inv.fiscal_type_id
@@ -336,5 +341,3 @@ class AccountInvoice(models.Model):
             refund_invoice._compute_fiscal_sequence()
             new_invoices += refund_invoice
         return new_invoices
-
-    # TODO: a fiscal invoice cannot be validated if not fiscal_sequence_id
