@@ -269,7 +269,7 @@ class AccountInvoice(models.Model):
 
         if refund_type and refund_type != 'full_refund':
             res['tax_line_ids'] = False
-            res['invoice_line_ids'] = [(0, 0, {'name': _("Discount"),
+            res['invoice_line_ids'] = [(0, 0, {'name': description,
                                                'price_unit': amount,
                                                'account_id': account})]
 
