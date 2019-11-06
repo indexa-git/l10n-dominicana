@@ -100,23 +100,24 @@
                 <field name="fiscal_sequence_status" invisible="1"/>
                 <field name="is_debit_note" invisible="1"/>
             </xpath>
-            <xpath expr="//sheet/div" position="replace">
-                <div>
-                    <span class="o_form_label" attrs="{'invisible': ['|', '|',('state','!=','draft'), ('type','!=','in_invoice'), ('is_debit_note', '=', True)]}">Draft Bill</span>
-                    <span class="o_form_label" attrs="{'invisible': [('sequence_number_next_prefix','=',False)]}">- First Number:</span>
-                    <span class="o_form_label" attrs="{'invisible': ['|', '|',('state','!=','draft'), ('type','!=','in_refund'), ('is_debit_note', '=', True)]}">Draft Credit Note</span>
-                    <span class="o_form_label" attrs="{'invisible': ['|', '|',('state', '=', 'draft'), ('type','!=','in_invoice'), ('is_debit_note', '=', True)]}">Bill </span>
-                    <span class="o_form_label" attrs="{'invisible': ['|', '|', ('state', '=', 'draft'), ('type','!=','in_refund'), ('is_debit_note', '=', True)]}">Credit Note </span>
-                    <span class="o_form_label" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Debit Note </span>
-                    <span class="o_form_label" attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('is_debit_note', '=', False)]}">Draft Debit Note</span>
-                    <h1 class="mt0">
-                        <field name="number" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
-                        <div  attrs="{'invisible': [('sequence_number_next_prefix','=',False)]}">
-                            <field name="sequence_number_next_prefix" class="oe_inline"/>
-                            <field name="sequence_number_next" class="oe_inline"/>
-                        </div>
-                    </h1>
-                </div>
+            <xpath expr="//sheet/div/*[1]" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|',('state','!=','draft'), ('type','!=','in_invoice'), ('is_debit_note', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//sheet/div/*[2]" position="attributes">
+                <attribute name="attrs">{'invisible': [('sequence_number_next_prefix','=',False)]}</attribute>
+            </xpath>
+            <xpath expr="//sheet/div/*[3]" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|',('state','!=','draft'), ('type','!=','in_refund'), ('is_debit_note', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//sheet/div/*[4]" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|',('state', '=', 'draft'), ('type','!=','in_invoice'), ('is_debit_note', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//sheet/div/*[5]" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|', ('state', '=', 'draft'), ('type','!=','in_refund'), ('is_debit_note', '=', True)]}</attribute>
+            </xpath>
+            <xpath expr="//sheet/div/*[5]" position="after">
+                <span class="o_form_label" attrs="{'invisible': ['|', ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Debit Note </span>
+                <span class="o_form_label" attrs="{'invisible': ['|', ('state', '!=', 'draft'), ('is_debit_note', '=', False)]}">Draft Debit Note</span>
             </xpath>
             <xpath expr="/form/div[hasclass('alert')]" position="after">
                 <div groups="account.group_account_invoice" class="alert alert-warning" role="alert" style="margin-bottom:0px;"
