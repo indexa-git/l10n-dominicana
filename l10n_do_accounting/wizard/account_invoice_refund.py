@@ -176,8 +176,8 @@ class AccountInvoiceRefund(models.TransientModel):
                 invoice_type = {'out_invoice': ('customer debit note'),
                                 'in_invoice': ('vendor debit note')}
                 message = _("This %s has been created from: <a href=# data-oe-"
-                            "model=account.invoice data-oe-id=%d>%s</a>") % (
-                          invoice_type[inv.type], inv.id,inv.number)
+                            "model=account.invoice data-oe-id=%d>%s</a>"
+                            ) % (invoice_type[inv.type], inv.id, inv.number)
                 debit_note.message_post(body=message)
                 if wizard.refund_method == 'apply_refund':
                     debit_note.action_invoice_open()
