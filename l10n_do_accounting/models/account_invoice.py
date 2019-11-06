@@ -336,3 +336,5 @@ class AccountInvoice(models.Model):
             refund_invoice._compute_fiscal_sequence()
             new_invoices += refund_invoice
         return new_invoices
+
+    # TODO: a fiscal invoice cannot be validated if not fiscal_sequence_id
