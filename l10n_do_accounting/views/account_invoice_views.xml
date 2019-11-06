@@ -201,11 +201,11 @@
     </record>
 
     <record id="account.menu_action_invoice_out_refund" model="ir.ui.menu">
-        <field name="groups" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+        <field name="groups_id" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
     </record>
 
     <record id="account.menu_action_invoice_in_refund" model="ir.ui.menu">
-        <field name="groups" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
+        <field name="groups_id" eval="[(4, ref('l10n_do_accounting.credit_note_group'))]"/>
     </record>
 
     <record id="account.action_invoice_tree1" model="ir.actions.act_window">
