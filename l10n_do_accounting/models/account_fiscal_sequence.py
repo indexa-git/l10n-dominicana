@@ -265,7 +265,7 @@ class AccountFiscalSequence(models.Model):
                     'name': _('%s %s Sequence') % (rec.fiscal_type_id.name,
                                                    rec.name[-9:]),
                     'implementation': 'standard',
-                    'padding': 8,
+                    'padding': rec.fiscal_type_id.padding,
                     'number_increment': 1,
                     'number_next_actual': rec.sequence_start,
                     'number_next': rec.sequence_start,
