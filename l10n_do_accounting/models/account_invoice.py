@@ -203,6 +203,11 @@ class AccountInvoice(models.Model):
                 # on invoice validate.
                 inv._compute_fiscal_sequence()
 
+                if not inv.fiscal_sequence_id:
+                    raise ValidationError(
+                        _('There is not active Fiscal Sequence for this type'
+                          'of document.'))
+
                 if inv.type == 'out_invoice':
                     if not inv.partner_id.sale_fiscal_type_id:
                         inv.partner_id.sale_fiscal_type_id = inv.fiscal_type_id
@@ -226,7 +231,7 @@ class AccountInvoice(models.Model):
 
                 if inv.type in ("out_invoice", "out_refund"):
                     if (inv.amount_untaxed_signed >= 250000 and
-                            inv.fiscal_type_id.name != 'Único Ingreso' and
+                            inv.fiscal_type_id.prefix != 'B12' and
                             not inv.partner_id.vat):
                         raise UserError(_(
                             u"if the invoice amount is greater than "
@@ -269,7 +274,7 @@ class AccountInvoice(models.Model):
 
         if refund_type and refund_type != 'full_refund':
             res['tax_line_ids'] = False
-            res['invoice_line_ids'] = [(0, 0, {'name': _("Discount"),
+            res['invoice_line_ids'] = [(0, 0, {'name': description,
                                                'price_unit': amount,
                                                'account_id': account})]
 
