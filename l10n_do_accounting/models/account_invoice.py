@@ -226,7 +226,7 @@ class AccountInvoice(models.Model):
 
                 if inv.type in ("out_invoice", "out_refund"):
                     if (inv.amount_untaxed_signed >= 250000 and
-                            inv.fiscal_type_id.name != 'Único Ingreso' and
+                            inv.fiscal_type_id.prefix != 'B12' and
                             not inv.partner_id.vat):
                         raise UserError(_(
                             u"if the invoice amount is greater than "
