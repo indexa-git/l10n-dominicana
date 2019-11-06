@@ -42,20 +42,6 @@
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="groups">l10n_do_accounting.credit_note_group</attribute>
             </xpath>
-            <!--<xpath expr="//h1[@class='mt0']" position="before">-->
-                <!--<h1 class="mt0">-->
-                    <!--<field name="reference" -->
-                           <!--string="NCF"-->
-                           <!--readonly="1"-->
-                           <!--attrs="{-->
-                           <!--'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('is_fiscal_invoice','=',False)],-->
-                           <!--'readonly': True}"/>-->
-                           <!--class="oe_inline" -->
-                           <!--readonly="True"/>-->
-                    <!--<field name="ncf_expiration_date" class="oe_right" readonly="True"-->
-                           <!--attrs="{'invisible' : ['|',('state', 'in', ('draft','cancel'))]}"/>-->
-                <!--</h1>-->
-            <!--</xpath>-->
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="is_fiscal_invoice"
                        invisible="1"/>
@@ -139,17 +125,6 @@
                         context="{'debit_note': 'in_debit'}"
                         attrs="{'invisible': ['|', '|',('type', '=', 'in_refund'), ('state', 'not in', ('open','in_payment','paid')), ('is_debit_note', '=', True)]}"/>
             </xpath>
-
-            <!--<xpath expr="//sheet/div/h1[@class='mt0']" position="before">-->
-                <!--<h1 class="mt0">-->
-                    <!--<field name="name" class="oe_inline"-->
-                           <!--attrs="{'invisible' : [('purchase_type', '=', 'others')], 'readonly' : ['|',('state', '!=', 'draft'),('purchase_type','!=','normal')], 'required' : [('purchase_type', '=', 'normal')]}"/>-->
-                    <!--&lt;!&ndash;<field name="ncf_expiration_date" class="oe_right"&ndash;&gt;-->
-                           <!--&lt;!&ndash;attrs="{'invisible' : ['|',('purchase_type', '=', 'others'), ('ncf_remote_validation', '=', True), ('state', '=', 'draft')], 'readonly' : ['|',('state', '!=', 'draft'),('purchase_type','!=','normal')], 'required' : [('purchase_type', '=', 'normal'), ('ncf_remote_validation', '=', False)]}"/>&ndash;&gt;-->
-                <!--</h1>-->
-            <!--</xpath>-->
-
-
             <field name="name" class="oe_inline"
                    attrs="{
                    'invisible' : [('purchase_type', '=', 'others')],
@@ -165,7 +140,6 @@
                 </attribute>
             </xpath>
 
-            <!--<field name="journal_id" position="replace"/>-->
             <xpath expr="//field[@name='reference']" position="before">
                 <field name="is_fiscal_invoice"
                        invisible="1"/>
@@ -173,9 +147,6 @@
                        invisible="1"/>
                 <field name="fiscal_sequence_id"
                        invisible="1"/>
-                <!--<field name="journal_id" groups="account.group_account_user"-->
-                       <!--options="{'no_create': True, 'no_open': True}"-->
-                       <!--attrs="{'readonly':[('state', '!=', 'draft')]}"/>-->
                 <field name="fiscal_type_id"
                        attrs="{
                        'invisible':[('is_fiscal_invoice','=',False)],
