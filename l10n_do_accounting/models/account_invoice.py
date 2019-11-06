@@ -81,13 +81,26 @@ class AccountInvoice(models.Model):
     ],
         compute='_compute_fiscal_sequence_status',
     )
+    is_debit_note = fields.Boolean()
 
     @api.multi
     @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
-                 'date_invoice')
+                 'date_invoice', 'type', 'state', 'is_debit_note')
     def _compute_fiscal_sequence(self):
-        for inv in self:
-            fiscal_type = inv.fiscal_type_id
+        for inv in self.filtered(lambda i: i.state == 'draft'):
+            if inv.is_debit_note:
+                debit_map = {'in_invoice': 'in_debit',
+                             'out_invoice': 'out_debit'}
+                fiscal_type = self.env['account.fiscal.type'].search([
+                    ('type', '=', debit_map[inv.type])], limit=1)
+                inv.fiscal_type_id = fiscal_type.id
+            elif inv.type in ('out_refund', 'in_refund'):
+                fiscal_type = self.env['account.fiscal.type'].search([
+                    ('type', '=', inv.type)], limit=1)
+                inv.fiscal_type_id = fiscal_type.id
+            else:
+                fiscal_type = inv.fiscal_type_id
+
             if inv.journal_id.fiscal_journal and fiscal_type and \
                     fiscal_type.internal_generate:
 
@@ -96,7 +109,7 @@ class AccountInvoice(models.Model):
 
                 domain = [
                     ('company_id', '=', inv.company_id.id),
-                    ('fiscal_type_id', '=', inv.fiscal_type_id.id),
+                    ('fiscal_type_id', '=', fiscal_type.id),
                     ('state', '=', 'active'),
                 ]
                 if inv.date_invoice:
@@ -248,6 +261,7 @@ class AccountInvoice(models.Model):
         refund_type = context.get('refund_type')
         amount = context.get('amount')
         account = context.get('account')
+        vendor_ref = context.get('vendor_ref')
 
         res = super(AccountInvoice, self)._prepare_refund(
             invoice, date_invoice=date_invoice, date=date,
@@ -271,7 +285,7 @@ class AccountInvoice(models.Model):
         if not fiscal_type_id:
             raise ValidationError(_('No Fiscal Type found for Credit Note'))
 
-        res.update({'reference': False,
+        res.update({'reference': vendor_ref,
                     'origin_out': self.reference,
                     'income_type': self.income_type,
                     'expense_type': self.expense_type,
@@ -289,6 +303,7 @@ class AccountInvoice(models.Model):
         refund_type = context.get('refund_type')
         amount = context.get('amount')
         account = context.get('account')
+        vendor_ref = context.get('vendor_ref')
 
         if not refund_type:
             return super(AccountInvoice, self).refund(
@@ -300,7 +315,7 @@ class AccountInvoice(models.Model):
             # create the new invoice
             values = self.with_context(
                 refund_type=refund_type, amount=amount,
-                account=account)._prepare_refund(
+                account=account, vendor_ref=vendor_ref)._prepare_refund(
                 invoice, date_invoice=date_invoice, date=date,
                 description=description, journal_id=journal_id)
             refund_invoice = self.create(values)
