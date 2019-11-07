@@ -285,10 +285,4 @@ class AccountFiscalSequenceTests(TransactionCase):
         # Check state
         self.assertEqual(sequence_id.state, 'depleted')
 
-
-# Account Fiscal Sequence Tests
-
-# TODO: a fiscal sequence of random type always returns the correct combination
-#  of prefix-padding-sequence string
-# TODO: a queued fiscal sequence automatically gets active when its predecessor
-#  gets depleted
+    # TODO: write a test to validate queued sequence auto active
