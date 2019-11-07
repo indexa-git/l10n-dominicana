@@ -128,3 +128,5 @@ class AccountFiscalSequenceTests(TransactionCase):
 #  sequences
 # TODO: a fiscal sequence of random type always returns the correct combination
 #  of prefix-padding-sequence string
+# TODO: a queued fiscal sequence automatically gets active when its predecessor
+#  gets depleted
