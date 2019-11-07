@@ -199,12 +199,12 @@ class AccountFiscalSequence(models.Model):
                 raise ValidationError(
                     _('End sequence must be greater than start sequence.'))
             domain = [
-                ('sequence_end', '<=', rec.sequence_start),
+                ('sequence_start', '>=', rec.sequence_start),
+                ('sequence_end', '<=', rec.sequence_end),
                 ('fiscal_type_id', '=', rec.fiscal_type_id.id),
                 ('state', 'in', ('active', 'queue')),
                 ('company_id', '=', rec.company_id.id),
             ]
-
             if self.search_count(domain) > 1:
                 raise ValidationError(
                     _("You cannot use another Fiscal Sequence range."))
