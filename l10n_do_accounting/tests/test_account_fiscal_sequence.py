@@ -149,9 +149,30 @@ class AccountFiscalSequenceTests(TransactionCase):
         with self.assertRaises(ValidationError):
             sequence_id._action_confirm()
 
+    def test_007_active_sequence_uniqueness(self):
+        """
+        Check fiscal sequence does not have range overlap
+        """
+        sequence_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.fiscal_type_credito_fiscal,
+            'sequence_start': 101,
+            'sequence_end': 150,
+            'remaining_percentage': 12,
+        })
+
+        # Check sequence_end > sequence_start
+        with self.assertRaises(ValidationError):
+            sequence_id.write({'sequence_start': 350,
+                               'sequence_end': 349})
+            sequence_id._action_confirm()
+
+        # Check no overlapping
+        with self.assertRaises(ValidationError):
+            sequence_id._action_confirm()
+
 # Account Fiscal Sequence Tests
 
-# TODO: _validate_sequence_range() ValidationErrors raised
 # TODO: internal sequence is deleted when fiscal sequence is deleted
 # TODO: fiscal sequence is auto expired if expiration_date is today
 # TODO: when a draft fiscal sequence is confirmed, a internal sequence
