@@ -267,13 +267,27 @@ class AccountFiscalSequenceTests(TransactionCase):
         assert sequence_unico_id.sequence_id
         self.assertEqual(sequence_unico_id.state, 'active')
 
+    def test_012_fiscal_sequence_auto_depleted(self):
+        """
+        When a new Fiscal sequence consume all its sequences,
+        it must change its state to 'depleted'
+        """
+        # check after sequence consume
+
+        sequence_id = False
+        for i in range(100):
+            with environment() as env:
+                sequence_id = env['account.fiscal.sequence'].browse(
+                    self.fiscal_seq_unico)
+                sequence_id.get_fiscal_number()
+            state = sequence_id.state
+
+        # Check state
+        self.assertEqual(sequence_id.state, 'depleted')
+
 
 # Account Fiscal Sequence Tests
 
-# TODO: when a fiscal sequence is cancelled, its internal sequence is set to
-#  inactive and state == 'cancelled'
-# TODO: a fiscal sequence is auto-depleted when its get out of available
-#  sequences
 # TODO: a fiscal sequence of random type always returns the correct combination
 #  of prefix-padding-sequence string
 # TODO: a queued fiscal sequence automatically gets active when its predecessor
