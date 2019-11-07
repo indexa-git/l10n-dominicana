@@ -123,8 +123,8 @@ class AccountFiscalSequence(models.Model):
     @api.depends('state')
     def _compute_can_be_queue(self):
         for rec in self:
-            rec.can_be_queue = bool(self.search_count(
-                [('state', '=', 'active'),
+            rec.can_be_queue = bool(2 > self.search_count(
+                [('state', 'in', ('active', 'queue')),
                  ('fiscal_type_id', '=', rec.fiscal_type_id.id),
                  ('company_id', '=', rec.company_id.id)]) > 0) if \
                 rec.state == 'draft' else False
