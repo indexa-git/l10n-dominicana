@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 import odoo
 from odoo.tests import common
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 ADMIN_USER_ID = common.ADMIN_USER_ID
@@ -133,10 +134,23 @@ class AccountFiscalSequenceTests(TransactionCase):
         self.assertEqual(sequence_2_id.sequence_start,
                          sequence_1_id.sequence_end + 1)
 
+    def test_006_active_sequence_uniqueness(self):
+        """
+        There must be only one active fiscal sequence per type
+        """
+        sequence_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.fiscal_type_credito_fiscal,
+            'sequence_start': 141,
+            'sequence_end': 732,
+            'remaining_percentage': 12,
+        })
+
+        with self.assertRaises(ValidationError):
+            sequence_id._action_confirm()
+
 # Account Fiscal Sequence Tests
 
-# TODO: default sequence_start is correctly computed
-# TODO: unique active sequence ValidationError raised
 # TODO: _validate_sequence_range() ValidationErrors raised
 # TODO: internal sequence is deleted when fiscal sequence is deleted
 # TODO: fiscal sequence is auto expired if expiration_date is today
