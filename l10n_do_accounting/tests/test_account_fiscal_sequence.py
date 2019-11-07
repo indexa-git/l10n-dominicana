@@ -193,7 +193,7 @@ class AccountFiscalSequenceTests(TransactionCase):
 
         sequence_id.unlink()
         with self.assertRaises(MissingError):
-            sequence_id.sequence_id
+            bool(sequence_id.sequence_id)
 
     def test_009_fiscal_sequence_auto_expire(self):
         """
