@@ -35,9 +35,28 @@ class AccountFiscalSequenceTests(TransactionCase):
         # sequence can_be_queue must be False
         self.assertEqual(sequence_id.can_be_queue, False)
 
+    def test_002_warning_gap(self):
+        """
+        Warning gap is a value used to evaluate when fiscal
+        sequence deplete warning should be shown. This test
+        ensure this value will be always computed right.
+        """
+        sequence_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.credito_fiscal,
+            'sequence_start': 141,
+            'sequence_end': 732,
+            'remaining_percentage': 12,
+        })
+
+        # Warning gap formula:
+        # sequence_end - (sequence_start -1)
+        # ----------------------------------
+        #     remaining_percentage/100
+        self.assertEqual(sequence_id.warning_gap, 71)
+
 # Account Fiscal Sequence Tests
 
-# TODO: warning_gap is correctly computed
 # TODO: sequence_remaining is correctly computed
 # TODO: next_fiscal_number is correctly computed
 # TODO: default sequence_start is correctly computed
