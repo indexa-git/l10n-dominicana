@@ -280,7 +280,6 @@ class AccountFiscalSequenceTests(TransactionCase):
                 sequence_id = env['account.fiscal.sequence'].browse(
                     self.fiscal_seq_unico)
                 sequence_id.get_fiscal_number()
-            state = sequence_id.state
 
         # Check state
         self.assertEqual(sequence_id.state, 'depleted')
