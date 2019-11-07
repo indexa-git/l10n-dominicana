@@ -1,8 +1,42 @@
 
 
+from odoo.tests.common import TransactionCase
+
+
+class AccountFiscalSequenceTests(TransactionCase):
+
+    """
+    The following tests are executed in a post-install context.
+    This means that all fiscal sequence demo data are pre-loaded
+    and are considered as existing data as every tests cursor
+    is instantiated.
+    """
+
+    def setUp(self):
+        super(AccountFiscalSequenceTests, self).setUp()
+
+        self.fiscal_sequence_obj = self.env['account.fiscal.sequence']
+        self.credito_fiscal = self.ref(
+            'l10n_do_accounting.fiscal_type_credito_fiscal')
+
+    def test_001_fiscal_sequence_queue(self):
+        """
+        Validates only one sequence per type can be queue
+        """
+
+        sequence_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.credito_fiscal,
+            'sequence_start': 300,
+            'sequence_end': 310,
+        })
+
+        # Because there is one demo credito fiscal sequence queued,
+        # sequence can_be_queue must be False
+        self.assertEqual(sequence_id.can_be_queue, False)
+
 # Account Fiscal Sequence Tests
 
-# TODO: only one fiscal sequence per type can be in queue
 # TODO: warning_gap is correctly computed
 # TODO: sequence_remaining is correctly computed
 # TODO: next_fiscal_number is correctly computed
