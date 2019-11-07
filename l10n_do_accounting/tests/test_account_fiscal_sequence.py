@@ -91,9 +91,28 @@ class AccountFiscalSequenceTests(TransactionCase):
                 self.assertEqual(sequence_id.sequence_remaining,
                                  sequence_id.sequence_end - i)
 
+    def test_004_next_fiscal_number(self):
+        """
+        Next fiscal number shows the next complete fiscal number
+        to be returned by the sequence
+        """
+
+        # check after sequence consume
+        for i, _ in enumerate(range(10)):
+            with environment() as env:
+                sequence_id = env['account.fiscal.sequence'].browse(
+                    self.fiscal_seq_credito_fiscal)
+                next_fiscal_number = "%s%s" % (
+                    sequence_id.fiscal_type_id.prefix,
+                    str(sequence_id.sequence_id.number_next_actual).zfill(
+                        sequence_id.fiscal_type_id.padding))
+
+                sequence_id.get_fiscal_number()
+                self.assertEqual(sequence_id.next_fiscal_number,
+                                 next_fiscal_number)
+
 # Account Fiscal Sequence Tests
 
-# TODO: next_fiscal_number is correctly computed
 # TODO: default sequence_start is correctly computed
 # TODO: unique active sequence ValidationError raised
 # TODO: _validate_sequence_range() ValidationErrors raised
