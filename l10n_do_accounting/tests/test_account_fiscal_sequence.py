@@ -33,8 +33,11 @@ class AccountFiscalSequenceTests(TransactionCase):
         super(AccountFiscalSequenceTests, self).setUp()
 
         self.fiscal_sequence_obj = self.env['account.fiscal.sequence']
+        self.fiscal_type_obj = self.env['account.fiscal.type']
         self.fiscal_seq_credito_fiscal = self.ref(
             'l10n_do_accounting.credito_fiscal_demo')
+        self.fiscal_seq_unico = self.ref(
+            'l10n_do_accounting.unico_demo')
         self.fiscal_type_credito_fiscal = self.ref(
             'l10n_do_accounting.fiscal_type_credito_fiscal')
         self.fiscal_type_consumo = self.ref(
@@ -181,7 +184,6 @@ class AccountFiscalSequenceTests(TransactionCase):
 
         sequence_id = self.fiscal_sequence_obj.browse(
             self.fiscal_seq_credito_fiscal)
-        sequence_id._action_confirm()
 
         # Cancel before delete
         sequence_id._action_cancel()
@@ -210,10 +212,39 @@ class AccountFiscalSequenceTests(TransactionCase):
         # Check state = 'expired'
         self.assertEqual(sequence_id.state, 'expired')
 
+    def test_010_fiscal_sequence_sequence_vals(self):
+        """
+        Fiscal sequence's internal sequence must be created
+        with correct values
+        """
+
+        # Cancel and delete an existing one
+        sequence_id = self.fiscal_sequence_obj.browse(
+            self.fiscal_seq_unico)
+        sequence_id._action_cancel()
+        sequence_id.unlink()
+
+        sequence_unico_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.fiscal_type_unico,
+            'sequence_start': 1,
+            'sequence_end': 10,
+        })
+        sequence_unico_id._action_confirm()
+
+        # Check internal sequence vals
+        self.assertRecordValues(
+            sequence_unico_id.sequence_id,
+            [{
+                'implementation': 'standard',
+                'padding': self.fiscal_type_obj.browse(
+                    self.fiscal_type_unico).padding,
+                'number_increment': 1,
+                'number_next_actual': 1,
+            }])
+
 # Account Fiscal Sequence Tests
 
-# TODO: when a draft fiscal sequence is confirmed, a internal sequence
-#  is created too with correct vals
 # TODO: when a draft fiscal sequence is confirmed, a new internal sequence
 #  is attached and state == 'active'
 # TODO: when a fiscal sequence is cancelled, its internal sequence is set to
