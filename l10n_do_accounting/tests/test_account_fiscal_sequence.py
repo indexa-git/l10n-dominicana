@@ -3,7 +3,7 @@ from contextlib import contextmanager
 
 import odoo
 from odoo.tests import common
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, MissingError
 from odoo.tests.common import TransactionCase
 
 ADMIN_USER_ID = common.ADMIN_USER_ID
@@ -171,9 +171,27 @@ class AccountFiscalSequenceTests(TransactionCase):
         with self.assertRaises(ValidationError):
             sequence_id._action_confirm()
 
+    def test_008_internal_sequence_delete(self):
+        """
+        Internal sequence must be deleted when fiscal sequence is deleted
+        """
+
+        sequence_id = self.fiscal_sequence_obj.browse(
+            self.fiscal_seq_credito_fiscal)
+        sequence_id._action_confirm()
+
+        # Cancel before delete
+        sequence_id._action_cancel()
+        # Check state
+        self.assertEqual(sequence_id.state, 'cancelled')
+
+        sequence_id.unlink()
+        with self.assertRaises(MissingError):
+            sequence_id.sequence_id
+
+
 # Account Fiscal Sequence Tests
 
-# TODO: internal sequence is deleted when fiscal sequence is deleted
 # TODO: fiscal sequence is auto expired if expiration_date is today
 # TODO: when a draft fiscal sequence is confirmed, a internal sequence
 #  is created too with correct vals
