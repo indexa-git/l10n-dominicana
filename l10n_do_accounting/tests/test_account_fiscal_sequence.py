@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 
 import odoo
+from odoo import fields
 from odoo.tests import common
 from odoo.exceptions import ValidationError, MissingError
 from odoo.tests.common import TransactionCase
@@ -37,7 +38,9 @@ class AccountFiscalSequenceTests(TransactionCase):
         self.fiscal_type_credito_fiscal = self.ref(
             'l10n_do_accounting.fiscal_type_credito_fiscal')
         self.fiscal_type_consumo = self.ref(
-            'l10n_do_accounting.consumo_demo')
+            'l10n_do_accounting.fiscal_type_consumo')
+        self.fiscal_type_unico = self.ref(
+            'l10n_do_accounting.fiscal_type_unico')
 
     def test_001_fiscal_sequence_queue(self):
         """
@@ -189,10 +192,26 @@ class AccountFiscalSequenceTests(TransactionCase):
         with self.assertRaises(MissingError):
             sequence_id.sequence_id
 
+    def test_009_fiscal_sequence_auto_expire(self):
+        """
+        Fiscal Sequence must change its state to 'expired' when
+        validated or a cron runs _expire_sequences()
+        """
+
+        sequence_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.fiscal_type_unico,
+            'sequence_start': 101,
+            'sequence_end': 150,
+            'expiration_date': fields.Date.today(),
+        })
+        sequence_id._action_confirm()
+
+        # Check state = 'expired'
+        self.assertEqual(sequence_id.state, 'expired')
 
 # Account Fiscal Sequence Tests
 
-# TODO: fiscal sequence is auto expired if expiration_date is today
 # TODO: when a draft fiscal sequence is confirmed, a internal sequence
 #  is created too with correct vals
 # TODO: when a draft fiscal sequence is confirmed, a new internal sequence
