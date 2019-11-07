@@ -243,10 +243,32 @@ class AccountFiscalSequenceTests(TransactionCase):
                 'number_next_actual': 1,
             }])
 
+    def test_011_fiscal_sequence_sequence_vals(self):
+        """
+        When a new Fiscal sequence is validated, a internal sequence
+        must be attached to it and its state 'active'
+        """
+
+        # Cancel and delete an existing one
+        sequence_id = self.fiscal_sequence_obj.browse(
+            self.fiscal_seq_unico)
+        sequence_id._action_cancel()
+        sequence_id.unlink()
+
+        sequence_unico_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.fiscal_type_unico,
+            'sequence_start': 1,
+            'sequence_end': 10,
+        })
+        sequence_unico_id._action_confirm()
+
+        assert sequence_unico_id.sequence_id
+        self.assertEqual(sequence_unico_id.state, 'active')
+
+
 # Account Fiscal Sequence Tests
 
-# TODO: when a draft fiscal sequence is confirmed, a new internal sequence
-#  is attached and state == 'active'
 # TODO: when a fiscal sequence is cancelled, its internal sequence is set to
 #  inactive and state == 'cancelled'
 # TODO: a fiscal sequence is auto-depleted when its get out of available
