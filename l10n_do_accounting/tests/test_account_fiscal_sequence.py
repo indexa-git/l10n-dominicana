@@ -189,6 +189,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         sequence_id._action_cancel()
         # Check state
         self.assertEqual(sequence_id.state, 'cancelled')
+        self.assertEqual(sequence_id.sequence_id.active, False)
 
         sequence_id.unlink()
         with self.assertRaises(MissingError):
