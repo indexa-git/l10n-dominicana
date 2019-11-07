@@ -1,6 +1,21 @@
 
+from contextlib import contextmanager
 
+import odoo
+from odoo.tests import common
 from odoo.tests.common import TransactionCase
+
+ADMIN_USER_ID = common.ADMIN_USER_ID
+
+
+@contextmanager
+def environment():
+    """ Return an environment with a new cursor for the current database; the
+        cursor is committed and closed after the context block.
+    """
+    registry = odoo.registry(common.get_db_name())
+    with registry.cursor() as cr:
+        yield odoo.api.Environment(cr, ADMIN_USER_ID, {})
 
 
 class AccountFiscalSequenceTests(TransactionCase):
@@ -16,7 +31,9 @@ class AccountFiscalSequenceTests(TransactionCase):
         super(AccountFiscalSequenceTests, self).setUp()
 
         self.fiscal_sequence_obj = self.env['account.fiscal.sequence']
-        self.credito_fiscal = self.ref(
+        self.fiscal_seq_credito_fiscal = self.ref(
+            'l10n_do_accounting.credito_fiscal_demo')
+        self.fiscal_type_credito_fiscal = self.ref(
             'l10n_do_accounting.fiscal_type_credito_fiscal')
 
     def test_001_fiscal_sequence_queue(self):
@@ -26,7 +43,7 @@ class AccountFiscalSequenceTests(TransactionCase):
 
         sequence_id = self.fiscal_sequence_obj.create({
             'name': '7045195031',
-            'fiscal_type_id': self.credito_fiscal,
+            'fiscal_type_id': self.fiscal_type_credito_fiscal,
             'sequence_start': 300,
             'sequence_end': 310,
         })
@@ -43,7 +60,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         """
         sequence_id = self.fiscal_sequence_obj.create({
             'name': '7045195031',
-            'fiscal_type_id': self.credito_fiscal,
+            'fiscal_type_id': self.fiscal_type_credito_fiscal,
             'sequence_start': 141,
             'sequence_end': 732,
             'remaining_percentage': 12,
@@ -55,9 +72,27 @@ class AccountFiscalSequenceTests(TransactionCase):
         #     remaining_percentage/100
         self.assertEqual(sequence_id.warning_gap, 71)
 
+    def test_003_sequence_remaining(self):
+        """
+        Sequence remaining shows how many sequences are left
+        """
+        sequence_id = self.fiscal_sequence_obj.browse(
+            self.fiscal_seq_credito_fiscal)
+
+        # new sequence remaining check
+        self.assertEqual(sequence_id.sequence_remaining, 100)
+
+        # check after sequence consume
+        for i, _ in enumerate(range(10)):
+            with environment() as env:
+                sequence_id = env['account.fiscal.sequence'].browse(
+                    self.fiscal_seq_credito_fiscal)
+                sequence_id.get_fiscal_number()
+                self.assertEqual(sequence_id.sequence_remaining,
+                                 sequence_id.sequence_end - i)
+
 # Account Fiscal Sequence Tests
 
-# TODO: sequence_remaining is correctly computed
 # TODO: next_fiscal_number is correctly computed
 # TODO: default sequence_start is correctly computed
 # TODO: unique active sequence ValidationError raised
