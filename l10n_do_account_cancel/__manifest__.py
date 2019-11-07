@@ -5,7 +5,7 @@
         Implementa cancelación de facturas fiscales""",
 
     'author': "Indexa",
-
+    'license': 'LGPL-3',
     'website': "https://github.com/odoo-dominicana",
     'category': 'Localization',
     'version': '12.0.1.0.0',
