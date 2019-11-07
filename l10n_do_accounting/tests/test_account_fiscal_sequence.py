@@ -35,6 +35,8 @@ class AccountFiscalSequenceTests(TransactionCase):
             'l10n_do_accounting.credito_fiscal_demo')
         self.fiscal_type_credito_fiscal = self.ref(
             'l10n_do_accounting.fiscal_type_credito_fiscal')
+        self.fiscal_type_consumo = self.ref(
+            'l10n_do_accounting.consumo_demo')
 
     def test_001_fiscal_sequence_queue(self):
         """
@@ -110,6 +112,26 @@ class AccountFiscalSequenceTests(TransactionCase):
                 sequence_id.get_fiscal_number()
                 self.assertEqual(sequence_id.next_fiscal_number,
                                  next_fiscal_number)
+
+    def test_005_sequence_start_default(self):
+        """
+        When on change fiscal_type_id, sequence start must be last active,
+        depleted sequence end + 1
+        """
+        sequence_1_id = self.fiscal_sequence_obj.browse(
+            self.fiscal_seq_credito_fiscal)
+
+        sequence_2_id = self.fiscal_sequence_obj.create({
+            'name': '7045195031',
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'sequence_start': 141,
+            'sequence_end': 732,
+        })
+        sequence_2_id.fiscal_type_id = self.fiscal_type_credito_fiscal
+        sequence_2_id._onchange_fiscal_type_id()
+
+        self.assertEqual(sequence_2_id.sequence_start,
+                         sequence_1_id.sequence_end + 1)
 
 # Account Fiscal Sequence Tests
 
