@@ -60,15 +60,32 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         })
         self.assertFalse(invoice_id.fiscal_sequence_id)
 
+    def test_003_onchange_journal_id(self):
+        """
+        After create a new fiscal invoice, if journal is changed to a
+        non fiscal one, fiscal_type_id and fiscal_sequence_id must be
+        removed
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+        })
+
+        no_fiscal_journal_id = self.journal_obj.create({
+            'name': 'No fiscal Sale journal',
+            'type': 'sale',
+            'code': 'NFSJ',
+        })
+        invoice_id.journal_id = no_fiscal_journal_id.id
+        invoice_id._onchange_journal_id()
+
+        self.assertFalse(invoice_id.fiscal_type_id)
+        self.assertFalse(invoice_id.fiscal_sequence_id)
+
 # Account Invoice Tests
 
 # TODO: invoice fiscal_sequence_status is computed correctly
-
-# TODO: on change journal_id, if not fiscal, invoice fiscal_type_id and
-#  fiscal_sequence_id = False
-
-# TODO: when _onchange_fiscal_type(), if fiscal_type_id.journal_id then
-#  invoice journal_id = fiscal_type_id.journal_id
 
 # TODO: when _onchange_partner_id, if out_invoice and not fiscal_type_id,
 #  invoice fiscal_type_id = partner_id.fiscal_type_id
