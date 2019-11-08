@@ -226,11 +226,12 @@ class AccountFiscalSequenceTransactionTests(AccountFiscalSequenceCommon):
         """
 
         with environment() as env:
-            env['res.company'].search([
-                ('name', '=', 'Test Company')]).unlink()
 
-            test_company = env['res.company'].create(
-                {'name': 'Test Company'})
+            test_company = env['res.company'].search([
+                ('name', '=', 'Test Company')])
+            if not test_company:
+                test_company = env['res.company'].create(
+                    {'name': 'Test Company'})
 
             sequence_id = env['account.fiscal.sequence'].create({
                 'name': '7045195031',
@@ -286,5 +287,3 @@ class AccountFiscalSequenceTransactionTests(AccountFiscalSequenceCommon):
                 ('company_id', '=', test_company.id),
                 ('fiscal_type_id', '=', self.fiscal_type_credito_fiscal),
             ]).unlink()
-            env['res.company'].search([
-                ('name', '=', 'Test Company')]).unlink()
