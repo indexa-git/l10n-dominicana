@@ -276,10 +276,9 @@ class AccountFiscalSequenceTransactionTests(AccountFiscalSequenceCommon):
 
         # Check queued sequence gets auto activated
         with environment() as env:
-            queued_sequence_id = env['account.fiscal.sequence'].search([
-                    ('company_id', '=', test_company.id),
-                    ('name', '=', 'queued'),
-                ])
+            queued_sequence_id = env['account.fiscal.sequence'].search(
+                [('company_id', '=', test_company.id),
+                 ('name', '=', 'queued')])
             self.assertEqual(queued_sequence_id.state, 'active')
 
         with environment() as env:
