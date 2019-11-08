@@ -79,24 +79,25 @@
     </record>
 
 
-    <!-- Validate all Fiscal Sequences -->
+    <data noupdate="1">
+        <!-- Validate all Fiscal Sequences -->
 
-    <function model="account.fiscal.sequence" name="_action_confirm">
-        <value eval="[
-        ref('l10n_do_accounting.credito_fiscal_demo'),
-        ref('l10n_do_accounting.consumo_demo'),
-        ref('l10n_do_accounting.unico_demo'),
-        ref('l10n_do_accounting.especial_demo'),
-        ref('l10n_do_accounting.gov_demo'),
-        ref('l10n_do_accounting.export_demo'),
-        ref('l10n_do_accounting.dn_demo'),
-        ref('l10n_do_accounting.cn_demo'),
-        ref('l10n_do_accounting.informal_demo'),
-        ref('l10n_do_accounting.minor_demo'),
-        ref('l10n_do_accounting.exterior_demo'),
-        ]"/>
-    </function>
-
+        <function model="account.fiscal.sequence" name="_action_confirm">
+            <value eval="[
+            ref('l10n_do_accounting.credito_fiscal_demo'),
+            ref('l10n_do_accounting.consumo_demo'),
+            ref('l10n_do_accounting.unico_demo'),
+            ref('l10n_do_accounting.especial_demo'),
+            ref('l10n_do_accounting.gov_demo'),
+            ref('l10n_do_accounting.export_demo'),
+            ref('l10n_do_accounting.dn_demo'),
+            ref('l10n_do_accounting.cn_demo'),
+            ref('l10n_do_accounting.informal_demo'),
+            ref('l10n_do_accounting.minor_demo'),
+            ref('l10n_do_accounting.exterior_demo'),
+            ]"/>
+        </function>
+    </data>
 
     <!-- Demo Queued Fiscal Sequence  -->
 
@@ -113,14 +114,14 @@
         <field name="sequence_end" eval="200"/>
     </record>
 
+    <data noupdate="1">
+        <!-- Queue Fiscal Sequences -->
 
-    <!-- Queue Fiscal Sequences -->
-
-    <function model="account.fiscal.sequence" name="action_queue">
-        <value eval="[
-        ref('l10n_do_accounting.queued_credito_fiscal_demo'),
-        ref('l10n_do_accounting.queued_consumo_demo'),
-        ]"/>
-    </function>
-
+        <function model="account.fiscal.sequence" name="action_queue">
+            <value eval="[
+            ref('l10n_do_accounting.queued_credito_fiscal_demo'),
+            ref('l10n_do_accounting.queued_consumo_demo'),
+            ]"/>
+        </function>
+    </data>
 </odoo>
