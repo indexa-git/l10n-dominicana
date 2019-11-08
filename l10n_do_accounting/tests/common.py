@@ -29,6 +29,7 @@ class AccountInvoiceCommon(TransactionCase):
         self.invoice_obj = self.env['account.invoice']
         self.journal_obj = self.env['account.journal']
         self.partner_obj = self.env['res.partner']
+        self.fiscal_type_obj = self.env['account.fiscal.type']
 
         self.sale_journal = False
         self.purchase_journal = False
@@ -59,5 +60,7 @@ class AccountInvoiceCommon(TransactionCase):
         # Demo fiscal type
         self.fiscal_type_fiscal = self.ref(
             'l10n_do_accounting.fiscal_type_credito_fiscal')
+        self.fiscal_type_consumo = self.ref(
+            'l10n_do_accounting.fiscal_type_consumo')
         self.fiscal_type_informal = self.ref(
             'l10n_do_accounting.fiscal_type_informal')

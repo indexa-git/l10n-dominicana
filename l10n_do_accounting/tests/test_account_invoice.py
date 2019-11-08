@@ -102,6 +102,31 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(invoice_id.fiscal_type_id.id,
                          partner_id.sale_fiscal_type_id.id)
 
+    def test_005_fiscal_type_journal(self):
+        """
+        When changing a draft invoice fiscal type to a one which
+        have a journal, invoice journal must me fiscal type journal
+        """
+
+        consumo_journal_id = self.journal_obj.create({
+            'name': 'Consumo Sale journal',
+            'type': 'sale',
+            'code': 'CSJ',
+        })
+        fiscal_type_consumo = self.fiscal_type_obj.browse(
+            self.fiscal_type_consumo)
+        fiscal_type_consumo.journal_id = consumo_journal_id.id
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+        })
+        invoice_id.fiscal_type_id = self.fiscal_type_consumo
+        invoice_id._onchange_fiscal_type()
+
+        self.assertEqual(invoice_id.journal_id.id,
+                         fiscal_type_consumo.journal_id.id)
+
 # Account Invoice Tests
 
 # TODO: invoice fiscal_sequence_status is computed correctly
