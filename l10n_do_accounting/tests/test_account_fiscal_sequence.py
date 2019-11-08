@@ -272,8 +272,6 @@ class AccountFiscalSequenceTests(TransactionCase):
         When a new Fiscal sequence consume all its sequences,
         it must change its state to 'depleted'
         """
-        # check after sequence consume
-
         sequence_id = False
         for i in range(100):
             with environment() as env:
