@@ -83,12 +83,28 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertFalse(invoice_id.fiscal_type_id)
         self.assertFalse(invoice_id.fiscal_sequence_id)
 
+    def test_004_onchange_partner_id(self):
+        """
+        When creating a new one or changing invoice partner_id,
+        if not fiscal_type_id, invoice fiscal_type_id must be
+        partner_id sale_fiscal_type_id
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+        })
+        invoice_id.write({'fiscal_type_id': False,
+                          'partner_id': self.partner_demo_4})
+        invoice_id._onchange_partner_id()
+
+        partner_id = self.partner_obj.browse(self.partner_demo_4)
+        self.assertEqual(invoice_id.fiscal_type_id.id,
+                         partner_id.sale_fiscal_type_id.id)
+
 # Account Invoice Tests
 
 # TODO: invoice fiscal_sequence_status is computed correctly
-
-# TODO: when _onchange_partner_id, if out_invoice and not fiscal_type_id,
-#  invoice fiscal_type_id = partner_id.fiscal_type_id
 
 # TODO: when _onchange_partner_id, if in_invoice,
 #  fiscal_type_id = partner_id.fiscal_type_id

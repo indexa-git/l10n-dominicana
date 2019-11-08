@@ -28,6 +28,7 @@ class AccountInvoiceCommon(TransactionCase):
 
         self.invoice_obj = self.env['account.invoice']
         self.journal_obj = self.env['account.journal']
+        self.partner_obj = self.env['res.partner']
 
         self.sale_journal = False
         self.purchase_journal = False
