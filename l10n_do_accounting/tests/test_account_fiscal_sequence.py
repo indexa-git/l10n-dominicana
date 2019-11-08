@@ -4,8 +4,8 @@ from contextlib import contextmanager
 import odoo
 from odoo import fields
 from odoo.tests import common
+from .common import AccountFiscalSequenceCommon
 from odoo.exceptions import ValidationError, MissingError
-from odoo.tests.common import TransactionCase
 
 ADMIN_USER_ID = common.ADMIN_USER_ID
 
@@ -20,7 +20,7 @@ def environment():
         yield odoo.api.Environment(cr, ADMIN_USER_ID, {})
 
 
-class AccountFiscalSequenceTests(TransactionCase):
+class AccountFiscalSequenceBaseTests(AccountFiscalSequenceCommon):
 
     """
     The following tests are executed in a post-install context.
@@ -28,22 +28,6 @@ class AccountFiscalSequenceTests(TransactionCase):
     and are considered as existing data as every tests cursor
     is instantiated.
     """
-
-    def setUp(self):
-        super(AccountFiscalSequenceTests, self).setUp()
-
-        self.fiscal_sequence_obj = self.env['account.fiscal.sequence']
-        self.fiscal_type_obj = self.env['account.fiscal.type']
-        self.fiscal_seq_credito_fiscal = self.ref(
-            'l10n_do_accounting.credito_fiscal_demo')
-        self.fiscal_seq_unico = self.ref(
-            'l10n_do_accounting.unico_demo')
-        self.fiscal_type_credito_fiscal = self.ref(
-            'l10n_do_accounting.fiscal_type_credito_fiscal')
-        self.fiscal_type_consumo = self.ref(
-            'l10n_do_accounting.fiscal_type_consumo')
-        self.fiscal_type_unico = self.ref(
-            'l10n_do_accounting.fiscal_type_unico')
 
     def test_001_fiscal_sequence_queue(self):
         """
@@ -81,46 +65,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         #     remaining_percentage/100
         self.assertEqual(sequence_id.warning_gap, 71)
 
-    def test_003_sequence_remaining(self):
-        """
-        Sequence remaining shows how many sequences are left
-        """
-        sequence_id = self.fiscal_sequence_obj.browse(
-            self.fiscal_seq_credito_fiscal)
-
-        # new sequence remaining check
-        self.assertEqual(sequence_id.sequence_remaining, 100)
-
-        # check after sequence consume
-        for i, _ in enumerate(range(10)):
-            with environment() as env:
-                sequence_id = env['account.fiscal.sequence'].browse(
-                    self.fiscal_seq_credito_fiscal)
-                sequence_id.get_fiscal_number()
-                self.assertEqual(sequence_id.sequence_remaining,
-                                 sequence_id.sequence_end - i)
-
-    def test_004_next_fiscal_number(self):
-        """
-        Next fiscal number shows the next complete fiscal number
-        to be returned by the sequence
-        """
-
-        # check after sequence consume
-        for i, _ in enumerate(range(10)):
-            with environment() as env:
-                sequence_id = env['account.fiscal.sequence'].browse(
-                    self.fiscal_seq_credito_fiscal)
-                next_fiscal_number = "%s%s" % (
-                    sequence_id.fiscal_type_id.prefix,
-                    str(sequence_id.sequence_id.number_next_actual).zfill(
-                        sequence_id.fiscal_type_id.padding))
-
-                sequence_id.get_fiscal_number()
-                self.assertEqual(sequence_id.next_fiscal_number,
-                                 next_fiscal_number)
-
-    def test_005_sequence_start_default(self):
+    def test_003_sequence_start_default(self):
         """
         When on change fiscal_type_id, sequence start must be last active,
         depleted sequence end + 1
@@ -140,7 +85,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         self.assertEqual(sequence_2_id.sequence_start,
                          sequence_1_id.sequence_end + 1)
 
-    def test_006_active_sequence_uniqueness(self):
+    def test_004_active_sequence_uniqueness(self):
         """
         There must be only one active fiscal sequence per type
         """
@@ -155,7 +100,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         with self.assertRaises(ValidationError):
             sequence_id._action_confirm()
 
-    def test_007_active_sequence_uniqueness(self):
+    def test_005_active_sequence_uniqueness(self):
         """
         Check fiscal sequence does not have range overlap
         """
@@ -177,7 +122,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         with self.assertRaises(ValidationError):
             sequence_id._action_confirm()
 
-    def test_008_internal_sequence_delete(self):
+    def test_006_internal_sequence_delete(self):
         """
         Internal sequence must be deleted when fiscal sequence is deleted
         """
@@ -195,7 +140,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         with self.assertRaises(MissingError):
             bool(sequence_id.sequence_id)
 
-    def test_009_fiscal_sequence_auto_expire(self):
+    def test_007_fiscal_sequence_auto_expire(self):
         """
         Fiscal Sequence must change its state to 'expired' when
         validated or a cron runs _expire_sequences()
@@ -213,7 +158,7 @@ class AccountFiscalSequenceTests(TransactionCase):
         # Check state = 'expired'
         self.assertEqual(sequence_id.state, 'expired')
 
-    def test_010_fiscal_sequence_sequence_vals(self):
+    def test_008_fiscal_sequence_sequence_vals(self):
         """
         Fiscal sequence's internal sequence must be created
         with correct values
@@ -244,7 +189,7 @@ class AccountFiscalSequenceTests(TransactionCase):
                 'number_next_actual': 1,
             }])
 
-    def test_011_fiscal_sequence_sequence_vals(self):
+    def test_009_fiscal_sequence_sequence_vals(self):
         """
         When a new Fiscal sequence is validated, a internal sequence
         must be attached to it and its state 'active'
@@ -267,21 +212,77 @@ class AccountFiscalSequenceTests(TransactionCase):
         assert sequence_unico_id.sequence_id
         self.assertEqual(sequence_unico_id.state, 'active')
 
-    def test_012_fiscal_sequence_auto_depleted(self):
-        """
-        When a new Fiscal sequence consume all its sequences,
-        it must change its state to 'depleted'
-        """
-        # check after sequence consume
-
-        sequence_id = False
-        for i in range(100):
-            with environment() as env:
-                sequence_id = env['account.fiscal.sequence'].browse(
-                    self.fiscal_seq_unico)
-                sequence_id.get_fiscal_number()
-
-        # Check state
-        self.assertEqual(sequence_id.state, 'depleted')
-
     # TODO: write a test to validate queued sequence auto active
+
+
+class AccountFiscalSequenceTransactionTests(AccountFiscalSequenceCommon):
+
+    def test_010_sequence_transactions(self):
+        """
+        Check sequence remaining
+        Check sequence next fiscal number
+        Check sequence auto deplete
+        Check queued sequence gets auto activated
+        """
+
+        with environment() as env:
+
+            test_company = env['res.company'].search([
+                ('name', '=', 'Test Company')])
+            if not test_company:
+                test_company = env['res.company'].create(
+                    {'name': 'Test Company'})
+
+            sequence_id = env['account.fiscal.sequence'].create({
+                'name': '7045195031',
+                'fiscal_type_id': self.fiscal_type_credito_fiscal,
+                'sequence_start': 1,
+                'sequence_end': 10,
+                'company_id': test_company.id,
+            })
+            sequence_id._action_confirm()
+            self.assertEqual(sequence_id.sequence_remaining, 10)
+
+            queued_sequence_id = env['account.fiscal.sequence'].create({
+                'name': 'queued',
+                'fiscal_type_id': self.fiscal_type_credito_fiscal,
+                'sequence_start': 11,
+                'sequence_end': 20,
+                'company_id': test_company.id,
+            })
+            queued_sequence_id.action_queue()
+
+        for i in range(10):
+            with environment() as env:
+                env_sequence_id = env['account.fiscal.sequence'].search([
+                    ('company_id', '=', test_company.id),
+                    ('fiscal_type_id', '=', self.fiscal_type_credito_fiscal),
+                    ('state', '=', 'active'),
+                ])
+                env_sequence_id.get_fiscal_number()
+                next_fiscal_number = "%s%s" % (
+                    env_sequence_id.fiscal_type_id.prefix,
+                    str(env_sequence_id.sequence_id.number_next_actual).zfill(
+                        env_sequence_id.fiscal_type_id.padding))
+
+            # Check sequence_remaining
+            self.assertEqual(env_sequence_id.sequence_remaining,
+                             env_sequence_id.sequence_end - i)
+            # Check next_fiscal_number
+            self.assertEqual(env_sequence_id.next_fiscal_number,
+                             next_fiscal_number)
+        # Check state --> auto deplete
+        self.assertEqual(env_sequence_id.state, 'depleted')
+
+        # Check queued sequence gets auto activated
+        with environment() as env:
+            queued_sequence_id = env['account.fiscal.sequence'].search(
+                [('company_id', '=', test_company.id),
+                 ('name', '=', 'queued')])
+            self.assertEqual(queued_sequence_id.state, 'active')
+
+        with environment() as env:
+            env['account.fiscal.sequence'].search([
+                ('company_id', '=', test_company.id),
+                ('fiscal_type_id', '=', self.fiscal_type_credito_fiscal),
+            ]).unlink()
