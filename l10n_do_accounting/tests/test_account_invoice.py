@@ -62,9 +62,6 @@ class AccountInvoiceTests(AccountInvoiceCommon):
 
 # Account Invoice Tests
 
-# TODO: an invoice does not get a fiscal sequence if invoice date >= fiscal
-#  sequence expiration date
-
 # TODO: invoice fiscal_sequence_status is computed correctly
 
 # TODO: on change journal_id, if not fiscal, invoice fiscal_type_id and
