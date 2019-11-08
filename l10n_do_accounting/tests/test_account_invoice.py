@@ -1,9 +1,50 @@
 
 
-# Account Invoice Tests
+from .common import AccountInvoiceCommon
 
-# TODO: all invoice types (out_invoice, in_invoice, out_refund, in_refund,
-#  out_debit, in_debit) fiscal_sequence_id is computed correctly
+
+class AccountInvoiceTests(AccountInvoiceCommon):
+
+    def test_001_invoice_fiscal_sequence_id(self):
+        """
+        Checks invoices gets the right fiscal_sequence_id
+        when created
+        """
+
+        # Customer invoice (out_invoice)
+        invoice_1_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+        })
+        self.assertEqual(invoice_1_id.fiscal_sequence_id.id,
+                         self.seq_fiscal)
+
+        # Vendor bill (in_invoice)
+        invoice_2_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_2,
+            'fiscal_type_id': self.fiscal_type_informal,
+        })
+        self.assertEqual(invoice_2_id.fiscal_sequence_id.id,
+                         self.seq_informal)
+
+        # Customer refund
+        invoice_3_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_3,
+            'type': 'out_refund',
+        })
+        self.assertEqual(invoice_3_id.fiscal_sequence_id.id,
+                         self.seq_credit_note)
+
+        # Customer debit note
+        invoice_4_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_4,
+            'type': 'out_invoice',
+            'is_debit_note': True,
+        })
+        self.assertEqual(invoice_4_id.fiscal_sequence_id.id,
+                         self.seq_debit_note)
+
+# Account Invoice Tests
 
 # TODO: an invoice does not get a fiscal sequence if invoice date >= fiscal
 #  sequence expiration date
