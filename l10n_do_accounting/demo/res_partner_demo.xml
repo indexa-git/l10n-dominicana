@@ -52,6 +52,8 @@
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_3.png"/>
         <field name="supplier" eval="1"/>
         <field name="expense_type">02/</field>
+        <field name="purchase_fiscal_type_id"
+               ref="l10n_do_accounting.fiscal_type_fiscal_purchase"/>
     </record>
 
     <record id="res_partner_demo_4" model="res.partner">
@@ -80,6 +82,10 @@
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_consumo"/>
         <field name="email">joselopezg8@gmail.com</field>
         <field name="phone">829-939-3231</field>
+        <field name="supplier" eval="1"/>
+        <field name="expense_type">02/</field>
+        <field name="purchase_fiscal_type_id"
+               ref="l10n_do_accounting.fiscal_type_informal"/>
     </record>
 
     <record id="res_partner_demo_6" model="res.partner">
