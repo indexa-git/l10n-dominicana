@@ -45,7 +45,6 @@
         <field name="country_id" ref="base.do"/>
         <field name="city">Santo Domingo</field>
         <field name="vat">122026517</field>
-        <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_credito_fiscal"/>
         <field name="email">vsantos@gruponeotec.com</field>
         <field name="phone">809-534-0970</field>
         <field name="website">http://gruponeotec.com/</field>
