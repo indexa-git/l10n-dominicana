@@ -15,6 +15,8 @@
         <field name="phone">809-540-4253</field>
         <field name="website">https://marcos.do/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_1.png"/>
+        <field name="supplier" eval="1"/>
+        <field name="expense_type">02/</field>
     </record>
 
     <record id="res_partner_demo_2" model="res.partner">
@@ -31,6 +33,8 @@
         <field name="phone">829-956-5191</field>
         <field name="website">https://iterativo.do/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_2.png"/>
+        <field name="supplier" eval="1"/>
+        <field name="expense_type">02/</field>
     </record>
 
     <record id="res_partner_demo_3" model="res.partner">
@@ -46,6 +50,8 @@
         <field name="phone">809-534-0970</field>
         <field name="website">http://gruponeotec.com/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_3.png"/>
+        <field name="supplier" eval="1"/>
+        <field name="expense_type">02/</field>
     </record>
 
     <record id="res_partner_demo_4" model="res.partner">
@@ -60,6 +66,8 @@
         <field name="phone">829-939-3231</field>
         <field name="website">https://indexa.do/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_4.png"/>
+        <field name="supplier" eval="1"/>
+        <field name="expense_type">02/</field>
     </record>
 
     <!-- For CONSUMO AND INGRESO UNICO NCF's testing -->
