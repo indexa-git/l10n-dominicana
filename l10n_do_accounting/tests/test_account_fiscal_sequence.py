@@ -212,8 +212,6 @@ class AccountFiscalSequenceBaseTests(AccountFiscalSequenceCommon):
         assert sequence_unico_id.sequence_id
         self.assertEqual(sequence_unico_id.state, 'active')
 
-    # TODO: write a test to validate queued sequence auto active
-
 
 class AccountFiscalSequenceTransactionTests(AccountFiscalSequenceCommon):
 
