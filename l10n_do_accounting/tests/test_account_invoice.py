@@ -26,6 +26,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         invoice_2_id = self.invoice_obj.create({
             'partner_id': self.partner_demo_2,
             'fiscal_type_id': self.fiscal_type_informal,
+            'type': 'in_invoice',
         })
         self.assertEqual(invoice_2_id.fiscal_sequence_id.id,
                          self.seq_informal)
