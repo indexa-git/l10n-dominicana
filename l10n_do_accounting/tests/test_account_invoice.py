@@ -128,13 +128,31 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(invoice_id.journal_id.id,
                          fiscal_type_consumo.journal_id.id)
 
+    def test_006_invoice_fiscal_type_expense_type(self):
+        """
+        When creating a new vendor bill or changing the partner
+        to an existing one, fiscal_type_id and expense_type must
+        come from the partner
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_4,
+            'type': 'in_invoice',
+        })
+        invoice_id.partner_id = self.partner_demo_5
+        invoice_id._onchange_partner_id()
+
+        partner_id = self.partner_obj.browse(self.partner_demo_5)
+
+        self.assertEqual(invoice_id.fiscal_type_id.id,
+                         partner_id.purchase_fiscal_type_id.id)
+        self.assertEqual(invoice_id.expense_type,
+                         partner_id.expense_type)
+
+
 # Account Invoice Tests
 
 # TODO: invoice fiscal_sequence_status is computed correctly
-
-# TODO: when _onchange_partner_id, if in_invoice,
-#  fiscal_type_id = partner_id.fiscal_type_id
-#  and expense_type = partner_id.expense_type
 
 # TODO: when out_invoice validate, if not partner_id.sale_fiscal_type_id,
 #  partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id

@@ -48,6 +48,7 @@ class AccountInvoiceCommon(TransactionCase):
         self.partner_demo_2 = self.ref('l10n_do_accounting.res_partner_demo_2')
         self.partner_demo_3 = self.ref('l10n_do_accounting.res_partner_demo_3')
         self.partner_demo_4 = self.ref('l10n_do_accounting.res_partner_demo_4')
+        self.partner_demo_5 = self.ref('l10n_do_accounting.res_partner_demo_5')
 
         # Demo fiscal sequence
         self.seq_fiscal = self.ref('l10n_do_accounting.credito_fiscal_demo')
