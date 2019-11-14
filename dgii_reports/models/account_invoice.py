@@ -9,6 +9,7 @@ from odoo.exceptions import ValidationError
 
 class InvoiceServiceTypeDetail(models.Model):
     _name = 'invoice.service.type.detail'
+    _description = "Invoice Service Type Detail"
 
     name = fields.Char()
     code = fields.Char(size=2)
@@ -28,11 +29,12 @@ class AccountInvoice(models.Model):
 
     def _compute_invoice_payment_date(self):
         for inv in self:
-            dates = [payment['date'] for payment in inv._get_payments_vals()]
-            if dates:
-                max_date = max(dates)
-                date_invoice = fields.Date.from_string(inv.date_invoice)
-                inv.payment_date = max_date if max_date >= date_invoice else date_invoice
+            if inv.state == 'paid':
+                dates = [payment['date'] for payment in inv._get_payments_vals()]
+                if dates:
+                    max_date = max(dates)
+                    date_invoice = inv.date_invoice
+                    inv.payment_date = max_date if max_date >= date_invoice else date_invoice
 
     @api.multi
     @api.constrains('tax_line_ids')

@@ -13,6 +13,7 @@ from odoo.exceptions import ValidationError
 
 class DgiiReportSaleSummary(models.Model):
     _name = 'dgii.reports.sale.summary'
+    _description = "DGII Report Sale Summary"
     _order = 'sequence'
 
     name = fields.Char()
@@ -26,6 +27,7 @@ class DgiiReportSaleSummary(models.Model):
 
 class DgiiReport(models.Model):
     _name = 'dgii.reports'
+    _description = "DGII Report"
     _inherit = ['mail.thread']
 
     @api.multi
@@ -243,7 +245,7 @@ class DgiiReport(models.Model):
 
     @staticmethod
     def get_date_tuple(date):
-        return dt.strptime(date, '%Y-%m-%d').year, dt.strptime(date, '%Y-%m-%d').month
+        return date.year, date.month
 
     def _get_pending_invoices(self, types):
 
@@ -299,7 +301,8 @@ class DgiiReport(models.Model):
 
     def _get_formated_date(self, date):
 
-        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if date else ""
+        return dt.strptime(date, '%Y-%m-%d').strftime('%Y%m%d') if isinstance(date, str) \
+            else date.strftime('%Y%m%d') if date else ""
 
     def _get_formated_amount(self, amount):
 
@@ -363,7 +366,7 @@ class DgiiReport(models.Model):
         if not invoice.payment_date:
             return False
 
-        payment_date = dt.strptime(invoice.payment_date, '%Y-%m-%d')
+        payment_date = invoice.payment_date
         period = dt.strptime(self.name, '%m/%Y')
         same_minor_period = (payment_date.month, payment_date.year) <= (period.month, period.year)
 
@@ -375,14 +378,14 @@ class DgiiReport(models.Model):
             PurchaseLine = self.env['dgii.reports.purchase.line']
             PurchaseLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(['open', 'paid'], ['in_invoice', 'in_refund'])
+            invoice_ids = self._get_invoices(['open', 'in_payment', 'paid'], ['in_invoice', 'in_refund'])
 
             line = 0
             report_data = ''
             for inv in invoice_ids:
                 inv.fiscal_status = 'blocked' if not inv.fiscal_status else inv.fiscal_status
                 line += 1
-                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat)
+                rnc_ced = self.formated_rnc_cedula(inv.partner_id.vat) if inv.purchase_type != 'exterior' else self.formated_rnc_cedula(inv.company_id.vat)
                 show_payment_date = self._include_in_current_report(inv)
                 values = {
                     'dgii_report_id': rec.id,
@@ -432,18 +435,17 @@ class DgiiReport(models.Model):
     def include_payment(invoice_id, payment_id):
         """ Returns True if payment date is on or before current period """
 
-        p_date = dt.strptime(payment_id.payment_date, '%Y-%m-%d')
-        i_date = dt.strptime(invoice_id.date_invoice, '%Y-%m-%d')
+        p_date = payment_id.payment_date
+        i_date = invoice_id.date_invoice
 
         return True if (p_date.year <= i_date.year) and (p_date.month <= i_date.month) else False
 
     def _get_sale_payments_forms(self, invoice_id):
         payments_dict = self._get_payments_dict()
-        Invoice = self.env['account.invoice']
         Payment = self.env['account.payment']
 
         if invoice_id.type == 'out_invoice':
-            for payment in Invoice._get_invoice_payment_widget(invoice_id):
+            for payment in invoice_id._get_invoice_payment_widget():
                 payment_id = Payment.browse(payment['account_payment_id'])
                 if payment_id:
                     key = payment_id.journal_id.payment_form
@@ -459,7 +461,7 @@ class DgiiReport(models.Model):
                     payments_dict['swap'] += self._convert_to_user_currency(invoice_id.currency_id, payment['amount'])
             payments_dict['credit'] += self._convert_to_user_currency(invoice_id.currency_id, invoice_id.residual)
         else:
-            cn_payments = Invoice._get_invoice_payment_widget(invoice_id)
+            cn_payments = invoice_id._get_invoice_payment_widget()
             for p in cn_payments:
                 payments_dict['swap'] += self._convert_to_user_currency(invoice_id.currency_id, p['amount'])
 
@@ -600,7 +602,8 @@ class DgiiReport(models.Model):
             SaleLine = self.env['dgii.reports.sale.line']
             SaleLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(['open', 'paid'], ['out_invoice', 'out_refund'])
+            invoice_ids = self._get_invoices(['open', 'in_payment', 'paid'], ['out_invoice', 'out_refund'])
+
             line = 0
             excluded_line = line
             op_dict = self._get_607_operations_dict()
@@ -776,7 +779,7 @@ class DgiiReport(models.Model):
             ExteriorLine = self.env['dgii.reports.exterior.line']
             ExteriorLine.search([('dgii_report_id', '=', rec.id)]).unlink()
 
-            invoice_ids = self._get_invoices(['open', 'paid'],
+            invoice_ids = self._get_invoices(['open', 'in_payment', 'paid'],
                                              ['in_invoice',
                                               'in_refund']
                                              ).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO') and
@@ -860,7 +863,7 @@ class DgiiReport(models.Model):
     @api.multi
     def state_sent(self):
         for report in self:
-            self._invoice_status_sent()
+            report._invoice_status_sent()
             report.state = 'sent'
 
     def get_606_tree_view(self):
@@ -906,6 +909,7 @@ class DgiiReport(models.Model):
 
 class DgiiReportPurchaseLine(models.Model):
     _name = 'dgii.reports.purchase.line'
+    _description = "DGII Reports Purchase Line"
     _order = 'line asc'
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
@@ -942,6 +946,7 @@ class DgiiReportPurchaseLine(models.Model):
 
 class DgiiReportSaleLine(models.Model):
     _name = 'dgii.reports.sale.line'
+    _description = "DGII Reports Sale Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -979,6 +984,7 @@ class DgiiReportSaleLine(models.Model):
 
 class DgiiCancelReportLine(models.Model):
     _name = 'dgii.reports.cancel.line'
+    _description = "DGII Reports Cancel Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
@@ -993,6 +999,7 @@ class DgiiCancelReportLine(models.Model):
 
 class DgiiExteriorReportLine(models.Model):
     _name = 'dgii.reports.exterior.line'
+    _description = "DGII Reports Exterior Line"
 
     dgii_report_id = fields.Many2one('dgii.reports', ondelete='cascade')
     line = fields.Integer()
