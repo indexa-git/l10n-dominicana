@@ -31,7 +31,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         domain: function (self) {
             return [
                 ['state', '=', 'active'],
-                ['type', '=', 'sale'],
+                ['type', 'in', ['out_invoice', 'out_refund']],
                 ['company_id', '=', self.company.id],
             ];
         },
@@ -51,7 +51,10 @@ odoo.define('l10n_do_pos.models', function (require) {
             'type',
         ],
         domain: function () {
-            return [['type', 'in', ['sale', 'special_sale']]];
+            return [
+                ['type', 'in', ['out_invoice', 'out_refund']],
+                ['active', '=', true]
+            ];
         },
         loaded: function (self, fiscal_types) {
             self.fiscal_types = fiscal_types;
@@ -222,14 +225,10 @@ odoo.define('l10n_do_pos.models', function (require) {
                     res_fiscal_type = fiscal_type;
                 }
             });
-            if (res_fiscal_type) {
-                return res_fiscal_type;
+            if (!res_fiscal_type) {
+                res_fiscal_type = this.get_fiscal_type_by_prefix('B02')
             }
-            self.gui.show_popup('error', {
-                'title': _t('Fiscal type not found'),
-                'body': _t('This fiscal type not exist.'),
-            });
-            return false;
+            return res_fiscal_type;
         },
         get_fiscal_type_by_prefix: function (prefix) {
             var self = this;
@@ -265,8 +264,6 @@ odoo.define('l10n_do_pos.models', function (require) {
             _paylineproto.initialize.apply(this, arguments);
             this.returned_ncf = null;
             this.returned_order_amount = 0;
-
-
         },
 
         set_returned_ncf: function (returned_move_name) {
