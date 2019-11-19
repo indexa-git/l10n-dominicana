@@ -2,11 +2,10 @@ odoo.define('l10n_do_pos.models', function (require) {
     "use strict";
 
     var models = require('point_of_sale.models');
-    var _super_order = models.Order.prototype;
     var core = require('web.core');
     var _t = core._t;
     var rpc = require('web.rpc');
-
+    var _super_order = models.Order.prototype;
 
     models.load_fields('res.partner', ['sale_fiscal_type_id']);
     models.load_fields('account.journal', ['is_for_credit_notes']);
@@ -58,6 +57,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
         loaded: function (self, fiscal_types) {
             self.fiscal_types = fiscal_types;
+            console.log(fiscal_types)
         },
     });
 

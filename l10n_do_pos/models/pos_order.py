@@ -35,11 +35,12 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new pos order.
         """
         fields = super(PosOrder, self)._order_fields(ui_order)
-        fields['ncf'] = ui_order['ncf']
-        fields['ncf_origin_out'] = ui_order['ncf_origin_out']
-        fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
-        fields['fiscal_type_id'] = ui_order['fiscal_type_id']
-        fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
+        if ui_order['fiscal_sequence_id']:
+            fields['ncf'] = ui_order['ncf']
+            fields['ncf_origin_out'] = ui_order['ncf_origin_out']
+            fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
+            fields['fiscal_type_id'] = ui_order['fiscal_type_id']
+            fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
 
         return fields
 
