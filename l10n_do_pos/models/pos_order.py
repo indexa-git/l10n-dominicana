@@ -329,7 +329,7 @@ class PosOrder(models.Model):
 
             # TODO: es probable que las lineas tengan el mismo producto
             # pero con diferentes precios, queda pendeiente buscar una
-            # solucion futura para este preoblema
+            # solucion futura para este problema
 
             products_ids = []
 
@@ -354,7 +354,9 @@ class PosOrder(models.Model):
                         total_quantity = total_quantity + refund_order_line.qty
 
                     refund_invoice_line.write({
-                        'quantity': abs(total_quantity)
+                        'quantity': abs(total_quantity),
+                        'invoice_line_tax_ids':
+                            [(6, 0, refund_order_line.tax_ids.ids)]
                     })
 
                 else:
