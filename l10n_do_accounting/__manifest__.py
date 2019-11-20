@@ -28,6 +28,7 @@
         'security/res_groups.xml',
         'data/ir_cron_data.xml',
         'data/account_fiscal_type_data.xml',
+        'wizard/account_invoice_refund_views.xml',
         'views/account_fiscal_sequence_views.xml',
         'wizard/account_fiscal_sequence_validate_wizard_views.xml',
         'views/report_templates.xml',

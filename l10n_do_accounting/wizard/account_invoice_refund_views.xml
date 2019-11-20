@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    
+    <record id="view_account_invoice_refund_inherited" model="ir.ui.view">
+        <field name="name">view.account.invoice.refund.inherited</field>
+        <field name="model">account.invoice.refund</field>
+        <field name="inherit_id" ref="account.view_account_invoice_refund"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='filter_refund']" position="before">
+                <field name="refund_type" options="{'horizontal': true}"
+                       widget="radio"/>
+            </xpath>
+            <xpath expr="//field[@name='filter_refund']" position="attributes">
+                <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='filter_refund']" position="after">
+                <field name="refund_method" widget="radio"
+                       attrs="{'invisible': [('refund_type','=','full_refund')]}"/>
+            </xpath>
+            <xpath expr="//field[@name='description']" position="after">
+                <field name="is_vendor_refund" invisible="1"/>
+                <field name="refund_reference" attrs="{'invisible': [('is_vendor_refund', '=', False)]}"/>
+                <field name="percentage"
+                       attrs="{'invisible': [('refund_type', '!=', 'percentage')],
+                       'required': [('refund_type', '=', 'percentage')]}"/>
+                <field name="amount"
+                       attrs="{'invisible': [('refund_type', '!=', 'fixed_amount')],
+                       'required': [('refund_type', '=', 'fixed_amount')]}"/>
+                <field name="account_id" groups="account.group_account_user"
+                       options='{"no_open": True, "no_create": True}'
+                       attrs="{'invisible': [('refund_type', '=', 'full_refund')],
+                       'required': [('refund_type', '!=', 'full_refund')]}"/>
+            </xpath>
+            <xpath expr="//form/group/*[2]" position="attributes">
+                <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
+            </xpath>
+            <xpath expr="//form/group/*[2]" position="after">
+                <group attrs="{'invisible': [('refund_type','=','full_refund')]}">
+                    <div attrs="{'invisible':[('refund_method','!=','draft_refund')]}" class="oe_grey" colspan="4">
+                        You will be able to edit and validate this
+                        credit note directly or keep it draft.
+                     </div>
+                    <div attrs="{'invisible':[('refund_method','!=','apply_refund')]}" class="oe_grey" colspan="4">
+                        Use this option if you want to fully apply a credit note.
+                        The credit note will be created, validated and reconciled
+                        with the invoice. You will not be able to modify the credit note.
+                     </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_invoice_debit" model="ir.ui.view">
+        <field name="name">account.invoice.refund.form</field>
+        <field name="model">account.invoice.refund</field>
+        <field name="arch" type="xml">
+            <form string="Debit Note">
+                <group>
+                     <group>
+                         <field name="refund_only" invisible="1"/>
+                         <field name="refund_type" options="{'horizontal': true}"
+                                widget="radio" string="Debit type"/>
+                         <field name="refund_method" widget="radio" string="Debit method"
+                                attrs="{'invisible': [('refund_type','=','full_refund')]}"/>
+                     </group>
+                     <group>
+                         <div attrs="{'invisible':[('refund_method','!=','draft_refund')]}" class="oe_grey" colspan="4">
+                            You will be able to edit and validate this
+                            debit note directly or keep it draft.
+                         </div>
+                         <div attrs="{'invisible':[('refund_method','!=','apply_refund')]}" class="oe_grey" colspan="4">
+                            Use this option if you want to fully apply a debit note.
+                            The debit note will be created, validated and reconciled
+                            with the invoice. You will not be able to modify the debit note.
+                         </div>
+                     </group>
+                     <group>
+                         <field name="description"/>
+                         <field name="is_vendor_refund" invisible="1"/>
+                         <field name="refund_reference" string="Debit Note reference"
+                                attrs="{'invisible': [('is_vendor_refund', '=', False)]}"/>
+                         <field name="percentage"
+                                attrs="{'invisible': [('refund_type', '!=', 'percentage')],
+                                'required': [('refund_type', '=', 'percentage')]}"/>
+                         <field name="amount"
+                                attrs="{'invisible': [('refund_type', '!=', 'fixed_amount')],
+                                'required': [('refund_type', '=', 'fixed_amount')]}"/>
+                         <field name="account_id" groups="account.group_account_user"
+                                options='{"no_open": True, "no_create": True}'
+                                attrs="{'invisible': [('refund_type', '=', 'full_refund')],
+                                'required': [('refund_type', '!=', 'full_refund')]}"/>
+                     </group>
+                     <group>
+                         <field name="date_invoice" string="Debit Note Date"/>
+                         <field name="date" groups="base.group_no_one"/>
+                     </group>
+                </group>
+                <footer>
+                    <button string='Add Debit Note' name="invoice_debit_note" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+           </form>
+        </field>
+    </record>
+
+    <record id="action_account_invoice_debit" model="ir.actions.act_window">
+        <field name="name">Debit Note</field>
+        <field name="res_model">account.invoice.refund</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_account_invoice_debit"/>
+       <field name="target">new</field>
+    </record>
+    
+</odoo>

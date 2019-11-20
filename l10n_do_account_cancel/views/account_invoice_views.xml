@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="l10n_do_accounting_invoice_cancel_form" model="ir.ui.view">
+        <field name="name">l10n.do.accounting.invoice.cancel.form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//h1" position="after">
+                <h4 attrs="{'invisible':['|',('state','!=','cancel'),('is_fiscal_invoice', '=', False)]}">
+                    Cancellation Reason:
+                    <br/>
+                    <field name="anulation_type" readonly="1"/>
+                </h4>
+            </xpath>
+        </field>
+    </record>
+</odoo>
