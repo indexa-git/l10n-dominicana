@@ -105,11 +105,11 @@ class PosOrder(models.Model):
                             'is_used_in_order': True
                         })
                         lines = credit_note_order.invoice_id.move_id.line_ids
-                        statement.update({
+                        statement.write({
                             'move_name':
                                 credit_note_order.invoice_id.move_name,
                             'journal_entry_ids':
-                                (4, [line.id for line in lines])
+                                [(4, x) for x in lines.ids]
                         })
                         order._reconcile_refund_invoice(
                             credit_note_order.invoice_id
