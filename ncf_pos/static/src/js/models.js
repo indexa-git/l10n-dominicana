@@ -30,7 +30,6 @@ odoo.define('ncf_pos.models', function (require) {
         ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria', 'seller_and_cashier_ticket']
     );
     models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
-    models.load_fields('product.product', 'not_returnable');
     models.load_models([{
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id',
