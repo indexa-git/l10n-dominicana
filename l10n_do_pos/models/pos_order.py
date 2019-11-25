@@ -35,11 +35,12 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new pos order.
         """
         fields = super(PosOrder, self)._order_fields(ui_order)
-        fields['ncf'] = ui_order['ncf']
-        fields['ncf_origin_out'] = ui_order['ncf_origin_out']
-        fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
-        fields['fiscal_type_id'] = ui_order['fiscal_type_id']
-        fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
+        if ui_order['fiscal_sequence_id']:
+            fields['ncf'] = ui_order['ncf']
+            fields['ncf_origin_out'] = ui_order['ncf_origin_out']
+            fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
+            fields['fiscal_type_id'] = ui_order['fiscal_type_id']
+            fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
 
         return fields
 
@@ -104,11 +105,11 @@ class PosOrder(models.Model):
                             'is_used_in_order': True
                         })
                         lines = credit_note_order.invoice_id.move_id.line_ids
-                        statement.update({
+                        statement.write({
                             'move_name':
                                 credit_note_order.invoice_id.move_name,
                             'journal_entry_ids':
-                                (4, [line.id for line in lines])
+                                [(4, x) for x in lines.ids]
                         })
                         order._reconcile_refund_invoice(
                             credit_note_order.invoice_id
@@ -328,7 +329,7 @@ class PosOrder(models.Model):
 
             # TODO: es probable que las lineas tengan el mismo producto
             # pero con diferentes precios, queda pendeiente buscar una
-            # solucion futura para este preoblema
+            # solucion futura para este problema
 
             products_ids = []
 
@@ -353,7 +354,9 @@ class PosOrder(models.Model):
                         total_quantity = total_quantity + refund_order_line.qty
 
                     refund_invoice_line.write({
-                        'quantity': abs(total_quantity)
+                        'quantity': abs(total_quantity),
+                        'invoice_line_tax_ids':
+                            [(6, 0, refund_order_line.tax_ids.ids)]
                     })
 
                 else:

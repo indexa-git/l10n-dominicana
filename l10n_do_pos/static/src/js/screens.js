@@ -385,9 +385,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var self = this;
             var _super = this._super.bind(this);
             var current_order = this.pos.get_order();
-
             if (self.pos.invoice_journal.fiscal_journal &&
-                !current_order.to_invoice) {
+                !current_order.to_invoice && !current_order.ncf) {
                 self.pos.loading_screen_on();
                 rpc.query({
                     model: 'account.fiscal.type',
