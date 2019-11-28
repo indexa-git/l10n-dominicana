@@ -23,7 +23,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
     screens.OrdersHistoryButton.include({
         button_click: function () {
-
             if (this.pos.invoice_journal.fiscal_journal &&
                 !this.pos.config.load_barcode_order_only) {
 
@@ -34,9 +33,13 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 });
 
             } else {
-
+                this.pos.db.pos_orders_history = [];
+                this.pos.db.pos_orders_history_lines = [];
+                this.pos.db.sorted_orders = [];
+                this.pos.db.line_by_id = [];
+                this.pos.db.lines_by_id = [];
+                this.pos.db.orders_history_by_id = [];
                 this._super();
-
             }
 
         },
