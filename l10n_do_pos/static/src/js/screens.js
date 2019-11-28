@@ -412,21 +412,26 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         current_order.ncf_origin_out = origin_order.ncf;
                     }
                     console.log(res);
-                }, function (type, err) {
+                }, function (err, ev) {
                     self.pos.loading_screen_off();
-                    console.log(type);
                     console.log(err);
+                    console.log(ev);
+                    ev.preventDefault();
+                    var error_body =
+                        _t('Your Internet connection is probably down.');
+                    if (err.data) {
+                        var except = err.data;
+                        error_body = except.arguments && except.arguments[0]
+                            || except.message || error_body;
+                    }
+                    self.gui.show_popup('error',{
+                        'title': _t('Error: Could not Save Changes'),
+                        'body': error_body,
+                    });
                 }).done(function () {
                     self.pos.loading_screen_off();
                     _super();
-                }).fail(function () {
-                    self.pos.loading_screen_off();
-                    self.gui.show_popup('error', {
-                        'title': _t('Error connection'),
-                        'body': _t('Please check your internet connection'),
-                    });
-                });
-
+                })
             } else {
                 this._super();
             }
@@ -491,13 +496,21 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 }).then(function (order) {
                     order_custom = order;
                     self.pos.loading_screen_off();
-                }, function (err, event) {
+                }, function (err, ev) {
                     self.pos.loading_screen_off();
-                    event.preventDefault();
-                    console.error(err);
-                    self.gui.show_popup('error', {
-                        'title': _t('Error: Could not find the Order'),
-                        'body': err.data,
+                    console.log(err);
+                    console.log(ev);
+                    ev.preventDefault();
+                    var error_body =
+                        _t('Your Internet connection is probably down.');
+                    if (err.data) {
+                        var except = err.data;
+                        error_body = except.arguments && except.arguments[0]
+                            || except.message || error_body;
+                    }
+                    self.gui.show_popup('error',{
+                        'title': _t('Error: Could not Save Changes'),
+                        'body': error_body,
                     });
                 }).done(function () {
                     self.pos.loading_screen_off();
