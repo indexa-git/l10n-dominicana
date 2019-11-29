@@ -392,11 +392,15 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 !current_order.to_invoice && !current_order.ncf) {
                 self.pos.loading_screen_on();
                 rpc.query({
-                    model: 'account.fiscal.type',
+                    model: 'pos.order',
                     method: 'get_next_fiscal_sequence',
                     args: [
-                        [current_order.fiscal_type.id],
-                        [self.pos.company.id],
+                        false,
+                        current_order.fiscal_type.id,
+                        self.pos.company.id,
+                        current_order.get_mode(),
+                        current_order.export_as_JSON().lines,
+                        current_order.uid,
                     ],
                 }).then(function (res) {
                     self.pos.loading_screen_off();

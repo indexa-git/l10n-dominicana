@@ -435,3 +435,73 @@ class PosOrder(models.Model):
             raise UserError(
                 _('Order not found, pleas contact your manager')
             )
+
+    def get_next_fiscal_sequence(
+            self, fiscal_type_id,
+            company_id, mode,
+            lines, uid):
+        """
+        search active fiscal sequence dependent with fiscal type
+        :param order:[fiscal_type_id, company_id, mode, lines,]
+        :return: {ncf, expiration date, fiscal sequence}
+        """
+        fiscal_type = self.env['account.fiscal.type'].search([
+            ('id', '=', fiscal_type_id)
+        ])
+
+        if not fiscal_type:
+            raise UserError(_('Fiscal type not found'))
+
+        if mode == 'return':
+            self.confirm_return_order_is_correct(uid, lines)
+
+        fiscal_sequence = self.env['account.fiscal.sequence'].search([
+            ('fiscal_type_id', '=', fiscal_type.id),
+            ('state', '=', 'active'),
+            ('company_id', '=', company_id)
+        ], limit=1)
+
+        if not fiscal_sequence:
+            raise UserError(_(u"There is no current active NCF of {}"
+                              u", please create a new fiscal sequence "
+                              u"of type {}.").format(
+                fiscal_type.name,
+                fiscal_type.name,
+            ))
+
+        return {
+            'ncf': fiscal_sequence.get_fiscal_number(),
+            'fiscal_sequence_id': fiscal_sequence.id,
+            'ncf_expiration_date': fiscal_sequence.expiration_date
+        }
+
+    def confirm_return_order_is_correct(self, uid, lines):
+        pos_orders = self.env['pos.order'].search([
+            ('pos_history_reference_uid', '=', uid)
+        ])
+        lines_obj = self.env['pos.order.line'].search([
+            ('order_id', 'in', pos_orders.ids)
+        ])
+        products_available = {}
+        # TODO: this part can be optimized:
+        for line in lines_obj:
+            if line.product_id.id in products_available:
+                products_available[line.product_id.id] += line.qty
+            else:
+                products_available[line.product_id.id] = line.qty
+
+        products_in_order = {}
+        for order_line in lines:
+            if order_line[2]['product_id'] in products_in_order:
+                products_in_order[order_line[2]['product_id']] \
+                    += order_line[2]['qty']
+            else:
+                products_in_order[order_line[2]['product_id']] \
+                    = order_line[2]['qty']
+
+        for product in products_in_order:
+            if abs(products_in_order[product]) > products_available[product]:
+                raise UserError(
+                    _('This credit note jave problem, '
+                      'please contact your admin system')
+                )
