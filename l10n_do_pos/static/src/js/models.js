@@ -162,14 +162,13 @@ odoo.define('l10n_do_pos.models', function (require) {
                 return false;
 
             }
-
-            self.pos.loading_screen_on();
+            // TODO: esta parte podria buscar mejor por la factura y no por la orden
             var domain = [
                 ['ncf', '=', credit_note_ncf],
                 ['returned_order', '=', true],
                 ['is_used_in_order', '=', false],
             ];
-
+            self.pos.loading_screen_on();
             rpc.query({
                 model: 'pos.order',
                 method: 'search_read',
@@ -204,12 +203,21 @@ odoo.define('l10n_do_pos.models', function (require) {
                             ' does exist'),
                     });
                 }
-            }, function (err, event) {
-                event.preventDefault();
-                console.error(err);
-                self.gui.show_popup('error', {
-                    'title': _t('Error: Could not find the Order'),
-                    'body': err.data,
+            }, function (err, ev) {
+                self.pos.loading_screen_off();
+                console.log(err);
+                console.log(ev);
+                ev.preventDefault();
+                var error_body =
+                    _t('Your Internet connection is probably down.');
+                if (err.data) {
+                    var except = err.data;
+                    error_body = except.arguments && except.arguments[0]
+                        || except.message || error_body;
+                }
+                self.gui.show_popup('error',{
+                    'title': _t('Error: Could not Save Changes'),
+                    'body': error_body,
                 });
             });
         },

@@ -23,7 +23,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
     screens.OrdersHistoryButton.include({
         button_click: function () {
-
             if (this.pos.invoice_journal.fiscal_journal &&
                 !this.pos.config.load_barcode_order_only) {
 
@@ -34,9 +33,13 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 });
 
             } else {
-
+                this.pos.db.pos_orders_history = [];
+                this.pos.db.pos_orders_history_lines = [];
+                this.pos.db.sorted_orders = [];
+                this.pos.db.line_by_id = [];
+                this.pos.db.lines_by_id = [];
+                this.pos.db.orders_history_by_id = [];
                 this._super();
-
             }
 
         },
@@ -388,12 +391,21 @@ odoo.define('l10n_do_pos.screens', function (require) {
             if (self.pos.invoice_journal.fiscal_journal &&
                 !current_order.to_invoice && !current_order.ncf) {
                 self.pos.loading_screen_on();
+                var payments = [];
+                current_order.get_paymentlines().forEach( function(item) {
+                    return payments.push(item.export_as_JSON());
+                });
                 rpc.query({
-                    model: 'account.fiscal.type',
+                    model: 'pos.order',
                     method: 'get_next_fiscal_sequence',
                     args: [
-                        [current_order.fiscal_type.id],
-                        [self.pos.company.id],
+                        false,
+                        current_order.fiscal_type.id,
+                        self.pos.company.id,
+                        current_order.get_mode(),
+                        current_order.export_as_JSON().lines,
+                        current_order.uid,
+                        payments,
                     ],
                 }).then(function (res) {
                     self.pos.loading_screen_off();
@@ -412,21 +424,26 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         current_order.ncf_origin_out = origin_order.ncf;
                     }
                     console.log(res);
-                }, function (type, err) {
+                }, function (err, ev) {
                     self.pos.loading_screen_off();
-                    console.log(type);
                     console.log(err);
+                    console.log(ev);
+                    ev.preventDefault();
+                    var error_body =
+                        _t('Your Internet connection is probably down.');
+                    if (err.data) {
+                        var except = err.data;
+                        error_body = except.arguments && except.arguments[0]
+                            || except.message || error_body;
+                    }
+                    self.gui.show_popup('error',{
+                        'title': _t('Error: Could not Save Changes'),
+                        'body': error_body,
+                    });
                 }).done(function () {
                     self.pos.loading_screen_off();
                     _super();
-                }).fail(function () {
-                    self.pos.loading_screen_off();
-                    self.gui.show_popup('error', {
-                        'title': _t('Error connection'),
-                        'body': _t('Please check your internet connection'),
-                    });
-                });
-
+                })
             } else {
                 this._super();
             }
@@ -491,13 +508,21 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 }).then(function (order) {
                     order_custom = order;
                     self.pos.loading_screen_off();
-                }, function (err, event) {
+                }, function (err, ev) {
                     self.pos.loading_screen_off();
-                    event.preventDefault();
-                    console.error(err);
-                    self.gui.show_popup('error', {
-                        'title': _t('Error: Could not find the Order'),
-                        'body': err.data,
+                    console.log(err);
+                    console.log(ev);
+                    ev.preventDefault();
+                    var error_body =
+                        _t('Your Internet connection is probably down.');
+                    if (err.data) {
+                        var except = err.data;
+                        error_body = except.arguments && except.arguments[0]
+                            || except.message || error_body;
+                    }
+                    self.gui.show_popup('error',{
+                        'title': _t('Error: Could not Save Changes'),
+                        'body': error_body,
                     });
                 }).done(function () {
                     self.pos.loading_screen_off();
