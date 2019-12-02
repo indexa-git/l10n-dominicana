@@ -455,7 +455,6 @@ class PosOrder(models.Model):
         if mode == 'return':
             self.confirm_return_order_is_correct(uid, lines)
 
-
         for payment in payments:
             if payment['returned_ncf']:
                 cn_invoice = self.env['account.invoice'].search([
