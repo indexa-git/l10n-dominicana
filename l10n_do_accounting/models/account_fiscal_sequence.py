@@ -5,7 +5,7 @@ import pytz
 from datetime import datetime
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError
 
 
 def get_l10n_do_datetime():
