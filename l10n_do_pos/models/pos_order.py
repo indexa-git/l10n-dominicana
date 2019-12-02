@@ -439,7 +439,7 @@ class PosOrder(models.Model):
     def get_next_fiscal_sequence(
             self, fiscal_type_id,
             company_id, mode,
-            lines, uid):
+            lines, uid, payments):
         """
         search active fiscal sequence dependent with fiscal type
         :param order:[fiscal_type_id, company_id, mode, lines,]
@@ -454,6 +454,20 @@ class PosOrder(models.Model):
 
         if mode == 'return':
             self.confirm_return_order_is_correct(uid, lines)
+
+
+        for payment in payments:
+            if payment['returned_ncf']:
+                cn_invoice = self.env['account.invoice'].search([
+                    ('reference', '=', payment['returned_ncf']),
+                    ('type', '=', 'out_refund'),
+                    ('is_fiscal_invoice', '=', True),
+                ])
+                if cn_invoice.residual != cn_invoice.amount_total:
+                    raise UserError(
+                        _('This credit note (%s) has been'
+                          ' used' % payment['returned_ncf'])
+                    )
 
         fiscal_sequence = self.env['account.fiscal.sequence'].search([
             ('fiscal_type_id', '=', fiscal_type.id),

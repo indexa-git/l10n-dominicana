@@ -162,14 +162,13 @@ odoo.define('l10n_do_pos.models', function (require) {
                 return false;
 
             }
-
-            self.pos.loading_screen_on();
+            // TODO: esta parte podria buscar mejor por la factura y no por la orden
             var domain = [
                 ['ncf', '=', credit_note_ncf],
                 ['returned_order', '=', true],
                 ['is_used_in_order', '=', false],
             ];
-
+            self.pos.loading_screen_on();
             rpc.query({
                 model: 'pos.order',
                 method: 'search_read',

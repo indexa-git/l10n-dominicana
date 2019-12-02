@@ -391,6 +391,10 @@ odoo.define('l10n_do_pos.screens', function (require) {
             if (self.pos.invoice_journal.fiscal_journal &&
                 !current_order.to_invoice && !current_order.ncf) {
                 self.pos.loading_screen_on();
+                var payments = [];
+                current_order.get_paymentlines().forEach( function(item) {
+                    return payments.push(item.export_as_JSON());
+                });
                 rpc.query({
                     model: 'pos.order',
                     method: 'get_next_fiscal_sequence',
@@ -401,6 +405,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         current_order.get_mode(),
                         current_order.export_as_JSON().lines,
                         current_order.uid,
+                        payments,
                     ],
                 }).then(function (res) {
                     self.pos.loading_screen_off();
