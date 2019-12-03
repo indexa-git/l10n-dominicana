@@ -433,9 +433,6 @@ odoo.define('ncf_pos.screens', function (require) {
                             if (product == null) {
                                 non_returnable_products = true;
                                 message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
-                            } else if (product.not_returnable) {
-                                non_returnable_products = true;
-                                message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
                             } else if (line.qty - line.line_qty_returned > 0) {
                                 original_orderlines.push(line);
                             }
@@ -851,15 +848,6 @@ odoo.define('ncf_pos.screens', function (require) {
 
                     order.orderlineList.forEach(function (obj) {
                         return_product[obj.product_id] = obj.quantity;
-                    });
-                    original_order.lines.forEach(function (line_id) {
-                        var line = $.extend({}, self.pos.db.line_by_id[line_id]);
-                        var product = self.pos.db.get_product_by_id(line.product_id[0]);
-
-                        if (product != null && !product.not_returnable && line.qty - line.line_qty_returned > 0) {
-                            line.current_return_qty = return_product[line.product_id[0]] || 0;
-                            original_orderlines.push(line);
-                        }
                     });
                     self.gui.show_popup('refund_order_popup', {
                         disable_keyboard_handler: true,
