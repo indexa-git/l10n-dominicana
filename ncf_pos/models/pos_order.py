@@ -259,18 +259,39 @@ class PosOrder(models.Model):
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
                      is_return_order):
-        if not self.env["pos.order.ncf.temp"].search(
-            [('pos_reference', '=', order_uid)]):
+        pos_order_ncf_temp = self.env["pos.order.ncf.temp"].search([
+            ('pos_reference', '=', order_uid)
+            ])
+        if not pos_order_ncf_temp:
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
                     raise ValidationError(
                         _("You have not specified a sales journal"))
                 elif not is_return_order:
+                    # If max NCF number reached return max_ncf_number_reached
+                    # message, POS will use this message to display an error
+                    # popup to the user prompting them to get help to extend
+                    # the max number in the sequence. If max number is not
+                    # reached get next number in sequence and return.
+                    sequence = self.env['ir.sequence.date_range'].search([
+                        ('sequence_id', '=', journal_id.sequence_id.id),
+                        ('sale_fiscal_type', '=', sale_fiscal_type)
+                    ])[0]
+                    if sequence.number_next_actual > sequence.max_number_next:
+                        return 'max_ncf_number_reached'
+
                     ncf = journal_id.sequence_id.with_context(
                         ir_sequence_date=fields.Date.today(),
                         sale_fiscal_type=sale_fiscal_type).next_by_id()
                 elif is_return_order:
+                    sequence = self.env['ir.sequence.date_range'].search([
+                        ('sequence_id', '=', journal_id.sequence_id.id),
+                        ('sale_fiscal_type', '=', 'credit_note')
+                    ])[0]
+                    if sequence.number_next_actual > sequence.max_number_next:
+                        return 'max_ncf_number_reached'
+
                     ncf = journal_id.sequence_id.with_context(
                         ir_sequence_date=fields.Date.today(),
                         sale_fiscal_type="credit_note").next_by_id()

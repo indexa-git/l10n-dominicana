@@ -917,6 +917,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 });
 
                 dfd.done(function (next_ncf) {
+                    if (next_ncf && (next_ncf.slice(0,1)) === 'B') {
+                        order.max_ncf_number_reached = false;
+                    }
                     var ncfs = self.pos.db.load('ncfs', []);
 
                     order.ncf = next_ncf;
@@ -977,8 +980,18 @@ odoo.define('ncf_pos.screens', function (require) {
                     } else {
                         this.get_next_ncf(order)
                             .done(function () {
-                                self.finalize_validation();
-                                self.orderValidationDate = null;
+                                if (order.ncf === 'max_ncf_number_reached' || order.max_ncf_number_reached) {
+                                    order.max_ncf_number_reached = true;
+                                    self.gui.show_popup('error', {
+                                        'title': 'Limite Máximo para Secuencia de NCF Excedido',
+                                        'body': 'Se a alcanzado el limite maximo para el tipo de NCF seleccionado: ' +
+                                                order.get_client().sale_fiscal_type +
+                                                '. Puede pedir ayuda para extender la secuencia permitida y validar la orden nuevamente.\n\n',
+                                    });
+                                } else {
+                                    self.finalize_validation();
+                                    self.orderValidationDate = null;
+                                }
                             }).fail(function () {
                                 self.gui.show_popup('error', {
                                     'title': 'No se pudo realizar la conexión con el servidor',
