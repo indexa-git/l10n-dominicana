@@ -13,9 +13,9 @@
 
     'author': "Indexa, SRL, "
               "iterativo SRL",
-
+    'license': 'LGPL-3',
     'category': 'Accounting',
-    'version': '0.1',
+    'version': '12.0.1.1.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'ncf_manager'],
