@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
-# Part of Domincana Premium. See LICENSE file for full copyright and licensing details.
+# Part of Domincana Premium.
+# See LICENSE file for full copyright and licensing details.
 # © 2018 José López <jlopez@indexa.do>
 # © 2018 Gustavo Valverde <gustavo@iterativo.do>
 # © 2018 Eneldo Serrata <eneldo@marcos.do>
@@ -13,9 +13,9 @@
 
     'author': "Indexa, SRL, "
               "iterativo SRL",
-
+    'license': 'LGPL-3',
     'category': 'Accounting',
-    'version': '0.1',
+    'version': '12.0.1.1.0',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'ncf_manager'],
