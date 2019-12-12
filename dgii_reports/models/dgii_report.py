@@ -646,8 +646,8 @@ class DgiiReport(models.Model):
             },
         }
 
-    def _process_op_dict(self, dict, invoice):
-        op_dict = dict
+    def _process_op_dict(self, args, invoice):
+        op_dict = args
         if invoice.sale_fiscal_type and invoice.type != 'out_refund':
             op_dict[invoice.sale_fiscal_type]['qty'] += 1
             op_dict[invoice.sale_fiscal_type][
@@ -677,8 +677,8 @@ class DgiiReport(models.Model):
     def _get_income_type_dict(self):
         return {'01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0}
 
-    def _process_income_dict(self, dict, invoice):
-        income_dict = dict
+    def _process_income_dict(self, args, invoice):
+        income_dict = args
         if invoice.income_type:
             income_dict[invoice.income_type] += invoice.amount_untaxed_signed
         return income_dict
