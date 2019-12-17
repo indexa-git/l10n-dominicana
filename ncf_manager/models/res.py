@@ -261,28 +261,6 @@ class ResPartner(models.Model):
         }
 
     @api.model
-    def create(self, vals):
-
-        vat = vals.get("vat", False)
-        try:
-            result = self.validate_rnc_cedula(vals["vat"]) if vat else None
-        except:
-            result = None
-
-        parent_id = self.browse(vals.get("parent_id", False))
-        if result and result.get("name", False):
-            vals.update({"name": result["name"]})
-        if parent_id:
-            if parent_id.sale_fiscal_type:
-                vals.update({"sale_fiscal_type": parent_id.sale_fiscal_type})
-            if parent_id.expense_type:
-                vals.update({
-                    "supplier": 1,
-                    "expense_type": parent_id.expense_type
-                    })
-        return super(ResPartner, self).create(vals)
-
-    @api.model
     def name_create(self, name):
         if self._context.get("install_mode", False):
             return super(ResPartner, self).name_create(name)
