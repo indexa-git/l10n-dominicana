@@ -555,18 +555,11 @@ class DgiiReport(models.Model):
                                 'credit'] += self._convert_to_user_currency(
                                     invoice_id.currency_id, payment['amount'])
                 else:
-                    # If invoices is paid, but has not payment_id,
-                    # assume it is a credit note.
-                    payments_dict['swap'] += self._convert_to_user_currency(
-                        invoice_id.currency_id, payment['amount'])
+                    # Do not consider credit notes as swap payments
+                    continue
             payments_dict['credit'] += self._convert_to_user_currency(
                 invoice_id.currency_id, invoice_id.residual)
         else:
-            cn_payments = invoice_id._get_invoice_payment_widget()
-            for p in cn_payments:
-                payments_dict['swap'] += self._convert_to_user_currency(
-                    invoice_id.currency_id, p['amount'])
-
             payments_dict['credit'] += self._convert_to_user_currency(
                 invoice_id.currency_id, invoice_id.residual)
 
