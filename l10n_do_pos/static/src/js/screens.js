@@ -393,7 +393,9 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 self.pos.loading_screen_on();
                 var payments = [];
                 current_order.get_paymentlines().forEach( function(item) {
+
                     return payments.push(item.export_as_JSON());
+                    
                 });
                 rpc.query({
                     model: 'pos.order',
@@ -433,17 +435,18 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         _t('Your Internet connection is probably down.');
                     if (err.data) {
                         var except = err.data;
-                        error_body = except.arguments && except.arguments[0]
-                            || except.message || error_body;
+                        error_body = except.arguments &&
+                            except.arguments[0] ||
+                            except.message || error_body;
                     }
-                    self.gui.show_popup('error',{
+                    self.gui.show_popup('error', {
                         'title': _t('Error: Could not Save Changes'),
                         'body': error_body,
                     });
                 }).done(function () {
                     self.pos.loading_screen_off();
                     _super();
-                })
+                });
             } else {
                 this._super();
             }
@@ -517,10 +520,11 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         _t('Your Internet connection is probably down.');
                     if (err.data) {
                         var except = err.data;
-                        error_body = except.arguments && except.arguments[0]
-                            || except.message || error_body;
+                        error_body = except.arguments &&
+                            except.arguments[0] ||
+                            except.message || error_body;
                     }
-                    self.gui.show_popup('error',{
+                    self.gui.show_popup('error', {
                         'title': _t('Error: Could not Save Changes'),
                         'body': error_body,
                     });

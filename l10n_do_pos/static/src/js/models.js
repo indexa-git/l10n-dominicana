@@ -52,12 +52,12 @@ odoo.define('l10n_do_pos.models', function (require) {
         domain: function () {
             return [
                 ['type', 'in', ['out_invoice', 'out_refund']],
-                ['active', '=', true]
+                ['active', '=', true],
             ];
         },
         loaded: function (self, fiscal_types) {
             self.fiscal_types = fiscal_types;
-            console.log(fiscal_types)
+            console.log(fiscal_types);
         },
     });
 
@@ -162,7 +162,8 @@ odoo.define('l10n_do_pos.models', function (require) {
                 return false;
 
             }
-            // TODO: esta parte podria buscar mejor por la factura y no por la orden
+            // TODO: esta parte podria buscar mejor por la factura y
+            //  no por la orden
             var domain = [
                 ['ncf', '=', credit_note_ncf],
                 ['returned_order', '=', true],
@@ -212,10 +213,11 @@ odoo.define('l10n_do_pos.models', function (require) {
                     _t('Your Internet connection is probably down.');
                 if (err.data) {
                     var except = err.data;
-                    error_body = except.arguments && except.arguments[0]
-                        || except.message || error_body;
+                    error_body = except.arguments &&
+                        except.arguments[0] ||
+                        except.message || error_body;
                 }
-                self.gui.show_popup('error',{
+                self.gui.show_popup('error', {
                     'title': _t('Error: Could not Save Changes'),
                     'body': error_body,
                 });
@@ -234,7 +236,7 @@ odoo.define('l10n_do_pos.models', function (require) {
                 }
             });
             if (!res_fiscal_type) {
-                res_fiscal_type = this.get_fiscal_type_by_prefix('B02')
+                res_fiscal_type = this.get_fiscal_type_by_prefix('B02');
             }
             return res_fiscal_type;
         },
