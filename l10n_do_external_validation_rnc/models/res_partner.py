@@ -1,10 +1,11 @@
-from odoo import models, fields, api, _
+from odoo import models, api, _
 from odoo.exceptions import ValidationError, UserError
 import logging
 import json
 import requests
 
 _logger = logging.getLogger(__name__)
+
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
