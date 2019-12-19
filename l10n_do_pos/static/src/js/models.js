@@ -213,7 +213,7 @@ odoo.define('l10n_do_pos.models', function (require) {
                     _t('Your Internet connection is probably down.');
                 if (err.data) {
                     var except = err.data;
-                    error_body = except.arguments &&
+                    error_body = except.arguments ||
                         except.arguments[0] ||
                         except.message || error_body;
                 }
