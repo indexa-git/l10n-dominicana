@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_do_external_validation_rnc_view_partner_form" model="ir.ui.view">
+        <field name="name">l10n.do.external.validation.rnc.view.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="placeholder">Name, RNC or Cédula</attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="l10n_do_external_validation_rnc_view_res_partner_filter" model="ir.ui.view">
+        <field name="name">l10n.do.external.validation.rnc.view.res.partner.filter</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="vat" string="RNC/Cédula"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
