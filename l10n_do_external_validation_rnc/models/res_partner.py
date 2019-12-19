@@ -69,10 +69,19 @@ class ResPartner(models.Model):
     @api.model
     def create(self, vals):
         rnc = False
-        if vals['vat'] and vals['vat'].isdigit():
+        company_obj = self.env['res.company'].search([
+            ('id', '=', self.env.user.company_id.id)])
+        if vals['vat'] and vals['vat'].isdigit() and \
+                company_obj.can_validate_rnc:
             rnc = vals['vat']
-        elif vals['name'].isdigit():
-            rnc = vals['name']
+
+        if vals['name'].isdigit():
+            if company_obj.can_validate_rnc:
+                rnc = vals['name']
+            else:
+                raise UserError(_('Inquiries from RNC / Cedula online are '
+                                  'deactivated, please contact your '
+                                  'administrator'))
 
         if rnc:
             partner_search = self.search([('vat', '=', rnc)], limit=1)
