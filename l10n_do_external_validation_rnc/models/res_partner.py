@@ -95,9 +95,11 @@ class ResPartner(models.Model):
                     if not vals['phone'] and partner['data'][0]['phone']:
                         vals['phone'] = partner['data'][0]['phone']
                     if not vals['street'] and partner['data'][0]['street']:
-                        vals['street'] = partner['data'][0]['street'] + ', #' \
-                                         + partner['data'][0]['street_number']\
-                                         + ', ' + partner['data'][0]['sector']
+                        vals['street'] = '%s, #%s, %s' % (
+                            partner['data'][0]['street'],
+                            partner['data'][0]['street_number'],
+                            partner['data'][0]['sector'],
+                        )
                     if len(rnc) == 9:
                         vals['is_company'] = True
                     else:
