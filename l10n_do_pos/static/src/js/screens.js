@@ -392,7 +392,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 !current_order.to_invoice && !current_order.ncf) {
                 self.pos.loading_screen_on();
                 var payments = [];
-                current_order.get_paymentlines().forEach(function( item) {
+                current_order.get_paymentlines().forEach(function (item) {
 
                     return payments.push(item.export_as_JSON());
                 });
