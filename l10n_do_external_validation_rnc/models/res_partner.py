@@ -102,4 +102,3 @@ class ResPartner(models.Model):
         res = super(ResPartner, self).create(vals)
 
         return res
-
