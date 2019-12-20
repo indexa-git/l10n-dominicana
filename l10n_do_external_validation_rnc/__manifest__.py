@@ -1,5 +1,5 @@
 {
-    'name': 'l10n do external valdiation RNC',
+    'name': 'External valdiation RNC/Cedula',
     'version': '12.0.0.0.0',
     'summary': 'Validate rnc and cedula from indexa api',
     # Categories can be used to filter modules in modules listing

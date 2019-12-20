@@ -8,11 +8,13 @@
                     <i class='fa fa-edit' aria-label="Fiscal type"
                        title="Fiscal type"/>
                     <span class='js_fiscal_type_name' style="color:red">
-                        <t t-if="widget.pos.get_order().fiscal_type">
-                            <t t-esc="widget.pos.get_order().fiscal_type.name"/>
-                        </t>
-                        <t t-if="!widget.pos.get_order().fiscal_type">
-                            Select fiscal type
+                        <t t-if="widget.pos.get_order()">
+                            <t t-if="widget.pos.get_order().fiscal_type">
+                                <t t-esc="widget.pos.get_order().fiscal_type.name"/>
+                            </t>
+                            <t t-if="!widget.pos.get_order().fiscal_type">
+                                Select fiscal type
+                            </t>
                         </t>
                     </span>
                 </div>

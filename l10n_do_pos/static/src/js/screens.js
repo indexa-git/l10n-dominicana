@@ -11,12 +11,13 @@ odoo.define('l10n_do_pos.screens', function (require) {
         renderElement: function () {
             this._super();
             var current_order = this.pos.get_order();
-
-            if (current_order.get_mode() === 'return' &&
-                this.pos.invoice_journal.fiscal_journal) {
-                this.$('.set-customer').addClass('disable');
-            } else {
-                this.$('.set-customer').removeClass('disable');
+            if(current_order){
+                if (current_order.get_mode() === 'return' &&
+                    this.pos.invoice_journal.fiscal_journal) {
+                    this.$('.set-customer').addClass('disable');
+                } else {
+                    this.$('.set-customer').removeClass('disable');
+                }
             }
         },
     });
@@ -90,29 +91,32 @@ odoo.define('l10n_do_pos.screens', function (require) {
             this.$('.js_set_fiscal_type').click(function () {
                 self.click_set_fiscal_type();
             });
-            if (current_order.get_mode() === 'return' &&
-                this.pos.invoice_journal.fiscal_journal) {
+            if(current_order){
+                if (current_order.get_mode() === 'return' &&
+                    this.pos.invoice_journal.fiscal_journal) {
 
-                this.$('.js_set_fiscal_type').addClass('disable');
-                this.$('.js_set_customer').addClass('disable');
-                this.$('.input-button').addClass('disable');
-                this.$('.mode-button').addClass('disable');
-                this.$('.paymentmethod').addClass('disable');
+                    this.$('.js_set_fiscal_type').addClass('disable');
+                    this.$('.js_set_customer').addClass('disable');
+                    this.$('.input-button').addClass('disable');
+                    this.$('.mode-button').addClass('disable');
+                    this.$('.paymentmethod').addClass('disable');
 
-            } else {
+                } else {
 
-                this.$('.js_set_fiscal_type').removeClass('disable');
-                this.$('.js_set_customer').removeClass('disable');
-                this.$('.input-button').removeClass('disable');
-                this.$('.mode-button').removeClass('disable');
-                this.$('.paymentmethod').removeClass('disable');
+                    this.$('.js_set_fiscal_type').removeClass('disable');
+                    this.$('.js_set_customer').removeClass('disable');
+                    this.$('.input-button').removeClass('disable');
+                    this.$('.mode-button').removeClass('disable');
+                    this.$('.paymentmethod').removeClass('disable');
 
+                }
+                if (this.pos.invoice_journal.fiscal_journal) {
+
+                    this.$('.js_invoice').hide();
+
+                }
             }
-            if (this.pos.invoice_journal.fiscal_journal) {
 
-                this.$('.js_invoice').hide();
-
-            }
         },
 
         open_vat_popup: function () {
