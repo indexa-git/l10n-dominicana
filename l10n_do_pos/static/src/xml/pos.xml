@@ -123,7 +123,7 @@
 
     <t t-extend="Chrome">
         <t t-jquery=".pos-topheader" t-operation="after">
-            <div class="freeze_screen">
+            <div class="freeze_screen_spinner">
                 <div class="lds-spinner">
                     <div>
 

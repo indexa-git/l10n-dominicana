@@ -439,7 +439,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     if (err.data) {
                         var except = err.data;
                         error_body = except.arguments ||
-                            except.arguments[0] ||
                             except.message || error_body;
                     }
                     self.gui.show_popup('error', {
@@ -524,7 +523,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     if (err.data) {
                         var except = err.data;
                         error_body = except.arguments ||
-                            except.arguments[0] ||
                             except.message || error_body;
                     }
                     self.gui.show_popup('error', {
