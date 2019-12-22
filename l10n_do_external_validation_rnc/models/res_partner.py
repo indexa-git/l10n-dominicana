@@ -71,7 +71,7 @@ class ResPartner(models.Model):
         rnc = False
         company_obj = self.env['res.company'].search([
             ('id', '=', self.env.user.company_id.id)])
-        if vals['vat'] and vals['vat'].isdigit() and \
+        if 'vat' in vals and vals['vat'] and vals['vat'].isdigit() and \
                 company_obj.can_validate_rnc:
             rnc = vals['vat']
 
