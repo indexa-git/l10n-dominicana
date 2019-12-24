@@ -1007,7 +1007,7 @@ class DgiiReport(models.Model):
                         if inv.partner_id.company_type == 'individual' else 2,
                     'tax_id': inv.partner_id.vat,
                     'country_code': inv.partner_id.country_id.code,
-                    'purchased_service_type': inv.service_type,
+                    'purchased_service_type': int(inv.service_type),
                     'service_type_detail': inv.service_type_detail.code,
                     'related_part': int(inv.partner_id.related),
                     'doc_number': inv.number,
