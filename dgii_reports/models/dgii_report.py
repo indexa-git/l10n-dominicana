@@ -10,6 +10,14 @@ from datetime import datetime as dt
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
+try:
+    import pycountry
+except ImportError:
+    raise ImportError(
+        _("This module needs pycountry to get 609 ISO 3166 "
+          "country codes. Please install pycountry on your system. "
+          "(See requirements file)"))
+
 
 class DgiiReportSaleSummary(models.Model):
     _name = 'dgii.reports.sale.summary'
@@ -272,6 +280,22 @@ class DgiiReport(models.Model):
     csmr_bond = fields.Monetary('Gift certificates or vouchers', copy=False)
     csmr_swap = fields.Monetary('Swap', copy=False)
     csmr_others = fields.Monetary('Other Sale Forms', copy=False)
+
+    def _get_country_number(self, partner_id):
+        """
+        Returns ISO 3166 country number from partner
+        country code
+        """
+        res = False
+        if not partner_id.country_id:
+            return False
+        try:
+            country = pycountry.countries.get(
+                alpha_2=partner_id.country_id.code)
+            res = country.numeric
+        except AttributeError:
+            return res
+        return res
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
@@ -1006,7 +1030,7 @@ class DgiiReport(models.Model):
                         1
                         if inv.partner_id.company_type == 'individual' else 2,
                     'tax_id': inv.partner_id.vat,
-                    'country_code': inv.partner_id.country_id.code,
+                    'country_code': self._get_country_number(inv.partner_id),
                     'purchased_service_type': int(inv.service_type),
                     'service_type_detail': inv.service_type_detail.code,
                     'related_part': int(inv.partner_id.related),
