@@ -34,8 +34,8 @@ class DgiiReportsControllers(Controller):
                         )
                 }
                 action = action_map[invoice_id.type]
-                url = "%s/web#id=%s&action=%s&model=account.invoice&\
-                view_type=form" % (base_url, invoice_id.id, action.id)
+                url = "%s/web#id=%s&action=%s&model=account.invoice&view" \
+                      "_type=form" % (base_url, invoice_id.id, action.id)
 
                 return redirect(url)  # Returns invoice form view
 
