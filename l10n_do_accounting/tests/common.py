@@ -87,6 +87,8 @@ class AccountInvoiceCommon(CommonSetup):
             'l10n_do_accounting.fiscal_type_credit_note')
         self.fiscal_type_cn_purchase = self.ref(
             'l10n_do_accounting.fiscal_type_purchase_credit_note')
+        self.fiscal_type_dn = self.ref(
+            'l10n_do_accounting.fiscal_type_debit_note')
 
         # Invoice lines
         account_id = self.env['account.account'].search(
