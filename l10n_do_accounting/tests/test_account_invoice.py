@@ -207,11 +207,32 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(partner_id.sale_fiscal_type_id.id,
                          self.fiscal_type_consumo)
 
-# Account Invoice Tests
+    def test_010_invoice_partner_purchase_fiscal_type_expense_type(self):
+        """
+        Check when in_invoice validate, if not partner_id.purchase_fiscal_type,
+        partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id and if not
+        partner_id.expense_type, partner_id.expense_type = invoice.expense_type
+        """
 
-# TODO: when in_invoice validate, if not partner_id.purchase_fiscal_type_id,
-#  partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id and if not
-#  partner_id.expense_type, partner_id.expense_type = invoice.expense_type
+        partner_id = self.partner_obj.create({'name': 'Test Partner',
+                                              'vat': '22400559607'})
+        assert not partner_id.purchase_fiscal_type_id
+        assert not partner_id.expense_type
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'expense_type': '02',
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        self.assertEqual(partner_id.purchase_fiscal_type_id.id,
+                         self.fiscal_type_informal)
+        self.assertEqual(partner_id.expense_type, '02')
+
+# Account Invoice Tests
 
 # TODO: when invoice validate, if fiscal_type_id.required_document and
 #  not partner_id.vat, raise UserError
