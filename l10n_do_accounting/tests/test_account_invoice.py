@@ -4,7 +4,7 @@ from datetime import timedelta as td
 
 from odoo import fields
 from odoo.exceptions import UserError
-from odoo.tools import pycompat, float_is_zero
+from odoo.tools import float_is_zero
 from .common import AccountInvoiceCommon, environment
 
 
