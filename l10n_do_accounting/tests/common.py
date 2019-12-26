@@ -47,6 +47,7 @@ class AccountInvoiceCommon(CommonSetup):
         self.journal_obj = self.env['account.journal']
         self.partner_obj = self.env['res.partner']
         self.fiscal_type_obj = self.env['account.fiscal.type']
+        self.invoice_refund_obj = self.env['account.invoice.refund']
 
         self.sale_journal = False
         self.purchase_journal = False
@@ -82,6 +83,8 @@ class AccountInvoiceCommon(CommonSetup):
             'l10n_do_accounting.fiscal_type_consumo')
         self.fiscal_type_informal = self.ref(
             'l10n_do_accounting.fiscal_type_informal')
+        self.fiscal_type_cn = self.ref(
+            'l10n_do_accounting.fiscal_type_credit_note')
 
         # Invoice lines
         account_id = self.env['account.account'].search(

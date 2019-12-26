@@ -4,6 +4,7 @@ from datetime import timedelta as td
 
 from odoo import fields
 from odoo.exceptions import UserError
+from odoo.tools import pycompat, float_is_zero
 from .common import AccountInvoiceCommon, environment
 
 
@@ -286,9 +287,44 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         with self.assertRaises(UserError):
             out_invoice_id.action_invoice_open()
 
-# Account Invoice Tests
+    def test_013_fiscal_customer_refund_percentage(self):
+        """
+        Check fiscal customer refunds (percentage) are created with all
+        correct data
+        """
 
-# TODO: fiscal customer refunds are created with all correct data
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'percentage',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'percentage': 10,
+        })
+        refund_wizard_id.invoice_refund()
+
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'out_refund')], limit=1)
+        credit_note_id.action_invoice_open()
+
+        cn_type = self.fiscal_type_obj.browse(self.fiscal_type_cn)
+
+        self.assertEqual(credit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_cn)
+        self.assertEqual(str(credit_note_id.reference)[:3], cn_type.prefix)
+        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertTrue(float_is_zero(
+            credit_note_id.amount_total - (invoice_id.amount_total * 0.1),
+            precision_digits=2))
+
+# Account Invoice Tests
 
 # TODO: fiscal vendor refunds are created with all correct data
 
