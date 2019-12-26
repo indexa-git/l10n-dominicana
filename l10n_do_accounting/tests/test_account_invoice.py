@@ -3,6 +3,7 @@
 from datetime import timedelta as td
 
 from odoo import fields
+from odoo.exceptions import UserError
 from .common import AccountInvoiceCommon, environment
 
 
@@ -232,10 +233,24 @@ class AccountInvoiceTests(AccountInvoiceCommon):
                          self.fiscal_type_informal)
         self.assertEqual(partner_id.expense_type, '02')
 
-# Account Invoice Tests
+    def test_011_required_document_error(self):
+        """
+        Check when invoice validate, if fiscal_type_id.required_document and
+        not partner_id.vat, raise UserError
+        """
 
-# TODO: when invoice validate, if fiscal_type_id.required_document and
-#  not partner_id.vat, raise UserError
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            invoice_id.action_invoice_open()
+
+# Account Invoice Tests
 
 # TODO: when out_invoice, out_refund validate,
 #  if fiscal_type_id != unico ingreso and amount_total >= 250,000
