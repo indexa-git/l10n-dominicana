@@ -1,26 +1,10 @@
 
-from contextlib import contextmanager
-
-import odoo
 from odoo import fields
-from odoo.tests import common
-from .common import AccountFiscalSequenceCommon
+from .common import CommonSetup, environment
 from odoo.exceptions import ValidationError, MissingError
 
-ADMIN_USER_ID = common.ADMIN_USER_ID
 
-
-@contextmanager
-def environment():
-    """ Return an environment with a new cursor for the current database; the
-        cursor is committed and closed after the context block.
-    """
-    registry = odoo.registry(common.get_db_name())
-    with registry.cursor() as cr:
-        yield odoo.api.Environment(cr, ADMIN_USER_ID, {})
-
-
-class AccountFiscalSequenceBaseTests(AccountFiscalSequenceCommon):
+class AccountFiscalSequenceBaseTests(CommonSetup):
 
     """
     The following tests are executed in a post-install context.
@@ -213,7 +197,7 @@ class AccountFiscalSequenceBaseTests(AccountFiscalSequenceCommon):
         self.assertEqual(sequence_unico_id.state, 'active')
 
 
-class AccountFiscalSequenceTransactionTests(AccountFiscalSequenceCommon):
+class AccountFiscalSequenceTransactionTests(CommonSetup):
 
     def test_010_sequence_transactions(self):
         """
