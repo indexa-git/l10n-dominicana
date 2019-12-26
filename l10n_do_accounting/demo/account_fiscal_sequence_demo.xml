@@ -77,6 +77,12 @@
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
+    <record id="purchase_credit_note_demo" model="account.fiscal.sequence">
+        <field name="name">8001695033</field>
+        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_purchase_credit_note"/>
+        <field name="sequence_start" eval="1"/>
+        <field name="sequence_end" eval="100"/>
+    </record>
 
 
     <data noupdate="1">
@@ -95,6 +101,7 @@
             ref('l10n_do_accounting.informal_demo'),
             ref('l10n_do_accounting.minor_demo'),
             ref('l10n_do_accounting.exterior_demo'),
+            ref('l10n_do_accounting.purchase_credit_note_demo'),
             ]"/>
         </function>
     </data>

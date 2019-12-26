@@ -359,6 +359,74 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
         self.assertEqual(credit_note_id.amount_total, 100)
 
+    def test_015_fiscal_vendor_refund_percentage(self):
+        """
+        Check fiscal vendor refunds (percentage) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'percentage',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'percentage': 10,
+        })
+        refund_wizard_id.invoice_refund()
+
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'in_refund')], limit=1)
+        credit_note_id.action_invoice_open()
+
+        self.assertEqual(credit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_cn_purchase)
+        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertTrue(float_is_zero(
+            credit_note_id.amount_total - (invoice_id.amount_total * 0.1),
+            precision_digits=2))
+
+    def test_016_fiscal_vendor_refund_amount(self):
+        """
+        Check fiscal vendor refunds (amount) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'fixed_amount',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'amount': 100,
+        })
+        refund_wizard_id.invoice_refund()
+
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'in_refund')], limit=1)
+        credit_note_id.action_invoice_open()
+
+        self.assertEqual(credit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_cn_purchase)
+        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(credit_note_id.amount_total, 100)
+
 # Account Invoice Tests
 
 # TODO: fiscal vendor refunds are created with all correct data
