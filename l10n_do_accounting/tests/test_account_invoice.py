@@ -3,7 +3,8 @@
 from datetime import timedelta as td
 
 from odoo import fields
-from .common import AccountInvoiceCommon
+from odoo.exceptions import UserError
+from .common import AccountInvoiceCommon, environment
 
 
 class AccountInvoiceTests(AccountInvoiceCommon):
@@ -149,27 +150,143 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(invoice_id.expense_type,
                          partner_id.expense_type)
 
+    def test_007_invoice_fiscal_sequence_status(self):
+        """
+        Check invoice fiscal_sequence_status 'fiscal_ok'
+        when it should
+        """
+
+        invoice_1 = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+
+        self.assertEqual(invoice_1.fiscal_sequence_status, 'fiscal_ok')
+
+    def test_008_invoice_fiscal_sequence_status(self):
+        """
+        Check invoice fiscal_sequence_status 'almost_no_sequence'
+        when it should
+        """
+
+        with environment() as env:
+            env_sequence_id = env['account.fiscal.sequence'].search([
+                ('fiscal_type_id', '=', self.fiscal_type_credito_fiscal),
+                ('state', '=', 'active'),
+            ])
+            env_sequence_id.sequence_id.number_next_actual = 1
+
+            # Consume it 66 times
+            for n in range(66):
+                env_sequence_id.get_fiscal_number()
+
+        invoice_2 = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        self.assertEqual(invoice_2.fiscal_sequence_status,
+                         'almost_no_sequence')
+
+    def test_009_invoice_partner_sale_fiscal_type(self):
+        """
+        Check when out_invoice validate, if not partner_id.sale_fiscal_type_id,
+        partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id
+        """
+
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+        assert not partner_id.sale_fiscal_type_id
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
+
+        self.assertEqual(partner_id.sale_fiscal_type_id.id,
+                         self.fiscal_type_consumo)
+
+    def test_010_invoice_partner_purchase_fiscal_type_expense_type(self):
+        """
+        Check when in_invoice validate, if not partner_id.purchase_fiscal_type,
+        partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id and if not
+        partner_id.expense_type, partner_id.expense_type = invoice.expense_type
+        """
+
+        partner_id = self.partner_obj.create({'name': 'Test Partner',
+                                              'vat': '22400559607'})
+        assert not partner_id.purchase_fiscal_type_id
+        assert not partner_id.expense_type
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'expense_type': '02',
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        self.assertEqual(partner_id.purchase_fiscal_type_id.id,
+                         self.fiscal_type_informal)
+        self.assertEqual(partner_id.expense_type, '02')
+
+    def test_011_required_document_error(self):
+        """
+        Check when invoice validate, if fiscal_type_id.required_document and
+        not partner_id.vat, raise UserError
+        """
+
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            invoice_id.action_invoice_open()
+
+    def test_012_no_vat_partner_amount_total_limit(self):
+
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+
+        account_id = self.env['account.account'].search(
+            [('user_type_id', '=', self.env.ref(
+                'account.data_account_type_revenue').id)], limit=1).id
+        invoice_line_data = [
+            (0, 0,
+             {
+                 'product_id': self.env.ref('product.product_product_1').id,
+                 'quantity': 1.00,
+                 'account_id': account_id,
+                 'name': 'product test 1',
+                 'price_unit': 250000,
+             }
+             )]
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            invoice_id.action_invoice_open()
+
+        out_invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            out_invoice_id.action_invoice_open()
 
 # Account Invoice Tests
-
-# TODO: invoice fiscal_sequence_status is computed correctly
-
-# TODO: when out_invoice validate, if not partner_id.sale_fiscal_type_id,
-#  partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id
-
-# TODO: when in_invoice validate, if not partner_id.purchase_fiscal_type_id,
-#  partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id and if not
-#  partner_id.expense_type, partner_id.expense_type = invoice.expense_type
-
-# TODO: when invoice validate, if fiscal_type_id.required_document and
-#  not partner_id.vat, raise UserError
-
-# TODO: when out_invoice, out_refund validate,
-#  if fiscal_type_id != unico ingreso and amount_total >= 250,000
-#  raise UserError
-
-# TODO: a random number of random types invoices always get the
-#  right NCF when validate
 
 # TODO: fiscal customer refunds are created with all correct data
 

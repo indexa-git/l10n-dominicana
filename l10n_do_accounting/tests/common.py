@@ -1,11 +1,28 @@
 
+from contextlib import contextmanager
+
+import odoo
+from odoo.tests import common
+
 from odoo.tests.common import TransactionCase
 
+ADMIN_USER_ID = common.ADMIN_USER_ID
 
-class AccountFiscalSequenceCommon(TransactionCase):
+
+@contextmanager
+def environment():
+    """ Return an environment with a new cursor for the current database; the
+        cursor is committed and closed after the context block.
+    """
+    registry = odoo.registry(common.get_db_name())
+    with registry.cursor() as cr:
+        yield odoo.api.Environment(cr, ADMIN_USER_ID, {})
+
+
+class CommonSetup(TransactionCase):
 
     def setUp(self):
-        super(AccountFiscalSequenceCommon, self).setUp()
+        super(CommonSetup, self).setUp()
 
         self.fiscal_sequence_obj = self.env['account.fiscal.sequence']
         self.fiscal_type_obj = self.env['account.fiscal.type']
@@ -21,7 +38,7 @@ class AccountFiscalSequenceCommon(TransactionCase):
             'l10n_do_accounting.fiscal_type_unico')
 
 
-class AccountInvoiceCommon(TransactionCase):
+class AccountInvoiceCommon(CommonSetup):
 
     def setUp(self):
         super(AccountInvoiceCommon, self).setUp()
@@ -65,3 +82,38 @@ class AccountInvoiceCommon(TransactionCase):
             'l10n_do_accounting.fiscal_type_consumo')
         self.fiscal_type_informal = self.ref(
             'l10n_do_accounting.fiscal_type_informal')
+
+        # Invoice lines
+        account_id = self.env['account.account'].search(
+            [('user_type_id', '=', self.env.ref(
+                'account.data_account_type_revenue').id)], limit=1).id
+
+        self.invoice_line_data = [
+            (0, 0,
+             {
+                 'product_id': self.env.ref('product.product_product_1').id,
+                 'quantity': 40.0,
+                 'account_id': account_id,
+                 'name': 'product test 1',
+                 'price_unit': 2.27,
+             }
+             ),
+            (0, 0,
+             {
+                 'product_id': self.env.ref('product.product_product_2').id,
+                 'quantity': 21.0,
+                 'account_id': account_id,
+                 'name': 'product test 2',
+                 'price_unit': 2.77,
+             }
+             ),
+            (0, 0,
+             {
+                 'product_id': self.env.ref('product.product_product_3').id,
+                 'quantity': 21.0,
+                 'account_id': account_id,
+                 'name': 'product test 3',
+                 'price_unit': 2.77,
+             }
+             )
+        ]
