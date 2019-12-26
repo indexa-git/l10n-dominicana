@@ -429,8 +429,6 @@ class AccountInvoiceTests(AccountInvoiceCommon):
 
 # Account Invoice Tests
 
-# TODO: fiscal vendor refunds are created with all correct data
-
 # TODO: fiscal customer debit notes are created with all correct data
 
 # TODO: fiscal vendor debit notes are created with all correct data
