@@ -288,9 +288,6 @@ class AccountInvoiceTests(AccountInvoiceCommon):
 
 # Account Invoice Tests
 
-# TODO: a random number of random types invoices always get the
-#  right NCF when validate
-
 # TODO: fiscal customer refunds are created with all correct data
 
 # TODO: fiscal vendor refunds are created with all correct data
