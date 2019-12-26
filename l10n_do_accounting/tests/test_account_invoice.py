@@ -188,10 +188,26 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(invoice_2.fiscal_sequence_status,
                          'almost_no_sequence')
 
-# Account Invoice Tests
+    def test_009_invoice_partner_sale_fiscal_type(self):
+        """
+        Check when out_invoice validate, if not partner_id.sale_fiscal_type_id,
+        partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id
+        """
 
-# TODO: when out_invoice validate, if not partner_id.sale_fiscal_type_id,
-#  partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+        assert not partner_id.sale_fiscal_type_id
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
+
+        self.assertEqual(partner_id.sale_fiscal_type_id.id,
+                         self.fiscal_type_consumo)
+
+# Account Invoice Tests
 
 # TODO: when in_invoice validate, if not partner_id.purchase_fiscal_type_id,
 #  partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id and if not
