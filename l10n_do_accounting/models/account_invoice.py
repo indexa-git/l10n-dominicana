@@ -203,7 +203,8 @@ class AccountInvoice(models.Model):
                 # on invoice validate.
                 inv._compute_fiscal_sequence()
 
-                if not inv.fiscal_sequence_id:
+                if not inv.fiscal_sequence_id and \
+                        inv.fiscal_type_id.internal_generate:
                     raise ValidationError(
                         _('There is not active Fiscal Sequence for this type'
                           'of document.'))
