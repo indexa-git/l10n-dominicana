@@ -250,11 +250,43 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         with self.assertRaises(UserError):
             invoice_id.action_invoice_open()
 
-# Account Invoice Tests
+    def test_012_no_vat_partner_amount_total_limit(self):
 
-# TODO: when out_invoice, out_refund validate,
-#  if fiscal_type_id != unico ingreso and amount_total >= 250,000
-#  raise UserError
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+
+        account_id = self.env['account.account'].search(
+            [('user_type_id', '=', self.env.ref(
+                'account.data_account_type_revenue').id)], limit=1).id
+        invoice_line_data = [
+            (0, 0,
+             {
+                 'product_id': self.env.ref('product.product_product_1').id,
+                 'quantity': 1.00,
+                 'account_id': account_id,
+                 'name': 'product test 1',
+                 'price_unit': 250000,
+             }
+             )]
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            invoice_id.action_invoice_open()
+
+        out_invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            out_invoice_id.action_invoice_open()
+
+# Account Invoice Tests
 
 # TODO: a random number of random types invoices always get the
 #  right NCF when validate
