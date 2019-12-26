@@ -3,7 +3,7 @@
 from datetime import timedelta as td
 
 from odoo import fields
-from .common import AccountInvoiceCommon
+from .common import AccountInvoiceCommon, environment
 
 
 class AccountInvoiceTests(AccountInvoiceCommon):
@@ -149,10 +149,46 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(invoice_id.expense_type,
                          partner_id.expense_type)
 
+    def test_007_invoice_fiscal_sequence_status(self):
+        """
+        Check invoice fiscal_sequence_status 'fiscal_ok'
+        when it should
+        """
+
+        invoice_1 = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+
+        self.assertEqual(invoice_1.fiscal_sequence_status, 'fiscal_ok')
+
+    def test_008_invoice_fiscal_sequence_status(self):
+        """
+        Check invoice fiscal_sequence_status 'almost_no_sequence'
+        when it should
+        """
+
+        with environment() as env:
+            env_sequence_id = env['account.fiscal.sequence'].search([
+                ('fiscal_type_id', '=', self.fiscal_type_credito_fiscal),
+                ('state', '=', 'active'),
+            ])
+            env_sequence_id.sequence_id.number_next_actual = 1
+
+            # Consume it 66 times
+            for n in range(66):
+                env_sequence_id.get_fiscal_number()
+
+        invoice_2 = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        self.assertEqual(invoice_2.fiscal_sequence_status,
+                         'almost_no_sequence')
 
 # Account Invoice Tests
-
-# TODO: invoice fiscal_sequence_status is computed correctly
 
 # TODO: when out_invoice validate, if not partner_id.sale_fiscal_type_id,
 #  partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id
