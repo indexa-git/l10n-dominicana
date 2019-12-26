@@ -574,8 +574,6 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         ], limit=1)
         debit_note_id.action_invoice_open()
 
-        dn_type = self.fiscal_type_obj.browse(self.fiscal_type_dn_purchase)
-
         self.assertEqual(debit_note_id.fiscal_type_id.id,
                          self.fiscal_type_dn_purchase)
         self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
