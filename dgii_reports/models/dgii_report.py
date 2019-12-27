@@ -972,7 +972,7 @@ class DgiiReport(models.Model):
         STD = str(values['service_type_detail']
                   if values['service_type_detail'] else "").ljust(2)
         REL_PART = str(
-            values['related_part'] if values['related_part'] else "").ljust(1)
+            values['related_part'] if values['related_part'] else "0").ljust(1)
         DOC_NUM = str(
             values['doc_number'] if values['doc_number'] else "").ljust(30)
         DOC_DATE = str(self._get_formated_date(values['doc_date'])).ljust(8)
