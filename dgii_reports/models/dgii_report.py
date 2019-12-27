@@ -10,6 +10,14 @@ from datetime import datetime as dt
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
+try:
+    import pycountry
+except ImportError:
+    raise ImportError(
+        _("This module needs pycountry to get 609 ISO 3166 "
+          "country codes. Please install pycountry on your system. "
+          "(See requirements file)"))
+
 
 class DgiiReportSaleSummary(models.Model):
     _name = 'dgii.reports.sale.summary'
@@ -272,6 +280,22 @@ class DgiiReport(models.Model):
     csmr_bond = fields.Monetary('Gift certificates or vouchers', copy=False)
     csmr_swap = fields.Monetary('Swap', copy=False)
     csmr_others = fields.Monetary('Other Sale Forms', copy=False)
+
+    def _get_country_number(self, partner_id):
+        """
+        Returns ISO 3166 country number from partner
+        country code
+        """
+        res = False
+        if not partner_id.country_id:
+            return False
+        try:
+            country = pycountry.countries.get(
+                alpha_2=partner_id.country_id.code)
+            res = country.numeric
+        except AttributeError:
+            return res
+        return res
 
     def _validate_date_format(self, date):
         """Validate date format <MM/YYYY>"""
@@ -948,7 +972,7 @@ class DgiiReport(models.Model):
         STD = str(values['service_type_detail']
                   if values['service_type_detail'] else "").ljust(2)
         REL_PART = str(
-            values['related_part'] if values['related_part'] else "").ljust(1)
+            values['related_part'] if values['related_part'] else "0").ljust(1)
         DOC_NUM = str(
             values['doc_number'] if values['doc_number'] else "").ljust(30)
         DOC_DATE = str(self._get_formated_date(values['doc_date'])).ljust(8)
@@ -1006,8 +1030,8 @@ class DgiiReport(models.Model):
                         1
                         if inv.partner_id.company_type == 'individual' else 2,
                     'tax_id': inv.partner_id.vat,
-                    'country_code': inv.partner_id.country_id.code,
-                    'purchased_service_type': inv.service_type,
+                    'country_code': self._get_country_number(inv.partner_id),
+                    'purchased_service_type': int(inv.service_type),
                     'service_type_detail': inv.service_type_detail.code,
                     'related_part': int(inv.partner_id.related),
                     'doc_number': inv.number,
