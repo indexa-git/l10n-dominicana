@@ -367,7 +367,7 @@ class DgiiReport(models.Model):
              ('type', 'in', types)],
             order='date_invoice asc').filtered(
                 lambda inv: (inv.fiscal_type_id.purchase_type != 'others') or
-                (inv.journal_id.ncf_control is True))
+                (inv.journal_id.fiscal_journal is True))
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
         invoice_ids |= self._get_pending_invoices(types)
@@ -675,7 +675,7 @@ class DgiiReport(models.Model):
         if invoice.type == 'out_refund' and not invoice.is_nd:
             op_dict['nc']['qty'] += 1
             op_dict['nc']['amount'] += invoice.amount_untaxed_signed
-        if invoice.is_nd:
+        if invoice.is_debit_note:
             op_dict['nd']['qty'] += 1
             op_dict['nd']['amount'] += invoice.amount_untaxed_signed
 
