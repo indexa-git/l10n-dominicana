@@ -252,7 +252,7 @@ class DgiiReport(models.Model):
     bond = fields.Monetary('Gift certificates or vouchers', copy=False)
     swap = fields.Monetary('Swap', copy=False)
     others = fields.Monetary('Other Sale Forms', copy=False)
-    sale_type_total = fields.Monetary('Total', copy=False)
+    sale_type_total = fields.Monetary('Sale Type Total', copy=False)
 
     opr_income = fields.Monetary('Operations Income (No-Financial)',
                                  copy=False)
@@ -261,7 +261,7 @@ class DgiiReport(models.Model):
     lea_income = fields.Monetary('Lease Income', copy=False)
     ast_income = fields.Monetary('Depreciable Assets Income', copy=False)
     otr_income = fields.Monetary('Others Income', copy=False)
-    income_type_total = fields.Monetary('Total', copy=False)
+    income_type_total = fields.Monetary('Income Total', copy=False)
 
     # General Summary of Consumer Invoices
     csmr_ncf_qty = fields.Integer('Issued Consumer NCF Qty', copy=False)
@@ -273,13 +273,16 @@ class DgiiReport(models.Model):
     csmr_ncf_total_lgl_tip = fields.Monetary('Legal Tip Total', copy=False)
 
     # General Summary of Consumer Invoices - Sale Form
-    csmr_cash = fields.Monetary('Cash', copy=False)
-    csmr_bank = fields.Monetary('Check / Transfer / Deposit', copy=False)
-    csmr_card = fields.Monetary('Credit Card / Debit Card', copy=False)
-    csmr_credit = fields.Monetary('Credit', copy=False)
-    csmr_bond = fields.Monetary('Gift certificates or vouchers', copy=False)
-    csmr_swap = fields.Monetary('Swap', copy=False)
-    csmr_others = fields.Monetary('Other Sale Forms', copy=False)
+    csmr_cash = fields.Monetary('Consumer Cash', copy=False)
+    csmr_bank = fields.Monetary('Consumer Check / Transfer / Deposit',
+                                copy=False)
+    csmr_card = fields.Monetary('Consumer Credit Card / Debit Card',
+                                copy=False)
+    csmr_credit = fields.Monetary('Consumer Credit', copy=False)
+    csmr_bond = fields.Monetary('Consumer Gift certificates or vouchers',
+                                copy=False)
+    csmr_swap = fields.Monetary('Consumer Swap', copy=False)
+    csmr_others = fields.Monetary('ConsumerOther Sale Forms', copy=False)
 
     def _get_country_number(self, partner_id):
         """
