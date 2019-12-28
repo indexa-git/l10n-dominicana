@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+
+    <record id="l10n_do_accounting.fiscal_type_purchase_debit_note" model="account.fiscal.type">
+        <field name="purchase_type">normal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_purchase_credit_note" model="account.fiscal.type">
+        <field name="purchase_type">normal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_fiscal_purchase" model="account.fiscal.type">
+        <field name="purchase_type">normal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_informal" model="account.fiscal.type">
+        <field name="purchase_type">informal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_minor" model="account.fiscal.type">
+        <field name="purchase_type">minor</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_exterior" model="account.fiscal.type">
+        <field name="purchase_type">exterior</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_fiscal_import" model="account.fiscal.type">
+        <field name="purchase_type">import</field>
+    </record>
+
+</odoo>

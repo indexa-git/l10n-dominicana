@@ -363,7 +363,7 @@ class DgiiReport(models.Model):
              ('state', 'in', states),
              ('type', 'in', types)],
             order='date_invoice asc').filtered(
-                lambda inv: (inv.journal_id.purchase_type != 'others') or
+                lambda inv: (inv.fiscal_type_id.purchase_type != 'others') or
                 (inv.journal_id.ncf_control is True))
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
@@ -488,7 +488,7 @@ class DgiiReport(models.Model):
                 line += 1
                 rnc_ced = self.formated_rnc_cedula(
                     inv.partner_id.vat
-                ) if inv.purchase_type != 'exterior' else \
+                ) if inv.fiscal_type_id.purchase_type != 'exterior' else \
                     self.formated_rnc_cedula(
                     inv.company_id.vat)
                 show_payment_date = self._include_in_current_report(inv)
@@ -939,7 +939,7 @@ class DgiiReport(models.Model):
 
             invoice_ids = self._get_invoices(['cancel'], [
                 'out_invoice', 'in_invoice', 'out_refund'
-            ]).filtered(lambda inv: (inv.journal_id.purchase_type != 'normal'))
+            ]).filtered(lambda inv: (inv.fiscal_type_id.purchase_type != 'normal'))
             line = 0
             report_data = ''
             for inv in invoice_ids:
@@ -1015,7 +1015,7 @@ class DgiiReport(models.Model):
             invoice_ids = self._get_invoices(['open', 'in_payment', 'paid'], [
                 'in_invoice', 'in_refund'
             ]).filtered(lambda inv: (inv.partner_id.country_id.code != 'DO')
-                        and (inv.journal_id.purchase_type == 'exterior'))
+                        and (inv.fiscal_type_id.purchase_type == 'exterior'))
             line = 0
             report_data = ''
             for inv in invoice_ids:
