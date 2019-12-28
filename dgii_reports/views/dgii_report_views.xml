@@ -248,12 +248,12 @@
             <tree create="false" edit="false">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="rnc_cedula" widget="url"/>
+                <field name="rnc_cedula" widget="dgii_reports_url"/>
                 <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
                 <field name="expense_type"/>
-                <field name="fiscal_invoice_number" widget="url"/>
-                <field name="modified_invoice_number" widget="url"/>
+                <field name="fiscal_invoice_number" widget="dgii_reports_url"/>
+                <field name="modified_invoice_number" widget="dgii_reports_url"/>
                 <field name="invoice_date"/>
                 <field name="payment_date"/>
                 <field name="service_total_amount" sum="Total"/>
@@ -285,11 +285,11 @@
                   decoration-muted="(invoiced_amount &lt; 250000) and (identification_type == '2')">
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
-                <field name="rnc_cedula" widget="url"/>
+                <field name="rnc_cedula" widget="dgii_reports_url"/>
                 <field name="invoice_partner_id"/>
                 <field name="identification_type"/>
-                <field name="fiscal_invoice_number" widget="url"/>
-                <field name="modified_invoice_number" widget="url"/>
+                <field name="fiscal_invoice_number" widget="dgii_reports_url"/>
+                <field name="modified_invoice_number" widget="dgii_reports_url"/>
                 <field name="income_type"/>
                 <field name="invoice_date"/>
                 <field name="withholding_date"/>
@@ -322,7 +322,7 @@
                 <field name="dgii_report_id" invisible="1"/>
                 <field name="line"/>
                 <field name="invoice_partner_id"/>
-                <field name="fiscal_invoice_number" widget="url"/>
+                <field name="fiscal_invoice_number" widget="dgii_reports_url"/>
                 <field name="invoice_date"/>
                 <field name="anulation_type"/>
             </tree>
@@ -339,7 +339,7 @@
                 <field name="line"/>
                 <field name="legal_name"/>
                 <field name="tax_id_type"/>
-                <field name="tax_id" widget="url"/>
+                <field name="tax_id" widget="dgii_reports_url"/>
                 <field name="country_code"/>
                 <field name="purchased_service_type"/>
                 <field name="service_type_detail"/>
