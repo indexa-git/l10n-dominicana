@@ -340,7 +340,7 @@ class AccountInvoice(models.Model):
                 inv.advance_itbis = inv.invoiced_itbis - inv.cost_itbis
 
     @api.multi
-    @api.depends('journal_id.purchase_type')
+    @api.depends('fiscal_type_id.purchase_type')
     def _compute_is_exterior(self):
         for inv in self:
             inv.is_exterior = True if inv.journal_id.purchase_type == \
