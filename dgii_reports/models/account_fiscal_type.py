@@ -16,3 +16,13 @@ class AccountFiscalType(models.Model):
     ],
         default="others",
     )
+    sale_type = fields.Selection([
+        ("final", "Consumer"),
+        ("fiscal", "Fiscal Credit"),
+        ("gov", "Gov"),
+        ("special", "Special"),
+        ("unico", "Single Income"),
+        ("export", "Exports"),
+    ],
+        default='final',
+    )

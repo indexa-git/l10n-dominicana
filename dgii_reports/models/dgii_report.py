@@ -665,9 +665,9 @@ class DgiiReport(models.Model):
 
     def _process_op_dict(self, args, invoice):
         op_dict = args
-        if invoice.sale_fiscal_type and invoice.type != 'out_refund':
-            op_dict[invoice.sale_fiscal_type]['qty'] += 1
-            op_dict[invoice.sale_fiscal_type][
+        if invoice.fiscal_type_id and invoice.type != 'out_refund':
+            op_dict[invoice.fiscal_type_id.sale_type]['qty'] += 1
+            op_dict[invoice.fiscal_type_id.sale_type][
                 'amount'] += invoice.amount_untaxed_signed
         if invoice.type == 'out_refund' and not invoice.is_nd:
             op_dict['nc']['qty'] += 1
@@ -813,7 +813,7 @@ class DgiiReport(models.Model):
                     'blocked' if not inv.fiscal_status else inv.fiscal_status
                 rnc_ced = self.formated_rnc_cedula(
                     inv.partner_id.vat
-                ) if inv.sale_fiscal_type != 'unico' \
+                ) if inv.fiscal_type_id.sale_type != 'unico' \
                     else self.formated_rnc_cedula(inv.company_id.vat)
                 show_payment_date = self._include_in_current_report(inv)
                 payments = self._get_sale_payments_forms(inv)
