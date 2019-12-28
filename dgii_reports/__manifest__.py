@@ -31,6 +31,7 @@
         'views/dgii_report_views.xml',
         'views/dgii_report_templates.xml',
         'views/account_fiscal_type_views.xml',
+        'views/account_tax_views.xml',
         'wizard/dgii_report_regenerate_wizard_views.xml',
     ],
 }
