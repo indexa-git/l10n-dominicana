@@ -8,10 +8,10 @@
         <field name="arch" type="xml">
             <field name="fiscal_position_id" position="after">
                 <field name="sale_type"
-                       attrs="{'invisible': [('type', 'in', ('in_invoice', 'in_refund', 'in_debit')))],
+                       attrs="{'invisible': [('type', 'in', ('in_invoice', 'in_refund', 'in_debit'))],
                        'required': [('type', 'not in', ('in_invoice', 'in_refund', 'in_debit'))]}"/>
                 <field name="purchase_type"
-                       attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_debit')))],
+                       attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_debit'))],
                        'required': [('type', 'in', ('in_invoice', 'in_refund', 'in_debit'))]}"/>
             </field>
         </field>
