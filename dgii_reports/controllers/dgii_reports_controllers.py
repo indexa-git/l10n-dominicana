@@ -7,7 +7,7 @@ from odoo.http import request, Controller, route
 
 class DgiiReportsControllers(Controller):
 
-    @route(['/<ncf_rnc>'], type='http', auth='user')
+    @route(['/dgii_reports/<ncf_rnc>'], type='http', auth='user')
     def redirect_link(self, ncf_rnc):
 
         env = request.env
