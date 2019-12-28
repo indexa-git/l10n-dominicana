@@ -939,7 +939,8 @@ class DgiiReport(models.Model):
 
             invoice_ids = self._get_invoices(['cancel'], [
                 'out_invoice', 'in_invoice', 'out_refund'
-            ]).filtered(lambda inv: (inv.fiscal_type_id.purchase_type != 'normal'))
+            ]).filtered(
+                lambda inv: (inv.fiscal_type_id.purchase_type != 'normal'))
             line = 0
             report_data = ''
             for inv in invoice_ids:
