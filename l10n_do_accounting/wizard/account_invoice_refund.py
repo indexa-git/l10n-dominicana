@@ -54,7 +54,7 @@ class AccountInvoiceRefund(models.TransientModel):
     refund_method = fields.Selection(
         selection=_get_refund_method_selection,
         default='draft_refund',
-        string="Credit Method",
+        string="Refund Method",
     )
     percentage = fields.Float()
     amount = fields.Float()

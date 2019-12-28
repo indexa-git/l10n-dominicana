@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+
+    <record id="l10n_do_accounting.fiscal_type_credito_fiscal" model="account.fiscal.type">
+        <field name="sale_type">fiscal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_consumo" model="account.fiscal.type">
+        <field name="sale_type">final</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_unico" model="account.fiscal.type">
+        <field name="sale_type">unico</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_especial" model="account.fiscal.type">
+        <field name="sale_type">special</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_gubernamental" model="account.fiscal.type">
+        <field name="sale_type">gov</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_exportacion" model="account.fiscal.type">
+        <field name="sale_type">export</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_debit_note" model="account.fiscal.type">
+        <field name="sale_type">fiscal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_credit_note" model="account.fiscal.type">
+        <field name="sale_type">fiscal</field>
+    </record>
+
+    <record id="l10n_do_accounting.fiscal_type_purchase_debit_note" model="account.fiscal.type">
+        <field name="purchase_type">normal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_purchase_credit_note" model="account.fiscal.type">
+        <field name="purchase_type">normal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_fiscal_purchase" model="account.fiscal.type">
+        <field name="purchase_type">normal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_informal" model="account.fiscal.type">
+        <field name="purchase_type">informal</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_minor" model="account.fiscal.type">
+        <field name="purchase_type">minor</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_exterior" model="account.fiscal.type">
+        <field name="purchase_type">exterior</field>
+    </record>
+    <record id="l10n_do_accounting.fiscal_type_fiscal_import" model="account.fiscal.type">
+        <field name="purchase_type">import</field>
+    </record>
+
+</odoo>

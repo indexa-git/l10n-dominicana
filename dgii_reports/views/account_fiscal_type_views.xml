@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="account_fiscal_type_form_inherited" model="ir.ui.view">
+        <field name="name">account.fiscal.type.form.inherited</field>
+        <field name="model">account.fiscal.type</field>
+        <field name="inherit_id" ref="l10n_do_accounting.account_fiscal_type_form"/>
+        <field name="arch" type="xml">
+            <field name="fiscal_position_id" position="after">
+                <field name="sale_type"
+                       attrs="{'invisible': [('type', 'in', ('in_invoice', 'in_refund', 'in_debit'))],
+                       'required': [('type', 'not in', ('in_invoice', 'in_refund', 'in_debit'))]}"/>
+                <field name="purchase_type"
+                       attrs="{'invisible': [('type', 'not in', ('in_invoice', 'in_refund', 'in_debit'))],
+                       'required': [('type', 'in', ('in_invoice', 'in_refund', 'in_debit'))]}"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>
