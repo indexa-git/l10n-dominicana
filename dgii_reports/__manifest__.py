@@ -8,7 +8,7 @@
     'name': "Declaraciones DGII",
 
     'summary': """
-        Este módulo extiende las funcionalidades del ncf_manager,
+        Este módulo extiende las funcionalidades del l10n_do_accounting,
         integrando los reportes de declaraciones fiscales""",
 
     'author': "Indexa, SRL, "
@@ -18,7 +18,7 @@
     'version': '12.0.1.1.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'ncf_manager'],
+    'depends': ['l10n_do_accounting'],
 
     # always loaded
     'data': [
