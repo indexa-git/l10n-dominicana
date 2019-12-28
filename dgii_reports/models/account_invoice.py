@@ -343,7 +343,7 @@ class AccountInvoice(models.Model):
     @api.depends('fiscal_type_id.purchase_type')
     def _compute_is_exterior(self):
         for inv in self:
-            inv.is_exterior = True if inv.journal_id.purchase_type == \
+            inv.is_exterior = True if inv.fiscal_type_id.purchase_type == \
                 'exterior' else False
 
     @api.onchange('service_type')
