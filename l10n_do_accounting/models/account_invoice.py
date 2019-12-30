@@ -173,7 +173,7 @@ class AccountInvoice(models.Model):
                 # If any invoice tax in ITBIS or ISC
                 if any([
                     tax for tax in inv.tax_line_ids.mapped('tax_id')
-                            .filtered(lambda tax: tax.tax_group_id.name in (
+                    .filtered(lambda tax: tax.tax_group_id.name in (
                             'ITBIS', 'ISC') and tax.amount != 0)
                 ]):
                     raise UserError(_(
@@ -223,11 +223,11 @@ class AccountInvoice(models.Model):
         """
 
         for inv in self.filtered(
-                lambda i: i.type == 'in_invoice' and i.state == 'open' and
-                          i.journal_id.fiscal_journal):
+                lambda i: i.type == 'in_invoice' and i.state == 'open'):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_informal')
-            if inv.fiscal_type_id == fiscal_type_id:
+            if inv.fiscal_type_id == fiscal_type_id and \
+                    inv.journal_id.fiscal_journal:
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
