@@ -380,9 +380,9 @@ class AccountInvoice(models.Model):
 
                 sequence = inv.journal_id.date_range_ids.filtered(
                     lambda seq: seq.sale_fiscal_type == inv.sale_fiscal_type)
-                if sequence.number_next_actual >= sequence.max_number_next:
+                if sequence.number_next_actual > sequence.max_number_next:
                     raise ValidationError(_(
-                        u"El NFS para {} se a agotado, por favor"
+                        u"El NCF para {} se a agotado, por favor"
                         " aumente el limite maximo ({}).").format(
                         dict(self._fields['sale_fiscal_type'].selection)
                             .get(self.sale_fiscal_type), sequence.max_number_next))
