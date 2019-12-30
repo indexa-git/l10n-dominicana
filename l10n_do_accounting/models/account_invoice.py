@@ -173,8 +173,9 @@ class AccountInvoice(models.Model):
                 # If any invoice tax in ITBIS or ISC
                 if any([
                     tax for tax in inv.tax_line_ids.mapped('tax_id')
-                    .filtered(lambda tax: tax.tax_group_id.name in (
-                            'ITBIS', 'ISC') and tax.amount != 0)
+                    .filtered(
+                        lambda tax: tax.tax_group_id.name in (
+                                'ITBIS', 'ISC') and tax.amount != 0)
                 ]):
                     raise UserError(_(
                         "You cannot validate and invoice of Fiscal Type "
