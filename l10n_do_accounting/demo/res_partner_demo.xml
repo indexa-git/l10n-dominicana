@@ -16,7 +16,7 @@
         <field name="website">https://marcos.do/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_1.png"/>
         <field name="supplier" eval="1"/>
-        <field name="expense_type">02/</field>
+        <field name="expense_type">02</field>
     </record>
 
     <record id="res_partner_demo_2" model="res.partner">
@@ -34,7 +34,7 @@
         <field name="website">https://iterativo.do/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_2.png"/>
         <field name="supplier" eval="1"/>
-        <field name="expense_type">02/</field>
+        <field name="expense_type">02</field>
     </record>
 
     <record id="res_partner_demo_3" model="res.partner">
@@ -50,7 +50,7 @@
         <field name="website">http://gruponeotec.com/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_3.png"/>
         <field name="supplier" eval="1"/>
-        <field name="expense_type">02/</field>
+        <field name="expense_type">02</field>
         <field name="purchase_fiscal_type_id"
                ref="l10n_do_accounting.fiscal_type_fiscal_purchase"/>
     </record>
@@ -68,7 +68,7 @@
         <field name="website">https://indexa.do/</field>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_4.png"/>
         <field name="supplier" eval="1"/>
-        <field name="expense_type">02/</field>
+        <field name="expense_type">02</field>
     </record>
 
     <!-- For CONSUMO AND INGRESO UNICO NCF's testing -->
@@ -82,7 +82,7 @@
         <field name="email">joselopezg8@gmail.com</field>
         <field name="phone">829-939-3231</field>
         <field name="supplier" eval="1"/>
-        <field name="expense_type">02/</field>
+        <field name="expense_type">02</field>
         <field name="purchase_fiscal_type_id"
                ref="l10n_do_accounting.fiscal_type_informal"/>
     </record>

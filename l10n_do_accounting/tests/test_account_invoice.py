@@ -3,7 +3,9 @@
 from datetime import timedelta as td
 
 from odoo import fields
-from .common import AccountInvoiceCommon
+from odoo.exceptions import UserError
+from odoo.tools import float_is_zero
+from .common import AccountInvoiceCommon, environment
 
 
 class AccountInvoiceTests(AccountInvoiceCommon):
@@ -149,32 +151,430 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(invoice_id.expense_type,
                          partner_id.expense_type)
 
+    def test_007_invoice_fiscal_sequence_status(self):
+        """
+        Check invoice fiscal_sequence_status 'fiscal_ok'
+        when it should
+        """
 
-# Account Invoice Tests
+        invoice_1 = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
 
-# TODO: invoice fiscal_sequence_status is computed correctly
+        self.assertEqual(invoice_1.fiscal_sequence_status, 'fiscal_ok')
 
-# TODO: when out_invoice validate, if not partner_id.sale_fiscal_type_id,
-#  partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id
+    def test_008_invoice_fiscal_sequence_status(self):
+        """
+        Check invoice fiscal_sequence_status 'almost_no_sequence'
+        when it should
+        """
 
-# TODO: when in_invoice validate, if not partner_id.purchase_fiscal_type_id,
-#  partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id and if not
-#  partner_id.expense_type, partner_id.expense_type = invoice.expense_type
+        with environment() as env:
+            env_sequence_id = env['account.fiscal.sequence'].search([
+                ('fiscal_type_id', '=', self.fiscal_type_credito_fiscal),
+                ('state', '=', 'active'),
+            ])
+            env_sequence_id.sequence_id.number_next_actual = 1
 
-# TODO: when invoice validate, if fiscal_type_id.required_document and
-#  not partner_id.vat, raise UserError
+            # Consume it 66 times
+            for n in range(66):
+                env_sequence_id.get_fiscal_number()
 
-# TODO: when out_invoice, out_refund validate,
-#  if fiscal_type_id != unico ingreso and amount_total >= 250,000
-#  raise UserError
+        invoice_2 = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        self.assertEqual(invoice_2.fiscal_sequence_status,
+                         'almost_no_sequence')
 
-# TODO: a random number of random types invoices always get the
-#  right NCF when validate
+    def test_009_invoice_partner_sale_fiscal_type(self):
+        """
+        Check when out_invoice validate, if not partner_id.sale_fiscal_type_id,
+        partner_id.sale_fiscal_type_id =  invoice.fiscal_type_id
+        """
 
-# TODO: fiscal customer refunds are created with all correct data
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+        assert not partner_id.sale_fiscal_type_id
 
-# TODO: fiscal vendor refunds are created with all correct data
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
 
-# TODO: fiscal customer debit notes are created with all correct data
+        self.assertEqual(partner_id.sale_fiscal_type_id.id,
+                         self.fiscal_type_consumo)
 
-# TODO: fiscal vendor debit notes are created with all correct data
+    def test_010_invoice_partner_purchase_fiscal_type_expense_type(self):
+        """
+        Check when in_invoice validate, if not partner_id.purchase_fiscal_type,
+        partner_id.purchase_fiscal_type_id = invoice.fiscal_type_id and if not
+        partner_id.expense_type, partner_id.expense_type = invoice.expense_type
+        """
+
+        partner_id = self.partner_obj.create({'name': 'Test Partner',
+                                              'vat': '22400559607'})
+        assert not partner_id.purchase_fiscal_type_id
+        assert not partner_id.expense_type
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'expense_type': '02',
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        self.assertEqual(partner_id.purchase_fiscal_type_id.id,
+                         self.fiscal_type_informal)
+        self.assertEqual(partner_id.expense_type, '02')
+
+    def test_011_required_document_error(self):
+        """
+        Check when invoice validate, if fiscal_type_id.required_document and
+        not partner_id.vat, raise UserError
+        """
+
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            invoice_id.action_invoice_open()
+
+    def test_012_no_vat_partner_amount_total_limit(self):
+
+        partner_id = self.partner_obj.create({'name': 'Test Partner'})
+
+        account_id = self.env['account.account'].search(
+            [('user_type_id', '=', self.env.ref(
+                'account.data_account_type_revenue').id)], limit=1).id
+        invoice_line_data = [
+            (0, 0,
+             {
+                 'product_id': self.env.ref('product.product_product_1').id,
+                 'quantity': 1.00,
+                 'account_id': account_id,
+                 'name': 'product test 1',
+                 'price_unit': 250000,
+             }
+             )]
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            invoice_id.action_invoice_open()
+
+        out_invoice_id = self.invoice_obj.create({
+            'partner_id': partner_id.id,
+            'fiscal_type_id': self.fiscal_type_consumo,
+            'invoice_line_ids': invoice_line_data,
+        })
+
+        with self.assertRaises(UserError):
+            out_invoice_id.action_invoice_open()
+
+    def test_013_fiscal_customer_refund_percentage(self):
+        """
+        Check fiscal customer refunds (percentage) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'percentage',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'percentage': 10,
+        })
+        refund_wizard_id.invoice_refund()
+
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'out_refund')], limit=1)
+        credit_note_id.action_invoice_open()
+
+        cn_type = self.fiscal_type_obj.browse(self.fiscal_type_cn)
+
+        self.assertEqual(credit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_cn)
+        self.assertEqual(str(credit_note_id.reference)[:3], cn_type.prefix)
+        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertTrue(float_is_zero(
+            credit_note_id.amount_total - (invoice_id.amount_total * 0.1),
+            precision_digits=2))
+
+    def test_014_fiscal_customer_refund_amount(self):
+        """
+        Check fiscal customer refunds (amount) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'fixed_amount',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'amount': 100,
+        })
+        refund_wizard_id.invoice_refund()
+
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'out_refund')], limit=1)
+        credit_note_id.action_invoice_open()
+
+        cn_type = self.fiscal_type_obj.browse(self.fiscal_type_cn)
+
+        self.assertEqual(credit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_cn)
+        self.assertEqual(str(credit_note_id.reference)[:3], cn_type.prefix)
+        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(credit_note_id.amount_total, 100)
+
+    def test_015_fiscal_vendor_refund_percentage(self):
+        """
+        Check fiscal vendor refunds (percentage) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'percentage',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'percentage': 10,
+        })
+        refund_wizard_id.invoice_refund()
+
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'in_refund')], limit=1)
+        credit_note_id.action_invoice_open()
+
+        self.assertEqual(credit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_cn_purchase)
+        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertTrue(float_is_zero(
+            credit_note_id.amount_total - (invoice_id.amount_total * 0.1),
+            precision_digits=2))
+
+    def test_016_fiscal_vendor_refund_amount(self):
+        """
+        Check fiscal vendor refunds (amount) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'fixed_amount',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'amount': 100,
+        })
+        refund_wizard_id.invoice_refund()
+
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'in_refund')], limit=1)
+        credit_note_id.action_invoice_open()
+
+        self.assertEqual(credit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_cn_purchase)
+        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(credit_note_id.amount_total, 100)
+
+    def test_017_fiscal_customer_debit_note_percentage(self):
+        """
+        Check fiscal customer debit notes (percentage) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id,
+             'debit_note': 'out_debit'}
+        ).create({
+            'refund_type': 'percentage',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'percentage': 10,
+        })
+        refund_wizard_id.invoice_debit_note()
+
+        debit_note_id = self.invoice_obj.search([
+            ('type', '=', 'out_invoice'),
+            ('is_debit_note', '=', True),
+        ], limit=1)
+        debit_note_id.action_invoice_open()
+
+        dn_type = self.fiscal_type_obj.browse(self.fiscal_type_dn)
+
+        self.assertEqual(debit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_dn)
+        self.assertEqual(str(debit_note_id.reference)[:3], dn_type.prefix)
+        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertTrue(float_is_zero(
+            debit_note_id.amount_total - (invoice_id.amount_total * 0.1),
+            precision_digits=2))
+
+    def test_018_fiscal_customer_debit_note_amount(self):
+        """
+        Check fiscal customer debit notes (amount) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_fiscal,
+            'invoice_line_ids': self.invoice_line_data,
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id,
+             'debit_note': 'out_debit'}
+        ).create({
+            'refund_type': 'fixed_amount',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'amount': 100,
+        })
+        refund_wizard_id.invoice_debit_note()
+
+        debit_note_id = self.invoice_obj.search([
+            ('type', '=', 'out_invoice'),
+            ('is_debit_note', '=', True),
+        ], limit=1)
+        debit_note_id.action_invoice_open()
+
+        dn_type = self.fiscal_type_obj.browse(self.fiscal_type_dn)
+
+        self.assertEqual(debit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_dn)
+        self.assertEqual(str(debit_note_id.reference)[:3], dn_type.prefix)
+        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(debit_note_id.amount_total, 100)
+
+    def test_019_fiscal_vendor_debit_note_percentage(self):
+        """
+        Check fiscal vendor debit notes (percentage) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id,
+             'debit_note': 'in_debit'}
+        ).create({
+            'refund_type': 'percentage',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'percentage': 10,
+        })
+        refund_wizard_id.invoice_debit_note()
+
+        debit_note_id = self.invoice_obj.search([
+            ('type', '=', 'in_invoice'),
+            ('is_debit_note', '=', True),
+        ], limit=1)
+        debit_note_id.action_invoice_open()
+
+        self.assertEqual(debit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_dn_purchase)
+        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertTrue(float_is_zero(
+            debit_note_id.amount_total - (invoice_id.amount_total * 0.1),
+            precision_digits=2))
+
+    def test_020_fiscal_customer_debit_note_amount(self):
+        """
+        Check fiscal vendor debit notes (amount) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id,
+             'debit_note': 'in_debit'}
+        ).create({
+            'refund_type': 'fixed_amount',
+            'filter_refund': 'refund',
+            'description': 'Discount',
+            'amount': 100,
+        })
+        refund_wizard_id.invoice_debit_note()
+
+        debit_note_id = self.invoice_obj.search([
+            ('type', '=', 'in_invoice'),
+            ('is_debit_note', '=', True),
+        ], limit=1)
+        debit_note_id.action_invoice_open()
+
+        self.assertEqual(debit_note_id.fiscal_type_id.id,
+                         self.fiscal_type_dn_purchase)
+        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(debit_note_id.amount_total, 100)
