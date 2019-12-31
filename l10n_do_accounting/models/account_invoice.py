@@ -165,7 +165,7 @@ class AccountInvoice(models.Model):
             does not contain nor ITBIS or ISC.
             See DGII Norma 05-19, Art 3 for further information.
         """
-        for inv in self.filtered(lambda i: i.journal_id.fiscal_journal):
+        for inv in self.filtered(lambda i: i.journal_id.l10n_do_fiscal_journal):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_especial')
             if inv.type == 'out_invoice' and inv.state in (
@@ -196,7 +196,7 @@ class AccountInvoice(models.Model):
                     inv.state in ('open', 'cancel') and
                     inv.partner_id.country_id and
                     inv.partner_id.country_id.code != 'DO' and
-                    inv.journal_id.fiscal_journal):
+                    inv.journal_id.l10n_do_fiscal_journal):
                 if any([
                     p for p in inv.invoice_line_ids.mapped('product_id')
                     if p.type != 'service'
@@ -228,7 +228,7 @@ class AccountInvoice(models.Model):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_informal')
             if inv.fiscal_type_id == fiscal_type_id and \
-                    inv.journal_id.fiscal_journal:
+                    inv.journal_id.l10n_do_fiscal_journal:
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
