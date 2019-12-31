@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="arch" type="xml">
             <xpath expr="//h1" position="after">
-                <h4 attrs="{'invisible':['|',('state','!=','cancel'),('is_fiscal_invoice', '=', False)]}">
+                <h4 attrs="{'invisible':['|',('state','!=','cancel'),('is_l10n_do_fiscal_invoice', '=', False)]}">
                     Cancellation Reason:
                     <br/>
                     <field name="anulation_type" readonly="1"/>

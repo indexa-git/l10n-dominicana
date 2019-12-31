@@ -67,7 +67,7 @@ class AccountInvoice(models.Model):
         'Valid until',
         store=True,
     )
-    is_fiscal_invoice = fields.Boolean(
+    is_l10n_do_fiscal_invoice = fields.Boolean(
         related='journal_id.l10n_do_fiscal_journal',
     )
     internal_generate = fields.Boolean(
@@ -160,7 +160,7 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
-        if not self.is_fiscal_invoice:
+        if not self.is_l10n_do_fiscal_invoice:
             self.fiscal_type_id = False
             self.fiscal_sequence_id = False
 
@@ -169,7 +169,7 @@ class AccountInvoice(models.Model):
     @api.onchange('fiscal_type_id')
     def _onchange_fiscal_type(self):
 
-        if self.is_fiscal_invoice and self.fiscal_type_id:
+        if self.is_l10n_do_fiscal_invoice and self.fiscal_type_id:
             fiscal_type = self.fiscal_type_id
             fiscal_type_journal = fiscal_type.journal_id
             if fiscal_type_journal and fiscal_type_journal != self.journal_id:
@@ -178,7 +178,7 @@ class AccountInvoice(models.Model):
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
 
-        if self.is_fiscal_invoice:
+        if self.is_l10n_do_fiscal_invoice:
             if self.type == 'out_invoice':
                 if not self.fiscal_type_id:
                     self.fiscal_type_id = self.partner_id.sale_fiscal_type_id
@@ -197,7 +197,7 @@ class AccountInvoice(models.Model):
                 raise UserError(_(u"You cannot validate an invoice whose "
                                   u"total amount is equal to 0"))
 
-            if inv.is_fiscal_invoice:
+            if inv.is_l10n_do_fiscal_invoice:
 
                 # Because a Fiscal Sequence can be depleted while an invoice
                 # is waiting to be validated, compute fiscal_sequence_id again

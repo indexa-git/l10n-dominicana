@@ -460,7 +460,7 @@ class PosOrder(models.Model):
                 cn_invoice = self.env['account.invoice'].search([
                     ('reference', '=', payment['returned_ncf']),
                     ('type', '=', 'out_refund'),
-                    ('is_fiscal_invoice', '=', True),
+                    ('is_l10n_do_fiscal_invoice', '=', True),
                 ])
                 if cn_invoice.residual != cn_invoice.amount_total:
                     raise UserError(
