@@ -282,8 +282,8 @@ class PosOrder(models.Model):
                 ('returned_order', '=', True)
             ])
 
-            if returned_order.state == 'draft' and \
-                    returned_order.config_id.invoice_journal_id.l10n_do_fiscal_journal:
+            if returned_order.state == 'draft' and returned_order.config_id.\
+                    invoice_journal_id.l10n_do_fiscal_journal:
 
                 returned_order.create_pos_order_refund_invoice()
                 returned_order.invoice_id.sudo().action_invoice_open()
