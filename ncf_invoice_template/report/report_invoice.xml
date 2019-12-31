@@ -145,7 +145,7 @@
                             <strong>ID CLIENTE:</strong>
                             <span t-field="o.partner_id.vat"/>
                             <br/>
-			</t>
+			        </t>
                         <strong>NOMBRE:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
