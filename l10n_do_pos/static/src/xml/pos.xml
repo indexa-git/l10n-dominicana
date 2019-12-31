@@ -3,7 +3,7 @@
 
     <t t-extend="PaymentScreenWidget">
         <t t-jquery=".payment-buttons" t-operation="append">
-            <t t-if="widget.pos.invoice_journal.fiscal_journal">
+            <t t-if="widget.pos.invoice_journal.l10n_do_fiscal_journal">
                 <div class='button js_set_fiscal_type'>
                     <i class='fa fa-edit' aria-label="Fiscal type"
                        title="Fiscal type"/>
@@ -24,7 +24,7 @@
 
     <t t-extend="ActionpadWidget">
         <t t-jquery=".fa.fa-user" t-operation="after">
-            <t t-if="widget.pos.invoice_journal.fiscal_journal">
+            <t t-if="widget.pos.invoice_journal.l10n_do_fiscal_journal">
                 <t t-set="order" t-value="widget.pos.get_order()"/>
                 <t t-if="order">
                     <span class="js_fiscal_type_name" style="color:red">
@@ -38,7 +38,7 @@
 
     <t t-extend="OrdersHistoryScreenWidget">
         <t t-jquery=".button.return-no-receipt" t-operation="replace">
-            <t t-if="!widget.pos.invoice_journal.fiscal_journal">
+            <t t-if="!widget.pos.invoice_journal.l10n_do_fiscal_journal">
                 <span class="button return-no-receipt">No Receipt</span>
             </t>
         </t>
@@ -47,10 +47,10 @@
             <table class='order-list'>
                 <thead>
                     <tr>
-                        <t t-if="widget.pos.invoice_journal.fiscal_journal">
+                        <t t-if="widget.pos.invoice_journal.l10n_do_fiscal_journal">
                             <th>NCF</th>
                         </t>
-                        <t t-if="!widget.pos.invoice_journal.fiscal_journal">
+                        <t t-if="!widget.pos.invoice_journal.l10n_do_fiscal_journal">
                             <th>Order Ref</th>
                         </t>
                         <th>Customer</th>
@@ -70,12 +70,12 @@
 
     <t t-extend="OrderHistory">
         <t t-jquery=".details" t-operation="replace">
-            <t t-if="widget.pos.invoice_journal.fiscal_journal">
+            <t t-if="widget.pos.invoice_journal.l10n_do_fiscal_journal">
                 <span class='details'>
                     <t t-esc='order.ncf'/>
                 </span>
             </t>
-            <t t-if="!widget.pos.invoice_journal.fiscal_journal">
+            <t t-if="!widget.pos.invoice_journal.l10n_do_fiscal_journal">
                 <span class='details'>
                     <t t-esc='order.pos_reference'/>
                 </span>

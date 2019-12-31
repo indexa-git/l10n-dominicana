@@ -37,7 +37,7 @@ class AccountInvoiceCommon(TransactionCase):
         # Setup Fiscal Journals
         for journal in self.journal_obj.search(
                 [('type', 'in', ('sale', 'purchase'))]):
-            journal.fiscal_journal = True
+            journal.l10n_do_fiscal_journal = True
             if journal.type == 'sale':
                 self.sale_journal = journal
             else:

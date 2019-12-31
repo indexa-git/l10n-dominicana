@@ -68,7 +68,7 @@ class AccountInvoice(models.Model):
         store=True,
     )
     is_fiscal_invoice = fields.Boolean(
-        related='journal_id.fiscal_journal',
+        related='journal_id.l10n_do_fiscal_journal',
     )
     internal_generate = fields.Boolean(
         related='fiscal_type_id.internal_generate',
@@ -84,7 +84,7 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
+    @api.depends('journal_id', 'journal_id.l10n_do_fiscal_journal', 'fiscal_type_id',
                  'date_invoice', 'type', 'state', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         for inv in self.filtered(lambda i: i.state == 'draft'):
@@ -101,7 +101,7 @@ class AccountInvoice(models.Model):
             else:
                 fiscal_type = inv.fiscal_type_id
 
-            if inv.journal_id.fiscal_journal and fiscal_type and \
+            if inv.journal_id.l10n_do_fiscal_journal and fiscal_type and \
                     fiscal_type.internal_generate:
 
                 inv.internal_generate = fiscal_type.internal_generate
@@ -136,11 +136,12 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
                  'fiscal_sequence_id.remaining_percentage', 'state',
-                 'journal_id.fiscal_journal')
+                 'journal_id.l10n_do_fiscal_journal')
     def _compute_fiscal_sequence_status(self):
         for inv in self:
 
-            if not inv.journal_id.fiscal_journal or not inv.fiscal_sequence_id:
+            if not inv.journal_id.l10n_do_fiscal_journal or \
+                    not inv.fiscal_sequence_id:
                 inv.fiscal_sequence_status = 'no_fiscal'
             else:
                 fs_id = inv.fiscal_sequence_id  # Fiscal Sequence
@@ -279,7 +280,7 @@ class AccountInvoice(models.Model):
                                                'price_unit': amount,
                                                'account_id': account})]
 
-        if not self.journal_id.fiscal_journal:
+        if not self.journal_id.l10n_do_fiscal_journal:
             return res
 
         fiscal_type = {'out_invoice': 'out_refund',

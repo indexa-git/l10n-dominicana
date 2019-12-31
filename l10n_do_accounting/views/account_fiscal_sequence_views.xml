@@ -166,7 +166,7 @@
                     <group>
                         <field name="active"/>
                         <field name="journal_id"
-                               domain="[('fiscal_journal', '=', True), ('type', '=', type)]"
+                               domain="[('l10n_do_fiscal_journal', '=', True), ('type', '=', type)]"
                         />
                         <field name="fiscal_position_id"/>
                     </group>

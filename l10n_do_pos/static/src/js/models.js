@@ -12,7 +12,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     models.load_models({
         model: 'account.journal',
-        fields: ['name', 'fiscal_journal'],
+        fields: ['name', 'l10n_do_fiscal_journal'],
         domain: function (self) {
             return [['id', '=', self.config.invoice_journal_id[0]]];
         },

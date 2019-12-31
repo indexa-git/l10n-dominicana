@@ -5,7 +5,7 @@ from odoo import models, fields
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
-    fiscal_journal = fields.Boolean()
+    l10n_do_fiscal_journal = fields.Boolean()
 
     payment_form = fields.Selection(
         [("cash", "Efectivo"),
