@@ -11,7 +11,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
         renderElement: function () {
             this._super();
             var current_order = this.pos.get_order();
-            if(current_order){
+            if (current_order) {
                 if (current_order.get_mode() === 'return' &&
                     this.pos.invoice_journal.l10n_do_fiscal_journal) {
                     this.$('.set-customer').addClass('disable');
@@ -91,7 +91,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             this.$('.js_set_fiscal_type').click(function () {
                 self.click_set_fiscal_type();
             });
-            if(current_order){
+            if (current_order) {
                 if (current_order.get_mode() === 'return' &&
                     this.pos.invoice_journal.l10n_do_fiscal_journal) {
 
