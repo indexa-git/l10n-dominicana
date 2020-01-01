@@ -165,7 +165,8 @@ class AccountInvoice(models.Model):
             does not contain nor ITBIS or ISC.
             See DGII Norma 05-19, Art 3 for further information.
         """
-        for inv in self.filtered(lambda i: i.journal_id.l10n_do_fiscal_journal):
+        for inv in \
+                self.filtered(lambda i: i.journal_id.l10n_do_fiscal_journal):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_especial')
             if inv.type == 'out_invoice' and inv.state in (
