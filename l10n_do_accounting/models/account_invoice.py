@@ -67,8 +67,8 @@ class AccountInvoice(models.Model):
         'Valid until',
         store=True,
     )
-    is_fiscal_invoice = fields.Boolean(
-        related='journal_id.fiscal_journal',
+    is_l10n_do_fiscal_invoice = fields.Boolean(
+        related='journal_id.l10n_do_fiscal_journal',
     )
     internal_generate = fields.Boolean(
         related='fiscal_type_id.internal_generate',
@@ -84,8 +84,8 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('journal_id', 'journal_id.fiscal_journal', 'fiscal_type_id',
-                 'date_invoice', 'type', 'state', 'is_debit_note')
+    @api.depends('journal_id', 'journal_id.l10n_do_fiscal_journal', 'state',
+                 'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         for inv in self.filtered(lambda i: i.state == 'draft'):
             if inv.is_debit_note:
@@ -101,7 +101,7 @@ class AccountInvoice(models.Model):
             else:
                 fiscal_type = inv.fiscal_type_id
 
-            if inv.journal_id.fiscal_journal and fiscal_type and \
+            if inv.journal_id.l10n_do_fiscal_journal and fiscal_type and \
                     fiscal_type.internal_generate:
 
                 inv.internal_generate = fiscal_type.internal_generate
@@ -136,11 +136,12 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
                  'fiscal_sequence_id.remaining_percentage', 'state',
-                 'journal_id.fiscal_journal')
+                 'journal_id.l10n_do_fiscal_journal')
     def _compute_fiscal_sequence_status(self):
         for inv in self:
 
-            if not inv.journal_id.fiscal_journal or not inv.fiscal_sequence_id:
+            if not inv.journal_id.l10n_do_fiscal_journal or \
+                    not inv.fiscal_sequence_id:
                 inv.fiscal_sequence_status = 'no_fiscal'
             else:
                 fs_id = inv.fiscal_sequence_id  # Fiscal Sequence
@@ -164,7 +165,8 @@ class AccountInvoice(models.Model):
             does not contain nor ITBIS or ISC.
             See DGII Norma 05-19, Art 3 for further information.
         """
-        for inv in self.filtered(lambda i: i.journal_id.fiscal_journal):
+        for inv in \
+                self.filtered(lambda i: i.journal_id.l10n_do_fiscal_journal):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_especial')
             if inv.type == 'out_invoice' and inv.state in (
@@ -195,7 +197,7 @@ class AccountInvoice(models.Model):
                     inv.state in ('open', 'cancel') and
                     inv.partner_id.country_id and
                     inv.partner_id.country_id.code != 'DO' and
-                    inv.journal_id.fiscal_journal):
+                    inv.journal_id.l10n_do_fiscal_journal):
                 if any([
                     p for p in inv.invoice_line_ids.mapped('product_id')
                     if p.type != 'service'
@@ -227,7 +229,7 @@ class AccountInvoice(models.Model):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_informal')
             if inv.fiscal_type_id == fiscal_type_id and \
-                    inv.journal_id.fiscal_journal:
+                    inv.journal_id.l10n_do_fiscal_journal:
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
@@ -238,7 +240,7 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
-        if not self.is_fiscal_invoice:
+        if not self.is_l10n_do_fiscal_invoice:
             self.fiscal_type_id = False
             self.fiscal_sequence_id = False
 
@@ -247,7 +249,7 @@ class AccountInvoice(models.Model):
     @api.onchange('fiscal_type_id')
     def _onchange_fiscal_type(self):
 
-        if self.is_fiscal_invoice and self.fiscal_type_id:
+        if self.is_l10n_do_fiscal_invoice and self.fiscal_type_id:
             fiscal_type = self.fiscal_type_id
             fiscal_type_journal = fiscal_type.journal_id
             if fiscal_type_journal and fiscal_type_journal != self.journal_id:
@@ -256,7 +258,7 @@ class AccountInvoice(models.Model):
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
 
-        if self.is_fiscal_invoice:
+        if self.is_l10n_do_fiscal_invoice:
             if self.type == 'out_invoice':
                 if not self.fiscal_type_id:
                     self.fiscal_type_id = self.partner_id.sale_fiscal_type_id
@@ -275,7 +277,7 @@ class AccountInvoice(models.Model):
                 raise UserError(_(u"You cannot validate an invoice whose "
                                   u"total amount is equal to 0"))
 
-            if inv.is_fiscal_invoice:
+            if inv.is_l10n_do_fiscal_invoice:
 
                 # Because a Fiscal Sequence can be depleted while an invoice
                 # is waiting to be validated, compute fiscal_sequence_id again
@@ -358,7 +360,7 @@ class AccountInvoice(models.Model):
                                                'price_unit': amount,
                                                'account_id': account})]
 
-        if not self.journal_id.fiscal_journal:
+        if not self.journal_id.l10n_do_fiscal_journal:
             return res
 
         fiscal_type = {'out_invoice': 'out_refund',

@@ -12,7 +12,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     models.load_models({
         model: 'account.journal',
-        fields: ['name', 'fiscal_journal'],
+        fields: ['name', 'l10n_do_fiscal_journal'],
         domain: function (self) {
             return [['id', '=', self.config.invoice_journal_id[0]]];
         },
@@ -214,7 +214,6 @@ odoo.define('l10n_do_pos.models', function (require) {
                 if (err.data) {
                     var except = err.data;
                     error_body = except.arguments ||
-                        except.arguments[0] ||
                         except.message || error_body;
                 }
                 self.gui.show_popup('error', {
@@ -259,12 +258,10 @@ odoo.define('l10n_do_pos.models', function (require) {
             return false;
         },
         loading_screen_on: function () {
-            $('.freeze_screen').addClass("active_state");
-            $(".lds-spinner").show();
+            $('.freeze_screen_spinner').addClass("active_state");
         },
         loading_screen_off: function () {
-            $('.freeze_screen').removeClass("active_state");
-            $(".lds-spinner").hide();
+            $('.freeze_screen_spinner').removeClass("active_state");
         },
 
     });

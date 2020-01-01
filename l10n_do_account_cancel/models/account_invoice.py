@@ -10,7 +10,7 @@ class AccountInvoice(models.Model):
     def action_invoice_cancel(self):
 
         fiscal_invoice = self.filtered(
-            lambda inv: inv.journal_id.fiscal_journal)
+            lambda inv: inv.journal_id.l10n_do_fiscal_journal)
         if len(fiscal_invoice) > 1:
             raise ValidationError(
                 _("You cannot cancel multiple fiscal invoices at a time."))

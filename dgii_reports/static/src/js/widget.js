@@ -5,7 +5,7 @@ odoo.define('dgii_report.dgii_report_widget', function (require) {
     var UrlChar = field_registry.get('url');
 
     var UrlDgiiReportsWidget = UrlChar.extend({
-	_renderReadonly: function () {
+        _renderReadonly: function () {
             this.$el.text(this.attrs.text || this.value)
                 .addClass('o_form_uri o_text_overflow')
                 .attr('target', '_blank')

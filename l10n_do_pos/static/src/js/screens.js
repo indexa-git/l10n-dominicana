@@ -11,19 +11,20 @@ odoo.define('l10n_do_pos.screens', function (require) {
         renderElement: function () {
             this._super();
             var current_order = this.pos.get_order();
-
-            if (current_order.get_mode() === 'return' &&
-                this.pos.invoice_journal.fiscal_journal) {
-                this.$('.set-customer').addClass('disable');
-            } else {
-                this.$('.set-customer').removeClass('disable');
+            if (current_order) {
+                if (current_order.get_mode() === 'return' &&
+                    this.pos.invoice_journal.l10n_do_fiscal_journal) {
+                    this.$('.set-customer').addClass('disable');
+                } else {
+                    this.$('.set-customer').removeClass('disable');
+                }
             }
         },
     });
 
     screens.OrdersHistoryButton.include({
         button_click: function () {
-            if (this.pos.invoice_journal.fiscal_journal &&
+            if (this.pos.invoice_journal.l10n_do_fiscal_journal &&
                 !this.pos.config.load_barcode_order_only) {
 
                 this.gui.show_popup('error', {
@@ -90,29 +91,32 @@ odoo.define('l10n_do_pos.screens', function (require) {
             this.$('.js_set_fiscal_type').click(function () {
                 self.click_set_fiscal_type();
             });
-            if (current_order.get_mode() === 'return' &&
-                this.pos.invoice_journal.fiscal_journal) {
+            if (current_order) {
+                if (current_order.get_mode() === 'return' &&
+                    this.pos.invoice_journal.l10n_do_fiscal_journal) {
 
-                this.$('.js_set_fiscal_type').addClass('disable');
-                this.$('.js_set_customer').addClass('disable');
-                this.$('.input-button').addClass('disable');
-                this.$('.mode-button').addClass('disable');
-                this.$('.paymentmethod').addClass('disable');
+                    this.$('.js_set_fiscal_type').addClass('disable');
+                    this.$('.js_set_customer').addClass('disable');
+                    this.$('.input-button').addClass('disable');
+                    this.$('.mode-button').addClass('disable');
+                    this.$('.paymentmethod').addClass('disable');
 
-            } else {
+                } else {
 
-                this.$('.js_set_fiscal_type').removeClass('disable');
-                this.$('.js_set_customer').removeClass('disable');
-                this.$('.input-button').removeClass('disable');
-                this.$('.mode-button').removeClass('disable');
-                this.$('.paymentmethod').removeClass('disable');
+                    this.$('.js_set_fiscal_type').removeClass('disable');
+                    this.$('.js_set_customer').removeClass('disable');
+                    this.$('.input-button').removeClass('disable');
+                    this.$('.mode-button').removeClass('disable');
+                    this.$('.paymentmethod').removeClass('disable');
 
+                }
+                if (this.pos.invoice_journal.l10n_do_fiscal_journal) {
+
+                    this.$('.js_invoice').hide();
+
+                }
             }
-            if (this.pos.invoice_journal.fiscal_journal) {
 
-                this.$('.js_invoice').hide();
-
-            }
         },
 
         open_vat_popup: function () {
@@ -319,7 +323,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             }
 
 
-            if (self.pos.invoice_journal.fiscal_journal &&
+            if (self.pos.invoice_journal.l10n_do_fiscal_journal &&
                 !current_order.to_invoice) {
 
                 if (!self.analyze_payment_methods()) {
@@ -388,7 +392,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var self = this;
             var _super = this._super.bind(this);
             var current_order = this.pos.get_order();
-            if (self.pos.invoice_journal.fiscal_journal &&
+            if (self.pos.invoice_journal.l10n_do_fiscal_journal &&
                 !current_order.to_invoice && !current_order.ncf) {
                 self.pos.loading_screen_on();
                 var payments = [];
@@ -435,7 +439,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     if (err.data) {
                         var except = err.data;
                         error_body = except.arguments ||
-                            except.arguments[0] ||
                             except.message || error_body;
                     }
                     self.gui.show_popup('error', {
@@ -489,7 +492,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var self = this;
             var _super = this._super.bind(this);
             if (self.pos.config.return_orders &&
-                self.pos.invoice_journal.fiscal_journal) {
+                self.pos.invoice_journal.l10n_do_fiscal_journal) {
                 var order_custom = false;
                 var domain = [
                     ['ncf', '=', barcode],
@@ -520,7 +523,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     if (err.data) {
                         var except = err.data;
                         error_body = except.arguments ||
-                            except.arguments[0] ||
                             except.message || error_body;
                     }
                     self.gui.show_popup('error', {

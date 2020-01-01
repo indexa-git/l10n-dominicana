@@ -49,7 +49,7 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new invoice for a pos order.
         """
         invoice_vals = super(PosOrder, self)._prepare_invoice()
-        if self.config_id.invoice_journal_id.fiscal_journal:
+        if self.config_id.invoice_journal_id.l10n_do_fiscal_journal:
             invoice_vals['reference'] = self.ncf
             invoice_vals['origin_out'] = self.ncf_origin_out
             invoice_vals['ncf_expiration_date'] = self.ncf_expiration_date
@@ -85,7 +85,7 @@ class PosOrder(models.Model):
     def _create_order_payments(self):
         # create all orders payment from statements
         for order in self:
-            if order.config_id.invoice_journal_id.fiscal_journal:
+            if order.config_id.invoice_journal_id.l10n_do_fiscal_journal:
                 for statement in order.statement_ids:
                     # TODO: his part is for return order (credits notes)
                     if statement.journal_id.is_for_credit_notes:
@@ -229,7 +229,7 @@ class PosOrder(models.Model):
             order_obj = self.env['pos.order'].search([
                 ('id', '=', order['id'])
             ])
-            if order_obj.config_id.invoice_journal_id.fiscal_journal \
+            if order_obj.config_id.invoice_journal_id.l10n_do_fiscal_journal \
                     and order_obj.state != 'invoiced':
 
                 order_obj.action_pos_order_invoice_no_return_pdf()
@@ -282,8 +282,8 @@ class PosOrder(models.Model):
                 ('returned_order', '=', True)
             ])
 
-            if returned_order.state == 'draft' and \
-                    returned_order.config_id.invoice_journal_id.fiscal_journal:
+            if returned_order.state == 'draft' and returned_order.config_id.\
+                    invoice_journal_id.l10n_do_fiscal_journal:
 
                 returned_order.create_pos_order_refund_invoice()
                 returned_order.invoice_id.sudo().action_invoice_open()
@@ -460,7 +460,7 @@ class PosOrder(models.Model):
                 cn_invoice = self.env['account.invoice'].search([
                     ('reference', '=', payment['returned_ncf']),
                     ('type', '=', 'out_refund'),
-                    ('is_fiscal_invoice', '=', True),
+                    ('is_l10n_do_fiscal_invoice', '=', True),
                 ])
                 if cn_invoice.residual != cn_invoice.amount_total:
                     raise UserError(
