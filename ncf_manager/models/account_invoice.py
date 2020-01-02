@@ -410,7 +410,7 @@ class AccountInvoice(models.Model):
 
                     if sequence1.number_next_actual >= sequence1.max_number_next:
                         raise ValidationError(_(
-                            u"El NFS para {} se a agotado, por favor"
+                            u"El NCF para {} se a agotado, por favor"
                             " aumente el limite maximo ({}).").format(
                             dict(self._fields['sale_fiscal_type'].selection)
                                 .get(self.sale_fiscal_type), sequence1.max_number_next))
