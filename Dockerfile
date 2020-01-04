@@ -6,6 +6,12 @@ COPY . ${ODOO_EXTRA_ADDONS}
 
 USER root
 
+# Needed library to build requirements on IT-Projects-LLC submodule
+RUN set -x; \
+    apt-get -qq update && apt-get -qq install -y --no-install-recommends \
+    libffi-dev \
+    > /dev/null
+
 RUN sudo chown -R 1000:1000 ${ODOO_EXTRA_ADDONS}
 
 RUN ls -la ${ODOO_EXTRA_ADDONS}
