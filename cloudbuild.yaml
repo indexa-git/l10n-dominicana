@@ -31,7 +31,7 @@ steps:
   - |
     mkdir -p ${REPO_NAME}-ci￼
     ls .
-    mv /workspace/*/ ${REPO_NAME}-ci
+    mv /workspace/*/ ${REPO_NAME}-ci/
     git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/it-projects-llc/pos-addons.git
     git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/indexa-git/external_service_addons.git
     chown -R 1000:1000 /builder/home/
