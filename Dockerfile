@@ -10,7 +10,12 @@ USER root
 RUN set -x; \
     apt-get -qq update && apt-get -qq install -y --no-install-recommends \
     libffi-dev \
+    libappindicator1 \
+    fonts-liberation \
     > /dev/null
+
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    sudo dpkg -i google-chrome*.deb
 
 RUN sudo chown -R 1000:1000 ${ODOO_EXTRA_ADDONS}
 
