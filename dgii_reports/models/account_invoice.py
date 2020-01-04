@@ -59,7 +59,8 @@ class AccountInvoice(models.Model):
             currency_id = self.currency_id.with_context(date=self.date_invoice)
             round_curr = currency_id.round
             amount = round_curr(
-                currency_id.compute(amount, self.company_id.currency_id))
+                currency_id._convert(amount, self.company_id.currency_id,
+                                     self.company_id, self.date_invoice))
 
         return amount * sign
 
