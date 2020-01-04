@@ -1,0 +1,92 @@
+substitutions:
+    _TEST_BRANCH: '12.0'
+    _CI_STAGE: dev
+    _CD_TRIGGER: odoo-repos # default value
+    _LOG_LEVEL: info
+    _WITHOUT_DEMO: 'False'
+    _RUN_TESTS: '1'
+    _PIP_AUTO_INSTALL: '1'
+    _EXTRA_MODULES: 'dgii_reports,l10n_do,l10n_do_account_cancel,l10n_do_accounting,l10n_do_pos,pos_orders_history_return'
+# Allow variables without substitutions
+options:
+    substitution_option: 'ALLOW_LOOSE'
+
+steps:
+# Pull a previous image of dockerdoo, if exists, to use cache for faster builds
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    docker pull gcr.io/$PROJECT_ID/dockerdoo:${_TEST_BRANCH} || exit 0
+  volumes:
+  - name: 'repos'
+    path: /var/lib/odoo/extra-addons
+
+  # Move "cleaned" modules to their own folder
+- name: 'gcr.io/cloud-builders/git'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    mkdir -p mv /workspace/${REPO_NAME}-ci￼
+    ls .
+    mv /workspace/*/ /workspace/${REPO_NAME}-ci￼
+    git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/it-projects-llc/pos-addons.git
+    git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/indexa-git/external_service_addons.git
+    chown -R 1000:1000 /builder/home/
+    ls .
+  volumes:
+  - name: 'repos'
+    path: /var/lib/odoo/extra-addons
+
+# Build the image with the mounted volume
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    [
+      'build',
+      '-t', 'gcr.io/$PROJECT_ID/$REPO_NAME:${BRANCH_NAME}-${SHORT_SHA}',
+      '--cache-from', 'gcr.io/$PROJECT_ID/dockerdoo:${_TEST_BRANCH}',
+      '.'
+    ]
+  volumes:
+  - name: 'repos'
+    path: /var/lib/odoo/extra-addons
+
+  # Install PostgreSQL
+- name: gcr.io/cloud-builders/docker
+  args: 
+    [
+      'run', '--name=${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}',
+      '-e', 'POSTGRES_DB=postgres',
+      '-e', 'POSTGRES_USER=odoo',
+      '-e', 'POSTGRES_PASSWORD=odoo',
+      '--network=cloudbuild',
+      '-d', 'postgres:11'
+    ]
+  volumes:
+  - name: 'repos'
+    path: /var/lib/odoo/extra-addons
+
+# Run dockerdooo with modules inside the repo and run tests
+- name: 'gcr.io/$PROJECT_ID/$REPO_NAME:${BRANCH_NAME}-${SHORT_SHA}'
+  dir: /
+  args: ["odoo", "-d ${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}", "--test-tags", "${_EXTRA_MODULES}"]
+  env:
+    - 'DB_PORT_5432_TCP_ADDR=${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}'
+    - 'DB_ENV_POSTGRES_USER=odoo'
+    - 'DB_ENV_POSTGRES_PASSWORD=odoo'
+    - 'LOG_LEVEL=${_LOG_LEVEL}'
+    - 'WITHOUT_DEMO=${_WITHOUT_DEMO}'
+    - 'RUN_TESTS=${_RUN_TESTS}'
+    - 'PIP_AUTO_INSTALL=${_PIP_AUTO_INSTALL}'
+    - 'EXTRA_MODULES=${_EXTRA_MODULES}'
+  volumes:
+  - name: 'repos'
+    path: /var/lib/odoo/extra-addons
+
+# Push the image to gcr.io
+images: ['gcr.io/$PROJECT_ID/$REPO_NAME:${BRANCH_NAME}-${SHORT_SHA}']
+
+# Allow Odoo to build when there's no cache
+timeout: "900s"
