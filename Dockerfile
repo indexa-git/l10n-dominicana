@@ -23,4 +23,6 @@ RUN ls -la ${ODOO_EXTRA_ADDONS}
 
 USER 1000
 
+RUN pip3 install websocket-client
+
 RUN find ${ODOO_EXTRA_ADDONS} -name 'requirements.txt' -exec pip3 install --user -r {} \;
