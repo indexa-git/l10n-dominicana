@@ -376,6 +376,12 @@ class AccountFiscalType(models.Model):
     ],
         required=True,
     )
+    journal_type = fields.Selection([
+        ('sale', 'Sale'),
+        ('purchase', 'Purchase'),
+    ],
+        compute="_get_journal_type"
+    )
     fiscal_position_id = fields.Many2one(
         "account.fiscal.position",
         string="Fiscal Position",
@@ -395,3 +401,10 @@ class AccountFiscalType(models.Model):
         ('type_prefix_uniq', 'unique (type, prefix)',
          'There must be only one Fiscal Type of this Type and Prefix')
     ]
+
+    @api.multi
+    @api.depends('type')
+    def _get_journal_type(self):
+        for fiscal_type in self:
+            fiscal_type.journal_type = 'sale' if fiscal_type.type[
+                                                 :3] == 'out' else 'purchase'

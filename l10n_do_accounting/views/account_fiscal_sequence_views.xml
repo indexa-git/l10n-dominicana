@@ -159,15 +159,15 @@
                         <field name="name"/>
                         <field name="prefix"/>
                         <field name="type"/>
+                        <field name="journal_type" invisible="1"/>
                         <field name="padding">8</field>
                         <field name="internal_generate"/>
                         <field name="required_document"/>
                     </group>
                     <group>
                         <field name="active"/>
-                        <field name="journal_id"
-                               domain="[('l10n_do_fiscal_journal', '=', True), ('type', '=', type)]"
-                        />
+                        <field name="journal_id" options="{'no_create': True}"
+                               domain="[('type', '=', journal_type)]"/>
                         <field name="fiscal_position_id"/>
                     </group>
                 </group>
