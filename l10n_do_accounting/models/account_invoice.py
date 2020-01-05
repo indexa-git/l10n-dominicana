@@ -87,6 +87,9 @@ class AccountInvoice(models.Model):
     @api.depends('journal_id', 'is_l10n_do_fiscal_invoice', 'state',
                  'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
+        """ Compute the sequence and fiscal position to be used depending on
+            the fiscal type that has been set on the invoice (or partner).
+        """
         for inv in self.filtered(lambda i: i.state == 'draft'):
             if inv.is_debit_note:
                 debit_map = {'in_invoice': 'in_debit',
@@ -138,6 +141,10 @@ class AccountInvoice(models.Model):
                  'fiscal_sequence_id.remaining_percentage', 'state',
                  'is_l10n_do_fiscal_invoice')
     def _compute_fiscal_sequence_status(self):
+        """ Identify the percentage fiscal sequences that has been used so far.
+            With this result the user can be warned if it's above the threshold
+            or if there's no more sequences available.
+        """
         for inv in self:
 
             if not inv.is_l10n_do_fiscal_invoice or \
@@ -223,7 +230,6 @@ class AccountInvoice(models.Model):
             withholding.
             See DGII Norma 05-19, Art 7 for further information.
         """
-
         for inv in self.filtered(
                 lambda i: i.type == 'in_invoice' and i.state == 'open'):
             fiscal_type_id = self.env.ref(
@@ -240,6 +246,9 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
+        """ Set the Fiscal Type and the Fiscal Sequence to False, if the
+            invoice is not a fiscal invoice for l10n_do.
+        """
         if not self.is_l10n_do_fiscal_invoice:
             self.fiscal_type_id = False
             self.fiscal_sequence_id = False
@@ -248,7 +257,9 @@ class AccountInvoice(models.Model):
 
     @api.onchange('fiscal_type_id')
     def _onchange_fiscal_type(self):
-
+        """ Set the Journal to a fiscal journal if a Fiscal Type is set to the 
+            invoice, making it a a fiscal invoice for l10n_do.
+        """
         if self.is_l10n_do_fiscal_invoice and self.fiscal_type_id:
             fiscal_type = self.fiscal_type_id
             fiscal_type_journal = fiscal_type.journal_id
@@ -257,7 +268,9 @@ class AccountInvoice(models.Model):
 
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
-
+        """ Set the Journal to a fiscal journal if a Fiscal Type is set to the 
+            invoice, making it a a fiscal invoice for l10n_do.
+        """
         if self.is_l10n_do_fiscal_invoice:
             if self.type == 'out_invoice':
                 if not self.fiscal_type_id:
@@ -271,6 +284,10 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def action_invoice_open(self):
+        """ Before an invoice is changed to the 'open' state, validate that all
+            informations are valid regarding Norma 05-19 and if there are
+            available sequences to be used just before validation
+        """
         for inv in self:
 
             if inv.amount_untaxed == 0:
@@ -330,7 +347,6 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def invoice_print(self):
-
         # Companies which has installed l10n_do localization use
         # l10n_do fiscal invoice template
         l10n_do_coa = self.env.ref('l10n_do.do_chart_template')
@@ -344,6 +360,9 @@ class AccountInvoice(models.Model):
     @api.model
     def _prepare_refund(self, invoice, date_invoice=None, date=None,
                         description=None, journal_id=None):
+        """ Inherit Odoo's _prepare_refund() method to allow the use of fiscal
+            types and other required fields for l10n_do.
+        """
         context = dict(self._context or {})
         refund_type = context.get('refund_type')
         amount = context.get('amount')
