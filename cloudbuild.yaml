@@ -1,5 +1,5 @@
 substitutions:
-    _TEST_BRANCH: '12.0'
+    _TEST_BRANCH: '13.0'
     _CI_STAGE: dev
     _CD_TRIGGER: odoo-repos # default value
     _LOG_LEVEL: info

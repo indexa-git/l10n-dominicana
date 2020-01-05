@@ -1,4 +1,4 @@
-FROM gcr.io/iterativo/dockerdoo:12.0
+FROM gcr.io/iterativo/dockerdoo:13.0
 
 ENV ODOO_EXTRA_ADDONS /var/lib/odoo/extra-addons
 
