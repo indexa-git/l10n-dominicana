@@ -338,12 +338,20 @@ class AccountInvoice(models.Model):
                             u"the customer should have RNC or Céd"
                             u"for make invoice"))
 
-                if not inv.reference and inv.fiscal_type_id.assigned_sequence:
-                    inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
-                    inv.ncf_expiration_date = \
-                        inv.fiscal_sequence_id.expiration_date
-
         return super(AccountInvoice, self).action_invoice_open()
+
+    @api.multi
+    def invoice_validate(self):
+        """ After all invoice validation routine, consume a NCF sequence and
+            write it into reference field.
+         """
+        for inv in self:
+            if not inv.reference and inv.fiscal_type_id.assigned_sequence:
+                inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
+                inv.ncf_expiration_date = \
+                    inv.fiscal_sequence_id.expiration_date
+
+        return super(AccountInvoice, self).invoice_validate()
 
     @api.multi
     def invoice_print(self):
