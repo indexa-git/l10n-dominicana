@@ -84,7 +84,7 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('journal_id', 'journal_id.l10n_do_fiscal_journal', 'state',
+    @api.depends('journal_id', 'is_l10n_do_fiscal_invoice', 'state',
                  'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         for inv in self.filtered(lambda i: i.state == 'draft'):
@@ -101,7 +101,7 @@ class AccountInvoice(models.Model):
             else:
                 fiscal_type = inv.fiscal_type_id
 
-            if inv.journal_id.l10n_do_fiscal_journal and fiscal_type and \
+            if inv.is_l10n_do_fiscal_invoice and fiscal_type and \
                     fiscal_type.internal_generate:
 
                 inv.internal_generate = fiscal_type.internal_generate
@@ -136,11 +136,11 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
                  'fiscal_sequence_id.remaining_percentage', 'state',
-                 'journal_id.l10n_do_fiscal_journal')
+                 'is_l10n_do_fiscal_invoice')
     def _compute_fiscal_sequence_status(self):
         for inv in self:
 
-            if not inv.journal_id.l10n_do_fiscal_journal or \
+            if not inv.is_l10n_do_fiscal_invoice or \
                     not inv.fiscal_sequence_id:
                 inv.fiscal_sequence_status = 'no_fiscal'
             else:
@@ -166,7 +166,7 @@ class AccountInvoice(models.Model):
             See DGII Norma 05-19, Art 3 for further information.
         """
         for inv in \
-                self.filtered(lambda i: i.journal_id.l10n_do_fiscal_journal):
+                self.filtered(lambda i: i.is_l10n_do_fiscal_invoice):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_especial')
             if inv.type == 'out_invoice' and inv.state in (
@@ -197,7 +197,7 @@ class AccountInvoice(models.Model):
                     inv.state in ('open', 'cancel') and
                     inv.partner_id.country_id and
                     inv.partner_id.country_id.code != 'DO' and
-                    inv.journal_id.l10n_do_fiscal_journal):
+                    inv.is_l10n_do_fiscal_invoice):
                 if any([
                     p for p in inv.invoice_line_ids.mapped('product_id')
                     if p.type != 'service'
@@ -229,7 +229,7 @@ class AccountInvoice(models.Model):
             fiscal_type_id = self.env.ref(
                 'l10n_do_accounting.fiscal_type_informal')
             if inv.fiscal_type_id == fiscal_type_id and \
-                    inv.journal_id.l10n_do_fiscal_journal:
+                    inv.is_l10n_do_fiscal_invoice:
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
@@ -360,7 +360,7 @@ class AccountInvoice(models.Model):
                                                'price_unit': amount,
                                                'account_id': account})]
 
-        if not self.journal_id.l10n_do_fiscal_journal:
+        if not self.is_l10n_do_fiscal_invoice:
             return res
 
         fiscal_type = {'out_invoice': 'out_refund',
