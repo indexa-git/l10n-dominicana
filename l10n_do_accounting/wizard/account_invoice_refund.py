@@ -74,7 +74,6 @@ class AccountInvoiceRefund(models.TransientModel):
         if self.refund_type != 'full_refund':
             self.filter_refund = 'refund'
 
-    @api.multi
     def compute_refund(self, mode='refund'):
         xml_id = False
         created_inv = []
@@ -129,7 +128,6 @@ class AccountInvoiceRefund(models.TransientModel):
             return result
         return True
 
-    @api.multi
     def invoice_debit_note(self):
         xml_id = False
         created_inv = []

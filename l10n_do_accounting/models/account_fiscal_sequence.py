@@ -119,7 +119,6 @@ class AccountFiscalSequence(models.Model):
         track_visibility='onchange',
     )
 
-    @api.multi
     @api.depends('state')
     def _compute_can_be_queue(self):
         for rec in self:
@@ -129,14 +128,12 @@ class AccountFiscalSequence(models.Model):
                  ('company_id', '=', rec.company_id.id)]) > 0) if \
                 rec.state == 'draft' else False
 
-    @api.multi
     @api.depends('remaining_percentage')
     def _compute_warning_gap(self):
         for rec in self:
             rec.warning_gap = (rec.sequence_end - (rec.sequence_start-1)) * \
                               (rec.remaining_percentage / 100)
 
-    @api.multi
     @api.depends('sequence_end', 'sequence_id.number_next')
     def _compute_sequence_remaining(self):
         for rec in self:
@@ -145,7 +142,6 @@ class AccountFiscalSequence(models.Model):
                 rec.sequence_remaining = \
                     rec.sequence_end - rec.sequence_id.number_next_actual + 1
 
-    @api.multi
     @api.depends('fiscal_type_id.prefix', 'sequence_id.padding',
                  'sequence_id.number_next_actual')
     def _compute_next_fiscal_number(self):
@@ -186,7 +182,6 @@ class AccountFiscalSequence(models.Model):
             raise ValidationError(
                 _("Another sequence is active for this type."))
 
-    @api.multi
     @api.constrains('sequence_start', 'sequence_end',
                     'state', 'fiscal_type_id', 'company_id')
     def _validate_sequence_range(self):
@@ -209,14 +204,12 @@ class AccountFiscalSequence(models.Model):
                 raise ValidationError(
                     _("You cannot use another Fiscal Sequence range."))
 
-    @api.multi
     def unlink(self):
         for rec in self:
             if rec.sequence_id:
                 rec.sequence_id.sudo().unlink()
         return super(AccountFiscalSequence, self).unlink()
 
-    @api.multi
     def name_get(self):
         result = []
         for sequence in self:
@@ -224,7 +217,6 @@ class AccountFiscalSequence(models.Model):
                 sequence.name, sequence.fiscal_type_id.name)))
         return result
 
-    @api.multi
     def action_view_sequence(self):
         self.ensure_one()
         sequence_id = self.sequence_id
@@ -237,7 +229,6 @@ class AccountFiscalSequence(models.Model):
             action = {'type': 'ir.actions.act_window_close'}
         return action
 
-    @api.multi
     def action_confirm(self):
         self.ensure_one()
         msg = _('Are you sure want to confirm this Fiscal Sequence? '
@@ -250,7 +241,6 @@ class AccountFiscalSequence(models.Model):
                              'action': 'confirm'}
         return action
 
-    @api.multi
     def _action_confirm(self):
         for rec in self:
 
@@ -277,7 +267,6 @@ class AccountFiscalSequence(models.Model):
                     'sequence_id': sequence_id.id,
                 })
 
-    @api.multi
     def action_cancel(self):
         self.ensure_one()
         msg = _('Are you sure want to cancel this Fiscal Sequence? '
@@ -290,7 +279,6 @@ class AccountFiscalSequence(models.Model):
                              'action': 'cancel'}
         return action
 
-    @api.multi
     def _action_cancel(self):
         for rec in self:
             rec.state = 'cancelled'
@@ -299,7 +287,6 @@ class AccountFiscalSequence(models.Model):
                 # Preserve internal sequence just for audit purpose.
                 rec.sequence_id.active = False
 
-    @api.multi
     def action_queue(self):
         for rec in self:
             rec.state = 'queue'
@@ -402,7 +389,6 @@ class AccountFiscalType(models.Model):
          'There must be only one Fiscal Type of this Type and Prefix')
     ]
 
-    @api.multi
     @api.depends('type')
     def _get_journal_type(self):
         for fiscal_type in self:
