@@ -141,6 +141,8 @@ class AccountFiscalSequence(models.Model):
                 # Sequence remaining
                 rec.sequence_remaining = \
                     rec.sequence_end - rec.sequence_id.number_next_actual + 1
+            else:
+                rec.sequence_remaining = 0
 
     @api.depends('fiscal_type_id.prefix', 'sequence_id.padding',
                  'sequence_id.number_next_actual')
