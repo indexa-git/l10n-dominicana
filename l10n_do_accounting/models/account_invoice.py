@@ -346,7 +346,8 @@ class AccountInvoice(models.Model):
             write it into reference field.
          """
         for inv in self:
-            if not inv.reference and inv.fiscal_type_id.assigned_sequence:
+            if inv.is_l10n_do_fiscal_invoice and \
+                    not inv.reference and inv.fiscal_type_id.assigned_sequence:
                 inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
                 inv.ncf_expiration_date = \
                     inv.fiscal_sequence_id.expiration_date
