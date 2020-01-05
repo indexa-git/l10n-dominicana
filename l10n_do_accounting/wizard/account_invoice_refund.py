@@ -5,8 +5,8 @@ from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
 
 
-class AccountInvoiceRefund(models.TransientModel):
-    _inherit = "account.invoice.refund"
+class AccountMoveReversal(models.TransientModel):
+    _inherit = "account.move.reversal"
 
     @api.model
     def _get_default_is_vendor_refund(self):
@@ -40,7 +40,7 @@ class AccountInvoiceRefund(models.TransientModel):
         return 'full_refund'
 
     @api.model
-    def _get_refund_method_selection(self):
+    def _get_refund_type_selection(self):
         if self._context.get('debit_note'):
             return [('draft_refund', 'Create a draft debit note'),
                     ('apply_refund', 'Create debit note and reconcile')]
@@ -51,8 +51,8 @@ class AccountInvoiceRefund(models.TransientModel):
         selection=_get_refund_type_selection,
         default=_get_default_refund_type,
     )
-    refund_method = fields.Selection(
-        selection=_get_refund_method_selection,
+    refund_type = fields.Selection(
+        selection=_get_refund_type_selection,
         default='draft_refund',
         string="Refund Method",
     )
@@ -72,14 +72,14 @@ class AccountInvoiceRefund(models.TransientModel):
     @api.onchange('refund_type')
     def onchange_refund_type(self):
         if self.refund_type != 'full_refund':
-            self.filter_refund = 'refund'
+            self.refund_method = 'refund'
 
     def compute_refund(self, mode='refund'):
         xml_id = False
         created_inv = []
         for wizard in self:
             if wizard.refund_type == 'full_refund':
-                return super(AccountInvoiceRefund, self).compute_refund(
+                return super(AccountMoveReversal, self).reverse_moves(
                     mode=mode)
 
             inv_obj = self.env['account.invoice']
@@ -97,7 +97,7 @@ class AccountInvoiceRefund(models.TransientModel):
                         'this invoice.'))
 
                 date = wizard.date or False
-                description = wizard.description or inv.name
+                description = wizard.reason or inv.name
                 refund_type = wizard.refund_type
                 vendor_ref = wizard.refund_reference
                 amount = wizard.amount if refund_type == 'fixed_amount' \
@@ -107,9 +107,9 @@ class AccountInvoiceRefund(models.TransientModel):
                     amount=amount,
                     account=wizard.account_id.id,
                     vendor_ref=vendor_ref).refund(
-                    wizard.date_invoice, date, description, inv.journal_id.id)
+                    wizard.date, date, description, inv.journal_id.id)
 
-                if wizard.refund_method == 'apply_refund':
+                if wizard.refund_type == 'apply_refund':
                     refund.action_invoice_open()
                     aml_id = refund._get_aml_for_register_payment()
                     inv.assign_outstanding_credit(aml_id.id)
@@ -143,8 +143,8 @@ class AccountInvoiceRefund(models.TransientModel):
                 debit_map = {'out_debit': 'out_invoice',
                              'in_debit': 'in_invoice'}
 
-                date = wizard.date or wizard.date_invoice
-                description = wizard.description or inv.name
+                date = wizard.date or wizard.date
+                reason = wizard.reason or inv.name
                 refund_type = wizard.refund_type
                 vendor_ref = wizard.refund_reference
                 amount = wizard.amount if refund_type == 'fixed_amount' \
@@ -155,16 +155,16 @@ class AccountInvoiceRefund(models.TransientModel):
 
                 values = {
                     'partner_id': inv.partner_id.id,
-                    'reference': vendor_ref,
-                    'date_invoice': date,
+                    'ref': vendor_ref,
+                    'invoice_date': date,
                     'income_type': inv.income_type,
                     'expense_type': inv.expense_type,
                     'is_debit_note': True,
-                    'origin_out': inv.reference,
+                    'origin_out': inv.ref,
                     'type': debit_map[context.get('debit_note')],
                     'fiscal_type_id': fiscal_type.id,
                     'invoice_line_ids': [
-                        (0, 0, {'name': description,
+                        (0, 0, {'name': reason,
                                 'account_id': wizard.account_id.id,
                                 'price_unit': amount})],
                     'journal_id': inv.journal_id.id,
@@ -175,9 +175,9 @@ class AccountInvoiceRefund(models.TransientModel):
                                 'in_invoice': ('vendor debit note')}
                 message = _("This %s has been created from: <a href=# data-oe-"
                             "model=account.invoice data-oe-id=%d>%s</a>"
-                            ) % (invoice_type[inv.type], inv.id, inv.number)
+                            ) % (invoice_type[inv.type], inv.id, inv.name)
                 debit_note.message_post(body=message)
-                if wizard.refund_method == 'apply_refund':
+                if wizard.refund_type == 'apply_refund':
                     debit_note.action_invoice_open()
 
                 action_map = {'out_invoice': 'action_invoice_out_debit_note',

@@ -47,7 +47,7 @@ class AccountInvoiceCommon(CommonSetup):
         self.journal_obj = self.env['account.journal']
         self.partner_obj = self.env['res.partner']
         self.fiscal_type_obj = self.env['account.fiscal.type']
-        self.invoice_refund_obj = self.env['account.invoice.refund']
+        self.invoice_refund_obj = self.env['account.move.reversal']
 
         self.sale_journal = False
         self.purchase_journal = False

@@ -7,8 +7,8 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 
-class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+class AccountMove(models.Model):
+    _inherit = 'account.move'
 
     fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
@@ -84,7 +84,7 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.depends('journal_id', 'journal_id.l10n_do_fiscal_journal', 'state',
-                 'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
+                 'fiscal_type_id', 'date', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         for inv in self.filtered(lambda i: i.state == 'draft'):
             if inv.is_debit_note:
@@ -111,8 +111,8 @@ class AccountInvoice(models.Model):
                     ('fiscal_type_id', '=', fiscal_type.id),
                     ('state', '=', 'active'),
                 ]
-                if inv.date_invoice:
-                    domain.append(('expiration_date', '>=', inv.date_invoice))
+                if inv.invoice_date:
+                    domain.append(('expiration_date', '>=', inv.invoice_date))
                 else:
                     today = fields.Date.context_today(inv)
                     domain.append(('expiration_date', '>=', today))
@@ -239,7 +239,7 @@ class AccountInvoice(models.Model):
             self.fiscal_type_id = False
             self.fiscal_sequence_id = False
 
-        return super(AccountInvoice, self)._onchange_journal_id()
+        return super(AccountMove, self)._onchange_journal_id()
 
     @api.onchange('fiscal_type_id')
     def _onchange_fiscal_type(self):
@@ -262,7 +262,7 @@ class AccountInvoice(models.Model):
                 self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
                 self.expense_type = self.partner_id.expense_type
 
-        return super(AccountInvoice, self)._onchange_partner_id()
+        return super(AccountMove, self)._onchange_partner_id()
 
     def action_invoice_open(self):
         for inv in self:
@@ -315,12 +315,12 @@ class AccountInvoice(models.Model):
                             u"the customer should have RNC or Céd"
                             u"for make invoice"))
 
-                if not inv.reference and inv.fiscal_type_id.internal_generate:
-                    inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
+                if not inv.ref and inv.fiscal_type_id.internal_generate:
+                    inv.ref = inv.fiscal_sequence_id.get_fiscal_number()
                     inv.ncf_expiration_date = \
                         inv.fiscal_sequence_id.expiration_date
 
-        return super(AccountInvoice, self).action_invoice_open()
+        return super(AccountMove, self).action_invoice_open()
 
     def invoice_print(self):
 
@@ -332,10 +332,10 @@ class AccountInvoice(models.Model):
                 'l10n_do_accounting.l10n_do_account_invoice')
             return report_id.report_action(self)
 
-        return super(AccountInvoice, self).invoice_print()
+        return super(AccountMove, self).invoice_print()
 
     @api.model
-    def _prepare_refund(self, invoice, date_invoice=None, date=None,
+    def _prepare_refund(self, invoice, date=None,
                         description=None, journal_id=None):
         context = dict(self._context or {})
         refund_type = context.get('refund_type')
@@ -343,9 +343,8 @@ class AccountInvoice(models.Model):
         account = context.get('account')
         vendor_ref = context.get('vendor_ref')
 
-        res = super(AccountInvoice, self)._prepare_refund(
-            invoice, date_invoice=date_invoice, date=date,
-            description=description, journal_id=journal_id)
+        res = super(AccountMove, self)._prepare_refund(
+            invoice, date=date, description=description, journal_id=journal_id)
 
         if refund_type and refund_type != 'full_refund':
             res['tax_line_ids'] = False
@@ -365,8 +364,8 @@ class AccountInvoice(models.Model):
         if not fiscal_type_id:
             raise ValidationError(_('No Fiscal Type found for Credit Note'))
 
-        res.update({'reference': vendor_ref,
-                    'origin_out': self.reference,
+        res.update({'ref': vendor_ref,
+                    'origin_out': self.ref,
                     'income_type': self.income_type,
                     'expense_type': self.expense_type,
                     'fiscal_type_id': fiscal_type_id.id,
@@ -374,8 +373,7 @@ class AccountInvoice(models.Model):
 
         return res
 
-    def refund(self, date_invoice=None, date=None, description=None,
-               journal_id=None):
+    def refund(self, date=None, description=None, journal_id=None):
 
         context = dict(self._context or {})
         refund_type = context.get('refund_type')
@@ -384,9 +382,8 @@ class AccountInvoice(models.Model):
         vendor_ref = context.get('vendor_ref')
 
         if not refund_type:
-            return super(AccountInvoice, self).refund(
-                date_invoice=date_invoice, date=date, description=description,
-                journal_id=journal_id)
+            return super(AccountMove, self).refund(
+                date=date, description=description, journal_id=journal_id)
 
         new_invoices = self.browse()
         for invoice in self:
@@ -394,20 +391,20 @@ class AccountInvoice(models.Model):
             values = self.with_context(
                 refund_type=refund_type, amount=amount,
                 account=account, vendor_ref=vendor_ref)._prepare_refund(
-                invoice, date_invoice=date_invoice, date=date,
-                description=description, journal_id=journal_id)
+                invoice, date=date, description=description,
+                journal_id=journal_id)
             refund_invoice = self.create(values)
             if invoice.type == 'out_invoice':
                 message = _(
                     "This customer invoice credit note has been created from: "
                     "<a href=# data-oe-model=account.invoice data-oe-id=%d>%s"
-                    "</a><br>Reason: %s") % (invoice.id, invoice.number,
+                    "</a><br>Reason: %s") % (invoice.id, invoice.name,
                                              description)
             else:
                 message = _(
                     "This vendor bill credit note has been created from: <a "
                     "href=# data-oe-model=account.invoice data-oe-id=%d>%s</a>"
-                    "<br>Reason: %s") % (invoice.id, invoice.number,
+                    "<br>Reason: %s") % (invoice.id, invoice.name,
                                          description)
 
             refund_invoice.message_post(body=message)

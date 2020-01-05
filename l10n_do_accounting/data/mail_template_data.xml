@@ -4,10 +4,10 @@
     <!--Email template -->
     <record id="l10n_do_email_template_edi_invoice" model="mail.template">
         <field name="name">Fiscal Invoice: Send by email</field>
-        <field name="model_id" ref="account.model_account_invoice"/>
+        <field name="model_id" ref="account.model_account_move"/>
         <field name="email_from">${object.user_id.email_formatted |safe}</field>
         <field name="partner_to">${object.partner_id.id}</field>
-        <field name="subject">${object.company_id.name} Invoice (NCF ${object.reference or 'n/a'})</field>
+        <field name="subject">${object.company_id.name} Invoice (NCF ${object.ref or 'n/a'})</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">
 <p style="margin: 0px; padding: 0px; font-size: 13px;">
@@ -18,14 +18,14 @@
     <br /><br />
     Here is your
     % if object.journal_id.l10n_do_fiscal_journal:
-        invoice NCF <strong>${object.reference}</strong>
+        invoice NCF <strong>${object.ref}</strong>
     % elif not object.journal_id.l10n_do_fiscal_journal:
-        invoice <strong>${object.number}</strong>
+        invoice <strong>${object.name}</strong>
     % else:
         invoice
     %endif
-    % if object.origin:
-        (with reference: ${object.origin})
+    % if object.invoice_origin:
+        (with reference: ${object.invoice_origin})
     % endif
     amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>
     from ${object.company_id.name}.
@@ -40,7 +40,7 @@
 </div>
         </field>
         <field name="report_template" ref="l10n_do_account_invoice"/>
-        <field name="report_name">Invoice_${(object.number or '').replace('/','_')}${object.state == 'draft' and '_draft' or ''}</field>
+        <field name="report_name">Invoice_${(object.name or '').replace('/','_')}${object.state == 'draft' and '_draft' or ''}</field>
         <field name="lang">${object.partner_id.lang}</field>
         <field name="user_signature" eval="False"/>
         <field name="auto_delete" eval="True"/>

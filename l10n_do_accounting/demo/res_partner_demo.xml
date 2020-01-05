@@ -14,8 +14,7 @@
         <field name="email">info@marcos.do</field>
         <field name="phone">809-540-4253</field>
         <field name="website">https://marcos.do/</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_1.png"/>
-        <field name="supplier" eval="1"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_1.png"/>
         <field name="expense_type">02</field>
     </record>
 
@@ -32,8 +31,7 @@
         <field name="email">info@iterativo.do</field>
         <field name="phone">829-956-5191</field>
         <field name="website">https://iterativo.do/</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_2.png"/>
-        <field name="supplier" eval="1"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_2.png"/>
         <field name="expense_type">02</field>
     </record>
 
@@ -48,8 +46,7 @@
         <field name="email">vsantos@gruponeotec.com</field>
         <field name="phone">809-534-0970</field>
         <field name="website">http://gruponeotec.com/</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_3.png"/>
-        <field name="supplier" eval="1"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_3.png"/>
         <field name="expense_type">02</field>
         <field name="purchase_fiscal_type_id"
                ref="l10n_do_accounting.fiscal_type_fiscal_purchase"/>
@@ -66,8 +63,7 @@
         <field name="email">info@indexa.do</field>
         <field name="phone">829-939-3231</field>
         <field name="website">https://indexa.do/</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_4.png"/>
-        <field name="supplier" eval="1"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_4.png"/>
         <field name="expense_type">02</field>
     </record>
 
@@ -81,7 +77,6 @@
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_consumo"/>
         <field name="email">joselopezg8@gmail.com</field>
         <field name="phone">829-939-3231</field>
-        <field name="supplier" eval="1"/>
         <field name="expense_type">02</field>
         <field name="purchase_fiscal_type_id"
                ref="l10n_do_accounting.fiscal_type_informal"/>
@@ -106,7 +101,7 @@
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_gubernamental"/>
         <field name="email">info@micm.gob.do</field>
         <field name="phone">809-567-7192</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_7.png"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_7.png"/>
     </record>
 
     <record id="res_partner_demo_8" model="res.partner">
@@ -116,7 +111,7 @@
         <field name="vat">401505657</field>
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_gubernamental"/>
         <field name="phone">809-731-1100</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_8.png"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_8.png"/>
     </record>
 
     <!-- For REGIMEN ESPECIAL NCF's testing -->
@@ -128,7 +123,7 @@
         <field name="vat">101168481</field>
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_especial"/>
         <field name="phone">809-549-2031</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_9.png"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_9.png"/>
     </record>
 
     <record id="res_partner_demo_10" model="res.partner">
@@ -138,7 +133,7 @@
         <field name="vat">401051842</field>
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_especial"/>
         <field name="phone">800-248-6437</field>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_10.png"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_10.png"/>
     </record>
 
     <!-- For EXPORTACIONES NCF's testing -->
@@ -148,7 +143,7 @@
         <field eval="0" name="is_company"/>
         <field name="country_id" ref="base.us"/>
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_exportacion"/>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_11.png"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_11.png"/>
     </record>
 
     <record id="res_partner_demo_12" model="res.partner">
@@ -156,7 +151,7 @@
         <field eval="0" name="is_company"/>
         <field name="country_id" ref="base.br"/>
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_exportacion"/>
-        <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_12.png"/>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_12.png"/>
     </record>
 
 </odoo>
