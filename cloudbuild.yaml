@@ -89,4 +89,4 @@ steps:
 images: ['gcr.io/$PROJECT_ID/$REPO_NAME:${BRANCH_NAME}-${SHORT_SHA}']
 
 # Allow Odoo to build when there's no cache
-timeout: "900s"
+timeout: "1300s"

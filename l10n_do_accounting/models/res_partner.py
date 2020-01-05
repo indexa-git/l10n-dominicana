@@ -8,12 +8,12 @@ class Partner(models.Model):
     sale_fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
         string="Sale Fiscal Type",
-        domain=[('type', '=', 'sale')],
+        domain=[('type', '=', 'out_invoice')],
     )
     purchase_fiscal_type_id = fields.Many2one(
         'account.fiscal.type',
         string="Purchase Fiscal Type",
-        domain=[('type', '=', 'purchase')],
+        domain=[('type', '=', 'in_invoice')],
     )
     expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
