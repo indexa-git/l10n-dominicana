@@ -70,8 +70,8 @@ class AccountInvoice(models.Model):
     is_l10n_do_fiscal_invoice = fields.Boolean(
         related='journal_id.l10n_do_fiscal_journal',
     )
-    internal_generate = fields.Boolean(
-        related='fiscal_type_id.internal_generate',
+    assigned_sequence = fields.Boolean(
+        related='fiscal_type_id.assigned_sequence',
     )
     fiscal_sequence_status = fields.Selection([
         ('no_fiscal', 'No fiscal'),
@@ -105,9 +105,9 @@ class AccountInvoice(models.Model):
                 fiscal_type = inv.fiscal_type_id
 
             if inv.is_l10n_do_fiscal_invoice and fiscal_type and \
-                    fiscal_type.internal_generate:
+                    fiscal_type.assigned_sequence:
 
-                inv.internal_generate = fiscal_type.internal_generate
+                inv.assigned_sequence = fiscal_type.assigned_sequence
                 inv.fiscal_position_id = fiscal_type.fiscal_position_id
 
                 domain = [
@@ -302,7 +302,7 @@ class AccountInvoice(models.Model):
                 inv._compute_fiscal_sequence()
 
                 if not inv.fiscal_sequence_id and \
-                        inv.fiscal_type_id.internal_generate:
+                        inv.fiscal_type_id.assigned_sequence:
                     raise ValidationError(
                         _('There is not active Fiscal Sequence for this type'
                           'of document.'))
@@ -338,7 +338,7 @@ class AccountInvoice(models.Model):
                             u"the customer should have RNC or Céd"
                             u"for make invoice"))
 
-                if not inv.reference and inv.fiscal_type_id.internal_generate:
+                if not inv.reference and inv.fiscal_type_id.assigned_sequence:
                     inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
                     inv.ncf_expiration_date = \
                         inv.fiscal_sequence_id.expiration_date

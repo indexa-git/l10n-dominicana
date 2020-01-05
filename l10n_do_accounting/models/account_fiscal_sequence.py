@@ -329,7 +329,7 @@ class AccountFiscalSequence(models.Model):
 
     def get_fiscal_number(self):
 
-        if not self.fiscal_type_id.internal_generate:
+        if not self.fiscal_type_id.assigned_sequence:
             return False
 
         if self.sequence_remaining > 0:
@@ -390,7 +390,7 @@ class AccountFiscalType(models.Model):
         "account.journal",
         string="Journal",
     )
-    internal_generate = fields.Boolean(
+    assigned_sequence = fields.Boolean(
         default=True,
     )
     requires_document = fields.Boolean(
