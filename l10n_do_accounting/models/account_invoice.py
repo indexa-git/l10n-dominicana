@@ -319,7 +319,7 @@ class AccountInvoice(models.Model):
                     if not inv.partner_id.expense_type:
                         inv.partner_id.expense_type = inv.expense_type
 
-                if inv.fiscal_type_id.required_document \
+                if inv.fiscal_type_id.requires_document \
                         and not inv.partner_id.vat:
                     raise UserError(
                         _("Partner [{}] {} doesn't have RNC/Céd, "

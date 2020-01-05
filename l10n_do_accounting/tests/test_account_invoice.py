@@ -234,9 +234,9 @@ class AccountInvoiceTests(AccountInvoiceCommon):
                          self.fiscal_type_informal)
         self.assertEqual(partner_id.expense_type, '02')
 
-    def test_011_required_document_error(self):
+    def test_011_requires_document_error(self):
         """
-        Check when invoice validate, if fiscal_type_id.required_document and
+        Check when invoice validate, if fiscal_type_id.requires_document and
         not partner_id.vat, raise UserError
         """
 

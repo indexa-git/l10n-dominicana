@@ -7,7 +7,7 @@
         <field name="type">out_invoice</field>
         <field name="sequence">1</field>
         <field name="padding">8</field>
-        <field name="required_document" eval="True"/>
+        <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_consumo" model="account.fiscal.type">
         <field name="name">Factura de consumo</field>
@@ -28,7 +28,7 @@
         <field name="prefix">B14</field>
         <field name="type">out_invoice</field>
         <field name="sequence">4</field>
-        <field name="required_document" eval="True"/>
+        <field name="requires_document" eval="True"/>
         <field name="padding">8</field>
     </record>
     <record id="fiscal_type_gubernamental" model="account.fiscal.type">
@@ -36,7 +36,7 @@
         <field name="prefix">B15</field>
         <field name="type">out_invoice</field>
         <field name="sequence">5</field>
-        <field name="required_document" eval="True"/>
+        <field name="requires_document" eval="True"/>
         <field name="padding">8</field>
     </record>
     <record id="fiscal_type_exportacion" model="account.fiscal.type">
@@ -69,7 +69,7 @@
         <field name="sequence">9</field>
         <field name="padding">8</field>
         <field name="internal_generate" eval="False"/>
-        <field name="required_document" eval="True"/>
+        <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_purchase_credit_note" model="account.fiscal.type">
         <field name="name">Nota de Crédito Compras Fiscales</field>
@@ -78,7 +78,7 @@
         <field name="sequence">10</field>
         <field name="padding">8</field>
         <field name="internal_generate" eval="False"/>
-        <field name="required_document" eval="True"/>
+        <field name="requires_document" eval="True"/>
     </record>
 
     <!--purchase-->
@@ -89,7 +89,7 @@
         <field name="sequence">11</field>
         <field name="padding">8</field>
         <field name="internal_generate" eval="False"/>
-        <field name="required_document" eval="True"/>
+        <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_informal" model="account.fiscal.type">
         <field name="name">Proveedor Informal</field>
@@ -97,7 +97,7 @@
         <field name="type">in_invoice</field>
         <field name="sequence">12</field>
         <field name="padding">8</field>
-        <field name="required_document" eval="True"/>
+        <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_minor" model="account.fiscal.type">
         <field name="name">Gastos Menores</field>

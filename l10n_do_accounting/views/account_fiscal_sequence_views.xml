@@ -162,7 +162,7 @@
                         <field name="journal_type" invisible="1"/>
                         <field name="padding">8</field>
                         <field name="internal_generate"/>
-                        <field name="required_document"/>
+                        <field name="requires_document"/>
                     </group>
                     <group>
                         <field name="active"/>

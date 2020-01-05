@@ -393,8 +393,8 @@ class AccountFiscalType(models.Model):
     internal_generate = fields.Boolean(
         default=True,
     )
-    required_document = fields.Boolean(
-        string="Required document",
+    requires_document = fields.Boolean(
+        string="Requires a document?",
     )
 
     _sql_constraints = [

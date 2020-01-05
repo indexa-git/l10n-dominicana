@@ -1173,9 +1173,9 @@ msgid "Remaining warning"
 msgstr "Advertencia restante"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__required_document
-msgid "Required document"
-msgstr "Documento requerido"
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__requires_document
+msgid "Requires a document?"
+msgstr "Requiere un Documento?"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_sequence__activity_user_id
