@@ -191,7 +191,6 @@
     <record id="action_invoice_out_debit_note" model="ir.actions.act_window">
         <field name="name">Debit Notes</field>
         <field name="res_model">account.invoice</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
         <field name="view_ids"
                    eval="[(5, 0, 0),
@@ -218,7 +217,6 @@
     <record id="action_vendor_in_debit_note" model="ir.actions.act_window">
         <field name="name">Vendor Debit Notes</field>
         <field name="res_model">account.invoice</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
         <field eval="False" name="view_id"/>
         <field name="domain">[('type','=','in_invoice'), ('is_debit_note', '=', True)]</field>

@@ -135,7 +135,6 @@
         <field name="name">Fiscal Sequences</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">account.fiscal.sequence</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="account_fiscal_sequence_search"/>
         <field name="context">{'search_default_active': 1}</field>
@@ -192,7 +191,6 @@
         <field name="name">Fiscal Types</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">account.fiscal.type</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>
 

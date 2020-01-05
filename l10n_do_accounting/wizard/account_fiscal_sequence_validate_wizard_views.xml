@@ -22,7 +22,6 @@
 
     <record id="account_fiscal_sequence_validate_wizard_action" model="ir.actions.act_window">
         <field name="name">Fiscal Sequence</field>
-        <field name="view_type">form</field>
         <field name="target">new</field>
         <field name="view_mode">form</field>
         <field name="res_model">account.fiscal.sequence.validate_wizard</field>
