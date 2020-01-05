@@ -84,8 +84,8 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('journal_id', 'is_l10n_do_fiscal_invoice', 'state',
-                 'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
+    @api.depends('journal_id', 'state', 'fiscal_type_id', 
+                 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         """ Compute the sequence and fiscal position to be used depending on
             the fiscal type that has been set on the invoice (or partner).
@@ -139,7 +139,7 @@ class AccountInvoice(models.Model):
     @api.multi
     @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
                  'fiscal_sequence_id.remaining_percentage', 'state',
-                 'is_l10n_do_fiscal_invoice')
+                 'journal_id')
     def _compute_fiscal_sequence_status(self):
         """ Identify the percentage fiscal sequences that has been used so far.
             With this result the user can be warned if it's above the threshold
