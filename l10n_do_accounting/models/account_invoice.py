@@ -257,7 +257,7 @@ class AccountInvoice(models.Model):
 
     @api.onchange('fiscal_type_id')
     def _onchange_fiscal_type(self):
-        """ Set the Journal to a fiscal journal if a Fiscal Type is set to the 
+        """ Set the Journal to a fiscal journal if a Fiscal Type is set to the
             invoice, making it a a fiscal invoice for l10n_do.
         """
         if self.is_l10n_do_fiscal_invoice and self.fiscal_type_id:
@@ -268,7 +268,7 @@ class AccountInvoice(models.Model):
 
     @api.onchange('partner_id', 'company_id')
     def _onchange_partner_id(self):
-        """ Set the Journal to a fiscal journal if a Fiscal Type is set to the 
+        """ Set the Journal to a fiscal journal if a Fiscal Type is set to the
             invoice, making it a a fiscal invoice for l10n_do.
         """
         if self.is_l10n_do_fiscal_invoice:
