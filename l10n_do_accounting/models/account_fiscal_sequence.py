@@ -406,5 +406,5 @@ class AccountFiscalType(models.Model):
     @api.depends('type')
     def _get_journal_type(self):
         for fiscal_type in self:
-            fiscal_type.journal_type = 'sale' if fiscal_type.type[
-                                                 :3] == 'out' else 'purchase'
+            fiscal_type.journal_type = 'sale' if \
+                fiscal_type.type[:3] == 'out' else 'purchase'
