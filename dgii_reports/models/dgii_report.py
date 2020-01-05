@@ -545,13 +545,13 @@ class DgiiReport(models.Model):
             'others': 0
         }
 
-    def _convert_to_user_currency(self, base_currency, amount):
+    def _convert_to_user_currency(self, base_currency, amount, date):
         context = dict(self._context or {})
         user_currency_id = self.env.user.company_id.currency_id
         base_currency_id = base_currency
         ctx = context.copy()
-        return base_currency_id.with_context(ctx).compute(
-            amount, user_currency_id)
+        return base_currency_id.with_context(ctx)._convert(
+            amount, user_currency_id, self.company_id, date)
 
     @staticmethod
     def include_payment(invoice_id, payment_id):
@@ -576,19 +576,25 @@ class DgiiReport(models.Model):
                         if self.include_payment(invoice_id, payment_id):
                             payments_dict[
                                 key] += self._convert_to_user_currency(
-                                    invoice_id.currency_id, payment['amount'])
+                                    invoice_id.currency_id, payment['amount'],
+                                invoice_id.date_invoice
+                            )
                         else:
                             payments_dict[
                                 'credit'] += self._convert_to_user_currency(
-                                    invoice_id.currency_id, payment['amount'])
+                                    invoice_id.currency_id, payment['amount'],
+                                invoice_id.date_invoice
+                            )
                 else:
                     # Do not consider credit notes as swap payments
                     continue
             payments_dict['credit'] += self._convert_to_user_currency(
-                invoice_id.currency_id, invoice_id.residual)
+                invoice_id.currency_id, invoice_id.residual,
+                invoice_id.date_invoice)
         else:
             payments_dict['credit'] += self._convert_to_user_currency(
-                invoice_id.currency_id, invoice_id.residual)
+                invoice_id.currency_id, invoice_id.residual,
+                invoice_id.date_invoice)
 
         return payments_dict
 
