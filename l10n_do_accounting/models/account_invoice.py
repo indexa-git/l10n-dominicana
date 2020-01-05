@@ -84,7 +84,7 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('journal_id', 'state', 'fiscal_type_id', 
+    @api.depends('journal_id', 'state', 'fiscal_type_id',
                  'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         """ Compute the sequence and fiscal position to be used depending on

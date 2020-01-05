@@ -46,7 +46,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             'fiscal_position_id',
             'requires_document',
             'prefix',
-            'internal_generate',
+            'assigned_sequence',
             'type',
         ],
         domain: function () {

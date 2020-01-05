@@ -68,7 +68,7 @@
         <field name="type">in_debit</field>
         <field name="sequence">9</field>
         <field name="padding">8</field>
-        <field name="internal_generate" eval="False"/>
+        <field name="assigned_sequence" eval="False"/>
         <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_purchase_credit_note" model="account.fiscal.type">
@@ -77,7 +77,7 @@
         <field name="type">in_refund</field>
         <field name="sequence">10</field>
         <field name="padding">8</field>
-        <field name="internal_generate" eval="False"/>
+        <field name="assigned_sequence" eval="False"/>
         <field name="requires_document" eval="True"/>
     </record>
 
@@ -88,7 +88,7 @@
         <field name="type">in_invoice</field>
         <field name="sequence">11</field>
         <field name="padding">8</field>
-        <field name="internal_generate" eval="False"/>
+        <field name="assigned_sequence" eval="False"/>
         <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_informal" model="account.fiscal.type">
@@ -118,7 +118,7 @@
         <field name="type">in_invoice</field>
         <field name="sequence">15</field>
         <field name="padding">8</field>
-        <field name="internal_generate" eval="False"/>
+        <field name="assigned_sequence" eval="False"/>
     </record>
 
 </odoo>

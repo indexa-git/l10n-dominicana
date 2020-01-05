@@ -845,10 +845,10 @@ msgid "Income Type"
 msgstr "Tipo de Ingreso"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__internal_generate
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__internal_generate
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__assigned_sequence
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__assigned_sequence
 msgid "Internal Generate"
-msgstr "Generar de Forma interna"
+msgstr "Secuencia Asignada"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_sequence__sequence_id
