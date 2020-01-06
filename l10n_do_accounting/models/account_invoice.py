@@ -263,7 +263,7 @@ class AccountInvoice(models.Model):
                 ]):
                     raise UserError(_("You must withhold 100% of ITBIS"))
 
-    @api.onchange('journal_id')
+    @api.onchange('journal_id', 'partner_id')
     def _onchange_journal_id(self):
         """ Set the Fiscal Type and the Fiscal Sequence to False, if the
             invoice is not a fiscal invoice for l10n_do.
@@ -271,6 +271,21 @@ class AccountInvoice(models.Model):
         if not self.is_l10n_do_fiscal_invoice:
             self.fiscal_type_id = False
             self.fiscal_sequence_id = False
+
+        elif self.journal_id.type == 'purchase':
+            if ncf_dict.get(self.fiscal_type_id.prefix) == 'minor':
+                self.partner_id = self.company_id.partner_id.id
+
+            elif self.partner_id.id == self.company_id.partner_id.id:
+                fiscal_type = self.env['account.fiscal.type'].search([
+                    ('type', '=', self.type),
+                    ('prefix', '=', 'B13')
+                ], limit=1)
+                if not fiscal_type:
+                    raise ValidationError(
+                        _("A fiscal type for Minor Expenses does not existe, "
+                          "you have to create one."))
+                self.fiscal_type_id = fiscal_type
 
         return super(AccountInvoice, self)._onchange_journal_id()
 
@@ -291,13 +306,16 @@ class AccountInvoice(models.Model):
             invoice, making it a a fiscal invoice for l10n_do.
         """
         if self.is_l10n_do_fiscal_invoice:
-            if self.type == 'out_invoice':
+            if self.partner_id and self.type == 'out_invoice':
                 if not self.fiscal_type_id:
                     self.fiscal_type_id = self.partner_id.sale_fiscal_type_id
-
-            if self.type == 'in_invoice':
+                if not self.partner_id.customer:
+                    self.partner_id.customer = True
+            elif self.partner_id and self.type == 'in_invoice':
                 self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
                 self.expense_type = self.partner_id.expense_type
+                if not self.partner_id.supplier:
+                    self.partner_id.supplier = True
 
         return super(AccountInvoice, self)._onchange_partner_id()
 
