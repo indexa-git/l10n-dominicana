@@ -71,7 +71,7 @@ steps:
 # Run dockerdooo with modules inside the repo and run tests
 - name: 'gcr.io/$PROJECT_ID/$REPO_NAME:${BRANCH_NAME}-${SHORT_SHA}'
   dir: /
-  args: ["odoo", "-d ${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}", "--test-tags", "${_EXTRA_MODULES}"]
+  args: ["odoo", "-d ${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}"]
   env:
     - 'DB_PORT_5432_TCP_ADDR=${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}'
     - 'DB_ENV_POSTGRES_USER=odoo'
