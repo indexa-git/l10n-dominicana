@@ -88,7 +88,9 @@ class AccountInvoice(models.Model):
         store=True,
     )
     is_l10n_do_fiscal_invoice = fields.Boolean(
-        related='journal_id.l10n_do_fiscal_journal',
+        compute="_compute_is_l10n_do_fiscal_invoice",
+        store=True,
+        string="Is Fiscal Invoice",
     )
     assigned_sequence = fields.Boolean(
         related='fiscal_type_id.assigned_sequence',
@@ -104,8 +106,15 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('journal_id', 'state', 'fiscal_type_id',
-                 'date_invoice', 'type', 'is_debit_note')
+    @api.depends('state', 'journal_id', 'journal_id.l10n_do_fiscal_journal')
+    def _compute_is_l10n_do_fiscal_invoice(self):
+        for inv in self.filtered(lambda i: i.state == 'draft'):
+            inv.is_l10n_do_fiscal_invoice = \
+                inv.journal_id.l10n_do_fiscal_journal
+
+    @api.multi
+    @api.depends('journal_id', 'is_l10n_do_fiscal_invoice', 'state',
+                 'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         """ Compute the sequence and fiscal position to be used depending on
             the fiscal type that has been set on the invoice (or partner).

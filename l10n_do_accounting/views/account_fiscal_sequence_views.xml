@@ -167,7 +167,7 @@
                     <group>
                         <field name="active"/>
                         <field name="journal_id" options="{'no_create': True}"
-                               domain="[('type', '=', journal_type)]"/>
+                               domain="[('type', '=', journal_type), ('l10n_do_fiscal_journal', '=', True)]"/>
                         <field name="fiscal_position_id"/>
                     </group>
                 </group>
