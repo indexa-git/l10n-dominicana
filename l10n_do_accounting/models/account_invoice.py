@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 # TODO move this import to the functions using it, instead of doing it globally
 try:
-    from stdnum.do import ncf as ncf_validation, rnc
+    from stdnum.do import ncf as ncf_validation
 except (ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -369,7 +369,7 @@ class AccountInvoice(models.Model):
                             inv.partner_id.name,
                             inv.fiscal_type_id.name))
 
-                if inv.type in ("out_invoice", "out_refund"):
+                elif inv.type in ("out_invoice", "out_refund"):
                     if (inv.amount_untaxed_signed >= 250000 and
                             inv.fiscal_type_id.prefix != 'B12' and
                             not inv.partner_id.vat):
@@ -393,12 +393,14 @@ class AccountInvoice(models.Model):
                         "You cannot register Consumo NCF (02) for purchases")
                         .format(ncf))
 
-                elif not inv.partner_id.vat:
-                    raise ValidationError(_(
-                        u"Supplier without RNC/Céd\n\n"
-                        u"This supplier *{}* does not have a RNC or cédula "
-                        u"which is required for fiscal purchases")
-                        .format(inv.partner_id.name))
+                elif inv.fiscal_type_id.requires_document \
+                        and not inv.partner_id.vat:
+                    raise ValidationError(
+                        _("Partner [{}] {} doesn't have RNC/Céd, "
+                          "is required for NCF type {}").format(
+                            inv.partner_id.id,
+                            inv.partner_id.name,
+                            inv.fiscal_type_id.name))
 
                 elif not ncf_validation.is_valid(ncf):
                     raise UserError(_(
