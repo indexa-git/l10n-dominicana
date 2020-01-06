@@ -6,6 +6,11 @@ from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
+# TODO move this import to the functions using it, instead of doing it globally
+try:
+    from stdnum.do import ncf as ncf_validation, rnc
+except (ImportError, IOError) as err:
+    _logger.debug(err)
 
 ncf_dict = {
     "B01": "fiscal",
@@ -287,6 +292,28 @@ class AccountInvoice(models.Model):
 
         return super(AccountInvoice, self)._onchange_partner_id()
 
+    @api.onchange("reference", "origin_out")
+    def _onchange_ncf(self):
+        if self.is_l10n_do_fiscal_invoice:
+            if ncf_dict.get(self.fiscal_type_id.prefix) in (
+                    'normal', 'informal', 'minor'
+                    ):
+                self.validate_fiscal_purchase()
+
+            if self.origin_out and (self.type == 'out_refund' or
+                                    self.type == 'in_refund'):
+                if ncf_dict.get(self.fiscal_type_id.prefix) in (
+                        'normal', 'informal','minor'
+                        ) or self.journal_id.ncf_control:
+                    ncf = self.origin_out
+                    if ncf[-10:-8] != '04' and \
+                            not ncf_validation.is_valid(ncf):
+                        raise UserError(_(
+                            "NCF wrongly typed\n\n"
+                            "This NCF *{}* does not have the proper structure "
+                            "please validate if you have typed it correctly.")
+                            .format(ncf))
+
     @api.multi
     def action_invoice_open(self):
         """ Before an invoice is changed to the 'open' state, validate that all
@@ -344,6 +371,52 @@ class AccountInvoice(models.Model):
                             u"for make invoice"))
 
         return super(AccountInvoice, self).action_invoice_open()
+
+    @api.multi
+    def validate_fiscal_purchase(self):
+        for inv in self.filtered(
+                lambda i: i.type == 'in_invoice' and i.state == 'draft'):
+            ncf = inv.reference if inv.reference else None
+            if ncf and ncf_dict.get(inv.fiscal_type_id.prefix) == 'fiscal':
+                if ncf[-10:-8] == '02':
+                    raise ValidationError(_(
+                        "NCF *{}* does not correspond with the fiscal type\n\n"
+                        "You cannot register Consumo NCF (02) for purchases")
+                        .format(ncf))
+
+                elif not inv.partner_id.vat:
+                    raise ValidationError(_(
+                        u"Supplier without RNC/Céd\n\n"
+                        u"This supplier *{}* does not have a RNC or cédula "
+                        u"which is required for fiscal purchases")
+                        .format(inv.partner_id.name))
+
+                elif not ncf_validation.is_valid(ncf):
+                    raise UserError(_(
+                        "NCF wrongly typed\n\n"
+                        "This NCF *{}* does not have the proper structure, "
+                        "please validate if you have typed it correctly.")
+                        .format(ncf))
+
+                ncf_in_invoice = inv.search_count([
+                    ('id', '!=', inv.id), ('company_id', '=', inv.company_id.id),
+                    ('partner_id', '=', inv.partner_id.id),
+                    ('reference', '=', ncf),
+                    ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
+                    ('type', 'in', ('in_invoice', 'in_refund'))
+                ]) if inv.id else inv.search_count(
+                    [('partner_id', '=', inv.partner_id.id),
+                    ('company_id', '=', inv.company_id.id),
+                    ('reference', '=', ncf),
+                    ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
+                    ('type', 'in', ('in_invoice', 'in_refund'))])
+
+                if ncf_in_invoice:
+                    raise ValidationError(_(
+                        "NCF already used in another invoice\n\n"
+                        "The NCF *{}* has already been registered in another "
+                        "invoice with the same supplier. Look for it in "
+                        "invoices with canceled or draft states").format(ncf))
 
     @api.multi
     def invoice_validate(self):
