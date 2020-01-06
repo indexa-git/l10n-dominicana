@@ -69,6 +69,7 @@
                        attrs="{
                        'invisible': [('type', '!=', 'out_refund'), ('is_debit_note', '=', False)],
                        'readonly': [('state', '!=', 'draft')]}"/>
+                <field name="name"/>
             </xpath>
 
             <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='other_info']/group[1]/group[1]/field[@name='reference']" position="replace"/>
@@ -135,15 +136,15 @@
                 <attribute name="string">NCF</attribute>
                 <attribute name="attrs">{
                     'invisible': ['|', ('is_l10n_do_fiscal_invoice', '=', False), ('fiscal_type_id', '=', False)],
-                    'required': [('is_l10n_do_fiscal_invoice', '=', True), ('internal_generate', '=', False)],
-                    'readonly': ['|',('state', '!=', 'draft'),('internal_generate','=', True)]}
+                    'required': [('is_l10n_do_fiscal_invoice', '=', True), ('assigned_sequence', '=', False)],
+                    'readonly': ['|',('state', '!=', 'draft'),('assigned_sequence','=', True)]}
                 </attribute>
             </xpath>
 
             <xpath expr="//field[@name='reference']" position="before">
                 <field name="is_l10n_do_fiscal_invoice"
                        invisible="1"/>
-                <field name="internal_generate"
+                <field name="assigned_sequence"
                        invisible="1"/>
                 <field name="fiscal_sequence_id"
                        invisible="1"/>
@@ -166,6 +167,7 @@
                             'invisible': ['|', ('type', '!=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', False)],
                             'readonly': [('state', '!=', 'draft')],
                             'required': [('type', '=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', True)]}"/>
+                <field name="name"/>
             </xpath>
 
 

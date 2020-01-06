@@ -333,7 +333,7 @@ class AccountFiscalSequence(models.Model):
 
     def get_fiscal_number(self):
 
-        if not self.fiscal_type_id.internal_generate:
+        if not self.fiscal_type_id.assigned_sequence:
             return False
 
         if self.sequence_remaining > 0:
@@ -384,7 +384,7 @@ class AccountFiscalType(models.Model):
         ('sale', 'Sale'),
         ('purchase', 'Purchase'),
     ],
-        compute="_get_journal_type"
+        compute="_compute_journal_type"
     )
     fiscal_position_id = fields.Many2one(
         "account.fiscal.position",
@@ -394,11 +394,11 @@ class AccountFiscalType(models.Model):
         "account.journal",
         string="Journal",
     )
-    internal_generate = fields.Boolean(
+    assigned_sequence = fields.Boolean(
         default=True,
     )
-    required_document = fields.Boolean(
-        string="Required document",
+    requires_document = fields.Boolean(
+        string="Requires a document?",
     )
 
     _sql_constraints = [
@@ -408,7 +408,7 @@ class AccountFiscalType(models.Model):
 
     @api.multi
     @api.depends('type')
-    def _get_journal_type(self):
+    def _compute_journal_type(self):
         for fiscal_type in self:
             fiscal_type.journal_type = 'sale' if \
                 fiscal_type.type[:3] == 'out' else 'purchase'

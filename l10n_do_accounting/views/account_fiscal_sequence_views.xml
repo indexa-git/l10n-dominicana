@@ -40,7 +40,7 @@
                         <group>
                             <field name="fiscal_type_id"
                                    widget="selection"
-                                   domain="[('internal_generate', '=', True)]"
+                                   domain="[('assigned_sequence', '=', True)]"
                             />
                             <field name="sequence_start"/>
                             <field name="sequence_end"/>
@@ -161,8 +161,8 @@
                         <field name="type"/>
                         <field name="journal_type" invisible="1"/>
                         <field name="padding">8</field>
-                        <field name="internal_generate"/>
-                        <field name="required_document"/>
+                        <field name="assigned_sequence"/>
+                        <field name="requires_document"/>
                     </group>
                     <group>
                         <field name="active"/>
