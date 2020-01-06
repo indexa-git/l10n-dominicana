@@ -393,12 +393,14 @@ class AccountInvoice(models.Model):
                         "You cannot register Consumo NCF (02) for purchases")
                         .format(ncf))
 
-                elif not inv.partner_id.vat:
-                    raise ValidationError(_(
-                        u"Supplier without RNC/Céd\n\n"
-                        u"This supplier *{}* does not have a RNC or cédula "
-                        u"which is required for fiscal purchases")
-                        .format(inv.partner_id.name))
+                if inv.fiscal_type_id.requires_document \
+                        and not inv.partner_id.vat:
+                    raise ValidationError(
+                        _("Partner [{}] {} doesn't have RNC/Céd, "
+                          "is required for NCF type {}").format(
+                            inv.partner_id.id,
+                            inv.partner_id.name,
+                            inv.fiscal_type_id.name))
 
                 elif not ncf_validation.is_valid(ncf):
                     raise UserError(_(
