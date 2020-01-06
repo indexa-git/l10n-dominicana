@@ -384,7 +384,7 @@ class AccountFiscalType(models.Model):
         ('sale', 'Sale'),
         ('purchase', 'Purchase'),
     ],
-        compute="_get_journal_type"
+        compute="_compute_journal_type"
     )
     fiscal_position_id = fields.Many2one(
         "account.fiscal.position",
@@ -408,7 +408,7 @@ class AccountFiscalType(models.Model):
 
     @api.multi
     @api.depends('type')
-    def _get_journal_type(self):
+    def _compute_journal_type(self):
         for fiscal_type in self:
             fiscal_type.journal_type = 'sale' if \
                 fiscal_type.type[:3] == 'out' else 'purchase'
