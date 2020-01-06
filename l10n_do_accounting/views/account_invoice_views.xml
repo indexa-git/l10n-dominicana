@@ -167,6 +167,7 @@
                             'invisible': ['|', ('type', '!=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', False)],
                             'readonly': [('state', '!=', 'draft')],
                             'required': [('type', '=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', True)]}"/>
+                <field name="name"/>
             </xpath>
 
 
