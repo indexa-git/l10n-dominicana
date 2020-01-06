@@ -369,7 +369,7 @@ class AccountInvoice(models.Model):
                             inv.partner_id.name,
                             inv.fiscal_type_id.name))
 
-                if inv.type in ("out_invoice", "out_refund"):
+                elif inv.type in ("out_invoice", "out_refund"):
                     if (inv.amount_untaxed_signed >= 250000 and
                             inv.fiscal_type_id.prefix != 'B12' and
                             not inv.partner_id.vat):
@@ -393,7 +393,7 @@ class AccountInvoice(models.Model):
                         "You cannot register Consumo NCF (02) for purchases")
                         .format(ncf))
 
-                if inv.fiscal_type_id.requires_document \
+                elif inv.fiscal_type_id.requires_document \
                         and not inv.partner_id.vat:
                     raise ValidationError(
                         _("Partner [{}] {} doesn't have RNC/Céd, "
