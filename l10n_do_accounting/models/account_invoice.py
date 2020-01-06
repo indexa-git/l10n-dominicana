@@ -330,7 +330,7 @@ class AccountInvoice(models.Model):
             if self.origin_out and (self.type == 'out_refund' or
                                     self.type == 'in_refund'):
                 if ncf_dict.get(self.fiscal_type_id.prefix) in (
-                        'normal', 'informal','minor'
+                        'normal', 'informal', 'minor'
                         ) or self.journal_id.ncf_control:
                     ncf = self.origin_out
                     if ncf[-10:-8] != '04' and \
@@ -428,17 +428,18 @@ class AccountInvoice(models.Model):
                         .format(ncf))
 
                 ncf_in_invoice = inv.search_count([
-                    ('id', '!=', inv.id), ('company_id', '=', inv.company_id.id),
+                    ('id', '!=', inv.id),
+                    ('company_id', '=', inv.company_id.id),
                     ('partner_id', '=', inv.partner_id.id),
                     ('reference', '=', ncf),
                     ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
                     ('type', 'in', ('in_invoice', 'in_refund'))
                 ]) if inv.id else inv.search_count(
                     [('partner_id', '=', inv.partner_id.id),
-                    ('company_id', '=', inv.company_id.id),
-                    ('reference', '=', ncf),
-                    ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
-                    ('type', 'in', ('in_invoice', 'in_refund'))])
+                     ('company_id', '=', inv.company_id.id),
+                     ('reference', '=', ncf),
+                     ('state', 'in', ('draft', 'open', 'paid', 'cancel')),
+                     ('type', 'in', ('in_invoice', 'in_refund'))])
 
                 if ncf_in_invoice:
                     raise ValidationError(_(
