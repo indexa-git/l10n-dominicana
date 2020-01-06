@@ -678,7 +678,7 @@ class DgiiReport(models.Model):
             op_dict[invoice.fiscal_type_id.sale_type]['qty'] += 1
             op_dict[invoice.fiscal_type_id.sale_type][
                 'amount'] += invoice.amount_untaxed_signed
-        if invoice.type == 'out_refund' and not invoice.is_nd:
+        if invoice.type == 'out_refund' and not invoice.is_debit_note:
             op_dict['nc']['qty'] += 1
             op_dict['nc']['amount'] += invoice.amount_untaxed_signed
         if invoice.is_debit_note:
