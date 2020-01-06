@@ -323,14 +323,14 @@ class AccountInvoice(models.Model):
     def _onchange_ncf(self):
         if self.is_l10n_do_fiscal_invoice:
             if ncf_dict.get(self.fiscal_type_id.prefix) in (
-                    'normal', 'informal', 'minor'
+                    'fiscal', 'informal', 'minor'
                     ):
                 self.validate_fiscal_purchase()
 
             if self.origin_out and (self.type == 'out_refund' or
                                     self.type == 'in_refund'):
                 if ncf_dict.get(self.fiscal_type_id.prefix) in (
-                        'normal', 'informal', 'minor'
+                        'fiscal', 'informal', 'minor'
                         ) or self.journal_id.ncf_control:
                     ncf = self.origin_out
                     if ncf[-10:-8] != '04' and \
