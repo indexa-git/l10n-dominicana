@@ -86,7 +86,7 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('state', 'journal_id')
+    @api.depends('state', 'journal_id', 'journal_id.l10n_do_fiscal_journal')
     def _compute_is_l10n_do_fiscal_invoice(self):
         for inv in self.filtered(lambda i: i.state == 'draft'):
             inv.is_l10n_do_fiscal_invoice = \
