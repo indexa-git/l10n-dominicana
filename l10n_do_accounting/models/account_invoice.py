@@ -93,7 +93,7 @@ class AccountInvoice(models.Model):
                 inv.journal_id.l10n_do_fiscal_journal
 
     @api.multi
-    @api.depends('journal_id', 'l10n_do_fiscal_journal', 'state',
+    @api.depends('journal_id', 'is_l10n_do_fiscal_invoice', 'state',
                  'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         for inv in self.filtered(lambda i: i.state == 'draft'):
