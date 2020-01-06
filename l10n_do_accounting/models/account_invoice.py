@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 # TODO move this import to the functions using it, instead of doing it globally
 try:
-    from stdnum.do import ncf as ncf_validation, rnc
+    from stdnum.do import ncf as ncf_validation
 except (ImportError, IOError) as err:
     _logger.debug(err)
 
