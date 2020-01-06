@@ -5,7 +5,7 @@ import pytz
 from datetime import datetime
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 
 def get_l10n_do_datetime():
@@ -215,6 +215,10 @@ class AccountFiscalSequence(models.Model):
             if rec.sequence_id:
                 rec.sequence_id.sudo().unlink()
         return super(AccountFiscalSequence, self).unlink()
+
+    @api.multi
+    def copy(self, default=None):
+        raise UserError(_('You cannot duplicate a Fiscal Sequence.'))
 
     @api.multi
     def name_get(self):
