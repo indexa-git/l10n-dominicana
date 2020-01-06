@@ -68,7 +68,9 @@ class AccountInvoice(models.Model):
         store=True,
     )
     is_l10n_do_fiscal_invoice = fields.Boolean(
-        related='journal_id.l10n_do_fiscal_journal',
+        compute="_compute_is_l10n_do_fiscal_invoice",
+        store=True,
+        string="Is Fiscal Invoice",
     )
     internal_generate = fields.Boolean(
         related='fiscal_type_id.internal_generate',
@@ -84,7 +86,14 @@ class AccountInvoice(models.Model):
     is_debit_note = fields.Boolean()
 
     @api.multi
-    @api.depends('journal_id', 'journal_id.l10n_do_fiscal_journal', 'state',
+    @api.depends('state', 'journal_id')
+    def _compute_is_l10n_do_fiscal_invoice(self):
+        for inv in self.filtered(lambda i: i.state == 'draft'):
+            inv.is_l10n_do_fiscal_invoice = \
+                inv.journal_id.l10n_do_fiscal_journal
+
+    @api.multi
+    @api.depends('journal_id', 'l10n_do_fiscal_journal', 'state',
                  'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         for inv in self.filtered(lambda i: i.state == 'draft'):
