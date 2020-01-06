@@ -7,6 +7,21 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 
+ncf_dict = {
+    "B01": "fiscal",
+    "B02": "consumo",
+    "B15": "gov",
+    "B14": "especial",
+    "B12": "unico",
+    "B16": "export",
+    "B03": "debit",
+    "B04": "credit",
+    "B13": "minor",
+    "B11": "informal",
+    "B17": "exterior",
+}
+
+
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
@@ -174,11 +189,8 @@ class AccountInvoice(models.Model):
         """
         for inv in \
                 self.filtered(lambda i: i.is_l10n_do_fiscal_invoice):
-            fiscal_type_id = self.env.ref(
-                'l10n_do_accounting.fiscal_type_especial')
-            if inv.type == 'out_invoice' and inv.state in (
-                    'open', 'cancel') and inv.fiscal_type_id == fiscal_type_id:
-
+            if inv.type == 'out_invoice' and inv.state in ('open', 'cancel') \
+                    and ncf_dict.get(inv.fiscal_type_id.prefix) == 'especial':
                 # If any invoice tax in ITBIS or ISC
                 taxes = ('ITBIS', 'ISC')
                 if any([tax for tax in
@@ -209,19 +221,14 @@ class AccountInvoice(models.Model):
                     p for p in inv.invoice_line_ids.mapped('product_id')
                     if p.type != 'service'
                 ]):
-                    fiscal_type_id = self.env.ref(
-                        'l10n_do_accounting.fiscal_type_exportacion')
-                    if inv.fiscal_type_id != fiscal_type_id:
+                    if ncf_dict.get(inv.fiscal_type_id.prefix) == 'exterior':
                         raise UserError(_(
                             "Goods sales to overseas customers must have "
                             "Exportaciones Fiscal Type"))
-                else:
-                    fiscal_type_id = self.env.ref(
-                        'l10n_do_accounting.fiscal_type_consumo')
-                    if inv.fiscal_type_id != fiscal_type_id:
-                        raise UserError(_(
-                            "Service sales to oversas customer must have "
-                            "Consumo Fiscal Type"))
+                elif ncf_dict.get(inv.fiscal_type_id.prefix) == 'consumo':
+                    raise UserError(_(
+                        "Service sales to oversas customer must have "
+                        "Consumo Fiscal Type"))
 
     @api.multi
     @api.constrains('state', 'tax_line_ids')
@@ -232,9 +239,7 @@ class AccountInvoice(models.Model):
         """
         for inv in self.filtered(
                 lambda i: i.type == 'in_invoice' and i.state == 'open'):
-            fiscal_type_id = self.env.ref(
-                'l10n_do_accounting.fiscal_type_informal')
-            if inv.fiscal_type_id == fiscal_type_id and \
+            if ncf_dict.get(inv.fiscal_type_id.prefix) == 'informal' and \
                     inv.is_l10n_do_fiscal_invoice:
 
                 # If the sum of all taxes of category ITBIS is not 0
