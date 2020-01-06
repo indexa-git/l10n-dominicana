@@ -69,6 +69,7 @@
                        attrs="{
                        'invisible': [('type', '!=', 'out_refund'), ('is_debit_note', '=', False)],
                        'readonly': [('state', '!=', 'draft')]}"/>
+                <field name="name"/>
             </xpath>
 
             <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='other_info']/group[1]/group[1]/field[@name='reference']" position="replace"/>
