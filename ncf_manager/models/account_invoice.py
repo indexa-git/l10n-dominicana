@@ -39,31 +39,33 @@ class AccountInvoice(models.Model):
 
     reference = fields.Char(string='NCF')
 
-
     has_ncf_almost_available = fields.Boolean(
-        compute = "_compute_has_almost_available"
-    )
-    @api.depends('journal_id','sale_fiscal_type')
+        compute="_compute_has_almost_available")
+
+    @api.depends('journal_id', 'sale_fiscal_type')
     def _compute_has_almost_available(self):
         for invoice in self:
             if invoice.journal_id.ncf_control and invoice.type == "out_invoice":
                 sequence = invoice.journal_id.date_range_ids.filtered(
-                    lambda seq: seq.sale_fiscal_type == invoice.sale_fiscal_type)
+                    lambda seq: seq.sale_fiscal_type == invoice.
+                    sale_fiscal_type)
                 if sequence:
                     if sequence.number_next_actual >= sequence.warning_ncf:
                         self.has_ncf_almost_available = True
                     else:
                         self.has_ncf_almost_available = False
 
-            if invoice.journal_id.purchase_type in ('informal', 'minor', 'exterior') and invoice.type == "in_invoice":
+            if invoice.journal_id.purchase_type in (
+                    'informal', 'minor',
+                    'exterior') and invoice.type == "in_invoice":
                 sequence = invoice.journal_id.date_range_ids.filtered(
-                    lambda seq: seq.sale_fiscal_type == invoice.journal_id.purchase_type)
+                    lambda seq: seq.sale_fiscal_type == invoice.journal_id.
+                    purchase_type)
                 if sequence:
                     if sequence.number_next_actual >= sequence.warning_ncf:
                         self.has_ncf_almost_available = True
                     else:
                         self.has_ncf_almost_available = False
-
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -387,7 +389,6 @@ class AccountInvoice(models.Model):
                         dict(self._fields['sale_fiscal_type'].selection)
                             .get(self.sale_fiscal_type), sequence.max_number_next))
 
-
                 if inv.sale_fiscal_type in (
                         "fiscal", "gov", "special") and not inv.partner_id.vat:
                     raise UserError(_(
@@ -404,18 +405,19 @@ class AccountInvoice(models.Model):
 
             elif inv.type in ("in_invoice", "in_refund"):
 
-                if not inv.reference and inv.journal_id.purchase_type in ('informal', 'minor', 'exterior'):
+                if not inv.reference and inv.journal_id.purchase_type in ('informal',
+                                                                          'minor',
+                                                                          'exterior'):
                     sequence1 = inv.journal_id.date_range_ids.filtered(
-                        lambda seq: seq.sale_fiscal_type == inv.journal_id.purchase_type)
+                        lambda seq: seq.sale_fiscal_type == inv.journal_id.purchase_type
+                    )
 
                     if sequence1.number_next_actual >= sequence1.max_number_next:
                         raise ValidationError(_(
                             u"El NCF para {} se a agotado, por favor"
                             " aumente el limite maximo ({}).").format(
-                            dict(self._fields['sale_fiscal_type'].selection)
+                                dict(self._fields['sale_fiscal_type'].selection)
                                 .get(self.sale_fiscal_type), sequence1.max_number_next))
-
-
 
                 if inv.reference and inv.journal_id.purchase_type in (
                         'normal', 'informal', 'minor', 'exterior'):
