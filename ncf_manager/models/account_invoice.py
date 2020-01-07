@@ -39,11 +39,11 @@ class AccountInvoice(models.Model):
 
     reference = fields.Char(string='NCF')
 
-    has_ncf_almost_available = fields.Boolean(
-        compute="_compute_has_almost_available")
+    sequence_almost_depleted = fields.Boolean(
+        compute="_compute_sequence_almost_depleted")
 
     @api.depends('journal_id', 'sale_fiscal_type')
-    def _compute_has_almost_available(self):
+    def _compute_sequence_almost_depleted(self):
         for invoice in self:
             if invoice.journal_id.ncf_control and invoice.type == "out_invoice":
                 sequence = invoice.journal_id.date_range_ids.filtered(
@@ -51,9 +51,9 @@ class AccountInvoice(models.Model):
                     sale_fiscal_type)
                 if sequence:
                     if sequence.number_next_actual >= sequence.warning_ncf:
-                        self.has_ncf_almost_available = True
+                        self.sequence_almost_depleted = True
                     else:
-                        self.has_ncf_almost_available = False
+                        self.sequence_almost_depleted = False
 
             if invoice.journal_id.purchase_type in (
                     'informal', 'minor',
@@ -63,9 +63,9 @@ class AccountInvoice(models.Model):
                     purchase_type)
                 if sequence:
                     if sequence.number_next_actual >= sequence.warning_ncf:
-                        self.has_ncf_almost_available = True
+                        self.sequence_almost_depleted = True
                     else:
-                        self.has_ncf_almost_available = False
+                        self.sequence_almost_depleted = False
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -384,8 +384,8 @@ class AccountInvoice(models.Model):
                     lambda seq: seq.sale_fiscal_type == inv.sale_fiscal_type)
                 if sequence.number_next_actual > sequence.max_number_next:
                     raise ValidationError(_(
-                        u"El NCF para {} se a agotado, por favor"
-                        " aumente el limite maximo ({}).").format(
+                        u"Los comprobantes para {} se han agotado,"
+                        " contacte al responsable de contabilidad ({}).").format(
                         dict(self._fields['sale_fiscal_type'].selection)
                             .get(self.sale_fiscal_type), sequence.max_number_next))
 
@@ -414,8 +414,8 @@ class AccountInvoice(models.Model):
 
                     if sequence1.number_next_actual >= sequence1.max_number_next:
                         raise ValidationError(_(
-                            u"El NCF para {} se a agotado, por favor"
-                            " aumente el limite maximo ({}).").format(
+                            u"Los comprobantes para {} se han agotado,"
+                            " contacte al responsable de contabilidad ({}).").format(
                                 dict(self._fields['sale_fiscal_type'].selection)
                                 .get(self.sale_fiscal_type), sequence1.max_number_next))
 

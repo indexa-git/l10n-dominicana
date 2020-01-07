@@ -107,8 +107,16 @@ class IrSequenceDateRange(models.Model):
                  ("exterior", "Pagos al Exterior"),
                  ])
 
-    warning_ncf = fields.Integer(string="NCF de alerta", default=50)
+    warning_ncf = fields.Integer(string="NCF de alerta")
 
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
     max_number_next = fields.Integer(u"Número Máximo", default=100)
+
+    @api.model
+    def default_get(self, fields):
+        res = super(IrSequenceDateRange, self).default_get(fields)
+
+        res['warning_ncf'] = res['max_number_next'] - 50
+
+        return res

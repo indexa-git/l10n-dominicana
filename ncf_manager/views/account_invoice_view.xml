@@ -14,9 +14,9 @@
 
 
             <xpath expr="/form/div[hasclass('alert')]" position="after">
-                 <field name="has_ncf_almost_available" invisible="1"/>
-                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_ncf_almost_available','=',False)]}">
-                    Los comprobantes de este tipo estan por agotarse
+                 <field name="sequence_almost_depleted" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('sequence_almost_depleted','=',False)]}">
+                    Los comprobantes de este tipo están por agotarse
                 </div>
             </xpath>
 
@@ -91,8 +91,8 @@
 
 
             <xpath expr="/form/div[hasclass('alert')]" position="after">
-                 <field name="has_ncf_almost_available" invisible="1"/>
-                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_ncf_almost_available','=',False)]}">
+                 <field name="sequence_almost_depleted" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('sequence_almost_depleted','=',False)]}">
                     Los comprobantes de este tipo estan por agotarse
                 </div>
             </xpath>
