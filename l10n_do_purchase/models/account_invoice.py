@@ -12,13 +12,13 @@ class AccountInvoice(models.Model):
         """This method is being overwritten as Odoo uses the purchase reference
             and puts it into the invoice reference (our NCF), we change this
             behaviour to use the invoice name (description)"""
-        # TODO create tests
-        result = super(AccountInvoice, self).purchase_order_change()
 
         vendor_ref = self.purchase_id.partner_ref
         if vendor_ref:
             # Here, l10n_dominicana changes self.reference to self.name
             self.name = ", ".join([self.name, vendor_ref]) if (
-                self.name and vendor_ref not in self.name) else vendor_ref
+                    self.name and vendor_ref not in self.name) else vendor_ref
+        super(AccountInvoice, self).purchase_order_change()
+        self.reference = False
 
-        return result
+        return {}
