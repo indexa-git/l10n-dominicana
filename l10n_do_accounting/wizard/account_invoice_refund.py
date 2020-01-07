@@ -1,8 +1,16 @@
 
+import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 from odoo.tools.safe_eval import safe_eval
+
+_logger = logging.getLogger(__name__)
+
+try:
+    from stdnum.do import ncf
+except (ImportError, IOError) as err:
+    _logger.debug(err)
 
 
 class AccountInvoiceRefund(models.TransientModel):
