@@ -331,7 +331,7 @@ class AccountInvoice(models.Model):
                                     self.type == 'in_refund'):
                 if ncf_dict.get(self.fiscal_type_id.prefix) in (
                         'fiscal', 'informal', 'minor'
-                        ) or self.journal_id.ncf_control:
+                        ):
                     ncf = self.origin_out
                     if ncf[-10:-8] != '04' and \
                             not ncf_validation.is_valid(ncf):
