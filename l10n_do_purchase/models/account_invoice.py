@@ -20,7 +20,8 @@ class AccountInvoice(models.Model):
         if vendor_ref:
             # Here, l10n_dominicana changes self.reference to self.name
             self.name = ", ".join([self.name, vendor_ref]) if (
-                    self.name and vendor_ref not in self.name) else vendor_ref
+                        self.name and vendor_ref not in self.name
+            ) else vendor_ref
         super(AccountInvoice, self).purchase_order_change()
         self.reference = False
 
