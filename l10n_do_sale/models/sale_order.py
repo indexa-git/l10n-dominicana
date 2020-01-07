@@ -19,6 +19,12 @@ class SaleOrder(models.Model):
         """
         self.ensure_one()
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
+
+        journal_id = self.env['account.journal'].browse(
+            invoice_vals['journal_id'])
+        if not journal_id.l10n_do_fiscal_journal:
+            return invoice_vals
+
         partner_id = self.partner_id
         fiscal_type_id = partner_id.sale_fiscal_type_id
 
