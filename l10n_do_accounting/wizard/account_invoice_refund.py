@@ -9,6 +9,18 @@ class AccountInvoiceRefund(models.TransientModel):
     _inherit = "account.invoice.refund"
 
     @api.model
+    def default_get(self, fields):
+        res = super(AccountInvoiceRefund, self).default_get(fields)
+        context = dict(self._context or {})
+        invoice_ids = self.env['account.invoice'].browse(
+            context.get('active_ids'))
+
+        res['is_fiscal_refund'] = set(invoice_ids.mapped(
+            'is_l10n_do_fiscal_invoice')) == {True}
+
+        return res
+
+    @api.model
     def _get_default_is_vendor_refund(self):
         if self._context.get('type') == 'in_invoice':
             return True
@@ -68,6 +80,7 @@ class AccountInvoiceRefund(models.TransientModel):
         default=_get_default_is_vendor_refund,
     )
     refund_reference = fields.Char()
+    is_fiscal_refund = fields.Boolean()
 
     @api.onchange('refund_type')
     def onchange_refund_type(self):
