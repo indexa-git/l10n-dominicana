@@ -330,8 +330,7 @@ class AccountInvoice(models.Model):
             if self.origin_out and (self.type == 'out_refund' or
                                     self.type == 'in_refund'):
                 if ncf_dict.get(self.fiscal_type_id.prefix) in (
-                        'normal', 'informal', 'minor'
-                        ) or self.journal_id.ncf_control:
+                        'normal', 'informal', 'minor'):
                     ncf = self.origin_out
                     if ncf[-10:-8] != '04' and \
                             not ncf_validation.is_valid(ncf):
@@ -484,7 +483,7 @@ class AccountInvoice(models.Model):
         refund_type = context.get('refund_type')
         amount = context.get('amount')
         account = context.get('account')
-        vendor_ref = context.get('vendor_ref')
+        refund_reference = context.get('refund_reference')
 
         res = super(AccountInvoice, self)._prepare_refund(
             invoice, date_invoice=date_invoice, date=date,
@@ -508,7 +507,7 @@ class AccountInvoice(models.Model):
         if not fiscal_type_id:
             raise ValidationError(_('No Fiscal Type found for Credit Note'))
 
-        res.update({'reference': vendor_ref,
+        res.update({'reference': refund_reference,
                     'origin_out': self.reference,
                     'income_type': self.income_type,
                     'expense_type': self.expense_type,
@@ -526,7 +525,6 @@ class AccountInvoice(models.Model):
         refund_type = context.get('refund_type')
         amount = context.get('amount')
         account = context.get('account')
-        vendor_ref = context.get('vendor_ref')
 
         if not refund_type:
             return super(AccountInvoice, self).refund(
@@ -538,7 +536,7 @@ class AccountInvoice(models.Model):
             # create the new invoice
             values = self.with_context(
                 refund_type=refund_type, amount=amount,
-                account=account, vendor_ref=vendor_ref)._prepare_refund(
+                account=account)._prepare_refund(
                 invoice, date_invoice=date_invoice, date=date,
                 description=description, journal_id=journal_id)
             refund_invoice = self.create(values)

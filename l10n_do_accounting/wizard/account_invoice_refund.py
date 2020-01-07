@@ -93,7 +93,8 @@ class AccountInvoiceRefund(models.TransientModel):
         created_inv = []
         for wizard in self:
             if wizard.refund_type == 'full_refund':
-                return super(AccountInvoiceRefund, self).compute_refund(
+                return super(AccountInvoiceRefund, self.with_context(
+                    refund_reference=wizard.refund_reference)).compute_refund(
                     mode=mode)
 
             inv_obj = self.env['account.invoice']
@@ -113,14 +114,14 @@ class AccountInvoiceRefund(models.TransientModel):
                 date = wizard.date or False
                 description = wizard.description or inv.name
                 refund_type = wizard.refund_type
-                vendor_ref = wizard.refund_reference
+                refund_reference = wizard.refund_reference
                 amount = wizard.amount if refund_type == 'fixed_amount' \
                     else inv.amount_untaxed * (wizard.percentage/100)
                 refund = inv.with_context(
                     refund_type=wizard.refund_type,
                     amount=amount,
                     account=wizard.account_id.id,
-                    vendor_ref=vendor_ref).refund(
+                    refund_reference=refund_reference).refund(
                     wizard.date_invoice, date, description, inv.journal_id.id)
 
                 if wizard.refund_method == 'apply_refund':
