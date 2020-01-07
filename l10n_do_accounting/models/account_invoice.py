@@ -272,21 +272,6 @@ class AccountInvoice(models.Model):
             self.fiscal_type_id = False
             self.fiscal_sequence_id = False
 
-        elif self.journal_id.type == 'purchase':
-            if ncf_dict.get(self.fiscal_type_id.prefix) == 'minor':
-                self.partner_id = self.company_id.partner_id.id
-
-            elif self.partner_id.id == self.company_id.partner_id.id:
-                fiscal_type = self.env['account.fiscal.type'].search([
-                    ('type', '=', self.type),
-                    ('prefix', '=', 'B13')
-                ], limit=1)
-                if not fiscal_type:
-                    raise ValidationError(
-                        _("A fiscal type for Minor Expenses does not existe, "
-                          "you have to create one."))
-                self.fiscal_type_id = fiscal_type
-
         return super(AccountInvoice, self)._onchange_journal_id()
 
     @api.onchange('fiscal_type_id')
@@ -295,6 +280,19 @@ class AccountInvoice(models.Model):
             invoice, making it a a fiscal invoice for l10n_do.
         """
         if self.is_l10n_do_fiscal_invoice and self.fiscal_type_id:
+            if self.partner_id and self.partner_id.id.id == \
+                    self.company_id.partner_id.id and \
+                        self.type == 'in_invoice':
+                fiscal_type = self.env['account.fiscal.type'].search([
+                    ('type', '=', self.type),
+                    ('prefix', '=', 'B13')
+                ], limit=1)
+                if not fiscal_type:
+                    raise ValidationError(
+                        _("A fiscal type for Minor Expenses does not exist, "
+                          "you have to create one."))
+                self.fiscal_type_id = fiscal_type
+
             fiscal_type = self.fiscal_type_id
             fiscal_type_journal = fiscal_type.journal_id
             if fiscal_type_journal and fiscal_type_journal != self.journal_id:
@@ -312,10 +310,13 @@ class AccountInvoice(models.Model):
                 if not self.partner_id.customer:
                     self.partner_id.customer = True
             elif self.partner_id and self.type == 'in_invoice':
-                self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
                 self.expense_type = self.partner_id.expense_type
                 if not self.partner_id.supplier:
                     self.partner_id.supplier = True
+                if ncf_dict.get(self.fiscal_type_id.prefix) == 'minor':
+                    self.partner_id = self.company_id.partner_id.id
+                    return super(AccountInvoice, self)._onchange_partner_id()
+                self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
 
         return super(AccountInvoice, self)._onchange_partner_id()
 
