@@ -68,7 +68,8 @@
                        groups="base.group_user"
                        attrs="{
                        'invisible': [('type', '!=', 'out_refund'), ('is_debit_note', '=', False)],
-                       'readonly': [('state', '!=', 'draft')]}"/>
+                       'readonly': [('state', '!=', 'draft')],
+                       'required': [('type', '=', 'out_refund'), ('is_l10n_do_fiscal_invoice', '=', True)]}"/>
                 <field name="name"/>
             </xpath>
 
