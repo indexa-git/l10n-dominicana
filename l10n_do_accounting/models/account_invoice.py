@@ -428,6 +428,16 @@ class AccountInvoice(models.Model):
                         "please validate if you have typed it correctly.")
                         .format(ncf))
 
+                # TODO move this to l10n_do_external_validation_ncf
+                elif not ncf_validation.check_dgii(self.partner_id.vat, ncf):
+                    raise ValidationError(_(
+                        "NCF rejected by DGII\n\n"
+                        "NCF *{}* of supplier *{}* was rejected by DGII's "
+                        "validation service. Please validate if the NCF and "
+                        "the supplier RNC are type correctly. Otherwhise "
+                        "your supplier might not have this sequence approved "
+                        "yet.").format(ncf, self.partner_id.name))
+
                 ncf_in_invoice = inv.search_count([
                     ('id', '!=', inv.id),
                     ('company_id', '=', inv.company_id.id),

@@ -2,13 +2,13 @@
 import logging
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)
 
 try:
-    from stdnum.do import ncf
+    from stdnum.do import ncf as ncf_validation
 except (ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -231,6 +231,17 @@ class AccountInvoiceRefund(models.TransientModel):
                     raise UserError(
                         _("Credit Notes must be type 04, this NCF "
                           "structure does not comply."))
-                # TODO Addd elif with ncf.check_dgii
+
+                # TODO move this to l10n_do_external_validation_ncf
+                elif not ncf_validation.check_dgii(self.partner_id.vat,
+                        self.refund_reference):
+                    raise ValidationError(_(
+                        "NCF rejected by DGII\n\n"
+                        "NCF *{}* of supplier *{}* was rejected by DGII's "
+                        "validation service. Please validate if the NCF and "
+                        "the supplier RNC are type correctly. Otherwhise "
+                        "your supplier might not have this sequence approved "
+                        "yet.").format(self.refund_reference,
+                                       self.partner_id.name))
 
         return super(AccountInvoiceRefund, self).invoice_refund()
