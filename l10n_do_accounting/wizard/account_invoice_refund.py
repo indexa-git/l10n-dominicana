@@ -219,7 +219,7 @@ class AccountInvoiceRefund(models.TransientModel):
     def invoice_refund(self):
         active_id = self._context.get("active_id", False)
         if active_id:
-            # invoice = self.env["account.invoice"].browse(active_id)
+            invoice = self.env["account.invoice"].browse(active_id)
 
             if self.refund_reference and self.is_fiscal_refund:
                 if self._context.get('debit_note') and not \
@@ -227,13 +227,13 @@ class AccountInvoiceRefund(models.TransientModel):
                     raise UserError(
                         _("Debit Notes must be type 03, this NCF "
                           "structure does not comply."))
-                elif not self.refund_reference[-10:-8] != '04':
+                elif self.refund_reference[-10:-8] != '04':
                     raise UserError(
                         _("Credit Notes must be type 04, this NCF "
                           "structure does not comply."))
 
                 # TODO move this to l10n_do_external_validation_ncf
-                elif not ncf_validation.check_dgii(self.partner_id.vat,
+                elif not ncf_validation.check_dgii(invoice.partner_id.vat,
                                                    self.refund_reference):
                     raise ValidationError(_(
                         "NCF rejected by DGII\n\n"
