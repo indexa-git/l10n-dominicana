@@ -380,12 +380,15 @@ class AccountInvoiceTests(AccountInvoiceCommon):
             'filter_refund': 'refund',
             'description': 'Discount',
             'percentage': 10,
+            'refund_reference': 'B0400000001'
         })
         refund_wizard_id.invoice_refund()
 
         credit_note_id = self.invoice_obj.search([
             ('type', '=', 'in_refund')], limit=1)
         credit_note_id.action_invoice_open()
+
+        self.assertEqual(credit_note_id.reference, 'B0400000001')
 
         self.assertEqual(credit_note_id.fiscal_type_id.id,
                          self.fiscal_type_cn_purchase)
@@ -415,12 +418,15 @@ class AccountInvoiceTests(AccountInvoiceCommon):
             'filter_refund': 'refund',
             'description': 'Discount',
             'amount': 100,
+            'refund_reference': 'B0400000001'
         })
         refund_wizard_id.invoice_refund()
 
         credit_note_id = self.invoice_obj.search([
             ('type', '=', 'in_refund')], limit=1)
         credit_note_id.action_invoice_open()
+
+        self.assertEqual(credit_note_id.reference, 'B0400000001')
 
         self.assertEqual(credit_note_id.fiscal_type_id.id,
                          self.fiscal_type_cn_purchase)
@@ -578,3 +584,36 @@ class AccountInvoiceTests(AccountInvoiceCommon):
                          self.fiscal_type_dn_purchase)
         self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
         self.assertEqual(debit_note_id.amount_total, 100)
+
+    def test_021_fiscal_vendor_refund_percentage(self):
+        """
+        Check fiscal vendor refunds (full refund) are created with all
+        correct data
+        """
+
+        invoice_id = self.invoice_obj.create({
+            'partner_id': self.partner_demo_1,
+            'fiscal_type_id': self.fiscal_type_informal,
+            'invoice_line_ids': self.invoice_line_data,
+            'type': 'in_invoice',
+        })
+        invoice_id.action_invoice_open()
+
+        refund_wizard_id = self.invoice_refund_obj.with_context(
+            {'active_ids': [invoice_id.id], 'active_id': invoice_id.id}
+        ).create({
+            'refund_type': 'full_refund',
+            'filter_refund': 'refund',
+            'description': 'Full Refund',
+            'refund_reference': 'B0400000001'
+        })
+
+        # Refund wizard must be is_fiscal_refund == True because origin
+        # invoice is fiscal
+        assert refund_wizard_id.is_fiscal_refund
+
+        refund_wizard_id.invoice_refund()
+        credit_note_id = self.invoice_obj.search([
+            ('type', '=', 'in_refund')], limit=1)
+
+        self.assertEqual(credit_note_id.reference, 'B0400000001')

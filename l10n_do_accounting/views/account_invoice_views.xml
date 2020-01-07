@@ -165,9 +165,9 @@
                 <field name="origin_out"
                        groups="base.group_user"
                        attrs="{
-                            'invisible': ['|', ('type', '!=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', False)],
+                            'invisible': ['|', '&amp;', ('type', '!=', 'in_refund'), ('is_debit_note', '=', False), '&amp;', ('type', '=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', False)],
                             'readonly': [('state', '!=', 'draft')],
-                            'required': [('type', '=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', True)]}"/>
+                            'required': ['|', '&amp;', ('type', '=', 'in_refund'), ('is_l10n_do_fiscal_invoice', '=', True), ('is_debit_note', '=', True)]}"/>
                 <field name="name"/>
             </xpath>
 
