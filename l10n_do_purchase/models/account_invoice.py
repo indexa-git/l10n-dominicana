@@ -13,6 +13,9 @@ class AccountInvoice(models.Model):
             and puts it into the invoice reference (our NCF), we change this
             behaviour to use the invoice name (description)"""
 
+        if not self.journal_id.l10n_do_fiscal_journal:
+            return super(AccountInvoice, self).purchase_order_change()
+
         vendor_ref = self.purchase_id.partner_ref
         if vendor_ref:
             # Here, l10n_dominicana changes self.reference to self.name
