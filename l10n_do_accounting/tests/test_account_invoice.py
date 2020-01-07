@@ -607,6 +607,11 @@ class AccountInvoiceTests(AccountInvoiceCommon):
             'description': 'Full Refund',
             'refund_reference': 'B0400000001'
         })
+
+        # Refund wizard must be is_fiscal_refund == True because origin
+        # invoice is fiscal
+        assert refund_wizard_id.is_fiscal_refund
+
         refund_wizard_id.invoice_refund()
         credit_note_id = self.invoice_obj.search([
             ('type', '=', 'in_refund')], limit=1)
