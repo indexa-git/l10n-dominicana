@@ -32,7 +32,7 @@ class AccountInvoiceCancel(models.TransientModel):
     def invoice_cancel(self):
         context = dict(self._context or {})
         active_ids = context.get('active_ids', []) or []
-
+        # TODO: esto solo debe salir solo cuando la factura sea fiscal
         for record in self.env['account.invoice'].browse(active_ids):
             if record.state in ('cancel', 'paid', 'in_payment'):
                 raise UserError(
