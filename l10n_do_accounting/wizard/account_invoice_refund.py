@@ -214,3 +214,23 @@ class AccountInvoiceRefund(models.TransientModel):
             result['domain'] = invoice_domain
             return result
         return True
+
+    @api.multi
+    def invoice_refund(self):
+        active_id = self._context.get("active_id", False)
+        if active_id:
+            # invoice = self.env["account.invoice"].browse(active_id)
+
+            if self.refund_reference and self.is_fiscal_refund:
+                if self._context.get('debit_note') and not \
+                        self.refund_reference[-10:-8] == '03':
+                    raise UserError(
+                        _("Debit Notes must be type 03, this NCF "
+                          "structure does not comply."))
+                elif not self.refund_reference[-10:-8] != '04':
+                    raise UserError(
+                        _("Credit Notes must be type 04, this NCF "
+                          "structure does not comply."))
+                # TODO Addd elif with ncf.check_dgii
+
+        return super(AccountInvoiceRefund, self).invoice_refund()
