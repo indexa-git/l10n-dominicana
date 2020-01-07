@@ -17,7 +17,6 @@ class SaleOrder(models.Model):
          This method may be overridden to implement custom invoice generation
          (making sure to call super() to establish a clean extension chain).
         """
-        
         self.ensure_one()
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
 
