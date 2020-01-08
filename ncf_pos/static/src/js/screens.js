@@ -46,12 +46,13 @@ odoo.define('ncf_pos.screens', function (require) {
                 select: function (event, ui) {
                     name_input.val(ui.item.name);
                     rnc_input.val(ui.item.rnc);
-                    sale_fiscal_type_ddl.val("fiscal");
-
+                    if (rnc_input.val().length == 9){
+                        sale_fiscal_type_ddl.val("fiscal");
+                    }
                     return false;
                 },
                 response: function (event, ui) {
-                    // selecting the first item if the result is only one
+                    // Selecting the first item if the result is only one
                     if (Array.isArray(ui.content) && ui.content.length == 1 && $.isNumeric(name_input.val())) {
                         var input = $(this);
 
@@ -60,7 +61,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         input.autocomplete('close');
                         input.blur();
                     }
-                }
+                },
             });
             sale_fiscal_type_ddl.change(function () {
                 var len = rnc_input.val().length;
@@ -102,14 +103,14 @@ odoo.define('ncf_pos.screens', function (require) {
             }
         },
         save_client_details: function (partner) {
-            var self = this;
-            var _super = this._super.bind(this);
-            var rnc_input = this.$("input[name='vat']"),
-                rnc = rnc_input.val();
-            var name_input = this.$('input[name$=\'name\']');
-            var sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
-                sale_fiscal_type = sale_fiscal_type_ddl.val();
-            var fieldsRequired = [];
+            var self = this,
+                _super = this._super.bind(this),
+                rnc_input = this.$("input[name='vat']"),
+                rnc = rnc_input.val(),
+                name_input = this.$("input[name$='name']"),
+                sale_fiscal_type_ddl = this.$("select[name$='sale_fiscal_type']"),
+                sale_fiscal_type = sale_fiscal_type_ddl.val(),
+                fieldsRequired = [];
 
             if (!name_input.val()) {
                 fieldsRequired.push({label: 'Name', elem: name_input});
@@ -117,7 +118,7 @@ odoo.define('ncf_pos.screens', function (require) {
             if (!sale_fiscal_type) {
                 fieldsRequired.push({label: 'NCF', elem: sale_fiscal_type_ddl});
             }
-            if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) == -1 && !rnc) {
+            if (this.pos.sale_fiscal_type_vat.no_vat.indexOf(sale_fiscal_type) === -1 && !rnc) {
                 fieldsRequired.push({label: 'Tax ID', elem: rnc_input});
             }
             if (fieldsRequired.length > 0) {
@@ -129,42 +130,51 @@ odoo.define('ncf_pos.screens', function (require) {
                     'body': _t('You must fill in the required fields:') + '\n' + fields.join(' '),
                     cancel: function () {
                         fieldsRequired[0].elem.focus();
-                    }
+                    },
                 });
-            } else if (rnc && (rnc.length == 9 || rnc.length == 11)) {
-                $.ajax('/validate_rnc/', {
-                    dataType: 'json',
-                    type: 'GET',
-                    timeout: 3000,
-                    data: {'rnc': rnc}
-                }).done(function (data) {
-                    console.info("Validando RNC con WS DGII", data);
-                    if (data.is_valid === false) {
-                        self.gui.show_popup('error', {
-                            'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
-                            'body': _t('Tax ID') + ' ' + _t('is invalid'),
-                            cancel: function () {
-                                rnc_input.focus();
-                            }
-                        });
-                    } else {
-                        if (data.info && data.info.name) {
-                            name_input.val(data.info.name);
-                        }
-                        _super(partner);
-                    }
-                }).fail(function (request, error) {
-                    console.error("Validando RNC con WS DGII", request);
+            } else if (rnc) {
+                var show_rnc_error = function (self, request, error) {
                     self.gui.show_popup('error', {
                         'title': _t('Validating') + ' ' + _t('Tax ID') + ' ' + rnc,
                         'body': _t(request.statusText + '\n' +
-                            ((error.data && error.data.message) || error.message || "")),
+                            (error.data && error.data.message || error.message || "")),
                         cancel: function () {
                             rnc_input.focus();
+                        },
+                    });
+                };
+                if (rnc.length === 9 || rnc.length === 11) {
+                    $.ajax('/validate_rnc/', {
+                        dataType: 'json',
+                        type: 'GET',
+                        timeout: 3000,
+                        data: {'rnc': rnc},
+                    }).then(function (data) {
+                        if (data.is_valid === false) {
+                            show_rnc_error(self, {
+                                statusText: 'Tax ID is invalid',
+                            }, {});
+                        } else {
+                            if (data.info && data.info.name) {
+                                name_input.val(data.info.name);
+                            }
+                            _super(partner);
+                        }
+                    }, function (request, error) {
+                        if (rnc.length === 9 && self.mod11_validator(rnc)) {
+                            name_input.val(rnc);
+                        } else if (rnc.length === 11 && self.mod10_validator(rnc)) {
+                            name_input.val(rnc);
+                        } else {
+                            show_rnc_error(self, request, error);
                         }
                     });
-                    _super(partner);
-                });
+                } else {
+                    show_rnc_error(self, {
+                        statusText: 'Longitud incorrecta',
+                    }, {});
+                }
+
             } else {
                 this._super(partner);
             }
@@ -190,10 +200,55 @@ odoo.define('ncf_pos.screens', function (require) {
                 this.editing_client !== true && !this.new_client) {
                 $button.addClass('oe_hidden');
             }
-        }
+        },
+        mod11_validator: function (number) {
+            var weights = [7, 9, 8, 6, 5, 4, 3, 2];
+
+            var checkDigit = number.slice(-1);
+            number = number.slice(0, 8);
+
+            var zip = _.zip(weights, number.split(""));
+            var sum = [];
+
+            for (var i=0; i<zip.length; i++) {
+                var nx = zip[i];
+                sum.push(nx[0] * parseInt(nx[1]));
+            }
+
+            var check = _.reduce(sum, function (memo, num) {
+                return memo + num;
+            }, 0) % 11;
+
+            return (10 - check) % 9 + 1 === checkDigit;
+        },
+        mod10_validator: function (value) {
+            if ((/[^0-9-\s]+/).test(value)) {
+                return false;
+            }
+
+            // The Luhn Algorithm. It's so pretty.
+            var nCheck = 0, bEven = false;
+            value = value.replace(/\D/g, "");
+
+            for (var n = value.length - 1; n >= 0; n--) {
+                var cDigit = value.charAt(n),
+                    nDigit = parseInt(cDigit, 10);
+
+                if (bEven) {
+                    if ((nDigit *= 2) > 9) {
+                        nDigit -= 9;
+                    }
+                }
+
+                nCheck += nDigit;
+                bEven = !bEven;
+            }
+
+            return nCheck % 10 === 0;
+        },
     });
 
-    /*--------------------------------------*\
+    /* --------------------------------------*\
      THE INVOICES LIST
      ======================================
      Displays the list of invoices and allows the cashier
@@ -271,7 +326,9 @@ odoo.define('ncf_pos.screens', function (require) {
 
             contents.empty();
 
-            if (!orders) return;
+            if (!orders) {
+                return;
+            }
 
             this.display_order_details('hide');
             orders.forEach(function (order) {
@@ -294,8 +351,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 $line.removeClass('highlight');
                 $line.addClass('lowlight');
                 this.display_order_details('hide');
-            }
-            else {
+            } else {
                 var y;
 
                 this.$('.order-list .highlight').removeClass('highlight');
@@ -322,11 +378,11 @@ odoo.define('ncf_pos.screens', function (require) {
                     var line = self.pos.db.line_by_id[line_id];
 
                     orderlines.push(line);
-                    sumQty += (line.qty - line.line_qty_returned);
+                    sumQty += line.qty - line.line_qty_returned;
                 });
                 if (sumQty == 0) {
                     order.refunded = true;
-                    order.return_status = 'Fully-Returned'
+                    order.return_status = 'Fully-Returned';
                 }
                 contents.empty();
                 contents.append($(QWeb.render('OrderDetails',
@@ -334,15 +390,15 @@ odoo.define('ncf_pos.screens', function (require) {
                         widget: this,
                         order: order,
                         orderlines: orderlines,
-                        statements: statements
+                        statements: statements,
                     })));
                 new_height = contents.height();
                 if (!this.details_visible) {
                     if (clickpos < scroll + new_height + 20) {
                         parent.scrollTop(clickpos - 20);
-                    }
-                    else
+                    } else {
                         parent.scrollTop(parent.scrollTop() + new_height);
+                    }
                 } else {
                     parent.scrollTop(parent.scrollTop() - height + new_height);
                 }
@@ -356,7 +412,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     var allow_return = true;
                     var orders = self.pos.get_order_list();
 
-                    //Mostramos la pantalla con la orden si ya esta en proceso de creacion
+                    // Mostramos la pantalla con la orden si ya esta en proceso de creacion
                     for (var n in orders) {
                         var _order = orders[n];
 
@@ -377,9 +433,6 @@ odoo.define('ncf_pos.screens', function (require) {
                             if (product == null) {
                                 non_returnable_products = true;
                                 message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
-                            } else if (product.not_returnable) {
-                                non_returnable_products = true;
-                                message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
                             } else if (line.qty - line.line_qty_returned > 0) {
                                 original_orderlines.push(line);
                             }
@@ -415,8 +468,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         });
                     }
                 });
-            }
-            else if (visibility === 'hide') {
+            } else if (visibility === 'hide') {
                 if (this.selected_tr_element) {
                     this.selected_tr_element.removeClass('highlight');
                     this.selected_tr_element.addClass('lowlight');
@@ -428,13 +480,13 @@ odoo.define('ncf_pos.screens', function (require) {
                         function () {
                             contents.css({height: ''});
                         });
-                }
-                else
+                } else {
                     parent.scrollTop(parent.scrollTop() - height);
+                }
             }
 
-            this.details_visible = (visibility === 'show');
-        }
+            this.details_visible = visibility === 'show';
+        },
     });
 
     gui.define_screen({name: 'invoiceslist', widget: InvoicesListScreenWidget});
@@ -491,11 +543,10 @@ odoo.define('ncf_pos.screens', function (require) {
 
                 if (qty_input == 0 && line_quantity_remaining != 0 && !self.options.is_partial_return) {
                     self.options.is_partial_return = true;
-                }
-                else if (qty_input > 0) {
+                } else if (qty_input > 0) {
                     return_lines[line_id] = {
                         qty: qty_input,
-                        qty_remaining: line_quantity_remaining
+                        qty_remaining: line_quantity_remaining,
                     };
                     if (line_quantity_remaining != qty_input && !self.options.is_partial_return) {
                         self.options.is_partial_return = true;
@@ -519,18 +570,21 @@ odoo.define('ncf_pos.screens', function (require) {
                 setTimeout(function () {
                     self.$("input").css("background-color", "");
                 }, 500);
-                if (self.$("input").length > 0)
+                if (self.$("input").length > 0) {
                     self.$("input:eq(0)").select();
-            }
-            else if (return_entries_ok)
+                }
+            } else if (return_entries_ok) {
                 self.create_return_order(return_lines);
+            }
         },
         create_return_order: function (return_lines) {
             var self = this;
             var order = self.options.order;
             var refund_order = {};
 
-            if (Object.keys(return_lines).length == 0) return;
+            if (Object.keys(return_lines).length == 0) {
+                return;
+            }
 
             if (self.options.mode == 'edit') {
                 var _order = self.pos.get_order();
@@ -541,7 +595,7 @@ odoo.define('ncf_pos.screens', function (require) {
                 }
                 refund_order = _order;
             } else {
-                self.pos.add_new_order(); //Crea un nuevo objeto orden del lado del cliente
+                self.pos.add_new_order(); // Crea un nuevo objeto orden del lado del cliente
                 refund_order = self.pos.get_order();
                 refund_order.is_return_order = true;
                 refund_order.return_order_id = order.id;
@@ -551,10 +605,11 @@ odoo.define('ncf_pos.screens', function (require) {
             }
             refund_order.orderlineList = [];
             refund_order.amount_total = 0;
-            if (self.options.is_partial_return)
+            if (self.options.is_partial_return) {
                 refund_order.return_status = 'Partially-Returned';
-            else
+            } else {
                 refund_order.return_status = 'Fully-Returned';
+            }
             Object.keys(return_lines).forEach(function (line_id) {
                 var return_line = return_lines[line_id];
                 var line = self.pos.db.line_by_id[line_id];
@@ -564,16 +619,23 @@ odoo.define('ncf_pos.screens', function (require) {
                 refund_order.add_product(product, {
                     quantity: qty,
                     price: line.price_unit,
-                    discount: line.discount
+                    discount: line.discount,
                 });
                 refund_order.selected_orderline.original_line_id = line.id;
-                refund_order.amount_total += parseFloat(line.price_subtotal_incl) * qty;
+                var apply_discounts = function (price, discount) {
+                    return price - (price * Math.max(Math.min(discount, 100), 0))/100;
+                };
+                var unit_price_with_discounts = apply_discounts(line.price_unit, line.discount);
+                var unit_price_with_taxes = line.qty ? parseFloat(line.price_subtotal_incl) / line.qty : 0;
+                refund_order.amount_total += unit_price_with_taxes * qty;
                 refund_order.orderlineList.push({
                     line_id: line_id,
                     product_id: line.product_id[0],
                     product_name: line.product_id[1],
                     quantity: qty,
-                    price: line.price_subtotal_incl
+                    price: line.price_subtotal_incl,
+                    price_unit: unit_price_with_discounts,
+                    taxes: qty ? ( unit_price_with_taxes - unit_price_with_discounts ) : 0
                 });
             });
             this.click_confirm();
@@ -587,17 +649,19 @@ odoo.define('ncf_pos.screens', function (require) {
             this.orderlines = options.orderlines || [];
             this.renderElement();
             firstInput = $('.return_qty input:eq(0)');
-            if (firstInput.length)
-                firstInput.select()
+            if (firstInput.length) {
+                firstInput.select();
+            }
         },
     });
 
     gui.define_popup({
         name: 'refund_order_popup',
-        widget: OrderRefundPopup
+        widget: OrderRefundPopup,
     });
 
     popups.include({
+
         /**
          * Show the popup
          * @param {(string, Object)} options - The title or optional configuration for the popup.
@@ -613,13 +677,13 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         renderElement: function () {
             this._super();
-            //Ponemos un valor por defecto al input del popup TextInput o TextArea
+            // Ponemos un valor por defecto al input del popup TextInput o TextArea
             if (["TextInputPopupWidget", "TextAreaPopupWidget"].indexOf(this.template) > -1) {
                 var self = this;
                 var input = this.$('input,textarea');
 
                 if (input.length > 0) {
-                    //Ponemos un valor al input
+                    // Ponemos un valor al input
                     input.val(this.options.text_input_value || '');
                     // Ejecutamos el clic al boton confirm al presionar Enter
                     input.on('keypress', function (event) {
@@ -634,50 +698,58 @@ odoo.define('ncf_pos.screens', function (require) {
         },
         close: function () {
             this._super();
-            if (this.options && this.options.hasOwnProperty('text_input_value'))
+            if (this.options && this.options.hasOwnProperty('text_input_value')) {
                 this.options.text_input_value = '';
-        }
+            }
+        },
     });
 
     screens.PaymentScreenWidget.include({
         init: function (parent, options) {
             var self = this,
                 popup_options = {
+                    popup_name: "textinput",
                     title: 'Digite el número de NCF de la Nota de Crédito',
                     disable_keyboard_handler: true,
                     input_name: 'ncf',
                     text_input_value: '',
                     confirm: function (input_value) {
+                        var selection_val = $('.pos .popup select.credit_notes').val();
+                        if (selection_val) {
+                            var credit_note = self.pos.db.credit_note_by_id[selection_val]
+                            input_value = credit_note.reference;
+                        }
+
                         var msg_error = "";
 
                         rpc.query({
                             model: 'pos.order',
                             method: 'credit_note_info_from_ui',
-                            args: [input_value]
+                            args: [input_value],
                         }, {})
                             .then(function (result) {
                                 var residual = parseFloat(result.residual) || 0;
-
+                                var client = self.pos.get_client();
                                 if (result.id === false) {
                                     msg_error = _t("La nota de credito no existe.");
+                                } else if (!client || (client && client.id !== result.partner_id)){
+                                    msg_error = _t("La Nota de Crédito Pertenece a Otro Cliente");
                                 } else if (residual < 1) {
                                     msg_error = _t("El balance de la Nota de Credito es 0.");
-                                }
-                                else {
+                                } else {
                                     var order = self.pos.get_order();
                                     var cashregister = self.pos.cashregisters_by_id[10001];
                                     var paymentline = order.paymentlines.find(function (pl) {
-                                        return pl.note == input_value
+                                        return pl.note == input_value;
                                     });
 
                                     if (paymentline) {
                                         msg_error = "Esta Nota de Credito ya esta aplicada a la Orden";
-                                    }
-                                    else {
+                                    } else {
                                         order.add_paymentline(cashregister);
                                         order.selected_paymentline.credit_note_id = result.id;
                                         order.selected_paymentline.note = input_value;
-                                        order.selected_paymentline.set_amount(residual); //Add paymentline for residual
+                                        order.selected_paymentline.set_amount(residual); // Add paymentline for residual
                                         self.reset_input();
                                         self.order_changes();
                                         self.render_paymentlines();
@@ -691,34 +763,36 @@ odoo.define('ncf_pos.screens', function (require) {
                                     disable_keyboard_handler: true,
                                     cancel: function () {
                                         self.gui.show_popup('textinput', popup_options);
-                                    }
+                                    },
                                 });
                             });
-                    }
+                    },
                 },
                 credit_card_options = {
-                    title: _t("Type reference number"),
+                    popup_name: 'textinput',
+                    title: 'Digite el número de Referencia',
                     disable_keyboard_handler: true,
-                    input_name: _t("Reference Number"),
+                    input_name: 'credit_card',
                     text_input_value: '',
                     confirm: function (input) {
+                        var cashregister = this.options.cashregister;
                         cashregister.payment_reference = input;
                         self.pos.get_order().add_paymentline(cashregister);
                         self.reset_input();
                         self.render_paymentlines();
-                    }
+                    },
                 };
 
             this._super(parent, options);
             this.orderValidationDate = null;
-            
+
             for (var n in this.pos.cashregisters) {
                 var currentCashRegister = this.pos.cashregisters[n];
-                 
-                if (currentCashRegister.journal.id == 10001) { 
-                    // Set the popup options for the payment method Credit Note   
+
+                if (currentCashRegister.journal.id == 10001) {
+                    // Set the popup options for the payment method Credit Note
                     currentCashRegister.popup_options = popup_options;
-                } else if (currentCashRegister.type === "bank" && !currentCashRegister.credit) {
+                } else if (currentCashRegister.journal.payment_form === "card" && !currentCashRegister.credit) {
                     // Set the popup options for the payment method Credit/Debit Card
                     currentCashRegister.popup_options = credit_card_options;
                 }
@@ -750,7 +824,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         }
                     }
                     order.add_paymentline(cashregister);
-                    order.selected_paymentline.set_amount(order.get_total_with_tax()); //Add paymentline for total+tax
+                    order.selected_paymentline.set_amount(order.get_total_with_tax()); // Add paymentline for total+tax
                 }
                 this.order_changes();
                 this.$('.button.confirm').click(function () {
@@ -759,7 +833,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         body: _t('Are you sure you want to create this refund order?'),
                         confirm: function () {
                             self.validate_order();
-                        }
+                        },
                     });
                     return false;
                 }).addClass('highlight');
@@ -775,15 +849,6 @@ odoo.define('ncf_pos.screens', function (require) {
                     order.orderlineList.forEach(function (obj) {
                         return_product[obj.product_id] = obj.quantity;
                     });
-                    original_order.lines.forEach(function (line_id) {
-                        var line = $.extend({}, self.pos.db.line_by_id[line_id]);
-                        var product = self.pos.db.get_product_by_id(line.product_id[0]);
-
-                        if (product != null && !product.not_returnable && line.qty - line.line_qty_returned > 0) {
-                            line.current_return_qty = return_product[line.product_id[0]] || 0;
-                            original_orderlines.push(line);
-                        }
-                    });
                     self.gui.show_popup('refund_order_popup', {
                         disable_keyboard_handler: true,
                         order: original_order,
@@ -796,7 +861,7 @@ odoo.define('ncf_pos.screens', function (require) {
                             for (var n = paymentlines.length - 1; n >= 0; n--) {
                                 order.paymentlines.remove(paymentlines[n]);
                             }
-                        }
+                        },
                     });
                     return false;
                 });
@@ -805,14 +870,15 @@ odoo.define('ncf_pos.screens', function (require) {
                 refundContents.addClass('oe_hidden');
             }
             this.$('.button.js_invoice').remove();
-            //improving the keyboard handling method
+            // Improving the keyboard handling method
             this.gui.__disable_keyboard_handler();
             this.gui.__enable_keyboard_handler();
         },
+
         /**
          * Get the next ncf sequence
          *
-         * @param {object} order - pos order object
+         * @param {Object} order - pos order object
          * @returns {Promise} - Promise object that return the next ncf sequence
          */
         get_next_ncf: function (order) {
@@ -821,7 +887,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     order.uid,
                     order.get_client().sale_fiscal_type,
                     this.pos.config.invoice_journal_id[0],
-                    order.is_return_order
+                    order.is_return_order,
                 ],
                 dfd = $.Deferred();
 
@@ -833,25 +899,27 @@ odoo.define('ncf_pos.screens', function (require) {
                 dfd = rpc.query({
                     model: 'pos.order',
                     method: 'get_next_ncf',
-                    args: args
+                    args: args,
                 }, {
-                    timeout: 3000
+                    timeout: 3000,
                 });
 
                 dfd.done(function (next_ncf) {
+                    if (next_ncf && (next_ncf.slice(0,1)) === 'B') {
+                        order.max_ncf_number_reached = false;
+                    }
                     var ncfs = self.pos.db.load('ncfs', []);
 
                     order.ncf = next_ncf;
                     ncfs.push({validatedNcf: next_ncf, orderUid: order.uid});
                     self.pos.db.save('ncfs', ncfs);
-                    console.info("Order NCF Validated", {ncf: next_ncf, uid: order.uid});
                 }).fail(function (request) {
                     order.ncf = '';
-                    console.error("get_next_ncf", request);
                 });
             }
             return dfd.promise();
         },
+
         /**
          * Making some things about validation and calling to backend to get the ncf
          */
@@ -859,10 +927,10 @@ odoo.define('ncf_pos.screens', function (require) {
             if (this.order_is_valid(force_validation)) {
                 var self = this,
                     now = new Date(),
-                    orderValidationDate = (this.orderValidationDate || null);
+                    orderValidationDate = this.orderValidationDate || null;
 
-                //blocking the execution of this method for 5 seconds or until the execution is completed
-                if (orderValidationDate && ((now - orderValidationDate) <= 5000)) {
+                // Blocking the execution of this method for 5 seconds or until the execution is completed
+                if (orderValidationDate && now - orderValidationDate <= 5000) {
                     console.info("Failed attempt to execute validate_order", new Date());
                 } else {
                     var invoicing = self.pos.config.iface_invoicing,
@@ -871,13 +939,12 @@ odoo.define('ncf_pos.screens', function (require) {
                         popupErrorOptions = null;
 
                     this.orderValidationDate = new Date();
-                    console.info("Executing validate_order", this.orderValidationDate);
                     if (!client && invoicing) {
                         popupErrorOptions = {
                             'title': 'Factura sin Cliente',
                             'body': 'Debe seleccionar un cliente para poder realizar el pago, o ' +
                             'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
-                            'pida ayuda a su encargado para que lo establezca.'
+                            'pida ayuda a su encargado para que lo establezca.',
                         };
                     } else if (client && !client.vat) {
                         if (["fiscal", "gov", "special"].indexOf(client.sale_fiscal_type) > -1) {
@@ -887,30 +954,38 @@ odoo.define('ncf_pos.screens', function (require) {
                                 'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
                                 'registrado correctamente si este desea comprobante fiscal.',
                             };
-                        } else if (invoicing && order.get_total_without_tax() >= 50000) {
+                        } else if (invoicing && order.get_total_without_tax() >= 250000) {
                             popupErrorOptions = {
                                 'title': 'Factura sin Cedula de Cliente',
                                 'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                                'es igual o mayor a RD$50,000.00 o mas',
+                                'es igual o mayor a RD$250,000.00 o mas',
                             };
                         }
                     }
                     if (popupErrorOptions) {
-                        console.warn(popupErrorOptions.title, {message: popupErrorOptions.body});
                         self.gui.show_popup('error', popupErrorOptions);
                         self.orderValidationDate = null;
                     } else {
                         this.get_next_ncf(order)
                             .done(function () {
-                                console.info("Finishing Order Validation", new Date());
-                                self.finalize_validation();
-                                self.orderValidationDate = null;
-                            }).fail(function() {
+                                if (order.ncf === 'max_ncf_number_reached' || order.max_ncf_number_reached) {
+                                    order.max_ncf_number_reached = true;
+                                    self.gui.show_popup('error', {
+                                        'title': 'Limite Máximo para Secuencia de NCF Excedido',
+                                        'body': 'Se a alcanzado el limite maximo para el tipo de NCF seleccionado: ' +
+                                                order.get_client().sale_fiscal_type +
+                                                '. Puede pedir ayuda para extender la secuencia permitida y validar la orden nuevamente.\n\n',
+                                    });
+                                } else {
+                                    self.finalize_validation();
+                                    self.orderValidationDate = null;
+                                }
+                            }).fail(function () {
                                 self.gui.show_popup('error', {
                                     'title': 'No se pudo realizar la conexión con el servidor',
                                     'body': 'Puede que haya intermitencia en la conexión a internet ' +
                                             'o no haya conexion \n\n. Favor revisar la conexión a internet y' +
-                                            ' valide la orden nuevamente.\n\n'
+                                            ' valide la orden nuevamente.\n\n',
                                 });
                             });
                     }
@@ -918,20 +993,21 @@ odoo.define('ncf_pos.screens', function (require) {
             }
         },
         click_paymentmethods: function (id) {
-            //Validamos que la orden tenga saldo pendiente antes de agregar una nueva linea de pago
+            // Validamos que la orden tenga saldo pendiente antes de agregar una nueva linea de pago
             if (this.pos.get_order().get_due() <= 0) {
                 this.gui.show_popup('alert', {
                     title: _t("Payment"),
                     body: _t("This order has no pending balance."),
-                    disable_keyboard_handler: true
+                    disable_keyboard_handler: true,
                 });
             } else {
                 for (var i = 0; i < this.pos.cashregisters.length; i++) {
                     var cashregister = this.pos.cashregisters[i];
 
-                    //Evaluamos si es una forma de pago especial que abre un popup
-                    if (cashregister.journal_id[0] === id && cashregister.show_popup === true) {
-                        this.gui.show_popup(cashregister.popup_name || 'alert', cashregister.popup_options);
+                    // Evaluamos si es una forma de pago especial que abre un popup
+                    if (cashregister.journal_id[0] === id && cashregister.popup_options) {
+                        var popup_options = _.extend(_.clone(cashregister.popup_options), {cashregister: cashregister});
+                        this.gui.show_popup(popup_options.popup_name || 'alert', popup_options);
                         return false;
                     }
                 }
@@ -941,20 +1017,22 @@ odoo.define('ncf_pos.screens', function (require) {
         payment_input: function (input) {
             var order = this.pos.get_order();
 
-            //Evitamos que se pueda cambiar el monto de la Nota de Credito
-            if (order.selected_paymentline && order.selected_paymentline.cashregister.id == 10001)
+            // Evitamos que se pueda cambiar el monto de la Nota de Credito
+            if (order.selected_paymentline && order.selected_paymentline.cashregister.id === 10001) {
                 return false;
+            }
             this._super(input);
         },
+
         /** Update customer information when another customer is selected */
         customer_changed: function () {
             var client = this.pos.get_client();
-            var clientFiscalType = (client && client.sale_fiscal_type) || '';
+            var clientFiscalType = client && client.sale_fiscal_type || '';
 
             this._super.apply(this, arguments);
-            this.$('.sale_fiscal_type_label').text(clientFiscalType ?
-                this.pos.get_sale_fiscal_type(clientFiscalType).name : '');
-        }
+            this.$('.sale_fiscal_type_label').text(clientFiscalType
+                ? this.pos.get_sale_fiscal_type(clientFiscalType).name : '');
+        },
     });
 
     screens.ActionpadWidget.include({
@@ -976,14 +1054,14 @@ odoo.define('ncf_pos.screens', function (require) {
                 if (order.get_total_with_tax() <= 0) {
                     popupErrorOptions = {
                         'title': 'Cantidad de articulos a pagar',
-                        'body': 'La orden esta vacia o el total pagar es RD$0.00'
+                        'body': 'La orden esta vacia o el total pagar es RD$0.00',
                     };
                 } else if (!client && invoicing) {
                     popupErrorOptions = {
                         'title': 'Factura sin Cliente',
                         'body': 'Debe seleccionar un cliente para poder realizar el pago, o ' +
                         'utilizar el cliente por defecto.\n\nDe no tener un cliente por defecto, ' +
-                        'pida ayuda a su encargado para que lo establezca.'
+                        'pida ayuda a su encargado para que lo establezca.',
                     };
                 } else if (client && !client.vat) {
                     if (["fiscal", "gov", "special"].indexOf(client.sale_fiscal_type) > -1) {
@@ -997,7 +1075,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         popupErrorOptions = {
                             'title': 'Factura sin Cedula de Cliente',
                             'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                            'es igual o mayor a RD$50,000.00 o mas',
+                            'es igual o mayor a RD$250,000.00 o mas',
                         };
                     }
                 }
@@ -1007,28 +1085,34 @@ odoo.define('ncf_pos.screens', function (require) {
                     payButtonClickSuper.apply(this, arguments);
                 }
             });
-        }
+        },
     });
 
     gui.Gui.include({
+
         /**
          * Allows the keyboard capture for the current screen
          */
         __enable_keyboard_handler: function () {
             var current_screen = this.current_screen;
 
-            if (!current_screen || !current_screen.keyboard_handler) return;
+            if (!current_screen || !current_screen.keyboard_handler) {
+                return;
+            }
 
             $('body').on('keypress', current_screen.keyboard_handler);
             $('body').on('keydown', current_screen.keyboard_keydown_handler);
         },
+
         /**
          * Remove the keyboard capture for the current screen
          */
         __disable_keyboard_handler: function () {
             var current_screen = this.current_screen;
 
-            if (!current_screen || !current_screen.keyboard_handler) return;
+            if (!current_screen || !current_screen.keyboard_handler) {
+                return;
+            }
 
             $('body').off('keypress', current_screen.keyboard_handler);
             $('body').off('keydown', current_screen.keyboard_keydown_handler);
@@ -1036,15 +1120,17 @@ odoo.define('ncf_pos.screens', function (require) {
             window.document.body.removeEventListener('keydown', current_screen.keyboard_keydown_handler);
         },
         show_popup: function (name, options) {
-            if (options && options.disable_keyboard_handler === true)
+            if (options && options.disable_keyboard_handler === true) {
                 this.__disable_keyboard_handler();
+            }
             return this._super(name, options);
         },
         close_popup: function () {
             if (this.current_popup && this.current_popup.options &&
-                this.current_popup.options.disable_keyboard_handler === true)
+                this.current_popup.options.disable_keyboard_handler === true) {
                 this.__enable_keyboard_handler();
+            }
             this._super();
-        }
+        },
     });
 });

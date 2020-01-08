@@ -66,10 +66,35 @@
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
+                            <br/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <br/>
                     </t>
@@ -82,26 +107,78 @@
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
+                            <br/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <br/>
                     </t>
 
                     <t t-else="">
-                        <strong>ID CLIENTE:</strong>
-                        <span t-field="o.partner_id.vat"/>
-                        <br/>
+                        <t t-if="o.partner_id.vat">
+                            <strong>ID CLIENTE:</strong>
+                            <span t-field="o.partner_id.vat"/>
+                            <br/>
+			</t>
                         <strong>NOMBRE:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
+                            <br/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <br/>
                     </t>
@@ -110,17 +187,44 @@
 
                 <div name="invoice_partner_address" class="col-xs-5" t-if="o.partner_id.vat == False">
                     <t>
-                        <strong>ID CLIENTE:</strong>
-                        <span t-field="o.partner_id.vat"/>
+                        <t t-if="o.partner_id.vat">
+                            <strong>ID CLIENTE:</strong>
+                            <span t-field="o.partner_id.vat"/>
                         <br/>
+                        </t>
                         <strong>NOMBRE:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span t-field="o.partner_id.parent_id.name"/>
                             <br/>
+                            <strong>CONTACTO:</strong>
+                            <Span t-field="o.partner_id.name"/>
+                            <br/>
+                            <t t-if="o.partner_id.parent_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.phone"/>
+                                <t t-if="o.partner_id.parent_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.parent_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.parent_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <t t-else="">
                             <span t-field="o.partner_id.name"/>
                             <br/>
+                            <t t-if="o.partner_id.phone">
+                                <strong>TEL.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <t t-if="o.partner_id.mobile">
+                                    <span> / </span>
+                                </t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>CEL.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
+                            </t>
                         </t>
                         <br/>
                     </t>
@@ -138,9 +242,9 @@
                     <strong>Origen:</strong>
                     <p t-field="o.origin"/>
                 </div>
-                <div name="reference" class="col-xs-2" t-if="o.number">
+                <div name="reference" class="col-xs-2" t-if="o.move_name">
                     <strong>FACTURA NO.:</strong>
-                    <p t-field="o.number"/>
+                    <p t-field="o.move_name"/>
                 </div>
             </div>
         </xpath>

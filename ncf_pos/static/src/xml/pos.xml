@@ -245,15 +245,7 @@
                         <t t-foreach='orderlines' t-as='line'>
                             <tr>
                                 <td style="text-align:left">
-                                    <t t-if="widget.pos.db.get_product_by_id(line.product_id[0])">
-                                        <t t-if="widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
-                                            <t t-esc="line.product_id[1]"/>
-                                            <b style="color: rgb(160, 89, 89);">(Non-Returnable)</b>
-                                        </t>
-                                        <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
-                                            <t t-esc="line.product_id[1]"/>
-                                        </t>
-                                    </t>
+                                    <t t-esc="line.product_id[1]"/>
                                     <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0])">
                                         <t t-esc="line.product_id[1]"/>
                                         <b style="color: rgb(160, 89, 89);">(Unavailable In POS)</b>
@@ -384,6 +376,16 @@
     </t>
 
     <t t-extend="TextInputPopupWidget">
+        <t t-jquery="input" t-operation="replace">
+            <t t-if="widget.options.input_name">
+                <div>
+                    <input type='text' t-att-value="widget.options.value || ''"></input>
+                </div>
+            </t>
+            <t t-else="">
+                <input type='text' t-att-value="widget.options.value || ''"></input>
+            </t>
+        </t>
         <t t-jquery=".footer" t-operation="before">
             <t t-set="input_name" t-value="widget.options.input_name"></t>
             <t t-if="input_name">
@@ -391,7 +393,7 @@
                 <t t-if="input_name == 'credit_card'">
                     <p>
                         <i class="fa fa-credit-card-alt" aria-hidden="true"></i>
-                        TARJETA: Número de aprobación
+                        TARJETA: Número de aprobación de la Tarjeta
                     </p>
                 </t>
                 <t t-elif="input_name == 'bank_check'">
@@ -405,6 +407,20 @@
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                         NCF: Número de Comprobante Fiscal
                     </p>
+                    <t t-set="partner" t-value="widget.pos.get_client()"/>
+                    <t t-set="partner_notes" t-value="widget.pos.db.credit_notes_by_partner_id[partner.id]"/>
+                    <t t-if="partner &amp;&amp; partner_notes">
+                        <div>
+                            <select class='credit_notes' name='credit_note_id'>
+                                <option value=''>None</option>
+                                <t t-foreach='partner_notes' t-as='note'>
+                                    <option t-att-value='note.id'>
+                                        <t t-esc='note.reference'/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                    </t>
                 </t>
             </t>
         </t>
@@ -438,6 +454,7 @@
                         <tr>
                             <th>Product</th>
                             <th class="col-right">Quantity</th>
+                            <th class="col-right">Taxes</th>
                             <th class="col-right">Amount</th>
                         </tr>
                     </thead>
@@ -451,13 +468,17 @@
                                     <t t-esc="line.quantity"/>
                                 </td>
                                 <td class="col-right">
-                                    <t t-esc="Math.round(line.price * 100) / 100"/>
+                                    <t t-esc="widget.format_currency_no_symbol(line.taxes)"/>
+                                </td>
+                                <td class="col-right">
+                                    <t t-esc="Math.round(line.price_unit * 100) / 100"/>
                                 </td>
                             </tr>
                         </t>
                     </tbody>
                     <tfoot>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td class="col-right highlight-2">
