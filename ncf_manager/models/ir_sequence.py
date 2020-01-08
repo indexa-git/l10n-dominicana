@@ -117,6 +117,10 @@ class IrSequenceDateRange(models.Model):
     def default_get(self, fields):
         res = super(IrSequenceDateRange, self).default_get(fields)
 
-        res['warning_ncf'] = res['max_number_next'] - 50
+        max_number_next = res.get('max_number_next')
+        if max_number_next:
+            res['warning_ncf'] = res['max_number_next'] - 50
+        else:
+            res['warning_ncf'] = 50
 
         return res
