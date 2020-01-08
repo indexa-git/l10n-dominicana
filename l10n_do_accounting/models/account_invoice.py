@@ -104,14 +104,12 @@ class AccountInvoice(models.Model):
     )
     is_debit_note = fields.Boolean()
 
-    @api.multi
     @api.depends('state', 'journal_id')
     def _compute_is_l10n_do_fiscal_invoice(self):
         for inv in self:
             inv.is_l10n_do_fiscal_invoice = \
                 inv.journal_id.l10n_do_fiscal_journal
 
-    @api.multi
     @api.depends('journal_id', 'is_l10n_do_fiscal_invoice', 'state',
                  'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
@@ -164,7 +162,6 @@ class AccountInvoice(models.Model):
             else:
                 inv.fiscal_sequence_id = False
 
-    @api.multi
     @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
                  'fiscal_sequence_id.remaining_percentage', 'state',
                  'journal_id')
@@ -193,7 +190,6 @@ class AccountInvoice(models.Model):
                 else:
                     inv.fiscal_sequence_status = 'no_sequence'
 
-    @api.multi
     @api.constrains('state', 'tax_line_ids')
     def validate_special_exempt(self):
         """ Validates an invoice with Regímenes Especiales fiscal type
@@ -217,7 +213,6 @@ class AccountInvoice(models.Model):
                         "information")
                     )
 
-    @api.multi
     @api.constrains('state', 'invoice_line_ids', 'partner_id')
     def validate_products_export_ncf(self):
         """ Validates that an invoices with a partner from country != DO
@@ -243,7 +238,6 @@ class AccountInvoice(models.Model):
                         "Service sales to oversas customer must have "
                         "Consumo Fiscal Type"))
 
-    @api.multi
     @api.constrains('state', 'tax_line_ids')
     def validate_informal_withholding(self):
         """ Validates an invoice with Comprobante de Compras has 100% ITBIS
@@ -339,7 +333,6 @@ class AccountInvoice(models.Model):
                             "please validate if you have typed it correctly.")
                             .format(ncf))
 
-    @api.multi
     def action_invoice_open(self):
         """ Before an invoice is changed to the 'open' state, validate that all
             informations are valid regarding Norma 05-19 and if there are
@@ -397,7 +390,6 @@ class AccountInvoice(models.Model):
 
         return super(AccountInvoice, self).action_invoice_open()
 
-    @api.multi
     def validate_fiscal_purchase(self):
         for inv in self.filtered(
                 lambda i: i.type == 'in_invoice' and i.state == 'draft'):
@@ -456,7 +448,6 @@ class AccountInvoice(models.Model):
                         "invoice with the same supplier. Look for it in "
                         "invoices with canceled or draft states").format(ncf))
 
-    @api.multi
     def invoice_validate(self):
         """ After all invoice validation routine, consume a NCF sequence and
             write it into reference field.
@@ -470,7 +461,6 @@ class AccountInvoice(models.Model):
 
         return super(AccountInvoice, self).invoice_validate()
 
-    @api.multi
     def invoice_print(self):
         # Companies which has installed l10n_do localization use
         # l10n_do fiscal invoice template
@@ -525,7 +515,6 @@ class AccountInvoice(models.Model):
 
         return res
 
-    @api.multi
     @api.returns('self')
     def refund(self, date_invoice=None, date=None, description=None,
                journal_id=None):

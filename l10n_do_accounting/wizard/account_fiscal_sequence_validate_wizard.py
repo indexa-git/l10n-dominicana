@@ -1,6 +1,6 @@
 # TODO: poner authorship en todos los archivos .py (xml tamb?)
 
-from odoo import models, fields, api, _
+from odoo import models, fields, _
 from odoo.exceptions import ValidationError
 
 
@@ -18,7 +18,6 @@ class AccountFiscalSequenceValidateWizard(models.TransientModel):
         string='Fiscal sequence',
     )
 
-    @api.multi
     def confirm_cancel(self):
         self.ensure_one()
         if self.fiscal_sequence_id:
