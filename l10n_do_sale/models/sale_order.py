@@ -19,33 +19,31 @@ class SaleOrder(models.Model):
         """
         self.ensure_one()
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
-
+        partner_id = self.partner_id
+        partner_fiscal_type_id = partner_id.sale_fiscal_type_id
         journal_id = self.env['account.journal'].browse(
             invoice_vals['journal_id'])
+
         if not journal_id.l10n_do_fiscal_journal:
             return invoice_vals
 
-        partner_id = self.partner_id
-
-        if partner_id.parent_id and partner_id.parent_id.is_company:
-            parent_fiscal_type_id = partner_id.parent_id.sale_fiscal_type_id.id
-            invoice_vals['fiscal_type_id'] = parent_fiscal_type_id
-
-        elif partner_id.vat:
-            partner_fiscal_type_id = partner_id.sale_fiscal_type_id
-            if partner_fiscal_type_id:
+        elif not partner_fiscal_type_id:
+            if partner_id.vat:
                 invoice_vals['fiscal_type_id'] = partner_fiscal_type_id.id
-            if not partner_fiscal_type_id:
-                invoice_vals['fiscal_type_id'] = self.env[
-                    'account.fiscal.type'].search(
-                        [('type', '=', 'out_invoice'),
-                         ('prefix', '=', 'B01'),
-                         ], limit=1).id
-        else:
+                if not partner_fiscal_type_id:
+                    invoice_vals['fiscal_type_id'] = self.env[
+                        'account.fiscal.type'].search([
+                            ('type', '=', 'out_invoice'),
+                            ('prefix', '=', 'B01'),
+                        ], limit=1).id
             invoice_vals['fiscal_type_id'] = self.env[
-                'account.fiscal.type'].search(
-                    [('type', '=', 'out_invoice'),
-                     ('prefix', '=', 'B02'),
-                     ], limit=1).id
+                'account.fiscal.type'].search([
+                    ('type', '=', 'out_invoice'),
+                    ('prefix', '=', 'B02'),
+                ], limit=1).id
+        elif partner_id.parent_id and partner_id.parent_id.is_company \
+                and partner_id.parent_id.sale_fiscal_type_id:
+            invoice_vals['fiscal_type_id'] = \
+                partner_id.parent_id.sale_fiscal_type_id.id
 
         return invoice_vals
