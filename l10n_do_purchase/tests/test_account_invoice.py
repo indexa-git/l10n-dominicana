@@ -12,11 +12,8 @@ class AccountInvoiceTests(TransactionCase):
         self.journal_obj = self.env['account.journal']
         self.purchase_obj = self.env['purchase.order']
 
-        self.purchase_journal = False
-
-        for journal in self.journal_obj.search([('type', '=', 'purchase')]):
-            journal.l10n_do_fiscal_journal = True
-            self.purchase_journal = journal
+        journals = self.journal_obj.search([('type', '=', 'purchase')])
+        journals.write({'l10n_do_fiscal_journal': True})
 
         self.partner_demo_1 = self.ref('l10n_do_accounting.res_partner_demo_1')
         self.product_id = self.env.ref('product.product_product_1')
