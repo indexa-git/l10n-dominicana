@@ -43,15 +43,15 @@ class AccountFiscalSequence(models.Model):
         default=datetime.strptime(str(int(str(
             fields.Date.today())[0:4]) + 1) + '-12-31', '%Y-%m-%d').date()
     )
-    fiscal_type_id = fields.Many2one(
-        'account.fiscal.type',
+    l10n_latam_document_type_id = fields.Many2one(
+        'account.document.type',
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
     )
-    type = fields.Selection(
-        related='fiscal_type_id.type',
+    l10n_do_type = fields.Selection(
+        related='l10n_latam_document_type_id.l10n_do_type',
         store=True,
     )
     sequence_start = fields.Integer(
@@ -74,7 +74,7 @@ class AccountFiscalSequence(models.Model):
         string='Remaining',
         compute='_compute_sequence_remaining',
     )
-    sequence_id = fields.Many2one(
+    l10n_do_sequence_id = fields.Many2one(
         'ir.sequence',
         string="Internal Sequence",
         copy=False,
@@ -91,7 +91,7 @@ class AccountFiscalSequence(models.Model):
     number_next_actual = fields.Integer(
         string='Next Number',
         help="Next number of this sequence",
-        related='sequence_id.number_next_actual',
+        related='l10n_do_sequence_id.number_next_actual',
     )
     next_fiscal_number = fields.Char(
         compute='_compute_next_fiscal_number',
@@ -125,7 +125,7 @@ class AccountFiscalSequence(models.Model):
         for rec in self:
             rec.can_be_queue = bool(2 > self.search_count(
                 [('state', 'in', ('active', 'queue')),
-                 ('fiscal_type_id', '=', rec.fiscal_type_id.id),
+                 ('l10n_latam_document_type_id', '=', rec.l10n_latam_document_type_id.id),
                  ('company_id', '=', rec.company_id.id)]) > 0) if \
                 rec.state == 'draft' else False
 
@@ -137,33 +137,33 @@ class AccountFiscalSequence(models.Model):
                               (rec.remaining_percentage / 100)
 
     @api.multi
-    @api.depends('sequence_end', 'sequence_id.number_next')
+    @api.depends('sequence_end', 'l10n_do_sequence_id.number_next')
     def _compute_sequence_remaining(self):
         for rec in self:
-            if rec.sequence_id:
+            if rec.l10n_do_sequence_id:
                 # Sequence remaining
                 rec.sequence_remaining = \
-                    rec.sequence_end - rec.sequence_id.number_next_actual + 1
+                    rec.sequence_end - rec.l10n_do_sequence_id.number_next_actual + 1
 
     @api.multi
-    @api.depends('fiscal_type_id.prefix', 'sequence_id.padding',
-                 'sequence_id.number_next_actual')
+    @api.depends('l10n_latam_document_type_id.doc_code_prefix', 'l10n_do_sequence_id.padding',
+                 'l10n_do_sequence_id.number_next_actual')
     def _compute_next_fiscal_number(self):
         for seq in self:
             seq.next_fiscal_number = "%s%s" % (
-                seq.fiscal_type_id.prefix,
-                str(seq.sequence_id.number_next_actual).zfill(
-                    seq.sequence_id.padding))
+                seq.l10n_latam_document_type_id.doc_code_prefix,
+                str(seq.l10n_do_sequence_id.number_next_actual).zfill(
+                    seq.l10n_do_sequence_id.padding))
 
-    @api.onchange('fiscal_type_id')
+    @api.onchange('l10n_latam_document_type_id')
     def _onchange_fiscal_type_id(self):
         """
         Compute draft Fiscal Sequence default sequence_start
         """
-        if self.fiscal_type_id and self.state == 'draft':
+        if self.l10n_latam_document_type_id and self.state == 'draft':
             # Last active or depleted Fiscal Sequence
             fs_id = self.search([
-                ('fiscal_type_id', '=', self.fiscal_type_id.id),
+                ('l10n_latam_document_type_id', '=', self.l10n_latam_document_type_id.id),
                 ('state', 'in', ('depleted', 'active')),
                 ('company_id', '=', self.company_id.id),
             ],
@@ -172,14 +172,14 @@ class AccountFiscalSequence(models.Model):
             )
             self.sequence_start = fs_id.sequence_end + 1 if fs_id else 1
 
-    @api.constrains('fiscal_type_id', 'state')
+    @api.constrains('l10n_latam_document_type_id', 'state')
     def _validate_unique_active_type(self):
         """
         Validate an active sequence type uniqueness
         """
         domain = [
             ('state', '=', 'active'),
-            ('fiscal_type_id', '=', self.fiscal_type_id.id),
+            ('l10n_latam_document_type_id', '=', self.l10n_latam_document_type_id.id),
             ('company_id', '=', self.company_id.id),
         ]
         if self.search_count(domain) > 1:
@@ -188,7 +188,7 @@ class AccountFiscalSequence(models.Model):
 
     @api.multi
     @api.constrains('sequence_start', 'sequence_end',
-                    'state', 'fiscal_type_id', 'company_id')
+                    'state', 'l10n_latam_document_type_id', 'company_id')
     def _validate_sequence_range(self):
         for rec in self.filtered(lambda s: s.state != 'cancelled'):
             if any([True for value in [rec.sequence_start, rec.sequence_end]
@@ -201,7 +201,7 @@ class AccountFiscalSequence(models.Model):
             domain = [
                 ('sequence_start', '>=', rec.sequence_start),
                 ('sequence_end', '<=', rec.sequence_end),
-                ('fiscal_type_id', '=', rec.fiscal_type_id.id),
+                ('l10n_latam_document_type_id', '=', rec.l10n_latam_document_type_id.id),
                 ('state', 'in', ('active', 'queue')),
                 ('company_id', '=', rec.company_id.id),
             ]
@@ -212,8 +212,8 @@ class AccountFiscalSequence(models.Model):
     @api.multi
     def unlink(self):
         for rec in self:
-            if rec.sequence_id:
-                rec.sequence_id.sudo().unlink()
+            if rec.l10n_do_sequence_id:
+                rec.l10n_do_sequence_id.sudo().unlink()
         return super(AccountFiscalSequence, self).unlink()
 
     @api.multi
@@ -225,18 +225,18 @@ class AccountFiscalSequence(models.Model):
         result = []
         for sequence in self:
             result.append((sequence.id, "%s - %s" % (
-                sequence.name, sequence.fiscal_type_id.name)))
+                sequence.name, sequence.l10n_latam_document_type_id.name)))
         return result
 
     @api.multi
     def action_view_sequence(self):
         self.ensure_one()
-        sequence_id = self.sequence_id
+        l10n_do_sequence_id = self.l10n_do_sequence_id
         action = self.env.ref('base.ir_sequence_form').read()[0]
-        if sequence_id:
+        if l10n_do_sequence_id:
             action['views'] = [
                 (self.env.ref('base.sequence_view').id, 'form')]
-            action['res_id'] = sequence_id.id
+            action['res_id'] = l10n_do_sequence_id.id
         else:
             action = {'type': 'ir.actions.act_window_close'}
         return action
@@ -250,7 +250,7 @@ class AccountFiscalSequence(models.Model):
             'l10n_do_accounting.account_fiscal_sequence_validate_wizard_action'
         ).read()[0]
         action['context'] = {'default_name': msg,
-                             'default_fiscal_sequence_id': self.id,
+                             'default_l10n_latam_sequence_id': self.id,
                              'action': 'confirm'}
         return action
 
@@ -265,11 +265,11 @@ class AccountFiscalSequence(models.Model):
                 rec.state = 'expired'
             else:
                 # Creates a new sequence of this Fiscal Sequence
-                sequence_id = self.env['ir.sequence'].create({
-                    'name': _('%s %s Sequence') % (rec.fiscal_type_id.name,
+                l10n_do_sequence_id = self.env['ir.sequence'].create({
+                    'name': _('%s %s Sequence') % (rec.l10n_latam_document_type_id.name,
                                                    rec.name[-9:]),
                     'implementation': 'standard',
-                    'padding': rec.fiscal_type_id.padding,
+                    'padding': rec.l10n_latam_document_type_id.padding,
                     'number_increment': 1,
                     'number_next_actual': rec.sequence_start,
                     'number_next': rec.sequence_start,
@@ -278,7 +278,7 @@ class AccountFiscalSequence(models.Model):
                 })
                 rec.write({
                     'state': 'active',
-                    'sequence_id': sequence_id.id,
+                    'l10n_do_sequence_id': l10n_do_sequence_id.id,
                 })
 
     @api.multi
@@ -290,7 +290,7 @@ class AccountFiscalSequence(models.Model):
             'l10n_do_accounting.account_fiscal_sequence_validate_wizard_action'
         ).read()[0]
         action['context'] = {'default_name': msg,
-                             'default_fiscal_sequence_id': self.id,
+                             'default_l10n_latam_sequence_id': self.id,
                              'action': 'cancel'}
         return action
 
@@ -298,10 +298,10 @@ class AccountFiscalSequence(models.Model):
     def _action_cancel(self):
         for rec in self:
             rec.state = 'cancelled'
-            if rec.sequence_id:
+            if rec.l10n_do_sequence_id:
                 # *-*-*-*-*- Remove this comment *-*-*-*-*-*
                 # Preserve internal sequence just for audit purpose.
-                rec.sequence_id.active = False
+                rec.l10n_do_sequence_id.active = False
 
     @api.multi
     def action_queue(self):
@@ -315,29 +315,29 @@ class AccountFiscalSequence(models.Model):
         """
         # Use DR local time
         l10n_do_date = get_l10n_do_datetime().date()
-        fiscal_sequence_ids = self.search([('state', '=', 'active')])
+        l10n_latam_sequence_ids = self.search([('state', '=', 'active')])
 
-        for seq in fiscal_sequence_ids.filtered(
+        for seq in l10n_latam_sequence_ids.filtered(
                 lambda s: l10n_do_date >= s.expiration_date):
             seq.state = 'expired'
 
     def _get_queued_fiscal_sequence(self):
-        fiscal_sequence_id = self.search(
+        l10n_latam_sequence_id = self.search(
             [('state', '=', 'queue'),
-             ('fiscal_type_id', '=', self.fiscal_type_id.id),
+             ('l10n_latam_document_type_id', '=', self.l10n_latam_document_type_id.id),
              ('company_id', '=', self.company_id.id)],
             order='sequence_start asc',
             limit=1,
         )
-        return fiscal_sequence_id
+        return l10n_latam_sequence_id
 
     def get_fiscal_number(self):
 
-        if not self.fiscal_type_id.assigned_sequence:
+        if not self.l10n_latam_document_type_id.l10n_latam_document_number:
             return False
 
         if self.sequence_remaining > 0:
-            sequence_next = self.sequence_id._next()
+            sequence_next = self.l10n_do_sequence_id._next()
 
             # After consume a sequence, evaluate if sequence
             # is depleted and set state to depleted
@@ -348,16 +348,16 @@ class AccountFiscalSequence(models.Model):
                     queue_sequence_id._action_confirm()
 
             return "%s%s" % (
-                self.fiscal_type_id.prefix,
-                str(sequence_next).zfill(self.sequence_id.padding))
+                self.l10n_latam_document_type_id.doc_code_prefix,
+                str(sequence_next).zfill(self.l10n_do_sequence_id.padding))
         else:
             raise ValidationError(
                 _('No Fiscal Sequence available for this type of document.'))
 
 
-class AccountFiscalType(models.Model):
-    _name = 'account.fiscal.type'
-    _description = "Account Fiscal Type"
+class AccountDocumentType(models.Model):
+    _name = 'account.document.type'
+    _description = "Account Document Type"
     _order = 'sequence'
 
     name = fields.Char(
@@ -366,11 +366,11 @@ class AccountFiscalType(models.Model):
     )
     active = fields.Boolean(default=True)
     sequence = fields.Integer()
-    prefix = fields.Char(
+    doc_code_prefix = fields.Char(
         copy=False,
     )
     padding = fields.Integer()
-    type = fields.Selection([
+    l10n_do_type = fields.Selection([
         ('out_invoice', 'Sale'),
         ('in_invoice', 'Purchase'),
         ('out_refund', 'Customer Credit Note'),
@@ -394,21 +394,22 @@ class AccountFiscalType(models.Model):
         "account.journal",
         string="Journal",
     )
-    assigned_sequence = fields.Boolean(
+    l10n_latam_document_number = fields.Boolean(
         default=True,
     )
-    requires_document = fields.Boolean(
+    requires_vat = fields.Boolean(
         string="Requires a document?",
     )
 
-    _sql_constraints = [
-        ('type_prefix_uniq', 'unique (type, prefix)',
-         'There must be only one Fiscal Type of this Type and Prefix')
-    ]
+    _sql_constraints = [(
+        'type_doc_code_prefix_uniq', 'unique (l10n_do_type, doc_code_prefix)',
+        'There must be only one Fiscal l10n_do_type of this Document and '
+        'doc_code_prefix'
+    )]
 
     @api.multi
-    @api.depends('type')
+    @api.depends('l10n_do_type')
     def _compute_journal_type(self):
-        for fiscal_type in self:
-            fiscal_type.journal_type = 'sale' if \
-                fiscal_type.type[:3] == 'out' else 'purchase'
+        for document_type in self:
+            document_type.journal_type = 'sale' if \
+                document_type.l10n_do_type[:3] == 'out' else 'purchase'

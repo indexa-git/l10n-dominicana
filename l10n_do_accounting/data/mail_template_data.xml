@@ -17,9 +17,9 @@
     % endif
     <br /><br />
     Here is your
-    % if object.journal_id.l10n_do_fiscal_journal:
+    % if object.journal_id.l10n_latam_use_documents:
         invoice NCF <strong>${object.reference}</strong>
-    % elif not object.journal_id.l10n_do_fiscal_journal:
+    % elif not object.journal_id.l10n_latam_use_documents:
         invoice <strong>${object.number}</strong>
     % else:
         invoice

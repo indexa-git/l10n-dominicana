@@ -6,16 +6,16 @@ class Partner(models.Model):
     _inherit = 'res.partner'
 
     sale_fiscal_type_id = fields.Many2one(
-        'account.fiscal.type',
+        'account.document.type',
         string="Sale Fiscal Type",
         domain=[('type', '=', 'out_invoice')],
     )
     purchase_fiscal_type_id = fields.Many2one(
-        'account.fiscal.type',
+        'account.document.type',
         string="Purchase Fiscal Type",
         domain=[('type', '=', 'in_invoice')],
     )
-    expense_type = fields.Selection(
+    l10n_do_expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
          ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
          ('03', '03 - Arrendamientos'),

@@ -5,37 +5,37 @@
 
     <record id="credito_fiscal_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_credito_fiscal"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_credito_fiscal"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="consumo_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_consumo"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_consumo"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="unico_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_unico"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_unico"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="especial_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_especial"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_especial"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="gov_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_gubernamental"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_gubernamental"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="export_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_exportacion"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_exportacion"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
@@ -45,13 +45,13 @@
 
     <record id="dn_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_debit_note"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_debit_note"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="cn_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_credit_note"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_credit_note"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
@@ -61,25 +61,25 @@
 
     <record id="informal_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_informal"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_informal"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="minor_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_minor"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_minor"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="exterior_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_exterior"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_exterior"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
     <record id="purchase_credit_note_demo" model="account.fiscal.sequence">
         <field name="name">8001695033</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_purchase_credit_note"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_purchase_credit_note"/>
         <field name="sequence_start" eval="1"/>
         <field name="sequence_end" eval="100"/>
     </record>
@@ -110,13 +110,13 @@
 
     <record id="queued_credito_fiscal_demo" model="account.fiscal.sequence">
         <field name="name">8008740973</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_credito_fiscal"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_credito_fiscal"/>
         <field name="sequence_start" eval="101"/>
         <field name="sequence_end" eval="200"/>
     </record>
     <record id="queued_consumo_demo" model="account.fiscal.sequence">
         <field name="name">8008740973</field>
-        <field name="fiscal_type_id" ref="l10n_do_accounting.fiscal_type_consumo"/>
+        <field name="l10n_latam_document_type_id" ref="l10n_do_accounting.fiscal_type_consumo"/>
         <field name="sequence_start" eval="101"/>
         <field name="sequence_end" eval="200"/>
     </record>

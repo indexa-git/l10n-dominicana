@@ -6,7 +6,7 @@
         <field name="model">account.fiscal.sequence.validate_wizard</field>
         <field name="arch" type="xml">
             <form>
-                <field name="fiscal_sequence_id" invisible="1"/>
+                <field name="l10n_latam_sequence_id" invisible="1"/>
                 <div class="alert alert-warning" role="alert">
                     <span class="fa fa-warning fa-lg" title="Warning" aria-label="Warning"/>
                     <br/>

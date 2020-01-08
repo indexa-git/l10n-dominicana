@@ -24,7 +24,7 @@
                                 name="action_view_sequence"
                                 icon="fa-arrow-right" type="object"
                                 groups="base.group_system"
-                                attrs="{'invisible': [('sequence_id', '=', False)] }">
+                                attrs="{'invisible': [('l10n_do_sequence_id', '=', False)] }">
                             <span class="o_stat_text">Sequence</span>
                         </button>
                     </div>
@@ -38,9 +38,9 @@
                     </group>
                     <group>
                         <group>
-                            <field name="fiscal_type_id"
+                            <field name="l10n_latam_document_type_id"
                                    widget="selection"
-                                   domain="[('assigned_sequence', '=', True)]"
+                                   domain="[('l10n_latam_document_number', '=', True)]"
                             />
                             <field name="sequence_start"/>
                             <field name="sequence_end"/>
@@ -60,7 +60,7 @@
                             <field name="next_fiscal_number"
                                    attrs="{'invisible': [('state', 'in', ('draft', 'cancelled'))]}"/>
                             <field name="type" invisible="1"/>
-                            <field name="sequence_id" invisible="1"/>
+                            <field name="l10n_do_sequence_id" invisible="1"/>
                             <field name="company_id"
                                    groups="base.group_multi_company"/>
                         </group>
@@ -81,7 +81,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name"/>
-                <field name="fiscal_type_id"/>
+                <field name="l10n_latam_document_type_id"/>
                 <field name="sequence_start"/>
                 <field name="sequence_end"/>
                 <field name="state"/>
@@ -96,7 +96,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name"/>
-                <field name="fiscal_type_id"/>
+                <field name="l10n_latam_document_type_id"/>
                 <filter name="draft" string="Draft"
                         domain="[('state','=','draft')]"/>
                 <filter name="active" string="Active"
@@ -120,7 +120,7 @@
                         domain="[('type','=','debit_note')]"/>
                 <group expand="0" string="Group By">
                     <filter name="type" string="Type" domain="[]"
-                            context="{'group_by':'fiscal_type_id'}"/>
+                            context="{'group_by':'l10n_latam_document_type_id'}"/>
                     <filter name="state" string="State" domain="[]"
                             context="{'group_by':'state'}"/>
                     <filter name="company_id" string="Company" domain="[]"
@@ -150,24 +150,24 @@
     </record>
 
     <record id="account_fiscal_type_form" model="ir.ui.view">
-        <field name="name">account.fiscal.type.form</field>
-        <field name="model">account.fiscal.type</field>
+        <field name="name">account.document.type.form</field>
+        <field name="model">account.document.type</field>
         <field name="arch" type="xml">
             <form>
                 <group>
                     <group>
                         <field name="name"/>
-                        <field name="prefix"/>
+                        <field name="doc_code_prefix"/>
                         <field name="type"/>
                         <field name="journal_type" invisible="1"/>
                         <field name="padding">8</field>
-                        <field name="assigned_sequence"/>
-                        <field name="requires_document"/>
+                        <field name="l10n_latam_document_number"/>
+                        <field name="requires_vat"/>
                     </group>
                     <group>
                         <field name="active"/>
                         <field name="journal_id" options="{'no_create': True}"
-                               domain="[('type', '=', journal_type), ('l10n_do_fiscal_journal', '=', True)]"/>
+                               domain="[('type', '=', journal_type), ('l10n_latam_use_documents', '=', True)]"/>
                         <field name="fiscal_position_id"/>
                     </group>
                 </group>
@@ -176,13 +176,13 @@
     </record>
 
     <record id="account_fiscal_type_tree" model="ir.ui.view">
-        <field name="name">account.fiscal.type.tree</field>
-        <field name="model">account.fiscal.type</field>
+        <field name="name">account.document.type.tree</field>
+        <field name="model">account.document.type</field>
         <field name="arch" type="xml">
             <tree>
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-                <field name="prefix"/>
+                <field name="doc_code_prefix"/>
                 <field name="type"/>
             </tree>
         </field>
@@ -191,7 +191,7 @@
     <record id="account_fiscal_type_action" model="ir.actions.act_window">
         <field name="name">Fiscal Types</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">account.fiscal.type</field>
+        <field name="res_model">account.document.type</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>

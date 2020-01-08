@@ -36,7 +36,7 @@
                             <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
                                 <strong>
                                     Factura de
-                                    <span t-field="o.fiscal_type_id.name"/>
+                                    <span t-field="o.l10n_latam_document_type_id.name"/>
                                 </strong>
                             </span>
                             <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>

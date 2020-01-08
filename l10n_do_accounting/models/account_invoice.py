@@ -29,19 +29,19 @@ ncf_dict = {
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
-    fiscal_type_id = fields.Many2one(
-        'account.fiscal.type',
+    l10n_latam_document_type_id = fields.Many2one(
+        'account.document.type',
         string="Fiscal Type",
         index=True,
     )
-    fiscal_sequence_id = fields.Many2one(
+    l10n_latam_sequence_id = fields.Many2one(
         'account.fiscal.sequence',
         string="Fiscal Sequence",
         copy=False,
         compute='_compute_fiscal_sequence',
         store=True,
     )
-    income_type = fields.Selection(
+    l10n_do_income_type = fields.Selection(
         [('01', '01 - Ingresos por Operaciones (No Financieros)'),
          ('02', '02 - Ingresos Financieros'),
          ('03', '03 - Ingresos Extraordinarios'),
@@ -49,9 +49,9 @@ class AccountInvoice(models.Model):
          ('05', '05 - Ingresos por Venta de Activo Depreciable'),
          ('06', '06 - Otros Ingresos')],
         string='Income Type',
-        default=lambda self: self._context.get('income_type', '01'))
+        default=lambda self: self._context.get('l10n_do_income_type', '01'))
 
-    expense_type = fields.Selection(
+    l10n_do_expense_type = fields.Selection(
         [('01', '01 - Gastos de Personal'),
          ('02', '02 - Gastos por Trabajo, Suministros y Servicios'),
          ('03', '03 - Arrendamientos'), ('04', '04 - Gastos de Activos Fijos'),
@@ -65,7 +65,7 @@ class AccountInvoice(models.Model):
         string="Cost & Expense Type",
     )
 
-    anulation_type = fields.Selection(
+    l10n_do_anulation_type = fields.Selection(
         [("01", "01 - Deterioro de Factura Pre-impresa"),
          ("02", u"02 - Errores de Impresión (Factura Pre-impresa)"),
          ("03", u"03 - Impresión Defectuosa"),
@@ -86,13 +86,13 @@ class AccountInvoice(models.Model):
         'Valid until',
         store=True,
     )
-    is_l10n_do_fiscal_invoice = fields.Boolean(
-        compute="_compute_is_l10n_do_fiscal_invoice",
+    l10n_latam_use_documents = fields.Boolean(
+        compute="_compute_l10n_latam_use_documents",
         store=True,
         string="Is Fiscal Invoice",
     )
-    assigned_sequence = fields.Boolean(
-        related='fiscal_type_id.assigned_sequence',
+    l10n_latam_document_number = fields.Boolean(
+        related='l10n_latam_document_type_id.l10n_latam_document_number',
     )
     fiscal_sequence_status = fields.Selection([
         ('no_fiscal', 'No fiscal'),
@@ -106,14 +106,14 @@ class AccountInvoice(models.Model):
 
     @api.multi
     @api.depends('state', 'journal_id')
-    def _compute_is_l10n_do_fiscal_invoice(self):
+    def _compute_l10n_latam_use_documents(self):
         for inv in self:
-            inv.is_l10n_do_fiscal_invoice = \
-                inv.journal_id.l10n_do_fiscal_journal
+            inv.l10n_latam_use_documents = \
+                inv.journal_id.l10n_latam_use_documents
 
     @api.multi
-    @api.depends('journal_id', 'is_l10n_do_fiscal_invoice', 'state',
-                 'fiscal_type_id', 'date_invoice', 'type', 'is_debit_note')
+    @api.depends('journal_id', 'l10n_latam_use_documents', 'state',
+                 'l10n_latam_document_type_id', 'date_invoice', 'type', 'is_debit_note')
     def _compute_fiscal_sequence(self):
         """ Compute the sequence and fiscal position to be used depending on
             the fiscal type that has been set on the invoice (or partner).
@@ -122,25 +122,25 @@ class AccountInvoice(models.Model):
             if inv.is_debit_note:
                 debit_map = {'in_invoice': 'in_debit',
                              'out_invoice': 'out_debit'}
-                fiscal_type = self.env['account.fiscal.type'].search([
+                document_type = self.env['account.document.type'].search([
                     ('type', '=', debit_map[inv.type])], limit=1)
-                inv.fiscal_type_id = fiscal_type.id
+                inv.l10n_latam_document_type_id = document_type.id
             elif inv.type in ('out_refund', 'in_refund'):
-                fiscal_type = self.env['account.fiscal.type'].search([
+                document_type = self.env['account.document.type'].search([
                     ('type', '=', inv.type)], limit=1)
-                inv.fiscal_type_id = fiscal_type.id
+                inv.l10n_latam_document_type_id = document_type.id
             else:
-                fiscal_type = inv.fiscal_type_id
+                document_type = inv.l10n_latam_document_type_id
 
-            if inv.is_l10n_do_fiscal_invoice and fiscal_type and \
-                    fiscal_type.assigned_sequence:
+            if inv.l10n_latam_use_documents and document_type and \
+                    document_type.l10n_latam_document_number:
 
-                inv.assigned_sequence = fiscal_type.assigned_sequence
-                inv.fiscal_position_id = fiscal_type.fiscal_position_id
+                inv.l10n_latam_document_number = document_type.l10n_latam_document_number
+                inv.fiscal_position_id = document_type.fiscal_position_id
 
                 domain = [
                     ('company_id', '=', inv.company_id.id),
-                    ('fiscal_type_id', '=', fiscal_type.id),
+                    ('l10n_latam_document_type_id', '=', document_type.id),
                     ('state', '=', 'active'),
                 ]
                 if inv.date_invoice:
@@ -149,24 +149,24 @@ class AccountInvoice(models.Model):
                     today = fields.Date.context_today(inv)
                     domain.append(('expiration_date', '>=', today))
 
-                fiscal_sequence_id = inv.env['account.fiscal.sequence'].search(
+                l10n_latam_sequence_id = inv.env['account.fiscal.sequence'].search(
                     domain,
                     order='expiration_date, id desc',
                     limit=1,
                 )
 
-                if not fiscal_sequence_id:
+                if not l10n_latam_sequence_id:
                     pass
-                elif fiscal_sequence_id.state == 'active':
-                    inv.fiscal_sequence_id = fiscal_sequence_id
+                elif l10n_latam_sequence_id.state == 'active':
+                    inv.l10n_latam_sequence_id = l10n_latam_sequence_id
                 else:
-                    inv.fiscal_sequence_id = False
+                    inv.l10n_latam_sequence_id = False
             else:
-                inv.fiscal_sequence_id = False
+                inv.l10n_latam_sequence_id = False
 
     @api.multi
-    @api.depends('fiscal_sequence_id', 'fiscal_sequence_id.sequence_remaining',
-                 'fiscal_sequence_id.remaining_percentage', 'state',
+    @api.depends('l10n_latam_sequence_id', 'l10n_latam_sequence_id.sequence_remaining',
+                 'l10n_latam_sequence_id.remaining_percentage', 'state',
                  'journal_id')
     def _compute_fiscal_sequence_status(self):
         """ Identify the percentage fiscal sequences that has been used so far.
@@ -175,11 +175,11 @@ class AccountInvoice(models.Model):
         """
         for inv in self:
 
-            if not inv.is_l10n_do_fiscal_invoice or \
-                    not inv.fiscal_sequence_id:
+            if not inv.l10n_latam_use_documents or \
+                    not inv.l10n_latam_sequence_id:
                 inv.fiscal_sequence_status = 'no_fiscal'
             else:
-                fs_id = inv.fiscal_sequence_id  # Fiscal Sequence
+                fs_id = inv.l10n_latam_sequence_id  # Fiscal Sequence
                 remaining = fs_id.sequence_remaining
                 remaining_percent = fs_id.remaining_percentage
                 seq_length = fs_id.sequence_end - fs_id.sequence_start + 1
@@ -201,9 +201,9 @@ class AccountInvoice(models.Model):
             See DGII Norma 05-19, Art 3 for further information.
         """
         for inv in \
-                self.filtered(lambda i: i.is_l10n_do_fiscal_invoice):
+                self.filtered(lambda i: i.l10n_latam_use_documents):
             if inv.type == 'out_invoice' and inv.state in ('open', 'cancel') \
-                    and ncf_dict.get(inv.fiscal_type_id.prefix) == 'especial':
+                    and ncf_dict.get(inv.l10n_latam_document_type_id.doc_code_prefix) == 'especial':
                 # If any invoice tax in ITBIS or ISC
                 taxes = ('ITBIS', 'ISC')
                 if any([tax for tax in
@@ -229,16 +229,16 @@ class AccountInvoice(models.Model):
                     inv.state in ('open', 'cancel') and
                     inv.partner_id.country_id and
                     inv.partner_id.country_id.code != 'DO' and
-                    inv.is_l10n_do_fiscal_invoice):
+                    inv.l10n_latam_use_documents):
                 if any([
                     p for p in inv.invoice_line_ids.mapped('product_id')
                     if p.type != 'service'
                 ]):
-                    if ncf_dict.get(inv.fiscal_type_id.prefix) == 'exterior':
+                    if ncf_dict.get(inv.l10n_latam_document_type_id.doc_code_prefix) == 'exterior':
                         raise UserError(_(
                             "Goods sales to overseas customers must have "
                             "Exportaciones Fiscal Type"))
-                elif ncf_dict.get(inv.fiscal_type_id.prefix) == 'consumo':
+                elif ncf_dict.get(inv.l10n_latam_document_type_id.doc_code_prefix) == 'consumo':
                     raise UserError(_(
                         "Service sales to oversas customer must have "
                         "Consumo Fiscal Type"))
@@ -252,8 +252,8 @@ class AccountInvoice(models.Model):
         """
         for inv in self.filtered(
                 lambda i: i.type == 'in_invoice' and i.state == 'open'):
-            if ncf_dict.get(inv.fiscal_type_id.prefix) == 'informal' and \
-                    inv.is_l10n_do_fiscal_invoice:
+            if ncf_dict.get(inv.l10n_latam_document_type_id.doc_code_prefix) == 'informal' and \
+                    inv.l10n_latam_use_documents:
 
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum([
@@ -267,23 +267,23 @@ class AccountInvoice(models.Model):
         """ Set the Fiscal Type and the Fiscal Sequence to False, if the
             invoice is not a fiscal invoice for l10n_do.
         """
-        if not self.is_l10n_do_fiscal_invoice:
-            self.fiscal_type_id = False
-            self.fiscal_sequence_id = False
+        if not self.l10n_latam_use_documents:
+            self.l10n_latam_document_type_id = False
+            self.l10n_latam_sequence_id = False
 
         return super(AccountInvoice, self)._onchange_journal_id()
 
-    @api.onchange('fiscal_type_id')
+    @api.onchange('l10n_latam_document_type_id')
     def _onchange_fiscal_type(self):
         """ Set the Journal to a fiscal journal if a Fiscal Type is set to the
             invoice, making it a a fiscal invoice for l10n_do.
         """
-        if self.is_l10n_do_fiscal_invoice and self.fiscal_type_id:
-            if ncf_dict.get(self.fiscal_type_id.prefix) == 'minor':
+        if self.l10n_latam_use_documents and self.l10n_latam_document_type_id:
+            if ncf_dict.get(self.l10n_latam_document_type_id.doc_code_prefix) == 'minor':
                 self.partner_id = self.company_id.partner_id
 
-            fiscal_type = self.fiscal_type_id
-            fiscal_type_journal = fiscal_type.journal_id
+            document_type = self.l10n_latam_document_type_id
+            fiscal_type_journal = document_type.journal_id
             if fiscal_type_journal and fiscal_type_journal != self.journal_id:
                 self.journal_id = fiscal_type_journal
 
@@ -292,42 +292,42 @@ class AccountInvoice(models.Model):
         """ Set the Journal to a fiscal journal if a Fiscal Type is set to the
             invoice, making it a a fiscal invoice for l10n_do.
         """
-        if self.is_l10n_do_fiscal_invoice:
+        if self.l10n_latam_use_documents:
             if self.partner_id and self.type == 'out_invoice':
-                if not self.fiscal_type_id:
-                    self.fiscal_type_id = self.partner_id.sale_fiscal_type_id
+                if not self.l10n_latam_document_type_id:
+                    self.l10n_latam_document_type_id = self.partner_id.sale_fiscal_type_id
                 if not self.partner_id.customer:
                     self.partner_id.customer = True
             elif self.partner_id and self.type == 'in_invoice':
-                self.expense_type = self.partner_id.expense_type
+                self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type
                 if not self.partner_id.supplier:
                     self.partner_id.supplier = True
                 if self.partner_id.id == self.company_id.partner_id.id:
-                    fiscal_type = self.env['account.fiscal.type'].search([
+                    document_type = self.env['account.document.type'].search([
                         ('type', '=', self.type),
-                        ('prefix', '=', 'B13'),
+                        ('doc_code_prefix', '=', 'B13'),
                         ], limit=1)
-                    if not fiscal_type:
+                    if not document_type:
                         raise ValidationError(
                             _("A fiscal type for Minor Expenses does not exist"
                               " and you have to create one."))
-                    self.fiscal_type_id = fiscal_type
+                    self.l10n_latam_document_type_id = document_type
                     return super(AccountInvoice, self)._onchange_partner_id()
-                self.fiscal_type_id = self.partner_id.purchase_fiscal_type_id
+                self.l10n_latam_document_type_id = self.partner_id.purchase_fiscal_type_id
 
         return super(AccountInvoice, self)._onchange_partner_id()
 
     @api.onchange("reference", "origin_out")
     def _onchange_ncf(self):
-        if self.is_l10n_do_fiscal_invoice:
-            if ncf_dict.get(self.fiscal_type_id.prefix) in (
+        if self.l10n_latam_use_documents:
+            if ncf_dict.get(self.l10n_latam_document_type_id.doc_code_prefix) in (
                     'fiscal', 'informal', 'minor'
                     ):
                 self.validate_fiscal_purchase()
 
             if self.origin_out and (self.type == 'out_refund' or
                                     self.type == 'in_refund'):
-                if ncf_dict.get(self.fiscal_type_id.prefix) in (
+                if ncf_dict.get(self.l10n_latam_document_type_id.doc_code_prefix) in (
                         'fiscal', 'informal', 'minor'
                         ):
                     ncf = self.origin_out
@@ -351,43 +351,43 @@ class AccountInvoice(models.Model):
                 raise UserError(_(u"You cannot validate an invoice whose "
                                   u"total amount is equal to 0"))
 
-            if inv.is_l10n_do_fiscal_invoice:
+            if inv.l10n_latam_use_documents:
 
                 # Because a Fiscal Sequence can be depleted while an invoice
-                # is waiting to be validated, compute fiscal_sequence_id again
+                # is waiting to be validated, compute l10n_latam_sequence_id again
                 # on invoice validate.
                 inv._compute_fiscal_sequence()
 
-                if not inv.fiscal_sequence_id and \
-                        inv.fiscal_type_id.assigned_sequence:
+                if not inv.l10n_latam_sequence_id and \
+                        inv.l10n_latam_document_type_id.l10n_latam_document_number:
                     raise ValidationError(
                         _('There is not active Fiscal Sequence for this type'
                           'of document.'))
 
                 if inv.type == 'out_invoice':
                     if not inv.partner_id.sale_fiscal_type_id:
-                        inv.partner_id.sale_fiscal_type_id = inv.fiscal_type_id
+                        inv.partner_id.sale_fiscal_type_id = inv.l10n_latam_document_type_id
 
                 if inv.type == 'in_invoice':
 
                     if not inv.partner_id.purchase_fiscal_type_id:
                         inv.partner_id.purchase_fiscal_type_id = \
-                            inv.fiscal_type_id
-                    if not inv.partner_id.expense_type:
-                        inv.partner_id.expense_type = inv.expense_type
+                            inv.l10n_latam_document_type_id
+                    if not inv.partner_id.l10n_do_expense_type:
+                        inv.partner_id.l10n_do_expense_type = inv.l10n_do_expense_type
 
-                if inv.fiscal_type_id.requires_document \
+                if inv.l10n_latam_document_type_id.requires_vat \
                         and not inv.partner_id.vat:
                     raise UserError(
                         _("Partner [{}] {} doesn't have RNC/Céd, "
                           "is required for NCF type {}").format(
                             inv.partner_id.id,
                             inv.partner_id.name,
-                            inv.fiscal_type_id.name))
+                            inv.l10n_latam_document_type_id.name))
 
                 elif inv.type in ("out_invoice", "out_refund"):
                     if (inv.amount_untaxed_signed >= 250000 and
-                            inv.fiscal_type_id.prefix != 'B12' and
+                            inv.l10n_latam_document_type_id.doc_code_prefix != 'B12' and
                             not inv.partner_id.vat):
                         raise UserError(_(
                             u"if the invoice amount is greater than "
@@ -402,21 +402,21 @@ class AccountInvoice(models.Model):
         for inv in self.filtered(
                 lambda i: i.type == 'in_invoice' and i.state == 'draft'):
             ncf = inv.reference if inv.reference else None
-            if ncf and ncf_dict.get(inv.fiscal_type_id.prefix) == 'fiscal':
+            if ncf and ncf_dict.get(inv.l10n_latam_document_type_id.doc_code_prefix) == 'fiscal':
                 if ncf[-10:-8] == '02':
                     raise ValidationError(_(
                         "NCF *{}* does not correspond with the fiscal type\n\n"
                         "You cannot register Consumo NCF (02) for purchases")
                         .format(ncf))
 
-                elif inv.fiscal_type_id.requires_document \
+                elif inv.l10n_latam_document_type_id.requires_vat \
                         and not inv.partner_id.vat:
                     raise ValidationError(
                         _("Partner [{}] {} doesn't have RNC/Céd, "
                           "is required for NCF type {}").format(
                             inv.partner_id.id,
                             inv.partner_id.name,
-                            inv.fiscal_type_id.name))
+                            inv.l10n_latam_document_type_id.name))
 
                 elif not ncf_validation.is_valid(ncf):
                     raise UserError(_(
@@ -462,11 +462,11 @@ class AccountInvoice(models.Model):
             write it into reference field.
          """
         for inv in self:
-            if inv.is_l10n_do_fiscal_invoice and \
-                    not inv.reference and inv.fiscal_type_id.assigned_sequence:
-                inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
+            if inv.l10n_latam_use_documents and \
+                    not inv.reference and inv.l10n_latam_document_type_id.l10n_latam_document_number:
+                inv.reference = inv.l10n_latam_sequence_id.get_fiscal_number()
                 inv.ncf_expiration_date = \
-                    inv.fiscal_sequence_id.expiration_date
+                    inv.l10n_latam_sequence_id.expiration_date
 
         return super(AccountInvoice, self).invoice_validate()
 
@@ -504,23 +504,23 @@ class AccountInvoice(models.Model):
                                                'price_unit': amount,
                                                'account_id': account})]
 
-        if not self.is_l10n_do_fiscal_invoice:
+        if not self.l10n_latam_use_documents:
             return res
 
-        fiscal_type = {'out_invoice': 'out_refund',
+        document_type = {'out_invoice': 'out_refund',
                        'in_invoice': 'in_refund'}
 
-        fiscal_type_id = self.env['account.fiscal.type'].search(
-            [('type', '=', fiscal_type[self.type])], limit=1)
+        l10n_latam_document_type_id = self.env['account.document.type'].search(
+            [('type', '=', document_type[self.type])], limit=1)
 
-        if not fiscal_type_id:
+        if not l10n_latam_document_type_id:
             raise ValidationError(_('No Fiscal Type found for Credit Note'))
 
         res.update({'reference': refund_reference,
                     'origin_out': self.reference,
-                    'income_type': self.income_type,
-                    'expense_type': self.expense_type,
-                    'fiscal_type_id': fiscal_type_id.id,
+                    'l10n_do_income_type': self.l10n_do_income_type,
+                    'l10n_do_expense_type': self.l10n_do_expense_type,
+                    'l10n_latam_document_type_id': l10n_latam_document_type_id.id,
                     })
 
         return res

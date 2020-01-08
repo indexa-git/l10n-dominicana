@@ -10,7 +10,7 @@
                 <field name="sale_fiscal_type_id"/>
             </group>
             <group name="purchase" position ="inside">
-                <field name="expense_type"/>
+                <field name="l10n_do_expense_type"/>
                 <field name="purchase_fiscal_type_id"/>
             </group>
 

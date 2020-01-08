@@ -24,7 +24,7 @@ class AccountInvoiceRefund(models.TransientModel):
             context.get('active_ids'))
 
         res['is_fiscal_refund'] = set(invoice_ids.mapped(
-            'is_l10n_do_fiscal_invoice')) == {True}
+            'l10n_latam_use_documents')) == {True}
 
         return res
 
@@ -174,19 +174,19 @@ class AccountInvoiceRefund(models.TransientModel):
                 amount = wizard.amount if refund_type == 'fixed_amount' \
                     else inv.amount_untaxed * (wizard.percentage / 100)
 
-                fiscal_type = self.env['account.fiscal.type'].search([
+                document_type = self.env['account.document.type'].search([
                     ('type', '=', context.get('debit_note'))], limit=1)
 
                 values = {
                     'partner_id': inv.partner_id.id,
                     'reference': vendor_ref,
                     'date_invoice': date,
-                    'income_type': inv.income_type,
-                    'expense_type': inv.expense_type,
+                    'l10n_do_income_type': inv.l10n_do_income_type,
+                    'l10n_do_expense_type': inv.l10n_do_expense_type,
                     'is_debit_note': True,
                     'origin_out': inv.reference,
                     'type': debit_map[context.get('debit_note')],
-                    'fiscal_type_id': fiscal_type.id,
+                    'l10n_latam_document_type_id': document_type.id,
                     'invoice_line_ids': [
                         (0, 0, {'name': description,
                                 'account_id': wizard.account_id.id,

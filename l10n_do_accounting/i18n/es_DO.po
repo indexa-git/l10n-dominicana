@@ -26,152 +26,152 @@ msgid "&amp;nbsp;<span>on</span>"
 msgstr "&amp;nbsp;<span>en</span>"
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "01 - Deterioro de Factura Pre-impresa"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "01 - Gastos de Personal"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,income_type:0
+#: selection:account.invoice,l10n_do_income_type:0
 msgid "01 - Ingresos por Operaciones (No Financieros)"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "02 - Errores de Impresión (Factura Pre-impresa)"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "02 - Gastos por Trabajo, Suministros y Servicios"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,income_type:0
+#: selection:account.invoice,l10n_do_income_type:0
 msgid "02 - Ingresos Financieros"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "03 - Arrendamientos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "03 - Impresión Defectuosa"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,income_type:0
+#: selection:account.invoice,l10n_do_income_type:0
 msgid "03 - Ingresos Extraordinarios"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "04 - Corrección de la Información"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "04 - Gastos de Activos Fijos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,income_type:0
+#: selection:account.invoice,l10n_do_income_type:0
 msgid "04 - Ingresos por Arrendamientos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "05 - Cambio de Productos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "05 - Gastos de Representación"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,income_type:0
+#: selection:account.invoice,l10n_do_income_type:0
 msgid "05 - Ingresos por Venta de Activo Depreciable"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "06 - Devolución de Productos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "06 - Otras Deducciones Admitidas"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,income_type:0
+#: selection:account.invoice,l10n_do_income_type:0
 msgid "06 - Otros Ingresos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "07 - Gastos Financieros"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "07 - Omisión de Productos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "08 - Errores en Secuencia de NCF"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "08 - Gastos Extraordinarios"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "09 - Compras y Gastos que forman parte del Costo de Venta"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "09 - Por Cese de Operaciones"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
-#: selection:res.partner,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "10 - Adquisiciones de Activos"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,anulation_type:0
+#: selection:account.invoice,l10n_do_anulation_type:0
 msgid "10 - Pérdida o Hurto de Talonarios"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:res.partner,expense_type:0
+#: selection:res.partner,l10n_do_expense_type:0
 msgid "11 - Gastos de Seguro"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.invoice,expense_type:0
+#: selection:account.invoice,l10n_do_expense_type:0
 msgid "11 - Gastos de Seguros"
 msgstr ""
 
@@ -203,9 +203,9 @@ msgid "<div style=\"margin: 0px; padding: 0px;\">\n"
 "    % endif\n"
 "    <br/><br/>\n"
 "    Here is your\n"
-"    % if object.journal_id.l10n_do_fiscal_journal:\n"
+"    % if object.journal_id.l10n_latam_use_documents:\n"
 "        invoice NCF <strong>${object.reference}</strong>\n"
-"    % elif not object.journal_id.l10n_do_fiscal_journal:\n"
+"    % elif not object.journal_id.l10n_latam_use_documents:\n"
 "        invoice <strong>${object.number}</strong>\n"
 "    % else:\n"
 "        invoice\n"
@@ -518,7 +518,7 @@ msgid "Amount"
 msgstr "Importe"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__anulation_type
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_do_anulation_type
 msgid "Annulment Type"
 msgstr "Tipo de Anuluación"
 
@@ -577,7 +577,7 @@ msgid "Contact"
 msgstr "Contacto"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__expense_type
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_do_expense_type
 msgid "Cost & Expense Type"
 msgstr "Tipo de Costo y Gasto"
 
@@ -607,12 +607,12 @@ msgid "Credit Note"
 msgstr "Rectificativa"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.type,type:0
+#: selection:account.document.type,type:0
 msgid "Customer Credit Note"
 msgstr "Nota de Crédito de Cliente"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.type,type:0
+#: selection:account.document.type,type:0
 msgid "Customer Debit Note"
 msgstr "Nota de Débito de Cliente"
 
@@ -690,8 +690,8 @@ msgid "Email:"
 msgstr "Correo electrónico:"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_partner__expense_type
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_users__expense_type
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_partner__l10n_do_expense_type
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_users__l10n_do_expense_type
 msgid "Expense Type"
 msgstr "Tipo de Gasto"
 
@@ -748,7 +748,7 @@ msgstr "Posición fiscal"
 
 #. module: l10n_do_accounting
 #: model:ir.actions.act_window,name:l10n_do_accounting.account_fiscal_sequence_validate_wizard_action
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__fiscal_sequence_id
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_latam_sequence_id
 msgid "Fiscal Sequence"
 msgstr "Secuencia Fiscal"
 
@@ -793,7 +793,7 @@ msgid "Fiscal Types"
 msgstr "Tipos Fiscales"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_sequence_validate_wizard__fiscal_sequence_id
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_sequence_validate_wizard__l10n_latam_sequence_id
 msgid "Fiscal sequence"
 msgstr "Secuencia Fiscal"
 
@@ -840,13 +840,13 @@ msgid "If checked, some messages have a delivery error."
 msgstr "Si se encuentra marcado, algunos mensajes tienen error de envío."
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__income_type
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_do_income_type
 msgid "Income Type"
 msgstr "Tipo de Ingreso"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__assigned_sequence
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__assigned_sequence
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__l10n_latam_document_number
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_latam_document_number
 msgid "Internal Generate"
 msgstr "Secuencia Asignada"
 
@@ -892,8 +892,8 @@ msgid "Journal Type"
 msgstr "Tipo de diario"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__is_l10n_do_fiscal_invoice
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_journal__l10n_do_fiscal_journal
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_latam_use_documents
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_journal__l10n_latam_use_documents
 msgid "L10N Do Fiscal Journal"
 msgstr "Fiscal"
 
@@ -1113,13 +1113,13 @@ msgid "Please use the following communication for your payment :"
 msgstr "Utilice la siguiente comunicación para su pago:"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__prefix
-msgid "Prefix"
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__doc_code_prefix
+msgid "doc_code_prefix"
 msgstr "Prefijo"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.type,journal_type:0
-#: selection:account.fiscal.type,type:0
+#: selection:account.document.type,journal_type:0
+#: selection:account.document.type,type:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Purchase"
 msgstr "Compra"
@@ -1173,7 +1173,7 @@ msgid "Remaining warning"
 msgstr "Advertencia restante"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__requires_document
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__requires_vat
 msgid "Requires a document?"
 msgstr "Requiere un Documento?"
 
@@ -1183,8 +1183,8 @@ msgid "Responsible User"
 msgstr "Usuario responsable"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.type,journal_type:0
-#: selection:account.fiscal.type,type:0
+#: selection:account.document.type,journal_type:0
+#: selection:account.document.type,type:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Sale"
 msgstr "Venta"
@@ -1228,12 +1228,12 @@ msgstr "Estado basado en actividades \n"
 "Planificado: actividades futuras"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.type,type:0
+#: selection:account.document.type,type:0
 msgid "Supplier Credit Note"
 msgstr "Nota de Crédito del Proveedor"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.type,type:0
+#: selection:account.document.type,type:0
 msgid "Supplier Debit Note"
 msgstr "Nota de Débito del Proveedor"
 
@@ -1249,8 +1249,8 @@ msgid "Tel.:"
 msgstr "Tel.:"
 
 #. module: l10n_do_accounting
-#: sql_constraint:account.fiscal.type:0
-msgid "There must be only one Fiscal Type of this Type and Prefix"
+#: sql_constraint:account.document.type:0
+msgid "There must be only one Fiscal Type of this Type and doc_code_prefix"
 msgstr "Debe haber un solo Tipo Fiscal de esta secuencia y Prefijo"
 
 #. module: l10n_do_accounting

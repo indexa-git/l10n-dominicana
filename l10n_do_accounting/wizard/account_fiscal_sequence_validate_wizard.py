@@ -13,7 +13,7 @@ class AccountFiscalSequenceValidateWizard(models.TransientModel):
     _description = 'Account Fiscal Sequence Validate Wizard'
 
     name = fields.Char()
-    fiscal_sequence_id = fields.Many2one(
+    l10n_latam_sequence_id = fields.Many2one(
         'account.fiscal.sequence',
         string='Fiscal sequence',
     )
@@ -21,12 +21,12 @@ class AccountFiscalSequenceValidateWizard(models.TransientModel):
     @api.multi
     def confirm_cancel(self):
         self.ensure_one()
-        if self.fiscal_sequence_id:
+        if self.l10n_latam_sequence_id:
             action = self._context.get('action', False)
             if action == 'confirm':
-                self.fiscal_sequence_id._action_confirm()
+                self.l10n_latam_sequence_id._action_confirm()
             elif action == 'cancel':
-                self.fiscal_sequence_id._action_cancel()
+                self.l10n_latam_sequence_id._action_cancel()
         else:
             raise ValidationError(
                 _("There is no Fiscal Sequence to perform this action."))

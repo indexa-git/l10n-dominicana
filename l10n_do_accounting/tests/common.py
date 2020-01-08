@@ -25,7 +25,7 @@ class CommonSetup(TransactionCase):
         super(CommonSetup, self).setUp()
 
         self.fiscal_sequence_obj = self.env['account.fiscal.sequence']
-        self.fiscal_type_obj = self.env['account.fiscal.type']
+        self.fiscal_type_obj = self.env['account.document.type']
         self.fiscal_seq_credito_fiscal = self.ref(
             'l10n_do_accounting.credito_fiscal_demo')
         self.fiscal_seq_unico = self.ref(
@@ -46,7 +46,7 @@ class AccountInvoiceCommon(CommonSetup):
         self.invoice_obj = self.env['account.invoice']
         self.journal_obj = self.env['account.journal']
         self.partner_obj = self.env['res.partner']
-        self.fiscal_type_obj = self.env['account.fiscal.type']
+        self.fiscal_type_obj = self.env['account.document.type']
         self.invoice_refund_obj = self.env['account.invoice.refund']
 
         self.sale_journal = False
@@ -55,7 +55,7 @@ class AccountInvoiceCommon(CommonSetup):
         # Setup Fiscal Journals
         for journal in self.journal_obj.search(
                 [('type', 'in', ('sale', 'purchase'))]):
-            journal.l10n_do_fiscal_journal = True
+            journal.l10n_latam_use_documents = True
             if journal.type == 'sale':
                 self.sale_journal = journal
             else:
