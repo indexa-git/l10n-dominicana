@@ -1,7 +1,7 @@
 # © 2018 Yasmany Castillo <yasmany003@gmail.com>
 
 {
-    'name': "Fiscal Purchases (Rep. Dominicana)",
+    'name': "Fiscal Sales (Rep. Dominicana)",
 
     'summary': """
         This module extends l10n_do_accounting to the Sales module,
@@ -18,7 +18,7 @@
 
     # any module necessary for this one to work correctly
     'depends': [
-        'l10n_do',
-        'sale_management'
+        'l10n_do_accounting',
+        'sale'
     ],
 }

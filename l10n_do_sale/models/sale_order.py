@@ -17,9 +17,14 @@ class SaleOrder(models.Model):
          This method may be overridden to implement custom invoice generation
          (making sure to call super() to establish a clean extension chain).
         """
-        # TODO: Create tests
         self.ensure_one()
         invoice_vals = super(SaleOrder, self)._prepare_invoice()
+
+        journal_id = self.env['account.journal'].browse(
+            invoice_vals['journal_id'])
+        if not journal_id.l10n_do_fiscal_journal:
+            return invoice_vals
+
         partner_id = self.partner_id
 
         if partner_id.parent_id and partner_id.parent_id.is_company:
