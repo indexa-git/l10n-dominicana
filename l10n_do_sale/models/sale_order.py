@@ -46,4 +46,7 @@ class SaleOrder(models.Model):
             invoice_vals['fiscal_type_id'] = \
                 partner_id.parent_id.sale_fiscal_type_id.id
 
+        else:
+            invoice_vals['fiscal_type_id'] = partner_fiscal_type_id.id
+
         return invoice_vals
