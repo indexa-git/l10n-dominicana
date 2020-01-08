@@ -296,7 +296,7 @@ msgstr ""
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.l10n_do_report_invoice_document
 msgid "<span>Description</span>"
-msgstr "<span>Descripció</span>"
+msgstr "<span>Descripción</span>"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.l10n_do_report_invoice_document
@@ -647,7 +647,7 @@ msgstr "Forma de Débito"
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_invoice_debit
 msgid "Debit type"
-msgstr "ipo de Débit"
+msgstr "Tipo de Débito"
 
 #. module: l10n_do_accounting
 #: selection:account.fiscal.sequence,state:0
@@ -981,7 +981,7 @@ msgstr "Siguiente tipo de actividad"
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_sequence__next_fiscal_number
 msgid "Next Fiscal Number"
-msgstr "iguiente Número Fiscal"
+msgstr "Siguiente Número Fiscal"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_sequence__number_next_actual
@@ -1145,7 +1145,7 @@ msgstr "Registrar una nueva Nota de Débito del proveedor"
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice_refund__refund_method
 msgid "Refund Method"
-msgstr ""
+msgstr "Método de Reembolso"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice_refund__refund_reference
