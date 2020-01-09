@@ -1,0 +1,15 @@
+id,sequence,code,name,l10n_do_sequence,report_name,internal_type,doc_code_prefix,country_id/id,purchase_aliquots,active
+,10,B,FACTURAS DE CLIENTE B01,B01,Factura de Crédito Fiscal,invoice,,base.do,not_zero,TRUE
+,20,B,FACTURAS DE PROVEEDOR B01,B01,Factura de Crédito Fiscal,invoice,,base.do,not_zero,TRUE
+,30,B,FACTURAS DE CLIENTE B02,B02,Factura de Consumo,invoice,,base.do,zero,TRUE
+,40,B,NOTAS DE DÉBITO DE CLIENTE B03,B03,Factura de Único Ingreso,debit_note,,base.do,not_zero,TRUE
+,50,B,NOTAS DE DÉBITO DE PROVEEDOR B03,B03,Nota de Débito,debit_note,,base.do,not_zero,TRUE
+,60,B,NOTAS DE CRÉDITO DE CLIENTE B04,B04,Nota de Crédito,credit_note,,base.do,not_zero,TRUE
+,70,B,NOTAS DE CRÉDITO DE PROVEEDOR B04,B04,Nota de Crédito,credit_note,,base.do,not_zero,TRUE
+,80,B,FACTURAS DE PROVEEDOR B11,B11,Factura de Informal,invoice,,base.do,not_zero,TRUE
+,90,B,FACTURAS DE CLIENTE B12,B12,Factura de Único Ingreso,credit_note,,base.do,zero,TRUE
+,100,B,FACTURAS DE CLIENTE B13,B13,Factura de Compra,invoice,,base.do,zero,TRUE
+,110,B,FACTURAS DE CLIENTE B14,B14,Factura de Régimen Especial,invoice,,base.do,not_zero,TRUE
+,120,B,FACTURAS DE GOBIERNO B15,B15,Factura Gubernamental,invoice,,base.do,not_zero,TRUE
+,130,B,FACTURAS DE EXPORTACION B16,B16,Factura de Exportación,invoice,,base.do,,TRUE
+,140,B,FACURAS DE PROVEEDOR EXTRANJERO B17,B17,Factura de Pago al Exterior,invoice,,base.do,zero,TRUE

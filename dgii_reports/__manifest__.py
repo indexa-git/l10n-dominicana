@@ -35,4 +35,5 @@
         'views/account_tax_views.xml',
         'wizard/dgii_report_regenerate_wizard_views.xml',
     ],
+    'installable': False,
 }
