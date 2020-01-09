@@ -51,9 +51,9 @@ class AccountInvoice(models.Model):
                     sale_fiscal_type)
                 if sequence:
                     if sequence.number_next_actual >= sequence.warning_ncf:
-                        self.sequence_almost_depleted = True
+                        invoice.sequence_almost_depleted = True
                     else:
-                        self.sequence_almost_depleted = False
+                        invoice.sequence_almost_depleted = False
 
             if invoice.journal_id.purchase_type in (
                     'informal', 'minor',
@@ -63,9 +63,9 @@ class AccountInvoice(models.Model):
                     purchase_type)
                 if sequence:
                     if sequence.number_next_actual >= sequence.warning_ncf:
-                        self.sequence_almost_depleted = True
+                        invoice.sequence_almost_depleted = True
                     else:
-                        self.sequence_almost_depleted = False
+                        invoice.sequence_almost_depleted = False
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -99,8 +99,7 @@ class AccountInvoice(models.Model):
                         inv.ncf_expiration_date = [
                             dr.date_to
                             for dr in inv.journal_id.date_range_ids
-                            if dr.sale_fiscal_type == inv.sale_fiscal_type
-                        ][0]
+                            if dr.sale_fiscal_type == inv.sale_fiscal_type][0]
                     except IndexError:
                         raise ValidationError(
                             _('Error. No sequence range for NCF para: {}')
@@ -412,7 +411,7 @@ class AccountInvoice(models.Model):
                         lambda seq: seq.sale_fiscal_type == inv.journal_id.purchase_type
                     )
 
-                    if sequence1.number_next_actual >= sequence1.max_number_next:
+                    if sequence1.number_next_actual > sequence1.max_number_next:
                         raise ValidationError(_(
                             u"Los comprobantes para {} se han agotado,"
                             " contacte al responsable de contabilidad ({}).").format(
