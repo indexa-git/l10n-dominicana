@@ -82,6 +82,7 @@
             <tree>
                 <field name="name"/>
                 <field name="fiscal_type_id"/>
+                <field name="next_fiscal_number"/>
                 <field name="sequence_start"/>
                 <field name="sequence_end"/>
                 <field name="state"/>

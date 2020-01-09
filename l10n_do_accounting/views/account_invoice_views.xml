@@ -62,14 +62,14 @@
                        string="NCF"
                        readonly="1"
                        attrs="{
-                       'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('is_l10n_do_fiscal_invoice','=',False)],
+                       'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('is_l10n_do_fiscal_invoice','=', False)],
                        'readonly': True}"/>
                 <field name="origin_out"
                        groups="base.group_user"
                        attrs="{
                        'invisible': [('type', '!=', 'out_refund'), ('is_debit_note', '=', False)],
                        'readonly': [('state', '!=', 'draft')],
-                       'required': [('type', '=', 'out_refund'), ('is_l10n_do_fiscal_invoice', '=', True)]}"/>
+                       'required': ['|', '&amp;', ('type', '=', 'out_refund'), ('is_l10n_do_fiscal_invoice', '=', True), ('is_debit_note', '=', True)]}"/>
                 <field name="name"/>
             </xpath>
 
