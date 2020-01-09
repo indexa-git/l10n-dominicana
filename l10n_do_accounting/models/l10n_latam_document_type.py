@@ -6,6 +6,14 @@ class L10nLatamDocumentType(models.Model):
 
     _inherit = 'l10n_latam.document.type'
 
+    internal_type = fields.Selection(
+        selection_add=[
+            ('invoice', 'Invoices'),
+            ('invoice_in', 'Purchase Invoices'),
+            ('debit_note', 'Debit Notes'),
+            ('credit_note', 'Credit Notes'),
+            ])
+
     l10n_do_sequence = fields.Selection(
         selection='_get_l10n_do_sequences',
         string='Sequences',
