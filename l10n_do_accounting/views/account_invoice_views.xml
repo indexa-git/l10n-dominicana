@@ -153,7 +153,7 @@
                        attrs="{
                        'invisible':[('is_l10n_do_fiscal_invoice','=',False)],
                        'required': [('is_l10n_do_fiscal_invoice','=',True),('type','=','in_invoice')],
-                       'readonly': ['|',('state','!=','draft'),('reference','!=',False)]}"
+                       'readonly': [('state','!=','draft')]}"
                        domain="[('type', '=', 'in_invoice')]"/>
                 <field name="expense_type" attrs="{
                        'invisible':[('is_l10n_do_fiscal_invoice', '=', False)],
