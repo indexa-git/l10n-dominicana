@@ -10,6 +10,11 @@ class ResCompany(models.Model):
                                        string='Country Code')
     l10n_do_dgii_start_date = fields.Date('Activities Start Date')
 
+    l10n_do_default_consumer = fields.Selection(
+        [('final', 'Final Consumer'),
+         ('fiscal', 'Fiscal Consumer')],
+        default=lambda self: self._context.get('l10n_do_default_consumer', 'final'))
+
     def _localization_use_documents(self):
         """ Dominican localization uses documents """
         self.ensure_one()
