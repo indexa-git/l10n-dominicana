@@ -80,7 +80,7 @@
                          <field name="description"/>
                          <field name="is_vendor_refund" invisible="1"/>
                          <field name="refund_reference" string="Debit Note reference"
-                                attrs="{'invisible': [('is_vendor_refund', '=', False)], 'required': [('is_fiscal_refund', '=', True)]}"/>
+                                attrs="{'invisible': [('is_vendor_refund', '=', False)], 'required': [('is_vendor_refund', '=', True), ('is_fiscal_refund', '=', True)]}"/>
                          <field name="percentage"
                                 attrs="{'invisible': [('refund_type', '!=', 'percentage')],
                                 'required': [('refund_type', '=', 'percentage')]}"/>
