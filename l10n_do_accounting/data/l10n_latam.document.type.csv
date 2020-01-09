@@ -1,15 +1,15 @@
-id,sequence,code,name,report_name,internal_type,doc_code_prefix,country_id/id,vat_required,active
-,10,B,FACTURAS DE CLIENTE B01,Factura de Crédito Fiscal,invoice,B01,base.do,not_zero,TRUE
-,20,B,FACTURAS DE PROVEEDOR B01,Factura de Crédito Fiscal,invoice,B01,base.do,not_zero,TRUE
-,30,B,FACTURAS DE CLIENTE B02,Factura de Consumo,invoice,B02,base.do,zero,TRUE
-,40,B,NOTAS DE DÉBITO DE CLIENTE B03,Factura de Único Ingreso,debit_note,B03,base.do,not_zero,TRUE
-,50,B,NOTAS DE DÉBITO DE PROVEEDOR B03,Nota de Débito,debit_note,B03,base.do,not_zero,TRUE
-,60,B,NOTAS DE CRÉDITO DE CLIENTE B04,Nota de Crédito,credit_note,B04,base.do,not_zero,TRUE
-,70,B,NOTAS DE CRÉDITO DE PROVEEDOR B04,Nota de Crédito,credit_note,B04,base.do,not_zero,TRUE
-,80,B,FACTURAS DE PROVEEDOR B11,Factura de Informal,invoice,B11,base.do,not_zero,TRUE
-,90,B,FACTURAS DE CLIENTE B12,Factura de Único Ingreso,credit_note,B12,base.do,zero,TRUE
-,100,B,FACTURAS DE CLIENTE B13,Factura de Compra,invoice,B13,base.do,zero,TRUE
-,110,B,FACTURAS DE CLIENTE B14,Factura de Régimen Especial,invoice,B14,base.do,not_zero,TRUE
-,120,B,FACTURAS DE GOBIERNO B15,Factura Gubernamental,invoice,B15,base.do,not_zero,TRUE
-,130,B,FACTURAS DE EXPORTACION B16,Factura de Exportación,invoice,B16,base.do,not_zero,TRUE
-,140,B,FACURAS DE PROVEEDOR EXTRANJERO B17,Factura de Pago al Exterior,invoice,B17,base.do,zero,TRUE
+id,sequence,code,name,report_name,internal_type,doc_code_prefix,country_id/id,purchase_vat,active
+ncf_fiscal_client,10,B,FACTURAS DE CLIENTE B01,Factura de Crédito Fiscal,invoice,B01,base.do,not_zero,TRUE
+ncf_fiscal_supplier,20,B,FACTURAS DE PROVEEDOR B01,Factura de Crédito Fiscal,invoice,B01,base.do,not_zero,TRUE
+ncf_consumer_client,30,B,FACTURAS DE CLIENTE B02,Factura de Consumo,invoice,B02,base.do,zero,TRUE
+ncf_debit_note_client,40,B,NOTAS DE DÉBITO DE CLIENTE B03,Factura de Único Ingreso,debit_note,B03,base.do,not_zero,TRUE
+ncf_debit_note_supplier,50,B,NOTAS DE DÉBITO DE PROVEEDOR B03,Nota de Débito,debit_note,B03,base.do,not_zero,TRUE
+ncf_credit_note_client,60,B,NOTAS DE CRÉDITO DE CLIENTE B04,Nota de Crédito,credit_note,B04,base.do,not_zero,TRUE
+ncf_credit_note_supplier,70,B,NOTAS DE CRÉDITO DE PROVEEDOR B04,Nota de Crédito,credit_note,B04,base.do,not_zero,TRUE
+ncf_informal_supplier,80,B,FACTURAS DE PROVEEDOR B11,Factura de Informal,invoice,B11,base.do,not_zero,TRUE
+ncf_unique_client,90,B,FACTURAS DE CLIENTE B12,Factura de Único Ingreso,credit_note,B12,base.do,zero,TRUE
+ncf_purchase_supplier,100,B,FACTURAS DE SUPLIDOR B13,Factura de Compra,invoice,B13,base.do,zero,TRUE
+ncf_special_client,110,B,FACTURAS DE CLIENTE B14,Factura de Régimen Especial,invoice,B14,base.do,not_zero,TRUE
+ncf_government_client,120,B,FACTURAS DE GOBIERNO B15,Factura Gubernamental,invoice,B15,base.do,not_zero,TRUE
+ncf_exporT_client,130,B,FACTURAS DE EXPORTACION B16,Factura de Exportación,invoice,B16,base.do,not_zero,TRUE
+ncf_foreing_client,140,B,FACURAS DE PROVEEDOR EXTRANJERO B17,Factura de Pago al Exterior,invoice,B17,base.do,zero,TRUE

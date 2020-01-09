@@ -14,9 +14,9 @@ class Partner(models.Model):
     def _get_l10n_do_dgii_payer_types_selection(self):
         """ Return the list of values of the selection field. """
         return [
-            ('fiscal', _('Fiscal Tax Payer')),
-            ('no_fiscal', _('Non Tax Payer')),
-            ('special', _('Special Tax Payer')),
+            ('taxpayer', _('Fiscal Tax Payer')),
+            ('non_payer', _('Non Tax Payer')),
+            ('exempt', _('Exempt from Tax Paying')),
             ('governmental', _('Governmental')),
             ('foreigner', _('Foreigner')),
         ]

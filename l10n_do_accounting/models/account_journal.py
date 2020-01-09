@@ -30,10 +30,18 @@ class AccountJournal(models.Model):
         self.ensure_one()
         sequences_data = {
             'issued': {
-                'B': ['01', '02', '11', '13'],
+                'taxpayer': ['fiscal'],
+                'non_payer': ['consumer', 'unique'],
+                'special': ['special'],
+                'governmental': ['governmental'],
+                'foreigner': ['export', 'consumer'],
             },
             'received': {
-                'B': ['01'],
+                'taxpayer': ['fiscal', 'special', 'governmental'],
+                'non_payer': ['informal', 'minor'],
+                'special': ['fiscal', 'special'],
+                'governmental': ['fiscal'],
+                'foreigner': ['informal', 'exterior'],
             },
         }
         if not self.company_id.vat:
@@ -42,39 +50,24 @@ class AccountJournal(models.Model):
             raise RedirectWarning(msg, action.id, _('Go to Companies'))
 
         sequences = sequences_data['issued' if self.type == 'sale' else 'received'][
-            self.company_id.l10n_do_dgii_responsibility_type_id.code]
+            self.company_id.l10n_do_dgii_tax_payer_type]
         if not counterpart_partner:
             return sequences
         else:
             counterpart_sequences = sequences_data['issued' if self.type == 'purchase' else 'received'][
-                counterpart_partner.l10n_do_dgii_responsibility_type_id.code]
+                counterpart_partner.l10n_do_dgii_tax_payer_type]
             sequences = list(set(sequences) & set(counterpart_sequences))
         return sequences
 
     def _get_journal_codes(self):
         self.ensure_one()
-        usual_codes = ['1', '2', '3', '6', '7', '8', '11', '12', '13']
-        mipyme_codes = ['201', '202', '203', '206', '207', '208', '211', '212', '213']
-        invoice_m_code = ['51', '52', '53']
-        receipt_m_code = ['54']
-        receipt_codes = ['4', '9', '15']
-        expo_codes = ['19', '20', '21']
+        ncf_code = ['B']
+        ecf_code = ['E']
         if self.type != 'sale':
             return []
-        elif self.l10n_ar_afip_pos_system == 'II_IM':
-            # pre-printed invoice
-            return usual_codes + receipt_codes + expo_codes + invoice_m_code + receipt_m_code
-        elif self.l10n_ar_afip_pos_system in ['RAW_MAW', 'RLI_RLM']:
-            # electronic/online invoice
-            return usual_codes + receipt_codes + invoice_m_code + receipt_m_code + mipyme_codes
-        elif self.l10n_ar_afip_pos_system in ['CPERCEL', 'CPEWS']:
-            # invoice with detail
-            return usual_codes + invoice_m_code
-        elif self.l10n_ar_afip_pos_system in ['BFERCEL', 'BFEWS']:
-            # Bonds invoice
-            return usual_codes + mipyme_codes
-        elif self.l10n_ar_afip_pos_system in ['FEERCEL', 'FEEWS', 'FEERCELP']:
-            return expo_codes
+        elif self.company_id.l10n_do_ecf_issuer:
+            return ecf_code
+        return ncf_code
 
     @api.model
     def create(self, values):
