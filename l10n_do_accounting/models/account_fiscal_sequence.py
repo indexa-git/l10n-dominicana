@@ -108,8 +108,8 @@ class AccountFiscalSequence(models.Model):
         track_visibility='onchange',
         copy=False,
     )
-    can_be_queue = fields.Boolean(
-        compute='_compute_can_be_queue',
+    can_be_queued = fields.Boolean(
+        compute='_compute_can_be_queued',
     )
     company_id = fields.Many2one(
         'res.company',
@@ -121,9 +121,9 @@ class AccountFiscalSequence(models.Model):
 
     @api.multi
     @api.depends('state')
-    def _compute_can_be_queue(self):
+    def _compute_can_be_queued(self):
         for rec in self:
-            rec.can_be_queue = bool(2 > self.search_count(
+            rec.can_be_queued = bool(2 > self.search_count(
                 [('state', 'in', ('active', 'queue')),
                  ('l10n_latam_document_type_id', '=', rec.l10n_latam_document_type_id.id),
                  ('company_id', '=', rec.company_id.id)]) > 0) if \

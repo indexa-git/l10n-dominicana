@@ -6,14 +6,6 @@ class L10nLatamDocumentType(models.Model):
 
     _inherit = 'l10n_latam.document.type'
 
-    internal_type = fields.Selection(
-        selection_add=[
-            ('invoice', 'Invoices'),
-            ('invoice_in', 'Purchase Invoices'),
-            ('debit_note', 'Debit Notes'),
-            ('credit_note', 'Credit Notes'),
-            ])
-
     l10n_do_sequence = fields.Selection(
         selection='_get_l10n_do_sequences',
         string='Sequences',
@@ -21,7 +13,8 @@ class L10nLatamDocumentType(models.Model):
         ' documents presented to the government and that depends on the'
         ' operation type, the responsibility of both the issuer and the'
         ' receptor of the document')
-    purchase_aliquots = fields.Selection(
+
+    vat_required = fields.Selection(
         [('not_zero', 'Not Zero'), ('zero', 'Zero')],
         help='Raise an error if a vendor bill is miss encoded. "Not Zero"'
         ' means the VAT taxes are required for the invoices related to this document type, and those with "Zero" means'
@@ -41,7 +34,6 @@ class L10nLatamDocumentType(models.Model):
             ('goverment', '15'),
             ('export', '16'),
             ('exterior', '17'),
-
         ]
 
     def _get_document_sequence_vals(self, journal):

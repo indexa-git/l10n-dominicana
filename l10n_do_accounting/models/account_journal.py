@@ -20,8 +20,6 @@ class AccountJournal(models.Model):
     )
 
     l10n_do_sequence_ids = fields.One2many('ir.sequence', 'l10n_latam_journal_id', string='Sequences')
-    l10n_do_share_sequences = fields.Boolean(
-        'Unified Book', help='Use same sequence for documents with the same sequence')
 
     def _get_journal_sequence(self, counterpart_partner=False):
         """ Regarding the DGII responsibility of the company and the type of journal (sale/purchase), get the allowed
@@ -32,24 +30,10 @@ class AccountJournal(models.Model):
         self.ensure_one()
         sequences_data = {
             'issued': {
-                '1': ['A', 'B', 'E', 'M'],
-                '3': [],
-                '4': ['C'],
-                '5': [],
-                '6': ['C', 'E'],
-                '9': ['I'],
-                '10': [],
-                '13': ['C', 'E'],
+                'B': ['01', '02', '11', '13'],
             },
             'received': {
-                '1': ['A', 'B', 'C', 'M', 'I'],
-                '3': ['B', 'C', 'I'],
-                '4': ['B', 'C', 'I'],
-                '5': ['B', 'C', 'I'],
-                '6': ['B', 'C', 'I'],
-                '9': ['E'],
-                '10': ['E'],
-                '13': ['B', 'C', 'I'],
+                'B': ['01'],
             },
         }
         if not self.company_id.vat:
@@ -66,10 +50,6 @@ class AccountJournal(models.Model):
                 counterpart_partner.l10n_do_dgii_responsibility_type_id.code]
             sequences = list(set(sequences) & set(counterpart_sequences))
         return sequences
-
-    def _get_journal_codes(self):
-        self.ensure_one()
-        return []
 
     @api.model
     def create(self, values):
@@ -92,7 +72,7 @@ class AccountJournal(models.Model):
     def _check_dgii_configurations(self):
         """ Do not let to update journal if already have confirmed invoices """
         self.ensure_one()
-        if self.company_id.country_id != self.env.ref('base.ar'):
+        if self.company_id.country_id != self.env.ref('base.do'):
             return True
         if self.type != 'sale' and self._origin.type != 'sale':
             return True
@@ -106,7 +86,7 @@ class AccountJournal(models.Model):
         """ IF DGII Configuration change try to review if this can be done and then create / update the document
         sequences """
         self.ensure_one()
-        if self.company_id.country_id != self.env.ref('base.ar'):
+        if self.company_id.country_id != self.env.ref('base.do'):
             return True
         if not self.type == 'sale' or not self.l10n_latam_use_documents:
             return False
@@ -122,14 +102,7 @@ class AccountJournal(models.Model):
                   '|',
                   ('l10n_do_sequence', '=', False),
                   ('l10n_do_sequence', 'in', sequences)]
-        codes = self._get_journal_codes()
-        if codes:
-            domain.append(('code', 'in', codes))
         documents = self.env['l10n_latam.document.type'].search(domain)
         for document in documents:
-            if self.l10n_do_share_sequences and self.l10n_do_sequence_ids.filtered(
-               lambda x: x.l10n_do_sequence == document.l10n_do_sequence):
-                continue
-
             sequences |= self.env['ir.sequence'].create(document._get_document_sequence_vals(self))
         return sequences
