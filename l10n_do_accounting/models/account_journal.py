@@ -148,8 +148,8 @@ class AccountJournal(models.Model):
             ('internal_type', 'in', internal_types),
             ('active', '=', True),
             '|',
-            ('l10n_do_ncf_sequence', '=', False),
-            ('l10n_do_ncf_sequence', 'in', sequences),
+            ('l10n_do_ncf_type', '=', False),
+            ('l10n_do_ncf_type', 'in', sequences),
         ]
         documents = self.env['l10n_latam.document.type'].search(domain)
         for document in documents:

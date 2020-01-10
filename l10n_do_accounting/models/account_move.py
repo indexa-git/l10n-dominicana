@@ -33,8 +33,8 @@ class AccountMove(models.Model):
             )
             domain += [
                 '|',
-                ('l10n_do_ncf_sequence', '=', False),
-                ('l10n_do_ncf_sequence', 'in', sequences),
+                ('l10n_do_ncf_type', '=', False),
+                ('l10n_do_ncf_type', 'in', sequences),
             ]
             codes = self.journal_id._get_journal_codes()
             if codes:
@@ -64,7 +64,7 @@ class AccountMove(models.Model):
         ):
             tax_payer_type = rec.partner_id.l10n_do_dgii_tax_payer_type
             latam_document_type_code = (
-                rec.l10n_latam_document_type_id.l10n_do_ncf_sequence
+                rec.l10n_latam_document_type_id.l10n_do_ncf_type
             )
             if not tax_payer_type and latam_document_type_code not in [
                 '01',

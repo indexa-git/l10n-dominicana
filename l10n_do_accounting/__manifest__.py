@@ -1,44 +1,27 @@
 {
     'name': "Fiscal Accounting (Rep. Dominicana)",
-
     'summary': """
         Este módulo implementa la administración y gestión de los números de
          comprobantes fiscales para el cumplimento de la norma 06-18 de la
          Dirección de Impuestos Internos en la República Dominicana.""",
-
-    'author': "Indexa, "
-              "Iterativo SRL",
-
+    'author': "iterativo LLC, " "Indexa",
+    'category': 'Localization',
     'license': 'LGPL-3',
     'website': "https://github.com/odoo-dominicana",
-    'category': 'Localization',
-    'version': '13.0.1.0.0',
-
+    'version': "1.0",
     # any module necessary for this one to work correctly
-    'depends': [
-        'base',
-        'account',
-        'l10n_do',
-    ],
-
+    'depends': ['l10n_latam_invoice_document', 'l10n_do',],
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         # 'security/res_groups.xml',
-        # 'data/ir_cron_data.xml',
-        # 'data/account_fiscal_type_data.xml',
-        # 'wizard/account_invoice_refund_views.xml',
-        # 'views/account_fiscal_sequence_views.xml',
-        # 'wizard/account_fiscal_sequence_validate_wizard_views.xml',
-        # 'views/report_templates.xml',
-        # 'data/report_layout_data.xml',
-        # 'views/account_report.xml',
-        # 'views/report_invoice.xml',
-        # 'data/mail_template_data.xml',
-        # 'views/account_invoice_views.xml',
-        # 'views/account_journal_views.xml',
-        # 'views/res_partner_views.xml',
-        # 'views/assets.xml'
+        'data/l10n_latam.document.type.csv',
+        'views/account_move_view.xml',
+        'views/res_partner_view.xml',
+        'views/res_company_view.xml',
+        'views/account_journal_view.xml',
+        'views/l10n_latam_document_type_view.xml',
+        'views/ir_sequence_view.xml',
     ],
     'qweb': [
         # "static/src/xml/fiscal_sequence_warning_template.xml",
@@ -48,5 +31,7 @@
         # 'demo/res_partner_demo.xml',
         # 'demo/account_fiscal_sequence_demo.xml',
     ],
-    'installable': False,
+    'installable': True,
+    'auto_install': False,
+    'application': False,
 }

@@ -15,8 +15,8 @@ class L10nLatamDocumentType(models.Model):
 
     _inherit = 'l10n_latam.document.type'
 
-    l10n_do_ncf_sequence = fields.Selection(
-        selection='_get_l10n_do_ncf_sequences',
+    l10n_do_ncf_type = fields.Selection(
+        selection='_get_l10n_do_ncf_types',
         string='Sequences',
         help='Sequences defined by the DGII that can be used to identify the'
         ' documents presented to the government and that depends on the'
@@ -32,7 +32,7 @@ class L10nLatamDocumentType(models.Model):
         ' that only "VAT Not Applicable" tax is allowed.',
     )
 
-    def _get_l10n_do_ncf_sequences(self):
+    def _get_l10n_do_ncf_types(self):
         """ Return the list of values of the selection field. """
         return [
             ('fiscal', '01'),
