@@ -85,6 +85,7 @@ class AccountInvoice(models.Model):
     ncf_expiration_date = fields.Date(
         'Valid until',
         store=True,
+        compute="_compute_assignment"
     )
     is_l10n_do_fiscal_invoice = fields.Boolean(
         compute="_compute_is_l10n_do_fiscal_invoice",
@@ -209,7 +210,7 @@ class AccountInvoice(models.Model):
                 if any([tax for tax in
                         inv.tax_line_ids.mapped('tax_id').filtered(
                             lambda tax: tax.tax_group_id.name
-                            in taxes and tax.amount != 0)]):
+                                        in taxes and tax.amount != 0)]):
                     raise UserError(_(
                         "You cannot validate and invoice of Fiscal Type "
                         "Regímen Especial with ITBIS/ISC.\n\n"
@@ -465,10 +466,14 @@ class AccountInvoice(models.Model):
             if inv.is_l10n_do_fiscal_invoice and \
                     not inv.reference and inv.fiscal_type_id.assigned_sequence:
                 inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
-                inv.ncf_expiration_date = \
-                    inv.fiscal_sequence_id.expiration_date
 
         return super(AccountInvoice, self).invoice_validate()
+
+    @api.depends('state', 'is_l10n_do_fiscal_invoice', 'fiscal_sequence_id')
+    def _compute_assignment(self):
+        for inv in self:
+            if inv.is_l10n_do_fiscal_invoice and inv.fiscal_sequence_id:
+                inv.ncf_expiration_date = inv.fiscal_sequence_id.expiration_date
 
     @api.multi
     def invoice_print(self):
