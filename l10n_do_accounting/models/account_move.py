@@ -26,13 +26,13 @@ class AccountMove(models.Model):
             self.journal_id.l10n_latam_use_documents
             and self.journal_id.company_id.country_id == self.env.ref('base.do')
         ):
-            sequences = self.journal_id._get_journal_sequence(
+            sequences = self.journal_id._get_journal_ncf_types(
                 counterpart_partner=self.partner_id.commercial_partner_id
             )
             domain += [
                 '|',
-                ('l10n_do_sequence', '=', False),
-                ('l10n_do_sequence', 'in', sequences),
+                ('l10n_do_ncf_sequence', '=', False),
+                ('l10n_do_ncf_sequence', 'in', sequences),
             ]
             codes = self.journal_id._get_journal_codes()
             if codes:
@@ -62,9 +62,9 @@ class AccountMove(models.Model):
         self.ensure_one()
         if (
             self.journal_id.l10n_latam_use_documents
-            and self.l10n_latam_country_code == 'CL'
+            and self.l10n_latam_country_code == 'DO'
         ):
-            res = self.journal_id.l10n_cl_sequence_ids.filtered(
+            res = self.journal_id.l10n_do_sequence_ids.filtered(
                 lambda x: x.l10n_latam_document_type_id
                 == self.l10n_latam_document_type_id
             )

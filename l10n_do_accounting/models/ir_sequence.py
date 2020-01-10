@@ -8,13 +8,13 @@ class IrSequence(models.Model):
 
     _inherit = 'ir.sequence'
 
-    l10n_do_sequence = fields.Selection(
+    l10n_do_ncf_sequence = fields.Selection(
         selection='_get_l10n_do_sequences', string='sequence',
     )
 
-    def _get_l10n_do_sequences(self):
+    def _get_l10n_do_ncf_sequences(self):
         """ Return the list of values of the selection field. """
-        return self.env['l10n_latam.document.type']._get_l10n_do_sequences()
+        return self.env['l10n_latam.document.type']._get_l10n_do_ncf_sequences()
 
     l10n_do_authorization_number = fields.Char(
         string="Authorization number",
