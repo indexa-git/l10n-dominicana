@@ -37,14 +37,14 @@ class AccountJournal(models.Model):
             'issued': {
                 'taxpayer': ['fiscal'],
                 'non_payer': ['consumer', 'unique'],
-                'special': ['special'],
+                'exempt': ['special'],
                 'governmental': ['governmental'],
                 'foreigner': ['export', 'consumer'],
             },
             'received': {
                 'taxpayer': ['fiscal', 'special', 'governmental'],
                 'non_payer': ['informal', 'minor'],
-                'special': ['fiscal', 'special'],
+                'exempt': ['fiscal', 'special'],
                 'governmental': ['fiscal'],
                 'foreigner': ['informal', 'exterior'],
             },
@@ -65,13 +65,9 @@ class AccountJournal(models.Model):
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         if invoice.type in ['out_refund', 'in_refund']:
-            ncf_types = list(
-                set(ncf_types) & set(counterpart_ncf_types) & set('credit_note')
-            )
-        if invoice.is_debit_note():
-            ncf_types = list(
-                set(ncf_types) & set(counterpart_ncf_types) & set('debit_note')
-            )
+            ncf_types = list('credit_note')
+        if invoice.is_debit_note:
+            ncf_types = list('debit_note')
         return ncf_types
 
     def _get_journal_codes(self):

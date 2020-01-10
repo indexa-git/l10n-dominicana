@@ -17,8 +17,8 @@ class L10nLatamDocumentType(models.Model):
 
     l10n_do_ncf_type = fields.Selection(
         selection='_get_l10n_do_ncf_types',
-        string='Sequences',
-        help='Sequences defined by the DGII that can be used to identify the'
+        string='NCF types',
+        help='NCF types defined by the DGII that can be used to identify the'
         ' documents presented to the government and that depends on the'
         ' operation type, the responsibility of both the issuer and the'
         ' receptor of the document',
@@ -87,7 +87,7 @@ class L10nLatamDocumentType(models.Model):
 
         msg = "'%s' " + _("is not a valid value for") + " '%s'.<br/>%s"
 
-        # Import Dispatch Number Validator
+        # Import NCF Number Validator
         if not is_valid(document_number):
             raise UserError(
                 msg

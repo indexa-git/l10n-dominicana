@@ -1,5 +1,7 @@
 from odoo import models, fields, api, _
 
+# TODO: manejar visibilidad de campos con el country_code
+
 
 class Partner(models.Model):
     _inherit = 'res.partner'

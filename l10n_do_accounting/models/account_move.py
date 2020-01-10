@@ -28,13 +28,13 @@ class AccountMove(models.Model):
             self.journal_id.l10n_latam_use_documents
             and self.journal_id.company_id.country_id == self.env.ref('base.do')
         ):
-            sequences = self.journal_id._get_journal_ncf_types(
+            ncf_types = self.journal_id._get_journal_ncf_types(
                 counterpart_partner=self.partner_id.commercial_partner_id, invoice=self,
             )
             domain += [
                 '|',
                 ('l10n_do_ncf_type', '=', False),
-                ('l10n_do_ncf_type', 'in', sequences),
+                ('l10n_do_ncf_type', 'in', ncf_types),
             ]
             codes = self.journal_id._get_journal_codes()
             if codes:

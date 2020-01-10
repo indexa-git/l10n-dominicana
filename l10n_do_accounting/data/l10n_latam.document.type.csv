@@ -1,4 +1,4 @@
-id,sequence,code,name,report_name,internal_type,l10n_do_ncf_sequence,doc_code_prefix,country_id/id,vat_required,active
+id,sequence,code,name,report_name,internal_type,l10n_do_ncf_sequence,doc_code_prefix,country_id/id,purchase_vat,active
 ncf_fiscal_clien,10,B,FACTURAS DE CLIENTE B01,Factura de Crédito Fiscal,invoice,01,B01,base.do,not_zero,TRUE
 ncf_fiscal_supplier,20,B,FACTURAS DE PROVEEDOR B01,Factura de Crédito Fiscal,invoice,01,B01,base.do,not_zero,TRUE
 ncf_consumer_supplier,30,B,FACTURAS DE CLIENTE B02,Factura de Consumo,invoice,02,B02,base.do,zero,TRUE
