@@ -25,7 +25,7 @@ class AccountJournal(models.Model):
         'ir.sequence', 'l10n_latam_journal_id', string='Sequences'
     )
 
-    def _get_journal_ncf_types(self, counterpart_partner=False):
+    def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
         """ Regarding the DGII type of company and the type of journal (sale/purchase),
         get the allowed NCF types. Optionally, receive the counterpart
         partner (customer/supplier) and get the allowed NCF types to work
@@ -64,6 +64,14 @@ class AccountJournal(models.Model):
                 'issued' if self.type == 'purchase' else 'received'
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
+        if invoice.type in ['out_refund', 'in_refund']:
+            ncf_types = list(
+                set(ncf_types) & set(counterpart_ncf_types) & set('credit_note')
+            )
+        if invoice.is_debit_note():
+            ncf_types = list(
+                set(ncf_types) & set(counterpart_ncf_types) & set('debit_note')
+            )
         return ncf_types
 
     def _get_journal_codes(self):
@@ -132,7 +140,9 @@ class AccountJournal(models.Model):
 
         # Create Sequences
         sequences = self._get_journal_ncf_types()
-        internal_types = ['invoice', 'debit_note', 'credit_note']
+        internal_types = (
+            self.env['l10n_latam.document.type']._fields['internal_type'].selection
+        )
         domain = [
             ('country_id.code', '=', 'DO'),
             ('internal_type', 'in', internal_types),

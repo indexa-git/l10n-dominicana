@@ -19,6 +19,8 @@ class AccountMove(models.Model):
         related='res_partner.l10n_do_dgii_tax_payer_type'
     )
 
+    is_debit_note = fields.Boolean()
+
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
         domain = super()._get_l10n_latam_documents_domain()
@@ -27,7 +29,7 @@ class AccountMove(models.Model):
             and self.journal_id.company_id.country_id == self.env.ref('base.do')
         ):
             sequences = self.journal_id._get_journal_ncf_types(
-                counterpart_partner=self.partner_id.commercial_partner_id
+                counterpart_partner=self.partner_id.commercial_partner_id, invoice=self,
             )
             domain += [
                 '|',
@@ -37,24 +39,6 @@ class AccountMove(models.Model):
             codes = self.journal_id._get_journal_codes()
             if codes:
                 domain.append(('code', 'in', codes))
-        return domain
-
-    def _get_l10n_latam_documents_domain(self):
-        self.ensure_one()
-        domain = super()._get_l10n_latam_documents_domain()
-        if (
-            self.journal_id.l10n_latam_use_documents
-            and self.journal_id.company_id.country_id == self.env.ref('base.cl')
-        ):
-            if self.type in ['in_invoice', 'in_refund']:
-                domain += [('code', 'in', ['35', '38', '39', '41', '56', '61'])]
-            return domain
-            document_type_ids = self.journal_id.l10n_cl_sequence_ids.mapped(
-                'l10n_latam_document_type_id'
-            ).ids
-            domain += [('id', 'in', document_type_ids)]
-            if self.partner_id.l10n_cl_sii_taxpayer_type == '3':
-                domain += [('code', 'in', ['35', '38', '39', '41', '56', '61'])]
         return domain
 
     def _get_document_type_sequence(self):
@@ -75,16 +59,19 @@ class AccountMove(models.Model):
     def _check_invoice_type_document_type(self):
         super()._check_invoice_type_document_type()
         for rec in self.filtered(
-            lambda r: r.company_id.country_id == self.env.ref('base.cl')
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id
         ):
-            tax_payer_type = rec.partner_id.l10n_cl_sii_taxpayer_type
-            latam_document_type_code = rec.l10n_latam_document_type_id.code
+            tax_payer_type = rec.partner_id.l10n_do_dgii_tax_payer_type
+            latam_document_type_code = (
+                rec.l10n_latam_document_type_id.l10n_do_ncf_sequence
+            )
             if not tax_payer_type and latam_document_type_code not in [
-                '35',
-                '38',
-                '39',
-                '41',
+                '01',
+                '03',
+                '04',
+                '14',
+                '15',
             ]:
                 raise ValidationError(
                     _(
