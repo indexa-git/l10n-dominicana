@@ -13,26 +13,37 @@ class AccountMove(models.Model):
     l10n_latam_internal_type = fields.Selection(
         related='l10n_latam_document_type_id.internal_type'
     )
-
     l10n_do_partner_type = fields.Selection(
         related='res_partner.l10n_do_dgii_tax_payer_type'
     )
-
+    annulment_type = fields.Selection(
+        [("01", "01 - Pre-printed Invoice Impairment"),
+         ("02", "02 - Printing Errors (Pre-printed Invoice)"),
+         ("03", "03 - Defective Printing"),
+         ("04", "04 - Correction of Product Information"),
+         ("05", "05 - Product Change"),
+         ("06", "06 - Product Return"),
+         ("07", "07 - Product Omission"),
+         ("08", "08 - NCF Sequence Errors"),
+         ("09", "09 - For Cessation of Operations"),
+         ("10", "10 - Lossing or Hurting Of Counterfoil")],
+        string="Annulment Type",
+        copy=False,
+    )
     is_debit_note = fields.Boolean()
 
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
         domain = super()._get_l10n_latam_documents_domain()
-        if (
-            self.journal_id.l10n_latam_use_documents
-            and self.journal_id.company_id.country_id == self.env.ref('base.do')
-        ):
+        if self.journal_id.l10n_latam_use_documents and \
+                self.journal_id.company_id.country_id == \
+                self.env.ref('base.do'):
             ncf_types = self.journal_id._get_journal_ncf_types(
-                counterpart_partner=self.partner_id.commercial_partner_id, invoice=self,
-            )
+                counterpart_partner=self.partner_id.commercial_partner_id,
+                invoice=self)
             domain += [
                 '|',
-                ('l10n_do_ncf_type', '=', False),
+                ('l10n_do_ncf_type', '=', False),  # TODO: why?
                 ('l10n_do_ncf_type', 'in', ncf_types),
             ]
             codes = self.journal_id._get_journal_codes()
@@ -43,10 +54,8 @@ class AccountMove(models.Model):
     def _get_document_type_sequence(self):
         """ Return the match sequences for the given journal and invoice """
         self.ensure_one()
-        if (
-            self.journal_id.l10n_latam_use_documents
-            and self.l10n_latam_country_code == 'DO'
-        ):
+        if self.journal_id.l10n_latam_use_documents and \
+                self.l10n_latam_country_code == 'DO':
             res = self.journal_id.l10n_do_sequence_ids.filtered(
                 lambda x: x.l10n_latam_document_type_id
                 == self.l10n_latam_document_type_id
@@ -73,8 +82,7 @@ class AccountMove(models.Model):
                 '15',
             ]:
                 raise ValidationError(
-                    _(
-                        'Tax payer type is mandatory for this type of document. '
+                    _('Tax payer type is mandatory for this type of document. '
                         'Please set the current tax payer type of this client'
-                    )
+                      )
                 )
