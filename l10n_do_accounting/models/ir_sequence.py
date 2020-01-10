@@ -1,3 +1,4 @@
+
 import datetime
 
 from odoo import fields, models, api, _
@@ -5,11 +6,11 @@ from odoo.exceptions import ValidationError
 
 
 class IrSequence(models.Model):
-
     _inherit = 'ir.sequence'
 
     l10n_do_ncf_type = fields.Selection(
-        selection='_get_l10n_do_ncf_types', string='NCF Type',
+        selection='_get_l10n_do_ncf_types',
+        string='NCF Type',
     )
 
     def _get_l10n_do_ncf_types(self):
@@ -59,18 +60,21 @@ class IrSequence(models.Model):
         copy=False,
     )
     l10n_do_sequence_remaining = fields.Integer(
-        string='Remaining', compute='_compute_sequence_remaining',
+        string='Remaining',
+        compute='_compute_sequence_remaining',
     )
-
-    l10n_do_warning_gap = fields.Integer(compute='_compute_warning_gap',)
+    l10n_do_warning_gap = fields.Integer(
+        compute='_compute_warning_gap',
+    )
     l10n_do_remaining_percentage = fields.Float(
         default=35,
         required=True,
         help="Fiscal Sequence remaining percentage to reach to start "
         "warning notifications.",
     )
-
-    l10n_do_next_fiscal_number = fields.Char(compute='_compute_next_fiscal_number',)
+    l10n_do_next_fiscal_number = fields.Char(
+        compute='_compute_next_fiscal_number',
+    )
     l10n_do_sequence_state = fields.Selection(
         [
             ('draft', 'Draft'),
@@ -84,9 +88,12 @@ class IrSequence(models.Model):
         track_visibility='onchange',
         copy=False,
     )
-    l10n_do_can_be_queued = fields.Boolean(compute='_compute_can_be_queued',)
+    l10n_do_can_be_queued = fields.Boolean(
+        compute='_compute_can_be_queued',
+    )
     company_id = fields.Many2one(
-        states={'draft': [('readonly', False)]}, track_visibility='onchange',
+        states={'draft': [('readonly', False)]},
+        track_visibility='onchange',
     )
 
     @api.depends('l10n_do_sequence_state')
