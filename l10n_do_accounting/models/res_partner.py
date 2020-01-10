@@ -6,9 +6,9 @@ class Partner(models.Model):
 
     l10n_do_dgii_tax_payer_type = fields.Selection(
         selection='_get_l10n_do_dgii_payer_types_selection',
+        compute='_compute_l10n_do_dgii_payer_type',
         string='Taxpayer Type',
         index=True,
-        # TODO: add help
     )
 
     def _get_l10n_do_dgii_payer_types_selection(self):
@@ -23,36 +23,35 @@ class Partner(models.Model):
 
     def _compute_l10n_do_dgii_payer_type(self):
         """ Compute the type of partner depending on soft decisions"""
-        self.ensure_one()
-
         company_id = self.env['res.company'].search(
             [('id', '=', self.env.user.company_id.id)]
         )
         vat = str(self.vat)
         is_dominican_partner = bool(self.country_id == self.env.ref('base.do'))
 
-        if vat:
-            if self.country_id and is_dominican_partner:
-                if vat.isdigit() and len(vat) == 9:
-                    if vat.startswith('43'):
-                        return 'governmental'
-                    elif vat.startswith('10'):
-                        return 'special'
-                    elif vat.startswith('13'):
-                        return 'fiscal'
-                elif len(vat) == 11:
-                    if vat.isdigit():
-                        return (
-                            'fiscal'
-                            if company_id.l10n_do_default_consumer == 'fiscal'
-                            else 'final'
-                        )
-                    else:
-                        return 'final'
-            elif self.country_id and not is_dominican_partner:
-                return 'foreigner'
-        else:
-            return 'final'
+        for rec in self:
+            if vat and not self.l10n_do_dgii_tax_payer_type:
+                if self.country_id and is_dominican_partner:
+                    if vat.isdigit() and len(vat) == 9:
+                        if 'MINISTERIO' in self.name:
+                            rec.l10n_do_dgii_tax_payer_type = 'governmental'
+                        elif 'IGLESIA' in self.name or 'ZONA FRANCA' in self.name:
+                            rec.l10n_do_dgii_tax_payer_type = 'special'
+                        elif vat.startswith('13'):
+                            rec.l10n_do_dgii_tax_payer_type = 'fiscal'
+                    elif len(vat) == 11:
+                        if vat.isdigit():
+                            rec.l10n_do_dgii_tax_payer_type = (
+                                'fiscal'
+                                if company_id.l10n_do_default_consumer == 'fiscal'
+                                else 'final'
+                            )
+                        else:
+                            rec.l10n_do_dgii_tax_payer_type = 'final'
+                elif self.country_id and not is_dominican_partner:
+                    rec.l10n_do_dgii_tax_payer_type = 'foreigner'
+            elif not self.l10n_do_dgii_tax_payer_type:
+                rec.l10n_do_dgii_tax_payer_type = 'final'
 
     l10n_do_expense_type = fields.Selection(
         [
