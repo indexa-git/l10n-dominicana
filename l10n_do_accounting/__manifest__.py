@@ -10,18 +10,20 @@
     'website': "https://github.com/odoo-dominicana",
     'version': "1.0",
     # any module necessary for this one to work correctly
-    'depends': ['l10n_latam_invoice_document', 'l10n_do',],
+    'depends': ['l10n_latam_invoice_document',
+                'l10n_do',
+                ],
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         # 'security/res_groups.xml',
         'data/l10n_latam.document.type.csv',
-        'views/account_move_view.xml',
-        'views/res_partner_view.xml',
-        'views/res_company_view.xml',
-        'views/account_journal_view.xml',
-        'views/l10n_latam_document_type_view.xml',
-        'views/ir_sequence_view.xml',
+        # 'views/account_move_views.xml',
+        # 'views/res_partner_views.xml',
+        # 'views/res_company_views.xml',
+        # 'views/account_journal_views.xml',
+        # 'views/l10n_latam_document_type_views.xml',
+        # 'views/ir_sequence_views.xml',
     ],
     'qweb': [
         # "static/src/xml/fiscal_sequence_warning_template.xml",
