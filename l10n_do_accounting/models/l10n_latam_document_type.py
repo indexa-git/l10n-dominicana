@@ -1,3 +1,4 @@
+
 import logging
 
 from odoo import models, fields, _
@@ -12,7 +13,6 @@ except (ImportError, IOError) as err:
 
 
 class L10nLatamDocumentType(models.Model):
-
     _inherit = 'l10n_latam.document.type'
 
     l10n_do_ncf_type = fields.Selection(
@@ -23,13 +23,16 @@ class L10nLatamDocumentType(models.Model):
         ' operation type, the responsibility of both the issuer and the'
         ' receptor of the document',
     )
-
     purchase_vat = fields.Selection(
         [('not_zero', 'Not Zero'), ('zero', 'Zero')],
         help='Raise an error if a vendor bill is miss encoded. "Not Zero"'
         ' means the VAT taxes are required for the invoices related to this '
         ' document type, and those with "Zero" means'
         ' that only "VAT Not Applicable" tax is allowed.',
+    )
+    l10n_do_ncf_sequence = fields.Char(
+        string="NCF number",
+        help="Prefix number used by this document type",
     )
 
     def _get_l10n_do_ncf_types(self):

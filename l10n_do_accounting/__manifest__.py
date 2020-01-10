@@ -17,9 +17,9 @@
     'data': [
         # 'security/ir.model.access.csv',
         # 'security/res_groups.xml',
-        'data/l10n_latam.document.type.csv',
+        # 'data/l10n_latam.document.type.csv',
         # 'views/account_move_views.xml',
-        # 'views/res_partner_views.xml',
+        'views/res_partner_views.xml',
         # 'views/res_company_views.xml',
         # 'views/account_journal_views.xml',
         # 'views/l10n_latam_document_type_views.xml',
