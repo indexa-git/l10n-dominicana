@@ -21,4 +21,5 @@
         'l10n_do_accounting',
         'purchase'
     ],
+    'installable': False,
 }
