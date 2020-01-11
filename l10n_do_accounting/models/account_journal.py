@@ -58,7 +58,7 @@ class AccountJournal(models.Model):
 
         ncf_types = ncf_types_data[
             'issued' if self.type == 'sale' else 'received'][
-            self.company_id.l10n_do_dgii_tax_payer_type]  # TODO: res.company has no attribute l10n_do_dgii_tax_payer_type
+            self.company_id.partner_id.l10n_do_dgii_tax_payer_type]
         if not counterpart_partner:
             return ncf_types
         else:
