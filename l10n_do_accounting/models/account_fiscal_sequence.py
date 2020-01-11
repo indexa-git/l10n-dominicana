@@ -289,7 +289,7 @@ class AccountFiscalSequence(models.Model):
                     }
                 )
                 rec.write(
-                    {"state": "active", "sequence_id": sequence_id.id,}
+                    {"state": "active", "sequence_id": sequence_id.id}
                 )
 
     @api.multi
@@ -397,7 +397,7 @@ class AccountFiscalType(models.Model):
         required=True,
     )
     journal_type = fields.Selection(
-        [("sale", "Sale"), ("purchase", "Purchase"),], compute="_compute_journal_type"
+        [("sale", "Sale"), ("purchase", "Purchase")], compute="_compute_journal_type"
     )
     fiscal_position_id = fields.Many2one(
         "account.fiscal.position", string="Fiscal Position",

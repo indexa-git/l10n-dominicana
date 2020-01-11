@@ -10,7 +10,7 @@
     "category": "Localization",
     "version": "12.0.1.0.0",
     # any module necessary for this one to work correctly
-    "depends": ["base", "account", "l10n_do",],
+    "depends": ["base", "account", "l10n_do"],
     # always loaded
     "data": [
         "security/ir.model.access.csv",
@@ -30,7 +30,7 @@
         "views/res_partner_views.xml",
         "views/assets.xml",
     ],
-    "qweb": ["static/src/xml/fiscal_sequence_warning_template.xml",],
+    "qweb": ["static/src/xml/fiscal_sequence_warning_template.xml"],
     # only loaded in demonstration mode
-    "demo": ["demo/res_partner_demo.xml", "demo/account_fiscal_sequence_demo.xml",],
+    "demo": ["demo/res_partner_demo.xml", "demo/account_fiscal_sequence_demo.xml"],
 }

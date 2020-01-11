@@ -342,7 +342,7 @@ class AccountInvoice(models.Model):
                     self.partner_id.supplier = True
                 if self.partner_id.id == self.company_id.partner_id.id:
                     fiscal_type = self.env["account.fiscal.type"].search(
-                        [("type", "=", self.type), ("prefix", "=", "B13"),], limit=1
+                        [("type", "=", self.type), ("prefix", "=", "B13")], limit=1
                     )
                     if not fiscal_type:
                         raise ValidationError(
