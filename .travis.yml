@@ -6,7 +6,7 @@ python:
   - "3.7"
 
 addons:
-  postgresql: "11" # minimal postgresql for Odoo
+  postgresql: "9.6" # minimal postgresql for Odoo
   apt:
     packages:
       - expect-dev  # provides unbuffer utility
