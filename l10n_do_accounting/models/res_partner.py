@@ -28,10 +28,22 @@ class Partner(models.Model):
         return [
             ('taxpayer', _('Fiscal Tax Payer')),
             ('non_payer', _('Non Tax Payer')),
-            ('exempt', _('Exempt from Tax Paying')),
+            ('special', _('special from Tax Paying')),
             ('governmental', _('Governmental')),
             ('foreigner', _('Foreigner')),
         ]
+
+    @api.depends('l10n_do_dgii_tax_payer_type')
+    def _compute_fiscal_info_required(self):
+        for partner in self:
+            if partner.l10n_do_dgii_tax_payer_type in [
+                'taxpayer',
+                'governmental',
+                'special',
+            ]:
+                partner.fiscal_info_required = True
+            else:
+                partner.fiscal_info_required = False
 
     country_id = fields.Many2one(
         default=lambda self: self.env.ref('base.do')
@@ -48,6 +60,8 @@ class Partner(models.Model):
     l10n_do_expense_type = fields.Selection(
         selection='_get_l10n_do_expense_type', string="Expense Type",
     )
+
+    is_fiscal_info_required = fields.Boolean(compute='_compute_fiscal_info_required')
 
     @api.depends('vat', 'country_id', 'name')
     def _compute_l10n_do_dgii_payer_type(self):
@@ -67,7 +81,7 @@ class Partner(models.Model):
                         elif any(
                             [n for n in ('IGLESIA', 'ZONA FRANCA') if n in partner.name]
                         ):
-                            partner.l10n_do_dgii_tax_payer_type = 'exempt'
+                            partner.l10n_do_dgii_tax_payer_type = 'special'
                         else:
                             partner.l10n_do_dgii_tax_payer_type = 'taxpayer'
                     elif len(vat) == 11:

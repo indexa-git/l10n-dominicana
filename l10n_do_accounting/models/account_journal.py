@@ -38,16 +38,16 @@ class AccountJournal(models.Model):
             'issued': {
                 'taxpayer': ['fiscal'],
                 'non_payer': ['consumer', 'unique'],
-                'exempt': ['special'],
+                'special': ['special'],
                 'governmental': ['governmental'],
                 'foreigner': ['export', 'consumer'],
             },
             'received': {
                 'taxpayer': ['fiscal', 'special', 'governmental'],
                 'non_payer': ['informal', 'minor'],
-                'exempt': ['fiscal', 'special'],
-                'governmental': ['fiscal'],
-                'foreigner': ['informal', 'exterior'],
+                'special': ['fiscal', 'special', 'governmental'],
+                'governmental': ['fiscal', 'special', 'governmental'],
+                'foreigner': ['import', 'exterior'],
             },
         }
         if not self.company_id.vat:
