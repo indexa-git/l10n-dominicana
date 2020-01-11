@@ -14,6 +14,11 @@ class Partner(models.Model):
             ('foreigner', _('Foreigner')),
         ]
 
+    country_id = fields.Many2one(
+        default=lambda self: self.env.ref('base.do')
+        if self.env.user.company_id.country_id == self.env.ref('base.do')
+        else False
+    )
     l10n_do_dgii_tax_payer_type = fields.Selection(
         selection='_get_l10n_do_dgii_payer_types_selection',
         compute='_compute_l10n_do_dgii_payer_type',
