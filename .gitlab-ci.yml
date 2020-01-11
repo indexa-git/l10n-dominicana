@@ -14,8 +14,8 @@ variables:
   RUNNER_HOME: '/home/gitlab-runner'
   INSTANCE_PATH: '${RUNNER_HOME}/instances/${CI_PROJECT_PATH_SLUG}-${CI_COMMIT_REF_SLUG}'
   TRAVIS_BUILD_DIR: "$CI_PROJECT_DIR"
-  VERSION: "12.0"
-  ODOO_BRANCH: "12.0"
+  VERSION: "13.0"
+  ODOO_BRANCH: "13.0"
   ODOO_REPO: "odoo/odoo"
 
 
