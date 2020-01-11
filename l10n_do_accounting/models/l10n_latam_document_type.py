@@ -1,4 +1,3 @@
-
 import logging
 
 from odoo import models, fields, _
@@ -55,8 +54,7 @@ class L10nLatamDocumentType(models.Model):
         ' that only "VAT Not Applicable" tax is allowed.',
     )
     l10n_do_ncf_sequence = fields.Char(
-        string="NCF number",
-        help="Prefix number used by this document type",
+        string="NCF number", help="Prefix number used by this document type",
     )
 
     def _get_document_sequence_vals(self, journal):

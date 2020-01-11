@@ -1,4 +1,3 @@
-
 from odoo import models, fields, api, _
 
 
@@ -32,8 +31,7 @@ class Partner(models.Model):
             ('06', '06 - Other Deductions Admitted'),
             ('07', '07 - Financial Expenses'),
             ('08', '08 - Extraordinary Expenses'),
-            ('09', '09 - Purchasess and Expenses that are part of the Cost '
-                   'of Sale'),
+            ('09', '09 - Purchasess and Expenses that are part of the Cost ' 'of Sale'),
             ('10', '10 - Acquisitions of Assets'),
             ('11', '11 - Insurance Expenses'),
         ],
@@ -48,24 +46,26 @@ class Partner(models.Model):
         )
         for partner in self:
             vat = str(partner.vat) if partner.vat else False
-            is_dominican_partner = bool(
-                partner.country_id == self.env.ref('base.do'))
+            is_dominican_partner = bool(partner.country_id == self.env.ref('base.do'))
 
             if vat and not partner.l10n_do_dgii_tax_payer_type:
                 if partner.country_id and is_dominican_partner:
                     if vat.isdigit() and len(vat) == 9:
                         if 'MINISTERIO' in partner.name:
                             partner.l10n_do_dgii_tax_payer_type = 'governmental'
-                        elif any([n for n in ('IGLESIA', 'ZONA FRANCA')
-                                  if n in partner.name]):
+                        elif any(
+                            [n for n in ('IGLESIA', 'ZONA FRANCA') if n in partner.name]
+                        ):
                             partner.l10n_do_dgii_tax_payer_type = 'exempt'
                         else:
                             partner.l10n_do_dgii_tax_payer_type = 'taxpayer'
                     elif len(vat) == 11:
                         if vat.isdigit():
-                            payer_type = 'fiscal' if \
-                                company_id.l10n_do_default_consumer == \
-                                'taxpayer' else 'non_payer'
+                            payer_type = (
+                                'fiscal'
+                                if company_id.l10n_do_default_consumer == 'taxpayer'
+                                else 'non_payer'
+                            )
                             partner.l10n_do_dgii_tax_payer_type = payer_type
                         else:
                             partner.l10n_do_dgii_tax_payer_type = 'non_payer'
@@ -78,5 +78,4 @@ class Partner(models.Model):
 
     def _inverse_l10n_do_dgii_tax_payer_type(self):
         for partner in self:
-            partner.l10n_do_dgii_tax_payer_type = \
-                partner.l10n_do_dgii_tax_payer_type
+            partner.l10n_do_dgii_tax_payer_type = partner.l10n_do_dgii_tax_payer_type

@@ -24,9 +24,7 @@
                 <attribute name="attrs">{'invisible': [('l10n_latam_use_documents', '=', True), ('l10n_latam_country_code', '=', 'DO')]}</attribute>
             </xpath>
             <xpath expr="//field[@name='type']" position="after">
-                <field name="payment_form" position="attributes">
-                    <attribute name="attrs">{'invisible':[('type', 'in', ('sale','purchase','general'))]}</attribute>
-                </field>
+                <field name="l10n_do_payment_form" attrs="{'invisible': [('type','not in',('cash','bank'))], 'required': [('type','in',('cash','bank'))]}"/>
             </xpath>
         </field>
     </record>

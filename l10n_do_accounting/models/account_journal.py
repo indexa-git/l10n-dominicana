@@ -1,4 +1,3 @@
-
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError, RedirectWarning
 
@@ -19,9 +18,7 @@ class AccountJournal(models.Model):
         string='Payment Form',
     )
     l10n_do_sequence_ids = fields.One2many(
-        'ir.sequence',
-        'l10n_latam_journal_id',
-        string='Sequences',
+        'ir.sequence', 'l10n_latam_journal_id', string='Sequences',
     )
 
     def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
@@ -52,13 +49,12 @@ class AccountJournal(models.Model):
         }
         if not self.company_id.vat:
             action = self.env.ref('base.action_res_company_form')
-            msg = _(
-                'Cannot create chart of account until you configure your VAT.')
+            msg = _('Cannot create chart of account until you configure your VAT.')
             raise RedirectWarning(msg, action.id, _('Go to Companies'))
 
-        ncf_types = ncf_types_data[
-            'issued' if self.type == 'sale' else 'received'][
-            self.company_id.partner_id.l10n_do_dgii_tax_payer_type]
+        ncf_types = ncf_types_data['issued' if self.type == 'sale' else 'received'][
+            self.company_id.partner_id.l10n_do_dgii_tax_payer_type
+        ]
         if not counterpart_partner:
             return ncf_types
         else:
@@ -91,8 +87,7 @@ class AccountJournal(models.Model):
 
     def write(self, values):
         """ Update Document sequences after update journal """
-        to_check = {'type', 'l10n_do_share_sequences',
-                    'l10n_latam_use_documents'}
+        to_check = {'type', 'l10n_do_share_sequences', 'l10n_latam_use_documents'}
         res = super().write(values)
         if to_check.intersection(set(values.keys())):
             for rec in self:
@@ -117,10 +112,11 @@ class AccountJournal(models.Model):
         )
         if invoices:
             raise ValidationError(
-                _('You can not change the journal configuration for a '
-                  'journal that already have validate invoices')
-                + ':<br/><br/> - %s' % (
-                    '<br/>- '.join(invoices.mapped('display_name')))
+                _(
+                    'You can not change the journal configuration for a '
+                    'journal that already have validate invoices'
+                )
+                + ':<br/><br/> - %s' % ('<br/>- '.join(invoices.mapped('display_name')))
             )
 
     def _l10n_do_create_document_sequences(self):
@@ -137,8 +133,9 @@ class AccountJournal(models.Model):
 
         # Create Sequences
         sequences = self._get_journal_ncf_types()
-        internal_types = self.env['l10n_latam.document.type']._fields[
-            'internal_type'].selection
+        internal_types = (
+            self.env['l10n_latam.document.type']._fields['internal_type'].selection
+        )
         domain = [
             ('country_id.code', '=', 'DO'),
             ('internal_type', 'in', internal_types),
