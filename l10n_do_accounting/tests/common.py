@@ -24,7 +24,7 @@ class CommonSetup(TransactionCase):
     def setUp(self):
         super(CommonSetup, self).setUp()
 
-        self.fiscal_sequence_obj = self.env['account.fiscal.sequence']
+        self.fiscal_sequence_obj = self.env['l10n_latam.document.pool']
         self.fiscal_type_obj = self.env['account.document.type']
         self.fiscal_seq_credito_fiscal = self.ref(
             'l10n_do_accounting.credito_fiscal_demo')

@@ -23,13 +23,13 @@ def get_l10n_do_datetime():
     return pytz.timezone('America/Santo_Domingo').localize(date_now)
 
 
-class AccountFiscalSequence(models.Model):
-    _name = 'account.fiscal.sequence'
+class L10nLatamDocumentPool(models.Model):
+    _name = 'l10n_latam.document.pool'
     _description = "Account Fiscal Sequence"
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(
-        string="Authorization number",
+        string='Authorization number',
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
@@ -111,7 +111,6 @@ class AccountFiscalSequence(models.Model):
         track_visibility='onchange',
     )
 
-    @api.multi
     @api.depends('state')
     def _compute_can_be_queued(self):
         for rec in self:
@@ -135,7 +134,6 @@ class AccountFiscalSequence(models.Model):
                 else False
             )
 
-    @api.multi
     @api.depends('remaining_percentage')
     def _compute_warning_gap(self):
         for rec in self:
@@ -143,7 +141,6 @@ class AccountFiscalSequence(models.Model):
                 rec.remaining_percentage / 100
             )
 
-    @api.multi
     @api.depends('sequence_end', 'l10n_do_sequence_id.number_next')
     def _compute_sequence_remaining(self):
         for rec in self:
@@ -153,7 +150,6 @@ class AccountFiscalSequence(models.Model):
                     rec.sequence_end - rec.l10n_do_sequence_id.number_next_actual + 1
                 )
 
-    @api.multi
     @api.depends(
         'l10n_latam_document_type_id.doc_code_prefix',
         'l10n_do_sequence_id.padding',
@@ -203,7 +199,6 @@ class AccountFiscalSequence(models.Model):
         if self.search_count(domain) > 1:
             raise ValidationError(_("Another sequence is active for this type."))
 
-    @api.multi
     @api.constrains(
         'sequence_start',
         'sequence_end',
@@ -237,18 +232,15 @@ class AccountFiscalSequence(models.Model):
                     _("You cannot use another Fiscal Sequence range.")
                 )
 
-    @api.multi
     def unlink(self):
         for rec in self:
             if rec.l10n_do_sequence_id:
                 rec.l10n_do_sequence_id.sudo().unlink()
-        return super(AccountFiscalSequence, self).unlink()
+        return super(L10nLatamDocumentPool, self).unlink()
 
-    @api.multi
     def copy(self, default=None):
         raise UserError(_('You cannot duplicate a Fiscal Sequence.'))
 
-    @api.multi
     def name_get(self):
         result = []
         for sequence in self:
@@ -261,7 +253,6 @@ class AccountFiscalSequence(models.Model):
             )
         return result
 
-    @api.multi
     def action_view_sequence(self):
         self.ensure_one()
         l10n_do_sequence_id = self.l10n_do_sequence_id
@@ -273,7 +264,6 @@ class AccountFiscalSequence(models.Model):
             action = {'type': 'ir.actions.act_window_close'}
         return action
 
-    @api.multi
     def action_confirm(self):
         self.ensure_one()
         msg = _(
@@ -290,7 +280,6 @@ class AccountFiscalSequence(models.Model):
         }
         return action
 
-    @api.multi
     def _action_confirm(self):
         for rec in self:
 
@@ -318,7 +307,6 @@ class AccountFiscalSequence(models.Model):
                     {'state': 'active', 'l10n_do_sequence_id': l10n_do_sequence_id.id,}
                 )
 
-    @api.multi
     def action_cancel(self):
         self.ensure_one()
         msg = _(
@@ -335,7 +323,6 @@ class AccountFiscalSequence(models.Model):
         }
         return action
 
-    @api.multi
     def _action_cancel(self):
         for rec in self:
             rec.state = 'cancelled'
@@ -344,7 +331,6 @@ class AccountFiscalSequence(models.Model):
                 # Preserve internal sequence just for audit purpose.
                 rec.l10n_do_sequence_id.active = False
 
-    @api.multi
     def action_queue(self):
         for rec in self:
             rec.state = 'queue'
@@ -445,7 +431,6 @@ class AccountDocumentType(models.Model):
         )
     ]
 
-    @api.multi
     @api.depends('l10n_do_type')
     def _compute_journal_type(self):
         for document_type in self:

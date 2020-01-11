@@ -215,7 +215,7 @@ class AccountFiscalSequenceTransactionTests(CommonSetup):
                 test_company = env['res.company'].create(
                     {'name': 'Test Company'})
 
-            l10n_do_sequence_id = env['account.fiscal.sequence'].create({
+            l10n_do_sequence_id = env['l10n_latam.document.pool'].create({
                 'name': '7045195031',
                 'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
                 'sequence_start': 1,
@@ -225,7 +225,7 @@ class AccountFiscalSequenceTransactionTests(CommonSetup):
             l10n_do_sequence_id._action_confirm()
             self.assertEqual(l10n_do_sequence_id.sequence_remaining, 10)
 
-            queued_sequence_id = env['account.fiscal.sequence'].create({
+            queued_sequence_id = env['l10n_latam.document.pool'].create({
                 'name': 'queued',
                 'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
                 'sequence_start': 11,
@@ -236,7 +236,7 @@ class AccountFiscalSequenceTransactionTests(CommonSetup):
 
         for i in range(10):
             with environment() as env:
-                env_sequence_id = env['account.fiscal.sequence'].search([
+                env_sequence_id = env['l10n_latam.document.pool'].search([
                     ('company_id', '=', test_company.id),
                     ('l10n_latam_document_type_id', '=', self.fiscal_type_credito_fiscal),
                     ('state', '=', 'active'),
@@ -258,13 +258,13 @@ class AccountFiscalSequenceTransactionTests(CommonSetup):
 
         # Check queued sequence gets auto activated
         with environment() as env:
-            queued_sequence_id = env['account.fiscal.sequence'].search(
+            queued_sequence_id = env['l10n_latam.document.pool'].search(
                 [('company_id', '=', test_company.id),
                  ('name', '=', 'queued')])
             self.assertEqual(queued_sequence_id.state, 'active')
 
         with environment() as env:
-            env['account.fiscal.sequence'].search([
+            env['l10n_latam.document.pool'].search([
                 ('company_id', '=', test_company.id),
                 ('l10n_latam_document_type_id', '=', self.fiscal_type_credito_fiscal),
             ]).unlink()

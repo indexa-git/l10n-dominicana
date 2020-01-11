@@ -9,12 +9,12 @@ class AccountFiscalSequenceValidateWizard(models.TransientModel):
     This Wizard purpose is to warn the user when attempt to change
     sequence state.
     """
-    _name = 'account.fiscal.sequence.validate_wizard'
+    _name = 'l10n_latam.document.pool.validate_wizard'
     _description = 'Account Fiscal Sequence Validate Wizard'
 
     name = fields.Char()
     l10n_latam_sequence_id = fields.Many2one(
-        'account.fiscal.sequence',
+        'l10n_latam.document.pool',
         string='Fiscal sequence',
     )
 

@@ -479,7 +479,7 @@ msgid "Action Needed"
 msgstr "Acción Necesaria"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,state:0
+#: selection:l10n_latam.document.pool,state:0
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__active
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Active"
@@ -550,7 +550,7 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,state:0
+#: selection:l10n_latam.document.pool,state:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Cancelled"
 msgstr "Cancelado"
@@ -650,7 +650,7 @@ msgid "Debit type"
 msgstr "Tipo de Débito"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,state:0
+#: selection:l10n_latam.document.pool,state:0
 #: selection:account.invoice,fiscal_sequence_status:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Depleted"
@@ -664,7 +664,7 @@ msgid "Display Name"
 msgstr "Nombre mostrado"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,state:0
+#: selection:l10n_latam.document.pool,state:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Draft"
 msgstr "Borrador"
@@ -701,7 +701,7 @@ msgid "Expiration Date"
 msgstr "Fecha de Expiración"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,state:0
+#: selection:l10n_latam.document.pool,state:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Expired"
 msgstr "Expirado"
@@ -1051,7 +1051,7 @@ msgid "Otras Formas de Venta"
 msgstr ""
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,activity_state:0
+#: selection:l10n_latam.document.pool,activity_state:0
 msgid "Overdue"
 msgstr "Atrasada"
 
@@ -1103,7 +1103,7 @@ msgid "Phone:"
 msgstr "Teléfono"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,activity_state:0
+#: selection:l10n_latam.document.pool,activity_state:0
 msgid "Planned"
 msgstr "Planificada"
 
@@ -1131,7 +1131,7 @@ msgid "Purchase Fiscal Type"
 msgstr "Compra Tipo Fiscal"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,state:0
+#: selection:l10n_latam.document.pool,state:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_form
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Queue"
@@ -1254,7 +1254,7 @@ msgid "There must be only one Fiscal Type of this Type and doc_code_prefix"
 msgstr "Debe haber un solo Tipo Fiscal de esta secuencia y Prefijo"
 
 #. module: l10n_do_accounting
-#: selection:account.fiscal.sequence,activity_state:0
+#: selection:l10n_latam.document.pool,activity_state:0
 msgid "Today"
 msgstr "Hoy"
 

@@ -172,7 +172,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         """
 
         with environment() as env:
-            env_sequence_id = env['account.fiscal.sequence'].search([
+            env_sequence_id = env['l10n_latam.document.pool'].search([
                 ('l10n_latam_document_type_id', '=', self.fiscal_type_credito_fiscal),
                 ('state', '=', 'active'),
             ])
