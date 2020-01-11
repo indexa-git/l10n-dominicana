@@ -5,15 +5,20 @@ from odoo.exceptions import ValidationError, RedirectWarning
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
+    def _get_l10n_do_payment_form(self):
+        """ Return the list of payment forms allowed by DGII. """
+        return [
+            ('cash', _('Cash')),
+            ('bank', _('Check / Transfer')),
+            ('card', _('Credit Card')),
+            ('credit', _('Credit')),
+            ('swap', _('Swap')),
+            ('bond', _('Bonds or Gift Certificate')),
+            ('others', _('Other Sale Type')),
+        ]
+
     l10n_do_payment_form = fields.Selection(
         [
-            ('cash', 'Cash'),
-            ('bank', 'Check / Transfer'),
-            ('card', 'Credit Card'),
-            ('credit', 'Credit'),
-            ('swap', 'Swap'),
-            ('bond', 'Bonds or Gift Certificate'),
-            ('others', 'Other Sale Type'),
         ],
         string='Payment Form',
     )

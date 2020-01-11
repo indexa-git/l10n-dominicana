@@ -7,25 +7,36 @@ _logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
-    _inherit = 'account.move'
+    _inherit = "account.move"
 
-    annulment_type = fields.Selection(
-        [
-            ("01", "01 - Pre-printed Invoice Impairment"),
-            ("02", "02 - Printing Errors (Pre-printed Invoice)"),
-            ("03", "03 - Defective Printing"),
-            ("04", "04 - Correction of Product Information"),
-            ("05", "05 - Product Change"),
-            ("06", "06 - Product Return"),
-            ("07", "07 - Product Omission"),
-            ("08", "08 - NCF Sequence Errors"),
-            ("09", "09 - For Cessation of Operations"),
-            ("10", "10 - Lossing or Hurting Of Counterfoil"),
-        ],
-        string="Annulment Type",
-        copy=False,
+    def _get_l10n_do_annulment_type(self):
+        """ Return the list of annulment types required by DGII. """
+        return [
+            ('01', _('01 - Pre-printed Invoice Impairment')),
+            ('02', _('02 - Printing Errors (Pre-printed Invoice)')),
+            ('03', _('03 - Defective Printing')),
+            ('04', _('04 - Correction of Product Information')),
+            ('05', _('05 - Product Change')),
+            ('06', _('06 - Product Return')),
+            ('07', _('07 - Product Omission')),
+            ('08', _('08 - NCF Sequence Errors')),
+            ('09', _('09 - For Cessation of Operations')),
+            ('10', _('10 - Lossing or Hurting Of Counterfoil')),
+        ]
+
+    l10n_do_annulment_type = fields.Selection(
+        selection='_get_l10n_do_annulment_type', string='Annulment Type', copy=False,
     )
-    is_debit_note = fields.Boolean()
+
+    def _is_debit_note(self):
+        self.ensure_one()
+        if (
+            self.journal_id.l10n_latam_use_documents
+            and self.journal_id.company_id.country_id == self.env.ref('base.do')
+            and self.type == 'out_invoice'
+            and self.ref
+        ):
+            return True if self.ref[-10:-8] == '03' else False
 
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
@@ -38,8 +49,6 @@ class AccountMove(models.Model):
                 counterpart_partner=self.partner_id.commercial_partner_id, invoice=self
             )
             domain += [
-                '|',
-                ('l10n_do_ncf_type', '=', False),  # TODO: why?
                 ('l10n_do_ncf_type', 'in', ncf_types),
             ]
             codes = self.journal_id._get_journal_codes()

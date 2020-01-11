@@ -15,7 +15,8 @@ class L10nLatamDocumentType(models.Model):
     _inherit = 'l10n_latam.document.type'
 
     def _get_l10n_do_ncf_types(self):
-        """ Return the list of values of the selection field. """
+        """ Return a list of fiscal types and their respective sequence type to be used
+        on sequences, journals and document types. """
         return [
             ('fiscal', '01'),
             ('consumer', '02'),
