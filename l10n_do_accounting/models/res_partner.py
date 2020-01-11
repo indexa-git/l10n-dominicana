@@ -28,6 +28,7 @@ class Partner(models.Model):
         return [
             ('taxpayer', _('Fiscal Tax Payer')),
             ('non_payer', _('Non Tax Payer')),
+            ('nonprofit', _('Nonprofit Organization')),
             ('special', _('special from Tax Paying')),
             ('governmental', _('Governmental')),
             ('foreigner', _('Foreigner')),
@@ -38,6 +39,7 @@ class Partner(models.Model):
         for partner in self:
             if partner.l10n_do_dgii_tax_payer_type in [
                 'taxpayer',
+                'nonprofit'
                 'governmental',
                 'special',
             ]:

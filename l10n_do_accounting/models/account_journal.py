@@ -38,6 +38,7 @@ class AccountJournal(models.Model):
             'issued': {
                 'taxpayer': ['fiscal'],
                 'non_payer': ['consumer', 'unique'],
+                'nonprofit': ['fiscal'],
                 'special': ['special'],
                 'governmental': ['governmental'],
                 'foreigner': ['export', 'consumer'],
@@ -45,6 +46,7 @@ class AccountJournal(models.Model):
             'received': {
                 'taxpayer': ['fiscal', 'special', 'governmental'],
                 'non_payer': ['informal', 'minor'],
+                'nonprofit': ['fiscal', 'special', 'governmental'],
                 'special': ['fiscal', 'special', 'governmental'],
                 'governmental': ['fiscal', 'special', 'governmental'],
                 'foreigner': ['import', 'exterior'],
