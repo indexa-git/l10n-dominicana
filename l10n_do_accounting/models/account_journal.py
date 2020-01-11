@@ -18,9 +18,7 @@ class AccountJournal(models.Model):
         ]
 
     l10n_do_payment_form = fields.Selection(
-        [
-        ],
-        string='Payment Form',
+        selection='_get_l10n_do_payment_form', string='Payment Form',
     )
     l10n_do_sequence_ids = fields.One2many(
         'ir.sequence', 'l10n_latam_journal_id', string='Sequences',

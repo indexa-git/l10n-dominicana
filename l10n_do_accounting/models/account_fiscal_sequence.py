@@ -452,4 +452,3 @@ class AccountDocumentType(models.Model):
             document_type.journal_type = (
                 'sale' if document_type.l10n_do_type[:3] == 'out' else 'purchase'
             )
-
