@@ -1,9 +1,9 @@
-image: python:3.5
+image: python:3.7
 stages:
   - test
 
 services:
-  - postgres:10
+  - postgres:11
 
 variables:
   POSTGRES_DB: project_ci_test
