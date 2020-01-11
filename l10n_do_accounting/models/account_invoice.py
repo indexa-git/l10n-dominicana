@@ -549,8 +549,9 @@ class AccountInvoice(models.Model):
                 and not inv.reference
                 and inv.fiscal_type_id.assigned_sequence
             ):
+                expiration_date = inv.fiscal_sequence_id.expiration_date
                 inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
-                inv.ncf_expiration_date = inv.fiscal_sequence_id.expiration_date
+                inv.ncf_expiration_date = expiration_date
 
         return super(AccountInvoice, self).invoice_validate()
 
