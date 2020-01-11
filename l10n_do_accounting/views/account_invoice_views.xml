@@ -136,7 +136,7 @@
             <xpath expr="//field[@name='reference']" position="attributes">
                 <attribute name="string">NCF</attribute>
                 <attribute name="attrs">{
-                    'invisible': ['|', ('is_l10n_do_fiscal_invoice', '=', False), ('fiscal_type_id', '=', False)],
+                    'invisible': ['|', '|', ('is_l10n_do_fiscal_invoice', '=', False), ('fiscal_type_id', '=', False), '&amp;', ('assigned_sequence','=', True), ('reference','=', False)],
                     'required': [('is_l10n_do_fiscal_invoice', '=', True), ('assigned_sequence', '=', False)],
                     'readonly': ['|',('state', '!=', 'draft'),('assigned_sequence','=', True)]}
                 </attribute>
