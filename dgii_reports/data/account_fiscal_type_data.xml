@@ -44,8 +44,5 @@
     <record id="l10n_do_accounting.fiscal_type_exterior" model="account.fiscal.type">
         <field name="purchase_type">exterior</field>
     </record>
-    <record id="l10n_do_accounting.fiscal_type_fiscal_import" model="account.fiscal.type">
-        <field name="purchase_type">import</field>
-    </record>
 
 </odoo>
