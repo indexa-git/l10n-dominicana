@@ -159,7 +159,7 @@ class AccountInvoiceRefund(models.TransientModel):
                 }
                 xml_id = action_map[inv.type]
         if xml_id:
-            result = self.env.ref("account.%s" % (xml_id)).read()[0]
+            result = self.env.ref("account.%s" % xml_id).read()[0]
             invoice_domain = safe_eval(result["domain"])
             invoice_domain.append(("id", "in", created_inv))
             result["domain"] = invoice_domain
@@ -224,8 +224,8 @@ class AccountInvoiceRefund(models.TransientModel):
                 debit_note = inv_obj.create(values)
                 created_inv.append(debit_note.id)
                 invoice_type = {
-                    "out_invoice": ("customer debit note"),
-                    "in_invoice": ("vendor debit note"),
+                    "out_invoice": _("customer debit note"),
+                    "in_invoice": _("vendor debit note"),
                 }
                 message = _(
                     "This %s has been created from: <a href=# data-oe-"
@@ -241,7 +241,7 @@ class AccountInvoiceRefund(models.TransientModel):
                 }
                 xml_id = action_map[inv.type]
         if xml_id:
-            result = self.env.ref("l10n_do_accounting.%s" % (xml_id)).read()[0]
+            result = self.env.ref("l10n_do_accounting.%s" % xml_id).read()[0]
             invoice_domain = safe_eval(result["domain"])
             invoice_domain.append(("id", "in", created_inv))
             result["domain"] = invoice_domain
