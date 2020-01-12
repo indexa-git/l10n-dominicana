@@ -298,4 +298,3 @@ class AccountFiscalSequenceTransactionTests(CommonSetup):
                     ),
                 ]
             ).unlink()
-
