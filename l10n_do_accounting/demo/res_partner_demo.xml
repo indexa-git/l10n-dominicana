@@ -148,6 +148,7 @@
         <field eval="0" name="is_company"/>
         <field name="country_id" ref="base.us"/>
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_exportacion"/>
+        <field name="purchase_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_fiscal_import"/>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_11.png"/>
     </record>
 
@@ -156,6 +157,7 @@
         <field eval="0" name="is_company"/>
         <field name="country_id" ref="base.br"/>
         <field name="sale_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_exportacion"/>
+        <field name="purchase_fiscal_type_id" ref="l10n_do_accounting.fiscal_type_fiscal_import"/>
         <field name="image" type="base64" file="l10n_do_accounting/static/img/res_partner_demo_12.png"/>
     </record>
 
