@@ -113,5 +113,12 @@
         <field name="sequence">14</field>
         <field name="padding">8</field>
     </record>
+    <record id="fiscal_type_fiscal_import" model="account.fiscal.type">
+        <field name="name">Importaciones</field>
+        <field name="type">in_invoice</field>
+        <field name="sequence">15</field>
+        <field name="padding">8</field>
+        <field name="assigned_sequence" eval="False"/>
+    </record>
 
 </odoo>
