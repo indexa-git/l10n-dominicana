@@ -363,11 +363,11 @@ class DgiiReport(models.Model):
             [('date_invoice', '>=', start_date),
              ('date_invoice', '<=', end_date),
              ('company_id', '=', self.company_id.id),
+             ('is_l10n_do_fiscal_invoice', '=', True),
              ('state', 'in', states),
              ('type', 'in', types)],
             order='date_invoice asc').filtered(
-                lambda inv: (inv.fiscal_type_id.purchase_type != 'others') or
-                (inv.journal_id.l10n_do_fiscal_journal is True))
+            lambda inv: inv.fiscal_type_id.purchase_type != 'others')
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
         invoice_ids |= self._get_pending_invoices(types)
