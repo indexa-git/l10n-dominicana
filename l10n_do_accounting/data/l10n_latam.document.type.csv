@@ -1,4 +1,4 @@
-id,sequence,code,name,report_name,internal_type,l10n_do_ncf_sequence,doc_code_prefix,country_id/id,purchase_vat,active
+id,sequence,code,name,report_name,internal_type,l10n_do_ncf_type,doc_code_prefix,country_id/id,purchase_vat,active
 ncf_fiscal_clien,10,B,FACTURAS DE CLIENTE B01,Factura de Crédito Fiscal,invoice,01,B01,base.do,not_zero,TRUE
 ncf_fiscal_supplier,20,B,FACTURAS DE PROVEEDOR B01,Factura de Crédito Fiscal,invoice,01,B01,base.do,not_zero,TRUE
 ncf_consumer_supplier,30,B,FACTURAS DE CLIENTE B02,Factura de Consumo,invoice,02,B02,base.do,zero,TRUE
@@ -13,4 +13,4 @@ ncf_special_client,110,B,FACTURAS DE CLIENTE B14,Factura de Régimen Especial,in
 ncf_gov_client,120,B,FACTURAS DE GOBIERNO B15,Factura Gubernamental,invoice,15,B15,base.do,not_zero,TRUE
 ncf_export_client,130,B,FACTURAS DE EXPORTACION B16,Factura de Exportación,invoice,16,B16,base.do,not_zero,TRUE
 ncf_exterior_supplier,140,B,FACURAS DE PROVEEDOR EXTRANJERO B17,Factura de Pago al Exterior,invoice,17,B17,base.do,zero,TRUE
-non_fiscal_import_supplier,150,N,FACTURAS DE IMPORTACIÓN,Factura de Importación,invoice,,,base.do,zero,TRUE
+non_fiscal_import_supplier,150,N,FACTURAS DE IMPORTACIÓN,Factura de Importación,invoice,,IMP,base.do,zero,TRUE

@@ -138,9 +138,7 @@ class AccountJournal(models.Model):
 
         # Create Sequences
         sequences = self._get_journal_ncf_types()
-        internal_types = (
-            self.env['l10n_latam.document.type']._fields['internal_type'].selection
-        )
+        internal_types = ['invoice', 'debit_note', 'credit_note']
         domain = [
             ('country_id.code', '=', 'DO'),
             ('internal_type', 'in', internal_types),

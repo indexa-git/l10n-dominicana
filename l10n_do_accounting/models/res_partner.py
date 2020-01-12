@@ -4,7 +4,7 @@ from odoo import models, fields, api, _
 class Partner(models.Model):
     _inherit = 'res.partner'
 
-    def _get_l10n_do_dgii_payer_types_selection(self):
+    def _get_l10n_do_expense_type(self):
         """ Returns the list of different type of customer / suppliers depending on
         their fiscal status. This is required to define the correct fiscal sequence to
         be used on invoices."""
@@ -22,7 +22,7 @@ class Partner(models.Model):
             ('11', _('11 - Insurance Expenses')),
         ]
 
-    def _get_l10n_do_expense_type(self):
+    def _get_l10n_do_dgii_payer_types_selection(self):
         """ Return the list of expenses needed in invoices to clasify accordingly to
         DGII requirements. """
         return [
