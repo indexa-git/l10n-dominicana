@@ -74,12 +74,12 @@ class AccountJournal(models.Model):
             return ncf_types
         else:
             counterpart_ncf_types = ncf_types_data[
-                'issued' if self.type == 'purchase' else 'received'
+                'issued' if self.type == 'sale' else 'received'
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         if invoice.type in ['out_refund', 'in_refund']:
             ncf_types = list('credit_note')
-        if invoice.is_debit_note:
+        if invoice._is_debit_note():
             ncf_types = list('debit_note')
         return ncf_types
 
@@ -89,8 +89,8 @@ class AccountJournal(models.Model):
         ecf_code = ['E']
         if self.type != 'sale':
             return []
-        elif self.company_id.l10n_do_ecf_issuer:
-            return ecf_code
+        # elif self.company_id.l10n_do_ecf_issuer:
+        #     return ecf_code
         return ncf_code
 
     @api.model
