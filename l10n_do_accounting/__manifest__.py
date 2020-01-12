@@ -15,7 +15,7 @@
                 ],
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         # 'security/res_groups.xml',
         'data/l10n_latam.document.type.csv',
         # 'views/account_move_views.xml',

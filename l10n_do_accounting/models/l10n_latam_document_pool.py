@@ -25,7 +25,7 @@ def get_datetime():
 
 class L10nLatamDocumentPool(models.Model):
     _name = 'l10n_latam.document.pool'
-    _description = "Account Fiscal Sequence"
+    _description = 'Latam Document Pool'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(
@@ -46,6 +46,7 @@ class L10nLatamDocumentPool(models.Model):
     )
     l10n_latam_document_type_id = fields.Many2one(
         'l10n_latam.document.type',
+        string='Document Type'
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
@@ -143,8 +144,9 @@ class L10nLatamDocumentPool(models.Model):
 
     @api.depends('sequence_end', 'sequence_id.number_next')
     def _compute_sequence_remaining(self):
-        for rec in self:
+        for rec in self.filtered(lambda s: s.state == 'active'):
             if rec.sequence_id:
+                rec.sequence_remaining = 0
                 # Sequence remaining
                 rec.sequence_remaining = (
                     rec.sequence_end - rec.sequence_id.number_next_actual + 1
@@ -159,9 +161,7 @@ class L10nLatamDocumentPool(models.Model):
         for seq in self:
             seq.next_fiscal_number = "%s%s" % (
                 seq.l10n_latam_document_type_id.doc_code_prefix,
-                str(seq.sequence_id.number_next_actual).zfill(
-                    seq.sequence_id.padding
-                ),
+                str(seq.sequence_id.number_next_actual).zfill(seq.sequence_id.padding),
             )
 
     @api.onchange('l10n_latam_document_type_id')
@@ -370,7 +370,7 @@ class L10nLatamDocumentPool(models.Model):
         if not self.l10n_latam_document_type_id.l10n_latam_document_number:
             return False
 
-        if self.sequence_remaining > 0:
+        if self.sequence_remaining and self.sequence_remaining > 0:
             sequence_next = self.sequence_id._next()
 
             # After consume a sequence, evaluate if sequence

@@ -31,7 +31,7 @@
                     </group>
                     <group>
                         <group>
-                            <field name="l10n_latam_document_type_id" widget="selection" domain="[('assigned_sequence', '=', True)]" />
+                            <field name="l10n_latam_document_type_id" widget="selection"/>
                             <field name="sequence_start" />
                             <field name="sequence_end" />
                             <field name="expiration_date" />
@@ -102,7 +102,7 @@
         </field>
     </record>
 
-    <!-- <record id="action_document_pool" model="ir.actions.act_window">
+    <record id="action_document_pool" model="ir.actions.act_window">
         <field name="name">Document Pools</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">l10n_latam.document.pool</field>
@@ -116,15 +116,15 @@
                 You can create your first Document Pool here.
             </p>
         </field>
-    </record> -->
+    </record>
 
-    <record model="ir.actions.act_window" id="action_document_pool">
+    <!-- <record model="ir.actions.act_window" id="action_document_pool">
         <field name="name">Document Pools</field>
         <field name="res_model">l10n_latam.document.pool</field>
         <field name="domain">['|', ('active', '=', True), ('active', '=', False)]</field>
         <field name="context">{"search_default_active":1}</field>
-    </record>
+    </record> -->
 
-    <menuitem action="action_document_pool" id="menu_document_type" sequence="21" parent="menu_dgii_config" />
+    <menuitem action="action_document_pool" id="menu_document_type" sequence="21" parent="account.account_account_menu"/> />
 
 </odoo>
