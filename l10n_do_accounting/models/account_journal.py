@@ -24,11 +24,15 @@ class AccountJournal(models.Model):
     def check_l10n_do_fiscal_journal(self):
         for journal in self:
             if journal.env["account.invoice"].search_count(
-                [("journal_id", "=", journal.id), ("state", "!=", "draft")]
+                [
+                    ("journal_id", "=", journal.id),
+                    ("state", "!=", "draft"),
+                    ("is_l10n_do_fiscal_invoice", "=", True),
+                ]
             ):
                 raise ValidationError(
                     _(
                         'You can not modify the field "Fiscal Journal" if there are '
-                        'validated invoices in this journal!'
+                        "validated invoices in this journal!"
                     )
                 )
