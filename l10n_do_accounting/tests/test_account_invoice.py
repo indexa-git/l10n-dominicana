@@ -690,3 +690,19 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         credit_note_id = self.invoice_obj.search([("type", "=", "in_refund")], limit=1)
 
         self.assertEqual(credit_note_id.reference, "B0400000001")
+
+    def test_022_invoice_ncf_expiration_date(self):
+        """
+        Check ncf_expiration_date is kept after invoice validation
+        """
+
+        invoice_id = self.invoice_obj.create(
+            {
+                "partner_id": self.partner_demo_1,
+                "fiscal_type_id": self.fiscal_type_fiscal,
+                "invoice_line_ids": self.invoice_line_data,
+            }
+        )
+        invoice_id.action_invoice_open()
+
+        assert invoice_id.ncf_expiration_date
