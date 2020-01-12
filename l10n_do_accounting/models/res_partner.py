@@ -78,9 +78,9 @@ class Partner(models.Model):
             if vat and not partner.l10n_do_dgii_tax_payer_type:
                 if partner.country_id and is_dominican_partner:
                     if vat.isdigit() and len(vat) == 9:
-                        if 'MINISTERIO' in partner.name:
+                        if partner.name and 'MINISTERIO' in partner.name:
                             partner.l10n_do_dgii_tax_payer_type = 'governmental'
-                        elif any(
+                        elif partner.name and any(
                             [n for n in ('IGLESIA', 'ZONA FRANCA') if n in partner.name]
                         ):
                             partner.l10n_do_dgii_tax_payer_type = 'special'
