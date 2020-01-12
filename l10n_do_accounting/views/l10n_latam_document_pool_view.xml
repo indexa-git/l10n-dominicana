@@ -10,13 +10,13 @@
                     <button name="action_confirm" string="Confirm" type="object" class="oe_highlight"
                             attrs="{'invisible':[('state','!=','draft')]}" />
                     <button name="action_queue" string="Queue" type="object"
-                            attrs="{'invisible':['|', ('state','!=','draft'), ('can_be_queue', '=', False)]}" />
+                            attrs="{'invisible':['|', ('state','!=','draft'), ('can_be_queued', '=', False)]}" />
                     <button name="action_cancel" string="Cancel" type="object"
                             attrs="{'invisible':[('state','in', ('cancelled', 'draft'))]}" />
                     <field name="state" widget="statusbar" statusbar_visible="active,depleted" />
                 </header>
                 <sheet>
-                    <field name="can_be_queue" invisible="1" />
+                    <field name="can_be_queued" invisible="1" />
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" name="action_view_sequence" icon="fa-arrow-right" type="object" groups="base.group_system" attrs="{'invisible': [('sequence_id', '=', False)] }">
                             <span class="o_stat_text">Sequence</span>
@@ -31,7 +31,7 @@
                     </group>
                     <group>
                         <group>
-                            <field name="fiscal_type_id" widget="selection" domain="[('assigned_sequence', '=', True)]" />
+                            <field name="l10n_latam_document_type_id" widget="selection" domain="[('assigned_sequence', '=', True)]" />
                             <field name="sequence_start" />
                             <field name="sequence_end" />
                             <field name="expiration_date" />
@@ -46,7 +46,6 @@
                             <field name="number_next_actual" invisible="1" />
                             <field name="sequence_remaining" attrs="{'invisible': [('state', 'in', ('draft', 'cancelled'))]}" />
                             <field name="next_fiscal_number" attrs="{'invisible': [('state', 'in', ('draft', 'cancelled'))]}" />
-                            <field name="type" invisible="1" />
                             <field name="sequence_id" invisible="1" />
                             <field name="company_id" groups="base.group_multi_company" />
                         </group>
@@ -66,7 +65,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="name" />
-                <field name="fiscal_type_id" />
+                <field name="l10n_latam_document_type_id" />
                 <field name="next_fiscal_number" />
                 <field name="sequence_start" />
                 <field name="sequence_end" />
@@ -82,7 +81,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name" />
-                <field name="fiscal_type_id" />
+                <field name="l10n_latam_document_type_id" />
                 <filter name="draft" string="Draft" domain="[('state','=','draft')]" />
                 <filter name="active" string="Active" domain="[('state','in',('active', 'draft'))]" />
                 <filter name="queue" string="Queue" domain="[('state','=','queue')]" />
@@ -95,7 +94,7 @@
                 <filter name="credit_note" string="Credit Note" domain="[('type','=','credit_note')]" />
                 <filter name="debit_note" string="Debit Note" domain="[('type','=','debit_note')]" />
                 <group expand="0" string="Group By">
-                    <filter name="type" string="Type" domain="[]" context="{'group_by':'fiscal_type_id'}" />
+                    <filter name="type" string="Type" domain="[]" context="{'group_by':'l10n_latam_document_type_id'}" />
                     <filter name="state" string="State" domain="[]" context="{'group_by':'state'}" />
                     <filter name="company_id" string="Company" domain="[]" context="{'group_by':'company_id'}" groups="base.group_multi_company" />
                 </group>
@@ -103,12 +102,10 @@
         </field>
     </record>
 
-    <record id="action_document_pool" model="ir.actions.act_window">
+    <!-- <record id="action_document_pool" model="ir.actions.act_window">
         <field name="name">Document Pools</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">l10n_latam.document.pool</field>
-        <field name="view_type">form</field>
-        <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="l10n_latam_document_pool_search" />
         <field name="context">{'search_default_active': 1}</field>
         <field name="help" type="html">
@@ -119,15 +116,15 @@
                 You can create your first Document Pool here.
             </p>
         </field>
-    </record>
+    </record> -->
 
-    <record model="ir.actions.act_window" id="action_document_type">
-        <field name="name">Document Types</field>
-        <field name="res_model">l10n_latam.document.type</field>
+    <record model="ir.actions.act_window" id="action_document_pool">
+        <field name="name">Document Pools</field>
+        <field name="res_model">l10n_latam.document.pool</field>
         <field name="domain">['|', ('active', '=', True), ('active', '=', False)]</field>
         <field name="context">{"search_default_active":1}</field>
     </record>
 
-    <menuitem action="action_document_pool" id="menu_document_type" sequence="21" parent="account.account_account_menu" />
+    <menuitem action="action_document_pool" id="menu_document_type" sequence="21" parent="menu_dgii_config" />
 
 </odoo>

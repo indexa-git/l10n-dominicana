@@ -174,7 +174,7 @@ class AccountInvoiceRefund(models.TransientModel):
                 amount = wizard.amount if refund_type == 'fixed_amount' \
                     else inv.amount_untaxed * (wizard.percentage / 100)
 
-                document_type = self.env['account.document.type'].search([
+                document_type = self.env['l10n_latam.document.pool'].search([
                     ('type', '=', context.get('debit_note'))], limit=1)
 
                 values = {

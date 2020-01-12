@@ -24,7 +24,7 @@
         'views/account_dgii_menuitem.xml',
         'views/account_journal_views.xml',
         'views/l10n_latam_document_type_views.xml',
-        # 'views/ir_sequence_views.xml',
+        'views/l10n_latam_document_pool_view.xml',
     ],
     'qweb': [
         # "static/src/xml/fiscal_sequence_warning_template.xml",

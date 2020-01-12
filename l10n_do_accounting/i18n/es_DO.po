@@ -607,12 +607,12 @@ msgid "Credit Note"
 msgstr "Rectificativa"
 
 #. module: l10n_do_accounting
-#: selection:account.document.type,type:0
+#: selection:l10n_latam.document.pool,type:0
 msgid "Customer Credit Note"
 msgstr "Nota de Crédito de Cliente"
 
 #. module: l10n_do_accounting
-#: selection:account.document.type,type:0
+#: selection:l10n_latam.document.pool,type:0
 msgid "Customer Debit Note"
 msgstr "Nota de Débito de Cliente"
 
@@ -1118,8 +1118,8 @@ msgid "doc_code_prefix"
 msgstr "Prefijo"
 
 #. module: l10n_do_accounting
-#: selection:account.document.type,journal_type:0
-#: selection:account.document.type,type:0
+#: selection:l10n_latam.document.pool,journal_type:0
+#: selection:l10n_latam.document.pool,type:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Purchase"
 msgstr "Compra"
@@ -1183,8 +1183,8 @@ msgid "Responsible User"
 msgstr "Usuario responsable"
 
 #. module: l10n_do_accounting
-#: selection:account.document.type,journal_type:0
-#: selection:account.document.type,type:0
+#: selection:l10n_latam.document.pool,journal_type:0
+#: selection:l10n_latam.document.pool,type:0
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_fiscal_sequence_search
 msgid "Sale"
 msgstr "Venta"
@@ -1228,12 +1228,12 @@ msgstr "Estado basado en actividades \n"
 "Planificado: actividades futuras"
 
 #. module: l10n_do_accounting
-#: selection:account.document.type,type:0
+#: selection:l10n_latam.document.pool,type:0
 msgid "Supplier Credit Note"
 msgstr "Nota de Crédito del Proveedor"
 
 #. module: l10n_do_accounting
-#: selection:account.document.type,type:0
+#: selection:l10n_latam.document.pool,type:0
 msgid "Supplier Debit Note"
 msgstr "Nota de Débito del Proveedor"
 
@@ -1249,7 +1249,7 @@ msgid "Tel.:"
 msgstr "Tel.:"
 
 #. module: l10n_do_accounting
-#: sql_constraint:account.document.type:0
+#: sql_constraint:l10n_latam.document.pool:0
 msgid "There must be only one Fiscal Type of this Type and doc_code_prefix"
 msgstr "Debe haber un solo Tipo Fiscal de esta secuencia y Prefijo"
 
