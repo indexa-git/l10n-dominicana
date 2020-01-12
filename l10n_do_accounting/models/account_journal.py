@@ -24,7 +24,7 @@ class AccountJournal(models.Model):
     def check_l10n_do_fiscal_journal(self):
         for journal in self:
             if journal.env["account.invoice"].search_count(
-                [("journal_id", "=", journal.id), ("state", "!=", "draft")], limit=1
+                [("journal_id", "=", journal.id), ("state", "!=", "draft")]
             ):
                 raise ValidationError(
                     _(
