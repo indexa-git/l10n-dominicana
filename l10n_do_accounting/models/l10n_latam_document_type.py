@@ -37,6 +37,7 @@ class L10nLatamDocumentType(models.Model):
             ('e-minor', '43'),
             ('e-special', '44'),
             ('e-governmental', '45'),
+            ('in_fiscal', '01'),
         ]
 
     l10n_do_ncf_type = fields.Selection(

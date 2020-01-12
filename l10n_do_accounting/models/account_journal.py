@@ -44,7 +44,7 @@ class AccountJournal(models.Model):
                 'foreigner': ['export', 'consumer'],
             },
             'received': {
-                'taxpayer': ['fiscal', 'special', 'governmental'],
+                'taxpayer': ['in_fiscal', 'special', 'governmental'],
                 'non_payer': ['informal', 'minor'],
                 'nonprofit': ['fiscal', 'special', 'governmental'],
                 'special': ['fiscal', 'special', 'governmental'],
@@ -57,9 +57,19 @@ class AccountJournal(models.Model):
             msg = _('Cannot create chart of account until you configure your VAT.')
             raise RedirectWarning(msg, action.id, _('Go to Companies'))
 
-        ncf_types = ncf_types_data['issued' if self.type == 'sale' else 'received'][
-            self.company_id.partner_id.l10n_do_dgii_tax_payer_type
-        ]
+        # Get all the ncf_types values from the nested dictionary, remove duplicates and
+        # convert it into a list
+        ncf_types = list(
+            set(
+                [
+                    value
+                    for dic in ncf_types_data[
+                        'issued' if self.type == 'sale' else 'received'
+                    ].values()
+                    for value in dic
+                ]
+            )
+        )
         if not counterpart_partner:
             return ncf_types
         else:
@@ -92,7 +102,7 @@ class AccountJournal(models.Model):
 
     def write(self, values):
         """ Update Document sequences after update journal """
-        to_check = {'type', 'l10n_do_share_sequences', 'l10n_latam_use_documents'}
+        to_check = {'type', 'l10n_latam_use_documents'}
         res = super().write(values)
         if to_check.intersection(set(values.keys())):
             for rec in self:
@@ -100,10 +110,7 @@ class AccountJournal(models.Model):
         return res
 
     @api.constrains(
-        'type',
-        'l10n_do_dgii_pos_number',
-        'l10n_do_share_sequences',
-        'l10n_latam_use_documents',
+        'type', 'l10n_latam_use_documents',
     )
     def _check_dgii_configurations(self):
         """ Do not let to update journal if already have confirmed invoices """
