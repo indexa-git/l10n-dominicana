@@ -46,7 +46,7 @@ class L10nLatamDocumentPool(models.Model):
     )
     l10n_latam_document_type_id = fields.Many2one(
         'l10n_latam.document.type',
-        string='Document Type'
+        string='Document Type',
         required=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
@@ -304,7 +304,7 @@ class L10nLatamDocumentPool(models.Model):
                     }
                 )
                 rec.write(
-                    {'state': 'active', 'sequence_id': sequence_id.id,}
+                    {'state': 'active', 'sequence_id': sequence_id.id, }
                 )
 
     def action_cancel(self):
