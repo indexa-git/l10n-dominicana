@@ -1,7 +1,7 @@
 import logging
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -24,13 +24,55 @@ class AccountMove(models.Model):
             ('10', _('10 - Lossing or Hurting Of Counterfoil')),
         ]
 
+    def _get_l10n_do_income_type(self):
+        """ Return the list of annulment types required by DGII. """
+        return [
+            ('01', _('01 - Operational Incomes')),
+            ('02', _('02 - Financial Incomes')),
+            ('03', _('03 - Extraordinary Incomes')),
+            ('04', _('04 - Leasing Incomes')),
+            ('05', _('05 - Income for Selling Depreciable Assets')),
+            ('06', _('06 - Other Incomes')),
+        ]
+
+    def _get_l10n_do_expense_type(self):
+        """ Return the list of annulment types required by DGII. """
+        return [
+            ('01', _('01 - Personal')),
+            ('02', _('02 - Work, Supplies and Services')),
+            ('03', _('03 - Leases')),
+            ('04', _('04 - Fix Assets')),
+            ('05', _('05 - Representation')),
+            ('06', _('06 - Other Allowed Deductions')),
+            ('07', _('07 - Financial Expenses')),
+            ('08', _('08 - Extraordinary Expenses')),
+            ('09', _('09 - Part of the COGS')),
+            ('10', _('10 - Assets adquisition')),
+            ('11', _('11 - Insurance Expeses')),
+        ]
+
     l10n_do_annulment_type = fields.Selection(
         selection='_get_l10n_do_annulment_type', string='Annulment Type', copy=False,
     )
 
+    l10n_do_income_type = fields.Selection(
+        selection='_get_l10n_do_income_type',
+        string='Income Type',
+        copy=False,
+        default=lambda self: self._context.get('l10n_do_income_type', '01'),
+    )
+
+    l10n_do_expense_type = fields.Selection(
+        selection='_get_l10n_do_expense_type', string='Expense Type',
+    )
+
+    origin_out = fields.Char("Affects",)
+
+    ncf_expiration_date = fields.Date('Valid until', store=True,)
+
     l10n_latam_document_number = fields.Char(store=True)
 
-    def _is_debit_note(self):
+    def _compute__is_debit_note(self):
         self.ensure_one()
         if (
             self.journal_id.l10n_latam_use_documents
@@ -60,7 +102,10 @@ class AccountMove(models.Model):
             if not rec.l10n_latam_document_number:
                 rec.name = '/'
             else:
-                l10n_latam_document_number = rec.l10n_latam_document_type_id._format_document_number(rec.l10n_latam_document_number)
+                l10n_latam_document_number = (rec.l10n_latam_document_type_id
+                                              ._format_document_number(
+                                                  rec.l10n_latam_document_number)
+                                              )
                 if rec.l10n_latam_document_number != l10n_latam_document_number:
                     rec.l10n_latam_document_number = l10n_latam_document_number
 
@@ -120,3 +165,109 @@ class AccountMove(models.Model):
                         'Please set the current tax payer type of this client'
                     )
                 )
+
+    # TODO: This constraint is executing when it wants
+    @api.constrains('state', 'tax_ids', 'l10n_latam_document_type_id')
+    def _check_special_exempt(self):
+        """ Validates that an invoice with a Special Tax Payer type does not contain
+            nor ITBIS or ISC.
+            See DGII Norma 05-19, Art 3 for further information.
+        """
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'out_invoice'
+            and r.state in ('draft', 'cancel')
+        ):
+            if rec.partner_id.l10n_do_dgii_tax_payer_type == 'special':
+                # If any invoice tax in ITBIS or ISC
+                taxes = ('ITBIS', 'ISC')
+                if any(
+                    [
+                        tax
+                        for tax in rec.line_ids.filtered('tax_line_id').filtered(
+                            lambda tax: tax.tax_group_id.name in taxes
+                            and tax.tax_base_amount != 0
+                        )
+                    ]
+                ):
+                    raise UserError(
+                        _(
+                            "You cannot validate and invoice of Fiscal Type "
+                            "Regímen Especial with ITBIS/ISC.\n\n"
+                            "See DGII General Norm 05-19, Art. 3 for further "
+                            "information"
+                        )
+                    )
+
+    @api.constrains('state', 'line_ids', 'partner_id')
+    def _check_products_export_ncf(self):
+        """ Validates that an invoices with a partner from country != DO
+            and products type != service must have Exportaciones NCF.
+            See DGII Norma 05-19, Art 10 for further information.
+        """
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'out_invoice'
+            and r.state in ('draft', 'cancel')
+        ):
+            if rec.partner_id.country_id and rec.partner_id.country_id.code != 'DO':
+                if any(
+                    [
+                        p
+                        for p in rec.invoice_line_ids.mapped('product_id')
+                        if p.type != 'service'
+                    ]
+                ):
+                    if rec.partner_id.l10n_do_dgii_tax_payer_type != 'exterior':
+                        raise UserError(
+                            _(
+                                "Goods sales to overseas customers must have "
+                                "Exportaciones Fiscal Type"
+                            )
+                        )
+                elif rec.partner_id.l10n_do_dgii_tax_payer_type != 'consumo':
+                    raise UserError(
+                        _(
+                            "Services sales to oversas customer must have "
+                            "Consumo Fiscal Type"
+                        )
+                    )
+
+    @api.constrains('state', 'tax_ids')
+    def _check_informal_withholding(self):
+        """ Validates an invoice with Comprobante de Compras has 100% ITBIS
+            withholding.
+            See DGII Norma 05-19, Art 7 for further information.
+        """
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'in_invoice'
+            and r.state in ('draft')
+        ):
+
+            if rec.partner_id.l10n_do_dgii_tax_payer_type == 'non_payer':
+                # If the sum of all taxes of category ITBIS is not 0
+                if sum(
+                    [
+                        tax.amount
+                        for tax in rec.tax_line_ids.mapped('tax_id').filtered(
+                            lambda t: t.tax_group_id.name == 'ITBIS'
+                        )
+                    ]
+                ):
+                    raise UserError(_("You must withhold 100% of ITBIS"))
+
+    @api.onchange("l10n_latam_document_number", "origin_out")
+    def _onchange_l10n_latam_document_number(self):
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.state in ('draft')
+            and r.l10n_latam_document_number
+        ):
+            rec.l10n_latam_document_type_id._format_document_number(
+                rec.l10n_latam_document_number
+            )
