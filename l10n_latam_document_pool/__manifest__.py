@@ -2,9 +2,8 @@
     'name': "Latam Documents Pools",
     'summary': """
         This module implements sequence pools for Document types, allowing for fiscal
-        scenarios where each Document Type could have more than one sequence pool
-        available, and each pool has a threshold to inform the user if the pool is
-        expiring""",
+        scenarios where each Document Type could have more than one sequence available
+        """,
     'author': "Indexa",
     'category': 'Localization',
     'license': 'LGPL-3',
