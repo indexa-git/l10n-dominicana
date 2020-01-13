@@ -4,7 +4,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
-class AccountFiscalSequenceValidateWizard(models.TransientModel):
+class L10nLatamDocumentPoolValidateWizard(models.TransientModel):
     """
     This Wizard purpose is to warn the user when attempt to change
     sequence state.
@@ -18,7 +18,6 @@ class AccountFiscalSequenceValidateWizard(models.TransientModel):
         string='Fiscal sequence',
     )
 
-    @api.multi
     def confirm_cancel(self):
         self.ensure_one()
         if self.l10n_latam_sequence_id:

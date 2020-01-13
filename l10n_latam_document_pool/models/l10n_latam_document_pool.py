@@ -1,6 +1,3 @@
-# © 2019 José López <jlopez@indexa.do>
-# © 2019 Raul Ovalle <rovalle@guavana.com>
-
 import pytz
 from datetime import datetime
 
@@ -52,9 +49,9 @@ class L10nLatamDocumentPool(models.Model):
         states={'draft': [('readonly', False)]},
         track_visibility='onchange',
     )
-    # type = fields.Selection(
-    #     related='l10n_latam_document_type_id.type', store=True,
-    # )
+    type = fields.Selection(
+        related='l10n_latam_document_type_id.internal_type', store=True,
+    )
     sequence_start = fields.Integer(
         required=True,
         readonly=True,
@@ -73,6 +70,7 @@ class L10nLatamDocumentPool(models.Model):
     )
     sequence_remaining = fields.Integer(
         string='Remaining', compute='_compute_sequence_remaining',
+        store=True
     )
     sequence_id = fields.Many2one(
         'ir.sequence', string="Internal Sequence", copy=False,
@@ -151,6 +149,8 @@ class L10nLatamDocumentPool(models.Model):
                 rec.sequence_remaining = (
                     rec.sequence_end - rec.sequence_id.number_next_actual + 1
                 )
+            else:
+                rec.sequence_remaining = 0
 
     @api.depends(
         'l10n_latam_document_type_id.doc_code_prefix',
@@ -271,7 +271,7 @@ class L10nLatamDocumentPool(models.Model):
             'Once you confirm this Fiscal Sequence cannot be edited.'
         )
         action = self.env.ref(
-            'accounting.account_fiscal_sequence_validate_wizard_action'
+            'l10n_latam_document_pool.l10n_latam_document_pool_validate_wizard_action'
         ).read()[0]
         action['context'] = {
             'default_name': msg,
@@ -295,7 +295,7 @@ class L10nLatamDocumentPool(models.Model):
                         'name': _('%s %s Sequence')
                         % (rec.l10n_latam_document_type_id.name, rec.name[-9:]),
                         'implementation': 'standard',
-                        'padding': rec.l10n_latam_document_type_id.padding,
+                        'padding': 8,
                         'number_increment': 1,
                         'number_next_actual': rec.sequence_start,
                         'number_next': rec.sequence_start,
@@ -367,8 +367,8 @@ class L10nLatamDocumentPool(models.Model):
 
     def get_fiscal_number(self):
 
-        if not self.l10n_latam_document_type_id.l10n_latam_document_number:
-            return False
+        # if not self.l10n_latam_document_type_id.l10n_latam_document_number:
+        #     return False
 
         if self.sequence_remaining and self.sequence_remaining > 0:
             sequence_next = self.sequence_id._next()
