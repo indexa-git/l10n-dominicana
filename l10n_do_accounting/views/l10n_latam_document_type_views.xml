@@ -39,13 +39,4 @@
         </field>
     </record>
 
-
-    <record model="ir.actions.act_window" id="action_document_type_dominicana">
-        <field name="name">Document Types</field>
-        <field name="res_model">l10n_latam.document.type</field>
-        <field name="context">{'search_default_localization': 1}</field>
-    </record>
-
-    <menuitem action="action_document_type_dominicana" id="menu_document_type_dominicana" sequence="5" parent="menu_dgii_config"/>
-
 </odoo>
