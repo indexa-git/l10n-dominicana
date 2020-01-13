@@ -1,16 +1,16 @@
 id,sequence,code,name,report_name,internal_type,l10n_do_ncf_type,doc_code_prefix,country_id/id,purchase_vat,active
-ncf_fiscal_client,10,B,FACTURAS DE CLIENTE B01,Factura de Crédito Fiscal,invoice,01,B01,base.do,not_zero,TRUE
-ncf_fiscal_supplier,20,B,FACTURAS DE PROVEEDOR B01,Factura de Crédito Fiscal,in_invoice,,B01,base.do,not_zero,TRUE
-ncf_consumer_supplier,30,B,FACTURAS DE CLIENTE B02,Factura de Consumo,invoice,02,B02,base.do,zero,TRUE
-ncf_debit_note_client,40,B,NOTAS DE DÉBITO DE CLIENTE B03,Factura de Único Ingreso,debit_note,03,B03,base.do,not_zero,TRUE
-ncf_debit_note_supplier,50,B,NOTAS DE DÉBITO DE PROVEEDOR B03,Nota de Débito,debit_note,03,B03,base.do,not_zero,TRUE
-ncf_crebit_note_client,60,B,NOTAS DE CRÉDITO DE CLIENTE B04,Nota de Crédito,credit_note,04,B04,base.do,not_zero,TRUE
-ncf_crebit_note_supplier,70,B,NOTAS DE CRÉDITO DE PROVEEDOR B04,Nota de Crédito,credit_note,04,B04,base.do,not_zero,TRUE
-ncf_informal_supplier,80,B,FACTURAS DE PROVEEDOR B11,Factura de Informal,invoice,11,B11,base.do,not_zero,TRUE
-ncf_unique_client,90,B,FACTURAS DE CLIENTE B12,Factura de Único Ingreso,invoice,12,B12,base.do,zero,TRUE
-ncf_minor_supplier,100,B,FACTURAS DE CLIENTE B13,Factura de Compra,invoice,13,B13,base.do,zero,TRUE
-ncf_special_client,110,B,FACTURAS DE CLIENTE B14,Factura de Régimen Especial,invoice,14,B14,base.do,not_zero,TRUE
-ncf_gov_client,120,B,FACTURAS DE GOBIERNO B15,Factura Gubernamental,invoice,15,B15,base.do,not_zero,TRUE
-ncf_export_client,130,B,FACTURAS DE EXPORTACION B16,Factura de Exportación,invoice,16,B16,base.do,not_zero,TRUE
-ncf_exterior_supplier,140,B,FACURAS DE PROVEEDOR EXTRANJERO B17,Factura de Pago al Exterior,invoice,17,B17,base.do,zero,TRUE
-non_fiscal_import_supplier,150,N,FACTURAS DE IMPORTACIÓN,Factura de Importación,invoice,,IMP,base.do,zero,TRUE
+ncf_fiscal_client,10,B,Crédito Fiscal,Factura de Crédito Fiscal,invoice,01,B01,base.do,not_zero,TRUE
+ncf_fiscal_supplier,20,B,Crédito Fiscal,Factura de Crédito Fiscal,in_invoice,01,B01,base.do,not_zero,TRUE
+ncf_consumer_supplier,30,B,Consumo,Factura de Consumo,invoice,02,B02,base.do,zero,TRUE
+ncf_debit_note_client,40,B,Único Ingreso,Factura de Único Ingreso,debit_note,03,B03,base.do,not_zero,TRUE
+ncf_debit_note_supplier,50,B,Nota de Débito,Nota de Débito,debit_note,03,B03,base.do,not_zero,TRUE
+ncf_crebit_note_client,60,B,Nota de Crédito,Nota de Crédito,credit_note,04,B04,base.do,not_zero,TRUE
+ncf_crebit_note_supplier,70,B,Nota de Crédito,Nota de Crédito,credit_note,04,B04,base.do,not_zero,TRUE
+ncf_informal_supplier,80,B,Informal,Factura de Informal,invoice,11,B11,base.do,not_zero,TRUE
+ncf_unique_client,90,B,Único Ingreso,Factura de Único Ingreso,invoice,12,B12,base.do,zero,TRUE
+ncf_minor_supplier,100,B,Compra,Factura de Compra,invoice,13,B13,base.do,zero,TRUE
+ncf_special_client,110,B,Régimen Especial,Factura de Régimen Especial,invoice,14,B14,base.do,not_zero,TRUE
+ncf_gov_client,120,B,Factura Gubernamental,Factura Gubernamental,invoice,15,B15,base.do,not_zero,TRUE
+ncf_export_client,130,B,Exportación,Factura de Exportación,invoice,16,B16,base.do,not_zero,TRUE
+ncf_exterior_supplier,140,B,Pago al Exterior,Factura de Pago al Exterior,invoice,17,B17,base.do,zero,TRUE
+non_fiscal_import_supplier,150,N,Importación,Factura de Importación,invoice,,IMP,base.do,zero,TRUE
