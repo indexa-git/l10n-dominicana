@@ -86,7 +86,7 @@ class AccountJournal(models.Model):
     def _get_journal_codes(self):
         self.ensure_one()
         ncf_code = ['B']
-        ecf_code = ['E']
+        # ecf_code = ['E'] # Needs better logic
         if self.type != 'sale':
             return []
         # elif self.company_id.l10n_do_ecf_issuer:
