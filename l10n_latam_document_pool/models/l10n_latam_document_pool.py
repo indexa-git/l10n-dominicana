@@ -69,8 +69,7 @@ class L10nLatamDocumentPool(models.Model):
         copy=False,
     )
     sequence_remaining = fields.Integer(
-        string='Remaining', compute='_compute_sequence_remaining',
-        store=True
+        string='Remaining', compute='_compute_sequence_remaining', store=True
     )
     sequence_id = fields.Many2one(
         'ir.sequence', string="Internal Sequence", copy=False,
