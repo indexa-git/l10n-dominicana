@@ -167,7 +167,7 @@ class AccountMove(models.Model):
                 )
 
     # TODO: This constraint is executing when it wants
-    @api.constrains('state', 'tax_ids', 'l10n_latam_document_type_id')
+    @api.constrains('state', 'line_ids.tax_line_id', 'l10n_latam_document_type_id')
     def _check_special_exempt(self):
         """ Validates that an invoice with a Special Tax Payer type does not contain
             nor ITBIS or ISC.
@@ -235,7 +235,7 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains('state', 'tax_ids')
+    @api.constrains('state', 'line_ids.tax_line_id')
     def _check_informal_withholding(self):
         """ Validates an invoice with Comprobante de Compras has 100% ITBIS
             withholding.
