@@ -72,7 +72,7 @@ class AccountMove(models.Model):
 
     l10n_latam_document_number = fields.Char(store=True)
 
-    def _compute__is_debit_note(self):
+    def _compute_is_debit_note(self):
         self.ensure_one()
         if (
             self.journal_id.l10n_latam_use_documents

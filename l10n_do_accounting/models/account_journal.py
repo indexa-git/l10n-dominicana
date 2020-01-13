@@ -79,7 +79,7 @@ class AccountJournal(models.Model):
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         if invoice.type in ['out_refund', 'in_refund']:
             ncf_types = list('credit_note')
-        if invoice._is_debit_note():
+        if invoice._compute_is_debit_note():
             ncf_types = list('debit_note')
         return ncf_types
 
