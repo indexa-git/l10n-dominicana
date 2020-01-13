@@ -17,6 +17,4 @@
         "wizard/l10n_latam_document_pool_validate_wizard_views.xml",
         "views/l10n_latam_document_pool_views.xml",
     ],
-    # only loaded in demonstration mode
-    "demo": ["demo/demo.xml",],
 }
