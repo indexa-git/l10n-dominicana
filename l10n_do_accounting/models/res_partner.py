@@ -4,24 +4,6 @@ from odoo import models, fields, api, _
 class Partner(models.Model):
     _inherit = 'res.partner'
 
-    def _get_l10n_do_expense_type(self):
-        """ Returns the list of different type of customer / suppliers depending on
-        their fiscal status. This is required to define the correct fiscal sequence to
-        be used on invoices."""
-        return [
-            ('01', _('01 - Personnel Expenses')),
-            ('02', _('02 - Expenses for Work, Supplies and Services')),
-            ('03', _('03 - Leases')),
-            ('04', _('04 - Fixed Asset Expenses')),
-            ('05', _('05 - Representation Expenses')),
-            ('06', _('06 - Other Deductions Admitted')),
-            ('07', _('07 - Financial Expenses')),
-            ('08', _('08 - Extraordinary Expenses')),
-            ('09', _('09 - Purchasess and Expenses part of the Cost of Sale')),
-            ('10', _('10 - Acquisitions of Assets')),
-            ('11', _('11 - Insurance Expenses')),
-        ]
-
     def _get_l10n_do_dgii_payer_types_selection(self):
         """ Return the list of expenses needed in invoices to clasify accordingly to
         DGII requirements. """
@@ -58,9 +40,6 @@ class Partner(models.Model):
         inverse='_inverse_l10n_do_dgii_tax_payer_type',
         string='Taxpayer Type',
         index=True,
-    )
-    l10n_do_expense_type = fields.Selection(
-        selection='_get_l10n_do_expense_type', string="Expense Type",
     )
 
     is_fiscal_info_required = fields.Boolean(compute='_compute_fiscal_info_required')
