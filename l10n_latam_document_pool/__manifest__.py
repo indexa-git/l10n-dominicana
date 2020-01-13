@@ -8,7 +8,7 @@
     'category': 'Localization',
     'license': 'LGPL-3',
     'website': "https://indexa.do/",
-    'version': "1.0",
+    'version': "13.0.1.0.0",
     # any module necessary for this one to work correctly
     'depends': ['l10n_latam_invoice_document',
                 ],
