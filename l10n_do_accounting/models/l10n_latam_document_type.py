@@ -48,6 +48,9 @@ class L10nLatamDocumentType(models.Model):
         ' operation type, the responsibility of both the issuer and the'
         ' receptor of the document',
     )
+    internal_type = fields.Selection(
+        selection_add=[('in_invoice', 'Supplier Invoices'), ]
+    )
     purchase_vat = fields.Selection(
         [('not_zero', 'Not Zero'), ('zero', 'Zero')],
         help='Raise an error if a vendor bill is miss encoded. "Not Zero"'

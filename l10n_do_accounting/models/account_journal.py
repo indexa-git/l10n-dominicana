@@ -145,7 +145,7 @@ class AccountJournal(models.Model):
 
         # Create Sequences
         ncf_types = self._get_journal_ncf_types()
-        internal_types = ['invoice', 'debit_note', 'credit_note']
+        internal_types = ['invoice', 'in_invoice', 'debit_note', 'credit_note']
         domain = [
             ('country_id.code', '=', 'DO'),
             ('internal_type', 'in', internal_types),
