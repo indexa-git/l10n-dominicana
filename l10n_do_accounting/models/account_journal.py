@@ -71,7 +71,7 @@ class AccountJournal(models.Model):
             )
         )
         if not counterpart_partner:
-            return ncf_types
+            return ncf_types + list(['credit_note', 'debit_note'])
         else:
             counterpart_ncf_types = ncf_types_data[
                 'issued' if self.type == 'sale' else 'received'

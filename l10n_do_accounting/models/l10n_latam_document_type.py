@@ -49,7 +49,11 @@ class L10nLatamDocumentType(models.Model):
         ' receptor of the document',
     )
     internal_type = fields.Selection(
-        selection_add=[('in_invoice', 'Supplier Invoices'), ]
+        selection_add=[
+            ('in_invoice', 'Supplier Invoices'),
+            ('in_credit_note', 'Supplier Credit Note'),
+            ('in_debit_note', 'Supplier Debit Note'),
+        ]
     )
     purchase_vat = fields.Selection(
         [('not_zero', 'Not Zero'), ('zero', 'Zero')],
