@@ -6,7 +6,7 @@ substitutions:
     _WITHOUT_DEMO: 'False'
     _RUN_TESTS: '1'
     _PIP_AUTO_INSTALL: '1'
-    _EXTRA_MODULES: 'dgii_reports,l10n_do,l10n_do_account_cancel,l10n_do_accounting,l10n_do_pos,l10n_do_purchase,l10n_do_sale'
+    _EXTRA_MODULES: 'l10n_do,l10n_do_accounting,l10n_latam_document_pool'
 # Allow variables without substitutions
 options:
     substitution_option: 'ALLOW_LOOSE'
@@ -71,7 +71,7 @@ steps:
 # Run dockerdooo with modules inside the repo and run tests
 - name: 'gcr.io/$PROJECT_ID/$REPO_NAME:${BRANCH_NAME}-${SHORT_SHA}'
   dir: /
-  args: ["odoo", "-d ${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}"]
+  args: ["odoo", "-d ${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}", "--test-tags", "${_EXTRA_MODULES}"]
   env:
     - 'DB_PORT_5432_TCP_ADDR=${REPO_NAME}-${BRANCH_NAME}-${SHORT_SHA}'
     - 'DB_ENV_POSTGRES_USER=odoo'
