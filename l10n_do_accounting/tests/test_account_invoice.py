@@ -362,7 +362,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
             credit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_cn
         )
         self.assertEqual(str(credit_note_id.reference)[:3], cn_type.doc_code_prefix)
-        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(credit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertTrue(
             float_is_zero(
                 credit_note_id.amount_total - (invoice_id.amount_total * 0.1),
@@ -406,7 +406,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
             credit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_cn
         )
         self.assertEqual(str(credit_note_id.reference)[:3], cn_type.doc_code_prefix)
-        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(credit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertEqual(credit_note_id.amount_total, 100)
 
     def test_015_fiscal_vendor_refund_percentage(self):
@@ -446,7 +446,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(
             credit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_cn_purchase
         )
-        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(credit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertTrue(
             float_is_zero(
                 credit_note_id.amount_total - (invoice_id.amount_total * 0.1),
@@ -491,7 +491,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(
             credit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_cn_purchase
         )
-        self.assertEqual(credit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(credit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertEqual(credit_note_id.amount_total, 100)
 
     def test_017_fiscal_customer_debit_note_percentage(self):
@@ -536,7 +536,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
             debit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_dn
         )
         self.assertEqual(str(debit_note_id.reference)[:3], dn_type.doc_code_prefix)
-        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(debit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertTrue(
             float_is_zero(
                 debit_note_id.amount_total - (invoice_id.amount_total * 0.1),
@@ -586,7 +586,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
             debit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_dn
         )
         self.assertEqual(str(debit_note_id.reference)[:3], dn_type.doc_code_prefix)
-        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(debit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertEqual(debit_note_id.amount_total, 100)
 
     def test_019_fiscal_vendor_debit_note_percentage(self):
@@ -629,7 +629,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(
             debit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_dn_purchase
         )
-        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(debit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertTrue(
             float_is_zero(
                 debit_note_id.amount_total - (invoice_id.amount_total * 0.1),
@@ -677,7 +677,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         self.assertEqual(
             debit_note_id.l10n_latam_document_type_id.id, self.fiscal_type_dn_purchase
         )
-        self.assertEqual(debit_note_id.origin_out, invoice_id.reference)
+        self.assertEqual(debit_note_id.l10n_do_origin_ncf, invoice_id.reference)
         self.assertEqual(debit_note_id.amount_total, 100)
 
     def test_021_fiscal_vendor_refund_percentage(self):

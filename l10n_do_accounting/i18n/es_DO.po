@@ -503,7 +503,7 @@ msgid "Add Debit Note"
 msgstr "Agregar Nota de Débito"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__origin_out
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_do_origin_ncf
 msgid "Affects"
 msgstr "Afecta"
 
@@ -519,7 +519,7 @@ msgstr "Importe"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_invoice__l10n_do_anulation_type
-msgid "Annulment Type"
+msgid "cancellation Type"
 msgstr "Tipo de Anuluación"
 
 #. module: l10n_do_accounting

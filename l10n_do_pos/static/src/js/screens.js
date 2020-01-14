@@ -426,7 +426,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         var origin_order =
                             self.pos.db.orders_history_by_id[
                                 current_order.return_lines[0].order_id[0]];
-                        current_order.ncf_origin_out = origin_order.ncf;
+                        current_order.ncf_l10n_do_origin_ncf = origin_order.ncf;
                     }
                     console.log(res);
                 }, function (err, ev) {

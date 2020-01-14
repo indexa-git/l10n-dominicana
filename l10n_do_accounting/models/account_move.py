@@ -9,8 +9,8 @@ _logger = logging.getLogger(__name__)
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    def _get_l10n_do_annulment_type(self):
-        """ Return the list of annulment types required by DGII. """
+    def _get_l10n_do_cancellation_type(self):
+        """ Return the list of cancellation types required by DGII. """
         return [
             ('01', _('01 - Pre-printed Invoice Impairment')),
             ('02', _('02 - Printing Errors (Pre-printed Invoice)')),
@@ -25,7 +25,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_income_type(self):
-        """ Return the list of annulment types required by DGII. """
+        """ Return the list of income types required by DGII. """
         return [
             ('01', _('01 - Operational Incomes')),
             ('02', _('02 - Financial Incomes')),
@@ -36,7 +36,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_expense_type(self):
-        """ Return the list of annulment types required by DGII. """
+        """ Return the list of expense types required by DGII. """
         return [
             ('01', _('01 - Personal')),
             ('02', _('02 - Work, Supplies and Services')),
@@ -51,8 +51,10 @@ class AccountMove(models.Model):
             ('11', _('11 - Insurance Expeses')),
         ]
 
-    l10n_do_annulment_type = fields.Selection(
-        selection='_get_l10n_do_annulment_type', string='Annulment Type', copy=False,
+    l10n_do_cancellation_type = fields.Selection(
+        selection='_get_l10n_do_cancellation_type',
+        string='Cancellation Type',
+        copy=False,
     )
 
     l10n_do_income_type = fields.Selection(
@@ -66,9 +68,9 @@ class AccountMove(models.Model):
         selection='_get_l10n_do_expense_type', string='Expense Type',
     )
 
-    origin_out = fields.Char("Affects",)
+    l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
-    ncf_expiration_date = fields.Date('Valid until', store=True,)
+    ncf_expiration_date = fields.Date(string='Valid until', store=True,)
 
     l10n_latam_document_number = fields.Char(store=True)
 
@@ -260,7 +262,7 @@ class AccountMove(models.Model):
                 ):
                     raise UserError(_("You must withhold 100% of ITBIS"))
 
-    @api.onchange("l10n_latam_document_number", "origin_out")
+    @api.onchange("l10n_latam_document_number", "l10n_do_origin_ncf")
     def _onchange_l10n_latam_document_number(self):
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref('base.do')
