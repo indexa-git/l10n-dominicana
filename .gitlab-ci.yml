@@ -54,7 +54,7 @@ test:
     - docker
   variables:
     LINT_CHECK: "0"
-    TESTS: "1"
+    TESTS: "0"
   cache:
     paths:
       - ${HOME}/maintainer-quality-tools
