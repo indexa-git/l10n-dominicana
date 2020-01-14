@@ -1,1 +1,1 @@
-pos-addons https://github.com/it-projects-llc/pos-addons 12.0
+pos-addons https://github.com/it-projects-llc/pos-addons 13.0

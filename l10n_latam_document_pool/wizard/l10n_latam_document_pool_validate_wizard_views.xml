@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <record id="account_fiscal_sequence_validate_wizard_form" model="ir.ui.view">
-        <field name="name">account.fiscal.sequence.validate.wizard.form</field>
-        <field name="model">account.fiscal.sequence.validate_wizard</field>
+    <record id="l10n_latam_document_pool_validate_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_latam.document.pool.validate.wizard.form</field>
+        <field name="model">l10n_latam.document.pool.validate_wizard</field>
         <field name="arch" type="xml">
             <form>
-                <field name="fiscal_sequence_id" invisible="1"/>
+                <field name="l10n_latam_sequence_id" invisible="1"/>
                 <div class="alert alert-warning" role="alert">
                     <span class="fa fa-warning fa-lg" title="Warning" aria-label="Warning"/>
                     <br/>
@@ -20,12 +20,11 @@
         </field>
     </record>
 
-    <record id="account_fiscal_sequence_validate_wizard_action" model="ir.actions.act_window">
+    <record id="l10n_latam_document_pool_validate_wizard_action" model="ir.actions.act_window">
         <field name="name">Fiscal Sequence</field>
-        <field name="view_type">form</field>
         <field name="target">new</field>
         <field name="view_mode">form</field>
-        <field name="res_model">account.fiscal.sequence.validate_wizard</field>
+        <field name="res_model">l10n_latam.document.pool.validate_wizard</field>
     </record>
 
 </odoo>

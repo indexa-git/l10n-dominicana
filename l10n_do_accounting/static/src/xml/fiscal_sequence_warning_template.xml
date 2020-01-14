@@ -10,7 +10,7 @@
                     <h2>¡NCF almost deplete!</h2>
                     <t t-foreach="values" t-as="fiscal_sequence">
                         <h5>
-                            <t t-esc="fiscal_sequence.fiscal_type_id[1]"/>
+                            <t t-esc="fiscal_sequence.l10n_latam_document_type_id[1]"/>
                             - Remains:
                             <t t-esc="fiscal_sequence.sequence_remaining"/>
                         </h5>

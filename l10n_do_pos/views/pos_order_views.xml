@@ -11,7 +11,7 @@
                 <field name="ncf"/>
                 <field name="ncf_expiration_date"/>
                 <field name="fiscal_type_id"/>
-                <!--<field name="ncf_origin_out" attrs="{'invisible':[('is_return_order','=',False)]}"/>-->
+                <!--<field name="ncf_l10n_do_origin_ncf" attrs="{'invisible':[('is_return_order','=',False)]}"/>-->
             </field>
 
         </field>

@@ -191,12 +191,12 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     var current_order = self.pos.get_order();
                     var client = self.pos.get_client();
                     current_order.set_fiscal_type(fiscal_type);
-                    if (fiscal_type.required_document && !client) {
+                    if (fiscal_type.requires_document && !client) {
 
                         self.open_vat_popup();
 
                     }
-                    if (fiscal_type.required_document && client) {
+                    if (fiscal_type.requires_document && client) {
 
                         if (!client.vat) {
 
@@ -332,7 +332,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
                 }
 
-                if (current_order.fiscal_type.required_document && !client) {
+                if (current_order.fiscal_type.requires_document && !client) {
 
                     this.gui.show_popup('error', {
                         'title': _t('Required document (RNC/Céd.)'),
@@ -344,7 +344,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
                 }
 
-                if (current_order.fiscal_type.required_document &&
+                if (current_order.fiscal_type.requires_document &&
                     !client.vat) {
 
                     this.gui.show_popup('error', {
@@ -426,7 +426,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         var origin_order =
                             self.pos.db.orders_history_by_id[
                                 current_order.return_lines[0].order_id[0]];
-                        current_order.ncf_origin_out = origin_order.ncf;
+                        current_order.ncf_l10n_do_origin_ncf = origin_order.ncf;
                     }
                     console.log(res);
                 }, function (err, ev) {

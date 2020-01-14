@@ -10,7 +10,7 @@ class PosOrder(models.Model):
     ncf = fields.Char(
         string="NCF",
     )
-    ncf_origin_out = fields.Char(
+    ncf_l10n_do_origin_ncf = fields.Char(
         "Affects",
     )
     ncf_expiration_date = fields.Date(
@@ -37,7 +37,7 @@ class PosOrder(models.Model):
         fields = super(PosOrder, self)._order_fields(ui_order)
         if ui_order.get('fiscal_sequence_id', False):
             fields['ncf'] = ui_order['ncf']
-            fields['ncf_origin_out'] = ui_order['ncf_origin_out']
+            fields['ncf_l10n_do_origin_ncf'] = ui_order['ncf_l10n_do_origin_ncf']
             fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
             fields['fiscal_type_id'] = ui_order['fiscal_type_id']
             fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
@@ -51,7 +51,7 @@ class PosOrder(models.Model):
         invoice_vals = super(PosOrder, self)._prepare_invoice()
         if self.config_id.invoice_journal_id.l10n_do_fiscal_journal:
             invoice_vals['reference'] = self.ncf
-            invoice_vals['origin_out'] = self.ncf_origin_out
+            invoice_vals['l10n_do_origin_ncf'] = self.ncf_l10n_do_origin_ncf
             invoice_vals['ncf_expiration_date'] = self.ncf_expiration_date
             invoice_vals['fiscal_type_id'] = self.fiscal_type_id.id
             invoice_vals['fiscal_sequence_id'] = self.fiscal_sequence_id.id
@@ -301,7 +301,7 @@ class PosOrder(models.Model):
 
     def create_pos_order_refund_invoice(self):
 
-        origin_order = self.search([('ncf', '=', self.ncf_origin_out)])
+        origin_order = self.search([('ncf', '=', self.ncf_l10n_do_origin_ncf)])
 
         if origin_order:
 
@@ -321,7 +321,7 @@ class PosOrder(models.Model):
 
             refund_invoice.write({
                 'reference': self.ncf,
-                'origin_out': self.ncf_origin_out,
+                'l10n_do_origin_ncf': self.ncf_l10n_do_origin_ncf,
                 'ncf_expiration_date': self.ncf_expiration_date,
                 'fiscal_type_id': self.fiscal_type_id.id,
                 'fiscal_sequence_id': self.fiscal_sequence_id.id,

@@ -1,4 +1,4 @@
-image: python:3.5
+image: python:3.7
 stages:
   - test
 
@@ -41,7 +41,7 @@ lint:
     - export PGHOST="postgres"
     - export PGUSER="odoo"
     - export PGPASSWORD=""
-    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+    - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests
@@ -54,7 +54,7 @@ test:
     - docker
   variables:
     LINT_CHECK: "0"
-    TESTS: "1"
+    TESTS: "0"
   cache:
     paths:
       - ${HOME}/maintainer-quality-tools
@@ -66,7 +66,7 @@ test:
     - export PGHOST="postgres"
     - export PGUSER="odoo"
     - export PGPASSWORD=""
-    - git clone https://github.com/akevinieron/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+    - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
     - export PATH=${HOME}/maintainer-quality-tools/travis:${HOME}/gitlab_tools:${PATH}
     - travis_install_nightly
     - travis_run_tests

@@ -503,7 +503,7 @@ class DgiiReport(models.Model):
                     'expense_type': inv.expense_type
                     if inv.expense_type else False,
                     'fiscal_invoice_number': inv.reference,
-                    'modified_invoice_number': inv.origin_out if
+                    'modified_invoice_number': inv.l10n_do_origin_ncf if
                     inv.type == 'in_refund' else False,
                     'invoice_date': inv.date_invoice,
                     'payment_date': inv.payment_date if
@@ -678,7 +678,7 @@ class DgiiReport(models.Model):
             op_dict[invoice.fiscal_type_id.sale_type]['qty'] += 1
             op_dict[invoice.fiscal_type_id.sale_type][
                 'amount'] += invoice.amount_untaxed_signed
-        if invoice.type == 'out_refund' and not invoice.is_nd:
+        if invoice.type == 'out_refund' and not invoice.is_debit_note:
             op_dict['nc']['qty'] += 1
             op_dict['nc']['amount'] += invoice.amount_untaxed_signed
         if invoice.is_debit_note:
@@ -833,8 +833,8 @@ class DgiiReport(models.Model):
                     'identification_type': rnc_ced[1] if rnc_ced else False,
                     'fiscal_invoice_number': inv.reference,
                     'modified_invoice_number':
-                        inv.origin_out if inv.origin_out and
-                        inv.origin_out[-10:-8] in ['01', '02', '14', '15'] else
+                        inv.l10n_do_origin_ncf if inv.l10n_do_origin_ncf and
+                        inv.l10n_do_origin_ncf[-10:-8] in ['01', '02', '14', '15'] else
                         False,
                     'income_type': inv.income_type,
                     'invoice_date': inv.date_invoice,
