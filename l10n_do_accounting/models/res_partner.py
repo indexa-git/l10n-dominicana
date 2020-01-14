@@ -21,7 +21,7 @@ class Partner(models.Model):
         for partner in self:
             if partner.l10n_do_dgii_tax_payer_type in [
                 'taxpayer',
-                'nonprofit'
+                'nonprofit',
                 'governmental',
                 'special',
             ]:
@@ -40,6 +40,7 @@ class Partner(models.Model):
         inverse='_inverse_l10n_do_dgii_tax_payer_type',
         string='Taxpayer Type',
         index=True,
+        store=True,
     )
 
     is_fiscal_info_required = fields.Boolean(compute='_compute_fiscal_info_required')
@@ -54,7 +55,7 @@ class Partner(models.Model):
             vat = str(partner.vat) if partner.vat else False
             is_dominican_partner = bool(partner.country_id == self.env.ref('base.do'))
 
-            if vat and not partner.l10n_do_dgii_tax_payer_type:
+            if vat and (not partner.l10n_do_dgii_tax_payer_type or partner.l10n_do_dgii_tax_payer_type == 'non_payer'):
                 if partner.country_id and is_dominican_partner:
                     if vat.isdigit() and len(vat) == 9:
                         if partner.name and 'MINISTERIO' in partner.name:
@@ -63,13 +64,18 @@ class Partner(models.Model):
                             [n for n in ('IGLESIA', 'ZONA FRANCA') if n in partner.name]
                         ):
                             partner.l10n_do_dgii_tax_payer_type = 'special'
+                        elif vat.startswith('1'):
+                            partner.l10n_do_dgii_tax_payer_type = 'taxpayer'
+                        elif vat.startswith('4'):
+                            partner.l10n_do_dgii_tax_payer_type = 'nonprofit'
                         else:
                             partner.l10n_do_dgii_tax_payer_type = 'taxpayer'
+
                     elif len(vat) == 11:
                         if vat.isdigit():
                             payer_type = (
-                                'fiscal'
-                                if company_id.l10n_do_default_consumer == 'taxpayer'
+                                'taxpayer'
+                                if company_id.l10n_do_default_consumer == 'fiscal'
                                 else 'non_payer'
                             )
                             partner.l10n_do_dgii_tax_payer_type = payer_type
@@ -80,7 +86,7 @@ class Partner(models.Model):
             elif not partner.l10n_do_dgii_tax_payer_type:
                 partner.l10n_do_dgii_tax_payer_type = 'non_payer'
             else:
-                partner.l10n_do_dgii_tax_payer_type = 'non_payer'
+                partner.l10n_do_dgii_tax_payer_type = partner.l10n_do_dgii_tax_payer_type
 
     def _inverse_l10n_do_dgii_tax_payer_type(self):
         for partner in self:
