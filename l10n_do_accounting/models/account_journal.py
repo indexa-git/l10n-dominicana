@@ -44,9 +44,9 @@ class AccountJournal(models.Model):
                 'foreigner': ['export', 'consumer'],
             },
             'received': {
-                'taxpayer': ['in_fiscal', 'special', 'governmental'],
+                'taxpayer': ['fiscal', 'special', 'governmental'],
                 'non_payer': ['informal', 'minor'],
-                'nonprofit': ['fiscal', 'special', 'governmental'],
+                'nonprofit': ['special', 'governmental'],
                 'special': ['fiscal', 'special', 'governmental'],
                 'governmental': ['fiscal', 'special', 'governmental'],
                 'foreigner': ['import', 'exterior'],
@@ -71,7 +71,13 @@ class AccountJournal(models.Model):
             )
         )
         if not counterpart_partner:
-            return ncf_types + list(['credit_note', 'debit_note'])
+            ncf_notes = list(['fiscal', 'debit_note'])
+            ncf_external = list(['fiscal', 'special', 'governmental'])
+            return (
+                ncf_types + ncf_notes
+                if self.type == 'sale'
+                else [ncf for ncf in ncf_types if ncf not in ncf_external]
+            )
         else:
             counterpart_ncf_types = ncf_types_data[
                 'issued' if self.type == 'sale' else 'received'
@@ -137,7 +143,7 @@ class AccountJournal(models.Model):
         self.ensure_one()
         if self.company_id.country_id != self.env.ref('base.do'):
             return True
-        if self.type != 'sale' or not self.l10n_latam_use_documents:
+        if not self.l10n_latam_use_documents:
             return False
 
         sequences = self.l10n_do_sequence_ids
