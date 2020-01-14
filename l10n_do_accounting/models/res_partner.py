@@ -74,7 +74,7 @@ class Partner(models.Model):
                         if vat.isdigit():
                             payer_type = (
                                 'taxpayer'
-                                if company_id.l10n_do_default_consumer == 'fiscal'
+                                if company_id.l10n_do_default_client == 'fiscal'
                                 else 'non_payer'
                             )
                             partner.l10n_do_dgii_tax_payer_type = payer_type

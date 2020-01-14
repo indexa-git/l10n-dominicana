@@ -9,7 +9,7 @@
                 <field name="l10n_do_country_code" invisible="1"/>
             </form>
             <field name="vat" position="after">
-                <field name="l10n_do_default_consumer" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
+                <field name="l10n_do_default_client" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
                 <field name="l10n_do_dgii_start_date" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
             </field>
         </field>
