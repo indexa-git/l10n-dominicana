@@ -1,0 +1,2 @@
+
+from . import l10n_latam_document_pool_validate_wizard

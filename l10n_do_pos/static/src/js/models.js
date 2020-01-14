@@ -66,7 +66,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             _super_order.initialize.apply(this, arguments);
             var self = this;
             this.ncf = '';
-            this.ncf_origin_out = '';
+            this.ncf_l10n_do_origin_ncf = '';
             this.ncf_expiration_date = '';
             this.fiscal_type = self.pos.get_fiscal_type_by_prefix(
                 'B02'
@@ -125,7 +125,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
             if (self.pos.get_order()) {
                 loaded.ncf = current_order.ncf;
-                loaded.ncf_origin_out = current_order.ncf_origin_out;
+                loaded.ncf_l10n_do_origin_ncf = current_order.ncf_l10n_do_origin_ncf;
                 loaded.ncf_expiration_date = current_order.ncf_expiration_date;
                 loaded.fiscal_type_id = current_order.fiscal_type_id;
                 loaded.fiscal_sequence_id = current_order.fiscal_sequence_id;

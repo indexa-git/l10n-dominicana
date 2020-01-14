@@ -1,12 +1,12 @@
 substitutions:
-    _TEST_BRANCH: '12.0'
+    _TEST_BRANCH: '13.0'
     _CI_STAGE: dev
     _CD_TRIGGER: odoo-repos # default value
     _LOG_LEVEL: info
     _WITHOUT_DEMO: 'False'
     _RUN_TESTS: '1'
     _PIP_AUTO_INSTALL: '1'
-    _EXTRA_MODULES: 'dgii_reports,l10n_do,l10n_do_account_cancel,l10n_do_accounting,l10n_do_pos,l10n_do_purchase,l10n_do_sale'
+    _EXTRA_MODULES: 'l10n_do,l10n_do_accounting,l10n_latam_document_pool'
 # Allow variables without substitutions
 options:
     substitution_option: 'ALLOW_LOOSE'

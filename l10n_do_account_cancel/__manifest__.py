@@ -18,4 +18,5 @@
         'views/account_invoice_views.xml',
     ],
     'auto_install': True,
+    'installable': False,
 }

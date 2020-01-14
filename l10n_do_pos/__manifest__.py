@@ -38,4 +38,5 @@
     'demo': [
 
     ],
+    'installable': False,
 }

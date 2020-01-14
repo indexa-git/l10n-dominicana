@@ -62,7 +62,7 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
             Event.preventDefault();
             this.do_action({
                 name: 'Fiscal Sequences',
-                res_model: 'account.fiscal.sequence',
+                res_model: 'l10n_latam.document.pool',
                 views: [[false, 'list'], [false, 'form']],
                 type: 'ir.actions.act_window',
                 view_type: "list",
@@ -130,7 +130,7 @@ odoo.define('l10n_do_accounting.fiscal_sequence_warning', function (require) {
         _loadFiscalSequence: function (super_def) {
             var self = this;
             var dashboard_def = this._rpc({
-                model: 'account.fiscal.sequence',
+                model: 'l10n_latam.document.pool',
                 method: 'search_read',
                 args: [[['state', '=', 'active']]],
             });
