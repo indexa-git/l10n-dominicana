@@ -16,24 +16,6 @@ class Partner(models.Model):
             ('foreigner', _('Foreigner')),
         ]
 
-    @api.depends('l10n_do_dgii_tax_payer_type')
-    def _compute_fiscal_info_required(self):
-        for partner in self:
-            if partner.l10n_do_dgii_tax_payer_type in [
-                'taxpayer',
-                'nonprofit',
-                'governmental',
-                'special',
-            ]:
-                partner.fiscal_info_required = True
-            else:
-                partner.fiscal_info_required = False
-
-    country_id = fields.Many2one(
-        default=lambda self: self.env.ref('base.do')
-        if self.env.user.company_id.country_id == self.env.ref('base.do')
-        else False
-    )
     l10n_do_dgii_tax_payer_type = fields.Selection(
         selection='_get_l10n_do_dgii_payer_types_selection',
         compute='_compute_l10n_do_dgii_payer_type',
@@ -43,7 +25,21 @@ class Partner(models.Model):
         store=True,
     )
 
-    is_fiscal_info_required = fields.Boolean(compute='_compute_fiscal_info_required')
+    @api.depends('l10n_do_dgii_tax_payer_type')
+    def _compute_is_fiscal_info_required(self):
+        for partner in self:
+            if partner.l10n_do_dgii_tax_payer_type != 'non_payer':
+                partner.is_fiscal_info_required = True
+            else:
+                partner.is_fiscal_info_required = False
+
+    is_fiscal_info_required = fields.Boolean(compute='_compute_is_fiscal_info_required')
+
+    country_id = fields.Many2one(
+        default=lambda self: self.env.ref('base.do')
+        if self.env.user.company_id.country_id == self.env.ref('base.do')
+        else False
+    )
 
     @api.depends('vat', 'country_id', 'name')
     def _compute_l10n_do_dgii_payer_type(self):
