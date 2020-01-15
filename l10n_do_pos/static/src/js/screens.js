@@ -466,7 +466,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 }
             }
 
-            if (cashregister.journal.is_for_credit_notes === true) {
+            if (cashregister.journal.is_for_credit_notes &&
+                self.pos.invoice_journal.l10n_do_fiscal_journal) {
                 this.keyboard_on();
                 self.gui.show_popup('textinput', {
                     title: _t("Enter credit note number"),
