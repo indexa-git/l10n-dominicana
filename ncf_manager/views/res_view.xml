@@ -4,6 +4,7 @@
     <record id="view_partner_form" model="ir.ui.view">
         <field name="name">ncf.res.partner.form</field>
         <field name="model">res.partner</field>
+        <field name="priority">99</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <field name="name" position="replace">
@@ -47,6 +48,7 @@
     <record id="view_res_partner_filter" model="ir.ui.view">
         <field name="name">ncf.res.partner.select</field>
         <field name="model">res.partner</field>
+        <field name="priority">99</field>
         <field name="inherit_id" ref="base.view_res_partner_filter"/>
         <field name="arch" type="xml">
             <field name="name" position="replace">
