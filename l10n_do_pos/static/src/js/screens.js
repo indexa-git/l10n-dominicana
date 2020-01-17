@@ -418,6 +418,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                                 current_order.return_lines[0].order_id[0]];
                         current_order.ncf_origin_out = origin_order.ncf;
                     }
+                    self.pos.set_order(current_order);
                     console.log(res);
                 }, function (err, ev) {
                     self.pos.loading_screen_off();
