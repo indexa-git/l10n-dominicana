@@ -107,20 +107,13 @@ class IrSequenceDateRange(models.Model):
                  ("exterior", "Pagos al Exterior"),
                  ])
 
-    warning_ncf = fields.Integer(string="NCF de alerta")
-
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
     max_number_next = fields.Integer(u"Número Máximo", default=100)
 
-    @api.model
-    def default_get(self, fields):
-        res = super(IrSequenceDateRange, self).default_get(fields)
+    warning_ncf = fields.Integer(string="NCF de alerta")
 
-        max_number_next = res.get('max_number_next')
-        if max_number_next:
-            res['warning_ncf'] = res['max_number_next'] - 50
-        else:
-            res['warning_ncf'] = 50
-
-        return res
+    def set_warning_ncf(self):
+        for seq in self.search([('sale_fiscal_type', '!=', 'False')]):
+            if not seq.warning_ncf:
+                seq.warning_ncf = seq.max_number_next - 50 or 50
