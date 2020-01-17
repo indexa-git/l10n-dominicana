@@ -53,7 +53,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var client = this.pos.get_client();
             var current_order = this.pos.get_order();
             if (client) {
-
                 if (client.sale_fiscal_type_id &&
                     current_order.fiscal_type.prefix === 'B02') {
                     current_order.set_fiscal_type(
@@ -62,13 +61,10 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         )
                     );
                 }
-
             } else {
-
                 current_order.set_fiscal_type(
                     this.pos.get_fiscal_type_by_prefix('B02')
                 );
-
             }
         },
 
@@ -383,9 +379,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 }
 
             }
-
             return this._super(force_validation);
-
         },
         finalize_validation: function () {
 
@@ -397,7 +391,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 self.pos.loading_screen_on();
                 var payments = [];
                 current_order.get_paymentlines().forEach(function (item) {
-
                     return payments.push(item.export_as_JSON());
                 });
                 rpc.query({
@@ -415,12 +408,9 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 }).then(function (res) {
                     self.pos.loading_screen_off();
                     current_order.ncf = res.ncf;
-                    current_order.fiscal_type_id =
-                        current_order.fiscal_type.id;
-                    current_order.ncf_expiration_date =
-                        res.ncf_expiration_date;
-                    current_order.fiscal_sequence_id =
-                        res.fiscal_sequence_id;
+                    current_order.fiscal_type_id = current_order.fiscal_type.id;
+                    current_order.ncf_expiration_date = res.ncf_expiration_date;
+                    current_order.fiscal_sequence_id = res.fiscal_sequence_id;
                     // For credit notes
                     if (current_order.get_mode() === 'return') {
                         var origin_order =
