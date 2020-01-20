@@ -72,8 +72,6 @@ class AccountMove(models.Model):
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
 
-    l10n_latam_document_number = fields.Char(store=True)
-
     def _compute_is_debit_note(self):
         self.ensure_one()
         if (
@@ -92,15 +90,17 @@ class AccountMove(models.Model):
             doc_code_prefix = rec.l10n_latam_document_type_id.doc_code_prefix
             if doc_code_prefix and name:
                 name = name.split(" ", 1)[-1]
-            rec.l10n_latam_document_number = rec.l10n_latam_document_number
+            rec.l10n_latam_document_number = rec.ref
         remaining = self - recs_with_name
         remaining.l10n_latam_document_number = False
+        super(
+            AccountMove,
+            recs_with_name.filtered(lambda m: m.l10n_latam_country_code != 'DO')
+        )._compute_l10n_latam_document_number()
 
     @api.onchange('l10n_latam_document_type_id', 'l10n_latam_document_number')
     def _inverse_l10n_latam_document_number(self):
-        moves = self.filtered(lambda m: m.l10n_latam_country_code != 'DO')
-
-        for rec in moves.filtered('l10n_latam_document_type_id'):
+        for rec in self.filtered('l10n_latam_document_type_id'):
             if not rec.l10n_latam_document_number:
                 rec.name = '/'
             else:
@@ -110,8 +110,10 @@ class AccountMove(models.Model):
                                               )
                 if rec.l10n_latam_document_number != l10n_latam_document_number:
                     rec.l10n_latam_document_number = l10n_latam_document_number
-
-        super(AccountMove, moves)._inverse_l10n_latam_document_number()
+                rec.ref = l10n_latam_document_number
+        super(
+            AccountMove, self.filtered(lambda m: m.l10n_latam_country_code != 'DO')
+        )._inverse_l10n_latam_document_number()
 
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
@@ -202,7 +204,7 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains('state', 'line_ids', 'partner_id')
+    @api.constrains('state', 'line_ids.tax_line_id', 'partner_id')
     def _check_products_export_ncf(self):
         """ Validates that an invoices with a partner from country != DO
             and products type != service must have Exportaciones NCF.
@@ -237,7 +239,7 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains('state', 'line_ids.tax_line_id')
+    @api.constrains('state', 'line_ids')
     def _check_informal_withholding(self):
         """ Validates an invoice with Comprobante de Compras has 100% ITBIS
             withholding.
