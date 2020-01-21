@@ -51,7 +51,10 @@ class Partner(models.Model):
             vat = str(partner.vat) if partner.vat else False
             is_dominican_partner = bool(partner.country_id == self.env.ref('base.do'))
 
-            if vat and (
+            if partner.country_id and not is_dominican_partner:
+                partner.l10n_do_dgii_tax_payer_type = 'foreigner'
+
+            elif vat and (
                 not partner.l10n_do_dgii_tax_payer_type
                 or partner.l10n_do_dgii_tax_payer_type == 'non_payer'
             ):
@@ -80,8 +83,6 @@ class Partner(models.Model):
                             partner.l10n_do_dgii_tax_payer_type = payer_type
                         else:
                             partner.l10n_do_dgii_tax_payer_type = 'non_payer'
-                elif partner.country_id and not is_dominican_partner:
-                    partner.l10n_do_dgii_tax_payer_type = 'foreigner'
             elif not partner.l10n_do_dgii_tax_payer_type:
                 partner.l10n_do_dgii_tax_payer_type = 'non_payer'
             else:
