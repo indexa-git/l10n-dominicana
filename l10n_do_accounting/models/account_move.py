@@ -84,19 +84,12 @@ class AccountMove(models.Model):
 
     @api.depends('name')
     def _compute_l10n_latam_document_number(self):
-        recs_with_name = self.filtered(lambda x: x.name != '/')
-        for rec in recs_with_name:
-            name = rec.name
-            doc_code_prefix = rec.l10n_latam_document_type_id.doc_code_prefix
-            if doc_code_prefix and name:
-                name = name.split(" ", 1)[-1]
+        l10n_do_recs = self.filtered(lambda x: x.l10n_latam_country_code == 'DO')
+        for rec in l10n_do_recs.filtered(lambda x: not x.name != '/'):
             rec.l10n_latam_document_number = rec.ref
-        remaining = self - recs_with_name
-        remaining.l10n_latam_document_number = False
-        super(
-            AccountMove,
-            recs_with_name.filtered(lambda m: m.l10n_latam_country_code != 'DO')
-        )._compute_l10n_latam_document_number()
+
+        remaining = self - l10n_do_recs
+        super(AccountMove, remaining)._compute_l10n_latam_document_number()
 
     @api.onchange('l10n_latam_document_type_id', 'l10n_latam_document_number')
     def _inverse_l10n_latam_document_number(self):
@@ -126,7 +119,9 @@ class AccountMove(models.Model):
                 counterpart_partner=self.partner_id.commercial_partner_id, invoice=self
             )
             domain += [
-                ('l10n_do_ncf_type', 'in', ncf_types),
+                "|",
+                ("l10n_do_ncf_type", "=", False),
+                ("l10n_do_ncf_type", "in", ncf_types),
             ]
             codes = self.journal_id._get_journal_codes()
             if codes:
@@ -170,7 +165,6 @@ class AccountMove(models.Model):
                     )
                 )
 
-    # TODO: This constraint is executing when it wants
     @api.constrains('state', 'line_ids.tax_line_id', 'l10n_latam_document_type_id')
     def _check_special_exempt(self):
         """ Validates that an invoice with a Special Tax Payer type does not contain
