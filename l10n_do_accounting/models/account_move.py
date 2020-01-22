@@ -251,8 +251,8 @@ class AccountMove(models.Model):
                 if sum(
                     [
                         tax.amount
-                        for tax in rec.tax_line_ids.mapped('tax_id').filtered(
-                            lambda t: t.tax_group_id.name == 'ITBIS'
+                        for tax in rec.line_ids.tax_ids.filtered(
+                            lambda tax: tax.tax_group_id.name == 'ITBIS'
                         )
                     ]
                 ):
