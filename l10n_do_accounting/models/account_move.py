@@ -218,7 +218,7 @@ class AccountMove(models.Model):
                         if p.type != 'service'
                     ]
                 ):
-                    if rec.partner_id.l10n_do_dgii_tax_payer_type != 'exterior':
+                    if rec.partner_id.l10n_do_dgii_tax_payer_type != 'foreigner':
                         raise UserError(
                             _(
                                 "Goods sales to overseas customers must have "
