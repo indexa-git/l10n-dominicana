@@ -82,20 +82,20 @@ class AccountMove(models.Model):
         ):
             return True if self.ref[-10:-8] == '03' else False
 
-    @api.depends('name')
+    @api.depends('ref')
     def _compute_l10n_latam_document_number(self):
         l10n_do_recs = self.filtered(lambda x: x.l10n_latam_country_code == 'DO')
-        for rec in l10n_do_recs.filtered(lambda x: not x.name != '/'):
+        for rec in l10n_do_recs:
             rec.l10n_latam_document_number = rec.ref
-
         remaining = self - l10n_do_recs
+        remaining.l10n_latam_document_number = False
         super(AccountMove, remaining)._compute_l10n_latam_document_number()
 
     @api.onchange('l10n_latam_document_type_id', 'l10n_latam_document_number')
     def _inverse_l10n_latam_document_number(self):
         for rec in self.filtered('l10n_latam_document_type_id'):
             if not rec.l10n_latam_document_number:
-                rec.name = '/'
+                rec.ref = ''
             else:
                 l10n_latam_document_number = (rec.l10n_latam_document_type_id
                                               ._format_document_number(
@@ -165,7 +165,7 @@ class AccountMove(models.Model):
                     )
                 )
 
-    @api.constrains('state', 'line_ids.tax_line_id', 'l10n_latam_document_type_id')
+    @api.constrains('state', 'line_ids', 'l10n_latam_document_type_id')
     def _check_special_exempt(self):
         """ Validates that an invoice with a Special Tax Payer type does not contain
             nor ITBIS or ISC.
@@ -198,7 +198,7 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains('state', 'line_ids.tax_line_id', 'partner_id')
+    @api.constrains('state', 'line_ids', 'partner_id')
     def _check_products_export_ncf(self):
         """ Validates that an invoices with a partner from country != DO
             and products type != service must have Exportaciones NCF.
