@@ -156,6 +156,8 @@ class AccountJournal(models.Model):
             ('country_id.code', '=', 'DO'),
             ('internal_type', 'in', internal_types),
             ('active', '=', True),
+            "|",
+            ("l10n_do_ncf_type", "=", False),
             ('l10n_do_ncf_type', 'in', ncf_types),
         ]
         documents = self.env['l10n_latam.document.type'].search(domain)

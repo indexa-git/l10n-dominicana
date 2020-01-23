@@ -62,9 +62,6 @@ class L10nLatamDocumentType(models.Model):
         ' document type, and those with "Zero" means'
         ' that only "VAT Not Applicable" tax is allowed.',
     )
-    l10n_do_ncf_sequence = fields.Char(
-        string="NCF number", help="Prefix number used by this document type",
-    )
 
     def _get_document_sequence_vals(self, journal):
         """ Values to create the sequences """

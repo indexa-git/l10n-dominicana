@@ -72,8 +72,6 @@ class AccountMove(models.Model):
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
 
-    l10n_latam_document_number = fields.Char(store=True)
-
     def _compute_is_debit_note(self):
         self.ensure_one()
         if (
@@ -84,34 +82,35 @@ class AccountMove(models.Model):
         ):
             return True if self.ref[-10:-8] == '03' else False
 
-    @api.depends('name')
+    @api.depends('ref')
     def _compute_l10n_latam_document_number(self):
-        recs_with_name = self.filtered(lambda x: x.name != '/')
-        for rec in recs_with_name:
-            name = rec.name
-            doc_code_prefix = rec.l10n_latam_document_type_id.doc_code_prefix
-            if doc_code_prefix and name:
-                name = name.split(" ", 1)[-1]
-            rec.l10n_latam_document_number = rec.l10n_latam_document_number
-        remaining = self - recs_with_name
+        l10n_do_recs = self.filtered(lambda x: x.l10n_latam_country_code == 'DO')
+        for rec in l10n_do_recs:
+            rec.l10n_latam_document_number = rec.ref
+        remaining = self - l10n_do_recs
         remaining.l10n_latam_document_number = False
+        super(AccountMove, remaining)._compute_l10n_latam_document_number()
 
     @api.onchange('l10n_latam_document_type_id', 'l10n_latam_document_number')
     def _inverse_l10n_latam_document_number(self):
-        moves = self.filtered(lambda m: m.l10n_latam_country_code != 'DO')
-
-        for rec in moves.filtered('l10n_latam_document_type_id'):
+        for rec in self.filtered('l10n_latam_document_type_id'):
             if not rec.l10n_latam_document_number:
-                rec.name = '/'
+                rec.ref = ''
             else:
-                l10n_latam_document_number = (rec.l10n_latam_document_type_id
-                                              ._format_document_number(
-                                                  rec.l10n_latam_document_number)
-                                              )
+                if rec.l10n_latam_document_type_id.l10n_do_ncf_type:
+                    l10n_latam_document_number = (rec.l10n_latam_document_type_id
+                                                  ._format_document_number(
+                                                      rec.l10n_latam_document_number)
+                                                  )
+                else:
+                    l10n_latam_document_number = rec.l10n_latam_document_number
+
                 if rec.l10n_latam_document_number != l10n_latam_document_number:
                     rec.l10n_latam_document_number = l10n_latam_document_number
-
-        super(AccountMove, moves)._inverse_l10n_latam_document_number()
+                rec.ref = l10n_latam_document_number
+        super(
+            AccountMove, self.filtered(lambda m: m.l10n_latam_country_code != 'DO')
+        )._inverse_l10n_latam_document_number()
 
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
@@ -124,7 +123,9 @@ class AccountMove(models.Model):
                 counterpart_partner=self.partner_id.commercial_partner_id, invoice=self
             )
             domain += [
-                ('l10n_do_ncf_type', 'in', ncf_types),
+                "|",
+                ("l10n_do_ncf_type", "=", False),
+                ("l10n_do_ncf_type", "in", ncf_types),
             ]
             codes = self.journal_id._get_journal_codes()
             if codes:
@@ -168,8 +169,7 @@ class AccountMove(models.Model):
                     )
                 )
 
-    # TODO: This constraint is executing when it wants
-    @api.constrains('state', 'line_ids.tax_line_id', 'l10n_latam_document_type_id')
+    @api.constrains('state', 'line_ids', 'l10n_latam_document_type_id')
     def _check_special_exempt(self):
         """ Validates that an invoice with a Special Tax Payer type does not contain
             nor ITBIS or ISC.
@@ -222,7 +222,7 @@ class AccountMove(models.Model):
                         if p.type != 'service'
                     ]
                 ):
-                    if rec.partner_id.l10n_do_dgii_tax_payer_type != 'exterior':
+                    if rec.partner_id.l10n_do_dgii_tax_payer_type != 'foreigner':
                         raise UserError(
                             _(
                                 "Goods sales to overseas customers must have "
@@ -237,7 +237,7 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains('state', 'line_ids.tax_line_id')
+    @api.constrains('state', 'line_ids')
     def _check_informal_withholding(self):
         """ Validates an invoice with Comprobante de Compras has 100% ITBIS
             withholding.
@@ -255,8 +255,8 @@ class AccountMove(models.Model):
                 if sum(
                     [
                         tax.amount
-                        for tax in rec.tax_line_ids.mapped('tax_id').filtered(
-                            lambda t: t.tax_group_id.name == 'ITBIS'
+                        for tax in rec.line_ids.tax_ids.filtered(
+                            lambda tax: tax.tax_group_id.name == 'ITBIS'
                         )
                     ]
                 ):
@@ -266,7 +266,7 @@ class AccountMove(models.Model):
     def _onchange_l10n_latam_document_number(self):
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref('base.do')
-            and r.l10n_latam_document_type_id
+            and r.l10n_latam_document_type_id.l10n_do_ncf_type is not False
             and r.state in ('draft')
             and r.l10n_latam_document_number
         ):
