@@ -15,10 +15,9 @@
             <field name="l10n_do_income_type" attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','out_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','out_invoice']], 'readonly': [['state','!=','draft']]}"/>
             <field name="l10n_do_expense_type" attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','in_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','in_invoice']], 'readonly': [['state','!=','draft']]}"/>
         </xpath>
-        <!-- <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
-            <attribute name="attrs">{"invisible": ["|",["l10n_latam_use_documents","=",False],"&amp;","&amp;","&amp;",["l10n_latam_document_number","=",False],["state","=","draft"],["type","=","out_invoice"],["type","=","out_refund"]], "readonly": ["|",["state","!=","draft"],["type","in",["out_invoice","out_refund"]]], "required": [["l10n_latam_sequence_id","=",False],["l10n_latam_use_documents","=",True]]}</attribute>
-        </xpath> -->
-
+        <xpath expr="//field[@name='ref']" position="attributes">
+            <attribute name="invisible">1</attribute>
+        </xpath>
         </field>
     </record>
 </odoo>
