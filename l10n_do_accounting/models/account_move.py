@@ -153,21 +153,28 @@ class AccountMove(models.Model):
             lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id
         ):
-            tax_payer_type = rec.partner_id.l10n_do_dgii_tax_payer_type
-            latam_document_type_code = rec.l10n_latam_document_type_id.l10n_do_ncf_type
-            if not tax_payer_type and latam_document_type_code not in [
-                '01',
-                '03',
-                '04',
-                '14',
-                '15',
-            ]:
+            partner_vat = rec.partner_id.vat
+            l10n_latam_document_type = rec.l10n_latam_document_type_id
+            if not partner_vat and l10n_latam_document_type.is_vat_required:
                 raise ValidationError(
                     _(
-                        'Tax payer type is mandatory for this type of document. '
-                        'Please set the current tax payer type of this client'
+                        'A VAT is mandatory for this type of NCF. '
+                        'Please set the current VAT of this client'
                     )
                 )
+
+            elif rec.type in ("out_invoice", "out_refund"):
+                if (
+                    rec.amount_untaxed_signed >= 250000
+                    and l10n_latam_document_type.l10n_do_ncf_type != 'special'
+                    and not rec.partner_id.vat
+                ):
+                    raise UserError(
+                        _(
+                            "If the invoice amount is greater than RD$250,000.00 "
+                            "the customer should have a VAT to validate the invoice"
+                        )
+                    )
 
     @api.constrains('state', 'line_ids', 'l10n_latam_document_type_id')
     def _check_special_exempt(self):
@@ -181,7 +188,7 @@ class AccountMove(models.Model):
             and r.type == 'out_invoice'
             and r.state in ('draft', 'cancel')
         ):
-            if rec.partner_id.l10n_do_dgii_tax_payer_type == 'special':
+            if rec.l10n_latam_document_type_id.l10n_do_ncf_type == 'special':
                 # If any invoice tax in ITBIS or ISC
                 taxes = ('ITBIS', 'ISC')
                 if any(
@@ -222,14 +229,14 @@ class AccountMove(models.Model):
                         if p.type != 'service'
                     ]
                 ):
-                    if rec.partner_id.l10n_do_dgii_tax_payer_type != 'foreigner':
+                    if rec.l10n_latam_document_type_id.l10n_do_ncf_type != 'export':
                         raise UserError(
                             _(
                                 "Goods sales to overseas customers must have "
                                 "Exportaciones Fiscal Type"
                             )
                         )
-                elif rec.partner_id.l10n_do_dgii_tax_payer_type != 'consumo':
+                elif rec.l10n_latam_document_type_id.l10n_do_ncf_type != 'consumer':
                     raise UserError(
                         _(
                             "Services sales to oversas customer must have "
@@ -267,9 +274,85 @@ class AccountMove(models.Model):
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id.l10n_do_ncf_type is not False
-            and r.state in ('draft')
             and r.l10n_latam_document_number
         ):
             rec.l10n_latam_document_type_id._format_document_number(
                 rec.l10n_latam_document_number
             )
+
+    @api.constrains('state', 'partner_id', 'l10n_latam_document_number')
+    def _check_fiscal_purchase(self):
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id.l10n_do_ncf_type is not False
+            and r.type == 'in_invoice'
+            and r.l10n_latam_document_number
+        ):
+            l10n_latam_document_number = rec.l10n_latam_document_number
+            l10n_latam_document_type = rec.l10n_latam_document_type_id.l10n_do_ncf_type
+
+            if l10n_latam_document_number and l10n_latam_document_type == 'fiscal':
+                if l10n_latam_document_number[-10:-8] == '02':
+                    raise ValidationError(
+                        _(
+                            "NCF *{}* does not correspond with the fiscal type\n\n"
+                            "You cannot register Consumo NCF (02) for purchases"
+                        ).format(l10n_latam_document_number)
+                    )
+
+                try:
+                    from stdnum.do import ncf as ncf_validation
+
+                    if not ncf_validation.check_dgii(
+                        rec.partner_id.vat, l10n_latam_document_number
+                    ):
+                        raise ValidationError(
+                            _(
+                                "NCF rejected by DGII\n\n"
+                                "NCF *{}* of supplier *{}* was rejected by DGII's "
+                                "validation service. Please validate if the NCF and "
+                                "the supplier RNC are type correctly. Otherwhise "
+                                "your supplier might not have this sequence approved "
+                                "yet."
+                            ).format(l10n_latam_document_number, rec.partner_id.name)
+                        )
+
+                except (ImportError, IOError) as err:
+                    _logger.debug(err)
+
+                ncf_in_invoice = (
+                    rec.search_count(
+                        [
+                            ('id', '!=', rec.id),
+                            ('company_id', '=', rec.company_id.id),
+                            ('partner_id', '=', rec.partner_id.id),
+                            (
+                                'l10n_latam_document_number',
+                                '=',
+                                l10n_latam_document_number,
+                            ),
+                        ]
+                    )
+                    if rec.id
+                    else rec.search_count(
+                        [
+                            ('partner_id', '=', rec.partner_id.id),
+                            ('company_id', '=', rec.company_id.id),
+                            (
+                                'l10n_latam_document_number',
+                                '=',
+                                l10n_latam_document_number,
+                            ),
+                        ]
+                    )
+                )
+
+                if ncf_in_invoice:
+                    raise ValidationError(
+                        _(
+                            "NCF already used in another invoice\n\n"
+                            "The NCF *{}* has already been registered in another "
+                            "invoice with the same supplier. Look for it in "
+                            "invoices with canceled or draft states"
+                        ).format(l10n_latam_document_number)
+                    )

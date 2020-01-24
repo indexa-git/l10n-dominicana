@@ -1173,7 +1173,7 @@ msgid "Remaining warning"
 msgstr "Advertencia restante"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__requires_vat
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_fiscal_type__is_vat_required
 msgid "Requires a document?"
 msgstr "Requiere un Documento?"
 
