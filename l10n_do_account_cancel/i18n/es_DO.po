@@ -1,0 +1,100 @@
+"Project-Id-Version: Odoo Server 12.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-03 00:40+0000\n"
+"PO-Revision-Date: 2020-01-03 00:40+0000\n"
+"Last-Translator: <jeffryjesus@gmail.com>\n"
+"Language-Team: Odoo Dominicana"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: base
+#: model:ir.module.module,summary:base.module_l10n_do_account_cancel
+msgid "l10n_do Cancel Journal Entries"
+msgstr "Cancelar Entradas de Diarios (Rep. Dominicana)"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel__annulation_type
+msgid "Annulation Type"
+msgstr "Tipo de Anulación"
+
+#. module: l10n_do_account_cancel
+#: model_terms:ir.ui.view,arch_db:l10n_do_account_cancel.account_invoice_cancel_view
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: l10n_do_account_cancel
+#: model_terms:ir.ui.view,arch_db:l10n_do_account_cancel.account_invoice_cancel_view
+msgid "Cancel Invoice"
+msgstr "Cancelar Factura"
+
+#. module: l10n_do_account_cancel
+#: model:ir.actions.act_window,name:l10n_do_account_cancel.action_account_invoice_cancel
+#: model_terms:ir.ui.view,arch_db:l10n_do_account_cancel.account_invoice_cancel_view
+msgid "Cancel Selected Invoice"
+msgstr "Cancelar Factura Seleccionada"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model,name:l10n_do_account_cancel.model_account_invoice_cancel
+msgid "Cancel the Selected Invoice"
+msgstr "Cancelar la Factura Seleccionada "
+
+#. module: l10n_do_account_cancel
+#: model_terms:ir.ui.view,arch_db:l10n_do_account_cancel.l10n_do_accounting_invoice_cancel_form
+msgid "Cancellation Reason:\n"
+"                    <br/>"
+msgstr  "Razón de Cancelación\n"
+"                    <br/>"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel__display_name
+msgid "Display Name"
+msgstr "Nombre a mostrar"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_do_account_cancel
+#: model:ir.model,name:l10n_do_account_cancel.model_account_invoice
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel____last_update
+msgid "Last Modified on"
+msgstr "Última modificación en"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_do_account_cancel
+#: model:ir.model.fields,field_description:l10n_do_account_cancel.field_account_invoice_cancel__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: l10n_do_account_cancel
+#: code:addons/l10n_do_account_cancel/wizard/account_invoice_cancel.py:39
+#, python-format
+msgid "Selected invoice(s) cannot be cancelled as they are already in 'Cancelled' or 'Paid' state."
+msgstr "La(s) factura(s) seleccionada(s) no se puede(n) cancelar porque ya están en estado 'Cancelado' o 'Pagado'."
+
+#. module: l10n_do_account_cancel
+#: code:addons/l10n_do_account_cancel/models/account_invoice.py:16
+#, python-format
+msgid "You cannot cancel multiple fiscal invoices at a time."
+msgstr "No puede cancelar varias Facturas Fiscales a la vez."
