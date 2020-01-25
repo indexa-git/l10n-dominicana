@@ -35,7 +35,7 @@ class PosOrder(models.Model):
         Prepare the dict of values to create the new pos order.
         """
         fields = super(PosOrder, self)._order_fields(ui_order)
-        if ui_order.get('fiscal_sequence_id', False):
+        if ui_order.get('ncf', False):
             fields['ncf'] = ui_order['ncf']
             fields['ncf_origin_out'] = ui_order['ncf_origin_out']
             fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
@@ -58,36 +58,34 @@ class PosOrder(models.Model):
 
         return invoice_vals
 
-    # TODO: this part is for credit note
     @api.model
     def _payment_fields(self, ui_paymentline):
+        """
+        This part is for credit note.
+        """
         fields = super(PosOrder, self)._payment_fields(ui_paymentline)
-
-        fields.update({
-            'note': ui_paymentline.get('returned_ncf'),
-        })
-
+        fields.update({'note': ui_paymentline.get('returned_ncf')})
         return fields
 
     def _prepare_bank_statement_line_payment_values(self, data):
-
-        args = super(PosOrder, self)\
-            ._prepare_bank_statement_line_payment_values(data)
-
+        """
+        This part is for credit note.
+        """
+        args = super(PosOrder, self)._prepare_bank_statement_line_payment_values(data)
         if 'note' in data:
-            args.update({
-                'note': data['note']
-            })
-
+            args.update({'note': data['note']})
         return args
 
     @api.multi
     def _create_order_payments(self):
-        # create all orders payment from statements
+        """
+        Create all orders payment from statements
+        :return:
+        """
         for order in self:
             if order.config_id.invoice_journal_id.l10n_do_fiscal_journal:
                 for statement in order.statement_ids:
-                    # TODO: his part is for return order (credits notes)
+                    # This part is for return order (credits notes)
                     if statement.journal_id.is_for_credit_notes:
                         # Note in statement line is equals to returned_ncf
                         # (NCF credit note)
@@ -106,10 +104,8 @@ class PosOrder(models.Model):
                         })
                         lines = credit_note_order.invoice_id.move_id.line_ids
                         statement.write({
-                            'move_name':
-                                credit_note_order.invoice_id.move_name,
-                            'journal_entry_ids':
-                                [(4, x) for x in lines.ids]
+                            'move_name': credit_note_order.invoice_id.move_name,
+                            'journal_entry_ids': [(4, x) for x in lines.ids]
                         })
                         order._reconcile_refund_invoice(
                             credit_note_order.invoice_id
@@ -125,6 +121,10 @@ class PosOrder(models.Model):
 
     @api.multi
     def action_pos_order_invoice_no_return_pdf(self):
+        """
+        Create invoice on background
+        :return:
+        """
         invoice = self.env['account.invoice']
         for order in self:
             # Force company for all SUPERUSER_ID action
@@ -179,7 +179,7 @@ class PosOrder(models.Model):
         """
         this part is using for eliminate cash return
         :param pos_order:
-        :return:
+        :return pos_order:
         """
         if pos_order['amount_return'] > 0:
 
@@ -234,16 +234,6 @@ class PosOrder(models.Model):
 
                 order_obj.action_pos_order_invoice_no_return_pdf()
                 order_obj.invoice_id.sudo().action_invoice_open()
-
-                # TODO: THIS PART IS FOR OFFLINE MODE
-                # if order_obj.invoice_id.name != order_obj.move_name:
-                #     raise UserError(_(
-                #         u'El número de comprobante fiscal posee un error, '
-                #           u'favor contacte al administrador: I:'
-                #           + order_obj.invoice_id.name + u' vs P:'
-                #           + order_obj.move_name)
-                #     )
-
                 order_obj.sudo()._create_order_payments()
                 order_obj.sudo()._reconcile_payments()
                 order_obj.account_move = order_obj.invoice_id.move_id
@@ -252,9 +242,11 @@ class PosOrder(models.Model):
 
         return res
 
-    # For returns orders (nota de credito)
-
     def _reconcile_refund_invoice(self, refund_invoice):
+        """
+        For returns orders (nota de credito)
+        :param refund_invoice:
+        """
         invoice = self.invoice_id
         movelines = invoice.move_id.line_ids
         to_reconcile_ids = {}
@@ -287,14 +279,6 @@ class PosOrder(models.Model):
 
                 returned_order.create_pos_order_refund_invoice()
                 returned_order.invoice_id.sudo().action_invoice_open()
-                # TODO: this part is for offline mode
-                # if returned_order.invoice_id.name !=returned_order.move_name:
-                #     raise UserError(_(
-                #         u'El número de comprobante fiscal posee un error, '
-                #         u'favor contacte al administrador: I:'
-                #         + returned_order.invoice_id.name + u' vs P:'
-                #         + returned_order.move_name
-                #     ))
                 returned_order.account_move = returned_order.invoice_id.move_id
                 if not returned_order.picking_id:
                     returned_order.create_picking()
@@ -401,14 +385,6 @@ class PosOrder(models.Model):
 
             refund_invoice.write({'is_from_pos': True})
 
-            # TODO: this part is for offline mode
-            # if refund_invoice.name != self.move_name:
-            #     raise UserError(_(
-            #         u'El número de comprobante fiscal posee '
-            #         u'un error, favor contacte al administrador '
-            #         u'I:' + refund_invoice.name + u' vs P:'
-            #         + self.move_name
-            #     ))
             # TODO: this part is used for cancel invoice with credit note
             # for tmpline in refund_invoice.move_id.line_ids:
             #     if tmpline.account_id.id == origin_invoice.account_id.id:

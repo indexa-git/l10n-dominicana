@@ -48,6 +48,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             'prefix',
             'assigned_sequence',
             'type',
+            'padding',
         ],
         domain: function () {
             return [
