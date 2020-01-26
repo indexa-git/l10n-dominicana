@@ -356,3 +356,12 @@ class AccountMove(models.Model):
                             "invoices with canceled or draft states"
                         ).format(l10n_latam_document_number)
                     )
+
+    def _reverse_moves(self, default_values_list=None, cancel=False):
+
+        if self.l10n_latam_country_code == 'DO':
+            for vals in default_values_list:
+                vals['l10n_do_origin_ncf'] = self.l10n_latam_document_number
+
+        return super(AccountMove, self)._reverse_moves(
+            default_values_list=default_values_list, cancel=cancel)
