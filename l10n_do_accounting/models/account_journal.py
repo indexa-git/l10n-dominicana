@@ -71,7 +71,7 @@ class AccountJournal(models.Model):
             )
         )
         if not counterpart_partner:
-            ncf_notes = list(['fiscal', 'debit_note'])
+            ncf_notes = list(['fiscal', 'debit_note', 'credit_note'])
             ncf_external = list(['fiscal', 'special', 'governmental'])
             return (
                 ncf_types + ncf_notes
@@ -84,9 +84,9 @@ class AccountJournal(models.Model):
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         if invoice.type in ['out_refund', 'in_refund']:
-            ncf_types = list('credit_note')
+            ncf_types = ['credit_note']
         if invoice._compute_is_debit_note():
-            ncf_types = list('debit_note')
+            ncf_types = ['debit_note']
         return ncf_types
 
     def _get_journal_codes(self):
