@@ -281,6 +281,17 @@ class AccountMove(models.Model):
                 rec.l10n_latam_document_number
             )
 
+    @api.constrains('name', 'partner_id', 'company_id')
+    def _check_unique_vendor_number(self):
+        for rec in self.filtered(
+            lambda x: x.is_purchase_document()
+            and x.company_id.country_id == self.env.ref('base.do')
+            and x.l10n_latam_use_documents
+            and x.l10n_latam_document_number
+        ):
+            pass
+
+
     @api.constrains('state', 'partner_id', 'l10n_latam_document_number')
     def _check_fiscal_purchase(self):
         for rec in self.filtered(
