@@ -71,6 +71,7 @@ class AccountMove(models.Model):
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
+    is_debit_note = fields.Boolean()
 
     def _compute_is_debit_note(self):
         self.ensure_one()
@@ -356,3 +357,54 @@ class AccountMove(models.Model):
                             "invoices with canceled or draft states"
                         ).format(l10n_latam_document_number)
                     )
+
+    def _reverse_move_vals(self, default_values, cancel=True):
+
+        ctx = self.env.context
+        account_id = ctx.get('account_id')
+        amount = ctx.get('amount')
+        percentage = ctx.get('percentage')
+        refund_type = ctx.get('refund_type')
+        reason = ctx.get('reason')
+
+        res = super(AccountMove, self)._reverse_move_vals(
+            default_values=default_values, cancel=cancel)
+
+        if self.l10n_latam_country_code == 'DO':
+            res['l10n_do_origin_ncf'] = self.l10n_latam_document_number
+
+        if refund_type in ('percentage', 'fixed_amount'):
+            price_unit = (
+                amount
+                if refund_type == "fixed_amount"
+                else self.amount_untaxed * (percentage / 100)
+            )
+            res['line_ids'] = [
+                (0, 0,
+                 {'account_id': self.partner_id.property_account_receivable_id.id,
+                  'amount_currency': -0.0,
+                  'credit': price_unit,
+                  'debit': 0.0,
+                  'exclude_from_invoice_tab': True,
+                  'move_id': self.id,
+                  'partner_id': self.partner_id.id,
+                  'price_unit': price_unit*-1,
+                  'quantity': 1.0,
+                  'tax_exigible': True,
+                  'name': ' ',
+                  }),
+                (0, 0,
+                 {'account_id': account_id,
+                  'credit': 0.0,
+                  'debit': price_unit,
+                  'move_id': self.id,
+                  'name': reason or _("Refund"),
+                  'partner_id': self.partner_id.id,
+                  'price_unit': price_unit,
+                  'product_uom_id': False,
+                  'quantity': 1.0,
+                  'tax_base_amount': 0.0,
+                  'tax_exigible': True,
+                  })]
+
+        return res
