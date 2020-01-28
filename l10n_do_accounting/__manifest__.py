@@ -24,6 +24,7 @@
         'views/account_journal_views.xml',
         'views/l10n_latam_document_type_views.xml',
         'wizard/account_move_reversal_views.xml',
+        'views/report_invoice.xml'
     ],
     'qweb': [
         # "static/src/xml/fiscal_sequence_warning_template.xml",
