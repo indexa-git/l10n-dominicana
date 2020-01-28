@@ -23,6 +23,7 @@
         'views/account_dgii_menuitem.xml',
         'views/account_journal_views.xml',
         'views/l10n_latam_document_type_views.xml',
+        'views/report_invoice.xml'
     ],
     'qweb': [
         # "static/src/xml/fiscal_sequence_warning_template.xml",
