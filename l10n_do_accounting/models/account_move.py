@@ -71,6 +71,7 @@ class AccountMove(models.Model):
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
+    is_debit_note = fields.Boolean()
 
     def _compute_is_debit_note(self):
         self.ensure_one()
