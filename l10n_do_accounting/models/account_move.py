@@ -301,7 +301,7 @@ class AccountMove(models.Model):
             and r.state in ('draft')
         ):
 
-            if rec.partner_id.l10n_do_dgii_tax_payer_type == 'non_payer':
+            if rec.l10n_latam_document_type_id.l10n_do_ncf_type == 'informal':
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum(
                     [
