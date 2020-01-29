@@ -239,6 +239,20 @@ class AccountMove(models.Model):
                         )
                     )
 
+    @api.constrains('state')
+    def _check_invoice_amount(self):
+        """ Validates that an invoices has an amount greater than 0.
+        """
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'out_invoice'
+            and r.state in ('draft', 'open')
+        ):
+            if rec.amount_untaxed_signed == 0:
+                raise UserError(_(
+                    "You cannot validate an invoice with a total amount equals to 0."))
+
     @api.constrains('state', 'line_ids', 'partner_id')
     def _check_products_export_ncf(self):
         """ Validates that an invoices with a partner from country != DO
@@ -376,7 +390,6 @@ class AccountMove(models.Model):
 
                 except (ImportError, IOError) as err:
                     _logger.debug(err)
-
 
     def _reverse_move_vals(self, default_values, cancel=True):
 
