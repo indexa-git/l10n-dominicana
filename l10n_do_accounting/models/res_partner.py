@@ -5,7 +5,7 @@ class Partner(models.Model):
     _inherit = 'res.partner'
 
     def _get_l10n_do_dgii_payer_types_selection(self):
-        """ Return the list of expenses needed in invoices to clasify accordingly to
+        """ Return the list of payer types needed in invoices to clasify accordingly to
         DGII requirements. """
         return [
             ('taxpayer', _('Fiscal Tax Payer')),
@@ -22,6 +22,29 @@ class Partner(models.Model):
         inverse='_inverse_l10n_do_dgii_tax_payer_type',
         string='Taxpayer Type',
         index=True,
+        store=True,
+    )
+
+    def _get_l10n_do_expense_type(self):
+        """ Return the list of expenses needed in invoices to clasify accordingly to
+        DGII requirements. """
+        return [
+            ('01', _('Personal')),
+            ('02', _('Work, Supplies and Services')),
+            ('03', _('Leasing')),
+            ('04', _('Fixed Assets')),
+            ('05', _('Representation')),
+            ('06', _('Admitted Deductions')),
+            ('07', _('Financial Expenses')),
+            ('08', _('Extraordinary Expenses')),
+            ('09', _('Cost & Expenses part of Sales')),
+            ('10', _('Assets Acquisitions')),
+            ('11', _('Insurance Expenses')),
+        ]
+
+    l10n_do_expense_type = fields.Selection(
+        selection='_get_l10n_do_expense_type',
+        string='Cost & Expense Type',
         store=True,
     )
 

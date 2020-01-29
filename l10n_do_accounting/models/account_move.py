@@ -37,19 +37,48 @@ class AccountMove(models.Model):
 
     def _get_l10n_do_expense_type(self):
         """ Return the list of expense types required by DGII. """
+        # TODO: use self.env["res.partner"]._fields['l10n_do_expense_type'].selection
         return [
-            ('01', _('01 - Personal')),
-            ('02', _('02 - Work, Supplies and Services')),
-            ('03', _('03 - Leases')),
-            ('04', _('04 - Fix Assets')),
-            ('05', _('05 - Representation')),
-            ('06', _('06 - Other Allowed Deductions')),
-            ('07', _('07 - Financial Expenses')),
-            ('08', _('08 - Extraordinary Expenses')),
-            ('09', _('09 - Part of the COGS')),
-            ('10', _('10 - Assets adquisition')),
-            ('11', _('11 - Insurance Expeses')),
+            ('01', _('Personal')),
+            ('02', _('Work, Supplies and Services')),
+            ('03', _('Leasing')),
+            ('04', _('Fixed Assets')),
+            ('05', _('Representation')),
+            ('06', _('Admitted Deductions')),
+            ('07', _('Financial Expenses')),
+            ('08', _('Extraordinary Expenses')),
+            ('09', _('Cost & Expenses part of Sales')),
+            ('10', _('Assets Acquisitions')),
+            ('11', _('Insurance Expenses')),
         ]
+
+    @api.onchange('partner_id')
+    def _compute_l10n_do_expense_type(self):
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'in_invoice'
+        ):
+            if self.partner_id:
+                self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type
+            else:
+                self.l10n_do_expense_type = self.l10n_do_expense_type
+
+    @api.onchange('partner_id')
+    def _inverse_l10n_do_expense_type(self):
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'in_invoice'
+        ):
+            self.l10n_do_expense_type = self.l10n_do_expense_type
+
+    l10n_do_expense_type = fields.Selection(
+        selection='_get_l10n_do_expense_type',
+        compute='_compute_l10n_do_expense_type',
+        inverse='_inverse_l10n_do_expense_type',
+        string="Cost & Expense Type",
+    )
 
     l10n_do_cancellation_type = fields.Selection(
         selection='_get_l10n_do_cancellation_type',
@@ -290,7 +319,23 @@ class AccountMove(models.Model):
             and x.l10n_latam_document_number
         ):
             pass
-
+            # domain = [
+            #     ('type', '=', rec.type),
+            #     # by validating name we validate l10n_latam_document_number and l10n_latam_document_type_id
+            #     ('l10n_latam_document_number', '=', rec.l10n_latam_document_number),
+            #     ('company_id', '=', rec.company_id.id),
+            #     ('id', '!=', rec.id),
+            #     ('commercial_partner_id', '=', rec.commercial_partner_id.id)
+            # ]
+            # if rec.search(domain):
+            #     raise ValidationError(
+            #         _(
+            #             "NCF already used in another invoice\n\n"
+            #             "The NCF *{}* has already been registered in another "
+            #             "invoice with the same supplier. Look for it in "
+            #             "invoices with canceled or draft states"
+            #         ).format(rec.l10n_latam_document_number)
+            #     )
 
     @api.constrains('state', 'partner_id', 'l10n_latam_document_number')
     def _check_fiscal_purchase(self):
@@ -332,42 +377,6 @@ class AccountMove(models.Model):
                 except (ImportError, IOError) as err:
                     _logger.debug(err)
 
-                ncf_in_invoice = (
-                    rec.search_count(
-                        [
-                            ('id', '!=', rec.id),
-                            ('company_id', '=', rec.company_id.id),
-                            ('partner_id', '=', rec.partner_id.id),
-                            (
-                                'l10n_latam_document_number',
-                                '=',
-                                l10n_latam_document_number,
-                            ),
-                        ]
-                    )
-                    if rec.id
-                    else rec.search_count(
-                        [
-                            ('partner_id', '=', rec.partner_id.id),
-                            ('company_id', '=', rec.company_id.id),
-                            (
-                                'l10n_latam_document_number',
-                                '=',
-                                l10n_latam_document_number,
-                            ),
-                        ]
-                    )
-                )
-
-                if ncf_in_invoice:
-                    raise ValidationError(
-                        _(
-                            "NCF already used in another invoice\n\n"
-                            "The NCF *{}* has already been registered in another "
-                            "invoice with the same supplier. Look for it in "
-                            "invoices with canceled or draft states"
-                        ).format(l10n_latam_document_number)
-                    )
 
     def _reverse_move_vals(self, default_values, cancel=True):
 
