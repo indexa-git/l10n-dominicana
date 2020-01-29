@@ -8,7 +8,13 @@
             <field name="restrict_mode_hash_table" position="after">
                 <field name="is_debit_note" invisible="1"/>
             </field>
-
+            <xpath expr="//button[@name='%(account.action_view_account_move_reversal)d']" position="after">
+                <button name="%(l10n_do_accounting.action_account_invoice_debit)d" type='action'
+                        string='Add Debit Note'
+                        groups="account.group_account_invoice"
+                        context="{'debit_note': type}"
+                        attrs="{'invisible': ['|', '|',('type', 'in', ('out_refund', 'in_refund')), ('state', 'in', ('draft','cancel')), ('is_debit_note', '=', True)]}"/>
+            </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
                 <attribute name="attrs">{
                     'invisible': ['|', ('l10n_latam_use_documents', '=', False), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'draft')],
@@ -43,7 +49,7 @@
             </xpath>
             <xpath expr="//form/sheet/div[2]/span[1]/field[@name='type']" position="after">
                 <span attrs="{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Customer Debit Note</span>
-                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Customer Debit Note</span>
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Vendor Debit Note</span>
             </xpath>
 
             <xpath expr="//form/sheet/div[2]/h1[1]/span[1]" position="attributes">
