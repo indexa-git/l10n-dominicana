@@ -250,8 +250,9 @@ class AccountMove(models.Model):
             and r.state in ('draft', 'open')
         ):
             if rec.amount_untaxed_signed == 0:
-                raise UserError(_(
-                    "You cannot validate an invoice with a total amount equals to 0."))
+                raise UserError(
+                    _("You cannot validate an invoice with a total amount equals to 0.")
+                )
 
     @api.constrains('state', 'line_ids', 'partner_id')
     def _check_products_export_ncf(self):
@@ -401,7 +402,8 @@ class AccountMove(models.Model):
         reason = ctx.get('reason')
 
         res = super(AccountMove, self)._reverse_move_vals(
-            default_values=default_values, cancel=cancel)
+            default_values=default_values, cancel=cancel
+        )
 
         if self.l10n_latam_country_code == 'DO':
             res['l10n_do_origin_ncf'] = self.l10n_latam_document_number
@@ -413,31 +415,40 @@ class AccountMove(models.Model):
                 else self.amount_untaxed * (percentage / 100)
             )
             res['line_ids'] = [
-                (0, 0,
-                 {'account_id': self.partner_id.property_account_receivable_id.id,
-                  'amount_currency': -0.0,
-                  'credit': price_unit,
-                  'debit': 0.0,
-                  'exclude_from_invoice_tab': True,
-                  'move_id': self.id,
-                  'partner_id': self.partner_id.id,
-                  'price_unit': price_unit*-1,
-                  'quantity': 1.0,
-                  'tax_exigible': True,
-                  'name': ' ',
-                  }),
-                (0, 0,
-                 {'account_id': account_id,
-                  'credit': 0.0,
-                  'debit': price_unit,
-                  'move_id': self.id,
-                  'name': reason or _("Refund"),
-                  'partner_id': self.partner_id.id,
-                  'price_unit': price_unit,
-                  'product_uom_id': False,
-                  'quantity': 1.0,
-                  'tax_base_amount': 0.0,
-                  'tax_exigible': True,
-                  })]
+                (
+                    0,
+                    0,
+                    {
+                        'account_id': self.partner_id.property_account_receivable_id.id,
+                        'amount_currency': -0.0,
+                        'credit': price_unit,
+                        'debit': 0.0,
+                        'exclude_from_invoice_tab': True,
+                        'move_id': self.id,
+                        'partner_id': self.partner_id.id,
+                        'price_unit': price_unit * -1,
+                        'quantity': 1.0,
+                        'tax_exigible': True,
+                        'name': ' ',
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'account_id': account_id,
+                        'credit': 0.0,
+                        'debit': price_unit,
+                        'move_id': self.id,
+                        'name': reason or _("Refund"),
+                        'partner_id': self.partner_id.id,
+                        'price_unit': price_unit,
+                        'product_uom_id': False,
+                        'quantity': 1.0,
+                        'tax_base_amount': 0.0,
+                        'tax_exigible': True,
+                    },
+                ),
+            ]
 
         return res
