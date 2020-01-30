@@ -29,17 +29,17 @@ class Partner(models.Model):
         """ Return the list of expenses needed in invoices to clasify accordingly to
         DGII requirements. """
         return [
-            ('01', _('Personal')),
-            ('02', _('Work, Supplies and Services')),
-            ('03', _('Leasing')),
-            ('04', _('Fixed Assets')),
-            ('05', _('Representation')),
-            ('06', _('Admitted Deductions')),
-            ('07', _('Financial Expenses')),
-            ('08', _('Extraordinary Expenses')),
-            ('09', _('Cost & Expenses part of Sales')),
-            ('10', _('Assets Acquisitions')),
-            ('11', _('Insurance Expenses')),
+            ('01', _('01 - Personal')),
+            ('02', _('02 - Work, Supplies and Services')),
+            ('03', _('03 - Leasing')),
+            ('04', _('04 - Fixed Assets')),
+            ('05', _('05 - Representation')),
+            ('06', _('06 - Admitted Deductions')),
+            ('07', _('07 - Financial Expenses')),
+            ('08', _('08 - Extraordinary Expenses')),
+            ('09', _('09 - Cost & Expenses part of Sales')),
+            ('10', _('10 - Assets Acquisitions')),
+            ('11', _('11 - Insurance Expenses')),
         ]
 
     l10n_do_expense_type = fields.Selection(
