@@ -335,11 +335,10 @@ class AccountMove(models.Model):
             pass
             # domain = [
             #     ('type', '=', rec.type),
-            #     # by validating name we validate l10n_latam_document_number and l10n_latam_document_type_id
             #     ('l10n_latam_document_number', '=', rec.l10n_latam_document_number),
             #     ('company_id', '=', rec.company_id.id),
             #     ('id', '!=', rec.id),
-            #     ('commercial_partner_id', '=', rec.commercial_partner_id.id)
+            #     ('commercial_partner_id', '=', rec.commercial_partner_id.id),
             # ]
             # if rec.search(domain):
             #     raise ValidationError(
