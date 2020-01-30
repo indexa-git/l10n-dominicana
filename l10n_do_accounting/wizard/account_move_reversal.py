@@ -164,7 +164,7 @@ class AccountMoveReversal(models.TransientModel):
         }
         if len(debit_moves) == 1:
             action.update(
-                {'view_mode': 'form', 'res_id': debit_moves.id,}
+                {'view_mode': 'form', 'res_id': debit_moves.id, }
             )
         else:
             action.update(
