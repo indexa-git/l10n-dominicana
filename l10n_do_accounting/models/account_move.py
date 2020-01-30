@@ -247,7 +247,6 @@ class AccountMove(models.Model):
             lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id
             and r.type == 'out_invoice'
-            and r.state in ('draft', 'open')
         ):
             if rec.amount_untaxed_signed == 0:
                 raise UserError(
