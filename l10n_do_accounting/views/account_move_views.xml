@@ -5,19 +5,148 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
+            <field name="restrict_mode_hash_table" position="after">
+                <field name="is_debit_note" invisible="1"/>
+            </field>
+            <xpath expr="//button[@name='%(account.action_view_account_move_reversal)d']" position="after">
+                <button name="%(l10n_do_accounting.action_account_invoice_debit)d" type='action'
+                        string='Add Debit Note'
+                        groups="account.group_account_invoice"
+                        context="{'debit_note': type}"
+                        attrs="{'invisible': ['|', '|',('type', 'in', ('out_refund', 'in_refund')), ('state', 'in', ('draft','cancel')), ('is_debit_note', '=', True)]}"/>
+            </xpath>
+            <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': ['|', ('l10n_latam_use_documents', '=', False), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'draft')],
+                    'required': [('l10n_latam_sequence_id', '=', False), ('l10n_latam_use_documents', '=', True)],
+                    'readonly': [('state', '!=', 'draft')]}
+                </attribute>
+            </xpath>
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='partner_id']" position="after">
+                <xpath expr="//field[@name='l10n_latam_document_type_id']" position="move"/>
+                <xpath expr="//field[@name='l10n_latam_document_number']" position="move"/>
+                <field name="l10n_do_origin_ncf"
+                       attrs="{
+                       'invisible':['|', '&amp;', ('type', 'not in', ('in_refund', 'out_refund')), ('is_debit_note', '=', False), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('l10n_latam_use_documents', '=', False)],
+                       'required': ['|', '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('l10n_latam_use_documents', '=', True), ('is_debit_note', '=', True)],
+                       'readonly': [('state','!=','draft')]
+                       }"/>
+            </xpath>
+            <xpath expr="//field[@name='l10n_latam_document_number']" position="after">
+                <field name="l10n_do_income_type"
+                       attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','out_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','out_invoice']], 'readonly': [['state','!=','draft']]}"/>
+                <field name="l10n_do_expense_type"
+                       attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','in_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','in_invoice']], 'readonly': [['state','!=','draft']]}"/>
+            </xpath>
+            <xpath expr="//field[@name='ref']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
 
-        <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='partner_id']" position="after">
-            <xpath expr="//field[@name='l10n_latam_document_type_id']" position="move"/>
-            <xpath expr="//field[@name='l10n_latam_document_number']" position="move"/>
-            <field name="l10n_do_origin_ncf" attrs="{'invisible': [['type','not in',['out_refund','in_refund']]], 'required': ['&amp;',['type','=','out_refund'],['l10n_latam_use_documents','=',True]], 'readonly': [['state','!=','draft']]}"/>
-        </xpath>
-        <xpath expr="//field[@name='l10n_latam_document_number']" position="after">
-            <field name="l10n_do_income_type" attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','out_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','out_invoice']], 'readonly': [['state','!=','draft']]}"/>
-            <field name="l10n_do_expense_type" attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','in_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','in_invoice']], 'readonly': [['state','!=','draft']]}"/>
-        </xpath>
-        <xpath expr="//field[@name='ref']" position="attributes">
-            <attribute name="invisible">1</attribute>
-        </xpath>
+            <xpath expr="//form/sheet/div[2]/span[1]/field[@name='type']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|',
+                    ('type', '=', 'entry'), ('state', '=', 'draft'), ('is_debit_note', '=', True)
+                ]}</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/div[2]/span[1]/field[@name='type']" position="after">
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Customer Debit Note</span>
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Vendor Debit Note</span>
+            </xpath>
+
+            <xpath expr="//form/sheet/div[2]/h1[1]/span[1]" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|', '|',
+                    ('type', '!=', 'out_invoice'),
+                    ('state', '!=', 'draft'),
+                    ('name', '!=', '/'),
+                    ('is_debit_note', '=', True)
+                ]}</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/div[2]/h1[1]/span[3]" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|', '|',
+                    ('type', '!=', 'in_invoice'),
+                    ('state', '!=', 'draft'),
+                    ('name', '!=', '/'),
+                    ('is_debit_note', '=', True)
+                ]}</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/div[2]/h1[1]" position="inside">
+                <span attrs="{'invisible': ['|', '|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}">Draft Debit Note</span>
+            </xpath>
+            <xpath expr="//form/sheet/div[2]/h1[1]" position="inside">
+                <span attrs="{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}">Draft Vendor Debit Note</span>
+            </xpath>
+
         </field>
     </record>
+
+    <!-- Debit Notes Stuffs -->
+
+    <!-- Exclude debit notes from actual vendor/customer invoices actions -->
+    <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
+        <field name="domain">[('type', '=', 'out_invoice'), ('is_debit_note', '=', False)]</field>
+    </record>
+    <record id="account.action_move_in_invoice_type" model="ir.actions.act_window">
+        <field name="domain">[('type', '=', 'in_invoice'), ('is_debit_note', '=', False)]</field>
+    </record>
+
+    <!-- Out Debit Notes -->
+    <record id="action_invoice_out_debit_note" model="ir.actions.act_window">
+        <field name="name">Debit Notes</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="view_ids"
+                   eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'tree', 'view_id': ref('account.view_invoice_tree')}),
+                          (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_move_form')})]"/>
+        <field name="domain">[('type','=','out_invoice'), ('is_debit_note', '=', True)]</field>
+        <field name="context">{
+            'default_type': 'out_invoice',
+            'type': 'out_invoice',
+            'journal_type': 'sale',
+            'default_is_debit_note': True,
+            'internal_type': 'debit_note',
+        }</field>
+        <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a debit note
+            </p>
+            <p>
+                Note that the easiest way to create a debit note is to do it directly
+                from the customer invoice.
+            </p>
+        </field>
+    </record>
+
+    <menuitem action="action_invoice_out_debit_note"
+              id="menu_action_invoice_out_debit_note"
+              parent="account.menu_finance_receivables"
+              sequence="2"/>
+
+    <!-- In Debit Notes -->
+    <record id="action_vendor_in_debit_note" model="ir.actions.act_window">
+        <field name="name">Vendor Debit Notes</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field eval="False" name="view_id"/>
+        <field name="domain">[('type','=','in_invoice'), ('is_debit_note', '=', True)]</field>
+        <field name="context">{
+            'default_type': 'in_invoice',
+            'type': 'in_invoice',
+            'journal_type': 'purchase',
+            'default_is_debit_note': True,
+            'internal_type': 'debit_note',
+        }</field>
+        <field name="search_view_id" ref="account.view_account_invoice_filter"/>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Record a new vendor debit note
+          </p>
+        </field>
+    </record>
+
+    <menuitem action="action_vendor_in_debit_note"
+              id="menu_action_invoice_in_debit_note"
+              parent="account.menu_finance_payables"
+              sequence="10"/>
+
 </odoo>

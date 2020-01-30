@@ -37,19 +37,48 @@ class AccountMove(models.Model):
 
     def _get_l10n_do_expense_type(self):
         """ Return the list of expense types required by DGII. """
+        # TODO: use self.env["res.partner"]._fields['l10n_do_expense_type'].selection
         return [
             ('01', _('01 - Personal')),
             ('02', _('02 - Work, Supplies and Services')),
-            ('03', _('03 - Leases')),
-            ('04', _('04 - Fix Assets')),
+            ('03', _('03 - Leasing')),
+            ('04', _('04 - Fixed Assets')),
             ('05', _('05 - Representation')),
-            ('06', _('06 - Other Allowed Deductions')),
+            ('06', _('06 - Admitted Deductions')),
             ('07', _('07 - Financial Expenses')),
             ('08', _('08 - Extraordinary Expenses')),
-            ('09', _('09 - Part of the COGS')),
-            ('10', _('10 - Assets adquisition')),
-            ('11', _('11 - Insurance Expeses')),
+            ('09', _('09 - Cost & Expenses part of Sales')),
+            ('10', _('10 - Assets Acquisitions')),
+            ('11', _('11 - Insurance Expenses')),
         ]
+
+    @api.onchange('partner_id')
+    def _compute_l10n_do_expense_type(self):
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'in_invoice'
+        ):
+            if self.partner_id:
+                self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type
+            else:
+                self.l10n_do_expense_type = self.l10n_do_expense_type
+
+    @api.onchange('partner_id')
+    def _inverse_l10n_do_expense_type(self):
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'in_invoice'
+        ):
+            self.l10n_do_expense_type = self.l10n_do_expense_type
+
+    l10n_do_expense_type = fields.Selection(
+        selection='_get_l10n_do_expense_type',
+        compute='_compute_l10n_do_expense_type',
+        inverse='_inverse_l10n_do_expense_type',
+        string="Cost & Expense Type",
+    )
 
     l10n_do_cancellation_type = fields.Selection(
         selection='_get_l10n_do_cancellation_type',
@@ -71,6 +100,7 @@ class AccountMove(models.Model):
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
+    is_debit_note = fields.Boolean()
 
     def _compute_is_debit_note(self):
         self.ensure_one()
@@ -153,21 +183,28 @@ class AccountMove(models.Model):
             lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id
         ):
-            tax_payer_type = rec.partner_id.l10n_do_dgii_tax_payer_type
-            latam_document_type_code = rec.l10n_latam_document_type_id.l10n_do_ncf_type
-            if not tax_payer_type and latam_document_type_code not in [
-                '01',
-                '03',
-                '04',
-                '14',
-                '15',
-            ]:
+            partner_vat = rec.partner_id.vat
+            l10n_latam_document_type = rec.l10n_latam_document_type_id
+            if not partner_vat and l10n_latam_document_type.is_vat_required:
                 raise ValidationError(
                     _(
-                        'Tax payer type is mandatory for this type of document. '
-                        'Please set the current tax payer type of this client'
+                        'A VAT is mandatory for this type of NCF. '
+                        'Please set the current VAT of this client'
                     )
                 )
+
+            elif rec.type in ("out_invoice", "out_refund"):
+                if (
+                    rec.amount_untaxed_signed >= 250000
+                    and l10n_latam_document_type.l10n_do_ncf_type != 'special'
+                    and not rec.partner_id.vat
+                ):
+                    raise UserError(
+                        _(
+                            "If the invoice amount is greater than RD$250,000.00 "
+                            "the customer should have a VAT to validate the invoice"
+                        )
+                    )
 
     @api.constrains('state', 'line_ids', 'l10n_latam_document_type_id')
     def _check_special_exempt(self):
@@ -181,7 +218,7 @@ class AccountMove(models.Model):
             and r.type == 'out_invoice'
             and r.state in ('draft', 'cancel')
         ):
-            if rec.partner_id.l10n_do_dgii_tax_payer_type == 'special':
+            if rec.l10n_latam_document_type_id.l10n_do_ncf_type == 'special':
                 # If any invoice tax in ITBIS or ISC
                 taxes = ('ITBIS', 'ISC')
                 if any(
@@ -201,6 +238,20 @@ class AccountMove(models.Model):
                             "information"
                         )
                     )
+
+    @api.constrains('state')
+    def _check_invoice_amount(self):
+        """ Validates that an invoices has an amount greater than 0.
+        """
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id
+            and r.type == 'out_invoice'
+        ):
+            if rec.amount_untaxed_signed == 0:
+                raise UserError(
+                    _("You cannot validate an invoice with a total amount equals to 0.")
+                )
 
     @api.constrains('state', 'line_ids', 'partner_id')
     def _check_products_export_ncf(self):
@@ -222,14 +273,14 @@ class AccountMove(models.Model):
                         if p.type != 'service'
                     ]
                 ):
-                    if rec.partner_id.l10n_do_dgii_tax_payer_type != 'foreigner':
+                    if rec.l10n_latam_document_type_id.l10n_do_ncf_type != 'export':
                         raise UserError(
                             _(
                                 "Goods sales to overseas customers must have "
                                 "Exportaciones Fiscal Type"
                             )
                         )
-                elif rec.partner_id.l10n_do_dgii_tax_payer_type != 'consumo':
+                elif rec.l10n_latam_document_type_id.l10n_do_ncf_type != 'consumer':
                     raise UserError(
                         _(
                             "Services sales to oversas customer must have "
@@ -250,7 +301,7 @@ class AccountMove(models.Model):
             and r.state in ('draft')
         ):
 
-            if rec.partner_id.l10n_do_dgii_tax_payer_type == 'non_payer':
+            if rec.l10n_latam_document_type_id.l10n_do_ncf_type == 'informal':
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum(
                     [
@@ -267,9 +318,135 @@ class AccountMove(models.Model):
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id.l10n_do_ncf_type is not False
-            and r.state in ('draft')
             and r.l10n_latam_document_number
         ):
             rec.l10n_latam_document_type_id._format_document_number(
                 rec.l10n_latam_document_number
             )
+
+    @api.constrains('name', 'partner_id', 'company_id')
+    def _check_unique_vendor_number(self):
+        for rec in self.filtered(
+            lambda x: x.is_purchase_document()
+            and x.company_id.country_id == self.env.ref('base.do')
+            and x.l10n_latam_use_documents
+            and x.l10n_latam_document_number
+        ):
+            pass
+            # domain = [
+            #     ('type', '=', rec.type),
+            #     ('l10n_latam_document_number', '=', rec.l10n_latam_document_number),
+            #     ('company_id', '=', rec.company_id.id),
+            #     ('id', '!=', rec.id),
+            #     ('commercial_partner_id', '=', rec.commercial_partner_id.id),
+            # ]
+            # if rec.search(domain):
+            #     raise ValidationError(
+            #         _(
+            #             "NCF already used in another invoice\n\n"
+            #             "The NCF *{}* has already been registered in another "
+            #             "invoice with the same supplier. Look for it in "
+            #             "invoices with canceled or draft states"
+            #         ).format(rec.l10n_latam_document_number)
+            #     )
+
+    @api.constrains('state', 'partner_id', 'l10n_latam_document_number')
+    def _check_fiscal_purchase(self):
+        for rec in self.filtered(
+            lambda r: r.company_id.country_id == self.env.ref('base.do')
+            and r.l10n_latam_document_type_id.l10n_do_ncf_type is not False
+            and r.type == 'in_invoice'
+            and r.l10n_latam_document_number
+        ):
+            l10n_latam_document_number = rec.l10n_latam_document_number
+            l10n_latam_document_type = rec.l10n_latam_document_type_id.l10n_do_ncf_type
+
+            if l10n_latam_document_number and l10n_latam_document_type == 'fiscal':
+                if l10n_latam_document_number[-10:-8] == '02':
+                    raise ValidationError(
+                        _(
+                            "NCF *{}* does not correspond with the fiscal type\n\n"
+                            "You cannot register Consumo NCF (02) for purchases"
+                        ).format(l10n_latam_document_number)
+                    )
+
+                try:
+                    from stdnum.do import ncf as ncf_validation
+
+                    if not ncf_validation.check_dgii(
+                        rec.partner_id.vat, l10n_latam_document_number
+                    ):
+                        raise ValidationError(
+                            _(
+                                "NCF rejected by DGII\n\n"
+                                "NCF *{}* of supplier *{}* was rejected by DGII's "
+                                "validation service. Please validate if the NCF and "
+                                "the supplier RNC are type correctly. Otherwhise "
+                                "your supplier might not have this sequence approved "
+                                "yet."
+                            ).format(l10n_latam_document_number, rec.partner_id.name)
+                        )
+
+                except (ImportError, IOError) as err:
+                    _logger.debug(err)
+
+    def _reverse_move_vals(self, default_values, cancel=True):
+
+        ctx = self.env.context
+        account_id = ctx.get('account_id')
+        amount = ctx.get('amount')
+        percentage = ctx.get('percentage')
+        refund_type = ctx.get('refund_type')
+        reason = ctx.get('reason')
+
+        res = super(AccountMove, self)._reverse_move_vals(
+            default_values=default_values, cancel=cancel
+        )
+
+        if self.l10n_latam_country_code == 'DO':
+            res['l10n_do_origin_ncf'] = self.l10n_latam_document_number
+
+        if refund_type in ('percentage', 'fixed_amount'):
+            price_unit = (
+                amount
+                if refund_type == "fixed_amount"
+                else self.amount_untaxed * (percentage / 100)
+            )
+            res['line_ids'] = [
+                (
+                    0,
+                    0,
+                    {
+                        'account_id': self.partner_id.property_account_receivable_id.id,
+                        'amount_currency': -0.0,
+                        'credit': price_unit,
+                        'debit': 0.0,
+                        'exclude_from_invoice_tab': True,
+                        'move_id': self.id,
+                        'partner_id': self.partner_id.id,
+                        'price_unit': price_unit * -1,
+                        'quantity': 1.0,
+                        'tax_exigible': True,
+                        'name': ' ',
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'account_id': account_id,
+                        'credit': 0.0,
+                        'debit': price_unit,
+                        'move_id': self.id,
+                        'name': reason or _("Refund"),
+                        'partner_id': self.partner_id.id,
+                        'price_unit': price_unit,
+                        'product_uom_id': False,
+                        'quantity': 1.0,
+                        'tax_base_amount': 0.0,
+                        'tax_exigible': True,
+                    },
+                ),
+            ]
+
+        return res

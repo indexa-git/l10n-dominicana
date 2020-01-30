@@ -253,9 +253,9 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         )
         self.assertEqual(partner_id.l10n_do_expense_type, '02')
 
-    def test_011_requires_vat_error(self):
+    def test_011_is_vat_required_error(self):
         """
-        Check when invoice validate, if l10n_latam_document_type_id.requires_vat and
+        Check when invoice validate, if l10n_latam_document_type_id.is_vat_required and
         not partner_id.vat, raise UserError
         """
 

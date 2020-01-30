@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_account_move_reversal_inherited" model="ir.ui.view">
+        <field name="name">view.account.move.reversal.inherited</field>
+        <field name="model">account.move.reversal</field>
+        <field name="inherit_id" ref="account.view_account_move_reversal"/>
+        <field name="arch" type="xml">
+            <field name="journal_id" position="after">
+                <field name="move_id" invisible="1"/>
+                <field name="l10n_latam_country_code" invisible="1"/>
+            </field>
+            <field name="l10n_latam_document_type_id" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': ['|', '&amp;', ('refund_method', '=', 'refund'), ('l10n_latam_country_code', '!=', 'DO'), ('l10n_latam_country_code', '=', 'DO')],
+                    'required': [('l10n_latam_use_documents', '=', True), ('refund_method', '!=', 'refund')],
+                }</attribute>
+            </field>
+            <field name="l10n_latam_document_number" position="replace">
+                <field name="l10n_latam_document_number"
+                       attrs="{'invisible': [('l10n_latam_sequence_id', '!=', False)], 'required': [('move_type', '=', 'in_invoice')]}"/>
+            </field>
+            <xpath expr="//field[@name='refund_method']" position="before">
+                <field name="refund_type" options="{'horizontal': true}"
+                       widget="radio"/>
+            </xpath>
+            <xpath expr="//field[@name='refund_method']" position="attributes">
+                <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='refund_method']" position="after">
+                <field name="refund_action" widget="radio"
+                       attrs="{'invisible': [('refund_type','=','full_refund')]}"/>
+            </xpath>
+            <xpath expr="//field[@name='reason']" position="after">
+                <field name="percentage"
+                       attrs="{'invisible': [('refund_type', '!=', 'percentage')],
+                       'required': [('refund_type', '=', 'percentage')]}"/>
+                <field name="amount"
+                       attrs="{'invisible': [('refund_type', '!=', 'fixed_amount')],
+                       'required': [('refund_type', '=', 'fixed_amount')]}"/>
+                <field name="account_id" groups="account.group_account_user"
+                       options='{"no_open": True, "no_create": True}'
+                       attrs="{'invisible': [('refund_type', '=', 'full_refund')],
+                       'required': [('refund_type', '!=', 'full_refund')]}"/>
+            </xpath>
+            <xpath expr="//form/group/*[2]" position="attributes">
+                <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
+            </xpath>
+            <xpath expr="//form/group/*[2]" position="after">
+                <group attrs="{'invisible': [('refund_type','=','full_refund')]}">
+                    <div attrs="{'invisible':[('refund_action','!=','draft_refund')]}" class="oe_grey" colspan="4">
+                        You will be able to edit and validate this
+                        credit note directly or keep it draft.
+                     </div>
+                    <div attrs="{'invisible':[('refund_action','!=','apply_refund')]}" class="oe_grey" colspan="4">
+                        Use this option if you want to fully apply a credit note.
+                        The credit note will be created, validated and reconciled
+                        with the invoice. You will not be able to modify the credit note.
+                     </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_invoice_debit" model="ir.ui.view">
+        <field name="name">account.move.reversal.form</field>
+        <field name="model">account.move.reversal</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="residual" invisible="1"/>
+                <field name="move_type" invisible="1"/>
+                <field name="l10n_latam_use_documents" invisible="1"/>
+                <field name="l10n_latam_sequence_id" invisible="1"/>
+                <group>
+                    <group attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'in_invoice'))]}">
+                        <field name="refund_type" options="{'horizontal': true}"
+                               widget="radio" string="Debit type"/>
+                        <field name="refund_method" widget="radio" invisible="1"
+                               attrs="{'readonly': [('residual', '=', 0)]}"/>
+                        <field name="refund_action" widget="radio"
+                               attrs="{'invisible': [('refund_type','=','full_refund')]}"/>
+                    </group>
+                    <group attrs="{'invisible': [('refund_type','=','full_refund')]}">
+                        <div attrs="{'invisible':[('refund_action','!=','draft_refund')]}"
+                             class="oe_grey" colspan="4">
+                            You will be able to edit and validate this
+                            debit note directly or keep it draft.
+                        </div>
+                        <div attrs="{'invisible':[('refund_action','!=','apply_refund')]}"
+                             class="oe_grey" colspan="4">
+                            Use this option if you want to fully apply a debit note.
+                            The debit note will be created, validated and reconciled
+                            with the invoice. You will not be able to modify the debit
+                            note.
+                        </div>
+                    </group>
+                </group>
+                <group>
+                    <group>
+                        <field name="reason" required="1"
+                               attrs="{
+                               'invisible': [('move_type', '==', 'entry')],
+                               'reason': [('move_type', '==', 'entry')]}"/>
+                        <field name="percentage"
+                               attrs="{
+                               'invisible': [('refund_type', '!=', 'percentage')],
+                               'required': [('refund_type', '=', 'percentage')]}"/>
+                        <field name="amount"
+                               attrs="{
+                               'invisible': [('refund_type', '!=', 'fixed_amount')],
+                               'required': [('refund_type', '=', 'fixed_amount')]}"/>
+                        <field name="account_id" groups="account.group_account_user"
+                               options='{"no_open": True, "no_create": True}'
+                               attrs="{'invisible': [('refund_type', '=', 'full_refund')],
+                               'required': [('refund_type', '!=', 'full_refund')]}"/>
+                        <field name="l10n_latam_document_type_id"
+                               attrs="{
+                               'invisible': ['|', '&amp;', ('refund_method', '=', 'refund'), ('l10n_latam_country_code', '!=', 'DO'), ('l10n_latam_country_code', '=', 'DO')],
+                               'required': [('l10n_latam_use_documents', '=', True), ('refund_method', '!=', 'refund')]}"
+                               options="{'no_open': True, 'no_create': True}"/>
+                        <field name="l10n_latam_document_number"
+                               attrs="{
+                               'invisible': [('move_type', '=', 'out_invoice')],
+                               'required': [('move_type', '=', 'in_invoice')]}"/>
+                        <field name="date" string="Debit Note Date"
+                               attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'in_invoice'))]}"/>
+                        <field name="date" string="Debit Note Date"
+                               attrs="{'invisible': [('move_type', 'in', ('out_invoice', 'in_invoice'))]}"/>
+                    </group>
+                    <group>
+                        <field name="journal_id"/>
+                        <field name="move_id" invisible="1"/>
+                        <field name="l10n_latam_country_code" invisible="1"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string='Generate' name="generate_debit_note_move" type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_invoice_debit" model="ir.actions.act_window">
+        <field name="name">Debit Note</field>
+        <field name="res_model">account.move.reversal</field>
+        <field name="view_mode">tree,form</field>
+       <field name="view_id" ref="view_account_invoice_debit"/>
+       <field name="target">new</field>
+    </record>
+
+</odoo>
