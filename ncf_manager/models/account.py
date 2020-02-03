@@ -26,7 +26,7 @@ class AccountJournal(models.Model):
     @api.depends("ncf_control")
     def check_ncf_ready(self):
         for record in self:
-            record.ncf_ready = len(self.date_range_ids) > 1
+            record.ncf_ready = len(record.date_range_ids) > 1
 
     purchase_type = fields.Selection([
         ("normal", "Compras Fiscales"),
