@@ -18,6 +18,7 @@
         # 'security/res_groups.xml',
         'data/l10n_latam.document.type.csv',
         'wizard/account_move_reversal_views.xml',
+        'wizard/account_move_cancel_views.xml',
         'views/account_move_views.xml',
         'views/res_partner_views.xml',
         'views/res_company_views.xml',

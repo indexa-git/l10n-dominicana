@@ -3,14 +3,14 @@ from odoo import models, api, fields, _
 from odoo.exceptions import UserError
 
 
-class AccountInvoiceCancel(models.TransientModel):
+class AccountMoveCancel(models.TransientModel):
     """
     This wizard will cancel the all the selected invoices.
     If in the journal, the option allow cancelling entry is not selected then
     it will give warning message.
     """
 
-    _name = "account.invoice.cancel"
+    _name = "account.move.cancel"
     _description = "Cancel the Selected Invoice"
 
     annulation_type = fields.Selection(
@@ -28,15 +28,18 @@ class AccountInvoiceCancel(models.TransientModel):
         required=True,
         default=lambda self: self._context.get('annulation_type', '04'))
 
-    @api.multi
-    def invoice_cancel(self):
+    def move_cancel(self):
         context = dict(self._context or {})
         active_ids = context.get('active_ids', []) or []
-        for record in self.env['account.invoice'].browse(active_ids):
-            if record.state in ('cancel', 'paid', 'in_payment'):
+        for invoice in self.env['account.move'].browse(active_ids):
+            if invoice.state == 'cancel':
                 raise UserError(
                     _("Selected invoice(s) cannot be cancelled as they are "
-                      "already in 'Cancelled' or 'Paid' state."))
-            record.anulation_type = self.annulation_type
-            record.action_cancel()
+                      "already in 'Cancelled' state."))
+            if invoice.invoice_payment_state != 'not_paid':
+                raise UserError(
+                    _("Selected invoice(s) cannot be cancelled as they are "
+                      "already in 'Paid' state."))
+            invoice.anulation_type = self.annulation_type
+            invoice.action_cancel()
         return {'type': 'ir.actions.act_window_close'}

@@ -7,7 +7,43 @@
         <field name="arch" type="xml">
             <field name="restrict_mode_hash_table" position="after">
                 <field name="is_debit_note" invisible="1"/>
+                <field name="l10n_latam_country_code" invisible="1"/>
             </field>
+            <xpath expr="//button[@name='button_cancel']" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': ['|', '|',
+                    ('id', '=', False),
+                    '&amp;', ('state', '!=', 'draft'),
+                    ('l10n_latam_country_code', '!=', 'DO'),
+                    '&amp;', ('state', 'in', ('draft', 'cancel')),
+                    ('l10n_latam_country_code', '=', 'DO')]
+                }</attribute>
+            </xpath>
+            <xpath expr="//button[@name='button_draft']" position="attributes">
+                <attribute name="attrs">{
+                    'invisible': ['|', '|',
+                    ('restrict_mode_hash_table', '=', True),
+                    '&amp;', ('state', 'not in', ('posted', 'cancel')),
+                    ('l10n_latam_country_code', '!=', 'DO'),
+                    '&amp;', ('state', '!=', 'cancel'),
+                    ('l10n_latam_country_code', '=', 'DO')]
+                }</attribute>
+            </xpath>
+            <xpath expr="//form/sheet/div[2]/h1[1]" position="inside">
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel'), ('is_debit_note', '=', False)]}">Cancelled Debit Note</span>
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}">Cancelled Vendor Debit Note</span>
+                <span attrs="{'invisible': ['|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel')]}">Cancelled Invoice</span>
+                <span attrs="{'invisible': ['|', ('type', '!=', 'out_refund'), ('state', '!=', 'cancel')]}">Cancelled Credit Note</span>
+                <span attrs="{'invisible': ['|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel')]}">Cancelled Bill</span>
+                <span attrs="{'invisible': ['|', ('type', '!=', 'in_refund'), ('state', '!=', 'cancel')]}">Cancelled Refund</span>
+            </xpath>
+            <xpath expr="//form/sheet/div[2]/h1[1]" position="after">
+                <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
+                    Cancellation Reason:
+                    <br/>
+                    <field name="anulation_type" readonly="1"/>
+                </h4>
+            </xpath>
             <xpath expr="//button[@name='%(account.action_view_account_move_reversal)d']" position="after">
                 <button name="%(l10n_do_accounting.action_account_invoice_debit)d" type='action'
                         string='Add Debit Note'
