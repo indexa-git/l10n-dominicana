@@ -10,7 +10,7 @@
         <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_consumo" model="account.fiscal.type">
-        <field name="name">Factura de consumo</field>
+        <field name="name">Consumo</field>
         <field name="prefix">B02</field>
         <field name="type">out_invoice</field>
         <field name="sequence">2</field>
@@ -63,7 +63,7 @@
         <field name="padding">8</field>
     </record>
     <record id="fiscal_type_purchase_debit_note" model="account.fiscal.type">
-        <field name="name">Nota de Débito Compras Fiscales</field>
+        <field name="name">Nota de Débito</field>
         <field name="prefix">B03</field>
         <field name="type">in_debit</field>
         <field name="sequence">9</field>
@@ -72,7 +72,7 @@
         <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_purchase_credit_note" model="account.fiscal.type">
-        <field name="name">Nota de Crédito Compras Fiscales</field>
+        <field name="name">Nota de Crédito</field>
         <field name="prefix">B04</field>
         <field name="type">in_refund</field>
         <field name="sequence">10</field>
