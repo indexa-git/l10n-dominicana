@@ -50,7 +50,7 @@ steps:
     ENV ODOO_EXTRA_ADDONS /var/lib/odoo/extra-addons
     USER root
     RUN sudo mkdir -p /var/lib/odoo/extra-addons
-    COPY /src /var/lib/odoo/extra-addons
+    COPY . /var/lib/odoo/extra-addons
     RUN ls /var/lib/odoo/extra-addons
     RUN find /var/lib/odoo/extra-addons -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \;
     RUN sudo chown -R 1000:1000 /var/lib/odoo/extra-addons
