@@ -127,88 +127,6 @@ class ResPartner(models.Model):
                                  ondelete='restrict',
                                  default=lambda self: self.env.ref('base.do'))
 
-    @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
-        res = super(ResPartner, self).name_search(name,
-                                                  args=args,
-                                                  operator=operator,
-                                                  limit=100)
-        if not res and name:
-            if len(name) in (9, 11):
-                partners = self.search([('vat', '=', name)])
-            else:
-                partners = self.search([('vat', 'ilike', name)])
-
-            if partners:
-                res = partners.name_get()
-        return res
-
-    @api.model
-    def validate_rnc_cedula(self, number, model='partner'):
-        if number:
-            result, dgii_vals = {}, False
-            model = 'res.partner' if model == 'partner' else 'res.company'
-
-            if number.isdigit() and len(number) in (9, 11):
-                message = "El contacto: %s, esta registrado con este RNC/Céd."
-                self_id = self.id if self.id else 0
-                # Considering multi-company scenarios
-                domain = [('vat', '=', number),
-                          ('id', '!=', self_id),
-                          ('parent_id', '=', False)]
-                if self.sudo().env.ref('base.res_partner_rule').active:
-                    domain.extend([('company_id', '=',
-                                    self.env.user.company_id.id)])
-                contact = self.search(domain)
-
-                if contact:
-                    name = contact.name if len(contact) == 1 else ", ".join(
-                        [x.name for x in contact if x.name])
-                    raise UserError(_(message) % name)
-
-                try:
-                    is_rnc = len(number) == 9
-                    rnc.validate(number) if is_rnc else cedula.validate(number)
-                except Exception:
-                    _logger.warning(
-                        "RNC/Ced Inválido en el contacto {}".format(self.name))
-
-                dgii_vals = rnc.check_dgii(number)
-                if dgii_vals is None:
-                    if is_rnc:
-                        _logger.error(
-                            "RNC {} del contacto {} no está disponible en DGII"
-                            .format(number, self.name))
-                    result['vat'] = number
-                    result['sale_fiscal_type'] = "final"
-                else:
-                    result['name'] = dgii_vals.get(
-                        "name", False) or dgii_vals.get("commercial_name", "")
-                    result['vat'] = dgii_vals.get('rnc')
-
-                    if model == 'res.partner':
-                        result['is_company'] = True if is_rnc else False
-                        result['sale_fiscal_type'] = "fiscal"
-            return result
-
-    @api.onchange("name")
-    def onchange_partner_name(self):
-        self.validate_vat_onchange(self.name)
-
-    @api.onchange("vat")
-    def onchange_partner_vat(self):
-        self.validate_vat_onchange(self.vat)
-
-    @api.model
-    def validate_vat_onchange(self, vat):
-        if vat:
-            result = self.validate_rnc_cedula(vat)
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-                self.is_company = result.get('is_company', False)
-                self.sale_fiscal_type = result.get('sale_fiscal_type')
-
     @api.multi
     def rewrite_due_date(self):
         for rec in self:
@@ -237,18 +155,3 @@ class ResPartner(models.Model):
             "sale_fiscal_type_list": self.sale_fiscal_type_list,
             "sale_fiscal_type_vat": self.sale_fiscal_type_vat
         }
-
-    @api.model
-    def name_create(self, name):
-        if self._context.get("install_mode", False):
-            return super(ResPartner, self).name_create(name)
-        if self._rec_name:
-            if name.isdigit():
-                partner = self.search([('vat', '=', name)])
-                if partner:
-                    return partner.name_get()[0]
-                else:
-                    new_partner = self.create({"vat": name})
-                    return new_partner.name_get()[0]
-            else:
-                return super(ResPartner, self).name_create(name)
