@@ -41,24 +41,11 @@ steps:
 
 # Build the image with the mounted volume
 - name: 'gcr.io/cloud-builders/docker'
-  args:
-    [
-      'build',
-      '-t', 'gcr.io/$PROJECT_ID/$REPO_NAME:${BRANCH_NAME}-${SHORT_SHA}',
-      '--cache-from', 'gcr.io/$PROJECT_ID/dockerdoo:${_TEST_BRANCH}',
-      '.'
-    ]
-  volumes:
-  - name: 'repos'
-    path: /var/lib/odoo/extra-addons
-
-# Build the image with the mounted volume
-- name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
   args:
   - '-c'
   - |
-    docker build . -t 'gcr.io/$PROJECT_ID/${REPO_NAME}:${BRANCH_NAME}' -f-<<EOF
+    docker build . -t 'gcr.io/$PROJECT_ID/${REPO_NAME}:${BRANCH_NAME}-${SHORT_SHA}' -f-<<EOF
     FROM  gcr.io/iterativo/dockerdoo:${_TEST_BRANCH}
     ENV ODOO_EXTRA_ADDONS /var/lib/odoo/extra-addons
     USER root
@@ -71,7 +58,7 @@ steps:
     EOF
   volumes:
   - name: 'repos'
-    path: /src
+    path: /var/lib/odoo/extra-addons
 
   # Install PostgreSQL
 - name: gcr.io/cloud-builders/docker
