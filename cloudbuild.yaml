@@ -52,6 +52,27 @@ steps:
   - name: 'repos'
     path: /var/lib/odoo/extra-addons
 
+# Build the image with the mounted volume
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    docker build . -t 'gcr.io/$PROJECT_ID/${REPO_NAME}:${BRANCH_NAME}' -f-<<EOF
+    FROM  gcr.io/iterativo/dockerdoo:${_TEST_BRANCH}
+    ENV ODOO_EXTRA_ADDONS /var/lib/odoo/extra-addons
+    USER root
+    RUN sudo mkdir -p /var/lib/odoo/extra-addons
+    COPY /src /var/lib/odoo/extra-addons
+    RUN ls /var/lib/odoo/extra-addons
+    RUN find /var/lib/odoo/extra-addons -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \;
+    RUN sudo chown -R 1000:1000 /var/lib/odoo/extra-addons
+    USER 1000
+    EOF
+  volumes:
+  - name: 'repos'
+    path: /src
+
   # Install PostgreSQL
 - name: gcr.io/cloud-builders/docker
   args: 
