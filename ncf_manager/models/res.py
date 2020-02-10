@@ -27,33 +27,6 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-try:
-    from stdnum.do import rnc, cedula
-except (ImportError, IOError) as err:
-    _logger.debug(err)
-
-
-class ResCompany(models.Model):
-    _inherit = 'res.company'
-
-    @api.onchange("name")
-    def onchange_company_name(self):
-        if self.name:
-            result = self.env['res.partner'].validate_rnc_cedula(
-                self.name, model='company')
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-
-    @api.onchange("vat")
-    def onchange_company_vat(self):
-        if self.vat:
-            result = self.env['res.partner'].validate_rnc_cedula(
-                self.vat, model='company')
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
