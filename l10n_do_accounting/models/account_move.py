@@ -101,7 +101,7 @@ class AccountMove(models.Model):
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
     is_debit_note = fields.Boolean()
-    anulation_type = fields.Selection(
+    cancellation_type = fields.Selection(
         selection='_get_l10n_do_cancellation_type',
         string="Cancellation Type",
         copy=False,
