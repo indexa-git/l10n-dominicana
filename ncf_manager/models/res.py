@@ -136,12 +136,7 @@ class ResPartner(models.Model):
 
                     elif len(vat) == 11:
                         if vat.isdigit():
-                            payer_type = (
-                                'fiscal'
-                                if company_id.l10n_do_default_client == 'fiscal'
-                                else 'final'
-                            )
-                            partner.sale_fiscal_type = payer_type
+                            partner.sale_fiscal_type = 'fiscal'
                         else:
                             partner.sale_fiscal_type = 'final'
             elif not partner.sale_fiscal_type:
