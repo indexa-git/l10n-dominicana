@@ -101,6 +101,29 @@ class AccountMove(models.Model):
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
     is_debit_note = fields.Boolean()
+    cancellation_type = fields.Selection(
+        selection='_get_l10n_do_cancellation_type',
+        string="Cancellation Type",
+        copy=False,
+    )
+
+    def button_cancel(self):
+
+        fiscal_invoice = self.filtered(
+            lambda inv: inv.l10n_latam_country_code == 'DO')
+
+        if len(fiscal_invoice) > 1:
+            raise ValidationError(
+                _("You cannot cancel multiple fiscal invoices at a time."))
+
+        if fiscal_invoice:
+            action = self.env.ref(
+                'l10n_do_accounting.action_account_move_cancel'
+            ).read()[0]
+            action['context'] = {'default_move_id': fiscal_invoice.id}
+            return action
+
+        return super(AccountMove, self).button_cancel()
 
     def _compute_is_debit_note(self):
         self.ensure_one()
