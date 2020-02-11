@@ -393,7 +393,6 @@ class AccountMove(models.Model):
     def _reverse_move_vals(self, default_values, cancel=True):
 
         ctx = self.env.context
-        account_id = ctx.get('account_id')
         amount = ctx.get('amount')
         percentage = ctx.get('percentage')
         refund_type = ctx.get('refund_type')
