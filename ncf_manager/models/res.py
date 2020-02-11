@@ -27,33 +27,6 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-try:
-    from stdnum.do import rnc, cedula
-except (ImportError, IOError) as err:
-    _logger.debug(err)
-
-
-class ResCompany(models.Model):
-    _inherit = 'res.company'
-
-    @api.onchange("name")
-    def onchange_company_name(self):
-        if self.name:
-            result = self.env['res.partner'].validate_rnc_cedula(
-                self.name, model='company')
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-
-    @api.onchange("vat")
-    def onchange_company_vat(self):
-        if self.vat:
-            result = self.env['res.partner'].validate_rnc_cedula(
-                self.vat, model='company')
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -76,7 +49,11 @@ class ResPartner(models.Model):
         ("export", u"Exportaciones"),
     ],
         string="Tipo de comprobante",
-        default="final")
+        compute='_compute_sale_fiscal_type',
+        inverse='_inverse_sale_fiscal_type',
+        index=True,
+        store=True,
+    )
 
     sale_fiscal_type_list = [{
         "id": "final",
@@ -126,6 +103,57 @@ class ResPartner(models.Model):
                                  string='Country',
                                  ondelete='restrict',
                                  default=lambda self: self.env.ref('base.do'))
+
+    @api.depends('vat', 'country_id', 'name')
+    def _compute_sale_fiscal_type(self):
+        """ Compute the type of partner depending on soft decisions"""
+        company_id = self.env['res.company'].search(
+            [('id', '=', self.env.user.company_id.id)]
+        )
+        for partner in self:
+            vat = str(partner.vat) if partner.vat else False
+            is_dominican_partner = bool(partner.country_id == self.env.ref('base.do'))
+
+            if partner.country_id and not is_dominican_partner:
+                partner.sale_fiscal_type = 'export'
+
+            elif vat and (
+                not partner.sale_fiscal_type
+                or partner.sale_fiscal_type == 'final'
+            ):
+                if partner.country_id and is_dominican_partner:
+                    if vat.isdigit() and len(vat) == 9:
+                        if partner.name and 'MINISTERIO' in partner.name:
+                            partner.sale_fiscal_type = 'gov'
+                        elif partner.name and any(
+                            [n for n in ('IGLESIA', 'ZONA FRANCA') if n in partner.name]
+                        ):
+                            partner.sale_fiscal_type = 'special'
+                        elif vat.startswith('1'):
+                            partner.sale_fiscal_type = 'fiscal'
+                        else:
+                            partner.sale_fiscal_type = 'fiscal'
+
+                    elif len(vat) == 11:
+                        if vat.isdigit():
+                            payer_type = (
+                                'fiscal'
+                                if company_id.l10n_do_default_client == 'fiscal'
+                                else 'final'
+                            )
+                            partner.sale_fiscal_type = payer_type
+                        else:
+                            partner.sale_fiscal_type = 'final'
+            elif not partner.sale_fiscal_type:
+                partner.sale_fiscal_type = 'final'
+            else:
+                partner.sale_fiscal_type = (
+                    partner.sale_fiscal_type
+                )
+
+    def _inverse_sale_fiscal_type(self):
+        for partner in self:
+            partner.sale_fiscal_type = partner.sale_fiscal_type
 
     @api.multi
     def rewrite_due_date(self):

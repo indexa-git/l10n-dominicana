@@ -1,0 +1,1 @@
+external_service_addons https://github.com/indexa-git/external_service_addons.git 12.0
