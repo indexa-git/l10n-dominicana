@@ -147,8 +147,7 @@ class ResPartner(models.Model):
                 )
 
     def _inverse_sale_fiscal_type(self):
-        for partner in self:
-            partner.sale_fiscal_type = partner.sale_fiscal_type
+        pass
 
     @api.multi
     def rewrite_due_date(self):
