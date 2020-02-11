@@ -416,7 +416,6 @@ class AccountMove(models.Model):
     def _reverse_move_vals(self, default_values, cancel=True):
 
         ctx = self.env.context
-        account_id = ctx.get('account_id')
         amount = ctx.get('amount')
         percentage = ctx.get('percentage')
         refund_type = ctx.get('refund_type')
@@ -435,41 +434,9 @@ class AccountMove(models.Model):
                 if refund_type == "fixed_amount"
                 else self.amount_untaxed * (percentage / 100)
             )
-            res['line_ids'] = [
-                (
-                    0,
-                    0,
-                    {
-                        'account_id': self.partner_id.property_account_receivable_id.id,
-                        'amount_currency': -0.0,
-                        'credit': price_unit,
-                        'debit': 0.0,
-                        'exclude_from_invoice_tab': True,
-                        'move_id': self.id,
-                        'partner_id': self.partner_id.id,
-                        'price_unit': price_unit * -1,
-                        'quantity': 1.0,
-                        'tax_exigible': True,
-                        'name': ' ',
-                    },
-                ),
-                (
-                    0,
-                    0,
-                    {
-                        'account_id': account_id,
-                        'credit': 0.0,
-                        'debit': price_unit,
-                        'move_id': self.id,
-                        'name': reason or _("Refund"),
-                        'partner_id': self.partner_id.id,
-                        'price_unit': price_unit,
-                        'product_uom_id': False,
-                        'quantity': 1.0,
-                        'tax_base_amount': 0.0,
-                        'tax_exigible': True,
-                    },
-                ),
-            ]
-
+            res['line_ids'] = False
+            res['invoice_line_ids'] = [(0, 0, {
+                'name': reason or _("Refund"),
+                'price_unit': price_unit,
+            })]
         return res
