@@ -41,7 +41,7 @@
                 <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
                     Cancellation Reason:
                     <br/>
-                    <field name="anulation_type" readonly="1"/>
+                    <field name="cancellation_type" readonly="1"/>
                 </h4>
             </xpath>
             <xpath expr="//button[@name='%(account.action_view_account_move_reversal)d']" position="after">
