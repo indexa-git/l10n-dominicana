@@ -500,7 +500,7 @@ class AccountInvoice(models.Model):
             if partner_id and partner_id.vat:
                 if len(partner_id.vat) not in [
                         9, 11
-                ] or not rnc.check_dgii(str(partner_id.vat)):
+                ] or not rnc.is_valid(str(partner_id.vat)):
                     raise ValidationError(_(
                         "El RNC del cliente NO pasó la validación en DGII\n\n"
                         "No es posible crear una factura con Crédito Fiscal "
