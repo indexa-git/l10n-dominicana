@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
+    <template id="report_invoice_document_inherited" inherit_id="l10n_latam_invoice_document.report_invoice_document">
         <xpath expr="//address" position="replace"/>
         <xpath expr="//t[2]" position="replace"/>
         <xpath expr="//div[hasclass('page')]/h2" position="replace"/>
@@ -29,7 +29,7 @@
                 </div>
                 <div class="col-7 ml-auto">
                     <div style="font-size: 20px">
-                        <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                        <span t-if="o.type == 'out_invoice' and o.state == 'posted'">
                             <strong>
                                 <span t-field="o.l10n_latam_document_type_id.report_name"/>
                             </strong>
@@ -49,8 +49,8 @@
                         <span t-field="o.origin_out"/>
                         <br/>
                     </span>
-                    <span t-if="o.type in ['out_invoice', 'out_refund'] and (o.state == 'open' or o.state == 'paid')">
-                        <strong>Válida hasta: </strong> <span></span>
+                    <span t-if="o.type in ['out_invoice', 'out_refund'] and o.state == 'posted'">
+                        <strong>Válida hasta: </strong> <span>31/12/2021</span>
                         
                         <!-- <span t-field="o.ncf_expiration_date"/> -->
                     </span>
@@ -221,21 +221,17 @@
                         <br/>
                     </t>
                 </div>
-                <div class="col-auto mw-100 mb-2" t-if="o.partner_id.street" name="client_address">
-                    <strong>Dirección cliente:</strong>
-                    <address class="m-0" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
-                </div>
-                <div class="col-auto mw-100 mb-2" t-if="o.narration" name="narration">
-                    <strong>Descripción:</strong>
-                    <p class="m-0" t-field="o.narration"/>
-                </div>
-                <div class="col-auto mw-100 mb-2" t-if="o.invoice_origin" name="invoice_origin">
+                <div class="col-auto mw-100 mb-2" t-if="o.invoice_origin" name="origin">
                     <strong>Origen:</strong>
                     <p class="m-0" t-field="o.invoice_origin"/>
                 </div>
                 <div class="col-auto mw-100 mb-2" t-if="o.ref" name="name">
                     <strong>Factura No.:</strong>
-                    <p t-field="o.name"/>
+                    <p class="m-0" t-field="o.name"/>
+                </div>
+                <div class="col-auto mw-100 mb-2" t-if="o.partner_id.street" name="client_address">
+                    <strong>Dirección cliente:</strong>
+                    <p class="m-0" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
                 </div>
             </div>
         </xpath>
