@@ -29,7 +29,7 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 try:
-    from stdnum.do import ncf as ncf_validation, rnc
+    from stdnum.do import ncf as ncf_validation, rnc, cedula
 except (ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -445,11 +445,12 @@ class AccountInvoice(models.Model):
         if vals.get("sale_fiscal_type", None) == "fiscal":
 
             partner_id = self.env["res.partner"].browse(vals['partner_id'])
+            vat = str(partner_id.vat)
 
-            if partner_id and partner_id.vat:
-                if len(partner_id.vat) not in [
+            if partner_id and vat and vat.isdigit():
+                if len(vat) not in [
                         9, 11
-                ] or not rnc.is_valid(str(partner_id.vat)):
+                ] or not (rnc.is_valid(vat) or cedula.is_valid(vat)):
                     raise ValidationError(_(
                         "El RNC del cliente NO pasó la validación en DGII\n\n"
                         "No es posible crear una factura con Crédito Fiscal "
