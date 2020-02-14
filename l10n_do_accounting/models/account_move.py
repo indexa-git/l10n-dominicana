@@ -54,12 +54,10 @@ class AccountMove(models.Model):
 
     @api.onchange('partner_id')
     def _compute_l10n_do_expense_type(self):
-        for rec in self.filtered(
-            lambda r: r.company_id.country_id == self.env.ref('base.do')
-            and r.l10n_latam_document_type_id
-            and r.type == 'in_invoice'
-        ):
-            if rec.partner_id:
+        for rec in self:
+            if rec.company_id.country_id == self.env.ref('base.do') \
+                    and rec.l10n_latam_document_type_id and rec.type == 'in_invoice' \
+                    and rec.partner_id:
                 rec.l10n_do_expense_type = rec.partner_id.l10n_do_expense_type
             else:
                 rec.l10n_do_expense_type = rec.l10n_do_expense_type
