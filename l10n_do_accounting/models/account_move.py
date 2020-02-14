@@ -59,10 +59,10 @@ class AccountMove(models.Model):
             and r.l10n_latam_document_type_id
             and r.type == 'in_invoice'
         ):
-            if self.partner_id:
-                self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type
+            if rec.partner_id:
+                rec.l10n_do_expense_type = rec.partner_id.l10n_do_expense_type
             else:
-                self.l10n_do_expense_type = self.l10n_do_expense_type
+                rec.l10n_do_expense_type = rec.l10n_do_expense_type
 
     @api.onchange('partner_id')
     def _inverse_l10n_do_expense_type(self):
@@ -71,7 +71,7 @@ class AccountMove(models.Model):
             and r.l10n_latam_document_type_id
             and r.type == 'in_invoice'
         ):
-            self.l10n_do_expense_type = self.l10n_do_expense_type
+            rec.l10n_do_expense_type = rec.l10n_do_expense_type
 
     l10n_do_expense_type = fields.Selection(
         selection='_get_l10n_do_expense_type',
