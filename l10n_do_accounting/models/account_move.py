@@ -93,10 +93,6 @@ class AccountMove(models.Model):
         default=lambda self: self._context.get('l10n_do_income_type', '01'),
     )
 
-    l10n_do_expense_type = fields.Selection(
-        selection='_get_l10n_do_expense_type', string='Expense Type',
-    )
-
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
