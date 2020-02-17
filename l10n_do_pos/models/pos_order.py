@@ -230,7 +230,7 @@ class PosOrder(models.Model):
                 ('id', '=', order['id'])
             ])
             if order_obj.config_id.invoice_journal_id.l10n_do_fiscal_journal \
-                    and order_obj.state != 'invoiced':
+                    and order_obj.state != 'invoiced' and order_obj.amount_total != 0:
 
                 order_obj.action_pos_order_invoice_no_return_pdf()
                 order_obj.invoice_id.sudo().action_invoice_open()
