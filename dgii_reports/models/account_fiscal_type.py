@@ -14,7 +14,6 @@ class AccountFiscalType(models.Model):
         ("import", "Imports"),
         ("others", "Others (no NCF)"),
     ],
-        default="others",
     )
     sale_type = fields.Selection([
         ("final", "Consumer"),
@@ -24,5 +23,4 @@ class AccountFiscalType(models.Model):
         ("unico", "Single Income"),
         ("export", "Exports"),
     ],
-        default='final',
     )

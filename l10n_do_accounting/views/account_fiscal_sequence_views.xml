@@ -40,7 +40,7 @@
                         <group>
                             <field name="fiscal_type_id"
                                    widget="selection"
-                                   domain="[('internal_generate', '=', True)]"
+                                   domain="[('assigned_sequence', '=', True)]"
                             />
                             <field name="sequence_start"/>
                             <field name="sequence_end"/>
@@ -82,6 +82,7 @@
             <tree>
                 <field name="name"/>
                 <field name="fiscal_type_id"/>
+                <field name="next_fiscal_number"/>
                 <field name="sequence_start"/>
                 <field name="sequence_end"/>
                 <field name="state"/>
@@ -159,15 +160,15 @@
                         <field name="name"/>
                         <field name="prefix"/>
                         <field name="type"/>
+                        <field name="journal_type" invisible="1"/>
                         <field name="padding">8</field>
-                        <field name="internal_generate"/>
-                        <field name="required_document"/>
+                        <field name="assigned_sequence"/>
+                        <field name="requires_document"/>
                     </group>
                     <group>
                         <field name="active"/>
-                        <field name="journal_id"
-                               domain="[('l10n_do_fiscal_journal', '=', True), ('type', '=', type)]"
-                        />
+                        <field name="journal_id" options="{'no_create': True}"
+                               domain="[('type', '=', journal_type), ('l10n_do_fiscal_journal', '=', True)]"/>
                         <field name="fiscal_position_id"/>
                     </group>
                 </group>

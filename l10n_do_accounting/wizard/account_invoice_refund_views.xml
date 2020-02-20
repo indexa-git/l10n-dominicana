@@ -7,6 +7,7 @@
         <field name="inherit_id" ref="account.view_account_invoice_refund"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='filter_refund']" position="before">
+                <field name="is_fiscal_refund" invisible="1"/>
                 <field name="refund_type" options="{'horizontal': true}"
                        widget="radio"/>
             </xpath>
@@ -19,7 +20,7 @@
             </xpath>
             <xpath expr="//field[@name='description']" position="after">
                 <field name="is_vendor_refund" invisible="1"/>
-                <field name="refund_reference" attrs="{'invisible': [('is_vendor_refund', '=', False)]}"/>
+                <field name="refund_reference" attrs="{'invisible': [('is_vendor_refund', '=', False)], 'required': [('is_fiscal_refund', '=', True), ('is_vendor_refund', '=', True)]}"/>
                 <field name="percentage"
                        attrs="{'invisible': [('refund_type', '!=', 'percentage')],
                        'required': [('refund_type', '=', 'percentage')]}"/>
@@ -58,6 +59,7 @@
                 <group>
                      <group>
                          <field name="refund_only" invisible="1"/>
+                         <field name="is_fiscal_refund" invisible="1"/>
                          <field name="refund_type" options="{'horizontal': true}"
                                 widget="radio" string="Debit type"/>
                          <field name="refund_method" widget="radio" string="Debit method"
@@ -78,7 +80,7 @@
                          <field name="description"/>
                          <field name="is_vendor_refund" invisible="1"/>
                          <field name="refund_reference" string="Debit Note reference"
-                                attrs="{'invisible': [('is_vendor_refund', '=', False)]}"/>
+                                attrs="{'invisible': [('is_vendor_refund', '=', False)], 'required': [('is_vendor_refund', '=', True), ('is_fiscal_refund', '=', True)]}"/>
                          <field name="percentage"
                                 attrs="{'invisible': [('refund_type', '!=', 'percentage')],
                                 'required': [('refund_type', '=', 'percentage')]}"/>

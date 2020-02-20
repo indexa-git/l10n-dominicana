@@ -44,10 +44,11 @@ odoo.define('l10n_do_pos.models', function (require) {
         fields: [
             'name',
             'fiscal_position_id',
-            'required_document',
+            'requires_document',
             'prefix',
-            'internal_generate',
+            'assigned_sequence',
             'type',
+            'padding',
         ],
         domain: function () {
             return [

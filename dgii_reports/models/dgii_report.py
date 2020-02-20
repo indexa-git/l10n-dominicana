@@ -363,11 +363,11 @@ class DgiiReport(models.Model):
             [('date_invoice', '>=', start_date),
              ('date_invoice', '<=', end_date),
              ('company_id', '=', self.company_id.id),
+             ('is_l10n_do_fiscal_invoice', '=', True),
              ('state', 'in', states),
              ('type', 'in', types)],
             order='date_invoice asc').filtered(
-                lambda inv: (inv.fiscal_type_id.purchase_type != 'others') or
-                (inv.journal_id.l10n_do_fiscal_journal is True))
+            lambda inv: inv.fiscal_type_id.purchase_type != 'others')
 
         # Append pending invoces (fiscal_status = Partial, state = Paid)
         invoice_ids |= self._get_pending_invoices(types)
@@ -545,13 +545,13 @@ class DgiiReport(models.Model):
             'others': 0
         }
 
-    def _convert_to_user_currency(self, base_currency, amount):
+    def _convert_to_user_currency(self, base_currency, amount, date):
         context = dict(self._context or {})
         user_currency_id = self.env.user.company_id.currency_id
         base_currency_id = base_currency
         ctx = context.copy()
-        return base_currency_id.with_context(ctx).compute(
-            amount, user_currency_id)
+        return base_currency_id.with_context(ctx)._convert(
+            amount, user_currency_id, self.company_id, date)
 
     @staticmethod
     def include_payment(invoice_id, payment_id):
@@ -576,19 +576,25 @@ class DgiiReport(models.Model):
                         if self.include_payment(invoice_id, payment_id):
                             payments_dict[
                                 key] += self._convert_to_user_currency(
-                                    invoice_id.currency_id, payment['amount'])
+                                    invoice_id.currency_id, payment['amount'],
+                                invoice_id.date_invoice
+                            )
                         else:
                             payments_dict[
                                 'credit'] += self._convert_to_user_currency(
-                                    invoice_id.currency_id, payment['amount'])
+                                    invoice_id.currency_id, payment['amount'],
+                                invoice_id.date_invoice
+                            )
                 else:
                     # Do not consider credit notes as swap payments
                     continue
             payments_dict['credit'] += self._convert_to_user_currency(
-                invoice_id.currency_id, invoice_id.residual)
+                invoice_id.currency_id, invoice_id.residual,
+                invoice_id.date_invoice)
         else:
             payments_dict['credit'] += self._convert_to_user_currency(
-                invoice_id.currency_id, invoice_id.residual)
+                invoice_id.currency_id, invoice_id.residual,
+                invoice_id.date_invoice)
 
         return payments_dict
 
@@ -672,7 +678,7 @@ class DgiiReport(models.Model):
             op_dict[invoice.fiscal_type_id.sale_type]['qty'] += 1
             op_dict[invoice.fiscal_type_id.sale_type][
                 'amount'] += invoice.amount_untaxed_signed
-        if invoice.type == 'out_refund' and not invoice.is_nd:
+        if invoice.type == 'out_refund' and not invoice.is_debit_note:
             op_dict['nc']['qty'] += 1
             op_dict['nc']['amount'] += invoice.amount_untaxed_signed
         if invoice.is_debit_note:
