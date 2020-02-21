@@ -378,7 +378,7 @@ class AccountMove(models.Model):
                 try:
                     from stdnum.do import ncf as ncf_validation
 
-                    if len(l10n_latam_document_number) == '9' and not ncf_validation.check_dgii(
+                    if len(l10n_latam_document_number) == '11' and not ncf_validation.check_dgii(
                         rec.partner_id.vat, l10n_latam_document_number
                     ):
                         raise ValidationError(
