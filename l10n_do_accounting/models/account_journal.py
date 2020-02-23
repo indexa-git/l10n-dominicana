@@ -7,9 +7,8 @@ class AccountJournal(models.Model):
 
     l10n_do_fiscal_journal = fields.Boolean(string="Fiscal Journal")
     l10n_do_ncf_remote_validation = fields.Boolean(
-        string="Validate With DGII", 
-        default = False)
-
+        string="Validate With DGII",
+        default=False)
     payment_form = fields.Selection(
         [
             ("cash", "Cash"),
