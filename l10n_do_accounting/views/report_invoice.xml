@@ -2,7 +2,9 @@
 <odoo>
 
     <template id="web_address_layout_inherited" inherit_id="web.address_layout">
-        <xpath expr="//t[@t-if='address']" position="replace"/>
+        <xpath expr="//t[@t-if='address']" position="attributes">
+            <attribute name="t-if">doc_model != "account.move"</attribute>
+        </xpath>
     </template>
 
     <template id="report_invoice_document_inherited" inherit_id="l10n_latam_invoice_document.report_invoice_document">
