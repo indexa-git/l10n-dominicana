@@ -277,7 +277,8 @@ class AccountInvoiceRefund(models.TransientModel):
                 elif (
                     invoice.journal_id.l10n_do_ncf_remote_validation
                     and not ncf_validation.check_dgii(
-                    invoice.partner_id.vat, self.refund_reference)
+                        invoice.partner_id.vat, self.refund_reference
+                    )
                     ):
                     raise ValidationError(
                         _(
