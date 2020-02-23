@@ -496,7 +496,7 @@ class AccountInvoice(models.Model):
                 elif (
                     self.journal_id.l10n_do_ncf_remote_validation 
                     and not ncf_validation.check_dgii(self.partner_id.vat, ncf)
-                    ):
+                ):
                     raise ValidationError(
                         _(
                             "NCF rejected by DGII\n\n"
