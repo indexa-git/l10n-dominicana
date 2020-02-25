@@ -5,8 +5,7 @@ access_account_move__point_of_sale_user,account.move point of sale user,account.
 access_account_partial_reconcile_point_of_sale_user,account.partial.reconcile point of sale user,account.model_account_partial_reconcile,point_of_sale.group_pos_user,1,1,1,1
 access_account_account_type_point_of_sale_user,account.account.type point of sale user,account.model_account_account_type,point_of_sale.group_pos_user,1,1,0,0
 access_analytic_line_point_of_sale_user,account.analytic.line point of sale user,account.model_account_analytic_line,point_of_sale.group_pos_user,1,1,0,0
-access_account_invoice_point_of_sale_user,account.invoice point of sale user,account.model_account_invoice,point_of_sale.group_pos_user,1,1,1,0
-access_account_invoice_line_point_of_sale_user,account.invoice.line point of sale user,account.model_account_invoice_line,point_of_sale.group_pos_user,1,1,1,1
-access_account_invoice_tax_point_of_sale_user,account.invoice.tax point of sale user,account.model_account_invoice_tax,point_of_sale.group_pos_user,1,1,1,0
+access_account_invoice_point_of_sale_user,account.invoice point of sale user,account.model_account_move,point_of_sale.group_pos_user,1,1,1,0
+access_account_invoice_line_point_of_sale_user,account.invoice.line point of sale user,account.model_account_move_line,point_of_sale.group_pos_user,1,1,1,1
 access_account_full_reconcile_point_of_sale_user,account.full.reconcile point of sale user,account.model_account_full_reconcile,point_of_sale.group_pos_user,1,1,1,1
 
