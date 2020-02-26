@@ -312,76 +312,81 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 current_order.save_to_db();
             }
 
-            // if (total === 0) {
-            //     this.gui.show_popup('error', {
-            //         'title': _t('Sale in'),
-            //         'body': _t('You cannot make sales in 0, please add a ' +
-            //             'product with value'),
-            //     });
-            //     return false;
-            // }
-            //
-            //
-            // if (self.pos.invoice_journal.l10n_do_fiscal_journal &&
-            //     !current_order.to_invoice) {
-            //
-            //     if (!self.analyze_payment_methods()) {
-            //
-            //         return false;
-            //
-            //     }
-            //
-            //     if (current_order.fiscal_type.requires_document && !client) {
-            //
-            //         this.gui.show_popup('error', {
-            //             'title': _t('Required document (RNC/Céd.)'),
-            //             'body': _t('For invoice fiscal type ' +
-            //                 current_order.fiscal_type.name +
-            //                 ' its necessary customer, please select customer'),
-            //         });
-            //         return false;
-            //
-            //     }
-            //
-            //     if (current_order.fiscal_type.requires_document &&
-            //         !client.vat) {
-            //
-            //         this.gui.show_popup('error', {
-            //             'title': _t('Required document (RNC/Céd.)'),
-            //             'body': _t('For invoice fiscal type ' +
-            //                 current_order.fiscal_type.name +
-            //                 ' it is necessary for the customer have ' +
-            //                 'RNC or Céd.'),
-            //         });
-            //         return false;
-            //     }
-            //
-            //     if (total >= 250000.00 && (!client || !client.vat)) {
-            //         this.gui.show_popup('error', {
-            //             'title': _t('Sale greater than RD$ 250,000.00'),
-            //             'body': _t('For this sale it is necessary for the ' +
-            //                 'customer have ID'),
-            //         });
-            //         return false;
-            //     }
-            //
-            //     // This part is for credit note
-            //     if (current_order.get_mode() === 'return') {
-            //         var origin_order =
-            //             self.pos.db.orders_history_by_id[
-            //                 current_order.return_lines[0].order_id[0]];
-            //
-            //         if (origin_order.partner_id[0] !== client.id) {
-            //             this.gui.show_popup('error', {
-            //                 'title': _t('Error in credit note'),
-            //                 'body': _t('The customer of the credit note must' +
-            //                     ' be the same as the original'),
-            //             });
-            //             return false;
-            //         }
-            //     }
-            //
-            // }
+            if (total === 0) {
+                this.gui.show_popup('error', {
+                    'title': _t('Sale in'),
+                    'body': _t('You cannot make sales in 0, please add a ' +
+                        'product with value'),
+                });
+                return false;
+            }
+
+            if (self.pos.invoice_journal.l10n_latam_use_documents &&
+                current_order.to_invoice_backend) {
+
+                // if (!self.analyze_payment_methods()) {
+                //
+                //     return false;
+                //
+                // }
+
+                if (current_order.l10n_latam_document_type.is_vat_required && !client) {
+
+                    this.gui.show_popup('error', {
+                        'title': _t('Required document (RNC/Céd.)'),
+                        'body': _t('For invoice fiscal type ' +
+                            current_order.fiscal_type.name +
+                            ' its necessary customer, please select customer'),
+                    });
+                    current_order.to_invoice = true;
+                    current_order.save_to_db();
+                    return false;
+
+                }
+
+                if (current_order.l10n_latam_document_type.is_vat_required &&
+                    !client.vat) {
+
+                    this.gui.show_popup('error', {
+                        'title': _t('Required document (RNC/Céd.)'),
+                        'body': _t('For invoice fiscal type ' +
+                            current_order.l10n_latam_document_type.name +
+                            ' it is necessary for the customer have ' +
+                            'RNC or Céd.'),
+                    });
+                    current_order.to_invoice = true;
+                    current_order.save_to_db();
+                    return false;
+                }
+
+                if (total >= 250000.00 && (!client || !client.vat)) {
+                    this.gui.show_popup('error', {
+                        'title': _t('Sale greater than RD$ 250,000.00'),
+                        'body': _t('For this sale it is necessary for the ' +
+                            'customer have ID'),
+                    });
+                    current_order.to_invoice = true;
+                    current_order.save_to_db();
+                    return false;
+                }
+
+                // This part is for credit note
+                // if (current_order.get_mode() === 'return') {
+                //     var origin_order =
+                //         self.pos.db.orders_history_by_id[
+                //             current_order.return_lines[0].order_id[0]];
+                //
+                //     if (origin_order.partner_id[0] !== client.id) {
+                //         this.gui.show_popup('error', {
+                //             'title': _t('Error in credit note'),
+                //             'body': _t('The customer of the credit note must' +
+                //                 ' be the same as the original'),
+                //         });
+                //         return false;
+                //     }
+                // }
+
+            }
 
             if (this._super(force_validation)) {
                 return true
