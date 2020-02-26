@@ -48,10 +48,10 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
     screens.PaymentScreenWidget.include({
 
-        customer_changed: function () {
-            this._super.apply(this, arguments);
-            var client = this.pos.get_client();
-            var current_order = this.pos.get_order();
+        // customer_changed: function () {
+        //     this._super.apply(this, arguments);
+        //     var client = this.pos.get_client();
+        //     var current_order = this.pos.get_order();
             // if (client) {
             //
             //     if (client.sale_fiscal_type_id &&
@@ -70,7 +70,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             //     );
             //
             // }
-        },
+        // },
 
         keyboard_off: function () {
             // That one comes from BarcodeEvents
@@ -301,154 +301,153 @@ odoo.define('l10n_do_pos.screens', function (require) {
         //
         // },
         //
-        // order_is_valid: function (force_validation) {
-        //
-        //     var self = this;
-        //     var current_order = this.pos.get_order();
-        //     var client = current_order.get_client();
-        //     var total = current_order.get_total_with_tax();
-        //
-        //     if (total === 0) {
-        //         this.gui.show_popup('error', {
-        //             'title': _t('Sale in'),
-        //             'body': _t('You cannot make sales in 0, please add a ' +
-        //                 'product with value'),
-        //         });
-        //         return false;
-        //     }
-        //
-        //
-        //     if (self.pos.invoice_journal.l10n_do_fiscal_journal &&
-        //         !current_order.to_invoice) {
-        //
-        //         if (!self.analyze_payment_methods()) {
-        //
-        //             return false;
-        //
-        //         }
-        //
-        //         if (current_order.fiscal_type.requires_document && !client) {
-        //
-        //             this.gui.show_popup('error', {
-        //                 'title': _t('Required document (RNC/Céd.)'),
-        //                 'body': _t('For invoice fiscal type ' +
-        //                     current_order.fiscal_type.name +
-        //                     ' its necessary customer, please select customer'),
-        //             });
-        //             return false;
-        //
-        //         }
-        //
-        //         if (current_order.fiscal_type.requires_document &&
-        //             !client.vat) {
-        //
-        //             this.gui.show_popup('error', {
-        //                 'title': _t('Required document (RNC/Céd.)'),
-        //                 'body': _t('For invoice fiscal type ' +
-        //                     current_order.fiscal_type.name +
-        //                     ' it is necessary for the customer have ' +
-        //                     'RNC or Céd.'),
-        //             });
-        //             return false;
-        //         }
-        //
-        //         if (total >= 250000.00 && (!client || !client.vat)) {
-        //             this.gui.show_popup('error', {
-        //                 'title': _t('Sale greater than RD$ 250,000.00'),
-        //                 'body': _t('For this sale it is necessary for the ' +
-        //                     'customer have ID'),
-        //             });
-        //             return false;
-        //         }
-        //
-        //         // This part is for credit note
-        //         if (current_order.get_mode() === 'return') {
-        //             var origin_order =
-        //                 self.pos.db.orders_history_by_id[
-        //                     current_order.return_lines[0].order_id[0]];
-        //
-        //             if (origin_order.partner_id[0] !== client.id) {
-        //                 this.gui.show_popup('error', {
-        //                     'title': _t('Error in credit note'),
-        //                     'body': _t('The customer of the credit note must' +
-        //                         ' be the same as the original'),
-        //                 });
-        //                 return false;
-        //             }
-        //         }
-        //
-        //     }
-        //
-        //     return this._super(force_validation);
-        //
-        // },
-        // finalize_validation: function () {
-        //
-        //     var self = this;
-        //     var _super = this._super.bind(this);
-        //     var current_order = this.pos.get_order();
-        //     if (self.pos.invoice_journal.l10n_do_fiscal_journal &&
-        //         !current_order.to_invoice && !current_order.ncf) {
-        //         self.pos.loading_screen_on();
-        //         var payments = [];
-        //         current_order.get_paymentlines().forEach(function (item) {
-        //
-        //             return payments.push(item.export_as_JSON());
-        //         });
-        //         rpc.query({
-        //             model: 'pos.order',
-        //             method: 'get_next_fiscal_sequence',
-        //             args: [
-        //                 false,
-        //                 current_order.fiscal_type.id,
-        //                 self.pos.company.id,
-        //                 current_order.get_mode(),
-        //                 current_order.export_as_JSON().lines,
-        //                 current_order.uid,
-        //                 payments,
-        //             ],
-        //         }).then(function (res) {
-        //             self.pos.loading_screen_off();
-        //             current_order.ncf = res.ncf;
-        //             current_order.fiscal_type_id =
-        //                 current_order.fiscal_type.id;
-        //             current_order.ncf_expiration_date =
-        //                 res.ncf_expiration_date;
-        //             current_order.fiscal_sequence_id =
-        //                 res.fiscal_sequence_id;
-        //             // For credit notes
-        //             if (current_order.get_mode() === 'return') {
-        //                 var origin_order =
-        //                     self.pos.db.orders_history_by_id[
-        //                         current_order.return_lines[0].order_id[0]];
-        //                 current_order.ncf_l10n_do_origin_ncf = origin_order.ncf;
-        //             }
-        //             console.log(res);
-        //         }, function (err, ev) {
-        //             self.pos.loading_screen_off();
-        //             console.log(err);
-        //             console.log(ev);
-        //             ev.preventDefault();
-        //             var error_body =
-        //                 _t('Your Internet connection is probably down.');
-        //             if (err.data) {
-        //                 var except = err.data;
-        //                 error_body = except.arguments ||
-        //                     except.message || error_body;
-        //             }
-        //             self.gui.show_popup('error', {
-        //                 'title': _t('Error: Could not Save Changes'),
-        //                 'body': error_body,
-        //             });
-        //         }).done(function () {
-        //             self.pos.loading_screen_off();
-        //             _super();
-        //         });
-        //     } else {
-        //         this._super();
-        //     }
-        //
-        // },
+        order_is_valid: function (force_validation) {
+
+            var self = this;
+            var current_order = this.pos.get_order();
+            var client = current_order.get_client();
+            var total = current_order.get_total_with_tax();
+            if(current_order.to_invoice_backend){
+                current_order.to_invoice = false;
+                current_order.save_to_db();
+            }
+
+            // if (total === 0) {
+            //     this.gui.show_popup('error', {
+            //         'title': _t('Sale in'),
+            //         'body': _t('You cannot make sales in 0, please add a ' +
+            //             'product with value'),
+            //     });
+            //     return false;
+            // }
+            //
+            //
+            // if (self.pos.invoice_journal.l10n_do_fiscal_journal &&
+            //     !current_order.to_invoice) {
+            //
+            //     if (!self.analyze_payment_methods()) {
+            //
+            //         return false;
+            //
+            //     }
+            //
+            //     if (current_order.fiscal_type.requires_document && !client) {
+            //
+            //         this.gui.show_popup('error', {
+            //             'title': _t('Required document (RNC/Céd.)'),
+            //             'body': _t('For invoice fiscal type ' +
+            //                 current_order.fiscal_type.name +
+            //                 ' its necessary customer, please select customer'),
+            //         });
+            //         return false;
+            //
+            //     }
+            //
+            //     if (current_order.fiscal_type.requires_document &&
+            //         !client.vat) {
+            //
+            //         this.gui.show_popup('error', {
+            //             'title': _t('Required document (RNC/Céd.)'),
+            //             'body': _t('For invoice fiscal type ' +
+            //                 current_order.fiscal_type.name +
+            //                 ' it is necessary for the customer have ' +
+            //                 'RNC or Céd.'),
+            //         });
+            //         return false;
+            //     }
+            //
+            //     if (total >= 250000.00 && (!client || !client.vat)) {
+            //         this.gui.show_popup('error', {
+            //             'title': _t('Sale greater than RD$ 250,000.00'),
+            //             'body': _t('For this sale it is necessary for the ' +
+            //                 'customer have ID'),
+            //         });
+            //         return false;
+            //     }
+            //
+            //     // This part is for credit note
+            //     if (current_order.get_mode() === 'return') {
+            //         var origin_order =
+            //             self.pos.db.orders_history_by_id[
+            //                 current_order.return_lines[0].order_id[0]];
+            //
+            //         if (origin_order.partner_id[0] !== client.id) {
+            //             this.gui.show_popup('error', {
+            //                 'title': _t('Error in credit note'),
+            //                 'body': _t('The customer of the credit note must' +
+            //                     ' be the same as the original'),
+            //             });
+            //             return false;
+            //         }
+            //     }
+            //
+            // }
+
+            if (this._super(force_validation)) {
+                return true
+            } else {
+                if(current_order.to_invoice_backend){
+                    current_order.to_invoice = true;
+                    current_order.save_to_db();
+                }
+                return false
+            }
+
+        },
+        finalize_validation: function() {
+            var self = this;
+            var current_order = this.pos.get_order();
+            var _super = this._super.bind(this);
+            if (current_order.to_invoice_backend &&
+                self.pos.invoice_journal.l10n_latam_use_documents &&
+                !current_order.l10n_latam_document_number) {
+                var latam_sequence =
+                    self.pos.get_l10n_latam_sequence_by_document_type_id(
+                        current_order.l10n_latam_document_type.id
+                    );
+                self.pos.loading_screen_on();
+                rpc.query({
+                    model: 'ir.sequence',
+                    method: 'next_by_id',
+                    args: [latam_sequence.id],
+                }).then(function (res) {
+                    self.pos.loading_screen_off();
+                    current_order.l10n_latam_document_number = res;
+                    current_order.l10n_latam_sequence_id = latam_sequence.id;
+                    current_order.l10n_latam_document_type_id = current_order.l10n_latam_document_type.id;
+                    current_order.save_to_db();
+                    console.log(res);
+                    _super();
+                    // For credit notes
+                    // if (current_order.get_mode() === 'return') {
+                    //     var origin_order =
+                    //         self.pos.db.orders_history_by_id[
+                    //             current_order.return_lines[0].order_id[0]];
+                    //     current_order.ncf_l10n_do_origin_ncf = origin_order.ncf;
+                    // }
+                }, function (err, ev) {
+                    self.pos.loading_screen_off();
+                    current_order.to_invoice = true;
+                    current_order.save_to_db();
+                    console.log(err);
+                    console.log(ev);
+                    ev.preventDefault();
+                    var error_body =
+                        _t('Your Internet connection is probably down.');
+                    if (err.data) {
+                        var except = err.data;
+                        error_body = except.arguments ||
+                            except.message || error_body;
+                    }
+                    self.gui.show_popup('error', {
+                        'title': _t('Error: Could not Save Changes'),
+                        'body': error_body,
+                    });
+                })
+            } else {
+                this._super();
+            }
+        },
         // click_paymentmethods: function (id) {
         //     var self = this;
         //     var cashregister = null;

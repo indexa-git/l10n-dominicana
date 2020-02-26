@@ -7,23 +7,23 @@ _logger = logging.getLogger(__name__)
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
-    # ncf = fields.Char(
-    #     string="NCF",
-    # )
+    l10n_latam_document_number = fields.Char(
+        string="Número de documento",
+    )
+    l10n_latam_document_type_id = fields.Many2one(
+        'l10n_latam.document.type',
+        string="Document Type",
+    )
+    l10n_latam_sequence_id = fields.Many2one(
+        'ir.sequence',
+        string="Fiscal Sequence",
+        copy=False,
+    )
     # ncf_l10n_do_origin_ncf = fields.Char(
     #     "Affects",
     # )
     # ncf_expiration_date = fields.Date(
     #     string="NCF expiration date",
-    # )
-    l10n_latam_document_type_id = fields.Many2one(
-        'l10n_latam.document.type',
-        string="Document Type",
-    )
-    # fiscal_sequence_id = fields.Many2one(
-    #     'account.fiscal.sequence',
-    #     string="Fiscal Sequence",
-    #     copy=False,
     # )
     # is_used_in_order = fields.Boolean(
     #     default=False
@@ -36,29 +36,31 @@ class PosOrder(models.Model):
         """
         fields = super(PosOrder, self)._order_fields(ui_order)
         # if ui_order.get('fiscal_sequence_id', False):
-        if ui_order.get('l10n_latam_document_type_id', False):
-            # fields['ncf'] = ui_order['ncf']
-            # fields['ncf_l10n_do_origin_ncf'] = ui_order['ncf_l10n_do_origin_ncf']
-            # fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
+        if ui_order.get('l10n_latam_sequence_id', False) and ui_order['to_invoice']:
+            fields['l10n_latam_sequence_id'] = ui_order['l10n_latam_sequence_id']
+            fields['l10n_latam_document_number'] = \
+                ui_order['l10n_latam_document_number']
             fields['l10n_latam_document_type_id'] = \
                 ui_order['l10n_latam_document_type_id']
             # fields['fiscal_sequence_id'] = ui_order['fiscal_sequence_id']
+            # fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
 
         return fields
 
-    # def _prepare_invoice(self):
-    #     """
-    #     Prepare the dict of values to create the new invoice for a pos order.
-    #     """
-    #     invoice_vals = super(PosOrder, self)._prepare_invoice()
-    #     if self.config_id.invoice_journal_id.l10n_do_fiscal_journal:
-    #         invoice_vals['reference'] = self.ncf
-    #         invoice_vals['l10n_do_origin_ncf'] = self.ncf_l10n_do_origin_ncf
-    #         invoice_vals['ncf_expiration_date'] = self.ncf_expiration_date
-    #         invoice_vals['fiscal_type_id'] = self.fiscal_type_id.id
-    #         invoice_vals['fiscal_sequence_id'] = self.fiscal_sequence_id.id
-    #
-    #     return invoice_vals
+    def _prepare_invoice_vals(self):
+        """
+        Prepare the dict of values to create the new invoice for a pos order.
+        """
+        invoice_vals = super(PosOrder, self)._prepare_invoice_vals()
+        documents = self.config_id.invoice_journal_id.l10n_latam_use_documents
+        if documents and self.to_invoice:
+            invoice_vals['l10n_latam_sequence_id'] = self.l10n_latam_sequence_id.id
+            invoice_vals['l10n_latam_document_number'] = self.l10n_latam_document_number
+            invoice_vals['l10n_latam_document_type_id'] = self.l10n_latam_document_type_id.id
+            # invoice_vals['fiscal_type_id'] = self.fiscal_type_id.id
+            # invoice_vals['fiscal_sequence_id'] = self.fiscal_sequence_id.id
+
+        return invoice_vals
 
     # This part is for credit note
     # @api.model
@@ -176,43 +178,55 @@ class PosOrder(models.Model):
     #         new_invoice.with_context(local_context).sudo().compute_taxes()
     #         order.sudo().write({'state': 'invoiced'})
     #
-    # @api.model
-    # def _process_order(self, pos_order):
-    #     """
-    #     this part is using for eliminate cash return
-    #     :param pos_order:
-    #     :return:
-    #     """
-    #     if pos_order['amount_return'] > 0:
-    #
-    #         pos_session_obj = self.env['pos.session'].browse(
-    #             pos_order['pos_session_id']
-    #         )
-    #         cash_journal_id = pos_session_obj.cash_journal_id.id
-    #         if not cash_journal_id:
-    #             # If none, select for change one of the cash journals of the PO
-    #             # This is used for example when a customer pays by credit card
-    #             # an amount higher than total amount of the order and gets cash
-    #             # back
-    #             cash_journal = [statement.journal_id
-    #                             for statement in pos_session_obj.statement_ids
-    #                             if statement.journal_id.type == 'cash']
-    #             if not cash_journal:
-    #                 raise UserError(
-    #                     _("No cash statement found for this session. "
-    #                       "Unable to record returned cash."))
-    #
-    #             cash_journal_id = cash_journal[0].id
-    #
-    #         for index, statement in enumerate(pos_order['statement_ids']):
-    #
-    #             if statement[2]['journal_id'] == cash_journal_id:
-    #                 pos_order['statement_ids'][index][2]['amount'] = \
-    #                     statement[2]['amount'] - pos_order['amount_return']
-    #
-    #         pos_order['amount_return'] = 0
-    #
-    #     return super(PosOrder, self)._process_order(pos_order)
+    @api.model
+    def _process_order(self, order, draft, existing_order):
+        """
+        this part is using for eliminate cash return
+        :param pos_order:
+        :return:
+        """
+        if order['data']['to_invoice_backend']:
+            order['data']['to_invoice'] = True
+            order['to_invoice'] = True
+            if not order['data']['partner_id']:
+                pos_config = self.env['pos.session']\
+                    .search([('id', '=', order['data']['pos_session_id'])]).config_id
+                if not pos_config.default_partner_id:
+                    raise UserError(
+                        _('This point of sale not have default customer,'
+                          ' please set default customer in config POS'))
+                order['data']['partner_id'] = pos_config.default_partner_id.id
+
+        # if pos_order['amount_return'] > 0:
+        #
+        #     pos_session_obj = self.env['pos.session'].browse(
+        #         pos_order['pos_session_id']
+        #     )
+        #     cash_journal_id = pos_session_obj.cash_journal_id.id
+        #     if not cash_journal_id:
+        #         # If none, select for change one of the cash journals of the PO
+        #         # This is used for example when a customer pays by credit card
+        #         # an amount higher than total amount of the order and gets cash
+        #         # back
+        #         cash_journal = [statement.journal_id
+        #                         for statement in pos_session_obj.statement_ids
+        #                         if statement.journal_id.type == 'cash']
+        #         if not cash_journal:
+        #             raise UserError(
+        #                 _("No cash statement found for this session. "
+        #                   "Unable to record returned cash."))
+        #
+        #         cash_journal_id = cash_journal[0].id
+        #
+        #     for index, statement in enumerate(pos_order['statement_ids']):
+        #
+        #         if statement[2]['journal_id'] == cash_journal_id:
+        #             pos_order['statement_ids'][index][2]['amount'] = \
+        #                 statement[2]['amount'] - pos_order['amount_return']
+        #
+        #     pos_order['amount_return'] = 0
+
+        return super(PosOrder, self)._process_order(order, draft, existing_order)
     #
     # @api.model
     # def create_from_ui(self, orders):

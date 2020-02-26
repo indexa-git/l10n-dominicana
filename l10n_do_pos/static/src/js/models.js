@@ -27,22 +27,21 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
     });
 
-    // models.load_models({
-    //     model: 'ir.sequence',
-    //     fields: [
-    //         'l10n_latam_document_type_id',
-    //     ],
-    //     domain: function (self) {
-    //         return [
-    //             ['state', '=', 'active'],
-    //             ['type', 'in', ['out_invoice', 'out_refund']],
-    //             ['company_id', '=', self.company.id],
-    //         ];
-    //     },
-    //     loaded: function (self, fiscal_sequences) {
-    //         self.fiscal_sequences = fiscal_sequences;
-    //     },
-    // });
+    models.load_models({
+        model: 'ir.sequence',
+        fields: [
+            'l10n_latam_document_type_id',
+        ],
+        domain: function (self) {
+            return [
+                ['id', 'in', self.invoice_journal.l10n_do_sequence_ids],
+            ];
+        },
+        loaded: function (self, latam_sequences) {
+            self.l10n_latam_sequences = latam_sequences;
+            console.log('Sequences loaded:', latam_sequences);
+        },
+    });
 
     models.load_models({
         model: 'l10n_latam.document.type',
@@ -63,8 +62,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
         loaded: function (self, latam_document_types) {
             self.l10n_latam_document_types = latam_document_types;
-            console.log(self);
-            console.log('l10n_latam_document_types_loaded', latam_document_types);
+            console.log('Document types loaded:', latam_document_types);
         },
     });
 
@@ -72,14 +70,15 @@ odoo.define('l10n_do_pos.models', function (require) {
         initialize: function () {
             _super_order.initialize.apply(this, arguments);
             var self = this;
-            // this.ncf = '';
-            // this.ncf_l10n_do_origin_ncf = '';
-            // this.ncf_expiration_date = '';
+            this.l10n_latam_document_number = '';
+            this.l10n_latam_sequence_id = false;
+            this.l10n_latam_document_type_id = false;
             this.l10n_latam_document_type =
                 self.pos.get_latam_document_type_by_prefix();
-            this.l10n_latam_document_type_id = false;
+            this.to_invoice_backend = false;
             this.set_to_invoice(true);
-            // this.fiscal_sequence_id = false;
+            // this.ncf_l10n_do_origin_ncf = '';
+            // this.ncf_expiration_date = '';
             // var client = self.get_client();
             // if (this.get_mode() === 'return') {
             //
@@ -124,17 +123,22 @@ odoo.define('l10n_do_pos.models', function (require) {
             var current_order = self.pos.get_order();
 
             if (current_order) {
-                // loaded.ncf = current_order.ncf;
-                // loaded.ncf_l10n_do_origin_ncf = current_order.ncf_l10n_do_origin_ncf;
-                // loaded.ncf_expiration_date = current_order.ncf_expiration_date;
+                loaded.l10n_latam_document_number =
+                    current_order.l10n_latam_document_number;
+                loaded.l10n_latam_sequence_id = current_order.l10n_latam_sequence_id;
                 loaded.l10n_latam_document_type_id =
                     current_order.l10n_latam_document_type_id;
-                // loaded.fiscal_sequence_id = current_order.fiscal_sequence_id;
+                loaded.to_invoice_backend = current_order.to_invoice_backend;
+                // loaded.ncf_l10n_do_origin_ncf = current_order.ncf_l10n_do_origin_ncf;
+                // loaded.ncf_expiration_date = current_order.ncf_expiration_date;
             }
 
             return loaded;
         },
-
+        set_to_invoice: function(to_invoice) {
+            _super_order.set_to_invoice.call(this, to_invoice);
+            this.to_invoice_backend = to_invoice;
+        },
         // For returned order (credit note)
         // add_payment_credit_note: function (credit_note_ncf, cashregister) {
         //     var self = this;
@@ -238,6 +242,17 @@ odoo.define('l10n_do_pos.models', function (require) {
                 res_latam_document_type = this.get_latam_document_type_by_prefix();
             }
             return res_latam_document_type;
+        },
+
+        get_l10n_latam_sequence_by_document_type_id: function (document_type_id) {
+            var result = false;
+            var self = this;
+            self.l10n_latam_sequences.forEach(function (latam_sequence) {
+                if (latam_sequence.l10n_latam_document_type_id[0] === document_type_id) {
+                    result = latam_sequence;
+                }
+            });
+            return result
         },
 
         get_latam_document_type_by_prefix: function (prefix) {
