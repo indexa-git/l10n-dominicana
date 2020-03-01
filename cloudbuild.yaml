@@ -93,7 +93,6 @@ steps:
       - 'LOG_LEVEL=${_LOG_LEVEL}'
       - 'WITHOUT_DEMO=${_WITHOUT_DEMO}'
       - 'RUN_TESTS=${_RUN_TESTS}'
-      - 'PIP_AUTO_INSTALL=${_PIP_AUTO_INSTALL}'
       - 'EXTRA_MODULES=${_EXTRA_MODULES}'
 
 # Tag the image for GCR and Cloud Build
