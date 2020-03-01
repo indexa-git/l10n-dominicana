@@ -1,7 +1,7 @@
 substitutions:
   # Odoo variables
   _TEST_BRANCH: "11.0"
-  _RUN_TESTS: "1"
+  _RUN_TESTS: "0"
   _LOG_LEVEL: test
   _WITHOUT_DEMO: "False"
 
