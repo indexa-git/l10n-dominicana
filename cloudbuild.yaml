@@ -35,7 +35,7 @@ steps:
         mkdir -p ./${REPO_NAME}-ci
         mv /workspace/*/ ./${REPO_NAME}-ci
         curl https://raw.githubusercontent.com/OCA/maintainer-quality-tools/master/travis/getaddons.py -o getaddons.py && sed -i 's/from git_run import GitRun//g' getaddons.py
-        python -c "from getaddons import get_modules; print(','.join(get_modules('./${REPO_NAME}-ci', , depth=3)))" > _MODULES
+        python -c "from getaddons import get_modules; print(','.join(get_modules('./${REPO_NAME}-ci', depth=3)))" > _MODULES
         python -c "from getaddons import get_addons; print(','.join(get_addons('.', depth=3)))" > _ADDONS_PATH
         ###### Add other git dependencies here ########
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/camptocamp/odoo-cloud-platform.git
