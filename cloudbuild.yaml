@@ -58,9 +58,10 @@ steps:
         USER root
         RUN sudo mkdir -p /var/lib/odoo/extra-addons
         COPY . /var/lib/odoo/extra-addons
-        RUN ls /var/lib/odoo/extra-addons
-        RUN ls .
-        RUN find /var/lib/odoo/extra-addons -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \;
+        RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends build-essential \
+            && find /var/lib/odoo/extra-addons -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \; \
+            && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+            && rm -rf /var/lib/apt/lists/*
         RUN sudo chown -R 1000:1000 /var/lib/odoo/extra-addons
         USER 1000
         EOF
