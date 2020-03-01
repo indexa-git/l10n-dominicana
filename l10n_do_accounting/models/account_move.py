@@ -325,7 +325,8 @@ class AccountMove(models.Model):
         if self.company_id.country_id == self.env.ref('base.do') \
                 and self.l10n_latam_document_type_id and self.type == 'in_invoice' \
                 and self.partner_id:
-            self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type
+            self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type if not \
+                self.l10n_do_expense_type else self.l10n_do_expense_type
 
         return super(AccountMove, self)._onchange_partner_id()
 
