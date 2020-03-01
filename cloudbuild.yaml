@@ -36,7 +36,6 @@ steps:
         mv /workspace/*/ ./${REPO_NAME}-ci
         curl https://raw.githubusercontent.com/OCA/maintainer-quality-tools/master/travis/getaddons.py -o getaddons.py && sed -i 's/from git_run import GitRun//g' getaddons.py
         python -c "from getaddons import get_modules; print(','.join(get_modules('./${REPO_NAME}-ci', depth=3)))" > _MODULES
-        python -c "from getaddons import get_addons; print(','.join(get_addons('.', depth=3)))" > _ADDONS_PATH
         ###### Add other git dependencies here ########
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/camptocamp/odoo-cloud-platform.git
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/it-projects-llc/pos-addons.git
@@ -57,14 +56,14 @@ steps:
         FROM  gcr.io/iterativo/dockerdoo:${_TEST_BRANCH}
         ENV ODOO_EXTRA_ADDONS /var/lib/odoo/extra-addons
         USER root
-        RUN sudo mkdir -p /var/lib/odoo/extra-addons
-        COPY . /var/lib/odoo/extra-addons
+        RUN sudo mkdir -p $${ODOO_EXTRA_ADDONS}
+        COPY . $${ODOO_EXTRA_ADDONS}
         RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends build-essential \
-            && find /var/lib/odoo/extra-addons -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \; \
+            && find $${ODOO_EXTRA_ADDONS} -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \; \
             && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
             && rm -rf /var/lib/apt/lists/*
-        RUN sudo chown -R 1000:1000 /var/lib/odoo/extra-addons
-        RUN ls /var/lib/odoo/extra-addons
+        RUN sudo chown -R 1000:1000 $${ODOO_EXTRA_ADDONS}
+        RUN ls $${ODOO_EXTRA_ADDONS}
         USER 1000
         EOF
 
