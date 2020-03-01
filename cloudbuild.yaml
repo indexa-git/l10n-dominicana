@@ -37,6 +37,8 @@ steps:
         curl https://raw.githubusercontent.com/OCA/maintainer-quality-tools/master/travis/getaddons.py -o getaddons.py
         sed -i 's/from git_run import GitRun//g' getaddons.py
         python -c "from getaddons import get_modules; print(','.join(get_modules('./${REPO_NAME}-ci')))" > _MODULES
+        curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${_TEST_BRANCH}/resources/entrypoint.sh -o entrypoint.sh
+        chmod +x entrypoint.sh
         ###### Add other git dependencies here ########
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/camptocamp/odoo-cloud-platform.git
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/it-projects-llc/pos-addons.git
@@ -92,8 +94,9 @@ steps:
       - "-c"
       - |
         set -x
+        ls
         export EXTRA_MODULES=$(< /workspace/_MODULES)
-        sh ./entrypoint
+        sh /workspace/entrypoint.sh
         [[ "$_RUN_TESTS" == "1" ]] && odoo -d ${REPO_NAME}-${BRANCH_NAME} --db_host=${REPO_NAME}-${BRANCH_NAME} --test-enable --init="$${EXTRA_MODULES}" --db_user=odoo --db_password=odoo --stop-after-init || echo "skipping..."
     env:
       - "LOG_LEVEL=${_LOG_LEVEL}"
