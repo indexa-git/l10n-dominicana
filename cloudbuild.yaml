@@ -4,8 +4,6 @@ substitutions:
   _RUN_TESTS: "1"
   _LOG_LEVEL: test
   _WITHOUT_DEMO: "False"
-  _EXTRA_MODULES: "ncf_invoice_template,ncf_sale,ncf_pos,ncf_manager,ncf_purchase"
-  _ODOO_EXTRA_ADDONS: "/var/lib/odoo/extra-addons"
 
 # Allow variables without substitutions
 options:
@@ -42,7 +40,6 @@ steps:
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/indexa-git/external_service_addons.git
         ###### Do not modify under this line ####
         chown -R 1000:1000 /builder/home/
-        ls .
 
   # Build the image with the mounted volume
   - name: "gcr.io/cloud-builders/docker"
@@ -63,7 +60,6 @@ steps:
             && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
             && rm -rf /var/lib/apt/lists/*
         RUN sudo chown -R 1000:1000 $${ODOO_EXTRA_ADDONS}
-        RUN ls $${ODOO_EXTRA_ADDONS}
         USER 1000
         EOF
     env:
