@@ -54,7 +54,7 @@ steps:
       - |
         docker build . -t 'gcr.io/$PROJECT_ID/${REPO_NAME}:${BRANCH_NAME}' -f-<<EOF
         FROM  gcr.io/iterativo/dockerdoo:${_TEST_BRANCH}
-        ENV ODOO_EXTRA_ADDONS /var/lib/odoo/extra-addons
+        ENV ODOO_EXTRA_ADDONS $${ODOO_EXTRA_ADDONS}
         USER root
         RUN sudo mkdir -p $${ODOO_EXTRA_ADDONS}
         COPY . $${ODOO_EXTRA_ADDONS}
@@ -66,6 +66,8 @@ steps:
         RUN ls $${ODOO_EXTRA_ADDONS}
         USER 1000
         EOF
+    env:
+      - "ODOO_EXTRA_ADDONS=${/var/lib/odoo/extra-addons}"
 
     # Install PostgreSQL
   - name: gcr.io/cloud-builders/docker
