@@ -32,7 +32,6 @@ steps:
     args:
       - "-c"
       - |
-        set -x
         mkdir -p ./${REPO_NAME}-ci
         mv /workspace/*/ ./${REPO_NAME}-ci
         curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${_TEST_BRANCH}/resources/getaddons.py -o getaddons.py
@@ -93,10 +92,7 @@ steps:
     args:
       - "-c"
       - |
-        set -x
-        ls
-        export EXTRA_ADDONS_PATHS=$(python getaddons.py /workspace)
-        export ADDONS_PATH=${EXTRA_ADDONS_PATHS//[.]/${_ODOO_EXTRA_ADDONS}}
+        export ADDONS_PATH=$(python getaddons.py /workspace)
         export EXTRA_MODULES=$(< /workspace/_MODULES)
         [[ "$_RUN_TESTS" == "1" ]] && odoo --addons-path=$${ADDONS_PATH} -d ${REPO_NAME}-${BRANCH_NAME} --db_host=${REPO_NAME}-${BRANCH_NAME} --test-enable --init=$${EXTRA_MODULES} --db_user=odoo --db_password=odoo --stop-after-init || echo "skipping..."
     env:
