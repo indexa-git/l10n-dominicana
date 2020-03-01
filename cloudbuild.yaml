@@ -58,11 +58,12 @@ steps:
         USER root
         RUN sudo mkdir -p $${ODOO_EXTRA_ADDONS}
         COPY . $${ODOO_EXTRA_ADDONS}
+        RUN export EXTRA_ADDONS_PATHS=$(python -c "from getaddons import get_addons; print(','.join(get_addons('./$${ODOO_EXTRA_ADDONS}', depth=3)))") \
+            && echo $${EXTRA_ADDONS_PATHS}
         RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends build-essential \
             && find $${ODOO_EXTRA_ADDONS} -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \; \
             && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
             && rm -rf /var/lib/apt/lists/*
-        RUN python -c "from getaddons import get_modules; print(','.join(get_modules('./${REPO_NAME}-ci', depth=3)))" > _MODULES
         RUN sudo chown -R 1000:1000 $${ODOO_EXTRA_ADDONS}
         RUN ls $${ODOO_EXTRA_ADDONS}
         USER 1000
