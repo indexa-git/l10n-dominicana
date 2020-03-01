@@ -270,12 +270,12 @@ class AccountInvoice(models.Model):
     def _onchange_partner_id(self):
         res = super(AccountInvoice, self)._onchange_partner_id()
         if self.partner_id and self.type == 'out_invoice':
-            if self.journal_id.ncf_control:
+            if self.journal_id.ncf_control and not self.sale_fiscal_type:
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
                 self.special_check()
             if not self.partner_id.customer:
                 self.partner_id.customer = True
-        elif self.partner_id and self.type == 'in_invoice':
+        elif self.partner_id and self.type == 'in_invoice' and not self.expense_type:
             self.expense_type = self.partner_id.expense_type
             if not self.partner_id.supplier:
                 self.partner_id.supplier = True
