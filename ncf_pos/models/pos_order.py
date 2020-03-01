@@ -153,7 +153,9 @@ class PosOrder(models.Model):
             if record.refund_payment_account_move_line_ids:
                 for aml in record.refund_payment_account_move_line_ids:
                     for p_id in aml.invoice_id.payment_move_line_ids.ids:
-                        record.invoice_id[0].assign_outstanding_credit(p_id)
+                        if record.invoice_id:
+                            record.invoice_id[0].assign_outstanding_credit(
+                                p_id)
             if record.is_return_order:
                 record.invoice_id.write({
                     'origin_out': record.return_order_id.invoice_id.reference,
@@ -257,18 +259,39 @@ class PosOrder(models.Model):
     @api.model
     def get_next_ncf(self, order_uid, sale_fiscal_type, invoice_journal_id,
                      is_return_order):
-        if not self.env["pos.order.ncf.temp"].search(
-           [('pos_reference', '=', order_uid)]):
+        pos_order_ncf_temp = self.env["pos.order.ncf.temp"].search([
+            ('pos_reference', '=', order_uid)
+            ])
+        if not pos_order_ncf_temp:
             journal_id = self.env["account.journal"].browse(invoice_journal_id)
             if journal_id.ncf_control:
                 if not journal_id:
                     raise ValidationError(
                         _("You have not specified a sales journal"))
                 elif not is_return_order:
+                    # If max NCF number reached return max_ncf_number_reached
+                    # message, POS will use this message to display an error
+                    # popup to the user prompting them to get help to extend
+                    # the max number in the sequence. If max number is not
+                    # reached get next number in sequence and return.
+                    sequence = self.env['ir.sequence.date_range'].search([
+                        ('sequence_id', '=', journal_id.sequence_id.id),
+                        ('sale_fiscal_type', '=', sale_fiscal_type)
+                    ])[0]
+                    if sequence.number_next_actual > sequence.max_number_next:
+                        return 'max_ncf_number_reached'
+
                     ncf = journal_id.sequence_id.with_context(
                         ir_sequence_date=fields.Date.today(),
                         sale_fiscal_type=sale_fiscal_type).next_by_id()
                 elif is_return_order:
+                    sequence = self.env['ir.sequence.date_range'].search([
+                        ('sequence_id', '=', journal_id.sequence_id.id),
+                        ('sale_fiscal_type', '=', 'credit_note')
+                    ])[0]
+                    if sequence.number_next_actual > sequence.max_number_next:
+                        return 'max_ncf_number_reached'
+
                     ncf = journal_id.sequence_id.with_context(
                         ir_sequence_date=fields.Date.today(),
                         sale_fiscal_type="credit_note").next_by_id()
@@ -299,9 +322,10 @@ class PosOrder(models.Model):
                 out_refund_invoice = self.env["account.invoice"].sudo().search(
                     [('reference', '=', payment_name)])
                 if out_refund_invoice:
-                    move_line_ids = out_refund_invoice.move_id.line_ids
-                    move_line_ids = move_line_ids.filtered(
-                        lambda r: not r.reconciled and r.account_id.
+                    move_line_ids = out_refund_invoice.mapped(
+                        'move_id.line_ids'
+                        ).filtered(
+                            lambda r: not r.reconciled and r.account_id.
                         internal_type == 'receivable' and r.partner_id == self.
                         partner_id.commercial_partner_id)
                     for move_line_id in move_line_ids:

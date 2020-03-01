@@ -141,11 +141,11 @@
                     </t>
                     <t t-else="">
                         <t t-if="o.partner_id.vat">
-                            <strong>ID cliente:</strong>
+                            <strong>ID CLIENTE:</strong>
                             <span class="m-0" t-field="o.partner_id.vat"/>
+                            <br/>
                         </t>
-                        <br/>
-                        <strong>Nombre:</strong>
+                        <strong>NOMBRE:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span class="m-0" t-field="o.partner_id.parent_id.name"/>
                             <br/>
@@ -184,7 +184,12 @@
                 </div>
                 <div class="col-auto mw-100 mb-2" t-if="o.partner_id.vat == False" name="invoice_partner_address">
                     <t>
-                        <strong>Nombre:</strong>
+                        <t t-if="o.partner_id.vat">
+                            <strong>ID CLIENTE:</strong>
+                            <span t-field="o.partner_id.vat"/>
+                        <br/>
+                        </t>
+                        <strong>NOMBRE:</strong>
                         <t t-if="o.partner_id.parent_id">
                             <span class="m-0" t-field="o.partner_id.parent_id.name"/>
                             <br/>

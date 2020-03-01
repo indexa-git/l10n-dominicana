@@ -31,6 +31,7 @@
                             <field name="date_to"/>
                             <field name="number_next_actual"/>
                             <field name="max_number_next"/>
+                            <field name="warning_ncf"/>
                             <field name="sale_fiscal_type"/>
                         </tree>
                     </field>

@@ -3,12 +3,23 @@
     <record id="ncf_manager_account_invoice_form" model="ir.ui.view">
         <field name="name">ncf manager account invoice form</field>
         <field name="model">account.invoice</field>
+        <field name="priority">99</field>
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="arch" type="xml">
             <button name="action_invoice_sent" position="attributes">
                 <attribute name="attrs"></attribute>
                 <attribute name="icon">fa-paper-plane</attribute>
             </button>
+
+
+
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                 <field name="sequence_almost_depleted" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('sequence_almost_depleted','=',False)]}">
+                    Los comprobantes de este tipo están por agotarse
+                </div>
+            </xpath>
+
 
             <form>
                 <field name="ncf_control" invisible="1"/>
@@ -74,8 +85,17 @@
     <record id="ncf_manager_supplier_account_invoice_form" model="ir.ui.view">
         <field name="name">ncf manager supplier account invoice form</field>
         <field name="model">account.invoice</field>
+        <field name="priority">99</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
+
+
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                 <field name="sequence_almost_depleted" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('sequence_almost_depleted','=',False)]}">
+                    Los comprobantes de este tipo estan por agotarse
+                </div>
+            </xpath>
 
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>

@@ -433,9 +433,6 @@ odoo.define('ncf_pos.screens', function (require) {
                             if (product == null) {
                                 non_returnable_products = true;
                                 message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
-                            } else if (product.not_returnable) {
-                                non_returnable_products = true;
-                                message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
                             } else if (line.qty - line.line_qty_returned > 0) {
                                 original_orderlines.push(line);
                             }
@@ -852,15 +849,6 @@ odoo.define('ncf_pos.screens', function (require) {
                     order.orderlineList.forEach(function (obj) {
                         return_product[obj.product_id] = obj.quantity;
                     });
-                    original_order.lines.forEach(function (line_id) {
-                        var line = $.extend({}, self.pos.db.line_by_id[line_id]);
-                        var product = self.pos.db.get_product_by_id(line.product_id[0]);
-
-                        if (product != null && !product.not_returnable && line.qty - line.line_qty_returned > 0) {
-                            line.current_return_qty = return_product[line.product_id[0]] || 0;
-                            original_orderlines.push(line);
-                        }
-                    });
                     self.gui.show_popup('refund_order_popup', {
                         disable_keyboard_handler: true,
                         order: original_order,
@@ -917,6 +905,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 });
 
                 dfd.done(function (next_ncf) {
+                    if (next_ncf && (next_ncf.slice(0,1)) === 'B') {
+                        order.max_ncf_number_reached = false;
+                    }
                     var ncfs = self.pos.db.load('ncfs', []);
 
                     order.ncf = next_ncf;
@@ -977,8 +968,18 @@ odoo.define('ncf_pos.screens', function (require) {
                     } else {
                         this.get_next_ncf(order)
                             .done(function () {
-                                self.finalize_validation();
-                                self.orderValidationDate = null;
+                                if (order.ncf === 'max_ncf_number_reached' || order.max_ncf_number_reached) {
+                                    order.max_ncf_number_reached = true;
+                                    self.gui.show_popup('error', {
+                                        'title': 'Limite Máximo para Secuencia de NCF Excedido',
+                                        'body': 'Se a alcanzado el limite maximo para el tipo de NCF seleccionado: ' +
+                                                order.get_client().sale_fiscal_type +
+                                                '. Puede pedir ayuda para extender la secuencia permitida y validar la orden nuevamente.\n\n',
+                                    });
+                                } else {
+                                    self.finalize_validation();
+                                    self.orderValidationDate = null;
+                                }
                             }).fail(function () {
                                 self.gui.show_popup('error', {
                                     'title': 'No se pudo realizar la conexión con el servidor',

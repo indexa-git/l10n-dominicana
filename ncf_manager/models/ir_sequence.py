@@ -110,3 +110,10 @@ class IrSequenceDateRange(models.Model):
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
     max_number_next = fields.Integer(u"Número Máximo", default=100)
+
+    warning_ncf = fields.Integer(string="NCF de alerta")
+
+    def set_warning_ncf(self):
+        for seq in self.search([('sale_fiscal_type', '!=', 'False')]):
+            if not seq.warning_ncf:
+                seq.warning_ncf = seq.max_number_next - 50 or 50
