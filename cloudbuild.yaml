@@ -93,7 +93,7 @@ steps:
       - 'WITHOUT_DEMO=${_WITHOUT_DEMO}'
       - 'RUN_TESTS=${_RUN_TESTS}'
       - 'PIP_AUTO_INSTALL=${_PIP_AUTO_INSTALL}'
-      - 'EXTRA_MODULES="ncf_invoice_template,ncf_sale,ncf_pos,ncf_manager,ncf_purchase"'
+      - 'EXTRA_MODULES=ncf_invoice_template,ncf_sale,ncf_pos,ncf_manager,ncf_purchase'
 
 # Tag the image for GCR and Cloud Build
 images:
