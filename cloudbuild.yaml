@@ -30,6 +30,7 @@ steps:
     args:
       - "-c"
       - |
+        set -x
         mkdir -p ./${REPO_NAME}-ci
         mv /workspace/*/ ./${REPO_NAME}-ci
         curl https://raw.githubusercontent.com/OCA/maintainer-quality-tools/master/travis/getaddons.py -o getaddons.py
@@ -87,6 +88,7 @@ steps:
     args:
       - "-c"
       - |
+        set -x
         export EXTRA_MODULES=$(cat /workspace/_EXTRA_MODULES)
         [[ "$_RUN_TESTS" == "1" ]] && odoo -d ${REPO_NAME}-${BRANCH_NAME} --db_host=${REPO_NAME}-${BRANCH_NAME} --test-enable -i $${EXTRA_MODULES} --db_user=odoo --db_password=odoo --stop-after-init || echo "skipping..."
     env:
