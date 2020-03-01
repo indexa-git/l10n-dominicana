@@ -55,12 +55,11 @@ steps:
         docker build . -t 'gcr.io/$PROJECT_ID/${REPO_NAME}:${BRANCH_NAME}' -f-<<EOF
         FROM  gcr.io/iterativo/dockerdoo:${_TEST_BRANCH}
         ENV ODOO_EXTRA_ADDONS $${ODOO_EXTRA_ADDONS}
+        RUN python3 getaddons.py /var/lib/odoo/extra-addons > ./addons && cat ./addons
         USER root
         RUN sudo mkdir -p $${ODOO_EXTRA_ADDONS}
         COPY . $${ODOO_EXTRA_ADDONS}
-        RUN set -x && python3 getaddons.py /var/lib/odoo/extra-addons
-        RUN export EXTRA_ADDONS_PATHS=$(python -c "from getaddons import get_addons; print(','.join(get_addons('$${ODOO_EXTRA_ADDONS}', depth=3)))") \
-            && echo $${EXTRA_ADDONS_PATHS}
+        RUN export EXTRA_ADDONS_PATHS=$(cat ./addons) && echo $${EXTRA_ADDONS_PATHS}
         RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends build-essential \
             && find $${ODOO_EXTRA_ADDONS} -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \; \
             && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
