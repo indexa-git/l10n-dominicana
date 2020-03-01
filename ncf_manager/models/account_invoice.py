@@ -215,7 +215,7 @@ class AccountInvoice(models.Model):
                     u"para registrar compras Fiscales")
                     .format(self.partner_id.name))
 
-            elif (self.journal_id.ncf_remote_validation and
+            elif (self.journal_id.ncf_remote_validation and len(NCF) == '9' and 
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
                 raise ValidationError(_(
                     u"NCF NO pasó validación en DGII\n\n"
