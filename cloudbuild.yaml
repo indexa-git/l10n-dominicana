@@ -4,6 +4,7 @@ substitutions:
   _RUN_TESTS: "1"
   _LOG_LEVEL: test
   _WITHOUT_DEMO: "False"
+  _EXTRA_MODULES: "ncf_invoice_template,ncf_sale,ncf_pos,ncf_manager,ncf_purchase"
 
 # Allow variables without substitutions
 options:
@@ -93,7 +94,7 @@ steps:
       - 'WITHOUT_DEMO=${_WITHOUT_DEMO}'
       - 'RUN_TESTS=${_RUN_TESTS}'
       - 'PIP_AUTO_INSTALL=${_PIP_AUTO_INSTALL}'
-      - 'EXTRA_MODULES=ncf_invoice_template,ncf_sale,ncf_pos,ncf_manager,ncf_purchase'
+      - 'EXTRA_MODULES=${_EXTRA_MODULES}'
 
 # Tag the image for GCR and Cloud Build
 images:
