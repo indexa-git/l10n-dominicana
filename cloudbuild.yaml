@@ -58,7 +58,7 @@ steps:
         USER root
         RUN sudo mkdir -p $${ODOO_EXTRA_ADDONS}
         COPY . $${ODOO_EXTRA_ADDONS}
-        RUN echo $(python3 getaddons.py $${ODOO_EXTRA_ADDONS})
+        RUN set -x && EXTRA_ADDONS_PATHS=$(python3 getaddons.py $${ODOO_EXTRA_ADDONS})
         RUN export EXTRA_ADDONS_PATHS=$(python -c "from getaddons import get_addons; print(','.join(get_addons('$${ODOO_EXTRA_ADDONS}', depth=3)))") \
             && echo $${EXTRA_ADDONS_PATHS}
         RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends build-essential \
