@@ -25,7 +25,7 @@ steps:
     # Move "cleaned" modules to their own folder and download required dependencies
   - name: "gcr.io/cloud-builders/git"
     id: dependencies
-    waitFor: ["ssh"]
+    waitFor: ["-"]
     entrypoint: "bash"
     args:
       - "-c"
@@ -92,11 +92,6 @@ steps:
     env:
       - "LOG_LEVEL=${_LOG_LEVEL}"
       - "WITHOUT_DEMO=${_WITHOUT_DEMO}"
-
-  # Push the image to Google Cloud Registry
-  - name: "gcr.io/cloud-builders/docker"
-    id: push
-    args: ["push", "gcr.io/$PROJECT_ID/${REPO_NAME}:${BRANCH_NAME}"]
 
 # Tag the image for GCR and Cloud Build
 images:
