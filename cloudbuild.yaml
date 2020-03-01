@@ -56,7 +56,8 @@ steps:
         FROM  gcr.io/iterativo/dockerdoo:${_TEST_BRANCH}
         ENV ODOO_EXTRA_ADDONS $${ODOO_EXTRA_ADDONS}
         USER root
-        RUN python3 getaddons.py /var/lib/odoo/extra-addons > ./addons && cat ./addons
+        RUN set -x && python3 getaddons.py /var/lib/odoo/extra-addons
+        RUN set -x && python3 getaddons.py /var/lib/odoo/extra-addons > ./addons && cat ./addons
         RUN sudo mkdir -p $${ODOO_EXTRA_ADDONS}
         COPY . $${ODOO_EXTRA_ADDONS}
         RUN export EXTRA_ADDONS_PATHS=$(cat ./addons) && echo $${EXTRA_ADDONS_PATHS}
