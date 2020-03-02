@@ -1,7 +1,7 @@
 substitutions:
   # Odoo variables
   _TEST_BRANCH: "11.0"
-  _RUN_TESTS: "1"
+  _RUN_TESTS: "0"
   _LOG_LEVEL: test
   _WITHOUT_DEMO: "False"
 
@@ -32,16 +32,14 @@ steps:
       - |
         mkdir -p ./${REPO_NAME}-ci
         mv /workspace/*/ ./${REPO_NAME}-ci
-        curl https://raw.githubusercontent.com/OCA/maintainer-quality-tools/master/travis/getaddons.py -o getaddons.py
-        sed -i 's/from git_run import GitRun//g' getaddons.py
-        python -c "from getaddons import get_modules; print(','.join(get_modules('./${REPO_NAME}-ci')))" > _EXTRA_MODULES
+        curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${_TEST_BRANCH}/resources/getaddons.py -o getaddons.py
+        python -c "from getaddons import get_modules; print(','.join(get_modules('./${REPO_NAME}-ci', depth=3)))" > _MODULES
         ###### Add other git dependencies here ########
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/camptocamp/odoo-cloud-platform.git
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/it-projects-llc/pos-addons.git
-        git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/indexa-git/external_service_addons.git      
+        git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch https://github.com/indexa-git/external_service_addons.git
         ###### Do not modify under this line ####
         chown -R 1000:1000 /builder/home/
-        ls .
 
   # Build the image with the mounted volume
   - name: "gcr.io/cloud-builders/docker"
@@ -53,16 +51,19 @@ steps:
       - |
         docker build . -t 'gcr.io/$PROJECT_ID/${REPO_NAME}:${BRANCH_NAME}' -f-<<EOF
         FROM  gcr.io/iterativo/dockerdoo:${_TEST_BRANCH}
-        ENV ODOO_EXTRA_ADDONS /var/lib/odoo/extra-addons
+        ENV ODOO_EXTRA_ADDONS $${ODOO_EXTRA_ADDONS}
         USER root
-        RUN sudo mkdir -p /var/lib/odoo/extra-addons
-        COPY . /var/lib/odoo/extra-addons
-        RUN ls /var/lib/odoo/extra-addons
-        RUN ls .
-        RUN find /var/lib/odoo/extra-addons -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \;
-        RUN sudo chown -R 1000:1000 /var/lib/odoo/extra-addons
+        RUN sudo mkdir -p $${ODOO_EXTRA_ADDONS}
+        COPY . $${ODOO_EXTRA_ADDONS}
+        RUN apt-get -qq update && apt-get -qq install -y --no-install-recommends build-essential \
+            && find $${ODOO_EXTRA_ADDONS} -name 'requirements.txt' -exec pip3 --no-cache-dir install -r {} \; \
+            && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+            && rm -rf /var/lib/apt/lists/*
+        RUN sudo chown -R 1000:1000 $${ODOO_EXTRA_ADDONS}
         USER 1000
         EOF
+    env:
+      - "ODOO_EXTRA_ADDONS=/var/lib/odoo/extra-addons"
 
     # Install PostgreSQL
   - name: gcr.io/cloud-builders/docker
@@ -87,8 +88,9 @@ steps:
     args:
       - "-c"
       - |
-        export EXTRA_MODULES=$(cat /workspace/_EXTRA_MODULES)
-        [[ "$_RUN_TESTS" == "1" ]] && odoo -d ${REPO_NAME}-${BRANCH_NAME} --db_host=${REPO_NAME}-${BRANCH_NAME} --test-enable -i $${EXTRA_MODULES} --db_user=odoo --db_password=odoo --stop-after-init || echo "skipping..."
+        export ADDONS_PATH=$(python getaddons.py /workspace)
+        export EXTRA_MODULES=$(< /workspace/_MODULES)
+        [[ "$_RUN_TESTS" == "1" ]] && odoo --addons-path=$${ADDONS_PATH} -d ${REPO_NAME}-${BRANCH_NAME} --db_host=${REPO_NAME}-${BRANCH_NAME} --test-enable --init=$${EXTRA_MODULES} --db_user=odoo --db_password=odoo --stop-after-init || echo "skipping..."
     env:
       - "LOG_LEVEL=${_LOG_LEVEL}"
       - "WITHOUT_DEMO=${_WITHOUT_DEMO}"
