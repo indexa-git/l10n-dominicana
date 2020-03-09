@@ -89,7 +89,7 @@ class AccountMove(models.Model):
             raise ValidationError(
                 _("You cannot cancel multiple fiscal invoices at a time."))
 
-        if fiscal_invoice:
+        if fiscal_invoice and self.type[-6:] == ['refund','nvoice']:
             action = self.env.ref(
                 'l10n_do_accounting.action_account_move_cancel'
             ).read()[0]
