@@ -367,7 +367,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
-            if inv.amount_untaxed == 0:
+            if inv.amount_total == 0:
                 raise UserError(_(
                     u"No se puede validar una factura cuyo monto total sea"
                     " igual a 0."))
