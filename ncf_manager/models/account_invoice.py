@@ -215,7 +215,7 @@ class AccountInvoice(models.Model):
                     u"para registrar compras Fiscales")
                     .format(self.partner_id.name))
 
-            elif (self.journal_id.ncf_remote_validation and len(NCF) == '9' and 
+            elif (self.journal_id.ncf_remote_validation and len(NCF) == '9' and
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
                 raise ValidationError(_(
                     u"NCF NO pasó validación en DGII\n\n"
@@ -367,7 +367,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
-            if inv.amount_untaxed == 0:
+            if inv.amount_total == 0:
                 raise UserError(_(
                     u"No se puede validar una factura cuyo monto total sea"
                     " igual a 0."))
