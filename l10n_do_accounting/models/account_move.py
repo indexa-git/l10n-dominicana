@@ -83,13 +83,14 @@ class AccountMove(models.Model):
     def button_cancel(self):
 
         fiscal_invoice = self.filtered(
-            lambda inv: inv.l10n_latam_country_code == 'DO')
+            lambda inv: inv.l10n_latam_country_code == 'DO' and self.type[-6:] == 'nvoice' or
+                        inv.l10n_latam_country_code == 'DO' and self.type[-6:] == 'refund' )
 
         if len(fiscal_invoice) > 1:
             raise ValidationError(
                 _("You cannot cancel multiple fiscal invoices at a time."))
 
-        if fiscal_invoice and self.type[-6:] == ['refund','nvoice']:
+        if fiscal_invoice:
             action = self.env.ref(
                 'l10n_do_accounting.action_account_move_cancel'
             ).read()[0]
