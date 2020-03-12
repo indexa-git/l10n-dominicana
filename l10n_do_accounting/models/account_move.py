@@ -83,8 +83,7 @@ class AccountMove(models.Model):
     def button_cancel(self):
 
         fiscal_invoice = self.filtered(
-            lambda inv: inv.l10n_latam_country_code == 'DO' and self.type[-6:] == 'nvoice' or
-                        inv.l10n_latam_country_code == 'DO' and self.type[-6:] == 'refund' )
+            lambda inv: inv.l10n_latam_country_code == 'DO' and self.type[-6:] in ('nvoice', 'refund'))
 
         if len(fiscal_invoice) > 1:
             raise ValidationError(
