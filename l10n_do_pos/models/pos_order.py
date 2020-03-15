@@ -162,7 +162,8 @@ class PosOrder(models.Model):
             new_invoice.message_post(body=message)
             order.sudo().write({
                 'invoice_id': new_invoice.id,
-                'state': 'invoiced'
+                'state': 'invoiced',
+                'sale_journal': order.config_id.invoice_journal_id.id,
             })
             invoice += new_invoice
 
@@ -230,7 +231,9 @@ class PosOrder(models.Model):
                 ('id', '=', order['id'])
             ])
             if order_obj.config_id.invoice_journal_id.l10n_do_fiscal_journal \
-                    and order_obj.state != 'invoiced' and order_obj.amount_total != 0:
+                    and order_obj.state != 'invoiced' \
+                    and order_obj.amount_total != 0 \
+                    and order_obj.ncf:
 
                 order_obj.action_pos_order_invoice_no_return_pdf()
                 order_obj.invoice_id.sudo().action_invoice_open()

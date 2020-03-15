@@ -7,11 +7,11 @@
         <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
         <field name="arch" type="xml">
 
-            <field name="sale_journal" position="replace">
-                <field name="ncf"/>
-                <field name="ncf_expiration_date"/>
-                <field name="fiscal_type_id"/>
-                <!--<field name="ncf_origin_out" attrs="{'invisible':[('is_return_order','=',False)]}"/>-->
+            <field name="sale_journal" position="after">
+                <field name="ncf" attrs="{'invisible':[('ncf', '=',False)]}" readonly="1"/>
+                <field name="ncf_expiration_date" attrs="{'invisible':[('ncf', '=',False)]}" readonly="1"/>
+                <field name="fiscal_type_id" attrs="{'invisible':[('ncf', '=',False)]}" readonly="1"/>
+                <field name="ncf_origin_out" attrs="{'invisible':[('ncf_origin_out', '=', False)]}" readonly="1"/>
             </field>
 
         </field>
