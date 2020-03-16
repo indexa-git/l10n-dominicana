@@ -3,8 +3,6 @@ from odoo import tools
 from odoo.tests.common import TransactionCase
 from odoo.modules.module import get_module_resource
 
-# TODO: test normal account move
-
 
 class AccountMoveTest(TransactionCase):
 
@@ -20,69 +18,80 @@ class AccountMoveTest(TransactionCase):
         # Minimal accounting setup
         self._load('account', 'test', 'account_minimal_test.xml')
 
-        company = self.env.user.company_id
-
         country_do = self.env.ref("base.do").id
 
-        journal_purchase = self.env.ref("l10n_do_accounting.expenses_journal")
-
-        journal_sale = self.env.ref("l10n_do_accounting.sales_journal")
-
-        journal_entries = self.env.ref("l10n_do_accounting.miscellaneous_journal")
-
+        # Company setup
+        company = self.env.user.company_id
         company.write({
             'vat': '131793916',
             'country_id': country_do,
         })
 
-        journal_purchase.write({
-            'l10n_latam_use_documents': True
-        })
+        # Accounting setup
+        self.journal_obj = self.env['account.journal']
+        posted_invoices = self.env['account.move'].search([('type', '!=', 'entry')])
+        posted_invoices.button_draft()
 
-        journal_sale.write({
-            'l10n_latam_use_documents': True
-        })
+        for journal in self.journal_obj.search(
+                [('type', 'in', ('sale', 'purchase'))]):
+            journal.l10n_latam_use_documents = True
 
-        journal_entries.write({
-            'l10n_latam_use_documents': True
-        })
-
+        # Fiscal partner
         self.partner = self.env['res.partner'].create({
-            'name': 'jimmy',
+            'name': 'Jimmy',
             'vat': '40229590076',
             'country_id': country_do,
         })
 
+        # Demo product
         self.product = self.env.ref("product.product_product_4")
 
     def create_invoice(self, type):
-
-        inv = self.env['account.move'].with_context(type=type).create({
+        inv = self.env['account.move'].create({
+            'type': type,
             'partner_id': self.partner.id,
             'invoice_line_ids': [
-                (0, 0, {'product_id': self.product.id, 'quantity': 1, 'price_unit': 110.0})
+                (0, 0, {'product_id': self.product.id,
+                        'quantity': 1,
+                        'price_unit': 110.0})
             ],
         })
         inv.post()
         return inv
 
-    def test_001_account_move_if_button_cancel(self):
+    def test_001_account_move_cancel(self):
+        """
+        Check fiscal invoices button cancel function returns an action dict
+        """
 
-        inv_1 = self.create_invoice('in_invoice')
+        in_invoice = self.create_invoice('in_invoice')
+        self.assertEqual(type(in_invoice.button_cancel()), type({}))
 
-        inv_2 = self.create_invoice('out_invoice')
+        out_invoice = self.create_invoice('out_invoice')
+        self.assertEqual(type(out_invoice.button_cancel()), type({}))
 
-        inv_3 = self.create_invoice('in_refund')
+    def test_002_account_move_cancel(self):
+        """
+        Check normal account move cancel function doesn't get any
+        return value
+        """
 
-        inv_4 = self.create_invoice('out_refund')
+        journal = self.journal_obj.create(
+            {'name': 'Misc Journal', 'type': 'general', 'code': "CACA"})
 
-        # self.assertEqual(inv_1.button_cancel(),)
-        # self.assertEqual(inv_2.button_cancel(),)
-        # self.assertEqual(inv_3.button_cancel(),)
-        # self.assertEqual(inv_4.button_cancel(),)
-    #
-    # def test_002_account_move_button_cancel(self):
-    #
-    #     inv_5 = self.create_invoice('entry')
-    #     inv_6 = self.create_invoice('out_receipt')
-    #     inv_7 = self.create_invoice('in_receipt')
+        move = self.env['account.move'].create({
+            'journal_id': journal.id,
+            'line_ids': [(0, 0, {
+                'name': '2',
+                'debit': 0.0,
+                'credit': 100,
+                'account_id': self.env.ref('l10n_do_accounting.xfa').id,
+            }), (0, 0, {
+                'name': '2',
+                'debit': 100,
+                'credit': 0.0,
+                'account_id': self.env.ref('l10n_do_accounting.cas').id,
+            })]
+        })
+
+        self.assertEqual(move.button_cancel(), None)
