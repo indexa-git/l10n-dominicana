@@ -199,7 +199,7 @@ class AccountInvoice(models.Model):
                 "El comprobante *{}* ya se encuentra registrado con el"
                 " mismo proveedor en otra factura".format(number)))
 
-        if (self.journal_id.ncf_remote_validation and len(number) == '9' 
+        if (self.journal_id.ncf_remote_validation and len(number) == 11
                 and not ncf.check_dgii(self.partner_id.vat, number)):
             raise UserError(_(
                 u"NCF NO pasó validación en DGII\n\n"
