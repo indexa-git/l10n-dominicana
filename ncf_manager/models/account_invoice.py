@@ -159,8 +159,7 @@ class AccountInvoice(models.Model):
                 "El comprobante *{}* no tiene la estructura correcta "
                 "valide si lo ha digitado correctamente".format(number)))
 
-        if number[-10:-8] not in (
-                '01', '03', '04', '11', '12', '13', '14', '15'):
+        if number[-10:-8] == '02':
             raise ValidationError(_(
                 "NCF *{}* NO corresponde con el tipo de documento\n\n"
                 "Verifique lo ha digitado correctamente y que no sea un "
@@ -200,7 +199,8 @@ class AccountInvoice(models.Model):
                 "El comprobante *{}* ya se encuentra registrado con el"
                 " mismo proveedor en otra factura".format(number)))
 
-        if self.journal_id.ncf_remote_validation and not ncf.check_dgii(self.partner_id.vat, number):
+        if (self.journal_id.ncf_remote_validation and len(number) == 11
+                and not ncf.check_dgii(self.partner_id.vat, number)):
             raise UserError(_(
                 u"NCF NO pasó validación en DGII\n\n"
                 u"¡El número de comprobante *{}* del proveedor "
