@@ -376,7 +376,8 @@ class AccountInvoice(models.Model):
                     "minor",
                 ):
                     ncf = self.origin_out
-                    if ncf[-10:-8] != "04" and not ncf_validation.is_valid(ncf):
+                    if (ncf[-10:-8] != "04" or ncf[1:3] != "34") and 
+                        not ncf_validation.is_valid(ncf):
                         raise UserError(
                             _(
                                 "NCF wrongly typed\n\n"
@@ -463,11 +464,11 @@ class AccountInvoice(models.Model):
         ):
             ncf = inv.reference if inv.reference else None
             if ncf and ncf_dict.get(inv.fiscal_type_id.prefix) == "fiscal":
-                if ncf[-10:-8] == "02":
+                if ncf[-10:-8] == "02" or ncf[1:3] == "32":
                     raise ValidationError(
                         _(
                             "NCF *{}* does not correspond with the fiscal type\n\n"
-                            "You cannot register Consumo NCF (02) for purchases"
+                            "You cannot register Consumo (02 or 32) for purchases"
                         ).format(ncf)
                     )
 
@@ -493,7 +494,10 @@ class AccountInvoice(models.Model):
                     )
 
                 # TODO move this to l10n_do_external_validation_ncf
-                elif not ncf_validation.check_dgii(self.partner_id.vat, ncf):
+                elif (
+                    self.journal_id.l10n_do_ncf_remote_validation
+                    and not ncf_validation.check_dgii(self.partner_id.vat, ncf)
+                ):
                     raise ValidationError(
                         _(
                             "NCF rejected by DGII\n\n"
