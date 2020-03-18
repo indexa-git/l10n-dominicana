@@ -107,9 +107,6 @@ class ResPartner(models.Model):
     @api.depends('vat', 'country_id', 'name')
     def _compute_sale_fiscal_type(self):
         """ Compute the type of partner depending on soft decisions"""
-        company_id = self.env['res.company'].search(
-            [('id', '=', self.env.user.company_id.id)]
-        )
         for partner in self:
             vat = str(partner.vat) if partner.vat else False
             is_dominican_partner = bool(partner.country_id == self.env.ref('base.do'))
