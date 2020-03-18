@@ -14,6 +14,9 @@
                 <field name="payment_form"
                        attrs="{'invisible':[('type', 'in', ('sale','purchase','general'))]}"/>
 
+                <field name="l10n_do_ncf_remote_validation"
+                       attrs="{'invisible':[('l10n_do_fiscal_journal','=',False),('type','!=','purchase')]}"/>
+
             </xpath>
 
         </field>
