@@ -376,8 +376,8 @@ class AccountInvoice(models.Model):
                     "minor",
                 ):
                     ncf = self.origin_out
-                    if (ncf[-10:-8] != "04" or ncf[1:3] != "34") and 
-                        not ncf_validation.is_valid(ncf):
+                    if (ncf[-10:-8] != "04" or ncf[1:3] != "34") and \
+                            not ncf_validation.is_valid(ncf):
                         raise UserError(
                             _(
                                 "NCF wrongly typed\n\n"

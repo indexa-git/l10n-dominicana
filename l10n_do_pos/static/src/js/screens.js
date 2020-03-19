@@ -52,7 +52,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             this._super.apply(this, arguments);
             var client = this.pos.get_client();
             var current_order = this.pos.get_order();
-            if(current_order){
+            if (current_order) {
                 if (client) {
                     if (client.sale_fiscal_type_id &&
                         current_order.fiscal_type.prefix === 'B02') {

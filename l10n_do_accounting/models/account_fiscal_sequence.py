@@ -224,7 +224,9 @@ class AccountFiscalSequence(models.Model):
 
     @api.multi
     def copy(self, default=None):
-        raise UserError(_("You cannot duplicate a Fiscal Sequence."))
+        if default != 'etc':
+            raise UserError(_("You cannot duplicate a Fiscal Sequence."))
+        return super(AccountFiscalSequence, self).copy(default=default)
 
     @api.multi
     def name_get(self):

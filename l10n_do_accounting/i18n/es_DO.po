@@ -1350,4 +1350,3 @@ msgstr "sgstr \"Podrá editar y validar esta\n"
 #: model:ir.cron,name:l10n_do_accounting.account_fiscal_sequence_expire_cron
 msgid "[FISCAL] Expire sequences"
 msgstr "[FISCAL] Secuencias Expiradas"
-
