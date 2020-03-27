@@ -79,6 +79,19 @@
         </field>
     </record>
 
+    <record id="inherit_invoice_tree" model="ir.ui.view">
+        <field name="name">inherit.invoice.tree</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='number']" position="before">
+                <field name="reference"/>
+            </xpath>
+
+        </field>
+    </record>
+
     <record id="l10n_do_accounting_invoice_supplier_form" model="ir.ui.view">
         <field name="name">l10n.do.accounting.invoice.supplier.form</field>
         <field name="model">account.invoice</field>
@@ -238,5 +251,6 @@
               id="menu_action_invoice_in_debit_note"
               parent="account.menu_finance_payables"
               sequence="10"/>
+
 
 </odoo>
