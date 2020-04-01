@@ -42,7 +42,7 @@
                         <span t-field="o.origin_out"/>
                         <br/>
                     </span>
-                    <span t-if="o.type in ['out_invoice', 'out_refund'] and o.state == 'posted'">
+                    <span id="fiscal_exp_date" t-if="o.type in ['out_invoice', 'out_refund'] and o.state == 'posted'">
                         <strong>Válida hasta: </strong>
                         <span>31/12/2020</span>
                         <!-- <span t-field="o.ncf_expiration_date"/> --></span>
