@@ -12,6 +12,7 @@
     # any module necessary for this one to work correctly
     'depends': ['l10n_latam_invoice_document',
                 'l10n_do',
+                'l10n_latam_base'
                 ],
     # always loaded
     'data': [
