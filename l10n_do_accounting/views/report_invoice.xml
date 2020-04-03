@@ -37,9 +37,9 @@
                     <strong>NCF: </strong>
                     <span t-field="o.l10n_latam_document_number"/>
                     <br/>
-                    <span t-if="(o.type == 'out_refund' or o.type == 'in_refund') and (o.origin_out != False)">
+                    <span t-if="(o.type == 'out_refund' or o.type == 'in_refund') and (o.l10n_do_origin_ncf != False)">
                         <strong>NCF modificado:</strong>
-                        <span t-field="o.origin_out"/>
+                        <span t-field="o.l10n_do_origin_ncf"/>
                         <br/>
                     </span>
                     <span id="fiscal_exp_date" t-if="o.type in ['out_invoice', 'out_refund'] and o.state == 'posted'">
