@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 13.0\n"
+"Project-Id-Version: Odoo Server 13.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-01 00:20+0000\n"
-"PO-Revision-Date: 2020-03-31 21:47-0400\n"
+"POT-Creation-Date: 2020-04-05 14:34+0000\n"
+"PO-Revision-Date: 2020-04-05 13:18-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -58,7 +58,7 @@ msgstr "02 - Errores de Impresión (Factura Pre-impresa)"
 #: code:addons/l10n_do_accounting/models/account_move.py:0 code:addons/l10n_do_accounting/models/res_partner.py:0
 #, python-format
 msgid "02 - Work, Supplies and Services"
-msgstr "02 - Gastos por Trabajo, Suministros y Servicio"
+msgstr "02 - Gastos por Trabajo, Suministros y Servicio "
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_move.py:0
@@ -210,12 +210,13 @@ msgstr ""
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
 msgid "<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Draft Vendor Debit Note</span>"
-msgstr "<span attrs=“{‘invisible’: [‘|’, ‘|’, ‘|’, (‘type’, ‘!=‘, ‘in_invoice’), (‘state’, ‘!=‘, ‘draft’), (‘name’, ‘!=‘, ‘/‘), (‘is_debit_note’, ‘=‘, False)]}”>Borrador Nota de Débito de Proveedor</span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Borrador Nota de Débito de Proveedor</span>"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
 msgid "<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Draft Debit Note</span>"
-msgstr "<span attrs=“{‘invisible’: [‘|’, ‘|’, ‘|’, (‘type’, ‘!=‘, ‘out_invoice’), (‘state’, ‘!=‘, ‘draft’), (‘name’, ‘!=‘, ‘/‘), (‘is_debit_note’, ‘=‘, False)]}”>Borrador Nota de Débito</span>"
+msgstr "<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Borrador Nota de Débito</span>"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
@@ -227,13 +228,12 @@ msgid ""
 "                <span attrs=\"{'invisible': ['|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel')]}\">Cancelled Bill</span>\n"
 "                <span attrs=\"{'invisible': ['|', ('type', '!=', 'in_refund'), ('state', '!=', 'cancel')]}\">Cancelled Refund</span>"
 msgstr ""
-"<span attrs=“{‘invisible’: [‘|’, ‘|’, (‘type’, ‘!=‘, ‘out_invoice’), (‘state’, ‘!=‘, ‘cancel’), (‘is_debit_note’, ‘=‘, False)]}”>Nota de Débito Cancelada</span>\n"
-"                <span attrs=“{‘invisible’: [‘|’, ‘|’, (‘type’, ‘!=‘, ‘in_invoice’), (‘state’, ‘!=‘, ‘cancel’), (‘name’, ‘!=‘, ‘/‘), (‘is_debit_note’, ‘=‘, False)]}”>Nota de Débito de Proveedor Cancelada</"
-"span>\n"
-"                <span attrs=“{‘invisible’: [‘|’, (‘type’, ‘!=‘, ‘out_invoice’), (‘state’, ‘!=‘, ‘cancel’)]}”>Factura Cancelada</span>\n"
-"                <span attrs=“{‘invisible’: [‘|’, (‘type’, ‘!=‘, ‘out_refund’), (‘state’, ‘!=‘, ‘cancel’)]}”>Nota de Crédito Cancelada</span>\n"
-"                <span attrs=“{‘invisible’: [‘|’, (‘type’, ‘!=‘, ‘in_invoice’), (‘state’, ‘!=‘, ‘cancel’)]}”>Factura Cancelada</span>\n"
-"                <span attrs=“{‘invisible’: [‘|’, (‘type’, ‘!=‘, ‘in_refund’), (‘state’, ‘!=‘, ‘cancel’)]}”>Reembolso Cancelado</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel'), ('is_debit_note', '=', False)]}\">Nota de Débito Cancelada</span>\n"
+"                <span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Cancelled Vendor Debit Note</span>\n"
+"                <span attrs=\"{'invisible': ['|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel')]}\">Factura Cancelada</span>\n"
+"                <span attrs=\"{'invisible': ['|', ('type', '!=', 'out_refund'), ('state', '!=', 'cancel')]}\">Nota de Crébito Cancelada</span>\n"
+"                <span attrs=\"{'invisible': ['|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel')]}\">Factura Cancelada</span>\n"
+"                <span attrs=\"{'invisible': ['|', ('type', '!=', 'in_refund'), ('state', '!=', 'cancel')]}\">Reembolso Cancelado</span>"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
@@ -241,8 +241,8 @@ msgid ""
 "<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}\">Customer Debit Note</span>\n"
 "                <span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}\">Vendor Debit Note</span>"
 msgstr ""
-"<span attrs=“{‘invisible’: [‘|’, ‘|’, (‘type’, ‘!=‘, ‘out_invoice’), (‘state’, ‘=‘, ‘draft’), (‘is_debit_note’, ‘=‘, False)]}”>Nota de Débito</span>\n"
-"                <span attrs=“{‘invisible’: [‘|’, ‘|’, (‘type’, ‘!=‘, ‘in_invoice’), (‘state’, ‘=‘, ‘draft’), (‘is_debit_note’, ‘=‘, False)]}”>Nota de Débito de Proveedor</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}\">Nota de Débito de Cliente</span>\n"
+"                <span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}\">Nota de Débito de Proveedor</span>"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
@@ -364,7 +364,7 @@ msgid ""
 "Analog to odoo account.move.type but with more options allowing to identify the kind of document we are working with. (not only related to account.move, could be for documents of other models like stock."
 "picking)"
 msgstr ""
-"Análogo a al campo Tipo en la factura pero con mas opciones permitiendo indentificar el tipo de documento con el que estamos trabajando (no solo relacionado a la factura, puede ser para documentos de "
+"Análogo a al campo Tipo en la factura pero con mas opciones permitiendo identificar el tipo de documento con el que estamos trabajando (no solo relacionado a la factura, puede ser para documentos de "
 "otros modelos como los movimientos de inventario)."
 
 #. module: l10n_do_accounting
@@ -391,7 +391,7 @@ msgstr "Cancelar Facturas Seleccionadas"
 #. module: l10n_do_accounting
 #: model:ir.model,name:l10n_do_accounting.model_account_move_cancel
 msgid "Cancel the Selected Invoice"
-msgstr "Cancelar las Facturas Seleccionadas"
+msgstr "Cancelar Factura Seleccionada"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
@@ -399,14 +399,14 @@ msgid ""
 "Cancellation Reason:\n"
 "                    <br/>"
 msgstr ""
-"Tipo de anulación:\n"
+"Tipo de Anulación:\n"
 "                    <br/>"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__cancellation_type model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_cancellation_type
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__cancellation_type
 msgid "Cancellation Type"
-msgstr "Tipo de anulación"
+msgstr "Tipo de Anulación"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_journal.py:0
@@ -495,12 +495,12 @@ msgstr "Tablero"
 #. module: l10n_do_accounting
 #: model:ir.actions.act_window,name:l10n_do_accounting.action_account_invoice_debit
 msgid "Debit Note"
-msgstr "Nota de Crédito"
+msgstr "Nota de Débito"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_invoice_debit
 msgid "Debit Note Date"
-msgstr "Fecha de Nota de Crédito"
+msgstr "Fecha de Nota de Débito"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0 model:ir.actions.act_window,name:l10n_do_accounting.action_invoice_out_debit_note
@@ -677,10 +677,10 @@ msgid ""
 "\n"
 "NCF *{}* of supplier *{}* was rejected by DGII's validation service. Please validate if the NCF and the supplier RNC are type correctly. Otherwhise your supplier might not have this sequence approved yet."
 msgstr ""
-"NCF rechazado por la DGII\n"
+"\"NCF rechazado por la DGII\n"
 "\n"
-"Comprobante Fiscal *{}* de tipo *{}* fue rechazado por el servicio de validación de la DGII. Por favor valide si el Comprobante Fiscal y el RNC del proveedor son correctos. De lo contrario su proveedor "
-"puede no tener esta secuencia aprobada todavía."
+"Comprobante Fiscal *{}* del proveedor *{}* fue rechazado por el servicio de validación de la DGII. Por favor valide si el Comprobante Fiscal y el RNC del proveedor son correctos. De lo contrario su "
+"proveedor puede no tener esta secuencia aprobada todavía."
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_latam_document_type__l10n_do_ncf_type
@@ -693,6 +693,8 @@ msgid ""
 "NCF types defined by the DGII that can be used to identify the documents presented to the government and that depends on the operation type, the responsibility of both the issuer and the receptor of the "
 "document"
 msgstr ""
+"Los tipos de NCF definidos por la DGII que pueden ser utilizados para identificar los documentos presentados al Gobierno y que dependen del tipo de operación, la responsabilidad tanto del emisor como el "
+"receptor del documento."
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_journal_form
@@ -716,7 +718,9 @@ msgstr "Sin fines de lucro"
 msgid ""
 "Note that the easiest way to create a debit note is to do it directly\n"
 "                from the customer invoice."
-msgstr "Note que la manera más fácil de crear una Nota de Débito es haciéndolo directamente desde una factura."
+msgstr ""
+"Note que la manera más fácil de crear una Nota de Débito es haciéndolo directamente\n"
+"                desde una factura."
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_journal.py:0
@@ -814,7 +818,7 @@ msgstr "Permuta"
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_partner__l10n_do_dgii_tax_payer_type
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_users__l10n_do_dgii_tax_payer_type
 msgid "Taxpayer Type"
-msgstr "Tipo de contribuyente"
+msgstr "Tipo de Contribuyente"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,help:l10n_do_accounting.field_account_move_reversal__l10n_latam_country_code
@@ -851,12 +855,13 @@ msgid ""
 msgstr ""
 "Use esta opción si desea aplicar una Nota de Débito por completo.\n"
 "                            La Nota de Débito será creada, validada y conciliada\n"
-"                            con la factura. No podrá modificar la Nota de Débito."
+"                             con la factura. No podrá modificar la Nota\n"
+"                            de Débito."
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__ncf_expiration_date
 msgid "Valid until"
-msgstr "Válida hasta"
+msgstr "Valida hasta"
 
 #. module: l10n_do_accounting
 #: model:ir.actions.act_window,name:l10n_do_accounting.action_vendor_in_debit_note model:ir.ui.menu,name:l10n_do_accounting.menu_action_invoice_in_debit_note
@@ -906,7 +911,7 @@ msgid ""
 "                            debit note directly or keep it draft."
 msgstr ""
 "Podrá editar y validar esta\n"
-"                            Nota de Débito directamente o mantenerla en borrador."
+"                            Nota de Crédito directamente o mantenerla en borrador."
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_move_reversal_inherited
@@ -915,7 +920,7 @@ msgid ""
 "                        credit note directly or keep it draft."
 msgstr ""
 "Podrá editar y validar esta\n"
-"                            Nota de Crédito directamente o mantenerla en borrador."
+"                        Nota de Crédito directamente o mantenerla en borrador."
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/l10n_latam_document_type.py:0
