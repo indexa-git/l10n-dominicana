@@ -861,7 +861,7 @@ msgstr ""
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__ncf_expiration_date
 msgid "Valid until"
-msgstr "Valida hasta"
+msgstr "Válida hasta"
 
 #. module: l10n_do_accounting
 #: model:ir.actions.act_window,name:l10n_do_accounting.action_vendor_in_debit_note model:ir.ui.menu,name:l10n_do_accounting.menu_action_invoice_in_debit_note
@@ -911,7 +911,7 @@ msgid ""
 "                            debit note directly or keep it draft."
 msgstr ""
 "Podrá editar y validar esta\n"
-"                            Nota de Crédito directamente o mantenerla en borrador."
+"                            Nota de Débito directamente o mantenerla en borrador."
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_move_reversal_inherited
