@@ -210,8 +210,7 @@ msgstr ""
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
 msgid "<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Draft Vendor Debit Note</span>"
-msgstr ""
-"<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Borrador Nota de Débito de Proveedor</span>"
+msgstr "<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Borrador Nota de Débito de Proveedor</span>"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
@@ -229,7 +228,7 @@ msgid ""
 "                <span attrs=\"{'invisible': ['|', ('type', '!=', 'in_refund'), ('state', '!=', 'cancel')]}\">Cancelled Refund</span>"
 msgstr ""
 "<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel'), ('is_debit_note', '=', False)]}\">Nota de Débito Cancelada</span>\n"
-"                <span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Cancelled Vendor Debit Note</span>\n"
+"                <span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}\">Nota de Débito del Proveedor Cancelado</span>\n"
 "                <span attrs=\"{'invisible': ['|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel')]}\">Factura Cancelada</span>\n"
 "                <span attrs=\"{'invisible': ['|', ('type', '!=', 'out_refund'), ('state', '!=', 'cancel')]}\">Nota de Crébito Cancelada</span>\n"
 "                <span attrs=\"{'invisible': ['|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel')]}\">Factura Cancelada</span>\n"
@@ -866,7 +865,7 @@ msgstr "Válida hasta"
 #. module: l10n_do_accounting
 #: model:ir.actions.act_window,name:l10n_do_accounting.action_vendor_in_debit_note model:ir.ui.menu,name:l10n_do_accounting.menu_action_invoice_in_debit_note
 msgid "Vendor Debit Notes"
-msgstr "Nota de Débitos del Vendedor"
+msgstr "Notas de Débito del Proveedor"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_journal.py:0
