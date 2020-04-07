@@ -259,7 +259,7 @@ class AccountMove(models.Model):
             lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id
             and r.type == 'out_invoice'
-            and r.state in ('draft', 'cancel')
+            and r.state in ('posted', 'cancel')
         ):
             if rec.partner_id.country_id and rec.partner_id.country_id.code != 'DO':
                 if any(
