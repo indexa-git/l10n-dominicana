@@ -30,11 +30,10 @@
                 }</attribute>
             </xpath>
             <xpath expr="//form/sheet/div[2]/h1[1]" position="inside">
-                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel'), ('is_debit_note', '=', False)]}">Cancelled Debit Note</span>
-                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel'), ('name', '!=', '/'), ('is_debit_note', '=', False)]}">Cancelled Vendor Debit Note</span>
-                <span attrs="{'invisible': ['|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel')]}">Cancelled Invoice</span>
+                <span attrs="{'invisible': ['|', '|', ('type', 'not in', ('out_invoice', 'in_invoice')), ('state', '!=', 'cancel'), ('is_debit_note', '=', False)]}">Cancelled Debit Note</span>
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '!=', 'cancel'), ('is_debit_note', '=', True)]}">Cancelled Invoice</span>
                 <span attrs="{'invisible': ['|', ('type', '!=', 'out_refund'), ('state', '!=', 'cancel')]}">Cancelled Credit Note</span>
-                <span attrs="{'invisible': ['|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel')]}">Cancelled Bill</span>
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!=', 'cancel'), ('is_debit_note', '=', True)]}">Cancelled Bill</span>
                 <span attrs="{'invisible': ['|', ('type', '!=', 'in_refund'), ('state', '!=', 'cancel')]}">Cancelled Refund</span>
             </xpath>
             <xpath expr="//form/sheet/div[2]/h1[1]" position="after">
@@ -83,9 +82,16 @@
                     ('type', '=', 'entry'), ('state', '=', 'draft'), ('is_debit_note', '=', True)
                 ]}</attribute>
             </xpath>
+            <xpath expr="//form/sheet/div[2]/span[1]/field[@name='type']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', '|',
+                    ('type', '=', 'entry'),
+                    ('state', 'in', ('draft', 'cancel')),
+                    ('is_debit_note', '=', True),
+                  ]}</attribute>
+            </xpath>
             <xpath expr="//form/sheet/div[2]/span[1]/field[@name='type']" position="after">
-                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Customer Debit Note</span>
-                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '=', 'draft'), ('is_debit_note', '=', False)]}">Vendor Debit Note</span>
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', 'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}">Customer Debit Note</span>
+                <span attrs="{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', 'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}">Vendor Debit Note</span>
             </xpath>
 
             <xpath expr="//form/sheet/div[2]/h1[1]/span[1]" position="attributes">
