@@ -7,9 +7,9 @@ class AccountMoveReversal(models.TransientModel):
     @api.model
     def _get_refund_type_selection(self):
         selection = [
-            ("full_refund", "Full Refund"),
-            ("percentage", "Percentage"),
-            ("fixed_amount", "Amount"),
+            ("full_refund", _("Full Refund")),
+            ("percentage", _("Percentage")),
+            ("fixed_amount", _("Amount")),
         ]
         if self._context.get("debit_note"):
             selection.pop(0)
@@ -25,11 +25,11 @@ class AccountMoveReversal(models.TransientModel):
     @api.model
     def _get_refund_action_selection(self):
 
-        name = "debit" if self._context.get("debit_note") else "Refund"
+        name = _("debit") if self._context.get("debit_note") else _("Refund")
 
         return [
-            ("draft_refund", "Partial %s" % name),
-            ("apply_refund", "Full %s" % name),
+            ("draft_refund", _("Partial %s") % name),
+            ("apply_refund", _("Full %s") % name),
         ]
 
     @api.model
