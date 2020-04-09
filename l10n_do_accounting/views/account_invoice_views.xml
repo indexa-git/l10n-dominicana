@@ -85,8 +85,9 @@
         <field name="inherit_id" ref="account.invoice_tree"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//field[@name='number']" position="after">
-                <field name="reference" string="NCF"/>
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="string">NCF</attribute>
+                <attribute name="invisible">False</attribute>
             </xpath>
 
         </field>
@@ -195,10 +196,10 @@
         <field name="inherit_id" ref="account.invoice_supplier_tree"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//field[@name='reference']" position="replace">
-                <field name="reference" string="NCF"/>
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="string">NCF</attribute>
             </xpath>
-
+            
         </field>
     </record>
 
