@@ -85,8 +85,21 @@
         <field name="inherit_id" ref="account.invoice_tree"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//field[@name='number']" position="before">
-                <field name="reference"/>
+            <xpath expr="//field[@name='number']" position="after">
+                <field name="reference" string="NCF"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="inherit_invoice_supplier_tree" model="ir.ui.view">
+        <field name="name">inherit.invoice.supplier.tree</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='reference']" position="replace">
+                <field name="reference" string="NCF"/>
             </xpath>
 
         </field>
