@@ -357,34 +357,20 @@ class AccountInvoice(models.Model):
 
         return super(AccountInvoice, self)._onchange_partner_id()
 
-    @api.onchange("reference", "origin_out")
+    @api.onchange("reference")
     def _onchange_ncf(self):
-        if self.is_l10n_do_fiscal_invoice:
-            if ncf_dict.get(self.fiscal_type_id.prefix) in (
-                "fiscal",
-                "informal",
-                "minor",
-            ):
-                self.validate_fiscal_purchase()
+        if self.is_l10n_do_fiscal_invoice and self.type in ('in_invoice',) and \
+                self.reference:
+            if not self.fiscal_type_id.assigned_sequence:
+                if self.fiscal_type_id.prefix != self.reference[:3]:
+                    raise UserError(
+                        _("The prefix of the fiscal sequence %s must be %s")
+                        % (self.fiscal_type_id.name, self.fiscal_type_id.prefix,))
 
-            if self.origin_out and (
-                self.type == "out_refund" or self.type == "in_refund"
-            ):
-                if ncf_dict.get(self.fiscal_type_id.prefix) in (
-                    "fiscal",
-                    "informal",
-                    "minor",
-                ):
-                    ncf = self.origin_out
-                    if (ncf[-10:-8] != "04" or ncf[1:3] != "34") and \
-                            not ncf_validation.is_valid(ncf):
-                        raise UserError(
-                            _(
-                                "NCF wrongly typed\n\n"
-                                "This NCF *{}* does not have the proper structure "
-                                "please validate if you have typed it correctly."
-                            ).format(ncf)
-                        )
+                if self.fiscal_type_id.padding != len(self.reference[3:]):
+                    raise UserError(
+                        _("The length of the fiscal sequence %s must be %s")
+                        % (self.fiscal_type_id.name, str(self.fiscal_type_id.padding),))
 
     @api.multi
     def action_invoice_open(self):

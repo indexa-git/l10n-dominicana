@@ -91,11 +91,20 @@
         <field name="assigned_sequence" eval="False"/>
         <field name="requires_document" eval="True"/>
     </record>
+    <record id="fiscal_type_fiscal_electronic_purchase" model="account.fiscal.type">
+        <field name="name">Compras Fiscales Electronicas</field>
+        <field name="prefix">E31</field>
+        <field name="type">in_invoice</field>
+        <field name="sequence">12</field>
+        <field name="padding">10</field>
+        <field name="assigned_sequence" eval="False"/>
+        <field name="requires_document" eval="True"/>
+    </record>
     <record id="fiscal_type_informal" model="account.fiscal.type">
         <field name="name">Proveedor Informal</field>
         <field name="prefix">B11</field>
         <field name="type">in_invoice</field>
-        <field name="sequence">12</field>
+        <field name="sequence">13</field>
         <field name="padding">8</field>
         <field name="requires_document" eval="True"/>
     </record>
@@ -103,20 +112,20 @@
         <field name="name">Gastos Menores</field>
         <field name="prefix">B13</field>
         <field name="type">in_invoice</field>
-        <field name="sequence">13</field>
+        <field name="sequence">14</field>
         <field name="padding">8</field>
     </record>
     <record id="fiscal_type_exterior" model="account.fiscal.type">
         <field name="name">Pagos al Exterior</field>
         <field name="prefix">B17</field>
         <field name="type">in_invoice</field>
-        <field name="sequence">14</field>
+        <field name="sequence">15</field>
         <field name="padding">8</field>
     </record>
     <record id="fiscal_type_fiscal_import" model="account.fiscal.type">
         <field name="name">Importaciones</field>
         <field name="type">in_invoice</field>
-        <field name="sequence">15</field>
+        <field name="sequence">16</field>
         <field name="padding">8</field>
         <field name="assigned_sequence" eval="False"/>
     </record>

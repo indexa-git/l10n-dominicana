@@ -64,6 +64,7 @@
                        attrs="{
                        'invisible': ['|', '|', ('state', '=', 'draft'), ('reference', '=', False), ('is_l10n_do_fiscal_invoice','=', False)],
                        'readonly': True}"/>
+                <field name="ncf_expiration_date" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                 <field name="origin_out"
                        groups="base.group_user"
                        attrs="{
@@ -75,6 +76,19 @@
 
             <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='other_info']/group[1]/group[1]/field[@name='reference']" position="replace"/>
 
+        </field>
+    </record>
+
+    <record id="inherit_invoice_tree" model="ir.ui.view">
+        <field name="name">inherit.invoice.tree</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="string">NCF</attribute>
+                <attribute name="invisible">False</attribute>
+            </xpath>
 
         </field>
     </record>
@@ -162,6 +176,7 @@
             </xpath>
 
             <xpath expr="//field[@name='reference']" position="after">
+                <field name="ncf_expiration_date" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                 <field name="origin_out"
                        groups="base.group_user"
                        attrs="{
@@ -171,6 +186,19 @@
                 <field name="name"/>
             </xpath>
 
+
+        </field>
+    </record>
+
+    <record id="inherit_invoice_supplier_tree" model="ir.ui.view">
+        <field name="name">inherit.invoice.supplier.tree</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_tree"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="string">NCF</attribute>
+            </xpath>
 
         </field>
     </record>
@@ -238,5 +266,6 @@
               id="menu_action_invoice_in_debit_note"
               parent="account.menu_finance_payables"
               sequence="10"/>
+
 
 </odoo>
