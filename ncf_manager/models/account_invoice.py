@@ -45,7 +45,8 @@ class AccountInvoice(models.Model):
     @api.depends('journal_id', 'sale_fiscal_type')
     def _compute_sequence_almost_depleted(self):
         for invoice in self:
-            if invoice.journal_id.ncf_control and invoice.type == "out_invoice":
+            if invoice.journal_id.ncf_control and invoice.type == "out_invoice" and \
+               invoice.sale_fiscal_type:
                 sequence = invoice.journal_id.date_range_ids.filtered(
                     lambda seq: seq.sale_fiscal_type == invoice.
                     sale_fiscal_type)
@@ -57,7 +58,8 @@ class AccountInvoice(models.Model):
 
             if invoice.journal_id.purchase_type in (
                     'informal', 'minor',
-                    'exterior') and invoice.type == "in_invoice":
+                    'exterior') and invoice.type == "in_invoice" and \
+                    invoice.journal.purchase_type:
                 sequence = invoice.journal_id.date_range_ids.filtered(
                     lambda seq: seq.sale_fiscal_type == invoice.journal_id.
                     purchase_type)
