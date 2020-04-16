@@ -203,7 +203,7 @@ class ResPartner(models.Model):
                     self.is_company = result.get('is_company', False)
                     self.sale_fiscal_type = result.get('sale_fiscal_type')
 
-        except:
+        except Exception:
             res = {
                 'title': _('Warning'),
                 'message': _('Favor modificar contacto.'),
