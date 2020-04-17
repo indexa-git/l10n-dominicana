@@ -195,7 +195,7 @@ class AccountInvoice(models.Model):
     def validate_fiscal_purchase(self):
         NCF = self.reference if self.reference else None
         if NCF and self.journal_id.purchase_type == 'normal':
-            if NCF[-10:-8] == '02':
+            if NCF[-10:-8] == '02' or NCF[1:3] =='32':
                 raise ValidationError(_(
                     "NCF *{}* NO corresponde con el tipo de documento\n\n"
                     "No puede registrar Comprobantes Consumidor Final (02)")
@@ -311,7 +311,8 @@ class AccountInvoice(models.Model):
                     'normal', 'informal',
                     'minor') or self.journal_id.ncf_control:
                 ncf = self.origin_out
-                if not ncf_validation.is_valid(ncf) and ncf[-10:-8] != '04':
+                if not ncf_validation.is_valid(ncf) and (
+                   ncf[-10:-8] != '04' or ncf[1:3] != '34'):
                     raise UserError(_(
                         "NCF mal digitado\n\n"
                         "El comprobante *{}* no tiene la estructura correcta "
