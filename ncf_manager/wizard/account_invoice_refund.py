@@ -136,18 +136,22 @@ class AccountInvoiceRefund(models.TransientModel):
             invoice = self.env["account.invoice"].browse(active_id)
 
             if self.supplier_ncf:
-                if self.filter_refund == 'debit' and self.supplier_ncf[
-                        -10:-8] != '03':
+                if self.filter_refund == 'debit' and (self.supplier_ncf[
+                        -10:-8] != '03' and self.supplier_ncf[1:3] != '33'):
                     raise ValidationError(
-                        _(u"Las Notas de Débito deben ser tipo 03, este NCF "
+                        _(u"Las Notas de Débito deben ser tipo 03 o 33, este NCF "
                           "no es de este tipo."))
-                elif self.filter_refund != 'debit' and self.supplier_ncf[
-                        -10:-8] != '04':
+                elif self.filter_refund != 'debit' and (self.supplier_ncf[
+                        -10:-8] != '04' and self.supplier_ncf[1:3] != '34'):
                     raise ValidationError(
-                        _(u"Las Notas de Crédito deben ser tipo 04, este NCF "
+                        _(u"Las Notas de Crédito deben ser tipo 04 o 34, este NCF "
                           "no es de este tipo."))
 
-            if self.supplier_ncf and invoice.journal_id.ncf_remote_validation:
+            if (
+                self.supplier_ncf
+                and invoice.journal_id.ncf_remote_validation
+                and len(self.supplier_ncf) == '9'
+            ):
                 if not ncf.check_dgii(invoice.partner_id.vat,
                                       self.supplier_ncf):
                     raise UserError(_(
