@@ -229,6 +229,7 @@
                 </span>
             </t>
         </xpath>
+        <xpath expr="/t/t/div/div[3]/div[1]/div/table/t[1]/tr/t[2]/td[1]/span[2]" position="replace"/>
         <xpath expr="//div[@id='total']" position="after">
             <div class="text-muted text-right">
                 <span>
