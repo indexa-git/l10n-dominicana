@@ -59,7 +59,7 @@ class AccountInvoice(models.Model):
             if invoice.journal_id.purchase_type in (
                     'informal', 'minor',
                     'exterior') and invoice.type == "in_invoice" and \
-                    invoice.journal.purchase_type:
+                    invoice.journal_id.purchase_type:
                 sequence = invoice.journal_id.date_range_ids.filtered(
                     lambda seq: seq.sale_fiscal_type == invoice.journal_id.
                     purchase_type)
