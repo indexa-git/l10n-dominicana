@@ -1,4 +1,4 @@
-simplejson
+simplejson>=3.17.0
 zeep>=3.2.0
 python-stdnum>=1.12
 pycountry>=19.8.18
