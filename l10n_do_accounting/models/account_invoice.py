@@ -533,17 +533,21 @@ class AccountInvoice(models.Model):
         """ After all invoice validation routine, consume a NCF sequence and
             write it into reference field.
          """
-        for inv in self:
-            if (
-                inv.is_l10n_do_fiscal_invoice
-                and not inv.reference
-                and inv.fiscal_type_id.assigned_sequence
-            ):
-                expiration_date = inv.fiscal_sequence_id.expiration_date
-                inv.reference = inv.fiscal_sequence_id.get_fiscal_number()
-                inv.ncf_expiration_date = expiration_date
+        res = super(AccountInvoice, self).invoice_validate()
 
-        return super(AccountInvoice, self).invoice_validate()
+        for inv in self:
+            if inv.is_l10n_do_fiscal_invoice \
+                    and not inv.reference \
+                    and inv.fiscal_type_id.assigned_sequence\
+                    and res:
+                inv.state = 'draft'
+                inv.write({
+                    'state': 'open',
+                    'reference': inv.fiscal_sequence_id.get_fiscal_number(),
+                    'ncf_expiration_date': inv.fiscal_sequence_id.expiration_date
+                })
+
+        return res
 
     @api.multi
     def invoice_print(self):
