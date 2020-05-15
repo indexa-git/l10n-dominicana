@@ -527,6 +527,13 @@ class AccountInvoice(models.Model):
                             "invoices with canceled or draft states"
                         ).format(ncf)
                     )
+    @api.multi
+    def _get_computed_reference(self):
+        self.ensure_one()
+        if self.is_l10n_do_fiscal_invoice:
+            return False
+        else:
+            return super(AccountInvoice, self)._get_computed_reference()
 
     @api.multi
     def invoice_validate(self):
@@ -545,6 +552,9 @@ class AccountInvoice(models.Model):
                     'state': 'open',
                     'reference': inv.fiscal_sequence_id.get_fiscal_number(),
                     'ncf_expiration_date': inv.fiscal_sequence_id.expiration_date
+                })
+                inv.move_id.write({
+                    'ref': inv.reference
                 })
 
         return res
