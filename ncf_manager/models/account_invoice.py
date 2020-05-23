@@ -463,7 +463,8 @@ class AccountInvoice(models.Model):
         if self._context.get("credit_note_supplier_ncf", False):
             res.update({
                 "reference": self._context["credit_note_supplier_ncf"],
-                "origin_out": self.reference
+                "origin_out": self.reference,
+                "expense_type": self.expense_type
             })
         return res
 
