@@ -67,7 +67,7 @@ class L10nLatamDocumentType(models.Model):
 
         values.update(
             {
-                'padding': 8,
+                'padding': 10 if str(self.l10n_do_ncf_type).startswith("e-") else 8,
                 'implementation': 'no_gap',
                 'prefix': self.doc_code_prefix,
                 'l10n_latam_document_type_id': self.id,

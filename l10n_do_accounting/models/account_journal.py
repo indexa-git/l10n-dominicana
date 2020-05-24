@@ -36,20 +36,23 @@ class AccountJournal(models.Model):
         self.ensure_one()
         ncf_types_data = {
             'issued': {
-                'taxpayer': ['fiscal'],
-                'non_payer': ['consumer', 'unique'],
-                'nonprofit': ['fiscal'],
-                'special': ['special'],
-                'governmental': ['governmental'],
-                'foreigner': ['export', 'consumer'],
+                'taxpayer': ['fiscal', 'e-fiscal'],
+                'non_payer': ['consumer', 'unique', 'e-consumer'],
+                'nonprofit': ['fiscal', 'e-fiscal'],
+                'special': ['special', 'e-special'],
+                'governmental': ['governmental', 'e-governmental'],
+                'foreigner': ['export', 'consumer', 'e-export', 'e-consumer'],
             },
             'received': {
-                'taxpayer': ['fiscal', 'special', 'governmental'],
-                'non_payer': ['informal', 'minor'],
-                'nonprofit': ['special', 'governmental'],
-                'special': ['fiscal', 'special', 'governmental'],
-                'governmental': ['fiscal', 'special', 'governmental'],
-                'foreigner': ['import', 'exterior'],
+                'taxpayer': ['fiscal', 'special', 'governmental', 'e-fiscal',
+                             'e-special', 'e-governmental'],
+                'non_payer': ['informal', 'minor', 'e-minor'],
+                'nonprofit': ['special', 'governmental', 'e-special', 'e-governmental'],
+                'special': ['fiscal', 'special', 'governmental', 'e-fiscal',
+                            'e-special', 'e-governmental'],
+                'governmental': ['fiscal', 'special', 'governmental', 'e-fiscal',
+                                 'e-special', 'e-governmental'],
+                'foreigner': ['import', 'exterior', 'e-exterior'],
             },
         }
         if not self.company_id.vat:
@@ -92,13 +95,9 @@ class AccountJournal(models.Model):
 
     def _get_journal_codes(self):
         self.ensure_one()
-        ncf_code = ['B']
-        # ecf_code = ['E'] # Needs better logic
         if self.type != 'sale':
             return []
-        # elif self.company_id.l10n_do_ecf_issuer:
-        #     return ecf_code
-        return ncf_code
+        return ['E'] if self.company_id.l10n_do_ecf_issuer else ['B']
 
     @api.model
     def create(self, values):
