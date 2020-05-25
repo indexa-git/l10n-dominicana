@@ -36,23 +36,20 @@ class AccountJournal(models.Model):
         self.ensure_one()
         ncf_types_data = {
             'issued': {
-                'taxpayer': ['fiscal', 'e-fiscal'],
-                'non_payer': ['consumer', 'unique', 'e-consumer'],
-                'nonprofit': ['fiscal', 'e-fiscal'],
-                'special': ['special', 'e-special'],
-                'governmental': ['governmental', 'e-governmental'],
-                'foreigner': ['export', 'consumer', 'e-export', 'e-consumer'],
+                'taxpayer': ['fiscal'],
+                'non_payer': ['consumer', 'unique'],
+                'nonprofit': ['fiscal'],
+                'special': ['special'],
+                'governmental': ['governmental'],
+                'foreigner': ['export', 'consumer'],
             },
             'received': {
-                'taxpayer': ['fiscal', 'special', 'governmental', 'e-fiscal',
-                             'e-special', 'e-governmental'],
-                'non_payer': ['informal', 'minor', 'e-minor'],
-                'nonprofit': ['special', 'governmental', 'e-special', 'e-governmental'],
-                'special': ['fiscal', 'special', 'governmental', 'e-fiscal',
-                            'e-special', 'e-governmental'],
-                'governmental': ['fiscal', 'special', 'governmental', 'e-fiscal',
-                                 'e-special', 'e-governmental'],
-                'foreigner': ['import', 'exterior', 'e-exterior'],
+                'taxpayer': ['fiscal', 'special', 'governmental'],
+                'non_payer': ['informal', 'minor'],
+                'nonprofit': ['special', 'governmental'],
+                'special': ['fiscal', 'special', 'governmental'],
+                'governmental': ['fiscal', 'special', 'governmental'],
+                'foreigner': ['import', 'exterior'],
             },
         }
         if not self.company_id.vat:
@@ -76,11 +73,13 @@ class AccountJournal(models.Model):
         if not counterpart_partner:
             ncf_notes = list(['fiscal', 'debit_note', 'credit_note'])
             ncf_external = list(['fiscal', 'special', 'governmental'])
-            return (
+            res = (
                 ncf_types + ncf_notes
                 if self.type == 'sale'
                 else [ncf for ncf in ncf_types if ncf not in ncf_external]
             )
+            return ["e-%s" % d for d in res if d not in ("unique", "import")] \
+                if self.type == 'sale' and self.company_id.l10n_do_ecf_issuer else res
         else:
             counterpart_ncf_types = ncf_types_data[
                 'issued' if self.type == 'sale' else 'received'
@@ -91,7 +90,8 @@ class AccountJournal(models.Model):
         if invoice._compute_is_debit_note() or \
                 self.env.context.get('internal_type') == 'debit_note':
             ncf_types = ['debit_note']
-        return ncf_types
+        return ["e-%s" % d for d in ncf_types if d not in ("unique", "import")] \
+            if self.type == 'sale' and self.company_id.l10n_do_ecf_issuer else ncf_types
 
     def _get_journal_codes(self):
         self.ensure_one()
