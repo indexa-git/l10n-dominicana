@@ -18,10 +18,22 @@ class AccountMoveCancel(models.TransientModel):
             'account.move']._get_l10n_do_cancellation_type(),
         string="Cancellation Type",
         copy=False,
-        required=True,
+    )
+    is_ecf_invoice = fields.Boolean(
+        default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer,
+    )
+    l10n_do_ecf_cancellation_type = fields.Selection(
+        selection=lambda self: self.env[
+            'account.move']._get_l10n_do_ecf_cancellation_type(),
+        string='e-CF Cancellation Type',
+        copy=False,
     )
 
     def move_cancel(self):
+
+        if not any([self.l10n_do_ecf_cancellation_type, self.cancellation_type]):
+            raise UserError(_("A cancellation type must be selected."))
+
         context = dict(self._context or {})
         active_ids = context.get('active_ids', []) or []
         for invoice in self.env['account.move'].browse(active_ids):
@@ -33,6 +45,10 @@ class AccountMoveCancel(models.TransientModel):
                 raise UserError(
                     _("Selected invoice(s) cannot be cancelled as they are "
                       "already in 'Paid' state."))
-            invoice.cancellation_type = self.cancellation_type
+            if self.is_ecf_invoice:
+                invoice.l10n_do_ecf_cancellation_type = \
+                    self.l10n_do_ecf_cancellation_type
+            else:
+                invoice.cancellation_type = self.cancellation_type
             invoice.write({'state': 'cancel'})
         return {'type': 'ir.actions.act_window_close'}

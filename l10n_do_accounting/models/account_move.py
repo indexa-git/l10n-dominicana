@@ -24,6 +24,16 @@ class AccountMove(models.Model):
             ('10', _('10 - Lossing or Hurting Of Counterfoil')),
         ]
 
+    def _get_l10n_do_ecf_cancellation_type(self):
+        """ Return the list of e-CF cancellation types required by DGII. """
+        return [
+            ('01', _('01 - Total Cancellation')),
+            ('02', _('02 - Text Correction')),
+            ('03', _('03 - Amount correction')),
+            ('04', _('04 - NCF replacement issued in contingency')),
+            ('05', _('05 - Reference Electronic Consumer Invoice')),
+        ]
+
     def _get_l10n_do_income_type(self):
         """ Return the list of income types required by DGII. """
         return [
@@ -77,6 +87,14 @@ class AccountMove(models.Model):
     cancellation_type = fields.Selection(
         selection='_get_l10n_do_cancellation_type',
         string="Cancellation Type",
+        copy=False,
+    )
+    is_ecf_invoice = fields.Boolean(
+        related="company_id.l10n_do_ecf_issuer",
+    )
+    l10n_do_ecf_cancellation_type = fields.Selection(
+        selection='_get_l10n_do_ecf_cancellation_type',
+        string='e-CF Cancellation Type',
         copy=False,
     )
 

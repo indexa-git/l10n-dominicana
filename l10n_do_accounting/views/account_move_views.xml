@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <field name="restrict_mode_hash_table" position="after">
                 <field name="is_debit_note" invisible="1"/>
+                <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
             </field>
             <xpath expr="//button[@name='button_cancel']" position="attributes">
@@ -48,7 +49,8 @@
                 <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
                     Cancellation Reason:
                     <br/>
-                    <field name="cancellation_type" readonly="1"/>
+                    <field name="cancellation_type" attrs="{'invisible': [('is_ecf_invoice', '=', True)]}" readonly="1"/>
+                    <field name="l10n_do_ecf_cancellation_type" attrs="{'invisible': [('is_ecf_invoice', '=', False)]}" readonly="1"/>
                 </h4>
             </xpath>
             <xpath expr="//button[@name='%(account.action_view_account_move_reversal)d']" position="after">
