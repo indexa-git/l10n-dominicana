@@ -39,7 +39,7 @@
     },
 
     # any module necessary for this one to work correctly
-    'depends': ['account', 'l10n_do', 'account_cancel', 'l10n_do_rnc_validation'],
+    'depends': ['account', 'l10n_do', 'account_cancel'],
 
     'data': [
         'data/ir_config_parameters.xml',
