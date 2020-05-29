@@ -79,7 +79,7 @@ class AccountJournal(models.Model):
                 else [ncf for ncf in ncf_types if ncf not in ncf_external]
             )
             return ["e-%s" % d for d in res if d not in ("unique", "import")] \
-                if self.type == 'sale' and self.company_id.l10n_do_ecf_issuer else res
+                if self.company_id.l10n_do_ecf_issuer else res
         else:
             counterpart_ncf_types = ncf_types_data[
                 'issued' if self.type == 'sale' else 'received'
@@ -91,7 +91,7 @@ class AccountJournal(models.Model):
                 self.env.context.get('internal_type') == 'debit_note':
             ncf_types = ['debit_note']
         return ["e-%s" % d for d in ncf_types if d not in ("unique", "import")] \
-            if self.type == 'sale' and self.company_id.l10n_do_ecf_issuer else ncf_types
+            if self.company_id.l10n_do_ecf_issuer else ncf_types
 
     def _get_journal_codes(self):
         self.ensure_one()
