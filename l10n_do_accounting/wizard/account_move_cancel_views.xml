@@ -6,11 +6,7 @@
         <field name="arch" type="xml">
             <form string="Cancel Selected Invoice">
                 <group>
-                    <field name="is_ecf_invoice" invisible="1"/>
-                    <field name="cancellation_type"
-                           attrs="{'invisible': [('is_ecf_invoice', '=', True)]}"/>
-                    <field name="l10n_do_ecf_cancellation_type"
-                           attrs="{'invisible': [('is_ecf_invoice', '=', False)]}"/>
+                    <field name="cancellation_type"/>
                 </group>
                 <footer>
                     <button string="Cancel Invoice" name="move_cancel"
