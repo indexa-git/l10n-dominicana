@@ -49,8 +49,7 @@
                 <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
                     Cancellation Reason:
                     <br/>
-                    <field name="cancellation_type" attrs="{'invisible': [('is_ecf_invoice', '=', True)]}" readonly="1"/>
-                    <field name="l10n_do_ecf_cancellation_type" attrs="{'invisible': [('is_ecf_invoice', '=', False)]}" readonly="1"/>
+                    <field name="cancellation_type" readonly="1"/>
                 </h4>
             </xpath>
             <xpath expr="//button[@name='%(account.action_view_account_move_reversal)d']" position="after">
@@ -76,6 +75,11 @@
                        'required': ['|', '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('l10n_latam_use_documents', '=', True), ('is_debit_note', '=', True)],
                        'readonly': [('state','!=','draft')]
                        }"/>
+                <field name="l10n_do_ecf_modification_code"
+                       attrs="{
+                       'invisible':['|', '&amp;', ('type', 'not in', ('in_refund', 'out_refund')), ('is_debit_note', '=', False), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', False)],
+                       'required': ['|', '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', True), ('is_debit_note', '=', True)],
+                }"/>
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="after">
                 <field name="l10n_do_income_type"

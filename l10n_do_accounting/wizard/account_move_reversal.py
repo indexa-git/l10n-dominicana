@@ -62,6 +62,15 @@ class AccountMoveReversal(models.TransientModel):
         domain=[("deprecated", "=", False)],
         default=_default_account,
     )
+    is_ecf_invoice = fields.Boolean(
+        related="move_id.is_ecf_invoice",
+    )
+    l10n_do_ecf_modification_code = fields.Selection(
+        selection=lambda self: self.env[
+            'account.move']._get_l10n_do_ecf_modification_code(),
+        string='e-CF Modification Code',
+        copy=False,
+    )
 
     @api.model
     def default_get(self, fields):
@@ -89,7 +98,7 @@ class AccountMoveReversal(models.TransientModel):
 
     def reverse_moves(self):
 
-        return super(
+        action = super(
             AccountMoveReversal,
             self.with_context(
                 refund_type=self.refund_type,
@@ -99,6 +108,16 @@ class AccountMoveReversal(models.TransientModel):
                 reason=self.reason,
             ),
         ).reverse_moves()
+        Move = self.env["account.move"]
+        if self.is_ecf_invoice and "res_id" in action:
+            move_id = Move.browse(action["res_id"])
+            move_id.l10n_do_ecf_modification_code = self.l10n_do_ecf_modification_code
+        elif self.is_ecf_invoice and "domain" in action:
+            move_ids = Move.browse(action["domain"][0][2])
+            move_ids.write(
+                {"l10n_do_ecf_modification_code": self.l10n_do_ecf_modification_code})
+
+        return action
 
     def generate_debit_note_move(self):
 
@@ -155,6 +174,8 @@ class AccountMoveReversal(models.TransientModel):
             .with_context(internal_type='debit_note')
             .create(default_values_list)
         )
+        debit_moves.write(
+            {"l10n_do_ecf_modification_code": self.l10n_do_ecf_modification_code})
         if self.refund_action == 'apply_refund':
             debit_moves.post()
         action = {

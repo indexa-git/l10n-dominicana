@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-27 21:44+0000\n"
-"PO-Revision-Date: 2020-05-27 17:50-0400\n"
+"POT-Creation-Date: 2020-05-29 00:59+0000\n"
+"PO-Revision-Date: 2020-05-28 21:01-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -372,12 +372,6 @@ msgid "A VAT is mandatory for this type of NCF. Please set the current VAT of th
 msgstr "El RNC es obligatorio para este tipo de NCF. Por favor establezca un RNC para este cliente"
 
 #. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/wizard/account_move_cancel.py:0
-#, python-format
-msgid "A cancellation type must be selected."
-msgstr "El tipo de Anulación debe ser seleccionado."
-
-#. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_reversal__account_id
 msgid "Account"
 msgstr "Cuenta"
@@ -661,7 +655,7 @@ msgid "Is Debit Note"
 msgstr "Es Nota de Débito"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__is_ecf_invoice
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__is_ecf_invoice model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_reversal__is_ecf_invoice
 msgid "Is Ecf Invoice"
 msgstr "Es Factura Electrónica"
 
@@ -676,7 +670,7 @@ msgid "Is Vat Required"
 msgstr "RNC/Cédula Requerido"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__is_ecf_invoice model:ir.model.fields,field_description:l10n_do_accounting.field_res_company__l10n_do_ecf_issuer
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_company__l10n_do_ecf_issuer
 msgid "Is e-CF issuer"
 msgstr "Es emisor electrónico"
 
@@ -930,7 +924,7 @@ msgid "Vendor Debit Notes"
 msgstr "Nota de Débitos del Vendedor"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,help:l10n_do_accounting.field_account_move__is_ecf_invoice model:ir.model.fields,help:l10n_do_accounting.field_res_company__l10n_do_ecf_issuer
+#: model:ir.model.fields,help:l10n_do_accounting.field_res_company__l10n_do_ecf_issuer
 msgid "When activating this field, NCF issuance is disabled."
 msgstr "Cuando se activa este campo, la emisión de NCF es deshabitada."
 
@@ -995,9 +989,9 @@ msgid "debit"
 msgstr "Débito"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_cancellation_type model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__l10n_do_ecf_cancellation_type
-msgid "e-CF Cancellation Type"
-msgstr "Tipo de Anulación e-CF"
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_modification_code model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_reversal__l10n_do_ecf_modification_code
+msgid "e-CF Modification Code"
+msgstr "Código Modificación e-CF"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/l10n_latam_document_type.py:0

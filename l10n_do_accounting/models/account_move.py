@@ -24,8 +24,8 @@ class AccountMove(models.Model):
             ('10', _('10 - Lossing or Hurting Of Counterfoil')),
         ]
 
-    def _get_l10n_do_ecf_cancellation_type(self):
-        """ Return the list of e-CF cancellation types required by DGII. """
+    def _get_l10n_do_ecf_modification_code(self):
+        """ Return the list of e-CF modification codes required by DGII. """
         return [
             ('01', _('01 - Total Cancellation')),
             ('02', _('02 - Text Correction')),
@@ -90,12 +90,17 @@ class AccountMove(models.Model):
         copy=False,
     )
     is_ecf_invoice = fields.Boolean(
-        related="company_id.l10n_do_ecf_issuer",
-    )
-    l10n_do_ecf_cancellation_type = fields.Selection(
-        selection='_get_l10n_do_ecf_cancellation_type',
-        string='e-CF Cancellation Type',
         copy=False,
+        default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer and
+                             self.env.user.company_id.country_id and
+                             self.env.user.company_id.country_id.code == "DO",
+    )
+    l10n_do_ecf_modification_code = fields.Selection(
+        selection='_get_l10n_do_ecf_modification_code',
+        string='e-CF Modification Code',
+        copy=False,
+        readonly=True,
+        states={'draft': [('readonly', False)]},
     )
 
     def button_cancel(self):

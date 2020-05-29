@@ -9,6 +9,7 @@
             <field name="journal_id" position="after">
                 <field name="move_id" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
+                <field name="is_ecf_invoice" invisible="1"/>
             </field>
             <field name="l10n_latam_document_type_id" position="attributes">
                 <attribute name="attrs">{
@@ -42,6 +43,9 @@
                        options='{"no_open": True, "no_create": True}'
                        attrs="{'invisible': [('refund_type', '=', 'full_refund')],
                        'required': [('refund_type', '!=', 'full_refund')]}"/>
+                <field name="l10n_do_ecf_modification_code"
+                       attrs="{'invisible': [('is_ecf_invoice', '!=', True)],
+                       'required': [('is_ecf_invoice', '=', True)]}"/>
             </xpath>
             <xpath expr="//form/group/*[2]" position="attributes">
                 <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
@@ -71,6 +75,7 @@
                 <field name="move_type" invisible="1"/>
                 <field name="l10n_latam_use_documents" invisible="1"/>
                 <field name="l10n_latam_sequence_id" invisible="1"/>
+                <field name="is_ecf_invoice" invisible="1"/>
                 <group>
                     <group attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'in_invoice'))]}">
                         <field name="refund_type" options="{'horizontal': true}"
@@ -113,6 +118,9 @@
                                options='{"no_open": True, "no_create": True}'
                                attrs="{'invisible': [('refund_type', '=', 'full_refund')],
                                'required': [('refund_type', '!=', 'full_refund')]}"/>
+                        <field name="l10n_do_ecf_modification_code"
+                               attrs="{'invisible': [('is_ecf_invoice', '!=', True)],
+                               'required': [('is_ecf_invoice', '=', True)]}"/>
                         <field name="l10n_latam_document_type_id"
                                attrs="{
                                'invisible': ['|', '&amp;', ('refund_method', '=', 'refund'), ('l10n_latam_country_code', '!=', 'DO'), ('l10n_latam_country_code', '=', 'DO')],
