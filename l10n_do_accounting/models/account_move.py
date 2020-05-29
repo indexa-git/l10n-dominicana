@@ -426,6 +426,7 @@ class AccountMove(models.Model):
         percentage = ctx.get('percentage')
         refund_type = ctx.get('refund_type')
         reason = ctx.get('reason')
+        l10n_do_ecf_modification_code = ctx.get('l10n_do_ecf_modification_code')
 
         res = super(AccountMove, self)._reverse_move_vals(
             default_values=default_values, cancel=cancel
@@ -433,6 +434,7 @@ class AccountMove(models.Model):
 
         if self.l10n_latam_country_code == 'DO':
             res['l10n_do_origin_ncf'] = self.l10n_latam_document_number
+            res['l10n_do_ecf_modification_code'] = l10n_do_ecf_modification_code
 
         if refund_type in ('percentage', 'fixed_amount'):
             price_unit = (

@@ -98,7 +98,7 @@ class AccountMoveReversal(models.TransientModel):
 
     def reverse_moves(self):
 
-        action = super(
+        return super(
             AccountMoveReversal,
             self.with_context(
                 refund_type=self.refund_type,
@@ -106,18 +106,9 @@ class AccountMoveReversal(models.TransientModel):
                 amount=self.amount,
                 account_id=self.account_id.id,
                 reason=self.reason,
+                l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
             ),
         ).reverse_moves()
-        Move = self.env["account.move"]
-        if self.is_ecf_invoice and "res_id" in action:
-            move_id = Move.browse(action["res_id"])
-            move_id.l10n_do_ecf_modification_code = self.l10n_do_ecf_modification_code
-        elif self.is_ecf_invoice and "domain" in action:
-            move_ids = Move.browse(action["domain"][0][2])
-            move_ids.write(
-                {"l10n_do_ecf_modification_code": self.l10n_do_ecf_modification_code})
-
-        return action
 
     def generate_debit_note_move(self):
 
