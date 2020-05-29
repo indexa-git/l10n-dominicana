@@ -25,3 +25,8 @@ class ResCompany(models.Model):
             if self.country_id == self.env.ref('base.do')
             else super()._localization_use_documents()
         )
+
+    # TODO: validar que una compañía pueda, a solicitud, dejar de emitir e-CF y volver
+    #  a emitir NCF. Si es negativo, implementar constraint para que la compañía
+    #  no se pueda desactivar el campo l10n_do_ecf_issuer si ya tiene facturas
+    #  electrónicas.
