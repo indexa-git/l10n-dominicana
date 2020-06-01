@@ -39,7 +39,10 @@
                     <h2>
                         <span t-field="o.l10n_latam_document_type_id.report_name"/>
                     </h2>
-                    <strong>NCF: </strong>
+                    <strong>
+                        <t t-if="o.is_ecf_invoice">e-CF: </t>
+                        <t t-else="">NCF: </t>
+                    </strong>
                     <span t-field="o.l10n_latam_document_number"/>
                     <br/>
                     <span t-if="(o.type == 'out_refund' or o.type == 'in_refund') and (o.l10n_do_origin_ncf != False)">
