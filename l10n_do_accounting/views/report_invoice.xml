@@ -8,6 +8,11 @@
     </template>
 
     <template id="report_invoice_document_inherited" inherit_id="l10n_latam_invoice_document.report_invoice_document">
+
+        <!-- l10n do invoices does not have this fields -->
+        <xpath expr="//span[@t-field='o.l10n_latam_document_type_id.report_name']" position="replace"/>
+        <xpath expr="//span[@t-field='o.l10n_latam_document_number']" position="replace"/>
+
         <xpath expr="//h2" position="after">
             <div class="row">
                 <div id="informations" class="col-6">
