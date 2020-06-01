@@ -50,7 +50,10 @@
                         <span t-field="o.l10n_do_origin_ncf"/>
                         <br/>
                     </span>
-                    <span id="fiscal_exp_date" t-if="o.type in ['out_invoice', 'out_refund'] and o.state == 'posted'">
+                    <span id="fiscal_exp_date"
+                          t-if="(o.type in ['out_invoice', 'out_refund'] and not o.is_ecf_invoice)
+                          or (o.is_ecf_invoice and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34'))
+                          and o.state == 'posted'">
                         <strong>
                             <t t-if="o.is_ecf_invoice">Vencimiento e-NCF: </t>
                             <t t-else="">Válida hasta: </t>
