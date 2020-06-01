@@ -84,11 +84,14 @@ class AccountMove(models.Model):
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
     is_debit_note = fields.Boolean()
+
+    # DO NOT FORWARD PORT
     cancellation_type = fields.Selection(
         selection='_get_l10n_do_cancellation_type',
         string="Cancellation Type",
         copy=False,
     )
+
     is_ecf_invoice = fields.Boolean(
         copy=False,
         default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer and
@@ -448,3 +451,13 @@ class AccountMove(models.Model):
                 'price_unit': price_unit,
             })]
         return res
+
+    def init(self):  # DO NOT FORWARD PORT
+        cancelled_invoices = self.search([
+            ("state", "=", "cancel"),
+            ("l10n_latam_use_documents", "=", True),
+            ("cancellation_type", "!=", False),
+            ("l10n_do_cancellation_type", "=", False),
+        ])
+        for invoice in cancelled_invoices:
+            invoice.l10n_do_cancellation_type = invoice.cancellation_type

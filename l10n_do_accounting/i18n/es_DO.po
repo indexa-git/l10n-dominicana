@@ -440,12 +440,6 @@ msgstr ""
 "                    <br/>"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__cancellation_type model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_cancellation_type
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__cancellation_type
-msgid "Cancellation Type"
-msgstr "Tipo de anulación"
-
-#. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_journal.py:0
 #, python-format
 msgid "Cannot create chart of account until you configure your VAT."
