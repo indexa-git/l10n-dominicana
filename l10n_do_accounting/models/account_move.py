@@ -132,7 +132,7 @@ class AccountMove(models.Model):
             and self.type == 'out_invoice'
             and self.ref
         ):
-            return True if self.ref[-10:-8] == '03' else False
+            return True if self.ref[-10:-8] in ('03', '33') else False
 
     @api.depends('ref')
     def _compute_l10n_latam_document_number(self):
