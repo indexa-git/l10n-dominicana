@@ -9,6 +9,8 @@
 
     <template id="report_invoice_document_inherited" inherit_id="l10n_latam_invoice_document.report_invoice_document">
 
+        <t t-set="ecf_representation" t-value="o.env.context.get('ecf_representation')"/>
+
         <!-- l10n do invoices does not have this fields -->
         <xpath expr="//span[@t-field='o.l10n_latam_document_type_id.report_name']" position="replace"/>
         <xpath expr="//span[@t-field='o.l10n_latam_document_number']" position="replace"/>
@@ -258,6 +260,19 @@
                 <br/>
                 <br/>
             </div>
+        </xpath>
+        <xpath expr="//th[@name='th_price_unit']" position="after">
+            <th t-if="display_discount and ecf_representation"
+                t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                <span>Monto descuento</span>
+            </th>
+        </xpath>
+        <xpath expr="//td[@t-if='display_discount']" position="after">
+            <td t-if="display_discount and ecf_representation" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                <t t-set="price_unit_wo_discount" t-value="line.price_unit * (1 - (line.discount / 100.0))"/>
+                <t t-set="discount_amount" t-value="abs(round(price_unit_wo_discount - line.price_subtotal, 2))"/>
+                <span class="text-nowrap" t-esc="discount_amount"/>
+            </td>
         </xpath>
     </template>
 </odoo>
