@@ -9,7 +9,9 @@
 
     <template id="report_invoice_document_inherited" inherit_id="l10n_latam_invoice_document.report_invoice_document">
 
-        <t t-set="ecf_representation" t-value="o.env.context.get('ecf_representation')"/>
+        <xpath expr="//t[@t-set='address']" position="after">
+            <t t-set="ecf_representation" t-value="o.env.context.get('ecf_representation')"/>
+        </xpath>
 
         <!-- l10n do invoices does not have this fields -->
         <xpath expr="//span[@t-field='o.l10n_latam_document_type_id.report_name']" position="replace"/>
