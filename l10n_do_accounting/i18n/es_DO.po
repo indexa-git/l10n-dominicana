@@ -997,7 +997,7 @@ msgstr "no es un valor válido para"
 #: code:addons/l10n_do_accounting/models/res_partner.py:0
 #, python-format
 msgid "special from Tax Paying"
-msgstr "exento"
+msgstr "Exento"
 
 #. module: l10n_do_accounting
 #. openerp-web
