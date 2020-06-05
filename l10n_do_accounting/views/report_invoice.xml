@@ -94,7 +94,7 @@
                         </t>
                         <br/>
                     </span>
-                    <span id="fiscal_exp_date"
+                    <span id="fiscal_exp_date o.l10n_latam_document_number"
                           t-if="(o.type in ['out_invoice', 'out_refund'] and not o.is_ecf_invoice)
                               or (o.is_ecf_invoice and o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34'))
                               and o.state == 'posted'">
