@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- TODO: ajustar los campos que se muestran dependiendo si es factura electrónica o no  -->
-    <!-- TODO: ajustar los campos que se muestran si es representación impresa o no  -->
-
     <template id="web_address_layout_inherited" inherit_id="web.address_layout">
         <!-- do not show company address on document header  -->
         <xpath expr="//t[@t-if='address']" position="attributes">
@@ -94,10 +91,10 @@
                         </t>
                         <br/>
                     </span>
-                    <span id="fiscal_exp_date o.l10n_latam_document_number"
+                    <span id="fiscal_exp_date"
                           t-if="(o.type in ['out_invoice', 'out_refund'] and not o.is_ecf_invoice)
                               or (o.is_ecf_invoice and o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34'))
-                              and o.state == 'posted'">
+                              and o.state == 'posted' and o.l10n_latam_document_number">
                         <strong>
                             <t t-if="o.is_ecf_invoice">Vencimiento e-NCF:</t>
                             <t t-else="">Válida hasta:</t>
@@ -204,18 +201,46 @@
                 <br/>
             </div>
         </xpath>
-        <!--<xpath expr="//th[@name='th_price_unit']" position="after">
-            <th t-if="o.l10n_latam_use_documents and display_discount and ecf_representation"
+
+        <!-- Total monto descuento en líneas -->
+        <xpath expr="//th[@name='th_price_unit']" position="after">
+            <th t-if="is_l10n_do_invoice and display_discount and ecf_representation"
                 t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                 <span>Monto descuento</span>
             </th>
-        </xpath>-->
-        <!--<xpath expr="//td[@t-if='display_discount']" position="after">
-            <td t-if="o.l10n_latam_use_documents and display_discount and ecf_representation" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+        </xpath>
+        <xpath expr="//td[@t-if='display_discount']" position="after">
+            <td t-if="is_l10n_do_invoice and display_discount and ecf_representation" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                 <t t-set="price_unit_wo_discount" t-value="line.price_unit * (1 - (line.discount / 100.0))"/>
-                <t t-set="discount_amount" t-value="abs(round(price_unit_wo_discount - line.price_subtotal, 2))"/>
-                <span class="text-nowrap" t-esc="discount_amount"/>
+                <t t-set="discount_amount" t-value="abs(round(price_unit_wo_discount - line.price_total, 2)) if line.discount else 0"/>
+                <span class="text-nowrap" t-esc="discount_amount"
+                      t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
             </td>
-        </xpath>-->
+        </xpath>
+
+        <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
+               position="before">
+            <t t-set="total_amount_taxed" t-value="sum(g[2] for g in o.amount_by_group if g[-1] == o.env.ref('l10n_do.group_itbis').id)"/>
+            <t t-set="total_exempt_amount" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
+
+            <tr t-if="is_l10n_do_invoice and total_amount_taxed and ecf_representation">
+                <td><strong>Monto Gravado Total</strong></td>
+                <td class="text-right">
+                    <!-- MontoGravadoTotal consiste en la suma de la base imponible de todas las lineas gravadas con ITBIS -->
+                    <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                          t-esc="total_amount_taxed"/>
+                </td>
+            </tr>
+            <tr t-if="is_l10n_do_invoice and total_exempt_amount and ecf_representation">
+                <td><strong>Monto Exento</strong></td>
+                <td class="text-right">
+                    <!-- MontoExento consiste en la suma de la base imponible de todas las lineas exentas -->
+                    <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                          t-esc="total_exempt_amount"/>
+                </td>
+            </tr>
+        </xpath>
+
     </template>
+
 </odoo>
