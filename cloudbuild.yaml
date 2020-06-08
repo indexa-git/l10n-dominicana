@@ -92,7 +92,6 @@ steps:
         ###### Add other git dependencies here ########
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch git@github.com:camptocamp/odoo-cloud-platform.git
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch git@github.com:odoo/enterprise.git
-        git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch git@github.com:odoo-dominicana/l10n-dominicana.git
         git clone --depth 1 --branch ${_TEST_BRANCH} --single-branch git@github.com:indexa-git/external-service-addons.git
         ###### Do not modify under this line ####
         chown -R 1000:1000 /builder/home/
