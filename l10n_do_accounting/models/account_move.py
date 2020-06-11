@@ -98,16 +98,6 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self).button_cancel()
 
-    def _compute_is_debit_note(self):
-        self.ensure_one()
-        if (
-            self.journal_id.l10n_latam_use_documents
-            and self.journal_id.company_id.country_id == self.env.ref('base.do')
-            and self.type == 'out_invoice'
-            and self.ref
-        ):
-            return True if self.ref[-10:-8] == '03' else False
-
     @api.depends('ref')
     def _compute_l10n_latam_document_number(self):
         l10n_do_recs = self.filtered(lambda x: x.l10n_latam_country_code == 'DO')
