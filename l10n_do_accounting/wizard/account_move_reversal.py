@@ -83,7 +83,6 @@ class AccountMoveReversal(models.TransientModel):
                 refund_type=self.refund_type,
                 percentage=self.percentage,
                 amount=self.amount,
-                account_id=self.account_id.id,
                 reason=self.reason,
             ),
         ).reverse_moves()
