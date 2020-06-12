@@ -68,6 +68,20 @@ class AccountDebitNote(models.TransientModel):
         else:
             res["l10n_do_account_id"] = journal.default_debit_account_id.id
 
+        # Do not allow Debit Notes if Comprobante de Compra or Gastos Menores
+        if move_ids[0].l10n_latam_document_type_id.l10n_do_ncf_type in (
+            "informal",
+            "minor",
+            "e-informal",
+            "e-minor",
+        ):
+            raise UserError(
+                _(
+                    "Debit Notes are not allowed "
+                    "for Comprobante de Compra or Gastos Menores"
+                )
+            )
+
         if len(move_ids) > 1:
             move_ids_use_document = move_ids.filtered(
                 lambda move: move.l10n_latam_use_documents
