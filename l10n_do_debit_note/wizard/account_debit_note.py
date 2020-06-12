@@ -25,16 +25,6 @@ class AccountDebitNote(models.TransientModel):
             ("apply_debit", _("Apply debit")),
         ]
 
-    @api.model
-    def _default_l10n_do_account(self):
-        journal = self.env["account.journal"].search(
-            [("type", "=", "sale"), ("company_id", "=", self.env.user.company_id.id)],
-            limit=1,
-        )
-        if self._context.get("type") in ("out_invoice", "in_refund"):
-            return journal.default_credit_account_id.id
-        return journal.default_debit_account_id.id
-
     l10n_latam_country_code = fields.Char(
         default=lambda self: self.env.user.company_id.country_id.code,
         help="Technical field used to hide/show fields regarding the localization",
@@ -59,7 +49,6 @@ class AccountDebitNote(models.TransientModel):
         "account.account",
         string="Account",
         domain=[("deprecated", "=", False)],
-        default=_default_l10n_do_account,
     )
     l10n_latam_document_number = fields.Char(string="Document Number",)
 
@@ -73,6 +62,14 @@ class AccountDebitNote(models.TransientModel):
             if self.env.context.get("active_model") == "account.move"
             else self.env["account.move"]
         )
+
+        # Setting default account
+        journal = move_ids[0].journal_id
+        if self._context.get("type") in ("out_invoice", "in_refund"):
+            res["l10n_do_account_id"] = journal.default_credit_account_id.id
+        else:
+            res["l10n_do_account_id"] = journal.default_debit_account_id.id
+
         if len(move_ids) > 1:
             move_ids_use_document = move_ids.filtered(
                 lambda move: move.l10n_latam_use_documents
