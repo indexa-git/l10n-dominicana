@@ -90,6 +90,7 @@ class AccountDebitNote(models.TransientModel):
                 self.move_ids[0].company_id.account_sale_tax_id
                 or self.env.ref("l10n_do.1_tax_18_sale")
                 if (self.date - self.move_ids[0].invoice_date).days <= 30
+                and self.move_ids[0].partner_id.l10n_do_dgii_tax_payer_type != "special"
                 else self.env.ref("l10n_do.1_tax_0_sale") or False
             )
         else:
