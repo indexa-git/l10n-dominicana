@@ -46,9 +46,7 @@ class AccountDebitNote(models.TransientModel):
         help="Debit Note based fixed amount", string="Amount",
     )
     l10n_do_account_id = fields.Many2one(
-        "account.account",
-        string="Account",
-        domain=[("deprecated", "=", False)],
+        "account.account", string="Account", domain=[("deprecated", "=", False)],
     )
     l10n_latam_document_number = fields.Char(string="Document Number",)
 
