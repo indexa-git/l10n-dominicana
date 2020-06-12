@@ -88,6 +88,20 @@ class AccountDebitNote(models.TransientModel):
 
         return res
 
+    def _get_line_tax(self):
+
+        if self.move_type == "out_invoice":
+            return (
+                self.move_ids[0].company_id.account_sale_tax_id
+                or self.env.ref("l10n_do.1_tax_18_sale")
+                if (self.date - self.move_ids[0].invoice_date).days <= 30
+                else self.env.ref("l10n_do.1_tax_0_sale") or False
+            )
+        else:
+            return self.move_ids[0].company_id.account_purchase_tax_id or self.env.ref(
+                "l10n_do.1_tax_0_purch"
+            )
+
     def _prepare_default_values(self, move):
 
         res = super(AccountDebitNote, self)._prepare_default_values(move)
@@ -117,6 +131,7 @@ class AccountDebitNote(models.TransientModel):
                                 "name": self.reason,
                                 "price_unit": price_unit,
                                 "account_id": self.l10n_do_account_id.id,
+                                "tax_ids": [(6, 0, [self._get_line_tax().id])],
                             },
                         )
                     ],
