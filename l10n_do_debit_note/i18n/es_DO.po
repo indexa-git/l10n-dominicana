@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-09 23:18+0000\n"
-"PO-Revision-Date: 2020-06-09 19:21-0400\n"
+"POT-Creation-Date: 2020-06-13 01:17+0000\n"
+"PO-Revision-Date: 2020-06-12 21:18-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -42,46 +42,42 @@ msgstr ""
 #. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
 msgid ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), "
-"('state', '!=', 'cancel'), ('is_debit_note', '=', True)]}\">Cancelled "
-"Bill</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!"
+"=', 'cancel'), ('is_debit_note', '=', True)]}\">Cancelled Bill</span>"
 msgstr ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), "
-"('state', '!=', 'cancel'), ('is_debit_note', '=', True)]}\">Factura "
-"Cancelada</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!"
+"=', 'cancel'), ('is_debit_note', '=', True)]}\">Factura Cancelada</span>"
 
 #. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
 msgid ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), "
-"('state', 'in', ('draft', 'cancel')), ('is_debit_note', '=', "
-"False)]}\">Vendor Debit Note</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Vendor Debit Note</"
+"span>"
 msgstr ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), "
-"('state', 'in', ('draft', 'cancel')), ('is_debit_note', '=', "
-"False)]}\">Nota de Débito Proveedor</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Nota de Débito "
+"Proveedor</span>"
 
 #. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
 msgid ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), "
-"('state', '!=', 'cancel'), ('is_debit_note', '=', True)]}\">Cancelled "
-"Invoice</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'!=', 'cancel'), ('is_debit_note', '=', True)]}\">Cancelled Invoice</span>"
 msgstr ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), "
-"('state', '!=', 'cancel'), ('is_debit_note', '=', True)]}\">Factura "
-"Cancelada</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'!=', 'cancel'), ('is_debit_note', '=', True)]}\">Factura Cancelada</span>"
 
 #. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
 msgid ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), "
-"('state', 'in', ('draft', 'cancel')), ('is_debit_note', '=', "
-"False)]}\">Customer Debit Note</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Customer Debit "
+"Note</span>"
 msgstr ""
-"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), "
-"('state', 'in', ('draft', 'cancel')), ('is_debit_note', '=', "
-"False)]}\">Nota de Débito</span>"
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Nota de Débito</"
+"span>"
 
 #. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
@@ -144,6 +140,14 @@ msgid "Debit Notes"
 msgstr "Notas de Débito"
 
 #. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#, python-format
+msgid "Debit Notes are not allowed for Comprobante de Compra or Gastos Menores"
+msgstr ""
+"Las Notas de Débito no son permitidas para Comprobantes de Compra o Gastos "
+"menores"
+
+#. module: l10n_do_debit_note
 #: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_do_debit_type
 msgid "Debit Type"
 msgstr "Tipo de Débito"
@@ -168,9 +172,9 @@ msgstr ""
 "False)]}”>Nota de Débito Borrador</span>"
 
 #. module: l10n_do_debit_note
-#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_move__is_debit_note
-msgid "Is Debit Note"
-msgstr "Es Nota de Débito"
+#: model:ir.model,name:l10n_do_debit_note.model_account_journal
+msgid "Journal"
+msgstr "Diario"
 
 #. module: l10n_do_debit_note
 #: model:ir.model,name:l10n_do_debit_note.model_account_move
@@ -215,15 +219,14 @@ msgid ""
 "Use this option if you want to fully apply a debit note.\n"
 "                            The debit note will be created, validated and "
 "reconciled\n"
-"                            with the invoice. You will not be able to "
-"modify the debit\n"
+"                            with the invoice. You will not be able to modify the "
+"debit\n"
 "                            note."
 msgstr ""
 "Use esta opción si desea aplicar una Nota de Débito por completo.\n"
 "                            La Nota de Débito será creada, validada y "
 "conciliada\n"
-"                            con la factura. No podrá modificar la Nota de "
-"Débito."
+"                            con la factura. No podrá modificar la Nota de Débito."
 
 #. module: l10n_do_debit_note
 #: model:ir.actions.act_window,name:l10n_do_debit_note.action_vendor_in_debit_note
@@ -244,5 +247,4 @@ msgid ""
 "                            debit note directly or keep it draft."
 msgstr ""
 "Podrá editar y validar esta\n"
-"                            Nota de Débito directamente o mantenerla en "
-"borrador."
+"                            Nota de Débito directamente o mantenerla en borrador."
