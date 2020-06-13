@@ -55,12 +55,9 @@ class AccountInvoice(models.Model):
 
     def _convert_to_local_currency(self, amount):
         sign = -1 if self.type in ['in_refund', 'out_refund'] else 1
-        if self.currency_id != self.company_id.currency_id:
-            currency_id = self.currency_id.with_context(date=self.date_invoice)
-            round_curr = currency_id.round
-            amount = round_curr(
-                currency_id.compute(amount, self.company_id.currency_id))
-
+        amount = self.currency_id._convert(
+            amount, self.company_id.currency_id, self.company_id, self.date
+        )
         return amount * sign
 
     def _get_tax_line_ids(self):
