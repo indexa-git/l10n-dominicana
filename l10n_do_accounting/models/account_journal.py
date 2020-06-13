@@ -85,9 +85,7 @@ class AccountJournal(models.Model):
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         if invoice.type in ['out_refund', 'in_refund']:
             ncf_types = ['credit_note']
-        if invoice._compute_is_debit_note() or \
-                self.env.context.get('internal_type') == 'debit_note':
-            ncf_types = ['debit_note']
+
         return ncf_types
 
     def _get_journal_codes(self):

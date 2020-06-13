@@ -73,7 +73,7 @@ class AccountMove(models.Model):
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
-    is_debit_note = fields.Boolean()
+    is_debit_note = fields.Boolean()  # DO NOT FORWARD PORT
     cancellation_type = fields.Selection(
         selection='_get_l10n_do_cancellation_type',
         string="Cancellation Type",
@@ -97,16 +97,6 @@ class AccountMove(models.Model):
             return action
 
         return super(AccountMove, self).button_cancel()
-
-    def _compute_is_debit_note(self):
-        self.ensure_one()
-        if (
-            self.journal_id.l10n_latam_use_documents
-            and self.journal_id.company_id.country_id == self.env.ref('base.do')
-            and self.type == 'out_invoice'
-            and self.ref
-        ):
-            return True if self.ref[-10:-8] == '03' else False
 
     @api.depends('ref')
     def _compute_l10n_latam_document_number(self):
