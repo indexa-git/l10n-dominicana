@@ -87,9 +87,7 @@ class AccountJournal(models.Model):
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         if invoice.type in ['out_refund', 'in_refund']:
             ncf_types = ['credit_note']
-        if invoice._compute_is_debit_note() or \
-                self.env.context.get('internal_type') == 'debit_note':
-            ncf_types = ['debit_note']
+
         return ["e-%s" % d for d in ncf_types if d not in ("unique", "import")] \
             if self.company_id.l10n_do_ecf_issuer else ncf_types
 
@@ -114,28 +112,6 @@ class AccountJournal(models.Model):
             for rec in self:
                 rec._l10n_do_create_document_sequences()
         return res
-
-    @api.constrains(
-        'type', 'l10n_latam_use_documents',
-    )
-    def _check_dgii_configurations(self):
-        """ Do not let to update journal if already have confirmed invoices """
-        self.ensure_one()
-        if self.company_id.country_id != self.env.ref('base.do'):
-            return True
-        if self.type != 'sale' and self._origin.type != 'sale':
-            return True
-        invoices = self.env['account.move'].search(
-            [('journal_id', '=', self.id), ('state', '!=', 'draft')]
-        )
-        if invoices:
-            raise ValidationError(
-                _(
-                    'You can not change the journal configuration for a '
-                    'journal that already have validate invoices'
-                )
-                + ':<br/><br/> - %s' % ('<br/>- '.join(invoices.mapped('display_name')))
-            )
 
     def _l10n_do_create_document_sequences(self):
         """ IF DGII Configuration changes try to review if this can be done
