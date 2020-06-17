@@ -74,32 +74,6 @@
             <xpath expr="//field[@name='ref']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-
-            <xpath expr="//form/sheet/div[2]/span[1]/field[@name='type']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|',
-                    ('type', '=', 'entry'), ('state', '=', 'draft')
-                ]}</attribute>
-            </xpath>
-            <xpath expr="//form/sheet/div[2]/span[1]/field[@name='type']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|',
-                    ('type', '=', 'entry'),
-                    ('state', 'in', ('draft', 'cancel')),
-                  ]}</attribute>
-            </xpath>
-            <xpath expr="//form/sheet/div[2]/h1[1]/span[1]" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', '|',
-                    ('type', '!=', 'out_invoice'),
-                    ('state', '!=', 'draft'),
-                    ('name', '!=', '/'),
-                ]}</attribute>
-            </xpath>
-            <xpath expr="//form/sheet/div[2]/h1[1]/span[3]" position="attributes">
-                <attribute name="attrs">{'invisible': ['|', '|',
-                    ('type', '!=', 'in_invoice'),
-                    ('state', '!=', 'draft'),
-                    ('name', '!=', '/'),
-                ]}</attribute>
-            </xpath>
         </field>
     </record>
 
