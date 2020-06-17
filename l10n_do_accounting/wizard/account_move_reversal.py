@@ -84,6 +84,5 @@ class AccountMoveReversal(models.TransientModel):
                 percentage=self.percentage,
                 amount=self.amount,
                 reason=self.reason,
-                l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
             ),
         ).reverse_moves()
