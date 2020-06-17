@@ -30,13 +30,11 @@
                     ('l10n_latam_country_code', '=', 'DO')]
                 }</attribute>
             </xpath>
-            <xpath expr="//form/sheet/div[2]/h1[1]" position="inside">
+            <xpath expr="//h1/span/.." position="inside">
                 <span attrs="{'invisible': ['|', ('type', '!=', 'out_refund'), ('state', '!=', 'cancel')]}">Cancelled Credit Note</span>
-            </xpath>
-            <xpath expr="//form/sheet/div[2]/h1[1]" position="inside">
                 <span attrs="{'invisible': ['|', ('type', '!=', 'in_refund'), ('state', '!=', 'cancel')]}">Cancelled Refund</span>
             </xpath>
-            <xpath expr="//form/sheet/div[2]/h1[1]" position="after">
+            <xpath expr="//h1/span/.." position="after">
                 <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
                     Cancellation Reason:
                     <br/>
