@@ -275,7 +275,7 @@ class AccountMove(models.Model):
             and r.type == 'out_invoice'
             and r.state in ('posted', 'cancel')
         ):
-            if rec.partner_id.country_id and rec.partner_id.l10n_do_country_code != 'DO':
+            if rec.partner_id.country_id and rec.partner_id.country_id.code != 'DO':
                 if any(
                     [
                         p
