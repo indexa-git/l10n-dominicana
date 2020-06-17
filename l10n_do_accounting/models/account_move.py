@@ -93,8 +93,8 @@ class AccountMove(models.Model):
     is_ecf_invoice = fields.Boolean(
         copy=False,
         default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer and
-                             self.env.user.company_id.country_id and
-                             self.env.user.company_id.country_id.code == "DO",
+                             self.env.user.company_id.l10n_do_country_code and
+                             self.env.user.company_id.l10n_do_country_code == "DO",
     )
     l10n_do_ecf_modification_code = fields.Selection(
         selection='_get_l10n_do_ecf_modification_code',
@@ -275,7 +275,7 @@ class AccountMove(models.Model):
             and r.type == 'out_invoice'
             and r.state in ('posted', 'cancel')
         ):
-            if rec.partner_id.country_id and rec.partner_id.country_id.code != 'DO':
+            if rec.partner_id.country_id and rec.partner_id.l10n_do_country_code != 'DO':
                 if any(
                     [
                         p
