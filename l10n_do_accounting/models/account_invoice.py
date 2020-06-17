@@ -395,7 +395,9 @@ class AccountInvoice(models.Model):
                 # on invoice validate.
                 inv._compute_fiscal_sequence()
 
-                if not inv.fiscal_sequence_id and inv.fiscal_type_id.assigned_sequence:
+                if not inv.reference \
+                        and not inv.fiscal_sequence_id \
+                        and inv.fiscal_type_id.assigned_sequence:
                     raise ValidationError(
                         _(
                             "There is not active Fiscal Sequence for this type"
