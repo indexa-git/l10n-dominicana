@@ -3,8 +3,8 @@ name: Unit Tests
 on:
   push:
     branches:
-      - '[0-9]+.0-*-*'
-      - '![0-9]+.0-staging-*'
+      - '**'
+      - '![0-9]+.0'
     paths:
       - '**/src/**'
       - '**/i18n/**'
@@ -14,7 +14,6 @@ on:
   pull_request:
     branches:
       - '[0-9]+.0'
-      - '[0-9]+.0-staging-*'
 
 jobs:
   dependencies:
@@ -46,7 +45,6 @@ jobs:
       with:
         path: ${{ steps.repo_slugs.outputs.repo_name }}
 
-
     - name: Check Flake8
       uses: TrueBrain/actions-flake8@master
       with:
@@ -69,13 +67,6 @@ jobs:
       with:
         repository: indexa-git/external_service_addons
         path: external-service-addons
-        ref: '11.0'
-
-    - name: Odoo Dominicana l10n-dominicana
-      uses: actions/checkout@v2
-      with:
-        repository: odoo-dominicana/l10n-dominicana
-        path: l10n-dominicana
         ref: '11.0'
 
     - name: Odoo Enterprise
