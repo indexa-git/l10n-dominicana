@@ -57,6 +57,7 @@
                         <strong>NCF modificado:</strong>
                         <span t-field="o.l10n_do_origin_ncf"/>
                         <t t-if="ecf_representation">
+                            <br/>
                             <strong>Código Modificación:</strong>
                             <span t-field="o.l10n_do_ecf_modification_code"/>
                         </t>
