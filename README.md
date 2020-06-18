@@ -1,37 +1,30 @@
 [![License: AGPL-3](https://img.shields.io/badge/licence-LGPL--3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
-[![Build Status](https://travis-ci.org/odoo-dominicana/l10n-dominicana.svg?branch=12.0)](https://travis-ci.org/odoo-dominicana/l10n-dominicana)
-[![codecov](https://codecov.io/gh/odoo-dominicana/l10n-dominicana/branch/12.0/graph/badge.svg)](https://codecov.io/gh/odoo-dominicana/l10n-dominicana)
+![Unit Tests](https://github.com/odoo-dominicana/l10n-dominicana/workflows/Unit%20Tests/badge.svg)
+![Linting](https://github.com/odoo-dominicana/l10n-dominicana/workflows/Linting/badge.svg)
+[![codecov](https://codecov.io/gh/odoo-dominicana/l10n-dominicana/branch/11.0/graph/badge.svg)](https://codecov.io/gh/odoo-dominicana/l10n-dominicana)
 
-# Localización RD para Facturación Fiscal
+# Localización Dominicana
 
 Este repositorio consolida los módulos utilizados para poder realizar facturación en República Dominicana desde los módulos de Ventas, Contable y Punto de Ventas.
 
-Principalmente se enfoca en la gestión de los Números de Comprobantes Fiscal (**NCF**) y facilita ciertas funcionalidades para el uso de los mismos como:
-- Secuencias **Preconfiguradas** para manejo de todos los NCF
-   - Facturas con Valor Fiscal (para Ventas)
-   - Facturas para Consumidores Finales
-   - Gubernamentales
-   - Regímenes Especiales
-   - Comprobante para Exportaciones
-   - Notas de Débito y Crédito
-   - Registro de Ingreso Único
-   - Comprobantes de Compras
-   - Registro de Gastos Menores
-   - Pagos al Exterior
+En esta versión están disponibles los siguientes módulos:
 
-- Validación en **tiempo real** de comprobantes
-	- Estructura correcta del NCF digitado
-	- Validación de relación **NCF-RNC** con WebService de DGII
+- [**ncf_manager**](https://github.com/dixgrake/l10n-dominicana/blob/11.0/docs/ncf_manager.rst): Este módulo agrega funcionalidades para manejar numero de comprobante fiscal NCF.
 
-- Consulta de **tasas de banco** en tiempo real
-	- Actualización diaria de tasa USD desde el Banco Central
-	- Importador de Archivo de Tasas del Banco Central para generación de histórico
+        - Secuencias Preconfiguradas para manejo de todos los NCF.
+        - Validación de RNC y Cédula.
+        - Validación de Estructura NCF y e-CF.
 
-- Creación de contactos por **RNC** o **Cédula**
-	- Consulta con el WebService de DGII
+- [**ncf_pos**](https://github.com/dixgrake/l10n-dominicana/blob/11.0/docs/ncf_pos.rst): Incorpora funcionalidades de facturación con NCF al punto de venta.
+      
+        - WIP: compatibilidad con impresoras fiscales
+  
+- [**ncf_sale**](https://github.com/dixgrake/l10n-dominicana/blob/11.0/docs/ncf_sale.rst): Este módulo extiende la funcionalidad del ``ncf_manager`` hacia ventas, para realizar algunas validaciones antes de crear la factura. 
 
-- Emisión de Facturas Fiscales desde el **Punto de Venta**
-	- **WIP**: compatibilidad con impresoras fiscales
+- [**ncf_purchase**](https://github.com/dixgrake/l10n-dominicana/blob/11.0/docs/ncf_purchase.rst): Este módulo extiende la funcionalidad del ``ncf_manager`` hacia compras, Se agrego un nuevo campo *Diario de Compras* en proveedores si este campo está configurado, las facturas generadas para estos proveedores toman este diario de manera predeterminada.
+          
+- [**ncf_invoice_template**](https://github.com/dixgrake/l10n-dominicana/blob/11.0/docs/ncf_invoice_template.rst): Este módulo sobre escribe el formato de las facturas para adaptarlo a la Norma General 06-2018 de la DGII.
+
 
 ## Contribuciones
 
