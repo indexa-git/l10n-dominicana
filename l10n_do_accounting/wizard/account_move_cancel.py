@@ -18,6 +18,7 @@ class AccountMoveCancel(models.TransientModel):
             'account.move']._get_l10n_do_cancellation_type(),
         string="Cancellation Type",
         copy=False,
+        required=True,
     )
 
     def move_cancel(self):

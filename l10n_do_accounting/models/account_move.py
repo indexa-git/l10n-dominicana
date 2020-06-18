@@ -73,7 +73,7 @@ class AccountMove(models.Model):
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
     ncf_expiration_date = fields.Date(string='Valid until', store=True,)
-    is_debit_note = fields.Boolean()
+    is_debit_note = fields.Boolean()  # DO NOT FORWARD PORT
     cancellation_type = fields.Selection(
         selection='_get_l10n_do_cancellation_type',
         string="Cancellation Type",
@@ -83,7 +83,7 @@ class AccountMove(models.Model):
     def button_cancel(self):
 
         fiscal_invoice = self.filtered(
-            lambda inv: inv.l10n_latam_country_code == 'DO')
+            lambda inv: inv.l10n_latam_country_code == 'DO' and self.type[-6:] in ('nvoice', 'refund'))
 
         if len(fiscal_invoice) > 1:
             raise ValidationError(
@@ -97,16 +97,6 @@ class AccountMove(models.Model):
             return action
 
         return super(AccountMove, self).button_cancel()
-
-    def _compute_is_debit_note(self):
-        self.ensure_one()
-        if (
-            self.journal_id.l10n_latam_use_documents
-            and self.journal_id.company_id.country_id == self.env.ref('base.do')
-            and self.type == 'out_invoice'
-            and self.ref
-        ):
-            return True if self.ref[-10:-8] == '03' else False
 
     @api.depends('ref')
     def _compute_l10n_latam_document_number(self):
@@ -259,7 +249,7 @@ class AccountMove(models.Model):
             lambda r: r.company_id.country_id == self.env.ref('base.do')
             and r.l10n_latam_document_type_id
             and r.type == 'out_invoice'
-            and r.state in ('draft', 'cancel')
+            and r.state in ('posted', 'cancel')
         ):
             if rec.partner_id.country_id and rec.partner_id.country_id.code != 'DO':
                 if any(
@@ -325,7 +315,8 @@ class AccountMove(models.Model):
         if self.company_id.country_id == self.env.ref('base.do') \
                 and self.l10n_latam_document_type_id and self.type == 'in_invoice' \
                 and self.partner_id:
-            self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type
+            self.l10n_do_expense_type = self.partner_id.l10n_do_expense_type if not \
+                self.l10n_do_expense_type else self.l10n_do_expense_type
 
         return super(AccountMove, self)._onchange_partner_id()
 
