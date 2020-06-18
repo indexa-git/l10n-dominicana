@@ -1,5 +1,5 @@
 [![License: AGPL-3](https://img.shields.io/badge/licence-LGPL--3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
-![Unit Tests](https://github.com/odoo-dominicana/l10n-dominicana/workflows/Unite%20&%20Tests/badge.svg)
+![Unit Tests](https://github.com/odoo-dominicana/l10n-dominicana/workflows/Unit%20Tests/badge.svg)
 ![Linting](https://github.com/odoo-dominicana/l10n-dominicana/workflows/Linting/badge.svg)
 [![codecov](https://codecov.io/gh/odoo-dominicana/l10n-dominicana/branch/11.0/graph/badge.svg)](https://codecov.io/gh/odoo-dominicana/l10n-dominicana)
 
