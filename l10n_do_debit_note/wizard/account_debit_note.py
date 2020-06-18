@@ -49,6 +49,15 @@ class AccountDebitNote(models.TransientModel):
         "account.account", string="Account", domain=[("deprecated", "=", False)],
     )
     l10n_latam_document_number = fields.Char(string="Document Number",)
+    l10n_do_ecf_modification_code = fields.Selection(
+        selection=lambda self: self.env[
+            "account.move"]._get_l10n_do_ecf_modification_code(),
+        string='e-CF Modification Code',
+        copy=False,
+    )
+    is_ecf_invoice = fields.Boolean(
+        string="Is Electronic Invoice",
+    )
 
     @api.model
     def default_get(self, fields):
@@ -82,18 +91,20 @@ class AccountDebitNote(models.TransientModel):
                 )
             )
 
-        if len(move_ids) > 1:
-            move_ids_use_document = move_ids.filtered(
-                lambda move: move.l10n_latam_use_documents
-                and move.company_id.l10n_do_country_code == "DO"
-            )
-            if move_ids_use_document:
-                raise UserError(
-                    _(
-                        "You cannot create Debit Notes from multiple "
-                        "documents at a time."
-                    )
+        move_ids_use_document = move_ids.filtered(
+            lambda move: move.l10n_latam_use_documents
+            and move.company_id.l10n_do_country_code == "DO"
+        )
+
+        if len(move_ids_use_document) > 1:
+            raise UserError(
+                _(
+                    "You cannot create Debit Notes from multiple "
+                    "documents at a time."
                 )
+            )
+        else:
+            res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
 
         return res
 
@@ -125,6 +136,7 @@ class AccountDebitNote(models.TransientModel):
             )
             res.update(
                 dict(
+                    l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
                     l10n_latam_document_number=self.l10n_latam_document_number,
                     l10n_do_origin_ncf=move.l10n_latam_document_number,
                     l10n_do_expense_type=move.l10n_do_expense_type,

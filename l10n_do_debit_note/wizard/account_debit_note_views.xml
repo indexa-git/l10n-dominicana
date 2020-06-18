@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <field name="move_ids" position="after">
                 <field name="l10n_latam_country_code" invisible="1"/>
+                <field name="is_ecf_invoice" invisible="1"/>
                 <group>
                     <group attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'DO'), ('move_type', 'not in', ('out_invoice', 'in_invoice'))]}">
                         <field name="l10n_do_debit_type" options="{'horizontal': true}"
@@ -49,6 +50,16 @@
                        options='{"no_open": True, "no_create": True}'
                        attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'DO'), ('l10n_do_debit_type', '=', 'apply_debit')],
                        'required': [('l10n_do_debit_type', '!=', 'apply_debit')]}"/>
+                <field name="l10n_do_ecf_modification_code"
+                       attrs="{'invisible': ['|', '|',
+                       ('l10n_latam_country_code', '!=', 'DO'),
+                       ('move_type', '!=', 'out_invoice'),
+                       ('is_ecf_invoice', '=', False),
+                       ], 'required': [
+                       ('l10n_latam_country_code', '=', 'DO'),
+                       ('move_type', '=', 'out_invoice'),
+                       ('is_ecf_invoice', '=', True),
+                ]}"/>
             </field>
             <xpath expr="//field[@name='copy_lines']" position="attributes">
                 <attribute name="attrs">{'invisible': ['|', ('l10n_latam_country_code', '=', 'DO'), ('move_type', 'in', ['in_refund', 'out_refund'])]}</attribute>
