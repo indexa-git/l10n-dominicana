@@ -1,5 +1,6 @@
 [![License: AGPL-3](https://img.shields.io/badge/licence-LGPL--3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.html)
-[![Build Status](https://travis-ci.org/odoo-dominicana/l10n-dominicana.svg?branch=11.0)](https://travis-ci.org/odoo-dominicana/l10n-dominicana)
+![Unit Tests](https://github.com/odoo-dominicana/l10n-dominicana/workflows/Unit%20Tests/badge.svg)
+![Linting](https://github.com/odoo-dominicana/l10n-dominicana/workflows/Linting/badge.svg)
 [![codecov](https://codecov.io/gh/odoo-dominicana/l10n-dominicana/branch/11.0/graph/badge.svg)](https://codecov.io/gh/odoo-dominicana/l10n-dominicana)
 
 # Localización Dominicana
