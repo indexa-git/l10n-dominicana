@@ -20,7 +20,7 @@ jobs:
     name: Dependencies
     runs-on: ubuntu-latest
     container:
-      image: gcr.io/iterativo/dockerdoo:12.0
+      image: gcr.io/iterativo/dockerdoo:13.0
       options: --user root
     outputs:
       get_modules: ${{ steps.get_modules.outputs.modules }}
@@ -53,21 +53,21 @@ jobs:
         only_warn: 1
 
     - name: Download python addons script
-      run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/12.0/resources/getaddons.py -o getaddons.py
+      run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/13.0/resources/getaddons.py -o getaddons.py
 
     - name: ITPP-Labs pos-addons
       uses: actions/checkout@v2
       with:
         repository: itpp-labs/pos-addons
         path: pos-addons
-        ref: '12.0'
+        ref: '13.0'
 
     - name: INDEXA external-services
       uses: actions/checkout@v2
       with:
         repository: indexa-git/external_service_addons
         path: external-service-addons
-        ref: '12.0'
+        ref: '13.0'
 
     - name: Odoo Enterprise
       uses: actions/checkout@v2
@@ -75,7 +75,7 @@ jobs:
         repository: odoo/enterprise
         token: ${{ secrets.ACTIONS_PAT }}
         path: enterprise
-        ref: '12.0'
+        ref: '13.0'
 
     - name: python get_modules
       id: get_modules
@@ -97,7 +97,7 @@ jobs:
     needs: ['dependencies']
     runs-on: ubuntu-latest
     container:
-      image: gcr.io/iterativo/dockerdoo:12.0
+      image: gcr.io/iterativo/dockerdoo:13.0
       options: -t --user root
       volumes:
         - ${{ github.workspace }}:/workspace
@@ -127,12 +127,12 @@ jobs:
     - run: unzip modules.zip
 
     - name: chown home for pypy
-      uses: docker://gcr.io/iterativo/dockerdoo:12.0
+      uses: docker://gcr.io/iterativo/dockerdoo:13.0
       with:
         args: sudo chown -R 1000:1000 /github/home
 
     - name: Run odoo
-      uses: docker://gcr.io/iterativo/dockerdoo:12.0
+      uses: docker://gcr.io/iterativo/dockerdoo:13.0
       with:
         args: odoo
       env:
@@ -203,7 +203,7 @@ jobs:
       run: |
         curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
         chmod u+x ./kustomize
-        ./kustomize build gke-dev-cluster/deployments/odoo/12.0/dev -o deployment.yaml.tmpl
+        ./kustomize build gke-dev-cluster/deployments/odoo/13.0/dev -o deployment.yaml.tmpl
 
     - name: Render Deployment YAML
       uses: nowactions/envsubst@v1
