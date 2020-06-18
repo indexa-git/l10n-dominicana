@@ -91,13 +91,13 @@ class L10nLatamDocumentType(models.Model):
         msg = "'%s' " + _("is not a valid value for") + " '%s'.<br/>%s"
 
         # Import NCF Number Validator
-        if not is_valid(document_number):
-            raise UserError(
-                msg
-                % (
-                    document_number,
-                    self.name,
-                    _('Please check the number and try again'),
-                )
-            )
+        # if not is_valid(document_number):
+        #     raise UserError(
+        #         msg
+        #         % (
+        #             document_number,
+        #             self.name,
+        #             _('Please check the number and try again'),
+        #         )
+        #     )
         return document_number
