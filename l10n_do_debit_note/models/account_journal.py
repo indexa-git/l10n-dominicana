@@ -16,4 +16,5 @@ class AccountJournal(models.Model):
         ):
             ncf_types = ["debit_note"]
 
-        return ncf_types
+        return ["e-%s" % d for d in ncf_types] \
+            if self.company_id.l10n_do_ecf_issuer else ncf_types
