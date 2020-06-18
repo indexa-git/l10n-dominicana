@@ -85,12 +85,12 @@ class AccountDebitNote(models.TransientModel):
         if len(move_ids) > 1:
             move_ids_use_document = move_ids.filtered(
                 lambda move: move.l10n_latam_use_documents
-                and move.company_id.country_id.code == "DO"
+                and move.company_id.l10n_do_country_code == "DO"
             )
             if move_ids_use_document:
                 raise UserError(
                     _(
-                        "You cannot created Debit Notes from multiple "
+                        "You cannot create Debit Notes from multiple "
                         "documents at a time."
                     )
                 )

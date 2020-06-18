@@ -1,4 +1,5 @@
 from odoo import models, api, fields, _
+from odoo.exceptions import UserError
 
 
 class AccountMoveReversal(models.TransientModel):
@@ -50,16 +51,39 @@ class AccountMoveReversal(models.TransientModel):
     )
     percentage = fields.Float()
     amount = fields.Float()
+    l10n_do_ecf_modification_code = fields.Selection(
+        selection=lambda self: self.env[
+            "account.move"]._get_l10n_do_ecf_modification_code(),
+        string='e-CF Modification Code',
+        copy=False,
+    )
+    is_ecf_invoice = fields.Boolean(
+        string="Is Electronic Invoice",
+    )
 
     @api.model
     def default_get(self, fields):
         res = super(AccountMoveReversal, self).default_get(fields)
-        active_ids = self.env.context.get('active_ids', False)
-        if active_ids and len(active_ids) == 1:
-            move_id = self.env['account.move'].browse(active_ids)
-            res['move_id'] = (
-                move_id.id if move_id.company_id.l10n_do_country_code == 'DO' else False
+
+        move_ids = (
+            self.env["account.move"].browse(self.env.context["active_ids"])
+            if self.env.context.get("active_model") == "account.move"
+            else self.env["account.move"]
+        )
+        move_ids_use_document = move_ids.filtered(
+            lambda move: move.l10n_latam_use_documents
+            and move.company_id.l10n_do_country_code == "DO"
+        )
+
+        if len(move_ids_use_document) > 1:
+            raise UserError(
+                _(
+                    "You cannot create Credit Notes from multiple "
+                    "documents at a time."
+                )
             )
+        else:
+            res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
 
         return res
 
@@ -84,5 +108,6 @@ class AccountMoveReversal(models.TransientModel):
                 percentage=self.percentage,
                 amount=self.amount,
                 reason=self.reason,
+                l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
             ),
         ).reverse_moves()
