@@ -20,10 +20,11 @@
 
                 <!-- Company info -->
                 <div class="col-6">
-                    <strong>
-                        <span t-field="o.company_id.partner_id.name"/>
-                    </strong>
-                    <br/>
+                    <div>
+                        <strong t-field="o.company_id.partner_id.name"/>
+                    </div>
+                    <span t-field="o.company_id.partner_id" class="text-muted"
+                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
                     <span>
                         <strong>RNC:</strong>
                         <span t-if="o.company_id.vat" t-field="o.company_id.vat"/>
