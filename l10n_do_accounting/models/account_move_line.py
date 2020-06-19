@@ -4,7 +4,7 @@ from odoo import models, fields
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
-    itbis_amount = fields.Monetary(
+    l10n_do_itbis_amount = fields.Monetary(
         string="ITBIS Amount",
         store=True,
         readonly=True,
@@ -41,5 +41,7 @@ class AccountMoveLine(models.Model):
                 lambda t: t.tax_group_id == self.env.ref("l10n_do.group_itbis")
             )
             itbis_taxes_data = line_itbis_taxes.compute_all(price_unit,)
-            res["itbis_amount"] = sum([t["amount"] for t in itbis_taxes_data["taxes"]])
+            res["l10n_do_itbis_amount"] = sum(
+                [t["amount"] for t in itbis_taxes_data["taxes"]]
+            )
         return res
