@@ -35,7 +35,7 @@
                     </span>
                     <br/>
                     <span
-                        t-if="o.invoice_date_due and o.type == 'out_invoice' and o.state == 'posted'">
+                        t-if="o.invoice_date_due and o.type == 'out_invoice' and o.state == 'posted' and not ecf_representation">
                         <strong>Vence:</strong>
                         <span t-field="o.invoice_date_due"/>
                     </span>
