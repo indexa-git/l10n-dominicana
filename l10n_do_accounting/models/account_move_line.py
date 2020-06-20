@@ -36,11 +36,13 @@ class AccountMoveLine(models.Model):
 
         if self.move_id.is_ecf_invoice:
 
-            price_unit = self.price_unit
             line_itbis_taxes = self.tax_ids.filtered(
                 lambda t: t.tax_group_id == self.env.ref("l10n_do.group_itbis")
             )
-            itbis_taxes_data = line_itbis_taxes.compute_all(price_unit,)
+            itbis_taxes_data = line_itbis_taxes.compute_all(
+                price_unit=self.price_unit,
+                quantity=self.quantity,
+            )
             res["l10n_do_itbis_amount"] = sum(
                 [t["amount"] for t in itbis_taxes_data["taxes"]]
             )
