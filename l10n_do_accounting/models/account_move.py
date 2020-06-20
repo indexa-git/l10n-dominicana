@@ -125,13 +125,25 @@ class AccountMove(models.Model):
                 and i.l10n_do_ecf_security_code
                 and i.l10n_do_ecf_sign_date
         ):
+
+            doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
+            has_sign_date = doc_code_prefix != "E32" or (
+                        doc_code_prefix == "E32"
+                        and invoice.amount_total_signed >= 250000
+            )
+
             qr_string = "https://ecf.dgii.gov.do/ecf/ConsultaTimbre?"
             qr_string += "RncEmisor=%s&" % invoice.company_id.vat
             qr_string += "RncComprador=%s&" % invoice.commercial_partner_id.vat
             qr_string += "ENCF=%s&" % invoice.l10n_latam_document_number
             qr_string += "FechaEmision=%s&" % invoice.invoice_date
             qr_string += "MontoTotal=%s&" % invoice.amount_total_signed
-            qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date
+
+            # DGII doesn't want FechaFirma if Consumo Electronico and < 250K
+            # ¯\_(ツ)_/¯
+            if has_sign_date:
+                qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date
+
             qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code
 
             invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
