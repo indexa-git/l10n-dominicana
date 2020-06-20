@@ -77,8 +77,12 @@
                 <field name="l10n_do_ecf_sign_date" invisible="1"/>
                 <field name="l10n_do_electronic_stamp" invisible="1"/>
             </field>
-            <xpath expr="//page[@id='invoice_tab']//tree/field[@name='tax_ids']" position="after">
-                <!-- only computed when l10n_do ecf invoice -->
+
+            <!-- only computed when l10n_do ecf invoice -->
+            <xpath expr="//page[@id='invoice_tab']/field[@name='invoice_line_ids']/tree/field[@name='tax_ids']" position="after">
+                <field name="l10n_do_itbis_amount" invisible="1" force_save="1"/>
+            </xpath>
+            <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='payment_id']" position="after">
                 <field name="l10n_do_itbis_amount" invisible="1" force_save="1"/>
             </xpath>
         </field>
