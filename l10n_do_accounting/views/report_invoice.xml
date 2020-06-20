@@ -222,7 +222,7 @@
                     <img
                         t-att-src="'/report/barcode/?type=QR&amp;width=150&amp;height=150&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
                 </div>
-                <span class="text-muted">
+                <span t-if="o.l10n_do_ecf_security_code" class="text-muted">
                     <span style="font-size: 11px">
                         <strong>Código de Seguridad:</strong>
                         <span t-esc="o.l10n_do_ecf_security_code"/>
