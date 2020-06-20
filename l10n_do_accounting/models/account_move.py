@@ -1,4 +1,5 @@
 import logging
+from werkzeug import urls
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
@@ -103,6 +104,37 @@ class AccountMove(models.Model):
         readonly=True,
         states={'draft': [('readonly', False)]},
     )
+    l10n_do_ecf_security_code = fields.Char(
+        string="e-CF Security Code",
+        copy=False,
+    )
+    l10n_do_ecf_sign_date = fields.Datetime(
+        string="e-CF Sign Date",
+        copy=False,
+    )
+    l10n_do_electronic_stamp = fields.Char(
+        string="Electronic Stamp",
+        compute="_compute_l10n_do_electronic_stamp",
+        store=True,
+    )
+
+    @api.depends('l10n_do_ecf_security_code', 'l10n_do_ecf_sign_date')
+    def _compute_l10n_do_electronic_stamp(self):
+        for invoice in self.filtered(
+                lambda i: i.is_ecf_invoice
+                and i.l10n_do_ecf_security_code
+                and i.l10n_do_ecf_sign_date
+        ):
+            qr_string = "https://ecf.dgii.gov.do/ecf/ConsultaTimbre?"
+            qr_string += "RncEmisor=%s&" % invoice.company_id.vat
+            qr_string += "RncComprador=%s&" % invoice.commercial_partner_id.vat
+            qr_string += "ENCF=%s&" % invoice.l10n_latam_document_number
+            qr_string += "FechaEmision=%s&" % invoice.invoice_date
+            qr_string += "MontoTotal=%s&" % invoice.amount_total_signed
+            qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date
+            qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code
+
+            invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
 
     def button_cancel(self):
 
