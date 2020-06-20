@@ -77,7 +77,7 @@
                 <field name="l10n_do_ecf_sign_date" invisible="1"/>
                 <field name="l10n_do_electronic_stamp" invisible="1"/>
             </field>
-            <xpath expr="//page[@id='invoice_tab']/field[@name='field']/tree/field[@name='tax_ids']" position="after">
+            <xpath expr="//page[@id='invoice_tab']//tree/field[@name='tax_ids']" position="after">
                 <!-- only computed when l10n_do ecf invoice -->
                 <field name="l10n_do_itbis_amount" invisible="1" force_save="1"/>
             </xpath>
