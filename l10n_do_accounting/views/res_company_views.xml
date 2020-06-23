@@ -10,6 +10,8 @@
             </form>
             <field name="vat" position="after">
                 <field name="l10n_do_ecf_issuer" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
+                <field name="l10n_do_ecf_deferred_submissions" groups="base.group_no_one"
+                       attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
                 <field name="l10n_do_default_client" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
                 <field name="l10n_do_dgii_start_date" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
             </field>

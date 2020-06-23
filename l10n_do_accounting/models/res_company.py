@@ -16,6 +16,12 @@ class ResCompany(models.Model):
         "Is e-CF issuer",
         help="When activating this field, NCF issuance is disabled.",
     )
+    l10n_do_ecf_deferred_submissions = fields.Boolean(
+        "Deferred submissions",
+        help="Identify taxpayers who have been previously authorized "
+             "to have sales through offline mobile devices such as "
+             "sales with Handheld, enter others."
+    )
 
     def _localization_use_documents(self):
         """ Dominican localization uses documents """
@@ -25,8 +31,3 @@ class ResCompany(models.Model):
             if self.country_id == self.env.ref('base.do')
             else super()._localization_use_documents()
         )
-
-    # TODO: validar que una compañía pueda, a solicitud, dejar de emitir e-CF y volver
-    #  a emitir NCF. Si es negativo, implementar constraint para que la compañía
-    #  no se pueda desactivar el campo l10n_do_ecf_issuer si ya tiene facturas
-    #  electrónicas.
