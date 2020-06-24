@@ -135,6 +135,7 @@
     <menuitem action="action_vendor_in_debit_note"
               id="menu_action_invoice_in_debit_note"
               parent="account.menu_finance_payables"
+              groups="l10n_do_debit_note.group_electronic_debit_note"
               sequence="10"/>
 
 </odoo>

@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, AccessError
 
 
 class AccountDebitNote(models.TransientModel):
@@ -69,6 +69,11 @@ class AccountDebitNote(models.TransientModel):
             if self.env.context.get("active_model") == "account.move"
             else self.env["account.move"]
         )
+
+        ecf_invoices = move_ids.filtered(lambda i: i.is_ecf_invoice)
+        if ecf_invoices and not self.env.user.has_group(
+                "l10n_do_debit_note.group_electronic_debit_note"):
+            raise AccessError(_("You are not allowed to issue Electronic Debit Notes"))
 
         # Setting default account
         journal = move_ids[0].journal_id
