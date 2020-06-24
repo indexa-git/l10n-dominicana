@@ -2,7 +2,7 @@ import logging
 from werkzeug import urls
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError, UserError, AccessError
 
 _logger = logging.getLogger(__name__)
 
@@ -157,6 +157,11 @@ class AccountMove(models.Model):
             raise ValidationError(
                 _("You cannot cancel multiple fiscal invoices at a time."))
 
+        ecf_invoices = self.filtered(lambda i: i.is_ecf_invoice)
+        if ecf_invoices and not self.env.user.has_group(
+                "l10n_do_accounting.group_electronic_invoice_cancel"):
+            raise AccessError(_("You are not allowed to cancel Electronic documents"))
+
         if fiscal_invoice:
             action = self.env.ref(
                 'l10n_do_accounting.action_account_move_cancel'
@@ -165,6 +170,15 @@ class AccountMove(models.Model):
             return action
 
         return super(AccountMove, self).button_cancel()
+
+    def action_reverse(self):
+
+        ecf_invoices = self.filtered(lambda i: i.is_ecf_invoice)
+        if ecf_invoices and not self.env.user.has_group(
+                "l10n_do_accounting.group_electronic_credit_note"):
+            raise AccessError(_("You are not allowed to issue Electronic Credit Notes"))
+
+        return super(AccountMove, self).action_reverse()
 
     @api.depends('ref')
     def _compute_l10n_latam_document_number(self):

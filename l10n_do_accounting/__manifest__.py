@@ -15,7 +15,7 @@
                 ],
     # always loaded
     'data': [
-        # 'security/res_groups.xml',
+        'security/res_groups.xml',
         'data/l10n_latam.document.type.csv',
         'wizard/account_move_reversal_views.xml',
         'wizard/account_move_cancel_views.xml',
