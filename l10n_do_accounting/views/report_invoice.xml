@@ -217,7 +217,7 @@
             </tr>
         </xpath>
         <xpath expr="//div[@id='qrcode']" position="after">
-            <div t-if="ecf_representation">
+            <div t-if="ecf_representation and o.l10n_do_electronic_stamp">
                 <div>
                     <img
                         t-att-src="'/report/barcode/?type=QR&amp;width=150&amp;height=150&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
