@@ -31,7 +31,7 @@
                     </span>
                     <br/>
                     <span>
-                        <strong>Fecha:</strong>
+                        <strong>Fecha Emisión:</strong>
                         <span t-field="o.invoice_date"/>
                     </span>
                     <br/>
