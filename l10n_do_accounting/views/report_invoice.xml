@@ -222,12 +222,20 @@
                     <img
                         t-att-src="'/report/barcode/?type=QR&amp;width=150&amp;height=150&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
                 </div>
-                <span t-if="o.l10n_do_ecf_security_code" class="text-muted">
-                    <span style="font-size: 11px">
-                        <strong>Código de Seguridad:</strong>
-                        <span t-esc="o.l10n_do_ecf_security_code"/>
-                    </span>
-                </span>
+                <table t-if="o.l10n_do_ecf_security_code" style="font-size:11px;">
+                    <tr>
+                        <td>
+                            <strong>Código de Seguridad:</strong>
+                            <span t-esc="o.l10n_do_ecf_security_code"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Fecha Firma Digital:</strong>
+                            <span t-esc="o.l10n_do_ecf_sign_date.strftime('%d-%m-%Y')"/>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </xpath>
 
