@@ -24,6 +24,17 @@ class AccountJournal(models.Model):
         'ir.sequence', 'l10n_latam_journal_id', string='Sequences',
     )
 
+    def _get_all_ncf_types(self, types_list):
+        """
+        Include ECF type prefixes if company is ECF issuer
+        :param types_list: NCF list used to create fiscal sequences
+        :return: types_list
+        """
+        if self.company_id.l10n_do_ecf_issuer:
+            types_list.extend(
+                ["e-%s" % d for d in types_list if d not in ("unique", "import")])
+        return types_list
+
     def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
         """
         Regarding the DGII type of company and the type of journal
@@ -78,8 +89,7 @@ class AccountJournal(models.Model):
                 if self.type == 'sale'
                 else [ncf for ncf in ncf_types if ncf not in ncf_external]
             )
-            return ["e-%s" % d for d in res if d not in ("unique", "import")] \
-                if self.company_id.l10n_do_ecf_issuer else res
+            return self._get_all_ncf_types(res)
         else:
             counterpart_ncf_types = ncf_types_data[
                 'issued' if self.type == 'sale' else 'received'
@@ -88,8 +98,7 @@ class AccountJournal(models.Model):
         if invoice.type in ['out_refund', 'in_refund']:
             ncf_types = ['credit_note']
 
-        return ["e-%s" % d for d in ncf_types if d not in ("unique", "import")] \
-            if self.company_id.l10n_do_ecf_issuer else ncf_types
+        return self._get_all_ncf_types(ncf_types)
 
     def _get_journal_codes(self):
         self.ensure_one()
