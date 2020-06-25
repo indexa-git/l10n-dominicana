@@ -117,6 +117,18 @@ class AccountMove(models.Model):
         compute="_compute_l10n_do_electronic_stamp",
         store=True,
     )
+    l10n_do_company_in_contingency = fields.Boolean(
+        string="Company in contingency",
+        compute="_compute_company_in_contingency",
+    )
+
+    @api.depends('company_id', 'company_id.l10n_do_ecf_issuer')
+    def _compute_company_in_contingency(self):
+        for invoice in self:
+            ecf_invoices = self.search([('is_ecf_invoice', '=', True)], limit=1)
+            invoice.l10n_do_company_in_contingency = bool(
+                ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
+            )
 
     @api.depends('l10n_do_ecf_security_code', 'l10n_do_ecf_sign_date')
     def _compute_l10n_do_electronic_stamp(self):

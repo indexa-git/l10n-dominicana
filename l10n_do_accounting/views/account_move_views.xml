@@ -9,7 +9,18 @@
                 <field name="is_debit_note" invisible="1"/>
                 <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
+                <field name="l10n_do_company_in_contingency" invisible="1"/>
             </field>
+            <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
+                <div class="alert alert-warning"
+                     role="alert" style="margin-bottom:0px;"
+                     attrs="{'invisible': ['|', '|',
+                     ('l10n_latam_country_code', '!=', 'DO'),
+                     ('l10n_do_company_in_contingency', '=', False),
+                     ('state', '!=', 'draft')]}">
+                    Notice. This company is in a transient state of contingency for Electronic Invoice issuing. NCF issuing has been enabled.
+                </div>
+            </xpath>
             <xpath expr="//button[@name='button_cancel']" position="attributes">
                 <attribute name="attrs">{
                     'invisible': ['|', '|',
