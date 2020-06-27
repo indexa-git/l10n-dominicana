@@ -191,7 +191,7 @@
             </td>
         </xpath>
         <xpath expr="//span[@id='line_tax_ids']" position="attributes">
-            <attribute name="t-esc">', '.join(map(lambda x: (x.description or x.name), line.tax_ids)) if not ecf_representation else '%s %s' % (o.currency_id.symbol, line.l10n_do_itbis_amount)</attribute>
+            <attribute name="t-esc">', '.join(map(lambda x: (x.description or x.name), line.tax_ids)) if not ecf_representation else '%s %s' % (o.currency_id.symbol, '{0:,.2f}'.format(line.l10n_do_itbis_amount))</attribute>
         </xpath>
 
         <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
