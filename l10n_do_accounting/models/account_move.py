@@ -148,8 +148,8 @@ class AccountMove(models.Model):
             qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ''
             qr_string += "RncComprador=%s&" % invoice.commercial_partner_id.vat or ''
             qr_string += "ENCF=%s&" % invoice.l10n_latam_document_number or ''
-            qr_string += "FechaEmision=%s&" % invoice.invoice_date.strftime('%d-%m-%Y') or ''
-            qr_string += "MontoTotal=%s&" % invoice.amount_total_signed or ''
+            qr_string += "FechaEmision=%s&" % invoice.invoice_date.strftime('%d-%m-%Y')
+            qr_string += "MontoTotal=%s&" % ('%f' % invoice.amount_total_signed).rstrip('0').rstrip('.')
 
             # DGII doesn't want FechaFirma if Consumo Electronico and < 250K
             # ¯\_(ツ)_/¯
