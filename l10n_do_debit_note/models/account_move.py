@@ -10,7 +10,7 @@ class AccountMove(models.Model):
         """
 
         debit_notes = self.search(
-            [("is_debit_note", "=", True), ("debit_origin_id", "=", False),]
+            [("is_debit_note", "=", True), ("debit_origin_id", "=", False)]
         )
 
         for dn in debit_notes:
