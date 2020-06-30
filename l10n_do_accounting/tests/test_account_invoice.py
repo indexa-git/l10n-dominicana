@@ -34,7 +34,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
 
         # Customer refund
         invoice_3_id = self.invoice_obj.create(
-            {"partner_id": self.partner_demo_3, "type": "out_refund",}
+            {"partner_id": self.partner_demo_3, "type": "out_refund"}
         )
         self.assertEqual(invoice_3_id.l10n_latam_sequence_id.id, self.seq_credit_note)
 
@@ -78,7 +78,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         )
 
         no_fiscal_journal_id = self.journal_obj.create(
-            {"name": "No fiscal Sale journal", "type": "sale", "code": "NFSJ",}
+            {"name": "No fiscal Sale journal", "type": "sale", "code": "NFSJ"}
         )
         invoice_id.journal_id = no_fiscal_journal_id.id
         invoice_id._onchange_journal_id()
@@ -116,7 +116,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         """
 
         consumo_journal_id = self.journal_obj.create(
-            {"name": "Consumo Sale journal", "type": "sale", "code": "CSJ",}
+            {"name": "Consumo Sale journal", "type": "sale", "code": "CSJ"}
         )
         fiscal_type_consumo = self.fiscal_type_obj.browse(self.fiscal_type_consumo)
         fiscal_type_consumo.journal_id = consumo_journal_id.id
@@ -140,7 +140,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         """
 
         invoice_id = self.invoice_obj.create(
-            {"partner_id": self.partner_demo_4, "type": "in_invoice",}
+            {"partner_id": self.partner_demo_4, "type": "in_invoice"}
         )
         invoice_id.partner_id = self.partner_demo_5
         invoice_id._onchange_partner_id()
@@ -526,7 +526,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         refund_wizard_id.invoice_debit_note()
 
         debit_note_id = self.invoice_obj.search(
-            [("type", "=", "out_invoice"), ("is_debit_note", "=", True),], limit=1
+            [("type", "=", "out_invoice"), ("is_debit_note", "=", True)], limit=1
         )
         debit_note_id.action_invoice_open()
 
@@ -576,7 +576,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         refund_wizard_id.invoice_debit_note()
 
         debit_note_id = self.invoice_obj.search(
-            [("type", "=", "out_invoice"), ("is_debit_note", "=", True),], limit=1
+            [("type", "=", "out_invoice"), ("is_debit_note", "=", True)], limit=1
         )
         debit_note_id.action_invoice_open()
 
@@ -622,7 +622,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         refund_wizard_id.invoice_debit_note()
 
         debit_note_id = self.invoice_obj.search(
-            [("type", "=", "in_invoice"), ("is_debit_note", "=", True),], limit=1
+            [("type", "=", "in_invoice"), ("is_debit_note", "=", True)], limit=1
         )
         debit_note_id.action_invoice_open()
 
@@ -670,7 +670,7 @@ class AccountInvoiceTests(AccountInvoiceCommon):
         refund_wizard_id.invoice_debit_note()
 
         debit_note_id = self.invoice_obj.search(
-            [("type", "=", "in_invoice"), ("is_debit_note", "=", True),], limit=1
+            [("type", "=", "in_invoice"), ("is_debit_note", "=", True)], limit=1
         )
         debit_note_id.action_invoice_open()
 

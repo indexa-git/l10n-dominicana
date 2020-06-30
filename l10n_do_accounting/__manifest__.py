@@ -10,7 +10,7 @@
     "website": "https://github.com/odoo-dominicana",
     "version": "13.0.1.0.0",
     # any module necessary for this one to work correctly
-    "depends": ["l10n_latam_invoice_document", "l10n_do",],
+    "depends": ["l10n_latam_invoice_document", "l10n_do"],
     # always loaded
     "data": [
         # 'security/res_groups.xml',

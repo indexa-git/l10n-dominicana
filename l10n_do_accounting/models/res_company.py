@@ -8,7 +8,7 @@ class ResCompany(models.Model):
     l10n_do_dgii_start_date = fields.Date("Activities Start Date")
 
     l10n_do_default_client = fields.Selection(
-        selection=[("non_payer", "Final Consumer"), ("taxpayer", "Fiscal Consumer"),],
+        selection=[("non_payer", "Final Consumer"), ("taxpayer", "Fiscal Consumer")],
         default=lambda self: self._context.get("l10n_do_default_client", "non_payer"),
         string="Default Customer",
     )

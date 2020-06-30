@@ -115,16 +115,17 @@ class AccountMove(models.Model):
             if not rec.l10n_latam_document_number:
                 rec.ref = ""
             else:
-                if rec.l10n_latam_document_type_id.l10n_do_ncf_type:
-                    l10n_latam_document_number = rec.l10n_latam_document_type_id._format_document_number(
+                document_type_id = rec.l10n_latam_document_type_id
+                if document_type_id.l10n_do_ncf_type:
+                    document_number = document_type_id._format_document_number(
                         rec.l10n_latam_document_number
                     )
                 else:
-                    l10n_latam_document_number = rec.l10n_latam_document_number
+                    document_number = rec.l10n_latam_document_number
 
-                if rec.l10n_latam_document_number != l10n_latam_document_number:
-                    rec.l10n_latam_document_number = l10n_latam_document_number
-                rec.ref = l10n_latam_document_number
+                if rec.l10n_latam_document_number != document_number:
+                    rec.l10n_latam_document_number = document_number
+                rec.ref = document_number
         super(
             AccountMove, self.filtered(lambda m: m.l10n_latam_country_code != "DO")
         )._inverse_l10n_latam_document_number()
@@ -418,6 +419,6 @@ class AccountMove(models.Model):
             )
             res["line_ids"] = False
             res["invoice_line_ids"] = [
-                (0, 0, {"name": reason or _("Refund"), "price_unit": price_unit,})
+                (0, 0, {"name": reason or _("Refund"), "price_unit": price_unit})
             ]
         return res
