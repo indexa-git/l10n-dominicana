@@ -52,7 +52,7 @@ class PosOrder(models.Model):
         fields = super(PosOrder, self)._payment_fields(ui_paymentline)
 
         fields.update(
-            {"note": ui_paymentline.get("returned_ncf"),}
+            {"note": ui_paymentline.get("returned_ncf")}
         )
 
         return fields
@@ -209,7 +209,7 @@ class PosOrder(models.Model):
         res = super(PosOrder, self).create_from_ui(orders)
 
         order_list = []
-        if type(res) is "DictType":
+        if type(res) == "DictType":
             order_list = res["orders"]
         else:
             for re in res:
@@ -428,7 +428,7 @@ class PosOrder(models.Model):
             #         .filtered(lambda l: l.reconciled == False).reconcile()
 
             self.sudo().write(
-                {"invoice_id": refund_invoice.id, "state": "invoiced",}
+                {"invoice_id": refund_invoice.id, "state": "invoiced"}
             )
 
         else:
