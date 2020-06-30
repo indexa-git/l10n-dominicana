@@ -46,10 +46,10 @@ class AccountMoveTest(TransactionCase):
         # Demo product
         self.product = self.env.ref("product.product_product_4")
 
-    def create_invoice(self, type):
+    def create_invoice(self, invoice_type):
         inv = self.env["account.move"].create(
             {
-                "type": type,
+                "type": invoice_type,
                 "partner_id": self.partner.id,
                 "invoice_line_ids": [
                     (
