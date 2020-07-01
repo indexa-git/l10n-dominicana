@@ -82,7 +82,7 @@ class AccountMove(models.Model):
 
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
-    ncf_expiration_date = fields.Date(string="Valid until", store=True,)
+    ncf_expiration_date = fields.Date(string="Valid until", store=True)
     is_debit_note = fields.Boolean()  # DO NOT FORWARD PORT
     cancellation_type = fields.Selection(
         selection="_get_l10n_do_cancellation_type",
@@ -103,8 +103,8 @@ class AccountMove(models.Model):
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
-    l10n_do_ecf_security_code = fields.Char(string="e-CF Security Code", copy=False,)
-    l10n_do_ecf_sign_date = fields.Datetime(string="e-CF Sign Date", copy=False,)
+    l10n_do_ecf_security_code = fields.Char(string="e-CF Security Code", copy=False)
+    l10n_do_ecf_sign_date = fields.Datetime(string="e-CF Sign Date", copy=False)
     l10n_do_electronic_stamp = fields.Char(
         string="Electronic Stamp",
         compute="_compute_l10n_do_electronic_stamp",
