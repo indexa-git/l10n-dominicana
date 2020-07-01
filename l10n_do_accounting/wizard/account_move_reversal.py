@@ -37,8 +37,8 @@ class AccountMoveReversal(models.TransientModel):
         return journal.default_debit_account_id.id
 
     l10n_latam_country_code = fields.Char(
-        related='move_id.company_id.country_id.code',
-        help='Technical field used to hide/show fields regarding the localization',
+        related="move_id.company_id.country_id.code",
+        help="Technical field used to hide/show fields regarding the localization",
     )
     refund_type = fields.Selection(
         selection=_get_refund_type_selection, default=_get_default_refund_type,
@@ -54,11 +54,11 @@ class AccountMoveReversal(models.TransientModel):
     @api.model
     def default_get(self, fields):
         res = super(AccountMoveReversal, self).default_get(fields)
-        active_ids = self.env.context.get('active_ids', False)
+        active_ids = self.env.context.get("active_ids", False)
         if active_ids and len(active_ids) == 1:
-            move_id = self.env['account.move'].browse(active_ids)
-            res['move_id'] = (
-                move_id.id if move_id.company_id.country_id.code == 'DO' else False
+            move_id = self.env["account.move"].browse(active_ids)
+            res["move_id"] = (
+                move_id.id if move_id.company_id.country_id.code == "DO" else False
             )
 
         return res
