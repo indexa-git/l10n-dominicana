@@ -37,6 +37,7 @@ class L10nLatamDocumentType(models.Model):
             ("e-minor", "43"),
             ("e-special", "44"),
             ("e-governmental", "45"),
+            ("e-export", "46"),
             ("in_fiscal", "01"),
         ]
 
