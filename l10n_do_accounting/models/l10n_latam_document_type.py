@@ -1,14 +1,14 @@
 import logging
 
 from odoo import models, fields, _
-from odoo.exceptions import UserError
+# from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-try:
-    from stdnum.do.ncf import is_valid
-except (ImportError, IOError) as err:
-    _logger.debug(err)
+# try:
+#     from stdnum.do.ncf import is_valid
+# except (ImportError, IOError) as err:
+#     _logger.debug(err)
 
 
 class L10nLatamDocumentType(models.Model):
@@ -86,7 +86,7 @@ class L10nLatamDocumentType(models.Model):
         if not document_number:
             return False
 
-        msg = "'%s' " + _("is not a valid value for") + " '%s'.<br/>%s"
+        # msg = "'%s' " + _("is not a valid value for") + " '%s'.<br/>%s"
 
         # Import NCF Number Validator
         # if not is_valid(document_number):
