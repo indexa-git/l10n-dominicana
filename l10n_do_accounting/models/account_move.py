@@ -132,7 +132,7 @@ class AccountMove(models.Model):
             and i.l10n_do_ecf_sign_date
         ):
 
-            ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "TesteCF")
+            ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "CerteCF")
             doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
             has_sign_date = doc_code_prefix != "E32" or (
                 doc_code_prefix == "E32" and invoice.amount_total_signed >= 250000
