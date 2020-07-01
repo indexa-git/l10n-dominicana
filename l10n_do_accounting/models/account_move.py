@@ -140,7 +140,11 @@ class AccountMove(models.Model):
 
             qr_string = "https://ecf.dgii.gov.do/%s/ConsultaTimbre?" % ecf_service_env
             qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ""
-            qr_string += "RncComprador=%s&" % invoice.commercial_partner_id.vat or ""
+            qr_string += (
+                "RncComprador=%s&" % invoice.commercial_partner_id.vat
+                if invoice.l10n_latam_document_type_id.doc_code_prefix[1:] != "43"
+                else invoice.company_id.vat
+            )
             qr_string += "ENCF=%s&" % invoice.ref or ""
             qr_string += "FechaEmision=%s&" % (
                 invoice.invoice_date or fields.Date.today()
