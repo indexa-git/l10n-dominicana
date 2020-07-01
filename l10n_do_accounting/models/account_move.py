@@ -131,6 +131,7 @@ class AccountMove(models.Model):
             )
 
     @api.depends('l10n_do_ecf_security_code', 'l10n_do_ecf_sign_date', 'invoice_date')
+    @api.depends_context("l10n_do_ecf_service_env")
     def _compute_l10n_do_electronic_stamp(self):
 
         for invoice in self.filtered(
@@ -139,13 +140,14 @@ class AccountMove(models.Model):
                 and i.l10n_do_ecf_sign_date
         ):
 
+            ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "eCF")
             doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
             has_sign_date = doc_code_prefix != "E32" or (
                         doc_code_prefix == "E32"
                         and invoice.amount_total_signed >= 250000
             )
 
-            qr_string = "https://ecf.dgii.gov.do/ecf/ConsultaTimbre?"
+            qr_string = "https://ecf.dgii.gov.do/%s/ConsultaTimbre?" % ecf_service_env
             qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ''
             qr_string += "RncComprador=%s&" % invoice.commercial_partner_id.vat or ''
             qr_string += "ENCF=%s&" % invoice.l10n_latam_document_number or ''
