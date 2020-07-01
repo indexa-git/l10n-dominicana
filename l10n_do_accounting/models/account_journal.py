@@ -32,7 +32,8 @@ class AccountJournal(models.Model):
         """
         if self.company_id.l10n_do_ecf_issuer:
             types_list.extend(
-                ["e-%s" % d for d in types_list if d not in ("unique", "import")])
+                ["e-%s" % d for d in types_list if d not in ("unique", "import")]
+            )
         return types_list
 
     def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
@@ -82,8 +83,8 @@ class AccountJournal(models.Model):
             )
         )
         if not counterpart_partner:
-            ncf_notes = list(['fiscal', 'debit_note', 'credit_note'])
-            ncf_external = list(['fiscal', 'special', 'governmental'])
+            ncf_notes = list(["fiscal", "debit_note", "credit_note"])
+            ncf_external = list(["fiscal", "special", "governmental"])
             res = (
                 ncf_types + ncf_notes
                 if self.type == "sale"
@@ -102,9 +103,9 @@ class AccountJournal(models.Model):
 
     def _get_journal_codes(self):
         self.ensure_one()
-        if self.type != 'sale':
+        if self.type != "sale":
             return []
-        return ['E'] if self.company_id.l10n_do_ecf_issuer else ['B']
+        return ["E"] if self.company_id.l10n_do_ecf_issuer else ["B"]
 
     @api.model
     def create(self, values):

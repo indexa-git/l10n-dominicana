@@ -53,13 +53,12 @@ class AccountMoveReversal(models.TransientModel):
     amount = fields.Float()
     l10n_do_ecf_modification_code = fields.Selection(
         selection=lambda self: self.env[
-            "account.move"]._get_l10n_do_ecf_modification_code(),
-        string='e-CF Modification Code',
+            "account.move"
+        ]._get_l10n_do_ecf_modification_code(),
+        string="e-CF Modification Code",
         copy=False,
     )
-    is_ecf_invoice = fields.Boolean(
-        string="Is Electronic Invoice",
-    )
+    is_ecf_invoice = fields.Boolean(string="Is Electronic Invoice",)
 
     @api.model
     def default_get(self, fields):
