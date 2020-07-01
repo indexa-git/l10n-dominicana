@@ -168,11 +168,6 @@ jobs:
         repository: ${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}
         tags: ${{ env.GITHUB_SHA_SHORT }}
 
-    - uses: actions/delete-package-versions@v1
-      with:
-        package-name: ${{ needs.dependencies.outputs.repo_name }}
-        num-old-versions-to-delete: 3
-
   build-gcp:
     name: Build & Push to GCR
     needs: ['dependencies', 'test']
