@@ -51,13 +51,12 @@ class AccountDebitNote(models.TransientModel):
     l10n_latam_document_number = fields.Char(string="Document Number",)
     l10n_do_ecf_modification_code = fields.Selection(
         selection=lambda self: self.env[
-            "account.move"]._get_l10n_do_ecf_modification_code(),
-        string='e-CF Modification Code',
+            "account.move"
+        ]._get_l10n_do_ecf_modification_code(),
+        string="e-CF Modification Code",
         copy=False,
     )
-    is_ecf_invoice = fields.Boolean(
-        string="Is Electronic Invoice",
-    )
+    is_ecf_invoice = fields.Boolean(string="Is Electronic Invoice",)
 
     @api.model
     def default_get(self, fields):
@@ -72,7 +71,8 @@ class AccountDebitNote(models.TransientModel):
 
         ecf_invoices = move_ids.filtered(lambda i: i.is_ecf_invoice)
         if ecf_invoices and not self.env.user.has_group(
-                "l10n_do_debit_note.group_electronic_debit_note"):
+            "l10n_do_debit_note.group_electronic_debit_note"
+        ):
             raise AccessError(_("You are not allowed to issue Electronic Debit Notes"))
 
         # Setting default account
@@ -103,10 +103,7 @@ class AccountDebitNote(models.TransientModel):
 
         if len(move_ids_use_document) > 1:
             raise UserError(
-                _(
-                    "You cannot create Debit Notes from multiple "
-                    "documents at a time."
-                )
+                _("You cannot create Debit Notes from multiple " "documents at a time.")
             )
         else:
             res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
