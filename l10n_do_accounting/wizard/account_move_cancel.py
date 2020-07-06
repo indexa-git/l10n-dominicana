@@ -39,6 +39,6 @@ class AccountMoveCancel(models.TransientModel):
                         "already in 'Paid' state."
                     )
                 )
-            invoice.cancellation_type = self.cancellation_type
+            invoice.l10n_do_cancellation_type = self.l10n_do_cancellation_type
             invoice.write({"state": "cancel"})
         return {"type": "ir.actions.act_window_close"}
