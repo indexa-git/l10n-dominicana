@@ -69,7 +69,7 @@ class Partner(models.Model):
             [("id", "=", self.env.user.company_id.id)]
         )
         for partner in self:
-            vat = str(partner.vat) if partner.vat else False
+            vat = str(partner.vat if partner.vat else partner.name)
             is_dominican_partner = bool(partner.country_id == self.env.ref("base.do"))
 
             if partner.country_id and not is_dominican_partner:
@@ -81,6 +81,8 @@ class Partner(models.Model):
             ):
                 if partner.country_id and is_dominican_partner:
                     if vat.isdigit() and len(vat) == 9:
+                        if not partner.vat:
+                            partner.vat = vat
                         if partner.name and "MINISTERIO" in partner.name:
                             partner.l10n_do_dgii_tax_payer_type = "governmental"
                         elif partner.name and any(
@@ -96,6 +98,8 @@ class Partner(models.Model):
 
                     elif len(vat) == 11:
                         if vat.isdigit():
+                            if not partner.vat:
+                                partner.vat = vat
                             payer_type = (
                                 "taxpayer"
                                 if company_id.l10n_do_default_client == "fiscal"
@@ -104,6 +108,8 @@ class Partner(models.Model):
                             partner.l10n_do_dgii_tax_payer_type = payer_type
                         else:
                             partner.l10n_do_dgii_tax_payer_type = "non_payer"
+                    else:
+                        partner.l10n_do_dgii_tax_payer_type = "non_payer"
             elif not partner.l10n_do_dgii_tax_payer_type:
                 partner.l10n_do_dgii_tax_payer_type = "non_payer"
             else:
