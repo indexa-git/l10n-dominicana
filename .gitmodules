@@ -4,5 +4,5 @@
 	branch = 13.0
 [submodule "external-service-addons"]
 	path = external-service-addons
-	url = git@github.com:indexa-git/external-service-addons.git
+	url = https://github.com/indexa-git/external-service-addons.git
 	branch = 13.0
