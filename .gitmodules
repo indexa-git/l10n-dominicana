@@ -2,7 +2,3 @@
 	path = pos-addons
 	url = https://github.com/it-projects-llc/pos-addons
 	branch = 13.0
-[submodule "external_service_addons"]
-	path = external_service_addons
-	url = https://github.com/indexa-git/external_service_addons.git
-	branch = 13.0
