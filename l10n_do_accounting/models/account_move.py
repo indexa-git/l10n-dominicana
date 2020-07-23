@@ -375,7 +375,7 @@ class AccountMove(models.Model):
                 ):
                     raise UserError(
                         _(
-                            "Services sales to oversas customer must have "
+                            "Services sales to overseas customer must have "
                             "Consumo Fiscal Type"
                         )
                     )
