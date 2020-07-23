@@ -370,7 +370,9 @@ class AccountMove(models.Model):
                                 "Exportaciones Fiscal Type"
                             )
                         )
-                elif rec.l10n_latam_document_type_id.l10n_do_ncf_type != "consumer":
+                elif (
+                    rec.l10n_latam_document_type_id.l10n_do_ncf_type[-8:] != "consumer"
+                ):
                     raise UserError(
                         _(
                             "Services sales to oversas customer must have "
