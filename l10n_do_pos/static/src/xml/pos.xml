@@ -82,43 +82,43 @@
             </t>
         </t>
 
-        <t t-jquery="t[t-if='!order.computed_state']" t-operation="replace">
-            <t t-if="!order.computed_state">
-                <td>
-                    <t t-if="order.state == 'done'">
-                        Posted
-                    </t>
-                    <t t-if="order.state == 'paid'">
-                        Paid
-                    </t>
-                    <t t-if="order.state == 'cancel'">
-                        Cancelled
-                    </t>
-                    <t t-if="order.state == 'invoiced'">
-                        Invoiced
-                    </t>
-                </td>
-            </t>
-        </t>
+        <!--<t t-jquery="t[t-if='!order.computed_state']" t-operation="replace">-->
+            <!--<t t-if="!order.computed_state">-->
+                <!--<td>-->
+                    <!--<t t-if="order.state == 'done'">-->
+                        <!--Posted-->
+                    <!--</t>-->
+                    <!--<t t-if="order.state == 'paid'">-->
+                        <!--Paid-->
+                    <!--</t>-->
+                    <!--<t t-if="order.state == 'cancel'">-->
+                        <!--Cancelled-->
+                    <!--</t>-->
+                    <!--<t t-if="order.state == 'invoiced'">-->
+                        <!--Invoiced-->
+                    <!--</t>-->
+                <!--</td>-->
+            <!--</t>-->
+        <!--</t>-->
 
-        <t t-jquery="t[t-if='order.computed_state']" t-operation="replace">
-            <t t-if="order.computed_state">
-                <td>
-                    <t t-if="order.computed_state == 'done'">
-                        Posted
-                    </t>
-                    <t t-if="order.computed_state == 'paid'">
-                        Paid
-                    </t>
-                    <t t-if="order.computed_state == 'cancel'">
-                        Cancelled
-                    </t>
-                    <t t-if="order.computed_state == 'invoiced'">
-                        Invoiced
-                    </t>
-                </td>
-            </t>
-        </t>
+        <!--<t t-jquery="t[t-if='order.computed_state']" t-operation="replace">-->
+            <!--<t t-if="order.computed_state">-->
+                <!--<td>-->
+                    <!--<t t-if="order.computed_state == 'done'">-->
+                        <!--Posted-->
+                    <!--</t>-->
+                    <!--<t t-if="order.computed_state == 'paid'">-->
+                        <!--Paid-->
+                    <!--</t>-->
+                    <!--<t t-if="order.computed_state == 'cancel'">-->
+                        <!--Cancelled-->
+                    <!--</t>-->
+                    <!--<t t-if="order.computed_state == 'invoiced'">-->
+                        <!--Invoiced-->
+                    <!--</t>-->
+                <!--</td>-->
+            <!--</t>-->
+        <!--</t>-->
     </t>
 
     <t t-extend="Chrome">
