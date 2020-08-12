@@ -253,23 +253,35 @@ class AccountInvoiceRefund(models.TransientModel):
         active_id = self._context.get("active_id", False)
         if active_id:
             invoice = self.env["account.invoice"].browse(active_id)
-
+            # TODO
             if self.refund_reference and self.is_fiscal_refund:
+                ncf = self.refund_reference[0:3]
+                ncf_digits = len(self.refund_reference)
+                # TODO: Hacer las validaciones con el tipo de comprobante y no directo
+                #  en e codigo.
                 if (
                     self._context.get("debit_note")
-                    and not self.refund_reference[-10:-8] == "03"
+                    and ncf not in ("B03", "E33")
                 ):
                     raise UserError(
                         _(
-                            "Debit Notes must be type 03, this NCF "
+                            "Debit Notes must be type B03 or E33, this NCF "
                             "structure does not comply."
                         )
                     )
-                elif self.refund_reference[-10:-8] != "04":
+                elif ncf not in ("B04", "E34"):
                     raise UserError(
                         _(
-                            "Credit Notes must be type 04, this NCF "
-                            "structure does not comply."
+                            ("Credit Notes must be type B04 or E34, this NCF (Type %s)"
+                             " structure does not comply.") % ncf
+                        )
+                    )
+                elif (ncf_digits != 11 and ncf == 'B04') \
+                        or (ncf_digits != 13 and ncf == 'E34'):
+                    raise UserError(
+                        _(
+                            ("The number of fiscal sequence in this voucher is "
+                             "incorrect, please double check the fiscal sequence")
                         )
                     )
 
