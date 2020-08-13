@@ -50,3 +50,17 @@ class SaleOrder(models.Model):
             invoice_vals['fiscal_type_id'] = partner_fiscal_type_id.id
 
         return invoice_vals
+
+    def _finalize_invoices(self, invoices, references):
+        """
+        Invoked after creating invoices at the end of action_invoice_create.
+        :param invoices: {group_key: invoice}
+        :param references: {invoice: order}
+        """
+        for invoice in invoices.values():
+            if invoice.journal_id.l10n_do_fiscal_journal:
+                invoice.write({
+                    'reference': False
+                })
+        super(SaleOrder, self)._finalize_invoices(invoices, references)
+
