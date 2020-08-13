@@ -529,6 +529,7 @@ class AccountInvoice(models.Model):
                             "invoices with canceled or draft states"
                         ).format(ncf)
                     )
+
     @api.multi
     def _get_computed_reference(self):
         self.ensure_one()

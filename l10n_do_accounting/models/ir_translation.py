@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import models
 
 
 class IrTraslation(models.Model):
@@ -12,7 +12,7 @@ class IrTraslation(models.Model):
         ])
         for traslation_employee_payslip in all_traslation_employee_payslips:
             traslation_employee_payslip.update({
-                'value': 'Nota de crédito',
+                'value': u'Nota de crédito',
             })
 
         # all_traslation_payslyp_batches = self.search([
@@ -23,5 +23,3 @@ class IrTraslation(models.Model):
         #     traslation_payslip_batches.update({
         #         'value': 'Nómina Colectiva',
         #     })
-
-

@@ -63,4 +63,3 @@ class SaleOrder(models.Model):
                     'reference': False
                 })
         super(SaleOrder, self)._finalize_invoices(invoices, references)
-
