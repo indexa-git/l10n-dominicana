@@ -71,7 +71,7 @@ class AccountMove(models.Model):
 
     l10n_do_origin_ncf = fields.Char(string="Modifies",)
 
-    ncf_expiration_date = fields.Date(string='Valid until', store=True,)
+    ncf_expiration_date = fields.Date(string="Valid until", store=True,)
     is_debit_note = fields.Boolean()
 
     # DO NOT FORWARD PORT
@@ -82,16 +82,16 @@ class AccountMove(models.Model):
     )
     is_ecf_invoice = fields.Boolean(
         copy=False,
-        default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer and
-                             self.env.user.company_id.country_id and
-                             self.env.user.company_id.country_id.code == "DO",
+        default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer
+        and self.env.user.company_id.country_id
+        and self.env.user.company_id.country_id.code == "DO",
     )
     l10n_do_ecf_modification_code = fields.Selection(
-        selection='_get_l10n_do_ecf_modification_code',
-        string='e-CF Modification Code',
+        selection="_get_l10n_do_ecf_modification_code",
+        string="e-CF Modification Code",
         copy=False,
         readonly=True,
-        states={'draft': [('readonly', False)]},
+        states={"draft": [("readonly", False)]},
     )
 
     def button_cancel(self):
@@ -439,11 +439,13 @@ class AccountMove(models.Model):
         return res
 
     def init(self):  # DO NOT FORWARD PORT
-        cancelled_invoices = self.search([
-            ("state", "=", "cancel"),
-            ("l10n_latam_use_documents", "=", True),
-            ("cancellation_type", "!=", False),
-            ("l10n_do_cancellation_type", "=", False),
-        ])
+        cancelled_invoices = self.search(
+            [
+                ("state", "=", "cancel"),
+                ("l10n_latam_use_documents", "=", True),
+                ("cancellation_type", "!=", False),
+                ("l10n_do_cancellation_type", "=", False),
+            ]
+        )
         for invoice in cancelled_invoices:
             invoice.l10n_do_cancellation_type = invoice.cancellation_type
