@@ -80,12 +80,6 @@ class AccountMove(models.Model):
         string="Cancellation Type",
         copy=False,
     )
-    is_ecf_invoice = fields.Boolean(
-        copy=False,
-        default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer
-        and self.env.user.company_id.country_id
-        and self.env.user.company_id.country_id.code == "DO",
-    )
 
     def button_cancel(self):
 

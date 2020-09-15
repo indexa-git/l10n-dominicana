@@ -94,8 +94,6 @@ class AccountJournal(models.Model):
         # ecf_code = ['E'] # Needs better logic
         if self.type != "sale":
             return []
-        # elif self.company_id.l10n_do_ecf_issuer:
-        #     return ecf_code
         return ncf_code
 
     @api.model
