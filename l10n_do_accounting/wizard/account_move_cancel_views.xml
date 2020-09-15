@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <form string="Cancel Selected Invoice">
                 <group>
-                    <field name="l10n_do_cancellation_type"/>
+                    <field name="cancellation_type"/>
                 </group>
                 <footer>
                     <button string="Cancel Invoice" name="move_cancel"

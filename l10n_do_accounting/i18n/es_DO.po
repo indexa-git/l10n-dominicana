@@ -369,7 +369,7 @@ msgstr ""
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__cancellation_type model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_cancellation_type
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__l10n_do_cancellation_type
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__cancellation_type
 msgid "Cancellation Type"
 msgstr "Tipo de anulación"
 
