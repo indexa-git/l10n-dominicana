@@ -86,13 +86,6 @@ class AccountMove(models.Model):
         and self.env.user.company_id.country_id
         and self.env.user.company_id.country_id.code == "DO",
     )
-    l10n_do_ecf_modification_code = fields.Selection(
-        selection="_get_l10n_do_ecf_modification_code",
-        string="e-CF Modification Code",
-        copy=False,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
-    )
 
     def button_cancel(self):
 
