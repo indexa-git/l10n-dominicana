@@ -1,5 +1,5 @@
 from odoo import fields, models, api, _
-from odoo.exceptions import RedirectWarning
+from odoo.exceptions import RedirectWarning, UserError
 
 
 class AccountJournal(models.Model):
@@ -78,11 +78,15 @@ class AccountJournal(models.Model):
                 if self.type == "sale"
                 else [ncf for ncf in ncf_types if ncf not in ncf_external]
             )
-        else:
+        elif counterpart_partner.l10n_do_dgii_tax_payer_type:
             counterpart_ncf_types = ncf_types_data[
                 "issued" if self.type == "sale" else "received"
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
+        else:
+            raise UserError(
+                _("You cannot add a contact without tax payer type to a fiscal invoice")
+            )
         if invoice.type in ["out_refund", "in_refund"]:
             ncf_types = ["credit_note"]
 
