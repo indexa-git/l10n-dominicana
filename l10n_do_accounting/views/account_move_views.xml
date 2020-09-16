@@ -38,7 +38,7 @@
                 <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
                     Cancellation Reason:
                     <br/>
-                    <field name="cancellation_type" readonly="1"/>
+                    <field name="l10n_do_cancellation_type" readonly="1"/>
                 </h4>
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
