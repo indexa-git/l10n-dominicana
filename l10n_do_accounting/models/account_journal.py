@@ -1,5 +1,5 @@
 from odoo import fields, models, api, _
-from odoo.exceptions import RedirectWarning
+from odoo.exceptions import RedirectWarning, UserError
 
 
 class AccountJournal(models.Model):
