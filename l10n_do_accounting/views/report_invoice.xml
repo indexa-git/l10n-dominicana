@@ -10,8 +10,8 @@
         </xpath>
 
         <!-- Hide when l10n do invoice -->
-        <xpath expr="//h2[@t-if='o.l10n_latam_document_type_id.report_name']" position="attributes">
-            <attribute name="t-if">o.l10n_latam_document_type_id.report_name and not is_l10n_do_invoice</attribute>
+        <xpath expr="//div[hasclass('page')]/h2" position="attributes">
+            <attribute name="t-if">not is_l10n_do_invoice</attribute>
         </xpath>
 
         <xpath expr="//div[@id='informations']" position="before">
