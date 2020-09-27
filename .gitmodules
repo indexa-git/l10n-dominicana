@@ -1,4 +1,0 @@
-[submodule "external_service_addons"]
-	path = external_service_addons
-	url = https://github.com/indexa-git/external_service_addons.git
-	branch = 12.0
