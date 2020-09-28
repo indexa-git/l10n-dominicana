@@ -129,7 +129,7 @@
                                             <tr>
                                                 <th>Fecha Orden</th>
                                                 <th>Número de Pedido</th>
-                                                <th>Número de Factura</th>
+                                                <th>NCF</th>
                                                 <th>Cliente</th>
                                                 <th class="col-right">Monto</th>
                                                 <th>Estado</th>

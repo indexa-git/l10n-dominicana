@@ -33,7 +33,7 @@ odoo.define('ncf_pos.models', function (require) {
     models.load_models([{
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id',
-            'amount_total', 'number', 'statement_ids', 'return_order_id', 'is_return_order',
+            'amount_total', 'ncf', 'statement_ids', 'return_order_id', 'is_return_order',
             'return_status'],
         domain: function (self) {
             var domain_list = [];
@@ -61,16 +61,15 @@ odoo.define('ncf_pos.models', function (require) {
             self.db.pos_all_orders = orders || [];
             self.db.order_by_id = {};
             orders.forEach(function (order) {
-                var order_date = new Date(order.date_order);
-                var utc = order_date.getTime() - order_date.getTimezoneOffset() * 60000;
-
-                order.date_order = new Date(utc).toLocaleString();
+                order.number = order.ncf;
+                order.invoice_id = [order.invoice_id[0], order.ncf];
+                console.log('order', order)
                 self.db.order_by_id[order.id] = order;
             });
         },
     }, {
         model: 'account.invoice',
-        fields: ['number'],
+        fields: ['number', 'reference'],
         domain: function (self) {
             var invoice_ids = self.db.pos_all_orders.map(function (order) {
                 return order.invoice_id[0];
@@ -87,7 +86,7 @@ odoo.define('ncf_pos.models', function (require) {
 
             self.db.pos_all_orders.forEach(function (order, ix) {
                 var invoice_id = invoice_by_id[order.invoice_id[0]];
-                var number = invoice_id && invoice_id.number;
+                var number = invoice_id && invoice_id.reference;
 
                 self.db.pos_all_orders[ix].number = number;
                 self.db.order_by_id[order.id].number = number;
