@@ -11,5 +11,5 @@
     "depends": ["account_debit_note", "l10n_do_accounting"],
     "data": ["views/account_views.xml", "wizard/account_debit_note_views.xml"],
     "auto_install": True,
-    "installable": True,
+    "installable": False,
 }
