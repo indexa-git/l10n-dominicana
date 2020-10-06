@@ -13,7 +13,7 @@
     "depends": ["l10n_latam_invoice_document", "l10n_do"],
     # always loaded
     "data": [
-        # 'security/res_groups.xml',
+        "security/res_groups.xml",
         "data/l10n_latam.document.type.csv",
         "wizard/account_move_reversal_views.xml",
         "wizard/account_move_cancel_views.xml",
@@ -23,6 +23,7 @@
         "views/account_dgii_menuitem.xml",
         "views/account_journal_views.xml",
         "views/l10n_latam_document_type_views.xml",
+        "views/report_templates.xml",
         "views/report_invoice.xml",
     ],
     "qweb": [

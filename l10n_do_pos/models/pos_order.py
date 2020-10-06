@@ -51,9 +51,7 @@ class PosOrder(models.Model):
     def _payment_fields(self, ui_paymentline):
         fields = super(PosOrder, self)._payment_fields(ui_paymentline)
 
-        fields.update(
-            {"note": ui_paymentline.get("returned_ncf")}
-        )
+        fields.update({"note": ui_paymentline.get("returned_ncf")})
 
         return fields
 
@@ -427,9 +425,7 @@ class PosOrder(models.Model):
             #     to_reconcile_lines_from_payments\
             #         .filtered(lambda l: l.reconciled == False).reconcile()
 
-            self.sudo().write(
-                {"invoice_id": refund_invoice.id, "state": "invoiced"}
-            )
+            self.sudo().write({"invoice_id": refund_invoice.id, "state": "invoiced"})
 
         else:
 

@@ -9,6 +9,7 @@
             <field name="journal_id" position="after">
                 <field name="move_id" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
+                <field name="is_ecf_invoice" invisible="1"/>
             </field>
             <field name="l10n_latam_document_type_id" position="attributes">
                 <attribute name="attrs">{
@@ -38,6 +39,16 @@
                 <field name="amount"
                        attrs="{'invisible': [('refund_type', '!=', 'fixed_amount')],
                        'required': [('refund_type', '=', 'fixed_amount')]}"/>
+                <field name="l10n_do_ecf_modification_code"
+                       attrs="{'invisible': ['|', '|',
+                       ('l10n_latam_country_code', '!=', 'DO'),
+                       ('move_type', '!=', 'out_invoice'),
+                       ('is_ecf_invoice', '=', False),
+                       ], 'required': [
+                       ('l10n_latam_country_code', '=', 'DO'),
+                       ('move_type', '=', 'out_invoice'),
+                       ('is_ecf_invoice', '=', True),
+                ]}"/>
             </xpath>
             <xpath expr="//form/group/*[2]" position="attributes">
                 <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>

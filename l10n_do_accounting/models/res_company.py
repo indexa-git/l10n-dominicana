@@ -12,6 +12,15 @@ class ResCompany(models.Model):
         default=lambda self: self._context.get("l10n_do_default_client", "non_payer"),
         string="Default Customer",
     )
+    l10n_do_ecf_issuer = fields.Boolean(
+        "Is e-CF issuer", help="When activating this field, NCF issuance is disabled.",
+    )
+    l10n_do_ecf_deferred_submissions = fields.Boolean(
+        "Deferred submissions",
+        help="Identify taxpayers who have been previously authorized "
+        "to have sales through offline mobile devices such as "
+        "sales with Handheld, enter others.",
+    )
 
     def _localization_use_documents(self):
         """ Dominican localization uses documents """

@@ -1,7 +1,8 @@
 import logging
+from werkzeug import urls
 
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError, UserError, AccessError
 
 _logger = logging.getLogger(__name__)
 
@@ -22,6 +23,16 @@ class AccountMove(models.Model):
             ("08", _("08 - NCF Sequence Errors")),
             ("09", _("09 - For Cessation of Operations")),
             ("10", _("10 - Lossing or Hurting Of Counterfoil")),
+        ]
+
+    def _get_l10n_do_ecf_modification_code(self):
+        """ Return the list of e-CF modification codes required by DGII. """
+        return [
+            ("01", _("01 - Total Cancellation")),
+            ("02", _("02 - Text Correction")),
+            ("03", _("03 - Amount correction")),
+            ("04", _("04 - NCF replacement issued in contingency")),
+            ("05", _("05 - Reference Electronic Consumer Invoice")),
         ]
 
     def _get_l10n_do_income_type(self):
@@ -80,6 +91,80 @@ class AccountMove(models.Model):
         string="Cancellation Type",
         copy=False,
     )
+    is_ecf_invoice = fields.Boolean(
+        copy=False,
+        default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer
+        and self.env.user.company_id.l10n_do_country_code
+        and self.env.user.company_id.l10n_do_country_code == "DO",
+    )
+    l10n_do_ecf_modification_code = fields.Selection(
+        selection="_get_l10n_do_ecf_modification_code",
+        string="e-CF Modification Code",
+        copy=False,
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+    )
+    l10n_do_ecf_security_code = fields.Char(string="e-CF Security Code", copy=False)
+    l10n_do_ecf_sign_date = fields.Datetime(string="e-CF Sign Date", copy=False)
+    l10n_do_electronic_stamp = fields.Char(
+        string="Electronic Stamp",
+        compute="_compute_l10n_do_electronic_stamp",
+        store=True,
+    )
+    l10n_do_company_in_contingency = fields.Boolean(
+        string="Company in contingency", compute="_compute_company_in_contingency",
+    )
+
+    @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
+    def _compute_company_in_contingency(self):
+        for invoice in self:
+            ecf_invoices = self.search([("is_ecf_invoice", "=", True)], limit=1)
+            invoice.l10n_do_company_in_contingency = bool(
+                ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
+            )
+
+    @api.depends("l10n_do_ecf_security_code", "l10n_do_ecf_sign_date", "invoice_date")
+    @api.depends_context("l10n_do_ecf_service_env")
+    def _compute_l10n_do_electronic_stamp(self):
+
+        for invoice in self.filtered(
+            lambda i: i.is_ecf_invoice
+            and i.l10n_do_ecf_security_code
+            and i.l10n_do_ecf_sign_date
+        ):
+
+            ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "CerteCF")
+            doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
+            has_sign_date = doc_code_prefix != "E32" or (
+                doc_code_prefix == "E32" and invoice.amount_total_signed >= 250000
+            )
+
+            qr_string = "https://ecf.dgii.gov.do/%s/ConsultaTimbre?" % ecf_service_env
+            qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ""
+            qr_string += (
+                "RncComprador=%s&" % invoice.commercial_partner_id.vat
+                if invoice.l10n_latam_document_type_id.doc_code_prefix[1:] != "43"
+                else invoice.company_id.vat
+            )
+            qr_string += "ENCF=%s&" % invoice.ref or ""
+            qr_string += "FechaEmision=%s&" % (
+                invoice.invoice_date or fields.Date.today()
+            ).strftime("%d-%m-%Y")
+            qr_string += "MontoTotal=%s&" % ("%f" % invoice.amount_total_signed).rstrip(
+                "0"
+            ).rstrip(".")
+
+            # DGII doesn't want FechaFirma if Consumo Electronico and < 250K
+            # ¯\_(ツ)_/¯
+            if has_sign_date:
+                qr_string += "FechaFirma=%s&" % fields.Datetime.context_timestamp(
+                    self.with_context(tz="America/Santo_Domingo"),
+                    invoice.l10n_do_ecf_sign_date,
+                ).strftime("%d-%m-%Y %H:%m:%S")
+
+            qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code or ""
+
+            invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
 
     def button_cancel(self):
 
@@ -93,6 +178,12 @@ class AccountMove(models.Model):
                 _("You cannot cancel multiple fiscal invoices at a time.")
             )
 
+        ecf_invoices = self.filtered(lambda i: i.is_ecf_invoice)
+        if ecf_invoices and not self.env.user.has_group(
+            "l10n_do_accounting.group_electronic_invoice_cancel"
+        ):
+            raise AccessError(_("You are not allowed to cancel Electronic documents"))
+
         if fiscal_invoice:
             action = self.env.ref(
                 "l10n_do_accounting.action_account_move_cancel"
@@ -101,6 +192,16 @@ class AccountMove(models.Model):
             return action
 
         return super(AccountMove, self).button_cancel()
+
+    def action_reverse(self):
+
+        ecf_invoices = self.filtered(lambda i: i.is_ecf_invoice)
+        if ecf_invoices and not self.env.user.has_group(
+            "l10n_do_accounting.group_electronic_credit_note"
+        ):
+            raise AccessError(_("You are not allowed to issue Electronic Credit Notes"))
+
+        return super(AccountMove, self).action_reverse()
 
     @api.depends("ref")
     def _compute_l10n_latam_document_number(self):
@@ -270,10 +371,12 @@ class AccountMove(models.Model):
                                 "Exportaciones Fiscal Type"
                             )
                         )
-                elif rec.l10n_latam_document_type_id.l10n_do_ncf_type != "consumer":
+                elif (
+                    rec.l10n_latam_document_type_id.l10n_do_ncf_type[-8:] != "consumer"
+                ):
                     raise UserError(
                         _(
-                            "Services sales to oversas customer must have "
+                            "Services sales to overseas customer must have "
                             "Consumo Fiscal Type"
                         )
                     )
@@ -405,6 +508,7 @@ class AccountMove(models.Model):
         percentage = ctx.get("percentage")
         refund_type = ctx.get("refund_type")
         reason = ctx.get("reason")
+        l10n_do_ecf_modification_code = ctx.get("l10n_do_ecf_modification_code")
 
         res = super(AccountMove, self)._reverse_move_vals(
             default_values=default_values, cancel=cancel
@@ -412,6 +516,7 @@ class AccountMove(models.Model):
 
         if self.l10n_latam_country_code == "DO":
             res["l10n_do_origin_ncf"] = self.l10n_latam_document_number
+            res["l10n_do_ecf_modification_code"] = l10n_do_ecf_modification_code
 
         if refund_type in ("percentage", "fixed_amount"):
             price_unit = (

@@ -1,14 +1,15 @@
 import logging
 
-from odoo import models, fields, _
-from odoo.exceptions import UserError
+# from odoo import models, fields, _
+from odoo import models, fields
+# from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-try:
-    from stdnum.do.ncf import is_valid
-except (ImportError, IOError) as err:
-    _logger.debug(err)
+# try:
+#     from stdnum.do.ncf import is_valid
+# except (ImportError, IOError) as err:
+#     _logger.debug(err)
 
 
 class L10nLatamDocumentType(models.Model):
@@ -37,6 +38,8 @@ class L10nLatamDocumentType(models.Model):
             ("e-minor", "43"),
             ("e-special", "44"),
             ("e-governmental", "45"),
+            ("e-export", "46"),
+            ("e-exterior", "47"),
             ("in_fiscal", "01"),
         ]
 
@@ -65,7 +68,7 @@ class L10nLatamDocumentType(models.Model):
 
         values.update(
             {
-                "padding": 8,
+                "padding": 10 if str(self.l10n_do_ncf_type).startswith("e-") else 8,
                 "implementation": "no_gap",
                 "prefix": self.doc_code_prefix,
                 "l10n_latam_document_type_id": self.id,
@@ -86,16 +89,16 @@ class L10nLatamDocumentType(models.Model):
         if not document_number:
             return False
 
-        msg = "'%s' " + _("is not a valid value for") + " '%s'.<br/>%s"
+        # msg = "'%s' " + _("is not a valid value for") + " '%s'.<br/>%s"
 
         # Import NCF Number Validator
-        if not is_valid(document_number):
-            raise UserError(
-                msg
-                % (
-                    document_number,
-                    self.name,
-                    _("Please check the number and try again"),
-                )
-            )
+        # if not is_valid(document_number):
+        #     raise UserError(
+        #         msg
+        #         % (
+        #             document_number,
+        #             self.name,
+        #             _('Please check the number and try again'),
+        #         )
+        #     )
         return document_number
