@@ -168,7 +168,6 @@
     <t t-extend="PosTicket">
         <t t-jquery=".pos-center-align" t-operation="replace">
             <div class="pos-center-align">
-                test: <t t-esc="widget.pos.invoice_journal.l10n_do_fiscal_journal"/>
                 <t t-if="!widget.pos.invoice_journal.l10n_do_fiscal_journal">
                     <t t-esc="order.formatted_validation_date"/> <t t-esc="order.name"/>
                 </t>

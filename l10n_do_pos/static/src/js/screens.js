@@ -120,7 +120,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
         open_vat_popup: function () {
             var self = this;
             var current_order = self.pos.get_order();
-
             self.keyboard_on();
             self.gui.show_popup('textinput', {
                 'title': _t('You need to select a customer with RNC/Céd for' +
@@ -190,18 +189,12 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     var client = self.pos.get_client();
                     current_order.set_fiscal_type(fiscal_type);
                     if (fiscal_type.requires_document && !client) {
-
                         self.open_vat_popup();
-
                     }
                     if (fiscal_type.requires_document && client) {
-
-                        if (!client.vat) {
-
+                        if (!client.vat ) {
                             self.open_vat_popup();
-
                         }
-
                     }
                 },
                 is_selected: function (fiscal_type) {
@@ -342,15 +335,25 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
                 }
 
-                if (current_order.fiscal_type.requires_document &&
-                    !client.vat) {
-
+                if (current_order.fiscal_type.requires_document && !client.vat) {
                     this.gui.show_popup('error', {
                         'title': _t('Required document (RNC/Céd.)'),
                         'body': _t('For invoice fiscal type ' +
                             current_order.fiscal_type.name +
                             ' it is necessary for the customer have ' +
                             'RNC or Céd.'),
+                    });
+                    return false;
+                }
+
+                if (current_order.fiscal_type.requires_document &&
+                    (client.vat.length !== 9 || client.vat.length !== 11)) {
+                    this.gui.show_popup('error', {
+                        'title': _t('Incorrect document (RNC/Céd.)'),
+                        'body': _t('For invoice fiscal type ' +
+                            current_order.fiscal_type.name +
+                            ' it is necessary for the customer have correct' +
+                            'RNC or Céd. without dashes or spaces'),
                     });
                     return false;
                 }
