@@ -24,6 +24,7 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from datetime import timedelta
+from odoo.tools import float_is_zero
 
 _logger = logging.getLogger(__name__)
 
@@ -92,11 +93,12 @@ class PosOrder(models.Model):
         for order in self:
             if not order.ncf_control:
                 return super(PosOrder, self).test_paid()
+            elif order.is_return_order:
+                return True
             else:
-                if order.is_return_order:
-                    return True
-                else:
-                    return super(PosOrder, self).test_paid()
+                if (not order.lines) or (not order.statement_ids and not order.refund_payment_account_move_line_ids):
+                    return False
+                return True
 
     def check_ncf_control_from_ui(self, orders):
         """
