@@ -345,19 +345,17 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     });
                     return false;
                 }
-
                 if (current_order.fiscal_type.requires_document &&
-                    (client.vat.length !== 9 || client.vat.length !== 11)) {
+                    !(client.vat.length === 9 || client.vat.length === 11)) {
                     this.gui.show_popup('error', {
                         'title': _t('Incorrect document (RNC/Céd.)'),
                         'body': _t('For invoice fiscal type ' +
                             current_order.fiscal_type.name +
-                            ' it is necessary for the customer have correct' +
+                            ' it is necessary for the customer have correct ' +
                             'RNC or Céd. without dashes or spaces'),
                     });
                     return false;
                 }
-
                 if (total >= 250000.00 && (!client || !client.vat)) {
                     this.gui.show_popup('error', {
                         'title': _t('Sale greater than RD$ 250,000.00'),
