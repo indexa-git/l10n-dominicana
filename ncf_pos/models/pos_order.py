@@ -152,10 +152,7 @@ class PosOrder(models.Model):
         for record in self:
             if record.refund_payment_account_move_line_ids:
                 for aml in record.refund_payment_account_move_line_ids:
-                    for p_id in aml.invoice_id.payment_move_line_ids.ids:
-                        if record.invoice_id:
-                            record.invoice_id[0].assign_outstanding_credit(
-                                p_id)
+                    record.invoice_id.assign_outstanding_credit(aml.id)
             if record.is_return_order:
                 record.invoice_id.write({
                     'origin_out': record.return_order_id.invoice_id.reference,
@@ -319,8 +316,10 @@ class PosOrder(models.Model):
         else:
             payment_name = data.get("payment_name", False)
             if payment_name:
-                out_refund_invoice = self.env["account.invoice"].sudo().search(
-                    [('reference', '=', payment_name)])
+                out_refund_invoice = self.env["account.invoice"].sudo().search([
+                    ('reference', '=', payment_name),
+                    ('type', '=', 'out_refund'),
+                ])
                 if out_refund_invoice:
                     move_line_ids = out_refund_invoice.mapped(
                         'move_id.line_ids'
