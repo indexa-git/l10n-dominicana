@@ -25,72 +25,69 @@ jobs:
     outputs:
       get_modules: ${{ steps.get_modules.outputs.modules }}
       repo_name: ${{ steps.repo_slugs.outputs.repo_name }}
-      repo_branch: ${{ steps.repo_slugs.outputs.repo_branch }}
 
     steps:
-    - name: Extract repository name and branch
-      id: repo_slugs
-      shell: bash
-      run: |
-        REPO_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
-        REPO_URL=${REPO_NAME//[[:punct:]]/-}
-        echo ::set-output name=repo_name::$REPO_URL
+      - name: Extract repository name
+        id: repo_slugs
+        shell: bash
+        run: |
+          REPO_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
+          REPO_URL=${REPO_NAME//[[:punct:]]/-}
+          echo ::set-output name=repo_name::$REPO_URL
 
-        REPO_BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-        BRANCH_URL=${REPO_BRANCH//[[:punct:]]/-}
-        echo ::set-output name=repo_branch::$BRANCH_URL
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v2.x
 
-    - name: Checkout local
-      uses: actions/checkout@v2
-      with:
-        path: ${{ steps.repo_slugs.outputs.repo_name }}
+      - name: Checkout local
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}
 
-    - name: Check Flake8
-      uses: TrueBrain/actions-flake8@master
-      with:
-        ignore: E123,E133,E226,E241,E242,F811,F601,W503,W504,E203
-        max_line_length: 120
-        only_warn: 1
+      - name: Check Flake8
+        uses: TrueBrain/actions-flake8@master
+        with:
+          ignore: E123,E133,E226,E241,E242,F811,F601,W503,W504,E203,F401
+          max_line_length: 120
 
-    - name: Download python addons script
-      run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/12.0/resources/getaddons.py -o getaddons.py
+      - name: Download python addons script
+        run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/12.0/resources/getaddons.py -o getaddons.py
 
-    - name: ITPP-Labs pos-addons
-      uses: actions/checkout@v2
-      with:
-        repository: itpp-labs/pos-addons
-        path: pos-addons
-        ref: '12.0'
+      - name: ITPP-Labs pos-addons
+        uses: actions/checkout@v2
+        with:
+          repository: itpp-labs/pos-addons
+          path: pos-addons
+          ref: '12.0'
 
-    - name: INDEXA external-services
-      uses: actions/checkout@v2
-      with:
-        repository: indexa-git/external_service_addons
-        path: external-service-addons
-        ref: '12.0'
+      - name: INDEXA external-services
+        uses: actions/checkout@v2
+        with:
+          repository: indexa-git/external_service_addons
+          path: external-service-addons
+          ref: '12.0'
 
-    - name: Odoo Enterprise
-      uses: actions/checkout@v2
-      with:
-        repository: odoo/enterprise
-        token: ${{ secrets.ACTIONS_PAT }}
-        path: enterprise
-        ref: '12.0'
+      - name: Odoo Enterprise
+        uses: actions/checkout@v2
+        with:
+          repository: odoo/enterprise
+          token: ${{ secrets.ACTIONS_PAT }}
+          path: enterprise
+          ref: '12.0'
 
-    - name: python get_modules
-      id: get_modules
-      run: |
-        output=$(python -c "from getaddons import get_modules; print(','.join(get_modules('$GITHUB_WORKSPACE/${{ steps.repo_slugs.outputs.repo_name }}', depth=3)))")
-        echo "::set-output name=modules::$output"
+      - name: Select Odoo modules to install
+        id: get_modules
+        run: |
+          output=$(python -c "from getaddons import get_modules; print(','.join(get_modules('$GITHUB_WORKSPACE/${{ env.GITHUB_REPOSITORY_SLUG_URL }}', depth=3)))")
+          echo "::set-output name=modules::$output"
 
-    - name: Zip modules for upload
-      run: sudo apt-get update && sudo apt-get install -y zip && zip -r modules.zip .
+      - name: Zip modules for upload
+        run: sudo apt-get update && sudo apt-get install -y zip && zip -r modules.zip .
 
-    - name: Upload repository results
-      uses: actions/upload-artifact@v2
-      with:
-        name: modules
-        path: modules.zip
+      - name: Upload repository results
+        uses: actions/upload-artifact@v2
+        with:
+          name: modules
+          path: modules.zip
 
   test:
     name: Test Modules
@@ -119,139 +116,158 @@ jobs:
           - 5432:5432
 
     steps:
-    - name: Download modules results
-      uses: actions/download-artifact@v2
-      with:
-        name: modules
+      - name: Download modules results
+        uses: actions/download-artifact@v2
+        with:
+          name: modules
 
-    - run: unzip modules.zip
+      - run: unzip modules.zip
 
-    - name: chown home for pypy
-      uses: docker://gcr.io/iterativo/dockerdoo:12.0
-      with:
-        args: sudo chown -R 1000:1000 /github/home
+      - name: chown home for pypy
+        uses: docker://gcr.io/iterativo/dockerdoo:12.0
+        with:
+          args: sudo chown -R 1000:1000 /github/home
 
-    - name: Run odoo
-      uses: docker://gcr.io/iterativo/dockerdoo:12.0
-      with:
-        args: odoo
-      env:
-        RUN_TESTS: '1'
-        PIP_AUTO_INSTALL: '1'
-        LOG_LEVEL: test
-        WITHOUT_DEMO: 'False'
-        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
-        ODOO_EXTRA_ADDONS: /github/workspace
+      - name: Run odoo
+        uses: docker://gcr.io/iterativo/dockerdoo:12.0
+        with:
+          args: odoo
+        env:
+          RUN_TESTS: '1'
+          PIP_AUTO_INSTALL: '1'
+          LOG_LEVEL: test
+          WITHOUT_DEMO: 'False'
+          EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
+          ODOO_EXTRA_ADDONS: /github/workspace
 
-  build:
-    name: Build & Push Image
-    needs: ['dependencies', 'test']
+  build-github:
+    name: Build & Push to Github Packages
+    needs: ['dependencies']
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
 
     steps:
-    - name: Download  repository results
-      uses: actions/download-artifact@v2
-      with:
-        name: modules
+      - name: Download  repository results
+        uses: actions/download-artifact@v2
+        with:
+          name: modules
 
-    - run: unzip modules.zip
+      - run: unzip modules.zip
 
-    - name: Push to GitHub Packages
-      uses: docker/build-push-action@v1
-      with:
-        dockerfile: ${{ needs.dependencies.outputs.repo_name }}/Dockerfile
-        cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ needs.dependencies.outputs.repo_branch }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
-        repository: ${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}
-        tag_with_ref: true
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v2.x
 
-    - name: Push to Google Cloud Registry
-      uses: docker/build-push-action@v1
-      with:
-        dockerfile: ${{ needs.dependencies.outputs.repo_name }}/Dockerfile
-        cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ needs.dependencies.outputs.repo_branch }}
-        username: _json_key
-        password: ${{ secrets.GKE_SA_KEY }}
-        registry: gcr.io
-        repository: ${{ secrets.GKE_PROJECT }}/${{ needs.dependencies.outputs.repo_name }}
-        tag_with_ref: true
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          dockerfile: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}/Dockerfile
+          cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ env.GITHUB_HEAD_REF_SLUG_URL }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: ${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}
+          tags: ${{ env.GITHUB_SHA_SHORT }}
+
+  build-gcp:
+    name: Build & Push to GCR
+    needs: ['dependencies', 'test']
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+
+    steps:
+      - name: Download  repository results
+        uses: actions/download-artifact@v2
+        with:
+          name: modules
+
+      - run: unzip modules.zip
+
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v2.x
+
+      - name: Push to Google Cloud Registry
+        uses: docker/build-push-action@v1
+        with:
+          dockerfile: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}/Dockerfile
+          cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ env.GITHUB_HEAD_REF_SLUG_URL }}
+          username: _json_key
+          password: ${{ secrets.GKE_SA_KEY }}
+          registry: gcr.io
+          repository: ${{ secrets.GKE_PROJECT }}/${{ needs.dependencies.outputs.repo_name }}
+          tags: ${{ env.GITHUB_SHA_SHORT }}
 
   deploy:
     name: GKE Deploy
-    needs: ['dependencies', 'build']
+    needs: ['dependencies', 'build-gcp']
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: ${{ secrets.GKE_PROJECT }}
       GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
       GKE_ZONE: ${{ secrets.GKE_ZONE }}
-      REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
-      REPO_BRANCH: ${{ needs.dependencies.outputs.repo_branch }} 
     if: ${{ github.event_name == 'pull_request' }}
 
     steps:
-    - name: K8s Template
-      uses: actions/checkout@v2
-      with:
-        repository: indexa-git/gke-dev-cluster.git
-        path: gke-dev-cluster
-        token: ${{ secrets.ACTIONS_PAT }}
-        ref: master
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v2.x
 
-    - name: Set up Kustomize
-      run: |
-        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-        chmod u+x ./kustomize
-        ./kustomize build gke-dev-cluster/deployments/odoo/12.0/dev -o deployment.yaml.tmpl
+      - name: K8s Template
+        uses: actions/checkout@v2
+        with:
+          repository: indexa-git/gke-dev-cluster.git
+          path: gke-dev-cluster
+          token: ${{ secrets.ACTIONS_PAT }}
+          ref: master
 
-    - name: Render Deployment YAML
-      uses: nowactions/envsubst@v1
-      with:
-        input: ./deployment.yaml.tmpl
-        output: ./deployment.yaml
-      env:
-        REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
-        REPO_URL: ${{ needs.dependencies.outputs.repo_name }}
-        BRANCH_NAME: ${{ needs.dependencies.outputs.repo_branch }}
-        BRANCH_URL: ${{ needs.dependencies.outputs.repo_branch }}
-        PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-        ENV: dev
-        SHORT_SHA: ${{ github.sha }}
-        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
-        GKE_LOCATION: ${{ secrets.GKE_PROJECT }}
+      - name: Set up Kustomize
+        run: |
+          curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+          chmod u+x ./kustomize
+          ./kustomize build gke-dev-cluster/deployments/odoo/12.0/dev -o deployment.yaml.tmpl
 
-    - run: cat deployment.yaml
+      - name: Render Deployment YAML
+        uses: nowactions/envsubst@v1
+        with:
+          input: ./deployment.yaml.tmpl
+          output: ./deployment.yaml
+        env:
+          ENV: dev
+          GKE_LOCATION: ${{ secrets.GKE_PROJECT }}
+          # Modules to Install
+          EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
+          # Image to Deploy
+          PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+          REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
+          BRANCH_NAME: ${{ env.GITHUB_SHA_SHORT }}
+          # URL to acccess
+          REPO_URL: ${{ needs.dependencies.outputs.repo_name }}
+          BRANCH_URL: ${{ env.GITHUB_HEAD_REF_SLUG_URL }}
+          SHORT_SHA: ${{ env.GITHUB_SHA_SHORT }}
 
-    - name: Setup gcloud CLI
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      with:
-        version: '290.0.1'
-        service_account_key: ${{ secrets.GKE_SA_KEY }}
-        project_id: ${{ secrets.GKE_PROJECT }}
+      - run: cat deployment.yaml
 
-    # Configure Docker to use the gcloud command-line tool as a credential
-    # helper for authentication
-    - name: Get Cluster & Docker credentials
-      run: |
-        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE" --project "$PROJECT_ID"
-        gcloud --quiet auth configure-docker
+      - name: Setup gcloud CLI
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '290.0.1'
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
 
-    # Deploy the Docker image to the GKE cluster
-    - name: Deploy
-      run: |
-        kubectl apply -f deployment.yaml
-        kubectl get services -o wide
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication
+      - name: Get Cluster & Docker credentials
+        run: |
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE" --project "$PROJECT_ID"
+          gcloud --quiet auth configure-docker
 
-    - name: Output deploy URL
-      id: url
-      run: |
-        output=$(echo "$REPO_NAME-$REPO_BRANCH.indexa.do")
-        echo "$output" > url.txt
-        echo "::set-output name=url::$output"
+      # Deploy the Docker image to the GKE cluster
+      - name: Deploy
+        run: |
+          kubectl apply -f deployment.yaml
+          url=$(echo "${{ needs.dependencies.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do")
+          echo "$url" > url.txt
 
-    - name: Upload repository results
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.url.outputs.url }}
-        path: url.txt
+      - name: Upload repository results
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ needs.dependencies.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do
+          path: url.txt
