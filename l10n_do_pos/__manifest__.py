@@ -1,3 +1,4 @@
+
 {
     'name': "Fiscal POS (Rep. Dominicana)",
 

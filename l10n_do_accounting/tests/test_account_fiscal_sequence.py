@@ -19,10 +19,10 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
 
         l10n_do_sequence_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
-                'sequence_start': 300,
-                'sequence_end': 310,
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_credito_fiscal,
+                "sequence_start": 300,
+                "sequence_end": 310,
             }
         )
 
@@ -38,11 +38,11 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
         """
         l10n_do_sequence_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
-                'sequence_start': 141,
-                'sequence_end': 732,
-                'remaining_percentage': 12,
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_credito_fiscal,
+                "sequence_start": 141,
+                "sequence_end": 732,
+                "remaining_percentage": 12,
             }
         )
 
@@ -61,10 +61,10 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
 
         sequence_2_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_consumo,
-                'sequence_start': 141,
-                'sequence_end': 732,
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_consumo,
+                "sequence_start": 141,
+                "sequence_end": 732,
             }
         )
         sequence_2_id.l10n_latam_document_type_id = self.fiscal_type_credito_fiscal
@@ -78,11 +78,11 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
         """
         l10n_do_sequence_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
-                'sequence_start': 141,
-                'sequence_end': 732,
-                'remaining_percentage': 12,
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_credito_fiscal,
+                "sequence_start": 141,
+                "sequence_end": 732,
+                "remaining_percentage": 12,
             }
         )
 
@@ -95,17 +95,17 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
         """
         l10n_do_sequence_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
-                'sequence_start': 101,
-                'sequence_end': 150,
-                'remaining_percentage': 12,
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_credito_fiscal,
+                "sequence_start": 101,
+                "sequence_end": 150,
+                "remaining_percentage": 12,
             }
         )
 
         # Check sequence_end > sequence_start
         with self.assertRaises(ValidationError):
-            l10n_do_sequence_id.write({'sequence_start': 350, 'sequence_end': 349})
+            l10n_do_sequence_id.write({"sequence_start": 350, "sequence_end": 349})
             l10n_do_sequence_id._action_confirm()
 
         # Check no overlapping
@@ -124,7 +124,7 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
         # Cancel before delete
         l10n_do_sequence_id._action_cancel()
         # Check state
-        self.assertEqual(l10n_do_sequence_id.state, 'cancelled')
+        self.assertEqual(l10n_do_sequence_id.state, "cancelled")
         self.assertEqual(l10n_do_sequence_id.l10n_do_sequence_id.active, False)
 
         l10n_do_sequence_id.unlink()
@@ -139,17 +139,17 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
 
         l10n_do_sequence_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_unico,
-                'sequence_start': 101,
-                'sequence_end': 150,
-                'expiration_date': fields.Date.today(),
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_unico,
+                "sequence_start": 101,
+                "sequence_end": 150,
+                "expiration_date": fields.Date.today(),
             }
         )
         l10n_do_sequence_id._action_confirm()
 
         # Check state = 'expired'
-        self.assertEqual(l10n_do_sequence_id.state, 'expired')
+        self.assertEqual(l10n_do_sequence_id.state, "expired")
 
     def test_008_fiscal_sequence_sequence_vals(self):
         """
@@ -164,10 +164,10 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
 
         sequence_unico_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_unico,
-                'sequence_start': 1,
-                'sequence_end': 10,
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_unico,
+                "sequence_start": 1,
+                "sequence_end": 10,
             }
         )
         sequence_unico_id._action_confirm()
@@ -177,12 +177,12 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
             sequence_unico_id.l10n_do_sequence_id,
             [
                 {
-                    'implementation': 'standard',
-                    'padding': self.fiscal_type_obj.browse(
+                    "implementation": "standard",
+                    "padding": self.fiscal_type_obj.browse(
                         self.fiscal_type_unico
                     ).padding,
-                    'number_increment': 1,
-                    'number_next_actual': 1,
+                    "number_increment": 1,
+                    "number_next_actual": 1,
                 }
             ],
         )
@@ -200,16 +200,16 @@ class AccountFiscalSequenceBaseTests(CommonSetup):
 
         sequence_unico_id = self.fiscal_sequence_obj.create(
             {
-                'name': '7045195031',
-                'l10n_latam_document_type_id': self.fiscal_type_unico,
-                'sequence_start': 1,
-                'sequence_end': 10,
+                "name": "7045195031",
+                "l10n_latam_document_type_id": self.fiscal_type_unico,
+                "sequence_start": 1,
+                "sequence_end": 10,
             }
         )
         sequence_unico_id._action_confirm()
 
         assert sequence_unico_id.l10n_do_sequence_id
-        self.assertEqual(sequence_unico_id.state, 'active')
+        self.assertEqual(sequence_unico_id.state, "active")
 
 
 class AccountFiscalSequenceTransactionTests(CommonSetup):
@@ -223,44 +223,44 @@ class AccountFiscalSequenceTransactionTests(CommonSetup):
 
         with environment() as env:
 
-            test_company = env['res.company'].search([('name', '=', 'Test Company')])
+            test_company = env["res.company"].search([("name", "=", "Test Company")])
             if not test_company:
-                test_company = env['res.company'].create({'name': 'Test Company'})
+                test_company = env["res.company"].create({"name": "Test Company"})
 
-            l10n_do_sequence_id = env['l10n_latam.document.pool'].create(
+            l10n_do_sequence_id = env["l10n_latam.document.pool"].create(
                 {
-                    'name': '7045195031',
-                    'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
-                    'sequence_start': 1,
-                    'sequence_end': 10,
-                    'company_id': test_company.id,
+                    "name": "7045195031",
+                    "l10n_latam_document_type_id": self.fiscal_type_credito_fiscal,
+                    "sequence_start": 1,
+                    "sequence_end": 10,
+                    "company_id": test_company.id,
                 }
             )
             l10n_do_sequence_id._action_confirm()
             self.assertEqual(l10n_do_sequence_id.sequence_remaining, 10)
 
-            queued_sequence_id = env['l10n_latam.document.pool'].create(
+            queued_sequence_id = env["l10n_latam.document.pool"].create(
                 {
-                    'name': 'queued',
-                    'l10n_latam_document_type_id': self.fiscal_type_credito_fiscal,
-                    'sequence_start': 11,
-                    'sequence_end': 20,
-                    'company_id': test_company.id,
+                    "name": "queued",
+                    "l10n_latam_document_type_id": self.fiscal_type_credito_fiscal,
+                    "sequence_start": 11,
+                    "sequence_end": 20,
+                    "company_id": test_company.id,
                 }
             )
             queued_sequence_id.action_queue()
 
         for i in range(10):
             with environment() as env:
-                env_sequence_id = env['l10n_latam.document.pool'].search(
+                env_sequence_id = env["l10n_latam.document.pool"].search(
                     [
-                        ('company_id', '=', test_company.id),
+                        ("company_id", "=", test_company.id),
                         (
-                            'l10n_latam_document_type_id',
-                            '=',
+                            "l10n_latam_document_type_id",
+                            "=",
                             self.fiscal_type_credito_fiscal,
                         ),
-                        ('state', '=', 'active'),
+                        ("state", "=", "active"),
                     ]
                 )
                 env_sequence_id.get_fiscal_number()
@@ -278,22 +278,22 @@ class AccountFiscalSequenceTransactionTests(CommonSetup):
             # Check next_fiscal_number
             self.assertEqual(env_sequence_id.next_fiscal_number, next_fiscal_number)
         # Check state --> auto deplete
-        self.assertEqual(env_sequence_id.state, 'depleted')
+        self.assertEqual(env_sequence_id.state, "depleted")
 
         # Check queued sequence gets auto activated
         with environment() as env:
-            queued_sequence_id = env['l10n_latam.document.pool'].search(
-                [('company_id', '=', test_company.id), ('name', '=', 'queued')]
+            queued_sequence_id = env["l10n_latam.document.pool"].search(
+                [("company_id", "=", test_company.id), ("name", "=", "queued")]
             )
-            self.assertEqual(queued_sequence_id.state, 'active')
+            self.assertEqual(queued_sequence_id.state, "active")
 
         with environment() as env:
-            env['l10n_latam.document.pool'].search(
+            env["l10n_latam.document.pool"].search(
                 [
-                    ('company_id', '=', test_company.id),
+                    ("company_id", "=", test_company.id),
                     (
-                        'l10n_latam_document_type_id',
-                        '=',
+                        "l10n_latam_document_type_id",
+                        "=",
                         self.fiscal_type_credito_fiscal,
                     ),
                 ]

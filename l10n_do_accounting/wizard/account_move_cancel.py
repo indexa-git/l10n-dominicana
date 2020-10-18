@@ -1,4 +1,3 @@
-
 from odoo import models, fields, _
 from odoo.exceptions import UserError
 
@@ -13,9 +12,10 @@ class AccountMoveCancel(models.TransientModel):
     _name = "account.move.cancel"
     _description = "Cancel the Selected Invoice"
 
-    cancellation_type = fields.Selection(
+    l10n_do_cancellation_type = fields.Selection(
         selection=lambda self: self.env[
-            'account.move']._get_l10n_do_cancellation_type(),
+            "account.move"
+        ]._get_l10n_do_cancellation_type(),
         string="Cancellation Type",
         copy=False,
         required=True,
@@ -23,16 +23,19 @@ class AccountMoveCancel(models.TransientModel):
 
     def move_cancel(self):
         context = dict(self._context or {})
-        active_ids = context.get('active_ids', []) or []
-        for invoice in self.env['account.move'].browse(active_ids):
-            if invoice.state == 'cancel':
+        active_ids = context.get("active_ids", []) or []
+        for invoice in self.env["account.move"].browse(active_ids):
+            if invoice.state == "cancel":
                 raise UserError(
-                    _("Selected invoice(s) cannot be cancelled as they are "
-                      "already in 'Cancelled' state."))
-            if invoice.invoice_payment_state != 'not_paid':
+                    _(
+                        "Selected invoice(s) cannot be cancelled as they are "
+                        "already in 'Cancelled' state."
+                    )
+                )
+            if invoice.invoice_payment_state != "not_paid":
                 raise UserError(
                     _("Selected invoice(s) cannot be cancelled as they are "
                       "already in 'Paid' state."))
-            invoice.cancellation_type = self.cancellation_type
+            invoice.l10n_do_cancellation_type = self.l10n_do_cancellation_type
             invoice.write({'state': 'cancel'})
         return {'type': 'ir.actions.act_window_close'}
