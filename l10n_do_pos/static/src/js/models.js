@@ -266,6 +266,22 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
 
     });
+
+    var _super_orderline = models.Orderline.prototype;
+    models.Orderline = models.Orderline.extend({
+        initialize: function(attr, options) {
+            _super_orderline.initialize.apply(this, arguments);
+            var order = this.pos.get_order();
+            var self = this;
+            if (order && order.get_mode() === "return") {
+                var return_line = order.return_lines.filter(function(line) {
+                    return self.product.id === line.product_id[0];
+                });
+                self.set_discount(return_line[0].discount);
+            }
+        },
+    });
+
     var _paylineproto = models.Paymentline.prototype;
     models.Paymentline = models.Paymentline.extend({
         initialize: function () {
