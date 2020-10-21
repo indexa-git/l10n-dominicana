@@ -370,10 +370,24 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     var origin_order =
                         self.pos.db.orders_history_by_id[
                             current_order.return_lines[0].order_id[0]];
+                    if(origin_order === undefined){
+                        this.gui.show_popup('error', {
+                            'title': _t('Credit note error'),
+                            'body': _t('Please create credit note again'),
+                        });
+                    }
+
+                    if (origin_order.amount_total < Math.abs(total)) {
+                        this.gui.show_popup('error', {
+                            'title': _t('The amount of the credit is very high'),
+                            'body': _t('Total amount of the credit note cannot be greater than original'),
+                        });
+                        return false;
+                    }
 
                     if (origin_order.partner_id[0] !== client.id) {
                         this.gui.show_popup('error', {
-                            'title': _t('Error in credit note'),
+                            'title': _t('Credit note error'),
                             'body': _t('The customer of the credit note must' +
                                 ' be the same as the original'),
                         });
