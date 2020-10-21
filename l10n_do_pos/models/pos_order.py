@@ -19,12 +19,12 @@ class PosOrder(models.Model):
         string="Fiscal Sequence",
         copy=False,
     )
-    # ncf_l10n_do_origin_ncf = fields.Char(
-    #     "Affects",
-    # )
-    # ncf_expiration_date = fields.Date(
-    #     string="NCF expiration date",
-    # )
+    ncf_expiration_date = fields.Date(
+        string="NCF expiration date",
+    )
+    l10n_do_origin_ncf = fields.Char(
+        string="Modifies",
+    )
     # is_used_in_order = fields.Boolean(
     #     default=False
     # )

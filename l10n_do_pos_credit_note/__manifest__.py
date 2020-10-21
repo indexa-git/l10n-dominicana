@@ -1,13 +1,7 @@
-
 {
-    'name': "Fiscal POS (Rep. Dominicana)",
-
-    'summary': """Incorpora funcionalidades de facturación con NCF al POS.""",
-
-    'author': "Xmarts, "
-              "Indexa, "
-              "Iterativo SRL",
-
+    'name': "Fiscal POS Credit Notes (Rep. Dominicana)",
+    'summary': """Incorpora funcionalidades de notas de credito con NCF al POS.""",
+    'author': "Xmarts",
     'license': 'LGPL-3',
     'website': "https://github.com/odoo-dominicana",
     'category': 'Localization',
@@ -15,9 +9,9 @@
     'depends': [
         'base',
         'point_of_sale',
-        'l10n_do_accounting',
+        'l10n_do_pos',
+        'pos_orders_history_return',
     ],
-    # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         'views/assets.xml',
@@ -29,6 +23,7 @@
         'static/src/xml/pos.xml',
         'static/src/xml/posticket.xml',
     ],
+    # only loaded in demonstration mode
     'demo': [
 
     ],
