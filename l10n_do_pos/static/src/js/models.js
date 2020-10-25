@@ -151,11 +151,11 @@ odoo.define('l10n_do_pos.models', function (require) {
                     function (latam_sequence) {
                         if (latam_sequence.l10n_latam_document_type_id[0] ===
                             document_type_id) {
-                                result = latam_sequence;
-                            }
+                            result = latam_sequence;
+                        }
                     });
                 return result;
-        },
+            },
 
         get_latam_document_type_by_prefix: function (prefix) {
             var self = this;
