@@ -197,7 +197,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
         },
 
-        finalize_validation: function() {
+        finalize_validation: function () {
             var self = this;
             var current_order = this.pos.get_order();
             var _super = this._super.bind(this);
