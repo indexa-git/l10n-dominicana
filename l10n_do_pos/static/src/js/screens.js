@@ -22,7 +22,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
         renderElement: function () {
             this._super();
             var self = this;
-            var current_order = self.pos.get_order();
             this.$('.js_set_latam_document_type').click(function () {
                 self.click_set_latam_document_type();
             });
@@ -82,7 +81,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
         click_set_latam_document_type: function () {
             var self = this;
-            var latam_document_type_list = _.map(self.pos.l10n_latam_document_types,
+            var latam_document_type_list =
+                _.map(self.pos.l10n_latam_document_types,
                 function (latam_document_type) {
                     if (latam_document_type.internal_type === 'invoice') {
                         return {
@@ -111,7 +111,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 },
                 is_selected: function (latam_document_type) {
                     var order = self.pos.get_order();
-                    return latam_document_type === order.l10n_latam_document_type;
+                    return latam_document_type ===
+                        order.l10n_latam_document_type;
                 },
             });
         },
@@ -122,7 +123,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var current_order = this.pos.get_order();
             var client = current_order.get_client();
             var total = current_order.get_total_with_tax();
-            if(current_order.to_invoice_backend){
+            if (current_order.to_invoice_backend) {
                 current_order.to_invoice = false;
                 current_order.save_to_db();
             }
@@ -139,7 +140,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
             if (self.pos.invoice_journal.l10n_latam_use_documents &&
                 current_order.to_invoice_backend) {
 
-                if (current_order.l10n_latam_document_type.is_vat_required && !client) {
+                if (current_order.l10n_latam_document_type.is_vat_required &&
+                    !client) {
 
                     this.gui.show_popup('error', {
                         'title': _t('Required document (RNC/Céd.)'),
