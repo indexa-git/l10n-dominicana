@@ -19,12 +19,12 @@ class PosOrder(models.Model):
         string="Fiscal Sequence",
         copy=False,
     )
-    # ncf_l10n_do_origin_ncf = fields.Char(
-    #     "Affects",
-    # )
-    # ncf_expiration_date = fields.Date(
-    #     string="NCF expiration date",
-    # )
+    ncf_expiration_date = fields.Date(
+        string="NCF expiration date",
+    )
+    l10n_do_origin_ncf = fields.Char(
+        string="Modifies",
+    )
     # is_used_in_order = fields.Boolean(
     #     default=False
     # )
@@ -56,7 +56,8 @@ class PosOrder(models.Model):
         if documents and self.to_invoice:
             invoice_vals['l10n_latam_sequence_id'] = self.l10n_latam_sequence_id.id
             invoice_vals['l10n_latam_document_number'] = self.l10n_latam_document_number
-            invoice_vals['l10n_latam_document_type_id'] = self.l10n_latam_document_type_id.id
+            invoice_vals['l10n_latam_document_type_id'] = \
+                self.l10n_latam_document_type_id.id
             # invoice_vals['fiscal_type_id'] = self.fiscal_type_id.id
             # invoice_vals['fiscal_sequence_id'] = self.fiscal_sequence_id.id
 
