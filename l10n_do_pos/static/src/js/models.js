@@ -144,16 +144,16 @@ odoo.define('l10n_do_pos.models', function (require) {
         },
 
         get_l10n_latam_sequence_by_document_type_id: function (
-                document_type_id) {
-                    var result = false;
-                    var self = this;
-                    self.l10n_latam_sequences.forEach( function (latam_sequence) {
-                        if (latam_sequence.l10n_latam_document_type_id[0] ===
-                            document_type_id) {
-                                result = latam_sequence;
+            document_type_id) {
+                var result = false;
+                var self = this;
+                self.l10n_latam_sequences.forEach( function (latam_sequence) {
+                    if (latam_sequence.l10n_latam_document_type_id[0] ===
+                        document_type_id) {
+                            result = latam_sequence;
                         }
                     });
-                    return result;
+                return result;
         },
 
         get_latam_document_type_by_prefix: function (prefix) {
