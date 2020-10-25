@@ -83,15 +83,15 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var self = this;
             var latam_document_type_list =
                 _.map(self.pos.l10n_latam_document_types,
-                function (latam_document_type) {
-                    if (latam_document_type.internal_type === 'invoice') {
-                        return {
-                            label: latam_document_type.name,
-                            item: latam_document_type,
-                        };
-                    }
-                    return false;
-                });
+                    function (latam_document_type) {
+                        if (latam_document_type.internal_type === 'invoice') {
+                            return {
+                                label: latam_document_type.name,
+                                item: latam_document_type,
+                            };
+                        }
+                        return false;
+                    });
 
             self.gui.show_popup('selection', {
                 title: _t('Select document type'),
@@ -183,17 +183,20 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
             }
 
+
             if (this._super(force_validation)) {
-                return true
-            } else {
-                if(current_order.to_invoice_backend){
-                    current_order.to_invoice = true;
-                    current_order.save_to_db();
-                }
-                return false
+                return true;
             }
 
+            if (current_order.to_invoice_backend) {
+                current_order.to_invoice = true;
+                current_order.save_to_db();
+            }
+
+            return false;
+
         },
+
         finalize_validation: function() {
             var self = this;
             var current_order = this.pos.get_order();
@@ -214,7 +217,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     self.pos.loading_screen_off();
                     current_order.l10n_latam_document_number = res;
                     current_order.l10n_latam_sequence_id = latam_sequence.id;
-                    current_order.l10n_latam_document_type_id = current_order.l10n_latam_document_type.id;
+                    current_order.l10n_latam_document_type_id =
+                        current_order.l10n_latam_document_type.id;
                     current_order.save_to_db();
                     console.log(res);
                     _super();
@@ -236,7 +240,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         'title': _t('Error: Could not Save Changes'),
                         'body': error_body,
                     });
-                })
+                });
             } else {
                 this._super();
             }
