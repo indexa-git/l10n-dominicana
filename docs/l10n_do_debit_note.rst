@@ -8,5 +8,5 @@ Instalación
 
 Para esto, ir  **Aplicaciones** y busca **l10n_do_debit_note**. Luego haga clic en **Instalar** al modulo ``l10n_do_debit_note``.
 
-.. image:: media/dominicana02.png
+.. image:: Media/dominicana02.png
    :align: center
