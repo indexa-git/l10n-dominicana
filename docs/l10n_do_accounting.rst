@@ -48,6 +48,6 @@ Comprobantes Fiscales
 En la configuracion de contabilidad selecione la opcion Diario, crear o editar el diario de ventas, 
 escoja el Tipo de Diario > Ventas luego active el donde dice **Es fiscal?** luego se le generaran las secuencias de NCF.
 
-.. image:: Media/dominicana05.PNG
+.. image:: Media/dominicana05.png
    :align: center
 
