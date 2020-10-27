@@ -9,7 +9,7 @@ Instalación
 
 Para esto, ir  **Aplicaciones** y busca **l10n_do_accounting**. Luego haga clic en **Instalar** al modulo ``l10n_do_accounting``.
 
-.. image:: media/dominicana01.png
+.. image:: Media/dominicana01.png
    :align: center
 
 
@@ -22,7 +22,7 @@ Configurar Compañía
 Una vez que el módulo esté instalado, el primer paso es configurar los datos de su empresa, pais, entre otros. Además de la
 información básica, un campo clave es **(RNC/NIF)**:
 
-.. image:: media/dominicana04.png
+.. image:: Media/dominicana04.png
    :align: center
 
 
@@ -48,6 +48,6 @@ Comprobantes Fiscales
 En la configuracion de contabilidad selecione la opcion Diario, crear o editar el diario de ventas, 
 escoja el Tipo de Diario > Ventas luego active el donde dice **Es fiscal?** luego se le generaran las secuencias de NCF.
 
-.. image:: media/dominicana05.PNG
+.. image:: Media/dominicana05.PNG
    :align: center
 
