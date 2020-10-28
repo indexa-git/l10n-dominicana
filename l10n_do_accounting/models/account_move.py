@@ -287,7 +287,7 @@ class AccountMove(models.Model):
             elif rec.type in ("out_invoice", "out_refund"):
                 if (
                     rec.amount_untaxed_signed >= 250000
-                    and l10n_latam_document_type.l10n_do_ncf_type != "special"
+                    and l10n_latam_document_type.l10n_do_ncf_type[-7:] != "special"
                     and not rec.partner_id.vat
                 ):
                     raise UserError(
@@ -309,7 +309,7 @@ class AccountMove(models.Model):
             and r.type == "out_invoice"
             and r.state in ("draft", "cancel")
         ):
-            if rec.l10n_latam_document_type_id.l10n_do_ncf_type == "special":
+            if rec.l10n_latam_document_type_id.l10n_do_ncf_type[-7:] == "special":
                 # If any invoice tax in ITBIS or ISC
                 taxes = ("ITBIS", "ISC")
                 if any(
@@ -364,7 +364,8 @@ class AccountMove(models.Model):
                         if p.type != "service"
                     ]
                 ):
-                    if rec.l10n_latam_document_type_id.l10n_do_ncf_type != "export":
+                    if rec.l10n_latam_document_type_id.l10n_do_ncf_type[-7:] != \
+                            "export":
                         raise UserError(
                             _(
                                 "Goods sales to overseas customers must have "
@@ -394,7 +395,7 @@ class AccountMove(models.Model):
             and r.state in ("draft")
         ):
 
-            if rec.l10n_latam_document_type_id.l10n_do_ncf_type == "informal":
+            if rec.l10n_latam_document_type_id.l10n_do_ncf_type[-8:] == "informal":
                 # If the sum of all taxes of category ITBIS is not 0
                 if sum(
                     [
