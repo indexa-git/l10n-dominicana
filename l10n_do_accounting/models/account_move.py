@@ -364,7 +364,7 @@ class AccountMove(models.Model):
                         if p.type != "service"
                     ]
                 ):
-                    if rec.l10n_latam_document_type_id.l10n_do_ncf_type[-7:] != \
+                    if rec.l10n_latam_document_type_id.l10n_do_ncf_type[-6:] != \
                             "export":
                         raise UserError(
                             _(
