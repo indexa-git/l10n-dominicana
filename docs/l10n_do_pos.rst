@@ -7,7 +7,7 @@ Instalación
 
 Para esto, ir  **Aplicaciones** y busca **l10n_do_pos**. Luego haga clic en **Instalar** el modulo ``l10n_do_pos``.
 
-.. image:: media/dominicana06.png
+.. image:: Media/dominicana06.png
    :align: center
 
 Configuracion
