@@ -33,6 +33,7 @@ Vaya a la seccion Facturas y Recibos, active la opcion > Contabilidad Luego sele
 .. image:: Media/dominicana08.png
    :align: center
 
+**Una vez hayamos seguido los pasos anteriores nuestra configuracion estaria lista para empezar generar facturas de consumo.**
 
 Generar una factura de Consumo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
