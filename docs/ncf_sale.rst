@@ -1,1 +1,0 @@
-- **ncf_sale**: Este módulo extiende la funcionalidad del ``ncf_manager`` hacia ventas, para realizar algunas validaciones antes de crear la factura.
