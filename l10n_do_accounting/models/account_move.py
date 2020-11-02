@@ -28,11 +28,11 @@ class AccountMove(models.Model):
     def _get_l10n_do_ecf_modification_code(self):
         """ Return the list of e-CF modification codes required by DGII. """
         return [
-            ("01", _("01 - Total Cancellation")),
-            ("02", _("02 - Text Correction")),
-            ("03", _("03 - Amount correction")),
-            ("04", _("04 - NCF replacement issued in contingency")),
-            ("05", _("05 - Reference Electronic Consumer Invoice")),
+            ("1", _("01 - Total Cancellation")),
+            ("2", _("02 - Text Correction")),
+            ("3", _("03 - Amount correction")),
+            ("4", _("04 - NCF replacement issued in contingency")),
+            ("5", _("05 - Reference Electronic Consumer Invoice")),
         ]
 
     def _get_l10n_do_income_type(self):
