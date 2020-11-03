@@ -1,14 +1,14 @@
 Punto de Venta
 ==============
 
-**ncf_pos**: Incorpora funcionalidades de facturación con NCF al punto de venta.
+**l10n_do_pos**: Incorpora funcionalidades de facturación con NCF al punto de venta.
       
         - WIP: compatibilidad con impresoras fiscales.
 
 Instalación
 ===========
 
-Para esto, ir  **Aplicaciones** y busca **ncf_pos**. Luego haga clic en **Instalar** el modulo ``ncf_pos``.
+Para esto, ir  **Aplicaciones** y busca **l10n_do_pos**. Luego haga clic en **Instalar** el modulo ``l10n_do_pos``.
 
 .. image:: media/dominicana06.PNG
    :align: center

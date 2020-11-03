@@ -5,11 +5,21 @@
         <field name="model">pos.order</field>
         <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_return_order" readonly="1"/>
+                <field name="return_order_id" readonly="1"
+                        attrs="{'invisible':[('is_return_order', '=', False)]}"/>
+                <field name="return_status" readonly="1"
+                       attrs="{'invisible':[('is_return_order', '=', False)]}"/>
+            </xpath>
             <xpath expr="//page[@name='extra']" position="inside">
                 <group string="Fiscal info" attrs="{'invisible':[('l10n_latam_document_number', '=', False)]}">
                     <field name="l10n_latam_document_number" readonly="1"/>
                     <field name="l10n_latam_document_type_id" readonly="1"/>
                     <field name="l10n_latam_sequence_id" readonly="1"/>
+
+                    <field name="l10n_do_origin_ncf" readonly="1"
+                           attrs="{'invisible':[('is_return_order', '=', False)]}"/>
                 </group>
             </xpath>
         </field>
