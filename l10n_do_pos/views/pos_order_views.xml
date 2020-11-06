@@ -22,6 +22,20 @@
                            attrs="{'invisible':[('is_return_order', '=', False)]}"/>
                 </group>
             </xpath>
+            <xpath expr="//page[@name='extra']" position="before">
+                <page string="Payments Credit notes">
+                    <field name="payment_credit_note_ids" nolabel="1">
+                        <tree string="Credit notes" create="false" delete="false" editable="bottom">
+                            <field name="currency_id" invisible="1"/>
+                            <field name="account_move_id" readonly="1"/>
+                            <field name="amount" readonly="1"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+            <xpath expr="//button[@name='action_view_invoice']" position="attributes">
+                <attribute name="attrs">{'invisible':[('state','not in', ('invoiced', 'is_return_order'))]}</attribute>
+            </xpath>
         </field>
     </record>
     <record id="l10n_do_pos_view_pos_order_tree" model="ir.ui.view">

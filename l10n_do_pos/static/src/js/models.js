@@ -30,6 +30,7 @@ odoo.define('l10n_do_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['l10n_do_dgii_tax_payer_type']);
+    models.load_fields('pos.config', ['default_partner_id']);
 
     models.load_fields('account.journal', [
         'l10n_latam_use_documents',
@@ -279,10 +280,9 @@ odoo.define('l10n_do_pos.models', function (require) {
                 .$('.js_latam_document_type_name').text(
                     latam_document_type_name);
         },
-        // TODO: CHECK THIS PART
-        //         init_from_JSON: function (json) {
+        // TODO: check this is importatnt
+        // init_from_JSON: function (json) {
         //     var self = this;
-        //
         //     _super_order.init_from_JSON.call(this, json);
         //     this.return_status = json.return_status;
         //     this.is_return_order = json.is_return_order;
@@ -294,7 +294,6 @@ odoo.define('l10n_do_pos.models', function (require) {
         //     if (this.orderlines && $.isArray(this.orderlines.models)) {
         //         this.orderlines.models.forEach(function (line) {
         //             var productDefCode = line.product.default_code;
-        //
         //             self.orderlineList.push(
         //                 {
         //                     line_id: line.id,
@@ -305,20 +304,6 @@ odoo.define('l10n_do_pos.models', function (require) {
         //                 });
         //         });
         //     }
-        // },
-        // export_as_JSON: function () {
-        //     var json = _super_order.export_as_JSON.call(this);
-        //
-        //     $.extend(json, {
-        //         return_status: this.return_status,
-        //         is_return_order: this.is_return_order,
-        //         return_order_id: this.return_order_id,
-        //         amount_total: parseFloat(json.amount_total || 0),
-        //         to_invoice: this.to_invoice,
-        //         ncf: this.ncf,
-        //         ncf_control: this.ncf_control,
-        //     });
-        //     return json;
         // },
         export_as_JSON: function () {
 
@@ -486,22 +471,14 @@ odoo.define('l10n_do_pos.models', function (require) {
 
         get_orders_from_server: function () {
             var self = this;
-            var max_invoice_id = Math.max(..._.map(this.db.pos_all_orders, function (o) {
-                return o.account_move[0];
-            }), 0);
-
-            var kwargs = {
-                invoice_id: max_invoice_id,
-            };
+            var kwargs = {};
             var loading_type = posmodel.config.order_loading_options;
-
             if (loading_type === 'n_days') {
                 kwargs.day_limit = this.config.number_of_days || 0;
                 kwargs.config_id = this.config.id;
             } else if (loading_type === "current_session") {
                 kwargs.session_id = posmodel.pos_session.id;
             }
-
             rpc.query({
                 model: 'pos.order',
                 method: 'order_search_from_ui',

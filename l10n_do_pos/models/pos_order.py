@@ -48,10 +48,7 @@ class PosOrder(models.Model):
     ncf_expiration_date = fields.Date(
         string="NCF expiration date",
     )
-    l10n_latam_use_documents = fields.Boolean(
-        related="sale_journal.l10n_latam_use_documents",
-    )
-
+    l10n_latam_use_documents = fields.Boolean()
 
     # Credit notes
 
@@ -84,6 +81,12 @@ class PosOrder(models.Model):
         copy=False,
         string='Return status',
     )
+    payment_credit_note_ids = fields.One2many(
+        comodel_name="pos.order.payment.credit.note",
+        inverse_name="pos_order_id",
+        string="Credit note payments",
+        required=False,
+    )
 
     # is_used_in_order = fields.Boolean(
     #     default=False
@@ -102,14 +105,62 @@ class PosOrder(models.Model):
                 ui_order['l10n_latam_document_number']
             fields['l10n_latam_document_type_id'] = \
                 ui_order['l10n_latam_document_type_id']
-
+            fields['l10n_latam_use_documents'] = True
             fields['l10n_do_origin_ncf'] = ui_order['l10n_do_origin_ncf']
             fields['return_status'] = ui_order['return_status']
             fields['is_return_order'] = ui_order['is_return_order']
             fields['return_order_id'] = ui_order['return_order_id']
             # fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
 
+            for line in ui_order['lines']:
+                line_dic = line[2]
+                original_line = self.env['pos.order.line'].browse(
+                    line_dic["original_line_id"])
+                original_line.line_qty_returned += \
+                    abs(line_dic.get('qty', 0))
+
         return fields
+
+    @api.model
+    def _payment_fields(self, order, ui_paymentline):
+        fields = super(PosOrder, self)._payment_fields(order, ui_paymentline)
+        if fields['payment_method_id'] == 10001:
+            fields.update({
+                'name': ui_paymentline.get('note'),
+            })
+        return fields
+
+    def add_payment(self, data):
+        self.ensure_one()
+        if data['payment_method_id'] == 10001:
+            # TODO: CHECK WTF l10n_latam_document_number cant filter
+            # TODO: AGREGAR SOLO EL MONTO DEL PAGO EN LA FACTURA, ACTUALMENTE SE AGREGA COMO "PAGO" LA NOTA DE CREDITO
+            # EL PROBLEMA ES QUE SI LA NOTA DE CREDITO NO ES IGUAL AL PAGO HACE UNA DEVOLUCION POR LO TANTO EL "PAGO"
+            # CON NOTA DE CREDITO QUEDA POR ENSIMA DE LA ORDEN (ESTO ES SOLO UN PROBLEMA VISUAL QUE PUEDE CONFUDNIR AL
+            # USUARIO)
+            account_move_credit_note = self.env['pos.order'].search([
+                ('l10n_latam_document_number', '=', data['name'])]).account_move
+            self.env["pos.order.payment.credit.note"].create({
+                'amount': data['amount'],
+                'account_move_id': account_move_credit_note.id,
+                'pos_order_id': data['pos_order_id'],
+                'name': data['name'],
+            })
+            self.amount_paid = sum(self.payment_ids.mapped('amount')) + \
+                               sum(self.payment_credit_note_ids.mapped('amount'))
+        elif not self.is_return_order:
+            super(PosOrder, self).add_payment(data)
+            self.amount_paid = sum(self.payment_ids.mapped('amount')) + \
+                               sum(self.payment_credit_note_ids.mapped('amount'))
+
+    def _process_payment_lines(self, pos_order, order, pos_session, draft):
+        super(PosOrder, self)._process_payment_lines(pos_order, order, pos_session, draft)
+
+        order.amount_paid = sum(order.payment_ids.mapped('amount')) + \
+                            sum(order.payment_credit_note_ids.mapped('amount'))
+
+        if sum(order.payment_ids.mapped('amount')) < 0:
+            order.payment_ids.unlink()
 
     def _prepare_invoice_vals(self):
         """
@@ -154,7 +205,7 @@ class PosOrder(models.Model):
 
     @api.model
     def order_search_from_ui(
-            self, day_limit=0, config_id=0, invoice_id=0, session_id=0):
+            self, day_limit=0, config_id=0, session_id=0):
         invoice_domain = [('type', '=', 'out_invoice')]
         pos_order_domain = []
 
@@ -162,9 +213,6 @@ class PosOrder(models.Model):
             today = fields.Date.from_string(fields.Date.context_today(self))
             limit = today - timedelta(days=day_limit)
             invoice_domain.append(('invoice_date', '>=', limit))
-
-        if invoice_id:
-            invoice_domain.append(('id', '>', invoice_id))
 
         if config_id:
             pos_order_domain.append(('config_id', '=', config_id))
@@ -199,8 +247,7 @@ class PosOrder(models.Model):
             else:
                 order.return_order_id.return_status = order.return_status
                 order_json['return_order_id'] = order.return_order_id.id
-                order_json[
-                    'return_status'] = order.return_order_id.return_status
+                order_json['return_status'] = order.return_order_id.return_status
 
             for line in order.lines:
                 order_lines_json = {
@@ -218,25 +265,49 @@ class PosOrder(models.Model):
             order_list.append(order_json)
         return {"orders": order_list, "orderlines": order_lines_list}
 
-    def test_paid(self):
+    def _is_pos_order_paid(self):
         """A Point of Sale is paid when the sum
         @return: True
         """
         for order in self:
             if not order.l10n_latam_use_documents:
-                return super(PosOrder, self).test_paid()
+                return super(PosOrder, self)._is_pos_order_paid()
             else:
                 if order.is_return_order:
                     return True
                 else:
-                    return super(PosOrder, self).test_paid()
+                    return super(PosOrder, self)._is_pos_order_paid()
 
     def action_pos_order_invoice(self):
         res = super(PosOrder, self).action_pos_order_invoice()
         for order in self:
             if order.is_return_order:
                 order.sudo().write({'state': 'is_return_order'})
+
+            # Reconcile Credit Notes
+            invoice_rec_line = order.account_move.line_ids.filtered(
+                lambda l: l.debit > 0
+            )
+            for credit_note in order.payment_credit_note_ids:
+                credit_note_rec_line = credit_note.account_move_id.line_ids.filtered(
+                    lambda l: l.account_id.id == invoice_rec_line.account_id.id
+                )
+                to_reconcile = invoice_rec_line | credit_note_rec_line
+                to_reconcile.sudo().auto_reconcile_lines()
         return res
+
+    @api.model
+    def credit_note_info_from_ui(self, ncf):
+        # TODO: CHECK WTF l10n_latam_document_number cant filter
+        out_refund_invoice = self.env["pos.order"].search([
+            ('l10n_latam_document_number', '=', ncf),
+            ('is_return_order', '=', True),
+        ]).account_move
+        return {
+            "id": out_refund_invoice.id,
+            "residual": out_refund_invoice.amount_residual,
+            "partner_id": out_refund_invoice.partner_id.id
+        }
 
 
 class PosOrderLine(models.Model):
@@ -260,3 +331,26 @@ class PosOrderLine(models.Model):
             'original_line_id': line[2].get('original_line_id', '')
         })
         return fields_return
+
+
+class PosOrderPaymentCreditNote(models.Model):
+    _name = 'pos.order.payment.credit.note'
+    _rec_name = 'name'
+    _description = 'This is de paid credit notes'
+
+    name = fields.Char()
+    amount = fields.Monetary()
+    account_move_id = fields.Many2one(
+        comodel_name="account.move",
+        string="Credit note",
+        required=False,
+    )
+    currency_id = fields.Many2one(
+        related='account_move_id.currency_id',
+    )
+    pos_order_id = fields.Many2one(
+        comodel_name="pos.order",
+        string="order",
+        required=False,
+    )
+

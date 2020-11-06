@@ -58,58 +58,62 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     input_name: 'ncf',
                     text_input_value: '',
                     confirm: function (input_value) {
-                        var selection_val = $('.pos .popup select.credit_notes').val();
-                        if (selection_val) {
-                            var credit_note = self.pos.db.credit_note_by_id[selection_val]
-                            input_value = credit_note.reference;
-                        }
-
+                        // var selection_val = $('.pos .popup select.credit_notes').val();
+                        // if (selection_val) {
+                        //     var credit_note = self.pos.db.credit_note_by_id[selection_val]
+                        //     input_value = credit_note.reference;
+                        // }
                         var msg_error = "";
+                        rpc.query({
+                            model: 'pos.order',
+                            method: 'credit_note_info_from_ui',
+                            args: [input_value],
+                        }, {})
+                            .then(function (result) {
+                                var residual = parseFloat(result.residual) || 0;
+                                var client = self.pos.get_client();
+                                if (!client){
+                                    client = {
+                                        id: self.pos.config.default_partner_id[0]
+                                    }
+                                }
 
-                        // rpc.query({
-                        //     model: 'pos.order',
-                        //     method: 'credit_note_info_from_ui',
-                        //     args: [input_value],
-                        // }, {})
-                        //     .then(function (result) {
-                        //         var residual = parseFloat(result.residual) || 0;
-                        //         var client = self.pos.get_client();
-                        //         if (result.id === false) {
-                        //             msg_error = _t("La nota de credito no existe.");
-                        //         } else if (!client || (client && client.id !== result.partner_id)){
-                        //             msg_error = _t("La Nota de Crédito Pertenece a Otro Cliente");
-                        //         } else if (residual < 1) {
-                        //             msg_error = _t("El balance de la Nota de Credito es 0.");
-                        //         } else {
-                        //             var order = self.pos.get_order();
-                        //             var payment_method = self.pos.payment_methods_by_id[10001];
-                        //             var paymentline = order.paymentlines.find(function (pl) {
-                        //                 return pl.note == input_value;
-                        //             });
-                        //
-                        //             if (paymentline) {
-                        //                 msg_error = "Esta Nota de Credito ya esta aplicada a la Orden";
-                        //             } else {
-                        //                 order.add_paymentline(payment_method);
-                        //                 order.selected_paymentline.credit_note_id = result.id;
-                        //                 order.selected_paymentline.note = input_value;
-                        //                 order.selected_paymentline.set_amount(residual); // Add paymentline for residual
-                        //                 self.reset_input();
-                        //                 self.order_changes();
-                        //                 self.render_paymentlines();
-                        //                 return false;
-                        //             }
-                        //         }
-                        //         popup_options.text_input_value = input_value;
-                        //         self.gui.show_popup('error', {
-                        //             title: _t("Search") + " Nota de Credito",
-                        //             body: msg_error,
-                        //             disable_keyboard_handler: true,
-                        //             cancel: function () {
-                        //                 self.gui.show_popup('textinput', popup_options);
-                        //             },
-                        //         });
-                        //     });
+                                if (result.id === false) {
+                                    msg_error = _t("La nota de credito no existe.");
+                                } else if (!client  || (client && client.id !== result.partner_id)){
+                                    msg_error = _t("La Nota de Crédito Pertenece a Otro Cliente");
+                                } else if (residual < 1) {
+                                    msg_error = _t("El balance de la Nota de Credito es 0.");
+                                } else {
+                                    var order = self.pos.get_order();
+                                    var payment_method = self.pos.payment_methods_by_id[10001];
+                                    var paymentline = order.paymentlines.find(function (pl) {
+                                        return pl.note === input_value;
+                                    });
+
+                                    if (paymentline) {
+                                        msg_error = "Esta Nota de Credito ya esta aplicada a la Orden";
+                                    } else {
+                                        order.add_paymentline(payment_method);
+                                        order.selected_paymentline.credit_note_id = result.id;
+                                        order.selected_paymentline.note = input_value;
+                                        order.selected_paymentline.set_amount(residual); // Add paymentline for residual
+                                        self.reset_input();
+                                        self.order_changes();
+                                        self.render_paymentlines();
+                                        return false;
+                                    }
+                                }
+                                popup_options.text_input_value = input_value;
+                                self.gui.show_popup('error', {
+                                    title: _t("Search") + " Nota de Credito",
+                                    body: msg_error,
+                                    disable_keyboard_handler: true,
+                                    cancel: function () {
+                                        self.gui.show_popup('textinput', popup_options);
+                                    },
+                                });
+                            });
                     },
                 },
                 credit_card_options = {
@@ -233,7 +237,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     var payment_method = this.pos.payment_methods[i];
 
                     // Evaluamos si es una forma de pago especial que abre un popup
-                    if (payment_method.journal_id[0] === id && payment_method.popup_options) {
+                    if (payment_method.id === id && payment_method.popup_options) {
                         var popup_options = _.extend(_.clone(payment_method.popup_options), {payment_method: payment_method});
                         this.gui.show_popup(popup_options.popup_name || 'alert', popup_options);
                         return false;
@@ -386,6 +390,16 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
             if (self.pos.invoice_journal.l10n_latam_use_documents &&
                 current_order.to_invoice_backend) {
+
+                if (!self.pos.config.default_partner_id) {
+                    this.gui.show_popup('error', {
+                        'title': _t('Not default customer'),
+                        'body': _t('Please config default costumer in POS Configuration'),
+                    });
+                    current_order.to_invoice = true;
+                    current_order.save_to_db();
+                    return false;
+                }
 
                 if (current_order.l10n_latam_document_type.is_vat_required &&
                     !client) {
@@ -615,17 +629,16 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var height = contents.height();
             var new_height = 0;
             var orderlines = [];
-            var payments = [];
+            var payment_ids = [];
 
             if (visibility === 'show') {
                 var sumQty = 0;
-
                 order.lines.forEach(function (line_id) {
                     var line = self.pos.db.line_by_id[line_id];
-
                     orderlines.push(line);
                     sumQty += line.qty - line.line_qty_returned;
                 });
+
                 if (sumQty === 0) {
                     order.refunded = true;
                     order.return_status = 'Fully-Returned';
@@ -636,7 +649,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                         widget: this,
                         order: order,
                         orderlines: orderlines,
-                        payments: payments,
+                        payment_ids: payment_ids,
                     })));
                 new_height = contents.height();
                 if (!this.details_visible) {
@@ -747,7 +760,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
         click_complete_return: function () {
             $.each($('.return_qty'), function (index, value) {
                 var line_quantity_remaining = parseFloat($(value).find('input').attr('line-qty-remaining'));
-
                 $(value).find('input').val(line_quantity_remaining);
             });
         },
@@ -835,12 +847,12 @@ odoo.define('l10n_do_pos.screens', function (require) {
             if (self.options.mode === 'edit') {
                 var _order = self.pos.get_order();
                 var orderlines = _order.get_orderlines();
-
                 for (var n = orderlines.length - 1; n >= 0; n--) {
                     _order.orderlines.remove(orderlines[n]);
                 }
                 refund_order = _order;
             } else {
+                self.gui.show_screen('products');
                 self.pos.add_new_order(); // Crea un nuevo objeto orden del lado del cliente
                 refund_order = self.pos.get_order();
                 refund_order.is_return_order = true;
@@ -908,7 +920,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
     });
 
     popups.include({
-
         /**
          * Show the popup
          * @param {(string, Object)} options - The title or optional configuration for the popup.
