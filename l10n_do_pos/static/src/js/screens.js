@@ -391,6 +391,21 @@ odoo.define('l10n_do_pos.screens', function (require) {
             if (self.pos.invoice_journal.l10n_latam_use_documents &&
                 current_order.to_invoice_backend) {
 
+                var latam_sequence =
+                    self.pos.get_l10n_latam_sequence_by_document_type_id(
+                        current_order.l10n_latam_document_type.id
+                    );
+
+                if (!latam_sequence) {
+                    this.gui.show_popup('error', {
+                        'title': _t('Not fiscal sequence'),
+                        'body': _t('Please configure correct fiscal sequence in invoice journal'),
+                    });
+                    current_order.to_invoice = true;
+                    current_order.save_to_db();
+                    return false;
+                }
+
                 if (!self.pos.config.default_partner_id) {
                     this.gui.show_popup('error', {
                         'title': _t('Not default customer'),
@@ -469,7 +484,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     self.pos.get_l10n_latam_sequence_by_document_type_id(
                         current_order.l10n_latam_document_type.id
                     );
-                self.pos.loading_screen_on();
+                self.pos.loading_screen_on()
                 rpc.query({
                     model: 'ir.sequence',
                     method: 'next_by_id',

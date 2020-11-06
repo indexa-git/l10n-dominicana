@@ -85,7 +85,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             orders.forEach(function (order) {
                 order.number = order.ncf;
                 order.account_move = [order.account_move[0], order.ncf];
-                console.log('order', order)
+                console.log('order', order);
                 self.db.order_by_id[order.id] = order;
             });
         },
@@ -280,7 +280,7 @@ odoo.define('l10n_do_pos.models', function (require) {
                 .$('.js_latam_document_type_name').text(
                     latam_document_type_name);
         },
-        // TODO: check this is importatnt
+        // TODO: check this is meaby its important
         // init_from_JSON: function (json) {
         //     var self = this;
         //     _super_order.init_from_JSON.call(this, json);
@@ -305,6 +305,17 @@ odoo.define('l10n_do_pos.models', function (require) {
         //         });
         //     }
         // },
+        init_from_JSON: function(json) {
+            this.l10n_latam_document_number = json.l10n_latam_document_number;
+            this.l10n_latam_sequence_id = json.l10n_latam_sequence_id;
+            this.l10n_latam_document_type_id = json.l10n_latam_document_type_id;
+            this.to_invoice_backend = json.to_invoice_backend;
+            this.return_status = json.return_status;
+            this.l10n_do_origin_ncf = json.l10n_do_origin_ncf;
+            this.is_return_order = json.is_return_order;
+            this.return_order_id = json.return_order_id;
+            _super_order.init_from_JSON.call(this, json);
+        },
         export_as_JSON: function () {
 
             var self = this;
