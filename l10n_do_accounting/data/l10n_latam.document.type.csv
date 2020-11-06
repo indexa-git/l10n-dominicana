@@ -2,7 +2,7 @@ id,sequence,code,name,report_name,internal_type,l10n_do_ncf_type,doc_code_prefix
 ncf_fiscal_client,10,B,Crédito Fiscal,Factura de Crédito Fiscal,invoice,01,B01,base.do,True,TRUE
 ncf_consumer_supplier,30,B,Consumo,Factura de Consumo,invoice,02,B02,base.do,False,TRUE
 ncf_debit_note_client,40,B,Nota de Débito,Nota de Débito,debit_note,03,B03,base.do,True,TRUE
-ncf_credit_note_client,60,B,Nota de Crédito,Nota de Crédito,credit_note,04,B04,base.do,True,TRUE
+ncf_credit_note_client,60,B,Nota de Crédito,Nota de Crédito,credit_note,04,B04,base.do,False,TRUE
 ncf_informal_supplier,80,B,Comprobante de Compra,Factura de Compra,invoice,11,B11,base.do,True,TRUE
 ncf_unique_client,90,B,Único Ingreso,Factura de Único Ingreso,invoice,12,B12,base.do,False,TRUE
 ncf_minor_supplier,100,B,Gasto Menor,Gasto Menor,invoice,13,B13,base.do,False,TRUE

@@ -52,3 +52,4 @@ Generar una factura de Consumo
 
 .. image:: Media/dominicana11.png
    :align: center
+

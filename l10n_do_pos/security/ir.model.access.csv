@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pos_order_payment_credit_note,l10n_do_pos.pos_order_payment_credit_note,model_pos_order_payment_credit_note,base.group_user,1,1,1,1
