@@ -1,6 +1,3 @@
-Punto de Venta
-==============
-
 **l10n_do_pos**: Incorpora funcionalidades de facturación con NCF al punto de venta.
       
         - WIP: compatibilidad con impresoras fiscales.
@@ -10,7 +7,7 @@ Instalación
 
 Para esto, ir  **Aplicaciones** y busca **l10n_do_pos**. Luego haga clic en **Instalar** el modulo ``l10n_do_pos``.
 
-.. image:: media/dominicana06.PNG
+.. image:: Media/dominicana06.png
    :align: center
 
 Configuracion
@@ -18,53 +15,41 @@ Configuracion
 
 Esta parte configuraremos los numeros de comprobantes fiscales para el punto de ventas.
 
-Para esto, debemos ir a Contabilidad o Facturacion > Configuracion > Diario 
+Para esto, debemos ir a Contabilidad o Facturar > Configuracion > Diario 
 Luego selecionamos el Diario del Punto de Ventas y haga click en Editar.
 
-.. image:: media/dominicana09.png
+.. image:: Media/dominicana07.png
    :align: center
 
-Secuencias NCF generadas
--------------------------
 
-.. image:: media/dominicana10.PNG
-   :align: center
-
-POS 
+POS   
 ---
 
 Ahora iniciaremos con la configuracion del punto de venta para poder realizar la facturación con comprobantes fiscal.
 
 Para esto, iremos al Punto Venta > Configuracion > Puntos de Ventas Luego selecionamos el pos que queremos configurar, haga click a editar.
-Vaya a la seccion Facturas y Recibos, active la opcion > Facturacion Luego selecciona el Diario de Punto de Venta que configuramos.
+Vaya a la seccion Facturas y Recibos, active la opcion > Contabilidad Luego selecciona el Diario de Punto de Venta que configuramos.
 
-.. image:: media/dominicana11.PNG
+.. image:: Media/dominicana08.png
    :align: center
+
+**Una vez hayamos seguido los pasos anteriores nuestra configuracion estaria lista para empezar generar facturas de consumo.**
 
 Generar una factura de Consumo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Primero iniciamos sesion en nuestro pos.
+1: Iniciamos sesion en nuestro pos.
 
-.. image:: media/dominicana12.PNG
+.. image:: Media/dominicana09.png
    :align: center
 
-2.
+2: Seleccionamos los productos y su cantidad, luego procedemos a hacer el pago.
 
-.. image:: media/dominicana13.PNG
+.. image:: Media/dominicana10.png
    :align: center
 
-3.
+3: Seleccionamos el método de pago, registramos el monto y validamos.
 
-.. image:: media/dominicana14.PNG
+.. image:: Media/dominicana11.png
    :align: center
 
-4.
-
-.. image:: media/dominicana15.PNG
-   :align: center
-   
-5.
-
-.. image:: media/dominicana16.PNG
-   :align: center
