@@ -146,18 +146,19 @@ class PosOrder(models.Model):
                 'pos_order_id': data['pos_order_id'],
                 'name': data['name'],
             })
-            self.amount_paid = sum(self.payment_ids.mapped('amount')) + \
-                               sum(self.payment_credit_note_ids.mapped('amount'))
+            self.amount_paid = sum(
+                self.payment_ids.mapped('amount')) + sum(self.payment_credit_note_ids.mapped('amount'))
+
         elif not self.is_return_order:
             super(PosOrder, self).add_payment(data)
-            self.amount_paid = sum(self.payment_ids.mapped('amount')) + \
-                               sum(self.payment_credit_note_ids.mapped('amount'))
+            self.amount_paid = sum(
+                self.payment_ids.mapped('amount')) + sum(self.payment_credit_note_ids.mapped('amount'))
 
     def _process_payment_lines(self, pos_order, order, pos_session, draft):
         super(PosOrder, self)._process_payment_lines(pos_order, order, pos_session, draft)
 
-        order.amount_paid = sum(order.payment_ids.mapped('amount')) + \
-                            sum(order.payment_credit_note_ids.mapped('amount'))
+        order.amount_paid = sum(
+            order.payment_ids.mapped('amount')) + sum(order.payment_credit_note_ids.mapped('amount'))
 
         if sum(order.payment_ids.mapped('amount')) < 0:
             order.payment_ids.unlink()
@@ -353,4 +354,3 @@ class PosOrderPaymentCreditNote(models.Model):
         string="order",
         required=False,
     )
-

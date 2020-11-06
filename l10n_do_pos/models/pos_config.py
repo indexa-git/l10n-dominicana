@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, _
 
 
 class PosConfig(models.Model):
@@ -50,7 +50,6 @@ class PosConfig(models.Model):
         default=10,
     )
 
-
     # TODO: search criteria
     # order_search_criteria = fields.Many2many(
     #     comodel_name='pos.search_criteria',
@@ -64,4 +63,3 @@ class PosConfig(models.Model):
             raise exceptions.ValidationError(_(
                 u"Favor proveer un valor válido para el campo"
                 "'Cantidad de Días Anteriores'!!!"))
-
