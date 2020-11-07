@@ -24,7 +24,6 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from datetime import timedelta
-from odoo.tools import float_is_zero
 
 _logger = logging.getLogger(__name__)
 
@@ -96,7 +95,9 @@ class PosOrder(models.Model):
             elif order.is_return_order:
                 return True
             else:
-                if (not order.lines) or (not order.statement_ids and not order.refund_payment_account_move_line_ids):
+                if (not order.lines) or \
+                        (not order.statement_ids and
+                         not order.refund_payment_account_move_line_ids):
                     return False
                 return True
 
@@ -188,8 +189,9 @@ class PosOrder(models.Model):
             limit = today - timedelta(days=day_limit)
             invoice_domain.append(('date_invoice', '>=', limit))
 
-        if invoice_id:
-            invoice_domain.append(('id', '>', invoice_id))
+        # TODO: Maybe we don't need
+        # if invoice_id:
+        #     invoice_domain.append(('id', '>', invoice_id))
 
         if config_id:
             pos_order_domain.append(('config_id', '=', config_id))
@@ -236,8 +238,12 @@ class PosOrder(models.Model):
                     "price_subtotal_incl": line.price_subtotal_incl,
                     "qty": line.qty,
                     "price_unit": line.price_unit,
-                    "product_id": [line.product_id.id, line.product_id.name],
-                    "line_qty_returned": line.line_qty_returned
+                    "product_id": [
+                        line.product_id.id,
+                        line.product_id.name,
+                        [tax.id for tax in line.tax_ids_after_fiscal_position],
+                    ],
+                    "line_qty_returned": line.line_qty_returned,
                 }
                 order_lines_list.append(order_lines_json)
             # order_json["lines"] = order_lines_list
