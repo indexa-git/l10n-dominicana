@@ -188,8 +188,9 @@ class PosOrder(models.Model):
             limit = today - timedelta(days=day_limit)
             invoice_domain.append(('date_invoice', '>=', limit))
 
-        if invoice_id:
-            invoice_domain.append(('id', '>', invoice_id))
+        # TODO: Maybe we don't need
+        # if invoice_id:
+        #     invoice_domain.append(('id', '>', invoice_id))
 
         if config_id:
             pos_order_domain.append(('config_id', '=', config_id))
@@ -236,8 +237,12 @@ class PosOrder(models.Model):
                     "price_subtotal_incl": line.price_subtotal_incl,
                     "qty": line.qty,
                     "price_unit": line.price_unit,
-                    "product_id": [line.product_id.id, line.product_id.name],
-                    "line_qty_returned": line.line_qty_returned
+                    "product_id": [
+                        line.product_id.id,
+                        line.product_id.name,
+                        [tax.id for tax in line.tax_ids_after_fiscal_position],
+                    ],
+                    "line_qty_returned": line.line_qty_returned,
                 }
                 order_lines_list.append(order_lines_json)
             # order_json["lines"] = order_lines_list
