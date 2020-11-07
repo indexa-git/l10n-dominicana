@@ -24,7 +24,6 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from datetime import timedelta
-from odoo.tools import float_is_zero
 
 _logger = logging.getLogger(__name__)
 
@@ -96,7 +95,9 @@ class PosOrder(models.Model):
             elif order.is_return_order:
                 return True
             else:
-                if (not order.lines) or (not order.statement_ids and not order.refund_payment_account_move_line_ids):
+                if (not order.lines) or \
+                        (not order.statement_ids and
+                         not order.refund_payment_account_move_line_ids):
                     return False
                 return True
 

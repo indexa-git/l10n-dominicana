@@ -570,13 +570,17 @@ class DgiiReport(models.Model):
                     key = payment_id.journal_id.payment_form
                     if key:
                         if self.include_payment(invoice_id, payment_id):
-                            payments_dict[
-                                key] += self._convert_to_user_currency(
-                                    invoice_id.currency_id, invoice_id.date, payment['amount'])
+                            payments_dict[key] += self._convert_to_user_currency(
+                                invoice_id.currency_id,
+                                invoice_id.date,
+                                payment['amount'],
+                            )
                         else:
-                            payments_dict[
-                                'credit'] += self._convert_to_user_currency(
-                                    invoice_id.currency_id, invoice_id.date, payment['amount'])
+                            payments_dict['credit'] += self._convert_to_user_currency(
+                                invoice_id.currency_id,
+                                invoice_id.date,
+                                payment['amount'],
+                            )
                 else:
                     payments_dict['swap'] += self._convert_to_user_currency(
                         invoice_id.currency_id, invoice_id.date, payment['amount'])
