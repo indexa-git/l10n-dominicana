@@ -1083,8 +1083,26 @@ class DgiiReport(models.Model):
 
     def _has_withholding(self, inv):
         """Validate if given invoice has an Withholding tax"""
-        return True if any([inv.income_withholding,
-                            inv.withholded_itbis,
+        tax_line_ids = inv._get_tax_line_ids()
+
+        # Monto ITBIS Retenido por impuesto
+        withholded_itbis = abs(
+            inv._convert_to_local_currency(
+                sum(
+                    tax_line_ids.filtered(
+                        lambda tax: tax.tax_id.purchase_tax_type ==
+                                    'ritbis').mapped('amount'))))
+
+        # Monto Retención Renta por impuesto
+        income_withholding = abs(
+            inv._convert_to_local_currency(
+                sum(
+                    tax_line_ids.filtered(
+                        lambda tax: tax.tax_id.purchase_tax_type ==
+                                    'isr').mapped('amount'))))
+
+        return True if any([income_withholding,
+                            withholded_itbis,
                             inv.third_withheld_itbis,
                             inv.third_income_withholding]) else False
 
