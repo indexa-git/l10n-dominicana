@@ -128,6 +128,7 @@ class AccountInvoiceRefund(models.TransientModel):
                                 })
 
                 refund.write(vals)
+                refund._onchange_invoice_line_ids()
 
         return result
 
