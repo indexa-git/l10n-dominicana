@@ -1110,7 +1110,7 @@ class DgiiReport(models.Model):
                     inv.fiscal_status = 'done'
                     continue
 
-                if self._has_withholding(inv):
+                if self._has_withholding(inv) or not inv.payment_date:
                     inv.fiscal_status = 'normal'
                 else:
                     inv.fiscal_status = 'done'
