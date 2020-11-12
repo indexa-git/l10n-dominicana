@@ -574,6 +574,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     self.$("input:eq(0)").select();
                 }
             } else if (return_entries_ok) {
+                self.gui.show_screen('products');
                 self.create_return_order(return_lines);
             }
         },
@@ -614,8 +615,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 var return_line = return_lines[line_id];
                 var line = self.pos.db.line_by_id[line_id];
                 var product = self.pos.db.get_product_by_id(line.product_id[0]);
+                if (line.product_id.length === 3)
+                    product.taxes_id = line.product_id[2];
                 var qty = parseFloat(return_line.qty);
-
                 refund_order.add_product(product, {
                     quantity: qty,
                     price: line.price_unit,
