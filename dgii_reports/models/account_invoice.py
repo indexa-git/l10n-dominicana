@@ -427,9 +427,10 @@ class AccountInvoice(models.Model):
     fiscal_status = fields.Selection(
         [('normal', 'Partial'), ('done', 'Reported'), ('blocked', 'Not Sent')],
         copy=False,
-        help="* The \'Grey\' status means ...\n"
-        "* The \'Green\' status means ...\n"
-        "* The \'Red\' status means ...\n"
+        help="* The \'Grey\' status means invoice isn't fully reported and may appear "
+             "in other report if a withholding is applied.\n"
+        "* The \'Green\' status means invoice is fully reported.\n"
+        "* The \'Red\' status means invoice is included in a non sent DGII report.\n"
         "* The blank status means that the invoice have"
         "not been included in a report."
     )
