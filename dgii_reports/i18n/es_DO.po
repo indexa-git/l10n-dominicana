@@ -1,29 +1,30 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-# 	* dgii_reports
+#	* dgii_reports
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 12.0+e\n"
+"Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-28 18:13+0000\n"
-"PO-Revision-Date: 2019-03-28 14:20-0400\n"
+"POT-Creation-Date: 2020-11-12 14:12+0000\n"
+"PO-Revision-Date: 2020-11-12 14:12+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
-"Language: es_DO\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: \n"
 
 #. module: dgii_reports
 #: model:ir.model.fields,help:dgii_reports.field_account_invoice__fiscal_status
-msgid ""
-"* The 'Grey' status means ...\n"
-"* The 'Green' status means ...\n"
-"* The 'Red' status means ...\n"
-"* The blank status means that the invoice have not been included in a report."
-msgstr ""
+msgid "* The 'Grey' status means invoice isn't fully reported and may appear in other report if a withholding is applied.\n"
+"* The 'Green' status means invoice is fully reported.\n"
+"* The 'Red' status means invoice is included in a non sent DGII report.\n"
+"* The blank status means that the invoice havenot been included in a report."
+msgstr "* El estado 'Gris' significa que la factura no ha sido reportada completamente y puede aparecer en otro reporte si una retención es aplicada.\n"
+"* El estado 'Verde' significa que la factura fue reportada completamente.\n"
+"* El estado 'Rojo' significa que la factura está incluida en un reporte no enviado.\n"
+"* El estado en blanco significa que la factura no ha sido incluida en ningún reporte."
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
@@ -71,6 +72,16 @@ msgstr ""
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__exterior_binary
 msgid "609 file"
 msgstr "Archivo 609"
+
+#. module: dgii_reports
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
+msgid "<span class=\"fa fa-lightbulb-o fa-lg\" title=\"Info\" aria-label=\"Info\"/>"
+msgstr ""
+
+#. module: dgii_reports
+#: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_regenerate_wizard_form
+msgid "<span class=\"fa fa-warning fa-lg\" title=\"Warning\" aria-label=\"Warning\"/>"
+msgstr ""
 
 #. module: dgii_reports
 #: selection:account.account,account_fiscal_type:0
@@ -205,7 +216,7 @@ msgstr "Tipo de Cuenta Fiscal"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_needaction
 msgid "Action Needed"
-msgstr "Acción Necesaria"
+msgstr "Acción requerida"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_account_invoice__advance_itbis
@@ -225,11 +236,10 @@ msgid "Amount"
 msgstr "Importe"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/account_invoice.py:46
-#: code:addons/dominicana-premium/dgii_reports/models/account_invoice.py:46
+#: code:addons/dgii_reports/models/account_invoice.py:53
 #, python-format
-msgid "An invoice cannot have multiple withholding taxes."
-msgstr "Una factura no puede tener múltiples retenciones"
+msgid "An invoice cannot have multiplewithholding taxes."
+msgstr ""
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_cancel_line__anulation_type
@@ -302,8 +312,7 @@ msgid "Code"
 msgstr "Código"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/account_invoice.py:20
-#: code:addons/dominicana-premium/dgii_reports/models/account_invoice.py:20
+#: code:addons/dgii_reports/models/account_invoice.py:19
 #: sql_constraint:invoice.service.type.detail:0
 #, python-format
 msgid "Code must be unique"
@@ -362,7 +371,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__create_date
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__create_date
 msgid "Created on"
-msgstr "Creado en"
+msgstr "Creado el"
 
 #. module: dgii_reports
 #: selection:account.invoice,payment_form:0
@@ -397,6 +406,11 @@ msgstr "Moneda"
 #: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_form_inherited
 #: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
 msgid "DGII"
+msgstr ""
+
+#. module: dgii_reports
+#: model:ir.model,name:dgii_reports.model_dgii_reports
+msgid "DGII Report"
 msgstr ""
 
 #. module: dgii_reports
@@ -458,7 +472,7 @@ msgstr "Reporte DGII"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__display_name
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__display_name
 msgid "Display Name"
-msgstr "Nombre mostrado"
+msgstr "Nombre a mostrar"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_exterior_line__doc_date
@@ -471,8 +485,7 @@ msgid "Doc Number"
 msgstr "Número documento"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/dgii_report.py:224
-#: code:addons/dominicana-premium/dgii_reports/models/dgii_report.py:224
+#: code:addons/dgii_reports/models/dgii_report.py:303
 #, python-format
 msgid "Error. Date format must be MM/YYYY"
 msgstr "Error. El formato de fecha debe ser MM/AAAA"
@@ -632,7 +645,7 @@ msgstr ""
 
 #. module: dgii_reports
 #: selection:account.account,account_fiscal_type:0
-msgid "I13 - Operaciones gravadas por ventas de Activos Depreciables (categoría 2 y 3)"
+msgid "I13 - Operaciones gravadas por ventas de Activos Depreciables(categoría 2 y 3)"
 msgstr ""
 
 #. module: dgii_reports
@@ -665,7 +678,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__id
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__id
 msgid "ID"
-msgstr "ID (identificación)"
+msgstr ""
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.invoice_supplier_form_inherited
@@ -709,7 +722,7 @@ msgstr "Si está marcado, hay nuevos mensajes que requieren su atención"
 #. module: dgii_reports
 #: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_needaction
 msgid "If checked, new messages require your attention."
-msgstr "Si está marcado, hay nuevos mensajes que requieren su atención."
+msgstr "Si está marcado hay nuevos mensajes que requieren su atención."
 
 #. module: dgii_reports
 #: model:ir.model.fields,help:dgii_reports.field_dgii_reports__message_has_error
@@ -850,7 +863,7 @@ msgstr "Última modificación en"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__write_uid
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__write_uid
 msgid "Last Updated by"
-msgstr "Última actualización de"
+msgstr "Última actualización por"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_report_regenerate_wizard__write_date
@@ -862,7 +875,7 @@ msgstr "Última actualización de"
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports_sale_summary__write_date
 #: model:ir.model.fields,field_description:dgii_reports.field_invoice_service_type_detail__write_date
 msgid "Last Updated on"
-msgstr "Última actualización en"
+msgstr "Última actualización el"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__lea_income
@@ -960,11 +973,9 @@ msgstr "No enviada"
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
-msgid ""
-"Not setting a report as sent may throw inconsistencies\n"
+msgid "Not setting a report as sent may throw inconsistencies\n"
 "                                    regarding invoices withholding dates."
-msgstr ""
-"No marcar el reporte como enviado puede arrojar inconsistencias\n"
+msgstr "No marcar el reporte como enviado puede arrojar inconsistencias\n"
 "relativas a las fechas de retención de las facturas."
 
 #. module: dgii_reports
@@ -1227,8 +1238,7 @@ msgstr "Regenerar Reporte"
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_regenerate_wizard_form
-msgid ""
-"Regenerate this report may cause data variation. Don't do that if you want to preserve equality\n"
+msgid "Regenerate this report may cause data variation. Don't do that if you want to preserve equality\n"
 "                        between the report you sent and the data in your system."
 msgstr "Regenerar este reporte puede causar variación en los datos. No haga esto si desea preservar la igualdad entre el reporte que envió y los datos en el sistema."
 
@@ -1379,7 +1389,7 @@ msgstr "Marcar como enviado"
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__state
 msgid "State"
-msgstr "Estado"
+msgstr "Provincia"
 
 #. module: dgii_reports
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_form_view
@@ -1435,18 +1445,24 @@ msgid "Third Withheld Itbis"
 msgstr "ITBIS Retenido"
 
 #. module: dgii_reports
+#: code:addons/dgii_reports/models/dgii_report.py:17
+#, python-format
+msgid "This module needs pycountry to get 609 ISO 3166 country codes. Please install pycountry on your system. (See requirements file)"
+msgstr ""
+
+#. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__income_type_total
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__sale_type_total
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_exterior_report_line_tree
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_purchase_line_tree
 #: model_terms:ir.ui.view,arch_db:dgii_reports.dgii_report_sale_line_tree
 msgid "Total"
-msgstr "Total"
+msgstr ""
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_unread
 msgid "Unread Messages"
-msgstr "Mensajes por leer"
+msgstr "Mensajes sin leer"
 
 #. module: dgii_reports
 #: model:ir.model.fields,field_description:dgii_reports.field_dgii_reports__message_unread_counter
@@ -1521,14 +1537,9 @@ msgid "You can create your DGII Tax Statements here."
 msgstr "Puedes crear tus declaraciones de la DGII aquí"
 
 #. module: dgii_reports
-#: code:addons/dgii_reports/models/dgii_report.py:57
-#: code:addons/dominicana-premium/dgii_reports/models/dgii_report.py:57
+#: code:addons/dgii_reports/models/dgii_report.py:83
 #: sql_constraint:dgii.reports:0
 #, python-format
 msgid "You cannot have more than one report by period."
 msgstr "No puede tener más de un reporte por periodo."
 
-#. module: dgii_reports
-#: model:ir.model,name:dgii_reports.model_dgii_reports
-msgid "dgii.reports"
-msgstr ""
