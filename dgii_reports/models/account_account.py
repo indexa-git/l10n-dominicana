@@ -52,3 +52,7 @@ class AccountAccount(models.Model):
         ('I39', 'I39 - Servicios sujetos a Retención Personas Físicas'),
         ('ISR', 'Retención de Renta por Terceros')
     ], string='Account Fiscal Type', copy=False)
+
+    isr_retention_type = fields.Selection(
+        selection=lambda self: self.env["account.tax"]._get_isr_retention_type(),
+        string="ISR Withholding Type")
