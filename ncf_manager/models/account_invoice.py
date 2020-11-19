@@ -29,7 +29,7 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 try:
-    from stdnum.do import ncf as ncf_validation, rnc
+    from stdnum.do import ncf as ncf_validation, rnc, cedula
 except (ImportError, IOError) as err:
     _logger.debug(err)
 
@@ -38,6 +38,36 @@ class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
     reference = fields.Char(string='NCF')
+
+    sequence_almost_depleted = fields.Boolean(
+        compute="_compute_sequence_almost_depleted")
+
+    @api.depends('journal_id', 'sale_fiscal_type')
+    def _compute_sequence_almost_depleted(self):
+        for invoice in self:
+            if invoice.journal_id.ncf_control and invoice.type == "out_invoice" and \
+               invoice.sale_fiscal_type:
+                sequence = invoice.journal_id.date_range_ids.filtered(
+                    lambda seq: seq.sale_fiscal_type == invoice.
+                    sale_fiscal_type)
+                if sequence:
+                    if sequence.number_next_actual >= sequence.warning_ncf:
+                        invoice.sequence_almost_depleted = True
+                    else:
+                        invoice.sequence_almost_depleted = False
+
+            if invoice.journal_id.purchase_type in (
+                    'informal', 'minor',
+                    'exterior') and invoice.type == "in_invoice" and \
+                    invoice.journal_id.purchase_type:
+                sequence = invoice.journal_id.date_range_ids.filtered(
+                    lambda seq: seq.sale_fiscal_type == invoice.journal_id.
+                    purchase_type)
+                if sequence:
+                    if sequence.number_next_actual >= sequence.warning_ncf:
+                        invoice.sequence_almost_depleted = True
+                    else:
+                        invoice.sequence_almost_depleted = False
 
     @api.multi
     @api.depends('currency_id', "date_invoice")
@@ -71,8 +101,7 @@ class AccountInvoice(models.Model):
                         inv.ncf_expiration_date = [
                             dr.date_to
                             for dr in inv.journal_id.date_range_ids
-                            if dr.sale_fiscal_type == inv.sale_fiscal_type
-                        ][0]
+                            if dr.sale_fiscal_type == inv.sale_fiscal_type][0]
                     except IndexError:
                         raise ValidationError(
                             _('Error. No sequence range for NCF para: {}')
@@ -168,7 +197,7 @@ class AccountInvoice(models.Model):
     def validate_fiscal_purchase(self):
         NCF = self.reference if self.reference else None
         if NCF and self.journal_id.purchase_type == 'normal':
-            if NCF[-10:-8] == '02':
+            if NCF[-10:-8] == '02' or NCF[1:3] == '32':
                 raise ValidationError(_(
                     "NCF *{}* NO corresponde con el tipo de documento\n\n"
                     "No puede registrar Comprobantes Consumidor Final (02)")
@@ -188,7 +217,7 @@ class AccountInvoice(models.Model):
                     u"para registrar compras Fiscales")
                     .format(self.partner_id.name))
 
-            elif (self.journal_id.ncf_remote_validation and
+            elif (self.journal_id.ncf_remote_validation and len(NCF) == '9' and
                   not ncf_validation.check_dgii(self.partner_id.vat, NCF)):
                 raise ValidationError(_(
                     u"NCF NO pasó validación en DGII\n\n"
@@ -243,12 +272,12 @@ class AccountInvoice(models.Model):
     def _onchange_partner_id(self):
         res = super(AccountInvoice, self)._onchange_partner_id()
         if self.partner_id and self.type == 'out_invoice':
-            if self.journal_id.ncf_control:
+            if self.journal_id.ncf_control and not self.sale_fiscal_type:
                 self.sale_fiscal_type = self.partner_id.sale_fiscal_type
                 self.special_check()
             if not self.partner_id.customer:
                 self.partner_id.customer = True
-        elif self.partner_id and self.type == 'in_invoice':
+        elif self.partner_id and self.type == 'in_invoice' and not self.expense_type:
             self.expense_type = self.partner_id.expense_type
             if not self.partner_id.supplier:
                 self.partner_id.supplier = True
@@ -284,7 +313,8 @@ class AccountInvoice(models.Model):
                     'normal', 'informal',
                     'minor') or self.journal_id.ncf_control:
                 ncf = self.origin_out
-                if not ncf_validation.is_valid(ncf) and ncf[-10:-8] != '04':
+                if not ncf_validation.is_valid(ncf) and (
+                   ncf[-10:-8] != '04' or ncf[1:3] != '34'):
                     raise UserError(_(
                         "NCF mal digitado\n\n"
                         "El comprobante *{}* no tiene la estructura correcta "
@@ -340,7 +370,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def action_invoice_open(self):
         for inv in self:
-            if inv.amount_untaxed == 0:
+            if inv.amount_total == 0:
                 raise UserError(_(
                     u"No se puede validar una factura cuyo monto total sea"
                     " igual a 0."))
@@ -351,6 +381,15 @@ class AccountInvoice(models.Model):
                         u"El cliente [{}]{} no tiene Tipo de comprobante, y es"
                         "requerido para este tipo de factura.").format(
                             inv.partner_id.id, inv.partner_id.name))
+
+                sequence = inv.journal_id.date_range_ids.filtered(
+                    lambda seq: seq.sale_fiscal_type == inv.sale_fiscal_type)
+                if sequence.number_next_actual > sequence.max_number_next:
+                    raise ValidationError(_(
+                        u"Los comprobantes para {} se han agotado,"
+                        " contacte al responsable de contabilidad ({}).").format(
+                        dict(self._fields['sale_fiscal_type'].selection)
+                            .get(self.sale_fiscal_type), sequence.max_number_next))
 
                 if inv.sale_fiscal_type in (
                         "fiscal", "gov", "special") and not inv.partner_id.vat:
@@ -367,6 +406,21 @@ class AccountInvoice(models.Model):
                         u"tener un RNC o Céd para emitir la factura"))
 
             elif inv.type in ("in_invoice", "in_refund"):
+
+                if not inv.reference and inv.journal_id.purchase_type in ('informal',
+                                                                          'minor',
+                                                                          'exterior'):
+                    sequence1 = inv.journal_id.date_range_ids.filtered(
+                        lambda seq: seq.sale_fiscal_type == inv.journal_id.purchase_type
+                    )
+
+                    if sequence1.number_next_actual > sequence1.max_number_next:
+                        raise ValidationError(_(
+                            u"Los comprobantes para {} se han agotado,"
+                            " contacte al responsable de contabilidad ({}).").format(
+                                dict(self._fields['sale_fiscal_type'].selection)
+                                .get(self.sale_fiscal_type), sequence1.max_number_next))
+
                 if inv.reference and inv.journal_id.purchase_type in (
                         'normal', 'informal', 'minor', 'exterior'):
                     if not inv.partner_id.vat:
@@ -445,11 +499,12 @@ class AccountInvoice(models.Model):
         if vals.get("sale_fiscal_type", None) == "fiscal":
 
             partner_id = self.env["res.partner"].browse(vals['partner_id'])
+            vat = str(partner_id.vat)
 
-            if partner_id and partner_id.vat:
-                if len(partner_id.vat) not in [
+            if partner_id and vat and vat.isdigit():
+                if len(vat) not in [
                         9, 11
-                ] or not rnc.check_dgii(str(partner_id.vat)):
+                ] or not (rnc.is_valid(vat) or cedula.is_valid(vat)):
                     raise ValidationError(_(
                         "El RNC del cliente NO pasó la validación en DGII\n\n"
                         "No es posible crear una factura con Crédito Fiscal "

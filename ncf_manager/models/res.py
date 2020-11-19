@@ -193,23 +193,43 @@ class ResPartner(models.Model):
 
     @api.onchange("name")
     def onchange_partner_name(self):
-        if self.name:
-            result = self.validate_rnc_cedula(self.name)
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-                self.is_company = result.get('is_company', False)
-                self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        try:
+            if self.name:
+                result = self.validate_rnc_cedula(self.name)
+                if result:
+                    self.name = result.get('name')
+                    self.vat = result.get('vat')
+                    self.is_company = result.get('is_company', False)
+                    self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        except Exception:
+            res = {
+                'title': _('Warning'),
+                'message': _('Favor modificar contacto.'),
+            }
+
+            return {'warning': res}
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
-        if self.vat:
-            result = self.validate_rnc_cedula(self.vat)
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-                self.is_company = result.get('is_company', False)
-                self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        try:
+            if self.vat:
+                result = self.validate_rnc_cedula(self.vat)
+                if result:
+                    self.name = result.get('name')
+                    self.vat = result.get('vat')
+                    self.is_company = result.get('is_company', False)
+                    self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        except:
+            res = {
+                'title': _('Warning'),
+                'message': _('Favor modificar contacto.'),
+            }
+
+            return {'warning': res}
 
     @api.multi
     def rewrite_due_date(self):
@@ -239,15 +259,6 @@ class ResPartner(models.Model):
             "sale_fiscal_type_list": self.sale_fiscal_type_list,
             "sale_fiscal_type_vat": self.sale_fiscal_type_vat
         }
-
-    @api.model
-    def create(self, vals):
-        vat = vals.get("vat", False)
-        result = self.validate_rnc_cedula(vals["vat"]) if vat else None
-        if result and result.get("name", False):
-            vals.update({"name": result["name"]})
-
-        return super(ResPartner, self).create(vals)
 
     @api.model
     def name_create(self, name):

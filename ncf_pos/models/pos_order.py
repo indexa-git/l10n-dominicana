@@ -322,9 +322,10 @@ class PosOrder(models.Model):
                 out_refund_invoice = self.env["account.invoice"].sudo().search(
                     [('reference', '=', payment_name)])
                 if out_refund_invoice:
-                    move_line_ids = out_refund_invoice.move_id.line_ids
-                    move_line_ids = move_line_ids.filtered(
-                        lambda r: not r.reconciled and r.account_id.
+                    move_line_ids = out_refund_invoice.mapped(
+                        'move_id.line_ids'
+                        ).filtered(
+                            lambda r: not r.reconciled and r.account_id.
                         internal_type == 'receivable' and r.partner_id == self.
                         partner_id.commercial_partner_id)
                     for move_line_id in move_line_ids:

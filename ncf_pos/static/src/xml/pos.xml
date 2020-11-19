@@ -245,15 +245,7 @@
                         <t t-foreach='orderlines' t-as='line'>
                             <tr>
                                 <td style="text-align:left">
-                                    <t t-if="widget.pos.db.get_product_by_id(line.product_id[0])">
-                                        <t t-if="widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
-                                            <t t-esc="line.product_id[1]"/>
-                                            <b style="color: rgb(160, 89, 89);">(Non-Returnable)</b>
-                                        </t>
-                                        <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
-                                            <t t-esc="line.product_id[1]"/>
-                                        </t>
-                                    </t>
+                                    <t t-esc="line.product_id[1]"/>
                                     <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0])">
                                         <t t-esc="line.product_id[1]"/>
                                         <b style="color: rgb(160, 89, 89);">(Unavailable In POS)</b>
