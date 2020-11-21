@@ -164,7 +164,7 @@ class AccountInvoice(models.Model):
                                    compute=_get_rate,
                                    currency_field='currency_id')
 
-    is_nd = fields.Boolean()
+    is_nd = fields.Boolean("Es Nota de Débito")
     origin_out = fields.Char("Afecta a")
     ncf_expiration_date = fields.Date('Válido hasta',
                                       compute="_compute_ncf_expiration_date",
