@@ -455,12 +455,12 @@ class AccountMove(models.Model):
             l10n_latam_document_number = rec.l10n_latam_document_number
             l10n_latam_document_type = rec.l10n_latam_document_type_id.l10n_do_ncf_type
 
-            if l10n_latam_document_number and l10n_latam_document_type == "fiscal":
-                if l10n_latam_document_number[-10:-8] == "02":
+            if l10n_latam_document_number and l10n_latam_document_type[-6:] == "fiscal":
+                if l10n_latam_document_number[1:3] in ("02", "32"):
                     raise ValidationError(
                         _(
                             "NCF *{}* does not correspond with the fiscal type\n\n"
-                            "You cannot register Consumo NCF (02) for purchases"
+                            "You cannot register Consumo NCF (02/32) for purchases"
                         ).format(l10n_latam_document_number)
                     )
 
