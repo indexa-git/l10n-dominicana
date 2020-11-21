@@ -46,25 +46,9 @@ class AccountMove(models.Model):
             ("06", _("06 - Other Incomes")),
         ]
 
-    def _get_l10n_do_expense_type(self):
-        """ Return the list of expense types required by DGII. """
-        # TODO: use self.env["res.partner"]._fields['l10n_do_expense_type'].selection
-        return [
-            ("01", _("01 - Personal")),
-            ("02", _("02 - Work, Supplies and Services")),
-            ("03", _("03 - Leasing")),
-            ("04", _("04 - Fixed Assets")),
-            ("05", _("05 - Representation")),
-            ("06", _("06 - Admitted Deductions")),
-            ("07", _("07 - Financial Expenses")),
-            ("08", _("08 - Extraordinary Expenses")),
-            ("09", _("09 - Cost & Expenses part of Sales")),
-            ("10", _("10 - Assets Acquisitions")),
-            ("11", _("11 - Insurance Expenses")),
-        ]
-
     l10n_do_expense_type = fields.Selection(
-        selection="_get_l10n_do_expense_type", string="Cost & Expense Type",
+        selection=lambda self: self.env["res.partner"]._get_l10n_do_expense_type(),
+        string="Cost & Expense Type",
     )
 
     l10n_do_cancellation_type = fields.Selection(

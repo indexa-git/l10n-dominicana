@@ -15,7 +15,7 @@ En esta versión están disponibles los siguientes módulos:
         - Validación de RNC y Cédula.
         - Validación de Estructura NCF y e-CF.
 
-- [**ncf_pos**](https://github.com/dixgrake/l10n-dominicana/blob/11.0/docs/ncf_pos.rst): Incorpora funcionalidades de facturación con NCF al punto de venta.
+- [**l10n_do_pos**](https://github.com/dixgrake/l10n-dominicana/blob/13.0/docs/l10n_do_pos.rst): Incorpora funcionalidades de facturación con NCF al punto de venta.
       
         - WIP: compatibilidad con impresoras fiscales
   
