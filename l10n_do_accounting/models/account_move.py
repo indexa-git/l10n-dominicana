@@ -64,9 +64,14 @@ class AccountMove(models.Model):
         default=lambda self: self._context.get("l10n_do_income_type", "01"),
     )
 
-    l10n_do_origin_ncf = fields.Char(string="Modifies",)
+    l10n_do_origin_ncf = fields.Char(
+        string="Modifies",
+    )
 
-    ncf_expiration_date = fields.Date(string="Valid until", store=True,)
+    ncf_expiration_date = fields.Date(
+        string="Valid until",
+        store=True,
+    )
     is_debit_note = fields.Boolean()
 
     # DO NOT FORWARD PORT
@@ -96,7 +101,8 @@ class AccountMove(models.Model):
         store=True,
     )
     l10n_do_company_in_contingency = fields.Boolean(
-        string="Company in contingency", compute="_compute_company_in_contingency",
+        string="Company in contingency",
+        compute="_compute_company_in_contingency",
     )
 
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
@@ -141,10 +147,13 @@ class AccountMove(models.Model):
             # DGII doesn't want FechaFirma if Consumo Electronico and < 250K
             # ¯\_(ツ)_/¯
             if has_sign_date:
-                qr_string += "FechaFirma=%s&" % fields.Datetime.context_timestamp(
-                    self.with_context(tz="America/Santo_Domingo"),
-                    invoice.l10n_do_ecf_sign_date,
-                ).strftime("%d-%m-%Y %H:%m:%S")
+                qr_string += (
+                    "FechaFirma=%s&"
+                    % fields.Datetime.context_timestamp(
+                        self.with_context(tz="America/Santo_Domingo"),
+                        invoice.l10n_do_ecf_sign_date,
+                    ).strftime("%d-%m-%Y %H:%m:%S")
+                )
 
             qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code or ""
 
@@ -283,9 +292,9 @@ class AccountMove(models.Model):
 
     @api.constrains("state", "line_ids", "l10n_latam_document_type_id")
     def _check_special_exempt(self):
-        """ Validates that an invoice with a Special Tax Payer type does not contain
-            nor ITBIS or ISC.
-            See DGII Norma 05-19, Art 3 for further information.
+        """Validates that an invoice with a Special Tax Payer type does not contain
+        nor ITBIS or ISC.
+        See DGII Norma 05-19, Art 3 for further information.
         """
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref("base.do")
@@ -316,8 +325,7 @@ class AccountMove(models.Model):
 
     @api.constrains("state")
     def _check_invoice_amount(self):
-        """ Validates that an invoices has an amount greater than 0.
-        """
+        """Validates that an invoices has an amount greater than 0."""
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref("base.do")
             and r.l10n_latam_document_type_id
@@ -330,9 +338,9 @@ class AccountMove(models.Model):
 
     @api.constrains("state", "line_ids", "partner_id")
     def _check_products_export_ncf(self):
-        """ Validates that an invoices with a partner from country != DO
-            and products type != service must have Exportaciones NCF.
-            See DGII Norma 05-19, Art 10 for further information.
+        """Validates that an invoices with a partner from country != DO
+        and products type != service must have Exportaciones NCF.
+        See DGII Norma 05-19, Art 10 for further information.
         """
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref("base.do")
@@ -348,8 +356,10 @@ class AccountMove(models.Model):
                         if p.type != "service"
                     ]
                 ):
-                    if rec.l10n_latam_document_type_id.l10n_do_ncf_type[-6:] != \
-                            "export":
+                    if (
+                        rec.l10n_latam_document_type_id.l10n_do_ncf_type[-6:]
+                        != "export"
+                    ):
                         raise UserError(
                             _(
                                 "Goods sales to overseas customers must have "
@@ -366,11 +376,13 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains("state", "line_ids", "company_id", "l10n_latam_document_type_id", "type")
+    @api.constrains(
+        "state", "line_ids", "company_id", "l10n_latam_document_type_id", "type"
+    )
     def _check_informal_withholding(self):
-        """ Validates an invoice with Comprobante de Compras has 100% ITBIS
-            withholding.
-            See DGII Norma 05-19, Art 7 for further information.
+        """Validates an invoice with Comprobante de Compras has 100% ITBIS
+        withholding.
+        See DGII Norma 05-19, Art 7 for further information.
         """
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref("base.do")
