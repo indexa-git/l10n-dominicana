@@ -376,7 +376,7 @@ class AccountMove(models.Model):
             lambda r: r.company_id.country_id == self.env.ref("base.do")
             and r.l10n_latam_document_type_id
             and r.type == "in_invoice"
-            and r.state in ("draft")
+            and r.state == "draft"
         ):
 
             if rec.l10n_latam_document_type_id.l10n_do_ncf_type[-8:] == "informal":
