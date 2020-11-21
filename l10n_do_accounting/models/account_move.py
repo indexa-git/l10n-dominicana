@@ -366,7 +366,7 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains("state", "line_ids")
+    @api.constrains("state", "line_ids", "company_id", "l10n_latam_document_type_id", "type")
     def _check_informal_withholding(self):
         """ Validates an invoice with Comprobante de Compras has 100% ITBIS
             withholding.
