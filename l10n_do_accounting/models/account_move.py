@@ -290,7 +290,9 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains("state", "line_ids", "l10n_latam_document_type_id")
+    @api.constrains(
+        "state", "line_ids", "l10n_latam_document_type_id", "company_id", "type"
+    )
     def _check_special_exempt(self):
         """Validates that an invoice with a Special Tax Payer type does not contain
         nor ITBIS or ISC.
