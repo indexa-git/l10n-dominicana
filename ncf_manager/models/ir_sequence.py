@@ -32,10 +32,12 @@ class IrSequence(models.Model):
         "gov": "15",
         "special": "14",
         "unico": '12',
+        "export": '16',
         "debit_note": "03",
         "credit_note": "04",
         "minor": "13",
-        "informal": "11"
+        "informal": "11",
+        "exterior": "17",
     }
 
     ncf_control = fields.Boolean("Control de NCF", default=False)
@@ -101,8 +103,17 @@ class IrSequenceDateRange(models.Model):
                 [("credit_note", u"Nota de Crédito"),
                  ("debit_note", u"Nota de Débito"),
                  ("minor", "Gastos Menores"),
-                 ("informal", "Proveedores Informales")])
+                 ("informal", "Comprobante de Compras"),
+                 ("exterior", "Pagos al Exterior"),
+                 ])
 
     sale_fiscal_type = fields.Selection("get_sale_fiscal_type_from_partner",
                                         string="NCF para")
     max_number_next = fields.Integer(u"Número Máximo", default=100)
+
+    warning_ncf = fields.Integer(string="NCF de alerta")
+
+    def set_warning_ncf(self):
+        for seq in self.search([('sale_fiscal_type', '!=', 'False')]):
+            if not seq.warning_ncf:
+                seq.warning_ncf = seq.max_number_next - 50 or 50

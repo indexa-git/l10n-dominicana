@@ -46,8 +46,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 select: function (event, ui) {
                     name_input.val(ui.item.name);
                     rnc_input.val(ui.item.rnc);
-                    sale_fiscal_type_ddl.val("fiscal");
-
+                    if (rnc_input.val().length == 9){
+                        sale_fiscal_type_ddl.val("fiscal");
+                    }
                     return false;
                 },
                 response: function (event, ui) {
@@ -396,7 +397,7 @@ odoo.define('ncf_pos.screens', function (require) {
                     if (clickpos < scroll + new_height + 20) {
                         parent.scrollTop(clickpos - 20);
                     } else {
- parent.scrollTop(parent.scrollTop() + new_height);
+                        parent.scrollTop(parent.scrollTop() + new_height);
                     }
                 } else {
                     parent.scrollTop(parent.scrollTop() - height + new_height);
@@ -432,9 +433,6 @@ odoo.define('ncf_pos.screens', function (require) {
                             if (product == null) {
                                 non_returnable_products = true;
                                 message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
-                            } else if (product.not_returnable) {
-                                non_returnable_products = true;
-                                message = 'Esta orden contiene algunos productos No Retornables, desea devolver los otros productos?';
                             } else if (line.qty - line.line_qty_returned > 0) {
                                 original_orderlines.push(line);
                             }
@@ -624,13 +622,20 @@ odoo.define('ncf_pos.screens', function (require) {
                     discount: line.discount,
                 });
                 refund_order.selected_orderline.original_line_id = line.id;
-                refund_order.amount_total += parseFloat(line.price_subtotal_incl) * qty;
+                var apply_discounts = function (price, discount) {
+                    return price - (price * Math.max(Math.min(discount, 100), 0))/100;
+                };
+                var unit_price_with_discounts = apply_discounts(line.price_unit, line.discount);
+                var unit_price_with_taxes = line.qty ? parseFloat(line.price_subtotal_incl) / line.qty : 0;
+                refund_order.amount_total += unit_price_with_taxes * qty;
                 refund_order.orderlineList.push({
                     line_id: line_id,
                     product_id: line.product_id[0],
                     product_name: line.product_id[1],
                     quantity: qty,
                     price: line.price_subtotal_incl,
+                    price_unit: unit_price_with_discounts,
+                    taxes: qty ? ( unit_price_with_taxes - unit_price_with_discounts ) : 0
                 });
             });
             this.click_confirm();
@@ -709,6 +714,12 @@ odoo.define('ncf_pos.screens', function (require) {
                     input_name: 'ncf',
                     text_input_value: '',
                     confirm: function (input_value) {
+                        var selection_val = $('.pos .popup select.credit_notes').val();
+                        if (selection_val) {
+                            var credit_note = self.pos.db.credit_note_by_id[selection_val]
+                            input_value = credit_note.reference;
+                        }
+
                         var msg_error = "";
 
                         rpc.query({
@@ -718,9 +729,11 @@ odoo.define('ncf_pos.screens', function (require) {
                         }, {})
                             .then(function (result) {
                                 var residual = parseFloat(result.residual) || 0;
-
+                                var client = self.pos.get_client();
                                 if (result.id === false) {
                                     msg_error = _t("La nota de credito no existe.");
+                                } else if (!client || (client && client.id !== result.partner_id)){
+                                    msg_error = _t("La Nota de Crédito Pertenece a Otro Cliente");
                                 } else if (residual < 1) {
                                     msg_error = _t("El balance de la Nota de Credito es 0.");
                                 } else {
@@ -836,15 +849,6 @@ odoo.define('ncf_pos.screens', function (require) {
                     order.orderlineList.forEach(function (obj) {
                         return_product[obj.product_id] = obj.quantity;
                     });
-                    original_order.lines.forEach(function (line_id) {
-                        var line = $.extend({}, self.pos.db.line_by_id[line_id]);
-                        var product = self.pos.db.get_product_by_id(line.product_id[0]);
-
-                        if (product != null && !product.not_returnable && line.qty - line.line_qty_returned > 0) {
-                            line.current_return_qty = return_product[line.product_id[0]] || 0;
-                            original_orderlines.push(line);
-                        }
-                    });
                     self.gui.show_popup('refund_order_popup', {
                         disable_keyboard_handler: true,
                         order: original_order,
@@ -901,6 +905,9 @@ odoo.define('ncf_pos.screens', function (require) {
                 });
 
                 dfd.done(function (next_ncf) {
+                    if (next_ncf && (next_ncf.slice(0,1)) === 'B') {
+                        order.max_ncf_number_reached = false;
+                    }
                     var ncfs = self.pos.db.load('ncfs', []);
 
                     order.ncf = next_ncf;
@@ -947,11 +954,11 @@ odoo.define('ncf_pos.screens', function (require) {
                                 'no tiene RNC o Cédula.\n\nPuede pedir ayuda para que el cliente sea ' +
                                 'registrado correctamente si este desea comprobante fiscal.',
                             };
-                        } else if (invoicing && order.get_total_without_tax() >= 50000) {
+                        } else if (invoicing && order.get_total_without_tax() >= 250000) {
                             popupErrorOptions = {
                                 'title': 'Factura sin Cedula de Cliente',
                                 'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                                'es igual o mayor a RD$50,000.00 o mas',
+                                'es igual o mayor a RD$250,000.00 o mas',
                             };
                         }
                     }
@@ -961,8 +968,18 @@ odoo.define('ncf_pos.screens', function (require) {
                     } else {
                         this.get_next_ncf(order)
                             .done(function () {
-                                self.finalize_validation();
-                                self.orderValidationDate = null;
+                                if (order.ncf === 'max_ncf_number_reached' || order.max_ncf_number_reached) {
+                                    order.max_ncf_number_reached = true;
+                                    self.gui.show_popup('error', {
+                                        'title': 'Limite Máximo para Secuencia de NCF Excedido',
+                                        'body': 'Se a alcanzado el limite maximo para el tipo de NCF seleccionado: ' +
+                                                order.get_client().sale_fiscal_type +
+                                                '. Puede pedir ayuda para extender la secuencia permitida y validar la orden nuevamente.\n\n',
+                                    });
+                                } else {
+                                    self.finalize_validation();
+                                    self.orderValidationDate = null;
+                                }
                             }).fail(function () {
                                 self.gui.show_popup('error', {
                                     'title': 'No se pudo realizar la conexión con el servidor',
@@ -1058,7 +1075,7 @@ odoo.define('ncf_pos.screens', function (require) {
                         popupErrorOptions = {
                             'title': 'Factura sin Cedula de Cliente',
                             'body': 'El cliente debe tener una cedula si el total de la factura ' +
-                            'es igual o mayor a RD$50,000.00 o mas',
+                            'es igual o mayor a RD$250,000.00 o mas',
                         };
                     }
                 }

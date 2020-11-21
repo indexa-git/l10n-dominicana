@@ -67,12 +67,14 @@ class ResPartner(models.Model):
             else:
                 rec.fiscal_info_required = False
 
-    sale_fiscal_type = fields.Selection(
-        [("final", "Consumo"),
-         ("fiscal", u"Crédito Fiscal"),
-         ("gov", "Gubernamental"),
-         ("special", u"Regímenes Especiales"),
-         ("unico", u"Único Ingreso")],
+    sale_fiscal_type = fields.Selection([
+        ("final", "Consumo"),
+        ("fiscal", u"Crédito Fiscal"),
+        ("gov", "Gubernamental"),
+        ("special", u"Regímenes Especiales"),
+        ("unico", u"Único Ingreso"),
+        ("export", u"Exportaciones"),
+    ],
         string="Tipo de comprobante",
         default="final")
 
@@ -93,13 +95,16 @@ class ResPartner(models.Model):
     }, {
         "id": "unico",
         "name": "Único Ingreso"
+    }, {
+        "id": "export",
+        "name": "Exportaciones"
     }]
 
     sale_fiscal_type_vat = {
         "rnc": ["fiscal", "gov", "special"],
         "ced": ["final", "fiscal"],
         "other": ["final"],
-        "no_vat": ["final", "unico"]
+        "no_vat": ["final", "unico", "export"]
     }
 
     expense_type = fields.Selection(
@@ -147,9 +152,15 @@ class ResPartner(models.Model):
             if number.isdigit() and len(number) in (9, 11):
                 message = "El contacto: %s, esta registrado con este RNC/Céd."
                 self_id = self.id if self.id else 0
-                contact = self.search([('vat', '=', number),
-                                       ('id', '!=', self_id),
-                                       ('parent_id', '=', False)])
+                # Considering multi-company scenarios
+                domain = [('vat', '=', number),
+                          ('id', '!=', self_id),
+                          ('parent_id', '=', False)]
+                if self.sudo().env.ref('base.res_partner_rule').active:
+                    domain.extend([('company_id', '=',
+                                    self.env.user.company_id.id)])
+                contact = self.search(domain)
+
                 if contact:
                     name = contact.name if len(contact) == 1 else ", ".join(
                         [x.name for x in contact if x.name])
@@ -176,29 +187,49 @@ class ResPartner(models.Model):
                     result['vat'] = dgii_vals.get('rnc')
 
                     if model == 'res.partner':
-                        result['is_company'] = True if is_rnc else False,
+                        result['is_company'] = True if is_rnc else False
                         result['sale_fiscal_type'] = "fiscal"
             return result
 
     @api.onchange("name")
     def onchange_partner_name(self):
-        if self.name:
-            result = self.validate_rnc_cedula(self.name)
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-                self.is_company = result.get('is_company', False)
-                self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        try:
+            if self.name:
+                result = self.validate_rnc_cedula(self.name)
+                if result:
+                    self.name = result.get('name')
+                    self.vat = result.get('vat')
+                    self.is_company = result.get('is_company', False)
+                    self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        except Exception:
+            res = {
+                'title': _('Warning'),
+                'message': _('Favor modificar contacto.'),
+            }
+
+            return {'warning': res}
 
     @api.onchange("vat")
     def onchange_partner_vat(self):
-        if self.vat:
-            result = self.validate_rnc_cedula(self.vat)
-            if result:
-                self.name = result.get('name')
-                self.vat = result.get('vat')
-                self.is_company = result.get('is_company', False)
-                self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        try:
+            if self.vat:
+                result = self.validate_rnc_cedula(self.vat)
+                if result:
+                    self.name = result.get('name')
+                    self.vat = result.get('vat')
+                    self.is_company = result.get('is_company', False)
+                    self.sale_fiscal_type = result.get('sale_fiscal_type')
+
+        except:
+            res = {
+                'title': _('Warning'),
+                'message': _('Favor modificar contacto.'),
+            }
+
+            return {'warning': res}
 
     @api.multi
     def rewrite_due_date(self):
@@ -228,15 +259,6 @@ class ResPartner(models.Model):
             "sale_fiscal_type_list": self.sale_fiscal_type_list,
             "sale_fiscal_type_vat": self.sale_fiscal_type_vat
         }
-
-    @api.model
-    def create(self, vals):
-        vat = vals.get("vat", False)
-        result = self.validate_rnc_cedula(vals["vat"]) if vat else None
-        if result and result.get("name", False):
-            vals.update({"name": result["name"]})
-
-        return super(ResPartner, self).create(vals)
 
     @api.model
     def name_create(self, name):

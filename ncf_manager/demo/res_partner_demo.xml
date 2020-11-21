@@ -128,4 +128,22 @@
         <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_10.png"/>
     </record>
 
+    <!-- For EXPORTACIONES NCF's testing -->
+
+    <record id="res_partner_demo_11" model="res.partner">
+        <field name="name">The Coca-Cola Company</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.us"/>
+        <field name="sale_fiscal_type">export</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_11.png"/>
+    </record>
+
+    <record id="res_partner_demo_12" model="res.partner">
+        <field name="name">AmBev</field>
+        <field eval="0" name="is_company"/>
+        <field name="country_id" ref="base.br"/>
+        <field name="sale_fiscal_type">export</field>
+        <field name="image" type="base64" file="ncf_manager/static/img/res_partner_demo_12.png"/>
+    </record>
+
 </odoo>

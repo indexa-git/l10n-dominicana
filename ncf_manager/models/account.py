@@ -25,16 +25,17 @@ class AccountJournal(models.Model):
 
     @api.depends("ncf_control")
     def check_ncf_ready(self):
-        self.ensure_one()
-        self.ncf_ready = len(self.date_range_ids) > 1
+        for record in self:
+            record.ncf_ready = len(record.date_range_ids) > 1
 
-    purchase_type = fields.Selection(
-        [("normal", "Compras Fiscales"),
-         ("minor", "Gastos Menores"),
-         ("informal", "Proveedores Informales"),
-         ("exterior", "Remesas al Exterior"),
-         ("import", "Importaciones"),
-         ("others", "Otros (sin NCF)")],
+    purchase_type = fields.Selection([
+        ("normal", "Compras Fiscales"),
+        ("minor", "Gastos Menores"),
+        ("informal", "Comprobante de Compras"),
+        ("exterior", "Pagos al Exterior"),
+        ("import", "Importaciones"),
+        ("others", "Otros (sin NCF)"),
+    ],
         string="Tipo de Compra",
         default="others")
 
@@ -86,24 +87,28 @@ class AccountJournal(models.Model):
 class AccountTax(models.Model):
     _inherit = 'account.tax'
 
+    @api.model
+    def _get_isr_retention_type(self):
+        return [('01', 'Alquileres'),
+                ('02', 'Honorarios por Servicios'),
+                ('03', 'Otras Rentas'),
+                ('04', 'Rentas Presuntas'),
+                ('05', u'Intereses Pagados a Personas Jurídicas'),
+                ('06', u'Intereses Pagados a Personas Físicas'),
+                ('07', u'Retención por Proveedores del Estado'),
+                ('08', u'Juegos Telefónicos')]
+
     purchase_tax_type = fields.Selection(
         [('itbis', 'ITBIS Pagado'),
          ('ritbis', 'ITBIS Retenido'),
          ('isr', 'ISR Retenido'),
-         ('rext', 'Remesas al Exterior (Ley 253-12)'),
+         ('rext', 'Pagos al Exterior (Ley 253-12)'),
          ('none', 'No Deducible')],
         default="none",
         string="Tipo de Impuesto en Compra")
 
     isr_retention_type = fields.Selection(
-        [('01', 'Alquileres'),
-         ('02', 'Honorarios por Servicios'),
-         ('03', 'Otras Rentas'),
-         ('04', 'Rentas Presuntas'),
-         ('05', u'Intereses Pagados a Personas Jurídicas'),
-         ('06', u'Intereses Pagados a Personas Físicas'),
-         ('07', u'Retención por Proveedores del Estado'),
-         ('08', u'Juegos Telefónicos')],
+        selection=_get_isr_retention_type,
         string="Tipo de Retención en ISR")
 
 

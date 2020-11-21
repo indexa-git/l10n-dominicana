@@ -30,7 +30,6 @@ odoo.define('ncf_pos.models', function (require) {
         ['default_partner_id', 'print_pdf', 'ncf_control', 'order_search_criteria', 'seller_and_cashier_ticket']
     );
     models.load_fields('res.company', ['street', 'street2', 'city', 'state_id', 'country_id', 'zip']);
-    models.load_fields('product.product', 'not_returnable');
     models.load_models([{
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'invoice_id',
@@ -95,8 +94,39 @@ odoo.define('ncf_pos.models', function (require) {
             });
         },
     }, {
+        model: 'account.invoice',
+        fields: ['number', 'reference', 'partner_id', 'residual'],
+        domain: function (self) {
+            var today = new Date();
+            var validation_date = new Date(today);
+            validation_date.setDate(today.getDate() - self.config.credit_notes_number_of_days);
+
+            return [
+                ['type', '=', 'out_refund'], ['state', '!=', 'paid'],
+                ['date_invoice', '>', validation_date.toISOString()],
+            ];
+        },
+        loaded: function (self, invoices) {
+            var credit_note_by_id = {};
+            var credit_notes_by_partner_id = {};
+            var partner_id = false;
+
+            _.each(invoices, function (invoice) {
+                partner_id = invoice.partner_id[0];
+                invoice.partner_id = self.db.get_partner_by_id(partner_id);
+
+                credit_note_by_id[invoice.id] = invoice;
+
+                credit_notes_by_partner_id[partner_id] = credit_notes_by_partner_id[partner_id] || [];
+                credit_notes_by_partner_id[partner_id].push(invoice);
+            });
+
+            self.db.credit_note_by_id = credit_note_by_id;
+            self.db.credit_notes_by_partner_id = credit_notes_by_partner_id;
+        },
+    }, {
         model: 'pos.order.line',
-        fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_tax', 'price_subtotal_incl',
+        fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_subtotal_incl',
             'price_subtotal', 'line_qty_returned'],
         domain: function (self) {
             var orders = self.db.pos_all_orders;

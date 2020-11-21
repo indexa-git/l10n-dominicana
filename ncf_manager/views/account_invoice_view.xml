@@ -3,12 +3,23 @@
     <record id="ncf_manager_account_invoice_form" model="ir.ui.view">
         <field name="name">ncf manager account invoice form</field>
         <field name="model">account.invoice</field>
+        <field name="priority">99</field>
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="arch" type="xml">
             <button name="action_invoice_sent" position="attributes">
                 <attribute name="attrs"></attribute>
                 <attribute name="icon">fa-paper-plane</attribute>
             </button>
+
+
+
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                 <field name="sequence_almost_depleted" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('sequence_almost_depleted','=',False)]}">
+                    Los comprobantes de este tipo están por agotarse
+                </div>
+            </xpath>
+
 
             <form>
                 <field name="ncf_control" invisible="1"/>
@@ -74,8 +85,17 @@
     <record id="ncf_manager_supplier_account_invoice_form" model="ir.ui.view">
         <field name="name">ncf manager supplier account invoice form</field>
         <field name="model">account.invoice</field>
+        <field name="priority">99</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
+
+
+            <xpath expr="/form/div[hasclass('alert')]" position="after">
+                 <field name="sequence_almost_depleted" invisible="1"/>
+                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('sequence_almost_depleted','=',False)]}">
+                    Los comprobantes de este tipo estan por agotarse
+                </div>
+            </xpath>
 
             <xpath expr="//button[@name='%(account.action_account_invoice_refund)d']" position="attributes">
                 <attribute name="string">Aplicar NC o ND</attribute>
@@ -96,18 +116,19 @@
             <xpath expr="//field[@name='reference']" position="attributes">
                 <attribute name="string">NCF</attribute>
                 <attribute name="attrs">{
-                'size': 19, 'invisible': [('purchase_type', 'not in', ['normal','minor','informal'])],
+                'invisible': [('purchase_type', 'not in', ['normal','minor','informal', 'exterior'])],
                 'required': [('purchase_type', '=', 'normal')],
-                'readonly': [('state', '!=', 'draft'), ('purchase_type', '=', 'normal')]}</attribute>
+                'readonly': ['|', '&amp;',('state', '!=', 'draft'),('purchase_type', '=', 'normal'),('purchase_type', 'in', ['minor','informal', 'exterior'])]}
+                </attribute>
             </xpath>
 
             <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='other_info']/group[1]/group[1]/field[@name='name']" position="replace"/>
             <field name="journal_id" position="replace"/>
             <field name="reference" position="after">
                 <field name="origin_out" groups="base.group_user" attrs="{
-                            'invisible': ['|', ('type', '!=', 'in_refund'), ('purchase_type', 'not in', ['normal', 'minor', 'informal'])],
+                            'invisible': ['|', ('type', '!=', 'in_refund'), ('purchase_type', 'not in', ['normal', 'minor', 'informal', 'exterior'])],
                             'readonly': [('state', '!=', 'draft')],
-                            'required': [('type', '=', 'in_refund'), ('purchase_type', 'in', ['normal', 'minor', 'informal'])]}"/>
+                            'required': [('type', '=', 'in_refund'), ('purchase_type', 'in', ['normal', 'minor', 'informal', 'exterior'])]}"/>
                 <field name="name"/>
             </field>
             <field name="reference" position="before">
@@ -116,8 +137,8 @@
                        options="{'no_create': True, 'no_open': True}"
                        attrs="{'readonly':[('state', '!=', 'draft')]}"/>
                 <field name="expense_type" attrs="{
-                       'invisible':[('purchase_type', 'not in', ['normal', 'minor', 'informal'])],
-                       'required': [('purchase_type', 'in', ['normal', 'minor', 'informal'])],
+                       'invisible':[('purchase_type', 'not in', ['normal', 'minor', 'informal', 'exterior'])],
+                       'required': [('purchase_type', 'in', ['normal', 'minor', 'informal', 'exterior'])],
                        'readonly': [('state', '!=', 'draft')]}"/>
             </field>
 

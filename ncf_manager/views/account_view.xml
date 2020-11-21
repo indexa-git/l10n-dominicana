@@ -15,7 +15,7 @@
 
             <field name="type" position="after">
                 <field name="ncf_control" attrs="{'invisible': [('type','!=','sale')]}"/>
-                <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="radio"/>
+                <field name="purchase_type" attrs="{'invisible': [('type','!=','purchase')]}" widget="selection"/>
                 <field name="ncf_remote_validation" attrs="{'invisible': [('type','!=','purchase')]}"/>
                 <field name="payment_form" attrs="{'invisible': [('type','not in',('cash','bank'))], 'required': [('type','in',('cash','bank'))]}"/>
             </field>
@@ -32,6 +32,7 @@
                             <field name="date_to"/>
                             <field name="number_next_actual"/>
                             <field name="max_number_next"/>
+                            <field name="warning_ncf"/>
                             <field name="sale_fiscal_type"/>
                         </tree>
                     </field>
