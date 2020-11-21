@@ -30,7 +30,7 @@
                 <div class="col-7 ml-auto">
                     <div style="font-size: 20px">
                         <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
-                            <strong>
+                            <strong t-if="not o.is_nd">
                                 Factura de
                                 <span t-field="o.sale_fiscal_type"/>
                             </strong>
@@ -38,6 +38,7 @@
                         <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
                         <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
                         <span t-if="o.type == 'out_refund'">Nota de Crédito</span>
+                        <span t-if="o.is_nd">Nota de Débito</span>
                         <span t-if="o.type == 'in_refund'">NC de Proveedor</span>
                         <span t-if="o.type == 'in_invoice'">Factura de Proveedor</span>
                         <br/>
