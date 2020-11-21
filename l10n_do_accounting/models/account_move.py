@@ -77,7 +77,7 @@ class AccountMove(models.Model):
     # DO NOT FORWARD PORT
     cancellation_type = fields.Selection(
         selection="_get_l10n_do_cancellation_type",
-        string="Cancellation Type",
+        string="Cancellation Type (deprecated)",
         copy=False,
     )
     is_ecf_invoice = fields.Boolean(
