@@ -464,27 +464,27 @@ class AccountMove(models.Model):
                         ).format(l10n_latam_document_number)
                     )
 
-                try:
-                    from stdnum.do import ncf as ncf_validation
-
-                    if len(
-                        l10n_latam_document_number
-                    ) == "11" and not ncf_validation.check_dgii(
-                        rec.partner_id.vat, l10n_latam_document_number
-                    ):
-                        raise ValidationError(
-                            _(
-                                "NCF rejected by DGII\n\n"
-                                "NCF *{}* of supplier *{}* was rejected by DGII's "
-                                "validation service. Please validate if the NCF and "
-                                "the supplier RNC are type correctly. Otherwhise "
-                                "your supplier might not have this sequence approved "
-                                "yet."
-                            ).format(l10n_latam_document_number, rec.partner_id.name)
-                        )
-
-                except (ImportError, IOError) as err:
-                    _logger.debug(err)
+                # try:
+                #     from stdnum.do import ncf as ncf_validation
+                #
+                #     if len(
+                #         l10n_latam_document_number
+                #     ) == "11" and not ncf_validation.check_dgii(
+                #         rec.partner_id.vat, l10n_latam_document_number
+                #     ):
+                #         raise ValidationError(
+                #             _(
+                #                 "NCF rejected by DGII\n\n"
+                #                 "NCF *{}* of supplier *{}* was rejected by DGII's "
+                #                 "validation service. Please validate if the NCF and "
+                #                 "the supplier RNC are type correctly. Otherwhise "
+                #                 "your supplier might not have this sequence approved "
+                #                 "yet."
+                #             ).format(l10n_latam_document_number, rec.partner_id.name)
+                #         )
+                #
+                # except (ImportError, IOError) as err:
+                #     _logger.debug(err)
 
     def _reverse_move_vals(self, default_values, cancel=True):
 
