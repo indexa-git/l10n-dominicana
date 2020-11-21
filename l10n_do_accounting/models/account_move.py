@@ -536,6 +536,20 @@ class AccountMove(models.Model):
             ]
         return res
 
+    def post(self):
+
+        res = super(AccountMove, self).post()
+
+        non_payer_type_invoices = self.filtered(
+            lambda inv: inv.company_id.country_id == self.env.ref("base.do")
+            and inv.l10n_latam_use_documents
+            and not inv.partner_id.l10n_do_dgii_tax_payer_type
+        )
+        if non_payer_type_invoices:
+            raise ValidationError(_("Fiscal invoices require partner fiscal type"))
+
+        return res
+
     def init(self):  # DO NOT FORWARD PORT
         cancelled_invoices = self.search(
             [
