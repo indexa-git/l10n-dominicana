@@ -336,7 +336,14 @@ class AccountMove(models.Model):
                     _("You cannot validate an invoice with a total amount equals to 0.")
                 )
 
-    @api.constrains("state", "line_ids", "partner_id")
+    @api.constrains(
+        "state",
+        "line_ids",
+        "partner_id",
+        "company_id",
+        "type",
+        "l10n_latam_document_type_id",
+    )
     def _check_products_export_ncf(self):
         """Validates that an invoices with a partner from country != DO
         and products type != service must have Exportaciones NCF.
