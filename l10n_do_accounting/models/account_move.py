@@ -171,11 +171,10 @@ class AccountMove(models.Model):
                 _("You cannot cancel multiple fiscal invoices at a time.")
             )
 
-        ecf_invoices = self.filtered(lambda i: i.is_ecf_invoice)
-        if ecf_invoices and not self.env.user.has_group(
-            "l10n_do_accounting.group_electronic_invoice_cancel"
+        if fiscal_invoice and not self.env.user.has_group(
+            "l10n_do_accounting.group_l10n_do_fiscal_invoice_cancel"
         ):
-            raise AccessError(_("You are not allowed to cancel Electronic documents"))
+            raise AccessError(_("You are not allowed to cancel Fiscal Invoices"))
 
         if fiscal_invoice:
             action = self.env.ref(
