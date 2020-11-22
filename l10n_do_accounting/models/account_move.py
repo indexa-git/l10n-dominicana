@@ -324,13 +324,14 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.constrains("state", "company_id", "type")
+    @api.constrains("state", "company_id", "type", "amount_untaxed_signed")
     def _check_invoice_amount(self):
         """Validates that an invoices has an amount greater than 0."""
         for rec in self.filtered(
             lambda r: r.company_id.country_id == self.env.ref("base.do")
             and r.company_id
             and r.type == "out_invoice"
+            and r.state != "draft"
         ):
             if rec.amount_untaxed_signed == 0:
                 raise UserError(
