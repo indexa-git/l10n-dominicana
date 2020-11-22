@@ -72,8 +72,8 @@
                             <t t-if="o.is_ecf_invoice">Vencimiento e-NCF:</t>
                             <t t-else="">Válida hasta:</t>
                         </strong>
-                        <span>31/12/2021</span>
-                        <!-- <span t-field="o.ncf_expiration_date"/> -->
+                         <span id="ecf_exp_date"
+                               t-field="o.company_id.l10n_do_ncf_exp_date"/>
                     </span>
                 </div>
             </div>
