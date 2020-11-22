@@ -80,7 +80,7 @@ class AccountMoveReversal(models.TransientModel):
                     "documents at a time."
                 )
             )
-        else:
+        if move_ids_use_document:
             res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
 
         return res
