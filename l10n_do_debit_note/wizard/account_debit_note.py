@@ -40,15 +40,21 @@ class AccountDebitNote(models.TransientModel):
         string="Action",
     )
     l10n_do_percentage = fields.Float(
-        help="Debit Note based on origin invoice percentage", string="Percentage",
+        help="Debit Note based on origin invoice percentage",
+        string="Percentage",
     )
     l10n_do_amount = fields.Float(
-        help="Debit Note based fixed amount", string="Amount",
+        help="Debit Note based fixed amount",
+        string="Amount",
     )
     l10n_do_account_id = fields.Many2one(
-        "account.account", string="Account", domain=[("deprecated", "=", False)],
+        "account.account",
+        string="Account",
+        domain=[("deprecated", "=", False)],
     )
-    l10n_latam_document_number = fields.Char(string="Document Number",)
+    l10n_latam_document_number = fields.Char(
+        string="Document Number",
+    )
     l10n_do_ecf_modification_code = fields.Selection(
         selection=lambda self: self.env[
             "account.move"
@@ -56,7 +62,9 @@ class AccountDebitNote(models.TransientModel):
         string="e-CF Modification Code",
         copy=False,
     )
-    is_ecf_invoice = fields.Boolean(string="Is Electronic Invoice",)
+    is_ecf_invoice = fields.Boolean(
+        string="Is Electronic Invoice",
+    )
 
     @api.model
     def default_get(self, fields):
@@ -69,11 +77,17 @@ class AccountDebitNote(models.TransientModel):
             else self.env["account.move"]
         )
 
-        ecf_invoices = move_ids.filtered(lambda i: i.is_ecf_invoice)
-        if ecf_invoices and not self.env.user.has_group(
-            "l10n_do_debit_note.group_electronic_debit_note"
+        if not move_ids:
+            raise UserError(_("No invoice found for this operation"))
+
+        move_ids_use_document = move_ids.filtered(
+            lambda move: move.l10n_latam_use_documents
+            and move.company_id.l10n_do_country_code == "DO"
+        )
+        if move_ids_use_document and not self.env.user.has_group(
+            "l10n_do_debit_note.group_l10n_do_debit_note"
         ):
-            raise AccessError(_("You are not allowed to issue Electronic Debit Notes"))
+            raise AccessError(_("You are not allowed to issue Debit Notes"))
 
         # Setting default account
         journal = move_ids[0].journal_id
@@ -96,14 +110,9 @@ class AccountDebitNote(models.TransientModel):
                 )
             )
 
-        move_ids_use_document = move_ids.filtered(
-            lambda move: move.l10n_latam_use_documents
-            and move.company_id.l10n_do_country_code == "DO"
-        )
-
         if len(move_ids_use_document) > 1:
             raise UserError(
-                _("You cannot create Debit Notes from multiple " "documents at a time.")
+                _("You cannot create Debit Notes from multiple documents at a time.")
             )
         else:
             res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
