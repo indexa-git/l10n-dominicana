@@ -17,6 +17,7 @@ class AccountJournal(models.Model):
             return (
                 ["e-debit_note"]
                 if self.company_id.l10n_do_ecf_issuer
+                and not invoice.l10n_do_company_in_contingency
                 else ["debit_note"]
             )
 
