@@ -232,7 +232,7 @@
                     <tr>
                         <td>
                             <strong>Fecha Firma Digital:</strong>
-                            <span t-esc="o.l10n_do_ecf_sign_date.strftime('%d-%m-%Y')"/>
+                            <span t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
                         </td>
                     </tr>
                 </table>
