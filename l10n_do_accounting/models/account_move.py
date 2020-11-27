@@ -140,7 +140,7 @@ class AccountMove(models.Model):
             qr_string += "FechaEmision=%s&" % (
                 invoice.invoice_date or fields.Date.today()
             ).strftime("%d-%m-%Y")
-            qr_string += "MontoTotal=%s&" % ("%f" % invoice.amount_total_signed).rstrip(
+            qr_string += "MontoTotal=%s&" % ("%f" % abs(invoice.amount_total_signed)).rstrip(
                 "0"
             ).rstrip(".")
 
