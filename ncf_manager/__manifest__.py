@@ -44,6 +44,7 @@
     'data': [
         'data/ir_config_parameters.xml',
         'data/ir_cron_data.xml',
+        'security/res_groups.xml',
         'security/ir.model.access.csv',
         'wizard/account_invoice_cancel_view.xml',
         'wizard/account_invoice_refund.xml',
