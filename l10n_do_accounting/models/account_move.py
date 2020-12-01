@@ -187,11 +187,14 @@ class AccountMove(models.Model):
 
     def action_reverse(self):
 
-        ecf_invoices = self.filtered(lambda i: i.is_ecf_invoice)
-        if ecf_invoices and not self.env.user.has_group(
-            "l10n_do_accounting.group_electronic_credit_note"
+        fiscal_invoice = self.filtered(
+            lambda inv: inv.l10n_latam_country_code == "DO"
+            and self.type[-6:] in ("nvoice", "refund")
+        )
+        if fiscal_invoice and not self.env.user.has_group(
+            "l10n_do_accounting.group_l10n_do_fiscal_credit_note"
         ):
-            raise AccessError(_("You are not allowed to issue Electronic Credit Notes"))
+            raise AccessError(_("You are not allowed to issue Fiscal Credit Notes"))
 
         return super(AccountMove, self).action_reverse()
 
