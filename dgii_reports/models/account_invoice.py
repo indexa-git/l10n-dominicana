@@ -153,10 +153,9 @@ class AccountInvoice(models.Model):
                     good_amount)
 
     @api.multi
-    @api.depends('invoice_line_ids', 'invoice_line_ids.product_id', 'state')
+    @api.depends('tax_line_ids', 'state', 'type')
     def _compute_isr_withholding_type(self):
         """Compute ISR Withholding Type
-
         Keyword / Values:
         01 -- Alquileres
         02 -- Honorarios por Servicios
@@ -167,15 +166,20 @@ class AccountInvoice(models.Model):
         07 -- Retención por Proveedores del Estado
         08 -- Juegos Telefónicos
         """
-        for inv in self:
-            if inv.type == 'in_invoice' and inv.state != 'draft':
-                isr = [
-                    tax_line.tax_id
-                    for tax_line in inv.tax_line_ids
-                    if tax_line.tax_id.purchase_tax_type == 'isr'
-                ]
-                if isr:
-                    inv.isr_withholding_type = isr.pop(0).isr_retention_type
+        for inv in self.filtered(
+                lambda i: i.type == "in_invoice" and i.state == "paid"):
+
+            tax_line_id = inv.tax_line_ids.filtered(
+                lambda t: t.tax_id.purchase_tax_type == "isr")
+            if tax_line_id:  # invoice tax lines use case
+                inv.isr_withholding_type = tax_line_id[0].tax_id.isr_retention_type
+            else:  # in payment/journal entry use case
+                aml_ids = self.env["account.move"].browse(
+                    p["move_id"] for p in inv._get_invoice_payment_widget()
+                ).mapped("line_ids").filtered(
+                    lambda aml: aml.account_id.isr_retention_type)
+                if aml_ids:
+                    inv.isr_withholding_type = aml_ids[0].account_id.isr_retention_type
 
     def _get_payment_string(self):
         """Compute Vendor Bills payment method string
@@ -278,56 +282,51 @@ class AccountInvoice(models.Model):
                     ]
 
     @api.multi
-    @api.depends('state')
+    @api.depends('state', 'type')
     def _compute_withheld_taxes(self):
         for inv in self:
             if inv.state == 'paid':
                 inv.third_withheld_itbis = 0
                 inv.third_income_withholding = 0
-                witheld_itbis_types = ['A34', 'A36']
-                witheld_isr_types = ['ISR', 'A38']
+                withholding_amounts_dict = {"A34": 0, "A36": 0, "ISR": 0, "A38": 0}
 
                 if inv.type == 'in_invoice':
                     tax_line_ids = inv._get_tax_line_ids()
 
                     # Monto ITBIS Retenido por impuesto
                     inv.withholded_itbis = abs(
-                        inv._convert_to_local_currency(
-                            sum(
-                                tax_line_ids.filtered(
-                                    lambda tax: tax.tax_id.purchase_tax_type ==
-                                    'ritbis').mapped('amount'))))
+                        inv._convert_to_local_currency(sum(tax_line_ids.filtered(
+                        lambda tax: tax.tax_id.purchase_tax_type == 'ritbis'
+                        ).mapped('amount'))))
 
                     # Monto Retención Renta por impuesto
                     inv.income_withholding = abs(
-                        inv._convert_to_local_currency(
-                            sum(
-                                tax_line_ids.filtered(
-                                    lambda tax: tax.tax_id.purchase_tax_type ==
-                                    'isr').mapped('amount'))))
+                        inv._convert_to_local_currency(sum(tax_line_ids.filtered(
+                        lambda tax: tax.tax_id.purchase_tax_type == 'isr'
+                        ).mapped('amount'))))
 
-                for payment in inv._get_invoice_payment_widget():
+                move_ids = [p["move_id"] for p in inv._get_invoice_payment_widget()]
+                aml_ids = self.env["account.move"].browse(move_ids).mapped(
+                    "line_ids").filtered(lambda aml: aml.account_id.account_fiscal_type)
+                if aml_ids:
+                    for aml in aml_ids:
+                        fiscal_type = aml.account_id.account_fiscal_type
+                        if fiscal_type in withholding_amounts_dict:
+                            withholding_amounts_dict[fiscal_type] += aml.debit \
+                                if inv.type == "out_invoice" else aml.credit
+
+                    withheld_itbis = sum(v for k, v in withholding_amounts_dict.items()
+                                         if k in ("A34", "A36"))
+                    withheld_isr = sum(v for k, v in withholding_amounts_dict.items()
+                                       if k in ("ISR", "A38"))
 
                     if inv.type == 'out_invoice':
-                        # ITBIS Retenido por Terceros
-                        inv.third_withheld_itbis += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_itbis_types))
+                        inv.third_withheld_itbis = withheld_itbis
+                        inv.third_income_withholding = withheld_isr
 
-                        # Retención de Renta pr Terceros
-                        inv.third_income_withholding += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_isr_types))
                     elif inv.type == 'in_invoice':
-                        # ITBIS Retenido a Terceros
-                        inv.withholded_itbis += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_itbis_types))
-
-                        # Retención de Renta a Terceros
-                        inv.income_withholding += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_isr_types))
+                        inv.withholded_itbis = withheld_itbis
+                        inv.income_withholding = withheld_isr
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')
