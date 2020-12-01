@@ -144,6 +144,12 @@ class AccountInvoiceRefund(models.TransientModel):
                     and not self.env.user.has_group(
                     "ncf_manager.group_l10n_do_fiscal_credit_note"):
                 raise AccessError("No tiene permitido emitir Notas de Crédito Fiscales")
+            elif self.filter_refund == 'debit' \
+                    and invoice.company_id.country_id.code == "DO" \
+                    and invoice.journal_id.ncf_control \
+                    and not self.env.user.has_group(
+                    "ncf_manager.group_l10n_do_debit_note"):
+                raise AccessError("No tiene permitido emitir Notas de Débito")
 
             if self.supplier_ncf:
                 if self.filter_refund == 'debit' and (self.supplier_ncf[
