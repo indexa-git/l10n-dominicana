@@ -19,7 +19,7 @@
 import logging
 
 from odoo import models, api, fields, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError, AccessError
 
 _logger = logging.getLogger(__name__)
 
@@ -137,6 +137,19 @@ class AccountInvoiceRefund(models.TransientModel):
         active_id = self._context.get("active_id", False)
         if active_id:
             invoice = self.env["account.invoice"].browse(active_id)
+
+            if self.filter_refund != 'debit' \
+                    and invoice.company_id.country_id.code == "DO" \
+                    and invoice.journal_id.ncf_control \
+                    and not self.env.user.has_group(
+                    "ncf_manager.group_l10n_do_fiscal_credit_note"):
+                raise AccessError("No tiene permitido emitir Notas de Crédito Fiscales")
+            elif self.filter_refund == 'debit' \
+                    and invoice.company_id.country_id.code == "DO" \
+                    and invoice.journal_id.ncf_control \
+                    and not self.env.user.has_group(
+                    "ncf_manager.group_l10n_do_debit_note"):
+                raise AccessError("No tiene permitido emitir Notas de Débito")
 
             if self.supplier_ncf:
                 if self.filter_refund == 'debit' and (self.supplier_ncf[
