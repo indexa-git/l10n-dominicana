@@ -1,5 +1,5 @@
 from odoo import fields, models, api, _
-from odoo.exceptions import RedirectWarning, UserError
+from odoo.exceptions import RedirectWarning
 
 
 class AccountJournal(models.Model):
@@ -23,6 +23,18 @@ class AccountJournal(models.Model):
     l10n_do_sequence_ids = fields.One2many(
         "ir.sequence", "l10n_latam_journal_id", string="Sequences",
     )
+
+    def _get_all_ncf_types(self, types_list):
+        """
+        Include ECF type prefixes if company is ECF issuer
+        :param types_list: NCF list used to create fiscal sequences
+        :return: types_list
+        """
+        if self.company_id.l10n_do_ecf_issuer:
+            types_list.extend(
+                ["e-%s" % d for d in types_list if d not in ("unique", "import")]
+            )
+        return types_list
 
     def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
         """
@@ -73,32 +85,27 @@ class AccountJournal(models.Model):
         if not counterpart_partner:
             ncf_notes = list(["fiscal", "debit_note", "credit_note"])
             ncf_external = list(["fiscal", "special", "governmental"])
-            return (
+            res = (
                 ncf_types + ncf_notes
                 if self.type == "sale"
                 else [ncf for ncf in ncf_types if ncf not in ncf_external]
             )
-        elif counterpart_partner.l10n_do_dgii_tax_payer_type:
+            return self._get_all_ncf_types(res)
+        else:
             counterpart_ncf_types = ncf_types_data[
                 "issued" if self.type == "sale" else "received"
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
-        else:
-            raise UserError(
-                _("You cannot add a contact without tax payer type to a fiscal invoice")
-            )
         if invoice.type in ["out_refund", "in_refund"]:
             ncf_types = ["credit_note"]
 
-        return ncf_types
+        return self._get_all_ncf_types(ncf_types)
 
     def _get_journal_codes(self):
         self.ensure_one()
-        ncf_code = ["B"]
-        # ecf_code = ['E'] # Needs better logic
         if self.type != "sale":
             return []
-        return ncf_code
+        return ["E"] if self.company_id.l10n_do_ecf_issuer else ["B"]
 
     @api.model
     def create(self, values):

@@ -166,10 +166,7 @@ msgstr "Número de Documento"
 #: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
 #, python-format
 msgid "Draft debit"
-msgstr ""
-"<span attrs=“{‘invisible’: [‘|’, ‘|’, ‘|’, (‘type’, ‘!=‘, ‘out_invoice’), "
-"(‘state’, ‘!=‘, ‘draft’), (‘name’, ‘!=‘, ‘/‘), (‘is_debit_note’, ‘=‘, "
-"False)]}”>Nota de Débito Borrador</span>"
+msgstr "Borrador"
 
 #. module: l10n_do_debit_note
 #: model:ir.model,name:l10n_do_debit_note.model_account_journal
