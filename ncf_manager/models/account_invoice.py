@@ -24,7 +24,7 @@
 import logging
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError, AccessError
 
 _logger = logging.getLogger(__name__)
 
@@ -514,3 +514,17 @@ class AccountInvoice(models.Model):
                         "vuelva a guardar la factura"))
 
         return super(AccountInvoice, self).create(vals)
+
+    @api.multi
+    def action_invoice_cancel(self):
+
+        fiscal_invoices = self.filtered(
+            lambda inv: inv.company_id.country_id.code == "DO"
+            and inv.journal_id.ncf_control
+        )
+        if fiscal_invoices and not self.env.user.has_group(
+                "ncf_manager.group_l10n_do_fiscal_invoice_cancel"
+        ):
+            raise AccessError("No tiene permitido cancelar Facturas Fiscales")
+
+        return super(AccountInvoice, self).action_invoice_cancel()
