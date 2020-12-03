@@ -20,7 +20,7 @@ def migrate_invoice_fields(env):
     env.cr.execute(
         """
         SELECT EXISTS (
-            SELECT FROM information_schema.tables 
+            SELECT FROM information_schema.tables
             WHERE  table_schema = 'public'
             AND    table_name   = 'account_invoice'
         );
@@ -129,7 +129,7 @@ def migrate_invoice_fields(env):
 
                 for i, invoice in enumerate(purchase_invoices):
                     query = """
-                        SELECT 
+                        SELECT
                         reference, expense_type, anulation_type, origin_out
                         FROM account_invoice
                         WHERE move_name = '%s'
