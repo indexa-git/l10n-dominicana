@@ -532,7 +532,7 @@ msgstr "Cliente Fiscal"
 #: code:addons/l10n_do_accounting/models/res_partner.py:0
 #, python-format
 msgid "Fiscal Tax Payer"
-msgstr "Tipo de Contribuyente"
+msgstr "Contribuyente"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_move.py:0
