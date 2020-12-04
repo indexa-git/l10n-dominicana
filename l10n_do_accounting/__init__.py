@@ -75,7 +75,6 @@ def migrate_invoice_fields(env):
                     reference, income_type, anulation_type, origin_out
                     FROM account_invoice
                     WHERE move_name = '%s'
-                    AND is_nd = 'false'
                     AND state != 'draft';
                     """
                 env.cr.execute(query % invoice.name)
@@ -137,7 +136,6 @@ def migrate_invoice_fields(env):
                         reference, expense_type, anulation_type, origin_out
                         FROM account_invoice
                         WHERE move_name = '%s'
-                        AND is_nd = 'false'
                         AND state != 'draft';
                         """
                     env.cr.execute(query % invoice.name)
