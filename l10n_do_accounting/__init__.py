@@ -7,6 +7,23 @@ from odoo import api, SUPERUSER_ID
 _logger = logging.getLogger(__name__)
 
 
+def get_document_type_dict(env):
+    return {
+        "01": env.ref("l10n_do_accounting.ncf_fiscal_client").id,
+        "02": env.ref("l10n_do_accounting.ncf_consumer_supplier").id,
+        "03": env.ref("l10n_do_accounting.ncf_debit_note_client").id,
+        "04": env.ref("l10n_do_accounting.ncf_credit_note_client").id,
+        "11": env.ref("l10n_do_accounting.ncf_informal_supplier").id,
+        "12": env.ref("l10n_do_accounting.ncf_unique_client").id,
+        "13": env.ref("l10n_do_accounting.ncf_minor_supplier").id,
+        "14": env.ref("l10n_do_accounting.ncf_special_client").id,
+        "15": env.ref("l10n_do_accounting.ncf_gov_client").id,
+        "16": env.ref("l10n_do_accounting.ncf_export_client").id,
+        "17": env.ref("l10n_do_accounting.ncf_exterior_supplier").id,
+        "31": env.ref("l10n_do_accounting.ncf_fiscal_client").id,  # ECF
+    }
+
+
 def migrate_invoice_fields(env):
     """
     account_invoice  ---->  account_move
@@ -32,20 +49,7 @@ def migrate_invoice_fields(env):
 
         _logger.info("Starting data migration from account_invoice to account_move")
 
-        document_type_dict = {
-            "01": env.ref("l10n_do_accounting.ncf_fiscal_client").id,
-            "02": env.ref("l10n_do_accounting.ncf_consumer_supplier").id,
-            "03": env.ref("l10n_do_accounting.ncf_debit_note_client").id,
-            "04": env.ref("l10n_do_accounting.ncf_credit_note_client").id,
-            "11": env.ref("l10n_do_accounting.ncf_informal_supplier").id,
-            "12": env.ref("l10n_do_accounting.ncf_unique_client").id,
-            "13": env.ref("l10n_do_accounting.ncf_minor_supplier").id,
-            "14": env.ref("l10n_do_accounting.ncf_special_client").id,
-            "15": env.ref("l10n_do_accounting.ncf_gov_client").id,
-            "16": env.ref("l10n_do_accounting.ncf_export_client").id,
-            "17": env.ref("l10n_do_accounting.ncf_exterior_supplier").id,
-            "31": env.ref("l10n_do_accounting.ncf_fiscal_client").id,  # ECF
-        }
+        document_type_dict = get_document_type_dict(env)
 
         Move = env["account.move"]
         domain = [("country_id", "=", env.ref("base.do").id)]
@@ -186,6 +190,78 @@ def migrate_invoice_fields(env):
             )
 
 
+def migrate_fiscal_sequences(env):
+
+    env.cr.execute(
+        """
+        SELECT EXISTS(
+            SELECT
+            FROM information_schema.columns
+            WHERE table_name = 'ir_sequence_date_range'
+            AND column_name = 'sale_fiscal_type'
+        );
+        """
+    )
+
+    # if ir_sequence_date_range table has sale_fiscal_type column
+    if env.cr.fetchone()[0] or False:
+        _logger.info(
+            "Starting data migration from ir_sequence_date_range to ir_sequence"
+        )
+        domain = [("country_id", "=", env.ref("base.do").id)]
+        for company in env["res.company"].search(domain):
+
+            fiscal_journals = env["account.journal"].search(
+                [
+                    ("l10n_latam_use_documents", "=", True),
+                    ("company_id", "=", company.id),
+                ]
+            )
+
+            fiscal_sequences = env["ir.sequence"].search(
+                [("l10n_latam_journal_id", "in", fiscal_journals.ids)]
+            )
+
+            sale_fiscal_type_dict = {
+                "minor": "13",
+                "exterior": "17",
+                "credit_note": "04",
+                "debit_note": "03",
+                "final": "02",
+                "unico": "12",
+                "gov": "15",
+                "special": "14",
+                "fiscal": "01",
+                "informal": "11",
+            }
+
+            env.cr.execute(
+                """
+                SELECT dr.sale_fiscal_type, dr.number_next
+                FROM ir_sequence_date_range AS dr
+                JOIN ir_sequence AS seq
+                ON (dr.sequence_id = seq.id)
+                WHERE dr.sale_fiscal_type IS NOT NULL
+                AND seq.company_id = %s;
+                """
+                % company.id
+            )
+
+            for fiscal_type, number_next in env.cr.fetchall():
+
+                sequence_ids = fiscal_sequences.filtered(
+                    lambda fs: fs.l10n_latam_document_type_id.id
+                    == dict(get_document_type_dict(env))[
+                        sale_fiscal_type_dict[fiscal_type]
+                    ]
+                )
+                if sequence_ids and sequence_ids[0].number_next_actual < number_next:
+                    _logger.info(
+                        "Setting up %s number_next_actual" % sequence_ids[0].name
+                    )
+                    sequence_ids.write({"number_next_actual": number_next})
+
+
 def post_init_hook(cr, registry):
     """
     This script maps and migrate data from v12 ncf_manager module to their
@@ -198,3 +274,4 @@ def post_init_hook(cr, registry):
     env = api.Environment(cr, SUPERUSER_ID, {})
 
     migrate_invoice_fields(env)
+    migrate_fiscal_sequences(env)
