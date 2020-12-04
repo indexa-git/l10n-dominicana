@@ -191,7 +191,10 @@ def migrate_invoice_fields(env):
 
 
 def migrate_fiscal_sequences(env):
-
+    """
+    ir_sequence_date_range   ---->  ir_sequence
+    number_next                     number_next_actual
+    """
     env.cr.execute(
         """
         SELECT EXISTS(
@@ -262,6 +265,41 @@ def migrate_fiscal_sequences(env):
                     sequence_ids.write({"number_next_actual": number_next})
 
 
+def migrate_partner_fields(env):
+    """
+    expense_type ---> l10n_do_expense_type
+    """
+    env.cr.execute(
+        """
+        SELECT EXISTS(
+            SELECT
+            FROM information_schema.columns
+            WHERE table_name = 'res_partner'
+            AND column_name = 'expense_type'
+        );
+        """
+    )
+
+    # if res_partner table has expense_type column
+    if env.cr.fetchone()[0] or False:
+        _logger.info("Starting partner fields migration")
+        env.cr.execute(
+            """
+            SELECT id, expense_type
+            FROM res_partner
+            WHERE l10n_do_expense_type IS NULL
+            AND expense_type IS NOT NULL;
+            """
+        )
+        for i, expense_type in env.cr.fetchall():
+            partner_id = env["res.partner"].browse(i)
+            _logger.info(
+                "Setting up %s l10n_do_expense_type = %s"
+                % (partner_id.name, expense_type)
+            )
+            partner_id.write({"l10n_do_expense_type": expense_type})
+
+
 def post_init_hook(cr, registry):
     """
     This script maps and migrate data from v12 ncf_manager module to their
@@ -275,3 +313,4 @@ def post_init_hook(cr, registry):
 
     migrate_invoice_fields(env)
     migrate_fiscal_sequences(env)
+    migrate_partner_fields(env)
