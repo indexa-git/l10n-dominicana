@@ -137,9 +137,9 @@ class AccountMove(models.Model):
             qr_string += "FechaEmision=%s&" % (
                 invoice.invoice_date or fields.Date.today()
             ).strftime("%d-%m-%Y")
-            qr_string += "MontoTotal=%s&" % ("%f" % abs(invoice.amount_total_signed)).rstrip(
-                "0"
-            ).rstrip(".")
+            qr_string += "MontoTotal=%s&" % (
+                "%f" % abs(invoice.amount_total_signed)
+            ).rstrip("0").rstrip(".")
 
             # DGII doesn't want FechaFirma if Consumo Electronico and < 250K
             # ¯\_(ツ)_/¯

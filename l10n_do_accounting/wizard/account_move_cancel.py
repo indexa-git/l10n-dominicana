@@ -34,8 +34,11 @@ class AccountMoveCancel(models.TransientModel):
                 )
             if invoice.invoice_payment_state != "not_paid":
                 raise UserError(
-                    _("Selected invoice(s) cannot be cancelled as they are "
-                      "already in 'Paid' state."))
+                    _(
+                        "Selected invoice(s) cannot be cancelled as they are "
+                        "already in 'Paid' state."
+                    )
+                )
             invoice.l10n_do_cancellation_type = self.l10n_do_cancellation_type
-            invoice.write({'state': 'cancel'})
-        return {'type': 'ir.actions.act_window_close'}
+            invoice.write({"state": "cancel"})
+        return {"type": "ir.actions.act_window_close"}

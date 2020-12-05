@@ -42,7 +42,8 @@ class AccountMoveReversal(models.TransientModel):
         help="Technical field used to hide/show fields regarding the localization",
     )
     refund_type = fields.Selection(
-        selection=_get_refund_type_selection, default=_get_default_refund_type,
+        selection=_get_refund_type_selection,
+        default=_get_default_refund_type,
     )
     refund_action = fields.Selection(
         selection=_get_refund_action_selection,
@@ -58,7 +59,9 @@ class AccountMoveReversal(models.TransientModel):
         string="e-CF Modification Code",
         copy=False,
     )
-    is_ecf_invoice = fields.Boolean(string="Is Electronic Invoice",)
+    is_ecf_invoice = fields.Boolean(
+        string="Is Electronic Invoice",
+    )
 
     @api.model
     def default_get(self, fields):
