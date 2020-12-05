@@ -5,8 +5,8 @@ class Partner(models.Model):
     _inherit = "res.partner"
 
     def _get_l10n_do_dgii_payer_types_selection(self):
-        """ Return the list of payer types needed in invoices to clasify accordingly to
-        DGII requirements. """
+        """Return the list of payer types needed in invoices to clasify accordingly to
+        DGII requirements."""
         return [
             ("taxpayer", _("Fiscal Tax Payer")),
             ("non_payer", _("Non Tax Payer")),
@@ -16,18 +16,9 @@ class Partner(models.Model):
             ("foreigner", _("Foreigner")),
         ]
 
-    l10n_do_dgii_tax_payer_type = fields.Selection(
-        selection="_get_l10n_do_dgii_payer_types_selection",
-        compute="_compute_l10n_do_dgii_payer_type",
-        inverse="_inverse_l10n_do_dgii_tax_payer_type",
-        string="Taxpayer Type",
-        index=True,
-        store=True,
-    )
-
     def _get_l10n_do_expense_type(self):
-        """ Return the list of expenses needed in invoices to clasify accordingly to
-        DGII requirements. """
+        """Return the list of expenses needed in invoices to clasify accordingly to
+        DGII requirements."""
         return [
             ("01", _("01 - Personal")),
             ("02", _("02 - Work, Supplies and Services")),
@@ -42,8 +33,24 @@ class Partner(models.Model):
             ("11", _("11 - Insurance Expenses")),
         ]
 
+    l10n_do_dgii_tax_payer_type = fields.Selection(
+        selection="_get_l10n_do_dgii_payer_types_selection",
+        compute="_compute_l10n_do_dgii_payer_type",
+        inverse="_inverse_l10n_do_dgii_tax_payer_type",
+        string="Taxpayer Type",
+        index=True,
+        store=True,
+    )
     l10n_do_expense_type = fields.Selection(
-        selection="_get_l10n_do_expense_type", string="Cost & Expense Type", store=True,
+        selection="_get_l10n_do_expense_type",
+        string="Cost & Expense Type",
+        store=True,
+    )
+    is_fiscal_info_required = fields.Boolean(compute="_compute_is_fiscal_info_required")
+    country_id = fields.Many2one(
+        default=lambda self: self.env.ref("base.do")
+        if self.env.user.company_id.country_id == self.env.ref("base.do")
+        else False
     )
 
     @api.depends("l10n_do_dgii_tax_payer_type")
@@ -53,14 +60,6 @@ class Partner(models.Model):
                 partner.is_fiscal_info_required = True
             else:
                 partner.is_fiscal_info_required = False
-
-    is_fiscal_info_required = fields.Boolean(compute="_compute_is_fiscal_info_required")
-
-    country_id = fields.Many2one(
-        default=lambda self: self.env.ref("base.do")
-        if self.env.user.company_id.country_id == self.env.ref("base.do")
-        else False
-    )
 
     @api.depends("vat", "country_id", "name")
     def _compute_l10n_do_dgii_payer_type(self):
