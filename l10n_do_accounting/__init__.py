@@ -102,9 +102,7 @@ def migrate_invoice_fields(env):
                         }
                     )
 
-            sales_journal.with_context(allow_documents=True).write(
-                {"l10n_latam_use_documents": True}
-            )
+            sales_journal._write({"l10n_latam_use_documents": True})
 
             # Purchase invoices routine
             env.cr.execute(
@@ -165,9 +163,7 @@ def migrate_invoice_fields(env):
                             }
                         )
 
-                journal.with_context(allow_documents=True).write(
-                    {"l10n_latam_use_documents": True}
-                )
+                journal._write({"l10n_latam_use_documents": True})
 
             # Archive deprecated journals.
             # purchase_type in (minor, informal, exterior).
