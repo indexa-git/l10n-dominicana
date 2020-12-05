@@ -1,4 +1,3 @@
-import logging
 from werkzeug import urls
 
 from odoo import models, fields, api, _
