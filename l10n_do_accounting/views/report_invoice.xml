@@ -149,7 +149,7 @@
         </xpath>
 
         <xpath expr="//table[hasclass('o_main_table')]/tbody//td[hasclass('o_price_total')]" position="inside">
-            <t t-if="is_l10n_do_invoice and any([t for t in line.tax_ids if t.amount == 0.0])">
+            <t t-if="is_l10n_do_invoice and line.price_subtotal == line.price_total">
                 <span><strong>E</strong></span>
             </t>
         </xpath>
