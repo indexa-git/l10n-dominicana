@@ -1,2 +1,0 @@
-pos-addons https://github.com/itpp-labs/pos-addons 13.0
-external_service_addons https://github.com/indexa-git/external_service_addons.git 13.0
