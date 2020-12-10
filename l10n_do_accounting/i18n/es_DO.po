@@ -16,6 +16,13 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: l10n_do_accounting
+#. openerp-web
+#: code:addons/l10n_do_accounting/static/src/xml/fiscal_sequence_warning_template.xml:0
+#, python-format
+msgid "- Remains:"
+msgstr "- Restante:"
+
+#. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_move.py:0
 #, python-format
 msgid "01 - Operational Incomes"
@@ -480,6 +487,13 @@ msgid "DGII"
 msgstr ""
 
 #. module: l10n_do_accounting
+#. openerp-web
+#: code:addons/l10n_do_accounting/static/src/js/fiscal_sequence_warning.js:0
+#, python-format
+msgid "Dashboard"
+msgstr "Tablero"
+
+#. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_company__l10n_do_default_client
 msgid "Default Customer"
 msgstr "Cliente predeterminado"
@@ -550,6 +564,21 @@ msgstr "Reembolso completo"
 #, python-format
 msgid "Go to Companies"
 msgstr "Ir a Compañías"
+
+#. module: l10n_do_accounting
+#. openerp-web
+#: code:addons/l10n_do_accounting/static/src/xml/fiscal_sequence_warning_template.xml:0
+#, python-format
+msgid "Go to Fiscal Sequences"
+msgstr "Ir a Secuencias Fiscales"
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "Goods sales to overseas customers must have Exportaciones Fiscal Type"
+msgstr ""
+"La venta de bienes a clientes en el exterior deben ser emitidas con Tipo "
+"Fiscal *Exportaciones*"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/res_partner.py:0
@@ -676,6 +705,18 @@ msgstr "Tipo de Comprobante"
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_origin_ncf
 msgid "Modifies"
 msgstr "Afecta a"
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid ""
+"NCF *{}* does not correspond with the fiscal type\n"
+"\n"
+"You cannot register Consumo NCF (02/32) for purchases"
+msgstr ""
+"El NCF *{}* no se corresponde con el tipo fiscal\n"
+"\n"
+"No puede registrar NCF de Consumo (02 / 32) para compras"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_company__l10n_do_ncf_exp_date
@@ -822,6 +863,14 @@ msgid "Sequences"
 msgstr "Secuencias"
 
 #. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "Services sales to overseas customer must have Consumo Fiscal Type"
+msgstr ""
+"La venta de servicios a clientes en el exterior deben ser con comprobante de"
+" Consumo"
+
+#. module: l10n_do_accounting
 #: model:ir.model.fields.selection,name:l10n_do_accounting.selection__l10n_latam_document_type__internal_type__in_credit_note
 msgid "Supplier Credit Note"
 msgstr "Nota de Crédito de Proveedor"
@@ -919,6 +968,30 @@ msgid "You cannot create Credit Notes from multiple documents at a time."
 msgstr "No puede crear Notas de Crédito desde múltiples documentos a la vez."
 
 #. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "You cannot validate an invoice with a total amount equals to 0."
+msgstr "No puede validar una factura con un monto total igual a 0."
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid ""
+"You cannot validate and invoice of Fiscal Type Regímen Especial with ITBIS/ISC.\n"
+"\n"
+"See DGII General Norm 05-19, Art. 3 for further information"
+msgstr ""
+"No puede validar una factura de Régimen Especial con ITBIS/ISC.\n"
+"\n"
+"Vea la Norma General 05-19, Art. 3 para más información"
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "You must withhold 100% of ITBIS"
+msgstr "Debe retener el 100% del ITBIS"
+
+#. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_move_reversal_inherited
 msgid ""
 "You will be able to edit and validate this\n"
@@ -953,3 +1026,10 @@ msgstr ""
 #, python-format
 msgid "special from Tax Paying"
 msgstr "Exento"
+
+#. module: l10n_do_accounting
+#. openerp-web
+#: code:addons/l10n_do_accounting/static/src/xml/fiscal_sequence_warning_template.xml:0
+#, python-format
+msgid "¡NCF almost deplete!"
+msgstr "¡NCF casi agotado!"
