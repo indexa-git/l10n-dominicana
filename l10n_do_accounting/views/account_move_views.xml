@@ -10,6 +10,7 @@
                 <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
+                <field name="is_l10n_do_internal_sequence" invisible="1"/>
             </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
@@ -54,7 +55,7 @@
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': ['|', ('l10n_latam_use_documents', '=', False), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'draft')],
+                    'invisible': ['|', ('l10n_latam_use_documents', '=', False), '|', '&amp;', ('is_l10n_do_internal_sequence', '=', True), ('state', '=', 'draft'), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'draft')],
                     'required': [('l10n_latam_sequence_id', '=', False), ('l10n_latam_use_documents', '=', True)],
                     'readonly': [('state', '!=', 'draft')]}
                 </attribute>
