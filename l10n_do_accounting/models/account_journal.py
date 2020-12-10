@@ -18,10 +18,13 @@ class AccountJournal(models.Model):
         ]
 
     l10n_do_payment_form = fields.Selection(
-        selection="_get_l10n_do_payment_form", string="Payment Form",
+        selection="_get_l10n_do_payment_form",
+        string="Payment Form",
     )
     l10n_do_sequence_ids = fields.One2many(
-        "ir.sequence", "l10n_latam_journal_id", string="Sequences",
+        "ir.sequence",
+        "l10n_latam_journal_id",
+        string="Sequences",
     )
 
     def _get_all_ncf_types(self, types_list):
@@ -124,8 +127,8 @@ class AccountJournal(models.Model):
         return res
 
     def _l10n_do_create_document_sequences(self):
-        """ IF DGII Configuration changes try to review if this can be done
-        and then create / update the document sequences """
+        """IF DGII Configuration changes try to review if this can be done
+        and then create / update the document sequences"""
         self.ensure_one()
         if self.company_id.country_id != self.env.ref("base.do"):
             return True
