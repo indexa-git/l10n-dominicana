@@ -55,7 +55,10 @@
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': ['|', ('l10n_latam_use_documents', '=', False), '|', '&amp;', ('is_l10n_do_internal_sequence', '=', True), ('state', '=', 'draft'), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'draft')],
+                    'invisible': [
+                    '|', '&amp;', ('l10n_latam_use_documents', '=', False), ('l10n_latam_country_code', '=', 'DO'),
+                    '|', '&amp;', ('is_l10n_do_internal_sequence', '=', True), ('state', '=', 'draft'),
+                    '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), '&amp;', ('state', '=', 'draft'), ('l10n_latam_country_code', '=', 'DO')],
                     'required': [('l10n_latam_sequence_id', '=', False), ('l10n_latam_use_documents', '=', True)],
                     'readonly': [('state', '!=', 'draft')]}
                 </attribute>
