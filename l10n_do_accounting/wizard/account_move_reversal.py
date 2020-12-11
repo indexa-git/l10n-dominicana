@@ -29,11 +29,11 @@ class AccountMoveReversal(models.TransientModel):
 
     @api.model
     def _default_account(self):
-        journal = self.env["account.journal"].search(
-            [("type", "=", "sale"), ("company_id", "=", self.env.user.company_id.id)],
-            limit=1,
-        )
-        if self._context.get("type") in ("out_invoice", "in_refund"):
+        move_type = self._context.get("type")
+        journal = self.env["account.move"].with_context(
+            default_type=move_type, default_company_id=self.env.company.id
+        )._get_default_journal()
+        if move_type in ("out_invoice", "in_refund"):
             return journal.default_credit_account_id.id
         return journal.default_debit_account_id.id
 
