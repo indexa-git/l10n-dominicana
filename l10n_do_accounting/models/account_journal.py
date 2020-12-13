@@ -39,17 +39,9 @@ class AccountJournal(models.Model):
             )
         return types_list
 
-    def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
-        """
-        Regarding the DGII type of company and the type of journal
-        (sale/purchase), get the allowed NCF types. Optionally, receive
-        the counterpart partner (customer/supplier) and get the allowed
-        NCF types to work with him. This method is used to populate
-        document types on journals and also to filter document types on
-        specific invoices to/from customer/supplier
-        """
-        self.ensure_one()
-        ncf_types_data = {
+    @api.model
+    def _get_l10n_do_ncf_types_data(self):
+        return {
             "issued": {
                 "taxpayer": ["fiscal"],
                 "non_payer": ["consumer", "unique"],
@@ -67,6 +59,19 @@ class AccountJournal(models.Model):
                 "foreigner": ["import", "exterior"],
             },
         }
+
+    def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
+        """
+        Regarding the DGII type of company and the type of journal
+        (sale/purchase), get the allowed NCF types. Optionally, receive
+        the counterpart partner (customer/supplier) and get the allowed
+        NCF types to work with him. This method is used to populate
+        document types on journals and also to filter document types on
+        specific invoices to/from customer/supplier
+        """
+        self.ensure_one()
+        ncf_types_data = self._get_l10n_do_ncf_types_data()
+
         if not self.company_id.vat:
             action = self.env.ref("base.action_res_company_form")
             msg = _("Cannot create chart of account until you configure your VAT.")
