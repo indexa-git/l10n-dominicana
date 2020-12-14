@@ -10,6 +10,7 @@
                 <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
+                <field name="is_l10n_do_internal_sequence" invisible="1"/>
             </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
@@ -54,7 +55,7 @@
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': ['|', ('l10n_latam_use_documents', '=', False), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), '&amp;', ('state', '=', 'draft'), ('l10n_latam_country_code', '=', 'DO')],
+                    'invisible': ['|', '&amp;', ('l10n_latam_use_documents', '=', False), ('l10n_latam_country_code', '=', 'DO'), '|', '&amp;', ('is_l10n_do_internal_sequence', '=', True), ('state', '=', 'draft'), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), '&amp;', ('state', '=', 'draft'), ('l10n_latam_country_code', '=', 'DO')],
                     'required': [('l10n_latam_sequence_id', '=', False), '&amp;', ('l10n_latam_use_documents', '=', True), ('l10n_latam_country_code', '=', 'DO')],
                     'readonly': [('state', '!=', 'draft'), ('l10n_latam_country_code', '=', 'DO')]}
                 </attribute>
@@ -88,7 +89,11 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <field name="journal_id" position="after">
-                <field name="l10n_do_ecf_security_code" invisible="1"/>
+                <field name="l10n_do_ecf_security_code" attrs="{
+                'invisible': [
+                '|', ('is_ecf_invoice', '=', False),
+                '|', ('l10n_latam_country_code', '!=', 'DO'), ('is_l10n_do_internal_sequence', '=', True)
+                ]}"/>
                 <field name="l10n_do_ecf_sign_date" invisible="1"/>
                 <field name="l10n_do_electronic_stamp" invisible="1"/>
             </field>
