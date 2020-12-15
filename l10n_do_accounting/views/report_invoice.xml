@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <template id="report_invoice_document_inherited" inherit_id="l10n_latam_invoice_document.report_invoice_document">
+    <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
 
         <xpath expr="//t[@t-set='o']" position="after">
             <!-- When is a e-CF representation, additional info is displayed -->
