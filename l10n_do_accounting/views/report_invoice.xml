@@ -54,7 +54,7 @@
                     <span t-field="o.l10n_latam_document_number"/>
                     <br/>
                     <span
-                        t-if="(o.type == 'out_refund' or o.type == 'in_refund' or o.is_debit_note) and (o.l10n_do_origin_ncf != False)">
+                        t-if="(o.type == 'out_refund' or o.type == 'in_refund' or o.debit_origin_id) and (o.l10n_do_origin_ncf != False)">
                         <strong>NCF modificado:</strong>
                         <span t-field="o.l10n_do_origin_ncf"/>
                         <t t-if="ecf_representation">
