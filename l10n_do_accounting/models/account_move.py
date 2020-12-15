@@ -65,18 +65,6 @@ class AccountMove(models.Model):
         string="Modifies",
     )
 
-    ncf_expiration_date = fields.Date(
-        string="Valid until",
-        store=True,
-    )
-    is_debit_note = fields.Boolean()
-
-    # DO NOT FORWARD PORT
-    cancellation_type = fields.Selection(
-        selection="_get_l10n_do_cancellation_type",
-        string="Cancellation Type (deprecated)",
-        copy=False,
-    )
     is_ecf_invoice = fields.Boolean(
         copy=False,
         default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer
@@ -375,15 +363,3 @@ class AccountMove(models.Model):
             raise ValidationError(_("Fiscal invoices require partner fiscal type"))
 
         return res
-
-    def init(self):  # DO NOT FORWARD PORT
-        cancelled_invoices = self.search(
-            [
-                ("state", "=", "cancel"),
-                ("l10n_latam_use_documents", "=", True),
-                ("cancellation_type", "!=", False),
-                ("l10n_do_cancellation_type", "=", False),
-            ]
-        )
-        for invoice in cancelled_invoices:
-            invoice.l10n_do_cancellation_type = invoice.cancellation_type

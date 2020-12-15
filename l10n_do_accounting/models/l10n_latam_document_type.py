@@ -45,7 +45,12 @@ class L10nLatamDocumentType(models.Model):
             ("in_invoice", "Supplier Invoices"),
             ("in_credit_note", "Supplier Credit Note"),
             ("in_debit_note", "Supplier Debit Note"),
-        ]
+        ],
+        ondelete={
+            "in_invoice": "cascade",
+            "in_credit_note": "cascade",
+            "in_debit_note": "cascade",
+        },
     )
     is_vat_required = fields.Boolean(
         default=False,
