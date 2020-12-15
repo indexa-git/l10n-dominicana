@@ -334,6 +334,24 @@ class AccountMove(models.Model):
             ]
         return res
 
+    def _is_manual_document_number(self, journal):
+
+        if (
+            self.company_id.country_id == self.env.ref("base.do")
+            and self.l10n_latam_document_type_id
+        ):
+            return self.move_type in (
+                "out_invoice",
+                "out_refund",
+            ) and self.l10n_latam_document_type_id.l10n_do_ncf_type not in (
+                "minor",
+                "e-minor",
+                "informal",
+                "e-informal",
+            )
+
+        return super(AccountMove, self)._is_manual_document_number(journal=journal)
+
     def post(self):
 
         res = super(AccountMove, self).post()
