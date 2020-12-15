@@ -89,22 +89,6 @@ class AccountMove(models.Model):
         string="Company in contingency",
         compute="_compute_company_in_contingency",
     )
-    is_l10n_do_internal_sequence = fields.Boolean(
-        string="Is internal sequence", compute="_compute_is_l10n_do_internal_sequence"
-    )
-
-    @api.depends("type", "l10n_latam_document_type_id.l10n_do_ncf_type")
-    def _compute_is_l10n_do_internal_sequence(self):
-        for invoice in self:
-            invoice.is_l10n_do_internal_sequence = invoice.type in (
-                "out_invoice",
-                "out_refund",
-            ) or invoice.l10n_latam_document_type_id.l10n_do_ncf_type in (
-                "minor",
-                "e-minor",
-                "informal",
-                "e-informal",
-            )
 
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
     def _compute_company_in_contingency(self):
