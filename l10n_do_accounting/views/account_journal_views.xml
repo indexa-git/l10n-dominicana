@@ -25,7 +25,7 @@
             </xpath>
             <xpath expr="//field[@name='type']" position="after">
                 <field name="l10n_do_payment_form" attrs="{
-                'invisible': ['|', ('type','not in',('cash','bank')), ('l10n_latam_country_code', '!=', 'DO')],
+                'invisible': ['|', ('type','not in',('cash','bank')), ('country_code', '!=', 'DO')],
                 'required': [('type','in',('cash','bank'))]
                 }"/>
             </xpath>
