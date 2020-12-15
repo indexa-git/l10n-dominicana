@@ -8,7 +8,7 @@ class AccountMoveLine(models.Model):
         string="ITBIS Amount",
         store=True,
         readonly=True,
-        currency_field="always_set_currency_id",
+        currency_field="currency_id",
     )
 
     def _get_price_total_and_subtotal(
