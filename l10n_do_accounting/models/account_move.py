@@ -89,6 +89,10 @@ class AccountMove(models.Model):
         string="Company in contingency",
         compute="_compute_company_in_contingency",
     )
+    l10n_latam_country_code = fields.Char(
+        "Country Code",
+        related="company_id.country_id.code",
+    )
 
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
     def _compute_company_in_contingency(self):
