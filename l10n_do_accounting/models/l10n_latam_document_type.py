@@ -1,22 +1,12 @@
-import logging
-
-from odoo import models, fields, _
-from odoo.exceptions import UserError
-
-_logger = logging.getLogger(__name__)
-
-try:
-    from stdnum.do.ncf import is_valid
-except (ImportError, IOError) as err:
-    _logger.debug(err)
+from odoo import models, fields
 
 
 class L10nLatamDocumentType(models.Model):
     _inherit = "l10n_latam.document.type"
 
     def _get_l10n_do_ncf_types(self):
-        """ Return a list of fiscal types and their respective sequence type to be used
-        on sequences, journals and document types. """
+        """Return a list of fiscal types and their respective sequence type to be used
+        on sequences, journals and document types."""
         return [
             ("fiscal", "01"),
             ("consumer", "02"),
@@ -37,6 +27,8 @@ class L10nLatamDocumentType(models.Model):
             ("e-minor", "43"),
             ("e-special", "44"),
             ("e-governmental", "45"),
+            ("e-export", "46"),
+            ("e-exterior", "47"),
             ("in_fiscal", "01"),
         ]
 
@@ -55,7 +47,9 @@ class L10nLatamDocumentType(models.Model):
             ("in_debit_note", "Supplier Debit Note"),
         ]
     )
-    is_vat_required = fields.Boolean(default=False,)
+    is_vat_required = fields.Boolean(
+        default=False,
+    )
 
     def _get_document_sequence_vals(self, journal):
         """ Values to create the sequences """
@@ -65,7 +59,7 @@ class L10nLatamDocumentType(models.Model):
 
         values.update(
             {
-                "padding": 8,
+                "padding": 10 if str(self.l10n_do_ncf_type).startswith("e-") else 8,
                 "implementation": "no_gap",
                 "prefix": self.doc_code_prefix,
                 "l10n_latam_document_type_id": self.id,
@@ -75,9 +69,9 @@ class L10nLatamDocumentType(models.Model):
         return values
 
     def _format_document_number(self, document_number):
-        """ Make validation of Import Dispatch Number
-          * making validations on the document_number.
-          * format the document_number against a pattern and return it
+        """Make validation of Import Dispatch Number
+        * making validations on the document_number.
+        * format the document_number against a pattern and return it
         """
         self.ensure_one()
         if self.country_id != self.env.ref("base.do"):
@@ -86,16 +80,4 @@ class L10nLatamDocumentType(models.Model):
         if not document_number:
             return False
 
-        msg = "'%s' " + _("is not a valid value for") + " '%s'.<br/>%s"
-
-        # Import NCF Number Validator
-        if not is_valid(document_number):
-            raise UserError(
-                msg
-                % (
-                    document_number,
-                    self.name,
-                    _("Please check the number and try again"),
-                )
-            )
         return document_number
