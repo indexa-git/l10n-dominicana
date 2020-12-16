@@ -21,11 +21,11 @@ class AccountJournal(models.Model):
         selection="_get_l10n_do_payment_form",
         string="Payment Form",
     )
-    l10n_do_sequence_ids = fields.One2many(
-        "ir.sequence",
-        "l10n_latam_journal_id",
-        string="Sequences",
-    )
+    # l10n_do_sequence_ids = fields.One2many(
+    #     "ir.sequence",
+    #     "l10n_latam_journal_id",
+    #     string="Sequences",
+    # )
 
     def _get_all_ncf_types(self, types_list):
         """
@@ -104,7 +104,7 @@ class AccountJournal(models.Model):
                 "issued" if self.type == "sale" else "received"
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
-        if invoice.type in ["out_refund", "in_refund"]:
+        if invoice.move_type in ["out_refund", "in_refund"]:
             ncf_types = ["credit_note"]
 
         return self._get_all_ncf_types(ncf_types)
@@ -119,16 +119,16 @@ class AccountJournal(models.Model):
     def create(self, values):
         """ Create Document sequences after create the journal """
         res = super().create(values)
-        res._l10n_do_create_document_sequences()
+        # res._l10n_do_create_document_sequences()
         return res
 
     def write(self, values):
         """ Update Document sequences after update journal """
         to_check = {"type", "l10n_latam_use_documents"}
         res = super().write(values)
-        if to_check.intersection(set(values.keys())):
-            for rec in self:
-                rec._l10n_do_create_document_sequences()
+        # if to_check.intersection(set(values.keys())):
+        #     for rec in self:
+        #         rec._l10n_do_create_document_sequences()
         return res
 
     def _l10n_do_create_document_sequences(self):
@@ -140,8 +140,8 @@ class AccountJournal(models.Model):
         if not self.l10n_latam_use_documents:
             return False
 
-        sequences = self.l10n_do_sequence_ids
-        sequences.unlink()
+        # sequences = self.l10n_do_sequence_ids
+        # sequences.unlink()
 
         # Create Sequences
         ncf_types = self._get_journal_ncf_types()
@@ -155,8 +155,8 @@ class AccountJournal(models.Model):
             ("l10n_do_ncf_type", "in", ncf_types),
         ]
         documents = self.env["l10n_latam.document.type"].search(domain)
-        for document in documents:
-            sequences |= self.env["ir.sequence"].create(
-                document._get_document_sequence_vals(self)
-            )
-        return sequences
+        # for document in documents:
+        #     sequences |= self.env["ir.sequence"].create(
+        #         document._get_document_sequence_vals(self)
+        #     )
+        return self.env["ir.sequence"]

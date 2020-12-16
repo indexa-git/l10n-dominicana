@@ -152,7 +152,7 @@ class AccountMove(models.Model):
 
         fiscal_invoice = self.filtered(
             lambda inv: inv.l10n_latam_country_code == "DO"
-            and self.type[-6:] in ("nvoice", "refund")
+            and self.move_type[-6:] in ("nvoice", "refund")
             and inv.l10n_latam_use_documents
         )
 
@@ -179,7 +179,7 @@ class AccountMove(models.Model):
 
         fiscal_invoice = self.filtered(
             lambda inv: inv.l10n_latam_country_code == "DO"
-            and self.type[-6:] in ("nvoice", "refund")
+            and self.move_type[-6:] in ("nvoice", "refund")
         )
         if fiscal_invoice and not self.env.user.has_group(
             "l10n_do_accounting.group_l10n_do_fiscal_credit_note"
@@ -188,14 +188,14 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self).action_reverse()
 
-    @api.depends("ref")
-    def _compute_l10n_latam_document_number(self):
-        l10n_do_recs = self.filtered(lambda x: x.l10n_latam_country_code == "DO")
-        for rec in l10n_do_recs:
-            rec.l10n_latam_document_number = rec.ref
-        remaining = self - l10n_do_recs
-        remaining.l10n_latam_document_number = False
-        super(AccountMove, remaining)._compute_l10n_latam_document_number()
+    # @api.depends("ref")
+    # def _compute_l10n_latam_document_number(self):
+    #     l10n_do_recs = self.filtered(lambda x: x.l10n_latam_country_code == "DO")
+    #     for rec in l10n_do_recs:
+    #         rec.l10n_latam_document_number = rec.ref
+    #     remaining = self - l10n_do_recs
+    #     remaining.l10n_latam_document_number = False
+    #     super(AccountMove, remaining)._compute_l10n_latam_document_number()
 
     @api.onchange("l10n_latam_document_type_id", "l10n_latam_document_number")
     def _inverse_l10n_latam_document_number(self):
@@ -245,14 +245,14 @@ class AccountMove(models.Model):
             self.journal_id.l10n_latam_use_documents
             and self.l10n_latam_country_code == "DO"
         ):
-            res = self.journal_id.l10n_do_sequence_ids.filtered(
-                lambda x: x.l10n_latam_document_type_id
-                == self.l10n_latam_document_type_id
-            )
-            return res
+            # res = self.journal_id.l10n_do_sequence_ids.filtered(
+            #     lambda x: x.l10n_latam_document_type_id
+            #     == self.l10n_latam_document_type_id
+            # )
+            return
         return super()._get_document_type_sequence()
 
-    @api.constrains("type", "l10n_latam_document_type_id")
+    @api.constrains("move_type", "l10n_latam_document_type_id")
     def _check_invoice_type_document_type(self):
         super()._check_invoice_type_document_type()
         for rec in self.filtered(
@@ -269,7 +269,7 @@ class AccountMove(models.Model):
                     )
                 )
 
-            elif rec.type in ("out_invoice", "out_refund"):
+            elif rec.move_type in ("out_invoice", "out_refund"):
                 if (
                     rec.amount_untaxed_signed >= 250000
                     and l10n_latam_document_type.l10n_do_ncf_type[-7:] != "special"
@@ -298,7 +298,7 @@ class AccountMove(models.Model):
         if (
             self.company_id.country_id == self.env.ref("base.do")
             and self.l10n_latam_document_type_id
-            and self.type == "in_invoice"
+            and self.move_type == "in_invoice"
             and self.partner_id
         ):
             self.l10n_do_expense_type = (
@@ -347,7 +347,7 @@ class AccountMove(models.Model):
             return self.move_type in (
                 "out_invoice",
                 "out_refund",
-            ) and self.l10n_latam_document_type_id.l10n_do_ncf_type not in (
+            ) and self.l10n_latam_document_type_id.l10n_do_ncf_type in (
                 "minor",
                 "e-minor",
                 "informal",
@@ -356,9 +356,9 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self)._is_manual_document_number(journal=journal)
 
-    def post(self):
+    def _post(self, soft=True):
 
-        res = super(AccountMove, self).post()
+        res = super()._post(soft)
 
         non_payer_type_invoices = self.filtered(
             lambda inv: inv.company_id.country_id == self.env.ref("base.do")
@@ -369,3 +369,44 @@ class AccountMove(models.Model):
             raise ValidationError(_("Fiscal invoices require partner fiscal type"))
 
         return res
+
+    def _l10n_do_get_formatted_sequence(self):
+        document_type_id = self.l10n_latam_document_type_id
+        return "%s%s" % (
+            document_type_id.doc_code_prefix,
+            "".zfill(
+                10 if str(document_type_id.l10n_do_ncf_type).startswith("e-") else 8
+            ),
+        )
+
+    def _get_starting_sequence(self):
+        if (
+            self.journal_id.l10n_latam_use_documents
+            and self.env.company.country_id.code == "DO"
+            and self.l10n_latam_document_type_id
+        ):
+            return self._l10n_do_get_formatted_sequence()
+
+        return super()._get_starting_sequence()
+
+    def _get_last_sequence_domain(self, relaxed=False):
+        where_string, param = super(AccountMove, self)._get_last_sequence_domain(
+            relaxed
+        )
+        if self.l10n_latam_country_code == "DO" and self.l10n_latam_use_documents:
+            where_string = where_string.replace("journal_id = %(journal_id)s AND", "")
+            where_string += (
+                " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND "
+                "company_id = %(company_id)s"
+            )
+            param["company_id"] = self.company_id.id or False
+            param["l10n_latam_document_type_id"] = (
+                self.l10n_latam_document_type_id.id or 0
+            )
+        return where_string, param
+
+    def _get_name_invoice_report(self):
+        self.ensure_one()
+        if self.l10n_latam_use_documents and self.l10n_latam_country_code == "DO":
+            return "l10n_do_accounting.report_invoice_document_inherited"
+        return super()._get_name_invoice_report()
