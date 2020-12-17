@@ -7,6 +7,12 @@ from odoo.exceptions import ValidationError, UserError, AccessError
 class AccountMove(models.Model):
     _inherit = "account.move"
 
+    @property
+    def _sequence_fixed_regex(self):
+        if self.l10n_latam_country_code == "DO" and self.l10n_latam_use_documents:
+            return r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})(?P<suffix>\D*?)$"
+        return super(AccountMove, self)._sequence_fixed_regex()
+
     def _get_l10n_do_cancellation_type(self):
         """ Return the list of cancellation types required by DGII. """
         return [
@@ -188,15 +194,6 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self).action_reverse()
 
-    # @api.depends("ref")
-    # def _compute_l10n_latam_document_number(self):
-    #     l10n_do_recs = self.filtered(lambda x: x.l10n_latam_country_code == "DO")
-    #     for rec in l10n_do_recs:
-    #         rec.l10n_latam_document_number = rec.ref
-    #     remaining = self - l10n_do_recs
-    #     remaining.l10n_latam_document_number = False
-    #     super(AccountMove, remaining)._compute_l10n_latam_document_number()
-
     @api.onchange("l10n_latam_document_type_id", "l10n_latam_document_number")
     def _inverse_l10n_latam_document_number(self):
         for rec in self.filtered("l10n_latam_document_type_id"):
@@ -237,20 +234,6 @@ class AccountMove(models.Model):
             if codes:
                 domain.append(("code", "in", codes))
         return domain
-
-    def _get_document_type_sequence(self):
-        """ Return the match sequences for the given journal and invoice """
-        self.ensure_one()
-        if (
-            self.journal_id.l10n_latam_use_documents
-            and self.l10n_latam_country_code == "DO"
-        ):
-            # res = self.journal_id.l10n_do_sequence_ids.filtered(
-            #     lambda x: x.l10n_latam_document_type_id
-            #     == self.l10n_latam_document_type_id
-            # )
-            return
-        return super()._get_document_type_sequence()
 
     @api.constrains("move_type", "l10n_latam_document_type_id")
     def _check_invoice_type_document_type(self):
