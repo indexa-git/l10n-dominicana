@@ -27,13 +27,9 @@
         "views/report_templates.xml",
         "views/report_invoice.xml",
     ],
-    "qweb": [
-        # "static/src/xml/fiscal_sequence_warning_template.xml",
-    ],
     # only loaded in demonstration mode
     "demo": [
-        # 'demo/res_partner_demo.xml',
-        # 'demo/account_fiscal_sequence_demo.xml',
+        "demo/res_partner_demo.xml",
     ],
     "installable": True,
     "auto_install": False,
