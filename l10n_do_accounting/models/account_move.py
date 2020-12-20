@@ -328,9 +328,9 @@ class AccountMove(models.Model):
             and self.l10n_latam_document_type_id
         ):
             return self.move_type in (
-                "out_invoice",
-                "out_refund",
-            ) and self.l10n_latam_document_type_id.l10n_do_ncf_type in (
+                "in_invoice",
+                "in_refund",
+            ) and self.l10n_latam_document_type_id.l10n_do_ncf_type not in (
                 "minor",
                 "e-minor",
                 "informal",
