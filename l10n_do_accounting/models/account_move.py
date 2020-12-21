@@ -113,9 +113,11 @@ class AccountMove(models.Model):
                 "out_refund",
             ) or invoice.l10n_latam_document_type_id.l10n_do_ncf_type in (
                 "minor",
-                "e-minor",
                 "informal",
+                "exterior",
+                "e-minor",
                 "e-informal",
+                "e-exterior",
             )
 
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
