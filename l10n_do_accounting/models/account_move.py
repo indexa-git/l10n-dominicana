@@ -11,7 +11,7 @@ class AccountMove(models.Model):
     def _sequence_fixed_regex(self):
         if self.l10n_latam_country_code == "DO" and self.l10n_latam_use_documents:
             return r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})(?P<suffix>\D*?)$"
-        return super(AccountMove, self)._sequence_fixed_regex()
+        return super(AccountMove, self)._sequence_fixed_regex
 
     def _get_l10n_do_cancellation_type(self):
         """ Return the list of cancellation types required by DGII. """
