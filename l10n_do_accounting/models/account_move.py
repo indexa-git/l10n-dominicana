@@ -362,6 +362,30 @@ class AccountMove(models.Model):
             ]
         return res
 
+    @api.constrains("name", "partner_id", "company_id")
+    def _check_unique_vendor_number(self):
+
+        l10n_do_invoice = self.filtered(
+            lambda inv: inv.l10n_latam_country_code == "DO"
+            and inv.l10n_latam_use_documents
+            and inv.is_purchase_document()
+            and inv.l10n_latam_document_number
+        )
+
+        for rec in l10n_do_invoice:
+            domain = [
+                ("type", "=", rec.type),
+                ("ref", "=", rec.ref),
+                ("company_id", "=", rec.company_id.id),
+                ("id", "!=", rec.id),
+                ("commercial_partner_id", "=", rec.commercial_partner_id.id),
+            ]
+            if rec.search(domain):
+                raise ValidationError(
+                    _("Vendor bill NCF must be unique per vendor and company.")
+                )
+        return super(AccountMove, self - l10n_do_invoice)._check_unique_vendor_number()
+
     def post(self):
 
         res = super(AccountMove, self).post()
