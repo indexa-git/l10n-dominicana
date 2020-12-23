@@ -30,7 +30,8 @@ class AccountJournal(models.Model):
         """
 
         if self.company_id.l10n_do_ecf_issuer or (
-            not self.company_id.l10n_do_ecf_issuer
+            invoice
+            and not self.company_id.l10n_do_ecf_issuer
             and invoice.partner_id.l10n_do_dgii_tax_payer_type
             and invoice.partner_id.l10n_do_dgii_tax_payer_type != "non_payer"
         ):
