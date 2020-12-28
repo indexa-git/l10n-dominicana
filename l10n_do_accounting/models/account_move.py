@@ -275,17 +275,6 @@ class AccountMove(models.Model):
                         )
                     )
 
-    @api.onchange("l10n_latam_document_number", "l10n_do_origin_ncf")
-    def _onchange_l10n_latam_document_number(self):
-        for rec in self.filtered(
-            lambda r: r.company_id.country_id == self.env.ref("base.do")
-            and r.l10n_latam_document_type_id.l10n_do_ncf_type is not False
-            and r.l10n_latam_document_number
-        ):
-            rec.l10n_latam_document_type_id._format_document_number(
-                rec.l10n_latam_document_number
-            )
-
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
         if (
