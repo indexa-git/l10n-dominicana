@@ -78,10 +78,8 @@ class AccountMove(models.Model):
         copy=False,
     )
     is_ecf_invoice = fields.Boolean(
-        copy=False,
-        default=lambda self: self.env.user.company_id.l10n_do_ecf_issuer
-        and self.env.user.company_id.l10n_do_country_code
-        and self.env.user.company_id.l10n_do_country_code == "DO",
+        compute="_compute_is_ecf_invoice",
+        store=True,
     )
     l10n_do_ecf_modification_code = fields.Selection(
         selection="_get_l10n_do_ecf_modification_code",
@@ -102,12 +100,27 @@ class AccountMove(models.Model):
         compute="_compute_company_in_contingency",
     )
     is_l10n_do_internal_sequence = fields.Boolean(
-        string="Is internal sequence", compute="_compute_is_l10n_do_internal_sequence"
+        string="Is internal sequence", compute="_compute_l10n_latam_document_type"
     )
 
-    @api.depends("type", "l10n_latam_document_type_id.l10n_do_ncf_type")
-    def _compute_is_l10n_do_internal_sequence(self):
+    @api.depends(
+        "l10n_latam_country_code",
+        "l10n_latam_document_type_id.l10n_do_ncf_type",
+    )
+    def _compute_is_ecf_invoice(self):
         for invoice in self:
+            invoice.is_ecf_invoice = (
+                invoice.l10n_latam_country_code == "DO"
+                and invoice.l10n_latam_document_type_id
+                and invoice.l10n_latam_document_type_id.l10n_do_ncf_type[:2] == "e-"
+            )
+
+    @api.depends("l10n_latam_available_document_type_ids")
+    @api.depends_context("internal_type")
+    def _compute_l10n_latam_document_type(self):
+        super(AccountMove, self)._compute_l10n_latam_document_type()
+
+        for invoice in self.filtered(lambda x: x.state == "draft"):
             invoice.is_l10n_do_internal_sequence = invoice.type in (
                 "out_invoice",
                 "out_refund",
