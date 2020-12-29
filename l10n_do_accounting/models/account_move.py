@@ -164,6 +164,17 @@ class AccountMove(models.Model):
 
             invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
 
+    @api.depends("ref")
+    def _compute_l10n_latam_document_number(self):
+        l10n_do_recs = self.filtered(
+            lambda x: x.l10n_latam_country_code == "DO"
+            and x.l10n_latam_manual_document_number
+        )
+        for rec in l10n_do_recs:
+            rec.l10n_latam_document_number = rec.ref
+
+        super(AccountMove, self - l10n_do_recs)._compute_l10n_latam_document_number()
+
     def button_cancel(self):
 
         fiscal_invoice = self.filtered(
