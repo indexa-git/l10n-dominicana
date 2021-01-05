@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-01 21:07+0000\n"
-"PO-Revision-Date: 2020-12-01 21:07+0000\n"
+"POT-Creation-Date: 2020-12-10 18:26+0000\n"
+"PO-Revision-Date: 2020-12-10 18:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -514,6 +514,11 @@ msgid "Dominican Documents"
 msgstr "Documento Fiscal"
 
 #. module: l10n_do_accounting
+#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.res_config_settings_view_form
+msgid "Dominican Localization"
+msgstr "Localización dominicana"
+
+#. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_electronic_stamp
 msgid "Electronic Stamp"
 msgstr "Sello Electrónico"
@@ -532,13 +537,14 @@ msgstr "Cliente Fiscal"
 #: code:addons/l10n_do_accounting/models/res_partner.py:0
 #, python-format
 msgid "Fiscal Tax Payer"
-msgstr "Tipo de Contribuyente"
+msgstr "Contribuyente"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_move.py:0
 #, python-format
 msgid "Fiscal invoices require partner fiscal type"
-msgstr "Las Facturas Fiscales requieren un Tipo de Contribuyente en el contacto"
+msgstr ""
+"Las Facturas Fiscales requieren un Tipo de Contribuyente en el contacto"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/res_partner.py:0
@@ -600,8 +606,9 @@ msgstr "Monto ITBIS"
 msgid ""
 "Identify taxpayers who have been previously authorized to have sales through"
 " offline mobile devices such as sales with Handheld, enter others."
-msgstr "Identifica los contribuyentes que han sido previamente autorizados para tener "
-"ventas a través de dispositivos Offline, como Handheld, entre otros."
+msgstr ""
+"Identifica los contribuyentes que han sido previamente autorizados para "
+"tener ventas a través de dispositivos Offline, como Handheld, entre otros."
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_move.py:0
@@ -655,6 +662,11 @@ msgid "Is e-CF issuer"
 msgstr "Es Emisor Electrónico"
 
 #. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__is_l10n_do_internal_sequence
+msgid "Is internal sequence"
+msgstr "Es secuencia interna"
+
+#. module: l10n_do_accounting
 #: model:ir.model,name:l10n_do_accounting.model_account_journal
 msgid "Journal"
 msgstr "Diario"
@@ -701,7 +713,8 @@ msgid ""
 "NCF *{}* does not correspond with the fiscal type\n"
 "\n"
 "You cannot register Consumo NCF (02/32) for purchases"
-msgstr "El NCF *{}* no se corresponde con el tipo fiscal\n"
+msgstr ""
+"El NCF *{}* no se corresponde con el tipo fiscal\n"
 "\n"
 "No puede registrar NCF de Consumo (02 / 32) para compras"
 
@@ -764,8 +777,9 @@ msgstr "Sin fines de lucro"
 msgid ""
 "Notice. This company is in a transient state of contingency for Electronic "
 "Invoice issuing. NCF issuing has been enabled."
-msgstr "Aviso. Esta compañía está en un estado transitorio de contingencia para "
-"la emisión de Facturas Electrónicas. La emisión de NCF ha sido habilitada."
+msgstr ""
+"Aviso. Esta compañía está en un estado transitorio de contingencia para la "
+"emisión de Facturas Electrónicas. La emisión de NCF ha sido habilitada."
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_journal.py:0
@@ -852,7 +866,9 @@ msgstr "Secuencias"
 #: code:addons/l10n_do_accounting/models/account_move.py:0
 #, python-format
 msgid "Services sales to overseas customer must have Consumo Fiscal Type"
-msgstr "La venta de servicios a clientes en el exterior deben ser con comprobante de Consumo"
+msgstr ""
+"La venta de servicios a clientes en el exterior deben ser con comprobante de"
+" Consumo"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields.selection,name:l10n_do_accounting.selection__l10n_latam_document_type__internal_type__in_credit_note
@@ -916,6 +932,12 @@ msgstr "Válida hasta"
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
 msgid "Vencimiento e-NCF:"
 msgstr ""
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "Vendor bill NCF must be unique per vendor and company."
+msgstr "El NCF de la Factura de Proveedor debe ser único por proveedor y por compañía."
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited

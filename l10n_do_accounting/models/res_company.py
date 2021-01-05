@@ -13,7 +13,8 @@ class ResCompany(models.Model):
         string="Default Customer",
     )
     l10n_do_ecf_issuer = fields.Boolean(
-        "Is e-CF issuer", help="When activating this field, NCF issuance is disabled.",
+        "Is e-CF issuer",
+        help="When activating this field, NCF issuance is disabled.",
     )
     l10n_do_ecf_deferred_submissions = fields.Boolean(
         "Deferred submissions",

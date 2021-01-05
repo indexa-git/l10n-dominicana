@@ -18,35 +18,36 @@ class AccountJournal(models.Model):
         ]
 
     l10n_do_payment_form = fields.Selection(
-        selection="_get_l10n_do_payment_form", string="Payment Form",
+        selection="_get_l10n_do_payment_form",
+        string="Payment Form",
     )
     l10n_do_sequence_ids = fields.One2many(
-        "ir.sequence", "l10n_latam_journal_id", string="Sequences",
+        "ir.sequence",
+        "l10n_latam_journal_id",
+        string="Sequences",
     )
 
-    def _get_all_ncf_types(self, types_list):
+    def _get_all_ncf_types(self, types_list, invoice):
         """
         Include ECF type prefixes if company is ECF issuer
         :param types_list: NCF list used to create fiscal sequences
         :return: types_list
         """
-        if self.company_id.l10n_do_ecf_issuer:
+
+        if self.company_id.l10n_do_ecf_issuer or (
+            invoice
+            and not self.company_id.l10n_do_ecf_issuer
+            and invoice.partner_id.l10n_do_dgii_tax_payer_type
+            and invoice.partner_id.l10n_do_dgii_tax_payer_type != "non_payer"
+        ):
             types_list.extend(
                 ["e-%s" % d for d in types_list if d not in ("unique", "import")]
             )
         return types_list
 
-    def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
-        """
-        Regarding the DGII type of company and the type of journal
-        (sale/purchase), get the allowed NCF types. Optionally, receive
-        the counterpart partner (customer/supplier) and get the allowed
-        NCF types to work with him. This method is used to populate
-        document types on journals and also to filter document types on
-        specific invoices to/from customer/supplier
-        """
-        self.ensure_one()
-        ncf_types_data = {
+    @api.model
+    def _get_l10n_do_ncf_types_data(self):
+        return {
             "issued": {
                 "taxpayer": ["fiscal"],
                 "non_payer": ["consumer", "unique"],
@@ -64,6 +65,19 @@ class AccountJournal(models.Model):
                 "foreigner": ["import", "exterior"],
             },
         }
+
+    def _get_journal_ncf_types(self, counterpart_partner=False, invoice=False):
+        """
+        Regarding the DGII type of company and the type of journal
+        (sale/purchase), get the allowed NCF types. Optionally, receive
+        the counterpart partner (customer/supplier) and get the allowed
+        NCF types to work with him. This method is used to populate
+        document types on journals and also to filter document types on
+        specific invoices to/from customer/supplier
+        """
+        self.ensure_one()
+        ncf_types_data = self._get_l10n_do_ncf_types_data()
+
         if not self.company_id.vat:
             action = self.env.ref("base.action_res_company_form")
             msg = _("Cannot create chart of account until you configure your VAT.")
@@ -90,7 +104,7 @@ class AccountJournal(models.Model):
                 if self.type == "sale"
                 else [ncf for ncf in ncf_types if ncf not in ncf_external]
             )
-            return self._get_all_ncf_types(res)
+            return self._get_all_ncf_types(res, invoice)
         else:
             counterpart_ncf_types = ncf_types_data[
                 "issued" if self.type == "sale" else "received"
@@ -99,7 +113,7 @@ class AccountJournal(models.Model):
         if invoice.type in ["out_refund", "in_refund"]:
             ncf_types = ["credit_note"]
 
-        return self._get_all_ncf_types(ncf_types)
+        return self._get_all_ncf_types(ncf_types, invoice)
 
     def _get_journal_codes(self):
         self.ensure_one()
@@ -124,8 +138,8 @@ class AccountJournal(models.Model):
         return res
 
     def _l10n_do_create_document_sequences(self):
-        """ IF DGII Configuration changes try to review if this can be done
-        and then create / update the document sequences """
+        """IF DGII Configuration changes try to review if this can be done
+        and then create / update the document sequences"""
         self.ensure_one()
         if self.company_id.country_id != self.env.ref("base.do"):
             return True

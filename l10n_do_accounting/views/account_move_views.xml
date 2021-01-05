@@ -10,6 +10,7 @@
                 <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
+                <field name="is_l10n_do_internal_sequence" invisible="1"/>
             </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
@@ -42,8 +43,8 @@
                 }</attribute>
             </xpath>
             <xpath expr="//h1/span/.." position="inside">
-                <span attrs="{'invisible': ['|', ('type', '!=', 'out_refund'), ('state', '!=', 'cancel')]}">Cancelled Credit Note</span>
-                <span attrs="{'invisible': ['|', ('type', '!=', 'in_refund'), ('state', '!=', 'cancel')]}">Cancelled Refund</span>
+                <span attrs="{'invisible': ['|', ('type', '!=', 'out_refund'), '|', ('state', '!=', 'cancel'), ('l10n_latam_country_code', '!=', 'DO')]}">Cancelled Credit Note</span>
+                <span attrs="{'invisible': ['|', ('type', '!=', 'in_refund'), '|', ('state', '!=', 'cancel'), ('l10n_latam_country_code', '!=', 'DO')]}">Cancelled Refund</span>
             </xpath>
             <xpath expr="//h1/span/.." position="after">
                 <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
@@ -54,37 +55,42 @@
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': ['|', ('l10n_latam_use_documents', '=', False), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'draft')],
-                    'required': [('l10n_latam_sequence_id', '=', False), ('l10n_latam_use_documents', '=', True)],
-                    'readonly': [('state', '!=', 'draft')]}
+                    'invisible': ['|', '&amp;', ('l10n_latam_use_documents', '=', False), ('l10n_latam_country_code', '=', 'DO'), '|', '&amp;', ('is_l10n_do_internal_sequence', '=', True), ('state', '=', 'draft'), '&amp;', ('type', 'in', ('out_invoice', 'out_refund')), '&amp;', ('state', '=', 'draft'), ('l10n_latam_country_code', '=', 'DO')],
+                    'required': [('l10n_latam_sequence_id', '=', False), '&amp;', ('l10n_latam_use_documents', '=', True), ('l10n_latam_country_code', '=', 'DO')],
+                    'readonly': [('state', '!=', 'draft'), ('l10n_latam_country_code', '=', 'DO')]}
                 </attribute>
             </xpath>
             <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='partner_id']" position="after">
                 <xpath expr="//field[@name='l10n_latam_document_type_id']" position="move"/>
                 <xpath expr="//field[@name='l10n_latam_document_number']" position="move"/>
-                <field name="l10n_do_origin_ncf"
-                       attrs="{
-                       'invisible':['|', ('type', 'not in', ('in_refund', 'out_refund')), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('l10n_latam_use_documents', '=', False)],
-                       'required': [('type', 'in', ('in_refund', 'out_refund')), ('l10n_latam_use_documents', '=', True)],
-                       'readonly': [('state','!=','draft')]
-                       }"/>
-                <field name="l10n_do_ecf_modification_code"
-                       attrs="{
-                       'invisible':['|', '&amp;', ('type', 'not in', ('in_refund', 'out_refund')), ('is_debit_note', '=', False), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', False)],
-                       'required': ['|', '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', True), ('is_debit_note', '=', True)],
+                <field name="l10n_do_origin_ncf" attrs="{
+                    'invisible':['|', ('type', 'not in', ('in_refund', 'out_refund')), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), '|', ('l10n_latam_use_documents', '=', False), ('l10n_latam_country_code', '!=', 'DO')],
+                    'required': [('type', 'in', ('in_refund', 'out_refund')), ('l10n_latam_use_documents', '=', True)],
+                    'readonly': [('state','!=','draft')]
+                }"/>
+                <field name="l10n_do_ecf_modification_code" attrs="{
+                    'invisible':['|', '&amp;', ('type', 'not in', ('in_refund', 'out_refund')), ('is_debit_note', '=', False), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), '|', ('is_ecf_invoice', '=', False), ('l10n_latam_country_code', '!=', 'DO')],
+                    'required': ['|', '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', True), ('is_debit_note', '=', True)],
                 }"/>
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="after">
-                <field name="l10n_do_income_type"
-                       attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','out_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','out_invoice']], 'readonly': [['state','!=','draft']]}"/>
-                <field name="l10n_do_expense_type"
-                       attrs="{'invisible': ['|',['l10n_latam_use_documents','=',False],['type','!=','in_invoice']], 'required': ['&amp;',['l10n_latam_use_documents','=',True],['type','=','in_invoice']], 'readonly': [['state','!=','draft']]}"/>
+                <field name="l10n_do_income_type" attrs="{
+                    'invisible': ['|', ('l10n_latam_use_documents', '=', False), '|', ('type', '!=', 'out_invoice'), ('l10n_latam_country_code', '!=', 'DO')],
+                    'required': ['&amp;', ('l10n_latam_use_documents', '=', True), ('type','=','out_invoice')],
+                    'readonly': [('state','!=','draft')]
+                }"/>
+                <field name="l10n_do_expense_type" attrs="{
+                    'invisible': ['|', ('l10n_latam_use_documents', '=' ,False), '|', ('type', '!=', 'in_invoice'), ('l10n_latam_country_code', '!=', 'DO')],
+                    'required': ['&amp;', ('l10n_latam_use_documents', '=', True), ('type', '=', 'in_invoice')],
+                    'readonly': [('state','!=','draft')]
+                }"/>
             </xpath>
             <xpath expr="//field[@name='ref']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <field name="journal_id" position="after">
-                <field name="l10n_do_ecf_security_code" invisible="1"/>
+                <field name="l10n_do_ecf_security_code" attrs="{
+                'invisible': ['|', '|', '|', ('partner_id', '=', False), ('l10n_latam_country_code', '!=', 'DO'), ('is_l10n_do_internal_sequence', '=', True), ('is_ecf_invoice', '=', False)]}"/>
                 <field name="l10n_do_ecf_sign_date" invisible="1"/>
                 <field name="l10n_do_electronic_stamp" invisible="1"/>
             </field>

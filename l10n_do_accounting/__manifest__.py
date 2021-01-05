@@ -17,6 +17,7 @@
         "data/l10n_latam.document.type.csv",
         "wizard/account_move_reversal_views.xml",
         "wizard/account_move_cancel_views.xml",
+        "views/res_config_settings_view.xml",
         "views/account_move_views.xml",
         "views/res_partner_views.xml",
         "views/res_company_views.xml",
@@ -26,13 +27,9 @@
         "views/report_templates.xml",
         "views/report_invoice.xml",
     ],
-    "qweb": [
-        # "static/src/xml/fiscal_sequence_warning_template.xml",
-    ],
     # only loaded in demonstration mode
     "demo": [
-        # 'demo/res_partner_demo.xml',
-        # 'demo/account_fiscal_sequence_demo.xml',
+        "demo/res_partner_demo.xml",
     ],
     "installable": True,
     "auto_install": False,
