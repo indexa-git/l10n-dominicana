@@ -1,3 +1,5 @@
+import re
+from psycopg2 import sql
 from werkzeug import urls
 
 from odoo import models, fields, api, _
@@ -7,11 +9,8 @@ from odoo.exceptions import ValidationError, UserError, AccessError
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    @property
-    def _sequence_fixed_regex(self):
-        if self.l10n_latam_country_code == "DO" and self.l10n_latam_use_documents:
-            return r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})(?P<suffix>\D*?)$"
-        return super(AccountMove, self)._sequence_fixed_regex
+    _l10n_do_sequence_field = "ref"
+    _l10n_do_sequence_fixed_regex = r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})$"
 
     def _get_l10n_do_cancellation_type(self):
         """ Return the list of cancellation types required by DGII. """
@@ -97,6 +96,42 @@ class AccountMove(models.Model):
         "Country Code",
         related="company_id.country_id.code",
     )
+    l10n_do_sequence_prefix = fields.Char(compute="_compute_split_sequence", store=True)
+    l10n_do_sequence_number = fields.Integer(
+        compute="_compute_split_sequence", store=True
+    )
+
+    def init(self):
+
+        super(AccountMove, self).init()
+
+        if not self._abstract and self._sequence_index:
+            index_name = self._table + "_l10n_do_sequence_index"
+            self.env.cr.execute(
+                "SELECT indexname FROM pg_indexes WHERE indexname = %s", (index_name,)
+            )
+            if not self.env.cr.fetchone():
+                self.env.cr.execute(
+                    sql.SQL(
+                        """
+                        CREATE INDEX {index_name} ON {table}
+                        ({sequence_index},
+                        l10n_do_sequence_prefix desc,
+                        l10n_do_sequence_number desc,
+                        {field});
+                        CREATE INDEX {index2_name} ON {table}
+                        ({sequence_index},
+                        id desc,
+                        l10n_do_sequence_prefix);
+                    """
+                    ).format(
+                        sequence_index=sql.Identifier(self._sequence_index),
+                        index_name=sql.Identifier(index_name),
+                        index2_name=sql.Identifier(index_name + "2"),
+                        table=sql.Identifier(self._table),
+                        field=sql.Identifier(self._l10n_do_sequence_field),
+                    )
+                )
 
     @api.depends(
         "l10n_latam_country_code",
@@ -167,8 +202,7 @@ class AccountMove(models.Model):
     @api.depends("ref")
     def _compute_l10n_latam_document_number(self):
         l10n_do_recs = self.filtered(
-            lambda x: x.l10n_latam_country_code == "DO"
-            and x.l10n_latam_manual_document_number
+            lambda x: x.l10n_latam_country_code == "DO" and x.l10n_latam_use_documents
         )
         for rec in l10n_do_recs:
             rec.l10n_latam_document_number = rec.ref
@@ -333,11 +367,17 @@ class AccountMove(models.Model):
 
     def _is_manual_document_number(self, journal):
 
+        active_domain = self._context.get("active_domain", False)
+        if active_domain:
+            move_type = active_domain[0][2]
+        else:
+            move_type = self.move_type
+
         if (
             self.company_id.country_id == self.env.ref("base.do")
             and self.l10n_latam_document_type_id
         ):
-            return self.move_type in (
+            return move_type in (
                 "in_invoice",
                 "in_refund",
             ) and self.l10n_latam_document_type_id.l10n_do_ncf_type not in (
@@ -364,6 +404,19 @@ class AccountMove(models.Model):
         return res
 
     def _l10n_do_get_formatted_sequence(self):
+        self.ensure_one()
+        if not self._context.get("is_l10n_do_seq", False):
+            starting_sequence = "%s/%04d/0000" % (
+                self.journal_id.code,
+                self.date.year,
+            )
+            if self.journal_id.refund_sequence and self.move_type in (
+                "out_refund",
+                "in_refund",
+            ):
+                starting_sequence = "R" + starting_sequence
+            return starting_sequence
+
         document_type_id = self.l10n_latam_document_type_id
         return "%s%s" % (
             document_type_id.doc_code_prefix,
@@ -375,7 +428,7 @@ class AccountMove(models.Model):
     def _get_starting_sequence(self):
         if (
             self.journal_id.l10n_latam_use_documents
-            and self.env.company.country_id.code == "DO"
+            and self.l10n_latam_country_code == "DO"
             and self.l10n_latam_document_type_id
         ):
             return self._l10n_do_get_formatted_sequence()
@@ -386,11 +439,11 @@ class AccountMove(models.Model):
         where_string, param = super(AccountMove, self)._get_last_sequence_domain(
             relaxed
         )
-        if self.l10n_latam_country_code == "DO" and self.l10n_latam_use_documents:
+        if self._context.get("is_l10n_do_seq", False):
             where_string = where_string.replace("journal_id = %(journal_id)s AND", "")
             where_string += (
-                " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND "
-                "company_id = %(company_id)s"
+                " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND"
+                " company_id = %(company_id)s"
             )
             param["company_id"] = self.company_id.id or False
             param["l10n_latam_document_type_id"] = (
@@ -398,8 +451,122 @@ class AccountMove(models.Model):
             )
         return where_string, param
 
+    @api.depends(lambda self: [self._l10n_do_sequence_field])
+    def _compute_split_sequence(self):
+        super(AccountMove, self)._compute_split_sequence()
+        for record in self:
+            sequence = record[record._l10n_do_sequence_field] or ""
+            regex = re.sub(
+                r"\?P<\w+>",
+                "?:",
+                record._l10n_do_sequence_fixed_regex.replace(r"?P<seq>", ""),
+            )
+            matching = re.match(regex, sequence)
+            record.l10n_do_sequence_prefix = sequence[: matching.start(1)]
+            record.l10n_do_sequence_number = int(matching.group(1) or 0)
+
+    def _get_last_sequence(self, relaxed=False):
+
+        if not self._context.get("is_l10n_do_seq", False):
+            return super(AccountMove, self)._get_last_sequence(relaxed=relaxed)
+
+        self.ensure_one()
+        if (
+            self._l10n_do_sequence_field not in self._fields
+            or not self._fields[self._l10n_do_sequence_field].store
+        ):
+            raise ValidationError(
+                _("%s is not a stored field", self._l10n_do_sequence_field)
+            )
+        where_string, param = self._get_last_sequence_domain(relaxed)
+        if self.id or self.id.origin:
+            where_string += " AND id != %(id)s "
+            param["id"] = self.id or self.id.origin
+
+        query = """
+            UPDATE {table} SET write_date = write_date WHERE id = (
+                SELECT id FROM {table}
+                {where_string}
+                AND l10n_do_sequence_prefix = (
+                SELECT l10n_do_sequence_prefix 
+                FROM {table} {where_string} 
+                ORDER BY id DESC LIMIT 1)
+                ORDER BY l10n_do_sequence_number DESC
+                LIMIT 1
+            )
+            RETURNING {field};
+        """.format(
+            table=self._table,
+            where_string=where_string,
+            field=self._l10n_do_sequence_field,
+        )
+
+        self.flush(
+            [
+                self._l10n_do_sequence_field,
+                "l10n_do_sequence_number",
+                "l10n_do_sequence_prefix",
+            ]
+        )
+        self.env.cr.execute(query, param)
+        return (self.env.cr.fetchone() or [None])[0]
+
+    @api.depends("posted_before", "state", "journal_id", "date")
+    def _compute_name(self):
+        super(AccountMove, self)._compute_name()
+        for move in self.filtered(
+            lambda x: x.l10n_latam_country_code == "DO"
+            and not x.l10n_latam_manual_document_number
+        ):
+            move.with_context(is_l10n_do_seq=True)._set_next_sequence()
+
+    def _get_sequence_format_param(self, previous):
+
+        if not self._context.get("is_l10n_do_seq", False):
+            return super(AccountMove, self)._get_sequence_format_param(previous)
+
+        regex = self._l10n_do_sequence_fixed_regex
+
+        format_values = re.match(regex, previous).groupdict()
+        format_values["seq_length"] = len(format_values["seq"])
+        format_values["seq"] = int(format_values.get("seq") or 0)
+
+        placeholders = re.findall(r"(prefix\d|seq\d?)", regex)
+        format = "".join(
+            "{seq:0{seq_length}d}" if s == "seq" else "{%s}" % s for s in placeholders
+        )
+        return format, format_values
+
+    def _set_next_sequence(self):
+        self.ensure_one()
+
+        if not self._context.get("is_l10n_do_seq", False):
+            return super(AccountMove, self)._set_next_sequence()
+
+        last_sequence = self._get_last_sequence()
+        new = not last_sequence
+        if new:
+            last_sequence = (
+                self._get_last_sequence(relaxed=True) or self._get_starting_sequence()
+            )
+
+        format, format_values = self._get_sequence_format_param(last_sequence)
+        if new:
+            format_values["seq"] = 0
+        format_values["seq"] = format_values["seq"] + 1
+
+        self[self._l10n_do_sequence_field] = format.format(**format_values)
+        self._compute_split_sequence()
+
     def _get_name_invoice_report(self):
         self.ensure_one()
         if self.l10n_latam_use_documents and self.l10n_latam_country_code == "DO":
             return "l10n_do_accounting.report_invoice_document_inherited"
         return super()._get_name_invoice_report()
+
+    # TODO: handle l10n_latam_invoice_document _compute_name() inheritance shit
+    # TODO: implement fiscal sequence regenerate
+    # TODO: move l10n_do_debit_note features to this module since
+    #  l10n_latam_invoice_document depends on account_debit_note
+    # TODO: implement l10n_do invoice templates
+    # TODO: fix log WARNINGS
