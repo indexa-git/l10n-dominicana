@@ -953,20 +953,21 @@ class DgiiReport(models.Model):
             line = 0
             report_data = ''
             for inv in invoice_ids:
-                inv.fiscal_status = 'blocked' if not inv.fiscal_status else \
-                    inv.fiscal_status
-                line += 1
-                values = {
-                    'dgii_report_id': rec.id,
-                    'line': line,
-                    'invoice_partner_id': inv.partner_id.id,
-                    'fiscal_invoice_number': inv.reference,
-                    'invoice_date': inv.date_invoice,
-                    'anulation_type': inv.anulation_type,
-                    'invoice_id': inv.id
-                }
-                CancelLine.create(values)
-                report_data += self.process_608_report_data(values) + '\n'
+                if inv.reference:
+                    inv.fiscal_status = 'blocked' if not inv.fiscal_status else \
+                        inv.fiscal_status
+                    line += 1
+                    values = {
+                        'dgii_report_id': rec.id,
+                        'line': line,
+                        'invoice_partner_id': inv.partner_id.id,
+                        'fiscal_invoice_number': inv.reference,
+                        'invoice_date': inv.date_invoice,
+                        'anulation_type': inv.anulation_type,
+                        'invoice_id': inv.id
+                    }
+                    CancelLine.create(values)
+                    report_data += self.process_608_report_data(values) + '\n'
 
             self._generate_608_txt(report_data, line)
 
