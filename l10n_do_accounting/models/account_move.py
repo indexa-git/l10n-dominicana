@@ -293,11 +293,12 @@ class AccountMove(models.Model):
 
     @api.constrains("type", "l10n_latam_document_type_id")
     def _check_invoice_type_document_type(self):
-        super()._check_invoice_type_document_type()
-        for rec in self.filtered(
-            lambda r: r.company_id.country_id == self.env.ref("base.do")
-            and r.l10n_latam_document_type_id
-        ):
+        l10n_do_invoices = self.filtered(
+            lambda inv: inv.l10n_latam_country_code == "DO"
+            and inv.l10n_latam_use_documents
+            and inv.l10n_latam_document_type_id
+        )
+        for rec in l10n_do_invoices:
             partner_vat = rec.partner_id.vat
             l10n_latam_document_type = rec.l10n_latam_document_type_id
             if not partner_vat and l10n_latam_document_type.is_vat_required:
@@ -320,6 +321,8 @@ class AccountMove(models.Model):
                             "the customer should have a VAT to validate the invoice"
                         )
                     )
+
+        super(AccountMove, self - l10n_do_invoices)._check_invoice_type_document_type()
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
