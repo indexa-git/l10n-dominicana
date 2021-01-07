@@ -13,6 +13,7 @@
     "depends": ["base", "account", "l10n_do"],
     # always loaded
     "data": [
+        "data/ir_config_parameters.xml",
         "security/ir.model.access.csv",
         "security/res_groups.xml",
         "data/ir_cron_data.xml",
@@ -29,6 +30,7 @@
         "views/account_journal_views.xml",
         "views/res_partner_views.xml",
         "views/assets.xml",
+        "views/backend_js.xml",
     ],
     "qweb": ["static/src/xml/fiscal_sequence_warning_template.xml"],
     # only loaded in demonstration mode
