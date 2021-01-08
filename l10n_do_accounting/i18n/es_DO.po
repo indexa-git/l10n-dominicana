@@ -934,6 +934,12 @@ msgid "Vencimiento e-NCF:"
 msgstr ""
 
 #. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "Vendor bill NCF must be unique per vendor and company."
+msgstr "El NCF de la Factura de Proveedor debe ser único por proveedor y por compañía."
+
+#. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
 msgid "Válida hasta:"
 msgstr ""
