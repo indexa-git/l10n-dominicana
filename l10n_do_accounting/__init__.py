@@ -20,7 +20,8 @@ def get_document_type_dict(env):
         "15": env.ref("l10n_do_accounting.ncf_gov_client").id,
         "16": env.ref("l10n_do_accounting.ncf_export_client").id,
         "17": env.ref("l10n_do_accounting.ncf_exterior_supplier").id,
-        "31": env.ref("l10n_do_accounting.ncf_fiscal_client").id,  # ECF
+        "31": env.ref("l10n_do_accounting.ecf_fiscal_client").id,  # ECF
+        "34": env.ref("l10n_do_accounting.ecf_credit_note_client").id,  # ECF
     }
 
 
@@ -52,7 +53,7 @@ def migrate_invoice_fields(env):
         document_type_dict = get_document_type_dict(env)
 
         Move = env["account.move"]
-        domain = [("country_id", "=", env.ref("base.do").id)]
+        domain = [("country_id", "=", env.ref("base.do").id), ("vat", "!=", False)]
         for company in env["res.company"].search(domain):
 
             # Sale invoices routine
@@ -92,7 +93,7 @@ def migrate_invoice_fields(env):
                     except KeyError:
                         document_type_id = False
 
-                    invoice.write(
+                    invoice._write(
                         {
                             "ref": ref,
                             "l10n_latam_document_type_id": document_type_id,
@@ -144,16 +145,29 @@ def migrate_invoice_fields(env):
                             % (data[0], i, purchase_invoices_len)
                         )
 
-                        ref = data[0].strip()
-                        document_type_key = (
-                            ref[1:3] if len(ref) in (11, 13) else ref[9:-8]
+                        ref = (
+                            data[0].strip().replace(" ", "")
+                            if data[0] is not None
+                            else ""
                         )
-                        try:
-                            document_type_id = document_type_dict[document_type_key]
-                        except KeyError:
-                            document_type_id = False
+                        if ref:
+                            document_type_key = (
+                                ref[1:3] if len(ref) in (11, 13) else ref[9:-8]
+                            )
+                            try:
+                                document_type_id = document_type_dict[document_type_key]
+                            except KeyError:
+                                # Here we force a document type because database has
+                                # shitty data and can't automatically determine one
+                                document_type_id = (
+                                    document_type_dict["01"]
+                                    if invoice.type == "in_invoice"
+                                    else document_type_dict["04"]
+                                )
+                        else:
+                            continue
 
-                        invoice.write(
+                        invoice._write(
                             {
                                 "ref": ref,
                                 "l10n_latam_document_type_id": document_type_id,
