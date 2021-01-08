@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document">
+    <template id="report_invoice_document_inherited" inherit_id="account.report_invoice_document" primary="True">
 
         <xpath expr="//t[@t-set='o']" position="after">
             <!-- When is a e-CF representation, additional info is displayed -->
@@ -36,7 +36,7 @@
                     </span>
                     <br/>
                     <span
-                        t-if="o.invoice_date_due and o.type == 'out_invoice' and o.state == 'posted' and not ecf_representation">
+                        t-if="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted' and not ecf_representation">
                         <strong>Vence:</strong>
                         <span t-field="o.invoice_date_due"/>
                     </span>
@@ -54,7 +54,7 @@
                     <span t-field="o.l10n_latam_document_number"/>
                     <br/>
                     <span
-                        t-if="(o.type == 'out_refund' or o.type == 'in_refund' or o.debit_origin_id) and (o.l10n_do_origin_ncf != False)">
+                        t-if="(o.move_type == 'out_refund' or o.move_type == 'in_refund' or o.debit_origin_id) and (o.l10n_do_origin_ncf != False)">
                         <strong>NCF modificado:</strong>
                         <span t-field="o.l10n_do_origin_ncf"/>
                         <t t-if="ecf_representation">
@@ -65,7 +65,7 @@
                         <br/>
                     </span>
                     <span id="fiscal_exp_date"
-                          t-if="(o.type in ['out_invoice', 'out_refund'] and not o.is_ecf_invoice)
+                          t-if="(o.move_type in ['out_invoice', 'out_refund'] and not o.is_ecf_invoice)
                               or (o.is_ecf_invoice and o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34'))
                               and o.state == 'posted' and o.l10n_latam_document_number">
                         <strong>
@@ -89,7 +89,7 @@
             <attribute name="t-if">o.invoice_date and not is_l10n_do_invoice</attribute>
         </xpath>
         <xpath expr="//div[hasclass('page')]//div[@id='informations']/div[@name='due_date']" position="attributes">
-            <attribute name="t-if">o.invoice_date_due and o.type == 'out_invoice' and o.state == 'posted' and not is_l10n_do_invoice</attribute>
+            <attribute name="t-if">o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted' and not is_l10n_do_invoice</attribute>
         </xpath>
 
         <xpath expr="//div[hasclass('page')]//div[@id='informations']/div[@name='invoice_date']" position="before">
@@ -240,4 +240,19 @@
         </xpath>
 
     </template>
+
+    <template id="report_invoice" inherit_id="account.report_invoice">
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t t-if="o._get_name_invoice_report() == 'l10n_do_accounting.report_invoice_document_inherited'"
+               t-call="l10n_do_accounting.report_invoice_document_inherited" t-lang="lang"/>
+        </xpath>
+    </template>
+
+    <template id="report_invoice_with_payments" inherit_id="account.report_invoice_with_payments">
+        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+            <t t-if="o._get_name_invoice_report() == 'l10n_do_accounting.report_invoice_document_inherited'"
+               t-call="l10n_do_accounting.report_invoice_document_inherited" t-lang="lang"/>
+        </xpath>
+    </template>
+
 </odoo>
