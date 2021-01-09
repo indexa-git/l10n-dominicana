@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_account_debit_note_inherited" model="ir.ui.view">
+        <field name="name">view.account.debit.note.inherited</field>
+        <field name="model">account.debit.note</field>
+        <field name="inherit_id" ref="account_debit_note.view_account_debit_note"/>
+        <field name="arch" type="xml">
+            <field name="move_ids" position="after">
+                <field name="l10n_latam_country_code" invisible="1"/>
+                <field name="is_ecf_invoice" invisible="1"/>
+                <group>
+                    <group attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'DO'), ('move_type', 'not in', ('out_invoice', 'in_invoice'))]}">
+                        <field name="l10n_do_debit_type" options="{'horizontal': true}"
+                               widget="radio" string="Debit type"/>
+                        <field name="l10n_do_debit_action" widget="radio"
+                               attrs="{'invisible': [('l10n_do_debit_type','=','apply_debit')]}"/>
+                    </group>
+                    <group attrs="{'invisible': [('l10n_do_debit_type','=','apply_debit')]}">
+                        <div attrs="{'invisible':[('l10n_do_debit_action','!=','draft_debit')]}"
+                             class="oe_grey" colspan="4">
+                            You will be able to edit and validate this
+                            debit note directly or keep it draft.
+                        </div>
+                        <div attrs="{'invisible':[('l10n_do_debit_action','!=','apply_debit')]}"
+                             class="oe_grey" colspan="4">
+                            Use this option if you want to fully apply a debit note.
+                            The debit note will be created, validated and reconciled
+                            with the invoice. You will not be able to modify the debit
+                            note.
+                        </div>
+                    </group>
+                </group>
+            </field>
+            <field name="reason" position="after">
+                <field name="l10n_latam_document_number"
+                       attrs="{
+                       'invisible': [('move_type', '!=', 'in_invoice')],
+                       'required': [('move_type', '=', 'in_invoice')]}"
+                />
+                <field name="l10n_do_percentage"
+                       attrs="{
+                       'invisible': ['|', ('l10n_latam_country_code', '!=', 'DO'), ('l10n_do_debit_type', '!=', 'percentage')],
+                       'required': [('l10n_do_debit_type', '=', 'percentage')]}"/>
+                <field name="l10n_do_amount"
+                       attrs="{
+                       'invisible': ['|', ('l10n_latam_country_code', '!=', 'DO'), ('l10n_do_debit_type', '!=', 'fixed_amount')],
+                       'required': [('l10n_do_debit_type', '=', 'fixed_amount')]}"/>
+                <field name="l10n_do_account_id" groups="account.group_account_user"
+                       options='{"no_open": True, "no_create": True}'
+                       attrs="{'invisible': ['|', ('l10n_latam_country_code', '!=', 'DO'), ('l10n_do_debit_type', '=', 'apply_debit')],
+                       'required': [('l10n_do_debit_type', '!=', 'apply_debit')]}"/>
+                <field name="l10n_do_ecf_modification_code"
+                       attrs="{'invisible': ['|', '|',
+                       ('l10n_latam_country_code', '!=', 'DO'),
+                       ('move_type', '!=', 'out_invoice'),
+                       ('is_ecf_invoice', '=', False),
+                       ], 'required': [
+                       ('l10n_latam_country_code', '=', 'DO'),
+                       ('move_type', '=', 'out_invoice'),
+                       ('is_ecf_invoice', '=', True),
+                ]}"/>
+            </field>
+            <xpath expr="//field[@name='copy_lines']" position="attributes">
+                <attribute name="attrs">{'invisible': ['|', ('l10n_latam_country_code', '=', 'DO'), ('move_type', 'in', ['in_refund', 'out_refund'])]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

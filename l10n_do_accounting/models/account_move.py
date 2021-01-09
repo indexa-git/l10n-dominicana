@@ -569,6 +569,4 @@ class AccountMove(models.Model):
 
     # TODO: handle l10n_latam_invoice_document _compute_name() inheritance shit
     # TODO: implement fiscal sequence regenerate
-    # TODO: move l10n_do_debit_note features to this module since
-    #  l10n_latam_invoice_document depends on account_debit_note
     # TODO: fix log WARNINGS
