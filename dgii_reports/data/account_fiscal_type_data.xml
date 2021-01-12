@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<odoo noupdate="1">
+<odoo noupdate="0">
 
     <record id="l10n_do_accounting.fiscal_type_credito_fiscal" model="account.fiscal.type">
         <field name="sale_type">fiscal</field>
