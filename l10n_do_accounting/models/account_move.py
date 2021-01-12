@@ -142,6 +142,7 @@ class AccountMove(models.Model):
             invoice.is_ecf_invoice = (
                 invoice.l10n_latam_country_code == "DO"
                 and invoice.l10n_latam_document_type_id
+                and invoice.l10n_latam_document_type_id.l10n_do_ncf_type
                 and invoice.l10n_latam_document_type_id.l10n_do_ncf_type[:2] == "e-"
             )
 

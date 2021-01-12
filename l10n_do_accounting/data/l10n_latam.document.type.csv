@@ -10,7 +10,7 @@ ncf_special_client,110,B,Régimen Especial,Factura de Régimen Especial,invoice,
 ncf_gov_client,120,B,Factura Gubernamental,Factura Gubernamental,invoice,15,B15,base.do,True,TRUE
 ncf_export_client,130,B,Exportación,Factura de Exportación,invoice,16,B16,base.do,True,TRUE
 ncf_exterior_supplier,140,B,Pago al Exterior,Factura de Pago al Exterior,invoice,17,B17,base.do,False,TRUE
-non_fiscal_import_supplier,150,N,Importación,Factura de Importación,invoice,,IMP,base.do,False,TRUE
+non_fiscal_import_supplier,150,N,Importación,Factura de Importación,invoice,,IMP,base.do,False,FALSE
 ecf_fiscal_client,160,E,Crédito Fiscal Electrónica,Factura de Crédito Fiscal Electrónica,invoice,31,E31,base.do,True,TRUE
 ecf_consumer_supplier,170,E,Consumo Electrónica,Factura de Consumo Electrónica,invoice,32,E32,base.do,False,TRUE
 ecf_debit_note_client,180,E,Nota de Débito Electrónica,Nota de Débito Electrónica,debit_note,33,E33,base.do,True,TRUE
