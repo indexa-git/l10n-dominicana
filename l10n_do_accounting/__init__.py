@@ -76,9 +76,10 @@ def migrate_invoice_fields(env):
                     reference, income_type, anulation_type, origin_out
                     FROM account_invoice
                     WHERE move_name = '%s'
-                    AND state != 'draft';
+                    AND state != 'draft'
+                    AND company_id = %s;
                     """
-                env.cr.execute(query % invoice.name)
+                env.cr.execute(query % invoice.name, company.id)
                 data = env.cr.fetchone()
                 if data:
                     _logger.info(
@@ -135,9 +136,10 @@ def migrate_invoice_fields(env):
                         reference, expense_type, anulation_type, origin_out
                         FROM account_invoice
                         WHERE move_name = '%s'
-                        AND state != 'draft';
+                        AND state != 'draft'
+                        AND company_id = %s;
                         """
-                    env.cr.execute(query % invoice.name)
+                    env.cr.execute(query % invoice.name, company.id)
                     data = env.cr.fetchone()
                     if data:
                         _logger.info(
