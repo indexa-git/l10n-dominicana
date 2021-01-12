@@ -100,7 +100,9 @@ class AccountMove(models.Model):
         compute="_compute_company_in_contingency",
     )
     is_l10n_do_internal_sequence = fields.Boolean(
-        string="Is internal sequence", compute="_compute_l10n_latam_document_type"
+        string="Is internal sequence",
+        compute="_compute_l10n_latam_document_type",
+        store=True,
     )
 
     @api.depends(
