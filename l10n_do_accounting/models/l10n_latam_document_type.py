@@ -1,4 +1,7 @@
+from re import compile
+
 from odoo import models, fields
+from odoo.exceptions import ValidationError
 
 
 class L10nLatamDocumentType(models.Model):
@@ -79,5 +82,14 @@ class L10nLatamDocumentType(models.Model):
 
         if not document_number:
             return False
+
+        # NCF/ECF validation regex
+        regex = r"^((P?(?=.{11})B)|(?=.{13})E)(?!2)([0-4][1-7])(\d{8}|\d{10})$"
+        pattern = compile(regex)
+
+        if not bool(pattern.match(document_number)):
+            raise ValidationError(
+                _("Document number %s doesn't match expected pattern" % document_number)
+            )
 
         return document_number
