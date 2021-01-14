@@ -34,11 +34,15 @@ class AccountJournal(models.Model):
         :return: types_list
         """
 
-        if self.company_id.l10n_do_ecf_issuer or (
-            invoice
-            and not self.company_id.l10n_do_ecf_issuer
-            and invoice.partner_id.l10n_do_dgii_tax_payer_type
-            and invoice.partner_id.l10n_do_dgii_tax_payer_type != "non_payer"
+        if (
+            self.company_id.l10n_do_ecf_issuer
+            or self._context.get("use_documents", False)
+            or (
+                invoice
+                and not self.company_id.l10n_do_ecf_issuer
+                and invoice.partner_id.l10n_do_dgii_tax_payer_type
+                and invoice.partner_id.l10n_do_dgii_tax_payer_type != "non_payer"
+            )
         ):
             types_list.extend(
                 ["e-%s" % d for d in types_list if d not in ("unique", "import")]
@@ -134,7 +138,9 @@ class AccountJournal(models.Model):
         res = super().write(values)
         if to_check.intersection(set(values.keys())):
             for rec in self:
-                rec._l10n_do_create_document_sequences()
+                rec.with_context(
+                    use_documents=values.get("l10n_latam_use_documents")
+                )._l10n_do_create_document_sequences()
         return res
 
     def _l10n_do_create_document_sequences(self):
