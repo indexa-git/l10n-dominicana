@@ -371,7 +371,11 @@ class AccountMove(models.Model):
 
     def _is_manual_document_number(self, journal):
 
-        active_domain = self._context.get("active_domain", False)
+        active_domain = [
+            i
+            for i in self._context.get("active_domain", [])
+            if len(i) == 3 and i[0] == "move_type"
+        ]
         if active_domain:
             move_type = active_domain[0][2]
         else:
