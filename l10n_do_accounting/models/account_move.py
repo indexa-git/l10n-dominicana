@@ -563,7 +563,11 @@ class AccountMove(models.Model):
             format_values["seq"] = 0
         format_values["seq"] = format_values["seq"] + 1
 
-        self[self._l10n_do_sequence_field] = format.format(**format_values)
+        self[
+            self._l10n_do_sequence_field
+        ] = self.l10n_latam_document_type_id._format_document_number(
+            format.format(**format_values)
+        )
         self._compute_split_sequence()
 
     def _get_name_invoice_report(self):
