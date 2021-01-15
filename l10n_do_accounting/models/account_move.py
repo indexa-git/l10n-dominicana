@@ -496,8 +496,8 @@ class AccountMove(models.Model):
                 SELECT id FROM {table}
                 {where_string}
                 AND l10n_do_sequence_prefix = (
-                SELECT l10n_do_sequence_prefix 
-                FROM {table} {where_string} 
+                SELECT l10n_do_sequence_prefix
+                FROM {table} {where_string}
                 ORDER BY id DESC LIMIT 1)
                 ORDER BY l10n_do_sequence_number DESC
                 LIMIT 1
