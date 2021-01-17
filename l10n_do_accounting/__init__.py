@@ -139,7 +139,7 @@ def migrate_invoice_fields(env):
                         AND state != 'draft'
                         AND company_id = %s;
                         """
-                    env.cr.execute(query % invoice.name, company.id)
+                    env.cr.execute(query % (invoice.name, company.id))
                     data = env.cr.fetchone()
                     if data:
                         _logger.info(
