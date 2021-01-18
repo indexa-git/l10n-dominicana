@@ -13,6 +13,7 @@
     "depends": ["l10n_latam_invoice_document", "l10n_do"],
     # always loaded
     "data": [
+        "security/ir.model.access.csv",
         "security/res_groups.xml",
         "data/l10n_latam.document.type.csv",
         "wizard/account_move_reversal_views.xml",
