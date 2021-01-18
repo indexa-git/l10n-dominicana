@@ -621,5 +621,4 @@ class AccountMove(models.Model):
         return super()._get_name_invoice_report()
 
     # TODO: handle l10n_latam_invoice_document _compute_name() inheritance shit
-    # TODO: implement fiscal sequence regenerate
     # TODO: fix log WARNINGS
