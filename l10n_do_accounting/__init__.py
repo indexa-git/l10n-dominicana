@@ -113,7 +113,8 @@ def migrate_invoice_fields(env):
             env.cr.execute(
                 """
             SELECT id FROM account_journal
-            WHERE purchase_type != 'others'
+            WHERE type = 'purchase'
+            AND purchase_type != 'others'
             AND company_id = %s
             """
                 % company.id
