@@ -25,6 +25,140 @@ def get_document_type_dict(env):
     }
 
 
+def migrate_sale_invoice_fields(env, company):
+
+    document_type_dict = get_document_type_dict(env)
+    Move = env["account.move"]
+
+    # Sale invoices routine
+    sales_journal = Move.with_context(
+        default_type="out_invoice", default_company_id=company.id
+    )._get_default_journal()
+
+    sale_invoices = Move.search(
+        [
+            ("journal_id", "=", sales_journal.id),
+            ("company_id", "=", company.id),
+            ("l10n_latam_document_type_id", "=", False),
+        ]
+    )
+    sale_invoices_len = len(sale_invoices)
+
+    for i, invoice in enumerate(sale_invoices):
+        query = """
+                    SELECT
+                    reference, income_type, anulation_type, origin_out
+                    FROM account_invoice
+                    WHERE move_name = '%s'
+                    AND state != 'draft'
+                    AND company_id = %s;
+                    """
+        env.cr.execute(query % (invoice.name, company.id))
+        data = env.cr.fetchone()
+        if data:
+            _logger.info(
+                "Migrating data for sale invoice %s - %s of %s"
+                % (data[0], i, sale_invoices_len)
+            )
+
+            ref = data[0].strip()
+            document_type_key = ref[1:3] if len(ref) in (11, 13) else ref[9:-8]
+            try:
+                document_type_id = document_type_dict[document_type_key]
+            except KeyError:
+                # Here we force a document type because database has
+                # shitty data and can't automatically determine one
+                document_type_id = env.ref(
+                    "l10n_do_accounting.non_fiscal_import_supplier"
+                ).id
+
+            invoice._write(
+                {
+                    "ref": ref,
+                    "l10n_latam_document_type_id": document_type_id,
+                    "l10n_do_income_type": data[1],
+                    "l10n_do_cancellation_type": data[2],
+                    "l10n_do_origin_ncf": data[3],
+                }
+            )
+
+    sales_journal._write({"l10n_latam_use_documents": True})
+
+
+def migrate_purchase_invoice_fields(env, company):
+
+    # Purchase invoices routine
+    env.cr.execute(
+        """
+    SELECT id FROM account_journal
+    WHERE type = 'purchase'
+    AND purchase_type != 'others'
+    AND company_id = %s
+    """
+        % company.id
+    )
+
+    purchase_journals = env["account.journal"].browse([i[0] for i in env.cr.fetchall()])
+    Move = env["account.move"]
+    document_type_dict = get_document_type_dict(env)
+
+    for journal in purchase_journals:
+
+        purchase_invoices = Move.search(
+            [
+                ("journal_id", "=", journal.id),
+                ("company_id", "=", company.id),
+                ("l10n_latam_document_type_id", "=", False),
+            ]
+        )
+        purchase_invoices_len = len(purchase_invoices)
+
+        for i, invoice in enumerate(purchase_invoices):
+            query = """
+                        SELECT
+                        reference, expense_type, anulation_type, origin_out
+                        FROM account_invoice
+                        WHERE move_name = '%s'
+                        AND state != 'draft'
+                        AND company_id = %s;
+                        """
+            env.cr.execute(query % (invoice.name, company.id))
+            data = env.cr.fetchone()
+            if data:
+                _logger.info(
+                    "Migrating data for purchase invoice %s - %s of %s"
+                    % (data[0], i, purchase_invoices_len)
+                )
+
+                ref = data[0].strip().replace(" ", "") if data[0] is not None else ""
+                if ref:
+                    document_type_key = ref[1:3] if len(ref) in (11, 13) else ref[9:-8]
+                    try:
+                        document_type_id = document_type_dict[document_type_key]
+                    except KeyError:
+                        # Here we force a document type because database has
+                        # shitty data and can't automatically determine one
+                        document_type_id = (
+                            document_type_dict["01"]
+                            if invoice.type == "in_invoice"
+                            else document_type_dict["04"]
+                        )
+                else:
+                    continue
+
+                invoice._write(
+                    {
+                        "ref": ref,
+                        "l10n_latam_document_type_id": document_type_id,
+                        "l10n_do_expense_type": data[1],
+                        "l10n_do_cancellation_type": data[2],
+                        "l10n_do_origin_ncf": data[3],
+                    }
+                )
+
+        journal._write({"l10n_latam_use_documents": True})
+
+
 def migrate_invoice_fields(env):
     """
     account_invoice  ---->  account_move
@@ -50,140 +184,14 @@ def migrate_invoice_fields(env):
 
         _logger.info("Starting data migration from account_invoice to account_move")
 
-        document_type_dict = get_document_type_dict(env)
-
-        Move = env["account.move"]
-        for company in env["res.company"].search([]).filtered(
-            lambda c: c.partner_id.country_id == env.ref("base.do").id
+        for company in (
+            env["res.company"]
+            .search([])
+            .filtered(lambda c: c.partner_id.country_id == env.ref("base.do").id)
         ):
 
-            # Sale invoices routine
-            sales_journal = Move.with_context(
-                default_type="out_invoice", default_company_id=company.id
-            )._get_default_journal()
-
-            sale_invoices = Move.search(
-                [
-                    ("journal_id", "=", sales_journal.id),
-                    ("company_id", "=", company.id),
-                    ("l10n_latam_document_type_id", "=", False),
-                ]
-            )
-            sale_invoices_len = len(sale_invoices)
-
-            for i, invoice in enumerate(sale_invoices):
-                query = """
-                    SELECT
-                    reference, income_type, anulation_type, origin_out
-                    FROM account_invoice
-                    WHERE move_name = '%s'
-                    AND state != 'draft'
-                    AND company_id = %s;
-                    """
-                env.cr.execute(query % (invoice.name, company.id))
-                data = env.cr.fetchone()
-                if data:
-                    _logger.info(
-                        "Migrating data for sale invoice %s - %s of %s"
-                        % (data[0], i, sale_invoices_len)
-                    )
-
-                    ref = data[0].strip()
-                    document_type_key = ref[1:3] if len(ref) in (11, 13) else ref[9:-8]
-                    try:
-                        document_type_id = document_type_dict[document_type_key]
-                    except KeyError:
-                        # Here we force a document type because database has
-                        # shitty data and can't automatically determine one
-                        document_type_id = env.ref("l10n_do_accounting.non_fiscal_import_supplier").id
-
-                    invoice._write(
-                        {
-                            "ref": ref,
-                            "l10n_latam_document_type_id": document_type_id,
-                            "l10n_do_income_type": data[1],
-                            "l10n_do_cancellation_type": data[2],
-                            "l10n_do_origin_ncf": data[3],
-                        }
-                    )
-
-            sales_journal._write({"l10n_latam_use_documents": True})
-
-            # Purchase invoices routine
-            env.cr.execute(
-                """
-            SELECT id FROM account_journal
-            WHERE type = 'purchase'
-            AND purchase_type != 'others'
-            AND company_id = %s
-            """
-                % company.id
-            )
-
-            purchase_journals = env["account.journal"].browse(
-                [i[0] for i in env.cr.fetchall()]
-            )
-            for journal in purchase_journals:
-
-                purchase_invoices = Move.search(
-                    [
-                        ("journal_id", "=", journal.id),
-                        ("company_id", "=", company.id),
-                        ("l10n_latam_document_type_id", "=", False),
-                    ]
-                )
-                purchase_invoices_len = len(purchase_invoices)
-
-                for i, invoice in enumerate(purchase_invoices):
-                    query = """
-                        SELECT
-                        reference, expense_type, anulation_type, origin_out
-                        FROM account_invoice
-                        WHERE move_name = '%s'
-                        AND state != 'draft'
-                        AND company_id = %s;
-                        """
-                    env.cr.execute(query % (invoice.name, company.id))
-                    data = env.cr.fetchone()
-                    if data:
-                        _logger.info(
-                            "Migrating data for purchase invoice %s - %s of %s"
-                            % (data[0], i, purchase_invoices_len)
-                        )
-
-                        ref = (
-                            data[0].strip().replace(" ", "")
-                            if data[0] is not None
-                            else ""
-                        )
-                        if ref:
-                            document_type_key = (
-                                ref[1:3] if len(ref) in (11, 13) else ref[9:-8]
-                            )
-                            try:
-                                document_type_id = document_type_dict[document_type_key]
-                            except KeyError:
-                                # Here we force a document type because database has
-                                # shitty data and can't automatically determine one
-                                document_type_id = (
-                                    document_type_dict["01"]
-                                    if invoice.type == "in_invoice"
-                                    else document_type_dict["04"]
-                                )
-                        else:
-                            continue
-
-                        invoice._write(
-                            {
-                                "ref": ref,
-                                "l10n_latam_document_type_id": document_type_id,
-                                "l10n_do_expense_type": data[1],
-                                "l10n_do_cancellation_type": data[2],
-                                "l10n_do_origin_ncf": data[3],
-                            }
-                        )
-
-                journal._write({"l10n_latam_use_documents": True})
+            migrate_sale_invoice_fields(env, company)
+            migrate_purchase_invoice_fields(env, company)
 
             # Archive deprecated journals.
             # purchase_type in (minor, informal, exterior).
@@ -225,8 +233,10 @@ def migrate_fiscal_sequences(env):
         _logger.info(
             "Starting data migration from ir_sequence_date_range to ir_sequence"
         )
-        for company in env["res.company"].search([]).filtered(
-            lambda c: c.partner_id.country_id == env.ref("base.do").id
+        for company in (
+            env["res.company"]
+            .search([])
+            .filtered(lambda c: c.partner_id.country_id == env.ref("base.do").id)
         ):
 
             fiscal_journals = env["account.journal"].search(
