@@ -149,7 +149,7 @@ class AccountMove(models.Model):
         l10n_do_internal_invoices = self.filtered(
             lambda inv: inv.l10n_latam_use_documents
             and inv.l10n_latam_document_type_id
-            and inv.l10n_latam_country_code == "DO"
+            and inv.country_code == "DO"
             and not inv.l10n_latam_manual_document_number
         )
         for invoice in l10n_do_internal_invoices:
