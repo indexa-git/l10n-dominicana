@@ -10,7 +10,6 @@
                 <field name="l10n_latam_country_code" invisible="1"/>
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
                 <field name="l10n_do_enable_first_sequence" invisible="1"/>
-                <field name="l10n_do_invisible" invisible="0"/>
             </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
@@ -62,7 +61,7 @@
                 <attribute name="attrs">{
                     'required': ['|', ('l10n_do_enable_first_sequence', '=', True), ('l10n_latam_manual_document_number', '=', True), '&amp;', ('l10n_latam_use_documents', '=', True), ('l10n_latam_country_code', '=', 'DO')],
                     'invisible': ['|', '|', '&amp;', ('l10n_latam_use_documents', '=', False), ('l10n_latam_country_code', '=', 'DO'), '&amp;', ('l10n_do_enable_first_sequence', '=', False), '&amp;', ('l10n_latam_manual_document_number', '=', False), ('state', '=', 'draft'), '&amp;', ('l10n_do_enable_first_sequence', '=', False), '&amp;', ('l10n_latam_manual_document_number', '=', True), '&amp;', ('state', '=', 'draft'), '&amp;', ('move_type', 'in', ('out_invoice', 'out_refund')), ('l10n_latam_country_code', '=', 'DO')],
-                    'readonly': [('state', '!=', 'draft'), ('l10n_latam_country_code', '=', 'DO')]}
+                    'readonly': ['|', '&amp;', ('state', '!=', 'draft'), ('l10n_latam_country_code', '=', 'DO'), '&amp;', ('posted_before', '=', True), ('country_code', '=', 'DO')]}
                 </attribute>
             </xpath>
             <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='partner_id']" position="after">
