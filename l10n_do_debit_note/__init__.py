@@ -30,8 +30,9 @@ def post_init_hook(cr, registry):
         _logger.info("Starting data migration from account_invoice to account_move")
 
         Move = env["account.move"]
-        domain = [("country_id", "=", env.ref("base.do").id)]
-        for company in env["res.company"].search(domain):
+        for company in env["res.company"].search([]).filtered(
+            lambda c: c.partner_id.country_id == env.ref("base.do").id
+        ):
 
             query = """
                 SELECT move_name, origin_out

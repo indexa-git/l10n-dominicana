@@ -53,8 +53,9 @@ def migrate_invoice_fields(env):
         document_type_dict = get_document_type_dict(env)
 
         Move = env["account.move"]
-        domain = [("country_id", "=", env.ref("base.do").id), ("vat", "!=", False)]
-        for company in env["res.company"].search(domain):
+        for company in env["res.company"].search([]).filtered(
+            lambda c: c.partner_id.country_id == env.ref("base.do").id
+        ):
 
             # Sale invoices routine
             sales_journal = Move.with_context(
@@ -79,7 +80,7 @@ def migrate_invoice_fields(env):
                     AND state != 'draft'
                     AND company_id = %s;
                     """
-                env.cr.execute(query % invoice.name, company.id)
+                env.cr.execute(query % (invoice.name, company.id))
                 data = env.cr.fetchone()
                 if data:
                     _logger.info(
@@ -92,7 +93,9 @@ def migrate_invoice_fields(env):
                     try:
                         document_type_id = document_type_dict[document_type_key]
                     except KeyError:
-                        document_type_id = False
+                        # Here we force a document type because database has
+                        # shitty data and can't automatically determine one
+                        document_type_id = env.ref("l10n_do_accounting.non_fiscal_import_supplier").id
 
                     invoice._write(
                         {
@@ -110,7 +113,8 @@ def migrate_invoice_fields(env):
             env.cr.execute(
                 """
             SELECT id FROM account_journal
-            WHERE purchase_type != 'others'
+            WHERE type = 'purchase'
+            AND purchase_type != 'others'
             AND company_id = %s
             """
                 % company.id
@@ -139,7 +143,7 @@ def migrate_invoice_fields(env):
                         AND state != 'draft'
                         AND company_id = %s;
                         """
-                    env.cr.execute(query % invoice.name, company.id)
+                    env.cr.execute(query % (invoice.name, company.id))
                     data = env.cr.fetchone()
                     if data:
                         _logger.info(
@@ -221,8 +225,9 @@ def migrate_fiscal_sequences(env):
         _logger.info(
             "Starting data migration from ir_sequence_date_range to ir_sequence"
         )
-        domain = [("country_id", "=", env.ref("base.do").id)]
-        for company in env["res.company"].search(domain):
+        for company in env["res.company"].search([]).filtered(
+            lambda c: c.partner_id.country_id == env.ref("base.do").id
+        ):
 
             fiscal_journals = env["account.journal"].search(
                 [
