@@ -83,6 +83,8 @@ def migrate_sale_invoice_fields(env, company):
             )
 
     sales_journal._write({"l10n_latam_use_documents": True})
+    sales_journal.with_context(
+        use_documents=True)._l10n_do_create_document_sequences()
 
 
 def migrate_purchase_invoice_fields(env, company):
@@ -157,6 +159,8 @@ def migrate_purchase_invoice_fields(env, company):
                 )
 
         journal._write({"l10n_latam_use_documents": True})
+        journal.with_context(
+            use_documents=True)._l10n_do_create_document_sequences()
 
 
 def migrate_invoice_fields(env):
