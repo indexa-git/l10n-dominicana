@@ -4,6 +4,7 @@
     <record id="view_account_move_reversal_inherited" model="ir.ui.view">
         <field name="name">view.account.move.reversal.inherited</field>
         <field name="model">account.move.reversal</field>
+        <field name="priority" eval="100"/>
         <field name="inherit_id" ref="account.view_account_move_reversal"/>
         <field name="arch" type="xml">
             <field name="journal_id" position="after">
