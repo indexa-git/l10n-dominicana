@@ -89,7 +89,10 @@ class L10nLatamDocumentType(models.Model):
             return False
 
         # NCF/ECF validation regex
-        regex = r"^((P?(?=.{11})B)|(?=.{13})E)(?!2)([0-4][1-7])(\d{8}|\d{10})$"
+        regex = (
+            r"^((P?(?=.{11})B)|(?=.{13})E)%s(\d{8}|\d{10})$"
+            % dict(self._get_l10n_do_ncf_types())[self.l10n_do_ncf_type]
+        )
         pattern = compile(regex)
 
         if not bool(pattern.match(document_number)):
