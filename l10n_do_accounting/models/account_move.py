@@ -560,6 +560,11 @@ class AccountMove(models.Model):
     @api.depends("posted_before", "state", "journal_id", "date")
     def _compute_name(self):
         super(AccountMove, self)._compute_name()
+
+        # TODO: waiting for https://github.com/odoo/odoo/pull/64772
+        # super(AccountMove, self.with_context(
+        #     compute_manual_name=True))._compute_name()
+
         for move in self.filtered(
             lambda x: x.country_code == "DO"
             and x.l10n_latam_document_type_id
@@ -615,5 +620,3 @@ class AccountMove(models.Model):
         if self.l10n_latam_use_documents and self.country_code == "DO":
             return "l10n_do_accounting.report_invoice_document_inherited"
         return super()._get_name_invoice_report()
-
-    # TODO: handle l10n_latam_invoice_document _compute_name() inheritance shit
