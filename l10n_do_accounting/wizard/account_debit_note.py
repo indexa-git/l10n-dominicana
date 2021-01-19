@@ -26,7 +26,7 @@ class AccountDebitNote(models.TransientModel):
         ]
 
     l10n_latam_country_code = fields.Char(
-        default=lambda self: self.env.company.country_id.code,
+        default=lambda self: self.env.company.country_code,
         help="Technical field used to hide/show fields regarding the localization",
     )
     l10n_do_debit_type = fields.Selection(
@@ -82,7 +82,7 @@ class AccountDebitNote(models.TransientModel):
 
         move_ids_use_document = move_ids.filtered(
             lambda move: move.l10n_latam_use_documents
-            and move.company_id.l10n_do_country_code == "DO"
+            and move.company_id.country_code == "DO"
         )
         if move_ids_use_document and not self.env.user.has_group(
             "l10n_do_accounting.group_l10n_do_debit_note"

@@ -3,8 +3,8 @@ name: Unit Tests
 on:
   push:
     branches:
-      - '**'
-      - '![0-9]+.0'
+      - '[0-9]+.0-*-*'
+      - '![0-9]+.0-staging-*'
     paths:
       - '**/src/**'
       - '**/i18n/**'
@@ -52,20 +52,6 @@ jobs:
     - name: Download python addons script
       run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/14.0/resources/getaddons.py -o getaddons.py
 
-    - name: ITPP-Labs pos-addons
-      uses: actions/checkout@v2
-      with:
-        repository: itpp-labs/pos-addons
-        path: pos-addons
-        ref: '14.0'
-
-    - name: INDEXA external-services
-      uses: actions/checkout@v2
-      with:
-        repository: indexa-git/external_service_addons
-        path: external-service-addons
-        ref: '14.0'
-
     - name: Odoo Enterprise
       uses: actions/checkout@v2
       with:
@@ -88,6 +74,7 @@ jobs:
       with:
         name: modules
         path: modules.zip
+        retention-days: 1
 
   test:
     name: Test Modules
@@ -139,34 +126,6 @@ jobs:
         WITHOUT_DEMO: 'False'
         EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
         ODOO_EXTRA_ADDONS: /github/workspace
-
-  build-github:
-    name: Build & Push to Github Packages
-    needs: ['dependencies']
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
-
-    steps:
-    - name: Download  repository results
-      uses: actions/download-artifact@v2
-      with:
-        name: modules
-
-    - run: unzip modules.zip
-
-    - name: Inject slug/short variables
-      uses: rlespinasse/github-slug-action@v2.x
-
-    - name: Push to GitHub Packages
-      uses: docker/build-push-action@v1
-      with:
-        dockerfile: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}/Dockerfile
-        cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ env.GITHUB_HEAD_REF_SLUG_URL }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
-        repository: ${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}
-        tags: ${{ env.GITHUB_SHA_SHORT }}
 
   build-gcp:
     name: Build & Push to GCR

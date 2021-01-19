@@ -92,13 +92,15 @@ class AccountMove(models.Model):
         string="Company in contingency",
         compute="_compute_company_in_contingency",
     )
-    l10n_latam_country_code = fields.Char(
-        "Country Code",
-        related="company_id.country_id.code",
-    )
     l10n_do_sequence_prefix = fields.Char(compute="_compute_split_sequence", store=True)
     l10n_do_sequence_number = fields.Integer(
         compute="_compute_split_sequence", store=True
+    )
+    l10n_do_enable_first_sequence = fields.Boolean(
+        string="Enable first fiscal sequence",
+        compute="_compute_l10n_do_enable_first_sequence",
+        help="Technical field that compute if internal generated fiscal sequence "
+        "is enabled to be set manually.",
     )
 
     def init(self):
@@ -134,13 +136,49 @@ class AccountMove(models.Model):
                 )
 
     @api.depends(
-        "l10n_latam_country_code",
+        "journal_id.l10n_latam_use_documents",
+        "l10n_latam_manual_document_number",
+        "l10n_latam_document_type_id",
+        "company_id",
+    )
+    def _compute_l10n_do_enable_first_sequence(self):
+        """
+        Enable first fiscal sequence manual input on internal generated documents
+        if no invoice of same document type was posted before
+        """
+        l10n_do_internal_invoices = self.filtered(
+            lambda inv: inv.l10n_latam_use_documents
+            and inv.l10n_latam_document_type_id
+            and inv.country_code == "DO"
+            and not inv.l10n_latam_manual_document_number
+        )
+        for invoice in l10n_do_internal_invoices:
+            invoice.l10n_do_enable_first_sequence = not bool(
+                self.search_count(
+                    [
+                        ("company_id", "=", invoice.company_id.id),
+                        ("move_type", "=", invoice.move_type),
+                        (
+                            "l10n_latam_document_type_id",
+                            "=",
+                            invoice.l10n_latam_document_type_id.id,
+                        ),
+                        ("posted_before", "=", True),
+                        ("id", "!=", invoice.id or invoice._origin.id),
+                    ],
+                )
+            )
+
+        (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
+
+    @api.depends(
+        "country_code",
         "l10n_latam_document_type_id.l10n_do_ncf_type",
     )
     def _compute_is_ecf_invoice(self):
         for invoice in self:
             invoice.is_ecf_invoice = (
-                invoice.l10n_latam_country_code == "DO"
+                invoice.country_code == "DO"
                 and invoice.l10n_latam_document_type_id
                 and invoice.l10n_latam_document_type_id.l10n_do_ncf_type
                 and invoice.l10n_latam_document_type_id.l10n_do_ncf_type[:2] == "e-"
@@ -203,7 +241,7 @@ class AccountMove(models.Model):
     @api.depends("ref")
     def _compute_l10n_latam_document_number(self):
         l10n_do_recs = self.filtered(
-            lambda x: x.l10n_latam_country_code == "DO" and x.l10n_latam_use_documents
+            lambda x: x.country_code == "DO" and x.l10n_latam_use_documents
         )
         for rec in l10n_do_recs:
             rec.l10n_latam_document_number = rec.ref
@@ -213,7 +251,7 @@ class AccountMove(models.Model):
     def button_cancel(self):
 
         fiscal_invoice = self.filtered(
-            lambda inv: inv.l10n_latam_country_code == "DO"
+            lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
             and inv.l10n_latam_use_documents
         )
@@ -240,7 +278,7 @@ class AccountMove(models.Model):
     def action_reverse(self):
 
         fiscal_invoice = self.filtered(
-            lambda inv: inv.l10n_latam_country_code == "DO"
+            lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
         )
         if fiscal_invoice and not self.env.user.has_group(
@@ -268,7 +306,7 @@ class AccountMove(models.Model):
                     rec.l10n_latam_document_number = document_number
                 rec.ref = document_number
         super(
-            AccountMove, self.filtered(lambda m: m.l10n_latam_country_code != "DO")
+            AccountMove, self.filtered(lambda m: m.country_code != "DO")
         )._inverse_l10n_latam_document_number()
 
     def _get_l10n_latam_documents_domain(self):
@@ -294,7 +332,7 @@ class AccountMove(models.Model):
     @api.constrains("move_type", "l10n_latam_document_type_id")
     def _check_invoice_type_document_type(self):
         l10n_do_invoices = self.filtered(
-            lambda inv: inv.l10n_latam_country_code == "DO"
+            lambda inv: inv.country_code == "DO"
             and inv.l10n_latam_use_documents
             and inv.l10n_latam_document_type_id
         )
@@ -353,7 +391,7 @@ class AccountMove(models.Model):
             default_values=default_values, cancel=cancel
         )
 
-        if self.l10n_latam_country_code == "DO":
+        if self.country_code == "DO":
             res["l10n_do_origin_ncf"] = self.l10n_latam_document_number
             res["l10n_do_ecf_modification_code"] = l10n_do_ecf_modification_code
 
@@ -436,7 +474,7 @@ class AccountMove(models.Model):
     def _get_starting_sequence(self):
         if (
             self.journal_id.l10n_latam_use_documents
-            and self.l10n_latam_country_code == "DO"
+            and self.country_code == "DO"
             and self.l10n_latam_document_type_id
         ):
             return self._l10n_do_get_formatted_sequence()
@@ -496,8 +534,8 @@ class AccountMove(models.Model):
                 SELECT id FROM {table}
                 {where_string}
                 AND l10n_do_sequence_prefix = (
-                SELECT l10n_do_sequence_prefix 
-                FROM {table} {where_string} 
+                SELECT l10n_do_sequence_prefix
+                FROM {table} {where_string}
                 ORDER BY id DESC LIMIT 1)
                 ORDER BY l10n_do_sequence_number DESC
                 LIMIT 1
@@ -523,8 +561,10 @@ class AccountMove(models.Model):
     def _compute_name(self):
         super(AccountMove, self)._compute_name()
         for move in self.filtered(
-            lambda x: x.l10n_latam_country_code == "DO"
+            lambda x: x.country_code == "DO"
+            and x.l10n_latam_document_type_id
             and not x.l10n_latam_manual_document_number
+            and not x.l10n_do_enable_first_sequence
         ):
             move.with_context(is_l10n_do_seq=True)._set_next_sequence()
 
@@ -563,15 +603,17 @@ class AccountMove(models.Model):
             format_values["seq"] = 0
         format_values["seq"] = format_values["seq"] + 1
 
-        self[self._l10n_do_sequence_field] = format.format(**format_values)
+        self[
+            self._l10n_do_sequence_field
+        ] = self.l10n_latam_document_type_id._format_document_number(
+            format.format(**format_values)
+        )
         self._compute_split_sequence()
 
     def _get_name_invoice_report(self):
         self.ensure_one()
-        if self.l10n_latam_use_documents and self.l10n_latam_country_code == "DO":
+        if self.l10n_latam_use_documents and self.country_code == "DO":
             return "l10n_do_accounting.report_invoice_document_inherited"
         return super()._get_name_invoice_report()
 
     # TODO: handle l10n_latam_invoice_document _compute_name() inheritance shit
-    # TODO: implement fiscal sequence regenerate
-    # TODO: fix log WARNINGS
