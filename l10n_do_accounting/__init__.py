@@ -187,7 +187,7 @@ def migrate_invoice_fields(env):
         for company in (
             env["res.company"]
             .search([])
-            .filtered(lambda c: c.partner_id.country_id == env.ref("base.do").id)
+            .filtered(lambda c: c.partner_id.country_id == env.ref("base.do"))
         ):
 
             migrate_sale_invoice_fields(env, company)
