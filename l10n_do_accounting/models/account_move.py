@@ -304,9 +304,9 @@ class AccountMove(models.Model):
             and inv.l10n_latam_document_type_id
         )
         for rec in l10n_do_invoices:
-            partner_vat = rec.partner_id.vat
+            has_vat = bool(rec.partner_id.vat and bool(rec.partner_id.vat.strip()))
             l10n_latam_document_type = rec.l10n_latam_document_type_id
-            if not partner_vat and l10n_latam_document_type.is_vat_required:
+            if not has_vat and l10n_latam_document_type.is_vat_required:
                 raise ValidationError(
                     _(
                         "A VAT is mandatory for this type of NCF. "
@@ -318,7 +318,7 @@ class AccountMove(models.Model):
                 if (
                     rec.amount_untaxed_signed >= 250000
                     and l10n_latam_document_type.l10n_do_ncf_type[-7:] != "special"
-                    and not rec.partner_id.vat
+                    and not has_vat
                 ):
                     raise UserError(
                         _(
