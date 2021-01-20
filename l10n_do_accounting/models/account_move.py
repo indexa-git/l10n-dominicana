@@ -304,7 +304,7 @@ class AccountMove(models.Model):
             and inv.l10n_latam_document_type_id
         )
         for rec in l10n_do_invoices:
-            has_vat = bool(str(rec.partner_id.vat).strip())
+            has_vat = bool(rec.partner_id.vat and bool(rec.partner_id.vat.strip()))
             l10n_latam_document_type = rec.l10n_latam_document_type_id
             if not has_vat and l10n_latam_document_type.is_vat_required:
                 raise ValidationError(
