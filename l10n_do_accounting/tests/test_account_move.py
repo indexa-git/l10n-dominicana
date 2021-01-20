@@ -120,4 +120,50 @@ class AccountMoveTest(TransactionCase):
         Check both fiscal and internal invoice sequences are computed when post
         """
 
-        assert True
+        self.init_invoice(
+            "out_invoice",
+            self.products,
+            self.sale_journal,
+            document_number="B0100000001",
+        )._post()
+
+        invoice_1 = self.init_invoice(
+            "out_invoice",
+            self.products,
+            self.sale_journal,
+        )
+        invoice_1._post()
+        self.assertRecordValues(
+            invoice_1,
+            [
+                {
+                    "name": "%s/%04d/0002"
+                    % (
+                        invoice_1.journal_id.code,
+                        invoice_1.date.year,
+                    ),
+                    "l10n_latam_document_number": "B0100000002",
+                }
+            ],
+        )
+
+        invoice_2 = self.init_invoice(
+            "in_invoice",
+            self.products,
+            self.purchase_journal,
+            document_number="B0100000005",
+        )
+        invoice_2._post()
+        self.assertRecordValues(
+            invoice_2,
+            [
+                {
+                    "name": "%s/%04d/0001"
+                            % (
+                                invoice_2.journal_id.code,
+                                invoice_2.date.year,
+                            ),
+                    "l10n_latam_document_number": "B0100000005",
+                }
+            ],
+        )
