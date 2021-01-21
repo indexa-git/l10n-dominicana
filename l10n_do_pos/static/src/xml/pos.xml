@@ -534,4 +534,42 @@
             </div>
         </t>
     </t>
+
+    <t t-extend="ClientDetailsEdit">
+         <t t-jquery=".client-details-right" t-operation="append">
+             <div class='client-detail'>
+                 <span class='label'>Taxpayer Type</span>
+                 <select class='detail tax_payer_type needsclick' name='l10n_do_dgii_tax_payer_type'>
+                     <t t-foreach='widget.pos.tax_payer_type_list' t-as='item'>
+                         <t t-if="partner.l10n_do_dgii_tax_payer_type and item[0] === partner.l10n_do_dgii_tax_payer_type">
+                             <option t-att-value='item[0]' t-att-selected="true">
+                                 <t t-esc='item[1]'/>
+                             </option>
+                         </t>
+                         <t t-else="">
+                             <option t-att-value='item[0]'>
+                                 <t t-esc='item[1]'/>
+                             </option>
+                         </t>
+                     </t>
+                 </select>
+             </div>
+         </t>
+     </t>
+
+    <t t-extend="ClientDetails">
+         <t t-jquery=".client-details-right" t-operation="append">
+             <div class='client-detail'>
+                 <span class='label'>Taxpayer Type</span>
+                 <t t-if="partner.l10n_do_dgii_tax_payer_type">
+                     <span class='detail client-tax-payer-type'>
+                         <t t-esc="widget.pos.get_tax_payer_name(partner.l10n_do_dgii_tax_payer_type)"/>
+                     </span>
+                 </t>
+                 <t t-else="">
+                     <span class='detail client-tax-payer-type empty'>N/A</span>
+                 </t>
+             </div>
+         </t>
+     </t>
 </templates>

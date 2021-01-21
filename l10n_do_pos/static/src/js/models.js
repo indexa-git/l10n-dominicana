@@ -227,6 +227,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             return [
                 ['internal_type', 'in', ['invoice', 'credit_note']],
                 ['active', '=', true],
+                ['code', '=', 'B'],
             ];
         },
         loaded: function (self, latam_document_types) {
@@ -404,7 +405,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             this.sale_fiscal_type = []; // This list define sale_fiscal_type on pos
             this.sale_fiscal_type_by_id = {}; // This object define sale_fiscal_type on pos
             this.sale_fiscal_type_vat = []; // This list define relation between sale_fiscal_type and vat on pos
-
+            this.tax_payer_type_list = [];
             _super_posmodel.initialize.call(this, session, attributes);
         },
         get_latam_document_type_by_id: function (id) {
@@ -517,6 +518,28 @@ odoo.define('l10n_do_pos.models', function (require) {
                         self.db.pos_all_orders);
 
                 });
+        },
+        get_tax_payer_name: function (tax_payer_type_id) {
+             var tax_payer_name = 'N/A';
+             this.tax_payer_type_list.forEach(function (tax_payer_type) {
+                 if(tax_payer_type[0] === tax_payer_type_id)
+                     tax_payer_name = tax_payer_type[1];
+             });
+             return tax_payer_name
+        },
+
+        load_server_data: function () {
+            var self = this;
+            var loaded = _super_posmodel.load_server_data.call(this);
+            return loaded.then(function() {
+                return rpc.query({
+                    model: "pos.config",
+                    method: "get_extra_fiscal_info",
+                    args: [false],
+                }).then(function(result) {
+                    self.tax_payer_type_list = result.tax_payer_type_list
+                });
+            });
         },
 
     });
