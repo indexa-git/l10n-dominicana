@@ -262,6 +262,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
         set_latam_document_type: function (l10n_latam_document_type) {
             this.l10n_latam_document_type = l10n_latam_document_type;
+            this.l10n_latam_document_type_id = l10n_latam_document_type.id;
             this.save_to_db();
             this.latam_document_type_changed();
         },
@@ -272,14 +273,16 @@ odoo.define('l10n_do_pos.models', function (require) {
 
         latam_document_type_changed: function () {
             var current_order = this.pos.get_order();
-            var latam_document_type_name =
-                current_order.l10n_latam_document_type.name || false;
-            this.pos.gui.screen_instances.payment
-                .$('.js_latam_document_type_name').text(
+            if (current_order){
+                var latam_document_type_name =
+                    current_order.l10n_latam_document_type.name || false;
+                this.pos.gui.screen_instances.payment
+                    .$('.js_latam_document_type_name').text(
+                        latam_document_type_name);
+                this.pos.gui.screen_instances.products
+                    .$('.js_latam_document_type_name').text(
                     latam_document_type_name);
-            this.pos.gui.screen_instances.products
-                .$('.js_latam_document_type_name').text(
-                    latam_document_type_name);
+            }
         },
         // TODO: check this is meaby its important
         // init_from_JSON: function (json) {
@@ -307,6 +310,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         //     }
         // },
         init_from_JSON: function(json) {
+            _super_order.init_from_JSON.call(this, json);
             this.l10n_latam_document_number = json.l10n_latam_document_number;
             this.l10n_latam_sequence_id = json.l10n_latam_sequence_id;
             this.l10n_latam_document_type_id = json.l10n_latam_document_type_id;
@@ -315,7 +319,9 @@ odoo.define('l10n_do_pos.models', function (require) {
             this.l10n_do_origin_ncf = json.l10n_do_origin_ncf;
             this.is_return_order = json.is_return_order;
             this.return_order_id = json.return_order_id;
-            _super_order.init_from_JSON.call(this, json);
+            this.set_latam_document_type(
+                this.pos.get_latam_document_type_by_id(
+                    json.l10n_latam_document_type_id));
         },
         export_as_JSON: function () {
 
@@ -343,6 +349,17 @@ odoo.define('l10n_do_pos.models', function (require) {
         set_to_invoice: function (to_invoice) {
             _super_order.set_to_invoice.call(this, to_invoice);
             this.to_invoice_backend = to_invoice;
+        },
+
+        set_client: function(client) {
+            var self = this;
+            _super_order.set_client.apply(this, arguments);
+            if (client){
+                self.set_latam_document_type(
+                    self.pos.get_latam_document_type_by_l10n_do_ncf_type(
+                        self.pos.ncf_types_data.issued[client.l10n_do_dgii_tax_payer_type][0])
+                );
+            }
         },
 
     });
@@ -406,6 +423,8 @@ odoo.define('l10n_do_pos.models', function (require) {
             this.sale_fiscal_type_by_id = {}; // This object define sale_fiscal_type on pos
             this.sale_fiscal_type_vat = []; // This list define relation between sale_fiscal_type and vat on pos
             this.tax_payer_type_list = [];
+            this.ncf_types_data = {};
+
             _super_posmodel.initialize.call(this, session, attributes);
         },
         get_latam_document_type_by_id: function (id) {
@@ -438,6 +457,29 @@ odoo.define('l10n_do_pos.models', function (require) {
                     });
                 return result;
             },
+
+        get_latam_document_type_by_l10n_do_ncf_type: function (l10n_do_ncf_type) {
+            var self = this;
+            var res_latam_document_type = false;
+            // TODO: try make at best performance
+            if (!l10n_do_ncf_type) {
+                l10n_do_ncf_type = 'consumer';
+            }
+            self.l10n_latam_document_types.forEach(
+                function (latam_document_type) {
+                    if (latam_document_type.l10n_do_ncf_type === l10n_do_ncf_type) {
+                        res_latam_document_type = latam_document_type;
+                    }
+                });
+            if (res_latam_document_type) {
+                return res_latam_document_type;
+            }
+            self.gui.show_popup('error', {
+                'title': _t('Fiscal document type not found'),
+                'body': _t('This fiscal document type not exist.'),
+            });
+            return false;
+        },
 
         get_latam_document_type_by_prefix: function (prefix) {
             var self = this;
@@ -519,6 +561,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
                 });
         },
+
         get_tax_payer_name: function (tax_payer_type_id) {
              var tax_payer_name = 'N/A';
              this.tax_payer_type_list.forEach(function (tax_payer_type) {
@@ -537,7 +580,8 @@ odoo.define('l10n_do_pos.models', function (require) {
                     method: "get_extra_fiscal_info",
                     args: [false],
                 }).then(function(result) {
-                    self.tax_payer_type_list = result.tax_payer_type_list
+                    self.tax_payer_type_list = result.tax_payer_type_list;
+                    self.ncf_types_data = result.ncf_types_data;
                 });
             });
         },

@@ -332,10 +332,17 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
         click_set_latam_document_type: function () {
             var self = this;
+            var current_order = self.pos.get_order();
+            var client = self.pos.get_client();
+            var ncf_types_data = self.pos.ncf_types_data.issued['notaxpayer'];
+            if (client && client.l10n_do_dgii_tax_payer_type)
+                ncf_types_data = self.pos.ncf_types_data.issued[client.l10n_do_dgii_tax_payer_type];
+
             var latam_document_type_list =
                 _.map(self.pos.l10n_latam_document_types,
                     function (latam_document_type) {
-                        if (latam_document_type.internal_type === 'invoice') {
+                        if (latam_document_type.internal_type === 'invoice' &&
+                            ncf_types_data.includes(latam_document_type.l10n_do_ncf_type)) {
                             return {
                                 label: latam_document_type.name,
                                 item: latam_document_type,
@@ -348,8 +355,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 title: _t('Select document type'),
                 list: latam_document_type_list,
                 confirm: function (latam_document_type) {
-                    var current_order = self.pos.get_order();
-                    var client = self.pos.get_client();
                     current_order.set_latam_document_type(latam_document_type);
                     if (latam_document_type.is_vat_required && !client) {
                         self.open_vat_popup();
