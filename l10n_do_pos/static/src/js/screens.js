@@ -334,7 +334,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var self = this;
             var current_order = self.pos.get_order();
             var client = self.pos.get_client();
-            var ncf_types_data = self.pos.ncf_types_data.issued['notaxpayer'];
+            var ncf_types_data = self.pos.ncf_types_data.issued['non_payer'];
             if (client && client.l10n_do_dgii_tax_payer_type)
                 ncf_types_data = self.pos.ncf_types_data.issued[client.l10n_do_dgii_tax_payer_type];
 

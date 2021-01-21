@@ -359,6 +359,10 @@ odoo.define('l10n_do_pos.models', function (require) {
                     self.pos.get_latam_document_type_by_l10n_do_ncf_type(
                         self.pos.ncf_types_data.issued[client.l10n_do_dgii_tax_payer_type][0])
                 );
+            }else{
+                self.set_latam_document_type(
+                    self.pos.get_latam_document_type_by_l10n_do_ncf_type()
+                );
             }
         },
 
