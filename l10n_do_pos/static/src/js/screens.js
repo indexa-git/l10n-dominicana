@@ -489,7 +489,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     self.pos.get_l10n_latam_sequence_by_document_type_id(
                         current_order.l10n_latam_document_type.id
                     );
-                self.pos.loading_screen_on()
+                self.pos.loading_screen_on();
                 rpc.query({
                     model: 'ir.sequence',
                     method: 'next_by_id',
@@ -503,19 +503,17 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     current_order.save_to_db();
                     console.log(res);
                     _super();
-                }, function (err, ev) {
+                }, function (err) {
                     self.pos.loading_screen_off();
                     current_order.to_invoice = true;
                     current_order.save_to_db();
-                    console.log(err);
-                    console.log(ev);
-                    ev.preventDefault();
+                    console.log('err', err);
+                    err.event.preventDefault();
                     var error_body =
                         _t('Your Internet connection is probably down.');
-                    if (err.data) {
-                        var except = err.data;
-                        error_body = except.arguments ||
-                            except.message || error_body;
+                    if (err.message.data) {
+                        var except = err.message.data;
+                        error_body = except.message || except.arguments || error_body;
                     }
                     self.gui.show_popup('error', {
                         'title': _t('Error: Could not Save Changes'),
