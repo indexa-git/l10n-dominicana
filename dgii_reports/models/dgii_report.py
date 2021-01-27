@@ -466,8 +466,8 @@ class DgiiReport(models.Model):
 
         payment_date = invoice.payment_date
         period = dt.strptime(self.name, '%m/%Y')
-        same_minor_period = (payment_date.month,
-                             payment_date.year) <= (period.month, period.year)
+        same_minor_period = (payment_date.year,
+                             payment_date.month) <= (period.year, period.month)
 
         return True if (payment_date and same_minor_period) else False
 
