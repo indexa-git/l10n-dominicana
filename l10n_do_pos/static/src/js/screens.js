@@ -411,10 +411,10 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     return false;
                 }
 
-                if (!self.pos.config.default_partner_id) {
+                if (!self.pos.config.default_partner_id && !client) {
                     this.gui.show_popup('error', {
-                        'title': _t('Not default customer'),
-                        'body': _t('Please config default costumer in POS Configuration'),
+                        'title': _t('No customer'),
+                        'body': _t('Please select a customer or set one as default in the point of sale settings'),
                     });
                     current_order.to_invoice = true;
                     current_order.save_to_db();
