@@ -141,7 +141,13 @@ class AccountMove(models.Model):
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
     def _compute_company_in_contingency(self):
         for invoice in self:
-            ecf_invoices = self.search([("is_ecf_invoice", "=", True)], limit=1)
+            ecf_invoices = self.search(
+                [
+                    ("is_ecf_invoice", "=", True),
+                    ("is_l10n_do_internal_sequence", "=", True),
+                ],
+                limit=1,
+            )
             invoice.l10n_do_company_in_contingency = bool(
                 ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
             )
