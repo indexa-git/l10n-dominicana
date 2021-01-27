@@ -310,6 +310,13 @@ class PosOrder(models.Model):
             "partner_id": out_refund_invoice.partner_id.id
         }
 
+    def _get_amount_receivable(self):
+        res = super(PosOrder, self)._get_amount_receivable(self)
+        if self.state != 'is_return_order':
+            return res
+        else:
+            return 0
+
 
 class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
