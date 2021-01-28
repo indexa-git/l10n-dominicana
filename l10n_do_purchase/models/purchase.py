@@ -14,7 +14,10 @@ class PurchaseOrder(models.Model):
             self.env["res.company"].browse(ctx["default_company_id"]).country_id.code
             == "DO"
             and self.env["account.move"]
-            .with_context(default_type=ctx["default_type"])
+            .with_context(
+                default_type=ctx["default_type"],
+                default_company_id=ctx["default_company_id"],
+            )
             ._get_default_journal()
             .l10n_latam_use_documents
         )
