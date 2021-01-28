@@ -311,7 +311,7 @@ class PosOrder(models.Model):
         }
 
     def _get_amount_receivable(self):
-        res = super(PosOrder, self)._get_amount_receivable(self)
+        res = super(PosOrder, self)._get_amount_receivable()
         if self.state != 'is_return_order':
             return res
         else:
