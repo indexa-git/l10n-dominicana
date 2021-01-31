@@ -364,6 +364,26 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     });
                     return false;
                 }
+                if (current_order.get_fiscal_type().prefix === 'B14'){
+                    var has_taxes = false;
+                    current_order.get_orderlines().forEach(function (orderline) {
+                        orderline.get_applicable_taxes().forEach(function (tax) {
+                            var line_tax = orderline._map_tax_fiscal_position(tax);
+                            if (line_tax &&
+                                ((line_tax.tax_group_id[1] === 'ITBIS' && line_tax.amount !== 0)||
+                                    line_tax.tax_group_id[1] === 'ISC')){
+                                has_taxes = true
+                            }
+                        });
+                    });
+                    if(has_taxes){
+                        this.gui.show_popup('error', {
+                            'title': _t('Error with Fiscal Type Regímen Especial'),
+                            'body': _t('You cannot pay order of Fiscal Type Regímen Especial with ITBIS/ISC. Please select correct fiscal position for remove ITBIS and ISC'),
+                        });
+                        return false;
+                    }
+                }
 
                 // This part is for credit note
                 if (current_order.get_mode() === 'return') {
@@ -396,6 +416,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 }
 
             }
+
             return this._super(force_validation);
         },
         finalize_validation: function () {

@@ -9,6 +9,7 @@ odoo.define('l10n_do_pos.models', function (require) {
 
     models.load_fields('res.partner', ['sale_fiscal_type_id']);
     models.load_fields('account.journal', ['is_for_credit_notes']);
+    models.load_fields('account.tax', ['tax_group_id']);
 
     models.load_models({
         model: 'account.journal',
@@ -101,6 +102,11 @@ odoo.define('l10n_do_pos.models', function (require) {
 
         set_fiscal_type: function (fiscal_type) {
             this.fiscal_type = fiscal_type;
+            console.log('fiscal type', fiscal_type)
+            if (fiscal_type)
+                this.set_fiscal_position(_.find(this.pos.fiscal_positions, function(fp) {
+                    return fp.id === fiscal_type.fiscal_position_id[0];
+                }));
             this.fiscal_type_changed();
         },
 
@@ -117,6 +123,19 @@ odoo.define('l10n_do_pos.models', function (require) {
                 .$('.js_fiscal_type_name').text(fiscal_type_name);
         },
 
+        set_fiscal_position: function (fiscal_position) {
+            var self = this;
+            if (fiscal_position) {
+                self.fiscal_position = fiscal_position;
+                // This will trigger the recomputation of taxes on order lines.
+                // It is necessary to manually do it for the sake of consistency
+                // with what happens when changing a customer.
+                _.each(self.orderlines.models, function (line) {
+                    line.set_quantity(line.quantity);
+                });
+                self.trigger('change');
+            }
+        },
 
         export_as_JSON: function () {
 
