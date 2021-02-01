@@ -69,7 +69,7 @@
                     'readonly': [('state','!=','draft')]
                 }"/>
                 <field name="l10n_do_ecf_modification_code" attrs="{
-                    'invisible':['|', '&amp;', ('type', 'not in', ('in_refund', 'out_refund')), ('is_debit_note', '=', False), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), '|', ('is_ecf_invoice', '=', False), ('l10n_latam_country_code', '!=', 'DO')],
+                    'invisible':['|', '|', '|', '&amp;', ('type', 'not in', ('in_refund', 'out_refund')), ('is_debit_note', '=', False), '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', False), '&amp;', ('is_debit_note', '=', True), ('is_ecf_invoice', '=', False), ('l10n_latam_country_code', '!=', 'DO')],
                     'required': ['|', '&amp;', ('type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', True), ('is_debit_note', '=', True)],
                 }"/>
             </xpath>
