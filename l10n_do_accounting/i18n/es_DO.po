@@ -942,3 +942,16 @@ msgstr ""
 #, python-format
 msgid "special from Tax Paying"
 msgstr "Exento"
+
+#. module: l10n_do_accounting
+#. openerp-web
+#: code:addons/l10n_do_accounting/static/src/xml/fiscal_sequence_warning_template.xml:0
+#, python-format
+msgid "¡NCF almost deplete!"
+msgstr "¡NCF casi agotado!"
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0
+#, python-format
+msgid "You cannot issue Credit/Debit Notes for %s document type"
+msgstr "No puede emitir Notas de Crédito/Débito para comprobantes de %s"
