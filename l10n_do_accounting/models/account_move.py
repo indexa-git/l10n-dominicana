@@ -68,7 +68,7 @@ class AccountMove(models.Model):
     ncf_expiration_date = fields.Date(
         string="Valid until",
         store=True,
-    )
+    )  # TODO: forward-port this field using l10n_do prefix
     is_debit_note = fields.Boolean()
 
     # DO NOT FORWARD PORT
@@ -402,10 +402,18 @@ class AccountMove(models.Model):
 
         res = super(AccountMove, self).post()
 
-        non_payer_type_invoices = self.filtered(
+        l10n_do_invoices = self.filtered(
             lambda inv: inv.company_id.country_id == self.env.ref("base.do")
             and inv.l10n_latam_use_documents
-            and not inv.partner_id.l10n_do_dgii_tax_payer_type
+        )
+
+        for invoice in l10n_do_invoices.filtered(
+            lambda inv: inv.l10n_latam_sequence_id
+        ):
+            invoice.ncf_expiration_date = invoice.l10n_latam_sequence_id.expiration_date
+
+        non_payer_type_invoices = l10n_do_invoices.filtered(
+            lambda inv: not inv.partner_id.l10n_do_dgii_tax_payer_type
         )
         if non_payer_type_invoices:
             raise ValidationError(_("Fiscal invoices require partner fiscal type"))
