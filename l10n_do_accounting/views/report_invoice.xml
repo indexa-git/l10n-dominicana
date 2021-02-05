@@ -73,7 +73,7 @@
                             <t t-else="">Válida hasta:</t>
                         </strong>
                          <span id="ecf_exp_date"
-                               t-field="o.company_id.l10n_do_ncf_exp_date"/>
+                               t-field="o.ncf_expiration_date"/>
                     </span>
                 </div>
             </div>
