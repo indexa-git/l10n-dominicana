@@ -64,7 +64,7 @@ class PosConfig(models.Model):
                 u"Favor proveer un valor válido para el campo"
                 "'Cantidad de Días Anteriores'!!!"))
 
-    def get_extra_fiscal_info(self):
+    def get_l10n_do_fiscal_type_data(self):
         return {
             'tax_payer_type_list': self.env['res.partner']._get_l10n_do_dgii_payer_types_selection(),
             'ncf_types_data': self.env['account.journal']._get_l10n_do_ncf_types_data(),

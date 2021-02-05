@@ -583,7 +583,7 @@ odoo.define('l10n_do_pos.models', function (require) {
             return loaded.then(function() {
                 return rpc.query({
                     model: "pos.config",
-                    method: "get_extra_fiscal_info",
+                    method: "get_l10n_do_fiscal_type_data",
                     args: [false],
                 }).then(function(result) {
                     self.tax_payer_type_list = result.tax_payer_type_list;

@@ -492,7 +492,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 self.pos.loading_screen_on();
                 rpc.query({
                     model: 'ir.sequence',
-                    method: 'get_expiration_date_and_next_by_id',
+                    method: 'get_l10n_do_fiscal_info',
                     args: [latam_sequence.id],
                 }).then(function (res) {
                     self.pos.loading_screen_off();
