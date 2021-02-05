@@ -38,6 +38,12 @@
                                     <t t-esc="order.l10n_do_origin_ncf"/>
                                 </strong>
                             </t>
+                            <t t-if="order.l10n_latam_document_type.doc_code_prefix != 'B02'">
+                                <br/>
+                                <strong>Válida hasta:
+                                    <t t-esc="order.l10n_do_ncf_expiration_date"/>
+                                </strong>
+                            </t>
                         </div>
                     </t>
                 </div>
@@ -62,6 +68,7 @@
                             <br/>
                         </t>
                     </t>
+                    <!--TODO: What is this field?-->
                     <!--<strong>Sucursal.:</strong>-->
                     <!--<t t-esc="receipt.shop.name"/>-->
                     <!--<br/>-->

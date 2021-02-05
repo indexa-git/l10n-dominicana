@@ -45,7 +45,7 @@ class PosOrder(models.Model):
         string="Fiscal Sequence",
         copy=False,
     )
-    ncf_expiration_date = fields.Date(
+    l10n_do_ncf_expiration_date = fields.Date(
         string="NCF expiration date",
     )
     l10n_latam_use_documents = fields.Boolean()
@@ -110,7 +110,7 @@ class PosOrder(models.Model):
             fields['return_status'] = ui_order['return_status']
             fields['is_return_order'] = ui_order['is_return_order']
             fields['return_order_id'] = ui_order['return_order_id']
-            # fields['ncf_expiration_date'] = ui_order['ncf_expiration_date']
+            fields['l10n_do_ncf_expiration_date'] = ui_order['l10n_do_ncf_expiration_date']
 
             for line in ui_order['lines']:
                 line_dic = line[2]
@@ -172,6 +172,7 @@ class PosOrder(models.Model):
         if documents and self.to_invoice:
             invoice_vals['l10n_latam_sequence_id'] = self.l10n_latam_sequence_id.id
             invoice_vals['l10n_latam_document_number'] = self.l10n_latam_document_number
+            invoice_vals['ncf_expiration_date'] = self.l10n_do_ncf_expiration_date
             invoice_vals['l10n_latam_document_type_id'] = \
                 self.l10n_latam_document_type_id.id
 
