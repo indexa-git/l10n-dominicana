@@ -92,7 +92,8 @@ class L10nLatamDocumentType(models.Model):
 
         if not bool(pattern.match(document_number)):
             raise ValidationError(
-                _("Document number %s doesn't match expected pattern" % document_number)
+                _("Document number %s doesn't fit with the expected structure")
+                % document_number
             )
 
         return document_number

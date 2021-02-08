@@ -494,8 +494,8 @@ msgstr "Nombre mostrado"
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/l10n_latam_document_type.py:0
 #, python-format
-msgid "Document number %s doesn't match expected pattern"
-msgstr "El NCF %s no coincide con la estructura esperada"
+msgid "Document number %s doesn't fit with the expected structure"
+msgstr "El NCF %s no encaja con la estructura esperada"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_document_type_filter
