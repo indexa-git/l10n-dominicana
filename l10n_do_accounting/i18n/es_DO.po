@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 13.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-31 17:17+0000\n"
-"PO-Revision-Date: 2021-01-31 13:19-0400\n"
+"POT-Creation-Date: 2021-02-17 21:13+0000\n"
+"PO-Revision-Date: 2021-02-17 17:14-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
-"Language: es\n"
+"Language: es_DO\n"
 "X-Generator: Poedit 2.4.2\n"
 
 #. module: l10n_do_accounting
@@ -513,6 +513,11 @@ msgid "Electronic Stamp"
 msgstr "Sello Electrónico"
 
 #. module: l10n_do_accounting
+#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_journal_form
+msgid "Expiration Date"
+msgstr "Fecha expiración"
+
+#. module: l10n_do_accounting
 #: model:ir.model.fields.selection,name:l10n_do_accounting.selection__res_company__l10n_do_default_client__non_payer
 msgid "Final Consumer"
 msgstr "Cliente de Consumo"
@@ -671,9 +676,9 @@ msgid "Modifies"
 msgstr "Afecta a"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_company__l10n_do_ncf_exp_date
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_ir_sequence__expiration_date
 msgid "NCF Expiration date"
-msgstr "Fecha de Expiración NCF"
+msgstr "Fecha expiración NCF"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_document_type_filter
@@ -789,7 +794,7 @@ msgid "Selected invoice(s) cannot be cancelled as they are already in 'Paid' sta
 msgstr "Las facturas seleccionadas no pueden cancelarse ya que se encuentran en estado Pagadas."
 
 #. module: l10n_do_accounting
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_journal_form
+#: model:ir.model,name:l10n_do_accounting.model_ir_sequence model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_journal_form
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -908,6 +913,12 @@ msgid "You cannot create Credit Notes from multiple documents at a time."
 msgstr "No puede crear Notas de Crédito desde múltiples documentos a la vez."
 
 #. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0
+#, python-format
+msgid "You cannot issue Credit/Debit Notes for %s document type"
+msgstr "No puede emitir Notas de Crédito/Débito para comprobantes de %s"
+
+#. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_move_reversal_inherited
 msgid ""
 "You will be able to edit and validate this\n"
@@ -942,16 +953,3 @@ msgstr ""
 #, python-format
 msgid "special from Tax Paying"
 msgstr "Exento"
-
-#. module: l10n_do_accounting
-#. openerp-web
-#: code:addons/l10n_do_accounting/static/src/xml/fiscal_sequence_warning_template.xml:0
-#, python-format
-msgid "¡NCF almost deplete!"
-msgstr "¡NCF casi agotado!"
-
-#. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0
-#, python-format
-msgid "You cannot issue Credit/Debit Notes for %s document type"
-msgstr "No puede emitir Notas de Crédito/Débito para comprobantes de %s"
