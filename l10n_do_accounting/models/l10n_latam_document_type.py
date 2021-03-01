@@ -92,7 +92,7 @@ class L10nLatamDocumentType(models.Model):
 
         if not bool(pattern.match(document_number)):
             raise ValidationError(
-                _("Document number %s doesn't fit with the expected structure")
+                _("NCF %s doesn't have the correct structure")
                 % document_number
             )
 

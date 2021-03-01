@@ -82,8 +82,8 @@ class Partner(models.Model):
                 _(
                     "You are not allowed to modify %s after partner "
                     "fiscal document issuing"
-                    % (", ".join(self._fields[f].string for f in fiscal_fields))
                 )
+                % (", ".join(self._fields[f].string for f in fiscal_fields))
             )
 
     def write(self, vals):
