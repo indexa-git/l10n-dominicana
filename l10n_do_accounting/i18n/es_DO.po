@@ -916,7 +916,7 @@ msgstr "No puede crear Notas de Crédito desde múltiples documentos a la vez."
 #: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0
 #, python-format
 msgid "You cannot issue Credit/Debit Notes for %s document type"
-msgstr "No puede emitir Notas de Crédito/Débito para comprobantes de %s"
+msgstr "No puede emitir Notas de Crédito/Débito para %s"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_move_reversal_inherited
