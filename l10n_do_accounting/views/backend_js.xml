@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<template inherit_id="web.assets_backend" name="web_widget_l10n_do_accounting assets" id="assets_backend">
+		<xpath position="inside" expr=".">
+			<script type="text/javascript" src="/l10n_do_accounting/static/src/js/l10n_do_accounting.js" />
+		</xpath>
+	</template>
+</odoo>

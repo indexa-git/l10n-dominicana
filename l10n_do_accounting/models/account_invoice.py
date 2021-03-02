@@ -483,7 +483,8 @@ class AccountInvoice(models.Model):
 
                 # TODO move this to l10n_do_external_validation_ncf
                 elif (
-                    self.journal_id.l10n_do_ncf_remote_validation
+                    len(ncf) == 11
+                    and self.journal_id.l10n_do_ncf_remote_validation
                     and not ncf_validation.check_dgii(self.partner_id.vat, ncf)
                 ):
                     raise ValidationError(
