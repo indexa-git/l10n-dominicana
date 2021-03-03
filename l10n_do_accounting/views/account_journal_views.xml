@@ -10,6 +10,7 @@
                     <tree create="false" delete="false" editable="top" default_order="id">
                         <field name="name" readonly="True" string="Sequence"/>
                         <field name="number_next_actual" string="Next Number"/>
+                        <field name="expiration_date" string="Expiration Date"/>
                         <field name="id" invisible="1"/>
                     </tree>
                 </field>

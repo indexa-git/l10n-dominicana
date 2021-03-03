@@ -87,6 +87,20 @@ class AccountMoveReversal(models.TransientModel):
                     "documents at a time."
                 )
             )
+        if (
+            move_ids_use_document.l10n_latam_document_type_id
+            and move_ids_use_document.l10n_latam_document_type_id.l10n_do_ncf_type
+            in (
+                "informal",
+                "minor",
+                "e-informal",
+                "e-minor",
+            )
+        ):
+            raise UserError(
+                _("You cannot issue Credit/Debit Notes for %s document type")
+                % move_ids_use_document.l10n_latam_document_type_id.name
+            )
         if move_ids_use_document:
             res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
 

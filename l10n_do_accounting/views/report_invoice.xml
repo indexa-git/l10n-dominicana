@@ -65,15 +65,18 @@
                         <br/>
                     </span>
                     <span id="fiscal_exp_date"
-                          t-if="(o.type in ['out_invoice', 'out_refund'] and not o.is_ecf_invoice)
-                              or (o.is_ecf_invoice and o.l10n_latam_document_type_id and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34'))
-                              and o.state == 'posted' and o.l10n_latam_document_number">
+                          t-if="o.l10n_latam_use_documents
+                          and o.type in ['out_invoice', 'out_refund']
+                          and o.state == 'posted'
+                          and o.l10n_latam_document_number
+                          and o.l10n_latam_document_type_id
+                          and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34', '02')">
                         <strong>
                             <t t-if="o.is_ecf_invoice">Vencimiento e-NCF:</t>
                             <t t-else="">Válida hasta:</t>
                         </strong>
                          <span id="ecf_exp_date"
-                               t-field="o.company_id.l10n_do_ncf_exp_date"/>
+                               t-field="o.ncf_expiration_date"/>
                     </span>
                 </div>
             </div>

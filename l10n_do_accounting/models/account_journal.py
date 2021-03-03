@@ -168,7 +168,7 @@ class AccountJournal(models.Model):
         ]
         documents = self.env["l10n_latam.document.type"].search(domain)
         for document in documents:
-            sequences |= self.env["ir.sequence"].create(
+            sequences |= self.env["ir.sequence"].sudo().create(
                 document._get_document_sequence_vals(self)
             )
         return sequences
