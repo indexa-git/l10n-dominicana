@@ -187,7 +187,13 @@ class AccountMove(models.Model):
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
     def _compute_company_in_contingency(self):
         for invoice in self:
-            ecf_invoices = self.search([("is_ecf_invoice", "=", True)], limit=1)
+            ecf_invoices = self.search(
+                [
+                    ("is_ecf_invoice", "=", True),
+                    ("l10n_latam_manual_document_number", "=", False),
+                ],
+                limit=1,
+            )
             invoice.l10n_do_company_in_contingency = bool(
                 ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
             )
@@ -337,9 +343,9 @@ class AccountMove(models.Model):
             and inv.l10n_latam_document_type_id
         )
         for rec in l10n_do_invoices:
-            partner_vat = rec.partner_id.vat
+            has_vat = bool(rec.partner_id.vat and bool(rec.partner_id.vat.strip()))
             l10n_latam_document_type = rec.l10n_latam_document_type_id
-            if not partner_vat and l10n_latam_document_type.is_vat_required:
+            if not has_vat and l10n_latam_document_type.is_vat_required:
                 raise ValidationError(
                     _(
                         "A VAT is mandatory for this type of NCF. "
@@ -351,7 +357,7 @@ class AccountMove(models.Model):
                 if (
                     rec.amount_untaxed_signed >= 250000
                     and l10n_latam_document_type.l10n_do_ncf_type[-7:] != "special"
-                    and not rec.partner_id.vat
+                    and not has_vat
                 ):
                     raise UserError(
                         _(
@@ -439,10 +445,15 @@ class AccountMove(models.Model):
 
         res = super()._post(soft)
 
-        non_payer_type_invoices = self.filtered(
+        l10n_do_invoices = self.filtered(
             lambda inv: inv.company_id.country_id == self.env.ref("base.do")
             and inv.l10n_latam_use_documents
-            and not inv.partner_id.l10n_do_dgii_tax_payer_type
+        )
+
+        # TODO: implement ncf expiration date set
+
+        non_payer_type_invoices = l10n_do_invoices.filtered(
+            lambda inv: not inv.partner_id.l10n_do_dgii_tax_payer_type
         )
         if non_payer_type_invoices:
             raise ValidationError(_("Fiscal invoices require partner fiscal type"))
