@@ -102,6 +102,9 @@ class AccountMove(models.Model):
         help="Technical field that compute if internal generated fiscal sequence "
         "is enabled to be set manually.",
     )
+    l10n_do_ncf_expiration_date = fields.Date(
+        string="NCF Expiration date",
+    )
 
     def init(self):
 
@@ -450,7 +453,12 @@ class AccountMove(models.Model):
             and inv.l10n_latam_use_documents
         )
 
-        # TODO: implement ncf expiration date set
+        for invoice in l10n_do_invoices.filtered(
+            lambda inv: inv.l10n_latam_document_type_id
+        ):
+            invoice.l10n_do_ncf_expiration_date = (
+                invoice.l10n_latam_document_type_id.l10n_do_ncf_expiration_date
+            )
 
         non_payer_type_invoices = l10n_do_invoices.filtered(
             lambda inv: not inv.partner_id.l10n_do_dgii_tax_payer_type
