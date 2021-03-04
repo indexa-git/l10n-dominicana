@@ -1,0 +1,272 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_do_debit_note
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-03-01 20:33+0000\n"
+"PO-Revision-Date: 2021-03-01 16:34-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: es\n"
+"X-Generator: Poedit 2.4.2\n"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), "
+"('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', "
+"False)]}\">Draft Vendor Debit Note</span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'in_invoice'), "
+"('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', "
+"False)]}\">Nota de Débito Proveedor</span>"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'out_invoice'), "
+"('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', "
+"False)]}\">Draft Debit Note</span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', '|', ('type', '!=', 'out_invoice'), "
+"('state', '!=', 'draft'), ('name', '!=', '/'), ('is_debit_note', '=', "
+"False)]}\">Nota de Débito Borrador</span>"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!"
+"=', 'cancel'), ('is_debit_note', '=', True)]}\">Cancelled Bill</span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', '!"
+"=', 'cancel'), ('is_debit_note', '=', True)]}\">Factura Cancelada</span>"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Vendor Debit Note</"
+"span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'in_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Nota de Débito "
+"Proveedor</span>"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'!=', 'cancel'), ('is_debit_note', '=', True)]}\">Cancelled Invoice</span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'!=', 'cancel'), ('is_debit_note', '=', True)]}\">Factura Cancelada</span>"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Customer Debit "
+"Note</span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', '!=', 'out_invoice'), ('state', "
+"'in', ('draft', 'cancel')), ('is_debit_note', '=', False)]}\">Nota de Débito</"
+"span>"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
+msgid ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', 'not in', ('out_invoice', "
+"'in_invoice')), ('state', '!=', 'cancel'), ('is_debit_note', '=', "
+"False)]}\">Cancelled Debit Note</span>"
+msgstr ""
+"<span attrs=\"{'invisible': ['|', '|', ('type', 'not in', ('out_invoice', "
+"'in_invoice')), ('state', '!=', 'cancel'), ('is_debit_note', '=', "
+"False)]}\">Nota de Débito Cancelada</span>"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_do_account_id
+msgid "Account"
+msgstr "Cuenta"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_do_debit_action
+msgid "Action"
+msgstr "Acción"
+
+#. module: l10n_do_debit_note
+#: model:ir.model,name:l10n_do_debit_note.model_account_debit_note
+msgid "Add Debit Note wizard"
+msgstr "Agregar Nota de Débito"
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_do_amount
+#, python-format
+msgid "Amount"
+msgstr "Importe"
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#, python-format
+msgid "Apply debit"
+msgstr "Aplicar débito"
+
+#. module: l10n_do_debit_note
+#: model:res.groups,name:l10n_do_debit_note.group_l10n_do_debit_note
+msgid "Can create Debit Notes"
+msgstr "Puede crear Notas de Débito"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.actions.act_window,help:l10n_do_debit_note.action_invoice_out_debit_note
+msgid "Create a debit note"
+msgstr "Crear una Nota de Débito"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,help:l10n_do_debit_note.field_account_debit_note__l10n_do_amount
+msgid "Debit Note based fixed amount"
+msgstr "Nota de Débito basada en monto fijo"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,help:l10n_do_debit_note.field_account_debit_note__l10n_do_percentage
+msgid "Debit Note based on origin invoice percentage"
+msgstr "Nota de Débito basada en porcentaje de la factura origen"
+
+#. module: l10n_do_debit_note
+#: model:ir.actions.act_window,name:l10n_do_debit_note.action_invoice_out_debit_note
+#: model:ir.ui.menu,name:l10n_do_debit_note.menu_action_invoice_out_debit_note
+msgid "Debit Notes"
+msgstr "Notas de Débito"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_do_debit_type
+msgid "Debit Type"
+msgstr "Tipo de Débito"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_account_debit_note_inherited
+msgid "Debit type"
+msgstr "Tipo de Débito"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_latam_document_number
+msgid "Document Number"
+msgstr "Número de Documento"
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#, python-format
+msgid "Draft debit"
+msgstr "Borrador"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__is_ecf_invoice
+msgid "Is Electronic Invoice"
+msgstr "Es Factura Electrónica"
+
+#. module: l10n_do_debit_note
+#: model:ir.model,name:l10n_do_debit_note.model_account_journal
+msgid "Journal"
+msgstr "Diario"
+
+#. module: l10n_do_debit_note
+#: model:ir.model,name:l10n_do_debit_note.model_account_move
+msgid "Journal Entries"
+msgstr "Asientos contables"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_latam_country_code
+msgid "L10N Latam Country Code"
+msgstr "Código de País"
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#, python-format
+msgid "No invoice found for this operation"
+msgstr "No se encontró facturas para esta operación"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.actions.act_window,help:l10n_do_debit_note.action_invoice_out_debit_note
+msgid ""
+"Note that the easiest way to create a debit note is to do it directly\n"
+"                from the customer invoice."
+msgstr ""
+"Note que la manera más fácil de crear una Nota de Débito es haciéndolo "
+"directamente desde una factura."
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_do_percentage
+#, python-format
+msgid "Percentage"
+msgstr "Porcentaje"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.actions.act_window,help:l10n_do_debit_note.action_vendor_in_debit_note
+msgid "Record a new vendor debit note"
+msgstr "Registrar una nueva Nota de Débito del proveedor"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,help:l10n_do_debit_note.field_account_debit_note__l10n_latam_country_code
+msgid "Technical field used to hide/show fields regarding the localization"
+msgstr ""
+"Campo técnico usado para mostrar/ocultar campos dependiendo la localización"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_account_debit_note_inherited
+msgid ""
+"Use this option if you want to fully apply a debit note.\n"
+"                            The debit note will be created, validated and "
+"reconciled\n"
+"                            with the invoice. You will not be able to modify the "
+"debit\n"
+"                            note."
+msgstr ""
+"Use esta opción si desea aplicar una Nota de Débito por completo.\n"
+"                            La Nota de Débito será creada, validada y "
+"conciliada\n"
+"                            con la factura. No podrá modificar la Nota de Débito."
+
+#. module: l10n_do_debit_note
+#: model:ir.actions.act_window,name:l10n_do_debit_note.action_vendor_in_debit_note
+#: model:ir.ui.menu,name:l10n_do_debit_note.menu_action_invoice_in_debit_note
+msgid "Vendor Debit Notes"
+msgstr "Nota de Débitos del Vendedor"
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#, python-format
+msgid "You are not allowed to issue Debit Notes"
+msgstr "No tiene permitido emitir Notas de Débito"
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#, python-format
+msgid "You cannot create Debit Notes from multiple documents at a time."
+msgstr "No puede crear Notas de Débito desde múltiples facturas a la vez."
+
+#. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
+#, python-format
+msgid "You cannot issue Credit/Debit Notes for %s document type"
+msgstr "No puede emitir Notas de Crédito/Débito para comprobantes de %s"
+
+#. module: l10n_do_debit_note
+#: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_account_debit_note_inherited
+msgid ""
+"You will be able to edit and validate this\n"
+"                            debit note directly or keep it draft."
+msgstr ""
+"Podrá editar y validar esta\n"
+"                            Nota de Débito directamente o mantenerla en borrador."
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_do_ecf_modification_code
+msgid "e-CF Modification Code"
+msgstr "Código Modificación e-CF"
