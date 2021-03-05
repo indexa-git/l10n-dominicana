@@ -34,7 +34,34 @@ def update_document_types_vat_required(env):
     _logger.info("All Document Types set is_vat_required = True")
 
 
+def log_missing_partner_vat_invoices(env):
+    query = """
+    SELECT move.id
+    FROM account_move AS move
+    JOIN account_journal AS journal
+    ON (journal.id = move.journal_id)
+    JOIN res_partner AS partner
+    ON (partner.id = move.partner_id)
+    WHERE journal.l10n_latam_use_documents = 't'
+    AND move.company_id = {company}
+    AND partner.vat IS NULL
+    OR COALESCE(TRIM(vat), '') = '';
+    """
+    domain = [("partner_id.country_id", "=", env.ref("base.do").id)]
+    for company in env["res.company"].search(domain):
+        env.cr.execute(query.format(company=company.id))
+        moves = env["account.move"].browse([r[0] for r in env.cr.fetchall()])
+        names = moves.partner_id.mapped("name")
+        for name in names:
+            _logger.info(
+                "Company {company} Partner {name} has not vat".format(
+                    company=company.name, name=name
+                )
+            )
+
+
 def migrate(cr, version):
 
     env = api.Environment(cr, SUPERUSER_ID, {})
     update_document_types_vat_required(env)
+    log_missing_partner_vat_invoices(env)
