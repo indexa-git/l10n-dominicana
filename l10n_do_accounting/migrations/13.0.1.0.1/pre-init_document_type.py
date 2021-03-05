@@ -12,7 +12,7 @@ def update_document_types_not_vat_required(env):
     AND country_id = {company}
     """
     env.cr.execute(query.format(company=env.ref("base.do").id))
-    _logger.log(25, "All Document Types set is_vat_required = False")
+    _logger.info("All Document Types set is_vat_required = False")
 
 
 def migrate(cr, version):

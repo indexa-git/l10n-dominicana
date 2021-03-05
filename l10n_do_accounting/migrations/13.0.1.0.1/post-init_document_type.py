@@ -31,7 +31,7 @@ def update_document_types_vat_required(env):
             ncf_types=tuple(l10n_do_ncf_types), company=env.ref("base.do").id
         )
     )
-    _logger.log(25, "All Document Types set is_vat_required = True")
+    _logger.info("All Document Types set is_vat_required = True")
 
 
 def migrate(cr, version):
