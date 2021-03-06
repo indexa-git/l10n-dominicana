@@ -9,9 +9,9 @@ def update_document_types_not_vat_required(env):
     UPDATE l10n_latam_document_type
     SET is_vat_required = 'f'
     WHERE is_vat_required = 't'
-    AND country_id = {company}
+    AND country_id = {country}
     """
-    env.cr.execute(query.format(company=env.ref("base.do").id))
+    env.cr.execute(query.format(country=env.ref("base.do").id))
     _logger.info("All Document Types set is_vat_required = False")
 
 

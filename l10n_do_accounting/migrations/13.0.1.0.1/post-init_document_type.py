@@ -24,11 +24,11 @@ def update_document_types_vat_required(env):
     SET is_vat_required = 't'
     WHERE is_vat_required = 'f'
     AND l10n_do_ncf_type IN {ncf_types}
-    AND country_id = {company}
+    AND country_id = {country}
     """
     env.cr.execute(
         query.format(
-            ncf_types=tuple(l10n_do_ncf_types), company=env.ref("base.do").id
+            ncf_types=tuple(l10n_do_ncf_types), country=env.ref("base.do").id
         )
     )
     _logger.info("All Document Types set is_vat_required = True")
