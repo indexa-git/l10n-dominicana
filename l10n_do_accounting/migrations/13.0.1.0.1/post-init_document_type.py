@@ -42,10 +42,16 @@ def log_missing_partner_vat_invoices(env):
     ON (journal.id = move.journal_id)
     JOIN res_partner AS partner
     ON (partner.id = move.partner_id)
+    JOIN l10n_latam_document_type as latam_document
+    ON (latam_document.id = move.l10n_latam_document_type_id)
     WHERE journal.l10n_latam_use_documents = 't'
+    AND latam_document.is_vat_required = 't'
     AND move.company_id = {company}
-    AND partner.vat IS NULL
-    OR COALESCE(TRIM(vat), '') = '';
+    AND
+    (
+        (partner.vat IS NULL)
+        OR (COALESCE(TRIM(vat), '') = '')
+    );
     """
     domain = [("partner_id.country_id", "=", env.ref("base.do").id)]
     for company in env["res.company"].search(domain):
