@@ -238,14 +238,14 @@ class AccountInvoice(models.Model):
     def _compute_invoiced_itbis(self):
         """Compute invoice invoiced_itbis taking into account the currency"""
         for inv in self:
+            amount = 0
             if inv.state != 'draft':
-                amount = 0
                 itbis_taxes = ['ITBIS', 'ITBIS 18%']
                 for tax in inv._get_tax_line_ids():
-                    if tax.tax_id.tax_group_id.name in itbis_taxes and \
-                            tax.tax_id.purchase_tax_type != 'ritbis':
+                    if tax.tax_id.tax_group_id.name in itbis_taxes and tax.tax_id.purchase_tax_type != 'ritbis':
                         amount += tax.amount
-                    inv.invoiced_itbis = inv._convert_to_local_currency(amount)
+            inv.invoiced_itbis = inv._convert_to_local_currency(amount)
+
 
     def _get_payment_move_iterator(self, payment, inv_type, witheld_type):
         payment_id = self.env['account.payment'].browse(
@@ -290,11 +290,28 @@ class AccountInvoice(models.Model):
                 inv.third_income_withholding = 0
                 witheld_itbis_types = ['A34', 'A36']
                 witheld_isr_types = ['ISR', 'A38']
+                tax_line_ids = inv._get_tax_line_ids()
 
-                if inv.type == 'in_invoice':
-                    tax_line_ids = inv._get_tax_line_ids()
+                if inv.type == 'out_invoice':
+                    # ITBIS Retenido por Terceros
+                    inv.third_withheld_itbis = abs(
+                        inv._convert_to_local_currency(
+                            sum(
+                                tax_line_ids.filtered(
+                                    lambda tax: tax.account_id.account_fiscal_type in witheld_itbis_types
+                                ).mapped('amount'))))
 
-                    # Monto ITBIS Retenido por impuesto
+                    # Retención de Renta por Terceros
+                    inv.third_income_withholding = abs(
+                        inv._convert_to_local_currency(
+                            sum(
+                                tax_line_ids.filtered(
+                                    lambda tax: tax.account_id.account_fiscal_type in witheld_isr_types
+                                ).mapped('amount'))))
+
+                elif inv.type == 'in_invoice':
+
+                    # ITBIS Retenido a Terceros
                     inv.withholded_itbis = abs(
                         inv._convert_to_local_currency(
                             sum(
@@ -302,7 +319,7 @@ class AccountInvoice(models.Model):
                                     lambda tax: tax.tax_id.purchase_tax_type ==
                                     'ritbis').mapped('amount'))))
 
-                    # Monto Retención Renta por impuesto
+                    # Retención de Renta a Terceros
                     inv.income_withholding = abs(
                         inv._convert_to_local_currency(
                             sum(
@@ -310,28 +327,29 @@ class AccountInvoice(models.Model):
                                     lambda tax: tax.tax_id.purchase_tax_type ==
                                     'isr').mapped('amount'))))
 
-                for payment in inv._get_invoice_payment_widget():
-
-                    if inv.type == 'out_invoice':
-                        # ITBIS Retenido por Terceros
-                        inv.third_withheld_itbis += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_itbis_types))
-
-                        # Retención de Renta pr Terceros
-                        inv.third_income_withholding += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_isr_types))
-                    elif inv.type == 'in_invoice':
-                        # ITBIS Retenido a Terceros
-                        inv.withholded_itbis += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_itbis_types))
-
-                        # Retención de Renta a Terceros
-                        inv.income_withholding += sum(
-                            self._get_payment_move_iterator(
-                                payment, inv.type, witheld_isr_types))
+                # TODO: Esta parte esta comentada porque solo funciona para v10-v11 podria funcionar en un futuro
+                # for payment in inv._get_invoice_payment_widget():
+                #
+                #     if inv.type == 'out_invoice':
+                #         # ITBIS Retenido por Terceros
+                #         inv.third_withheld_itbis += sum(
+                #             self._get_payment_move_iterator(
+                #                 payment, inv.type, witheld_itbis_types))
+                #
+                #         # Retención de Renta pr Terceros
+                #         inv.third_income_withholding += sum(
+                #             self._get_payment_move_iterator(
+                #                 payment, inv.type, witheld_isr_types))
+                #     elif inv.type == 'in_invoice':
+                #         # ITBIS Retenido a Terceros
+                #         inv.withholded_itbis += sum(
+                #             self._get_payment_move_iterator(
+                #                 payment, inv.type, witheld_itbis_types))
+                #
+                #         # Retención de Renta a Terceros
+                #         inv.income_withholding += sum(
+                #             self._get_payment_move_iterator(
+                #                 payment, inv.type, witheld_isr_types))
 
     @api.multi
     @api.depends('invoiced_itbis', 'cost_itbis', 'state')

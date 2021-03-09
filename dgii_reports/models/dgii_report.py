@@ -1085,6 +1085,8 @@ class DgiiReport(models.Model):
     def _has_withholding(self, inv):
         """Validate if given invoice has an Withholding tax"""
         tax_line_ids = inv._get_tax_line_ids()
+        witheld_itbis_types = ['A34', 'A36']
+        witheld_isr_types = ['ISR', 'A38']
 
         # Monto ITBIS Retenido por impuesto
         withholded_itbis = abs(
@@ -1102,10 +1104,26 @@ class DgiiReport(models.Model):
                         lambda tax: tax.tax_id.purchase_tax_type ==
                                     'isr').mapped('amount'))))
 
+        # ITBIS Retenido por Terceros
+        third_withheld_itbis = abs(
+            inv._convert_to_local_currency(
+                sum(
+                    tax_line_ids.filtered(
+                        lambda tax: tax.account_id.account_fiscal_type in witheld_itbis_types
+                    ).mapped('amount'))))
+
+        # Retención de Renta por Terceros
+        third_income_withholding = abs(
+            inv._convert_to_local_currency(
+                sum(
+                    tax_line_ids.filtered(
+                        lambda tax: tax.account_id.account_fiscal_type in witheld_isr_types
+                    ).mapped('amount'))))
+
         return True if any([income_withholding,
                             withholded_itbis,
-                            inv.third_withheld_itbis,
-                            inv.third_income_withholding]) else False
+                            third_withheld_itbis,
+                            third_income_withholding]) else False
 
     @api.multi
     def _invoice_status_sent(self):
