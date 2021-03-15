@@ -10,7 +10,7 @@
                 <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
-                <field name="is_l10n_do_internal_sequence" invisible="1"/>
+                <field name="is_l10n_do_internal_sequence" invisible="1" force_save="1"/>
             </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
