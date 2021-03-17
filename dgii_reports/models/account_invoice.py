@@ -244,7 +244,7 @@ class AccountInvoice(models.Model):
                 for tax in inv._get_tax_line_ids():
                     if tax.tax_id.tax_group_id.name in itbis_taxes and tax.tax_id.purchase_tax_type != 'ritbis':
                         amount += tax.amount
-            inv.invoiced_itbis = inv._convert_to_local_currency(amount)
+                inv.invoiced_itbis = inv._convert_to_local_currency(amount)
 
 
     def _get_payment_move_iterator(self, payment, inv_type, witheld_type):
