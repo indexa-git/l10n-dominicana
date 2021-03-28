@@ -744,6 +744,12 @@ msgid "Partial Refund"
 msgstr "Reembolso Parcial"
 
 #. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_journal.py:0
+#, python-format
+msgid "Partner %s is needed to issue a fiscal invoice"
+msgstr "El %s del contacto es necesario para emitir una factura fiscal"
+
+#. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_import_journal_creation__l10n_do_payment_form
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_journal__l10n_do_payment_form
 msgid "Payment Form"
