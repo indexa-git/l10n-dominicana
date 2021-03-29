@@ -292,7 +292,7 @@ class AccountInvoice(models.Model):
                     {'sale_fiscal_type': self.sale_fiscal_type})
                 self.special_check()
 
-            if self.type == 'in_invoice':
+            if self.type == 'in_invoice' and not self.partner_id.expense_type:
                 self.partner_id.write({'expense_type': self.expense_type})
 
     def special_check(self):
