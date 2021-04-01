@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import AccessError
 
 
 class Partner(models.Model):
@@ -52,6 +53,52 @@ class Partner(models.Model):
         if self.env.user.company_id.country_id == self.env.ref("base.do")
         else False
     )
+
+    def _check_l10n_do_fiscal_fields(self, vals):
+
+        if self.parent_id:
+            # Do not perform any check because child contacts
+            # have readonly fiscal field. This also allows set
+            # contacts parent, even if this changes any of its
+            # fiscal fields.
+            return
+
+        fiscal_fields = [
+            field
+            for field in ["name", "vat", "country_id"]  # l10n_do_dgii_tax_payer_type ?
+            if field in vals
+        ]
+        if (
+            fiscal_fields
+            and not self.env.user.has_group(
+                "l10n_do_accounting.group_l10n_do_edit_fiscal_partner"
+            )
+            and self.env["account.move"]
+            .sudo()
+            .search(
+                [
+                    ("l10n_latam_use_documents", "=", True),
+                    ("company_id.partner_id.country_id.code", "=", "DO"),
+                    ("commercial_partner_id", "=", self.id),
+                    ("state", "=", "posted"),
+                ],
+                limit=1,
+            )
+        ):
+            raise AccessError(
+                _(
+                    "You are not allowed to modify %s after partner "
+                    "fiscal document issuing"
+                )
+                % (", ".join(self._fields[f].string for f in fiscal_fields))
+            )
+
+    def write(self, vals):
+
+        res = super(Partner, self).write(vals)
+        self._check_l10n_do_fiscal_fields(vals)
+
+        return res
 
     @api.depends("l10n_do_dgii_tax_payer_type")
     def _compute_is_fiscal_info_required(self):

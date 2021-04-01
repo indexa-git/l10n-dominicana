@@ -101,10 +101,8 @@ class AccountDebitNote(models.TransientModel):
             "e-minor",
         ):
             raise UserError(
-                _(
-                    "Debit Notes are not allowed "
-                    "for Comprobante de Compra or Gastos Menores"
-                )
+                _("You cannot issue Credit/Debit Notes for %s document type")
+                % move_ids_use_document.l10n_latam_document_type_id.name
             )
 
         if len(move_ids_use_document) > 1:

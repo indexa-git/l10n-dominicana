@@ -1,5 +1,5 @@
 from odoo import fields, models, api, _
-from odoo.exceptions import RedirectWarning
+from odoo.exceptions import RedirectWarning, ValidationError
 
 
 class AccountJournal(models.Model):
@@ -100,11 +100,16 @@ class AccountJournal(models.Model):
                 else [ncf for ncf in ncf_types if ncf not in ncf_external]
             )
             return self._get_all_ncf_types(res, invoice)
-        else:
+        if counterpart_partner.l10n_do_dgii_tax_payer_type:
             counterpart_ncf_types = ncf_types_data[
                 "issued" if self.type == "sale" else "received"
             ][counterpart_partner.l10n_do_dgii_tax_payer_type]
             ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
+        else:
+            raise ValidationError(
+                _("Partner %s is needed to issue a fiscal invoice")
+                % self._fields["l10n_do_dgii_tax_payer_type"].string
+            )
         if invoice.move_type in ["out_refund", "in_refund"]:
             ncf_types = ["credit_note"]
 

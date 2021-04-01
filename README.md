@@ -33,3 +33,7 @@ Antes de hacer una contribución al repositorio a través de un PR, les recomend
 También, antes de cualquier publicación deben leer la [guía de Contribución de OCA](https://github.com/OCA/odoo-community.org/blob/master/website/Contribution/CONTRIBUTING.rst) que es la base de nuestras políticas de contribución.
 
 > Antes de poder hacer una contribución, si es la primera que realizas, debes crear un **issue** explicando el problema e indicando que harás un **PR**.
+
+## Sponsors
+
+![Henca](https://drive.google.com/uc?id=1SZBArbKusae-Xk5m4k8hrhvprP7mJRAw)

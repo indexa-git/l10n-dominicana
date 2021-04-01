@@ -8,7 +8,7 @@
             <field name="restrict_mode_hash_table" position="after">
                 <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
-                <field name="l10n_do_enable_first_sequence" invisible="1"/>
+                <field name="l10n_do_enable_first_sequence" invisible="1" force_save="1"/>
             </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
@@ -72,8 +72,8 @@
                     'readonly': [('state','!=','draft')]
                 }"/>
                 <field name="l10n_do_ecf_modification_code" attrs="{
-                    'invisible': ['|', ('is_ecf_invoice', '=', False), '&amp;', ('move_type', 'not in', ('in_refund', 'out_refund')), ('debit_origin_id', '=', False)],
-                    'required': ['|', '&amp;', ('move_type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', True), ('debit_origin_id', '!=', False)],
+                    'invisible':['|', '|', '|', '&amp;', ('move_type', 'not in', ('in_refund', 'out_refund')), ('debit_origin_id', '=', False), '&amp;', ('move_type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', False), '&amp;', ('debit_origin_id', '!=', False), ('is_ecf_invoice', '=', False), ('country_code', '!=', 'DO')],
+                    'required': ['&amp;', ('is_ecf_invoice', '=', True), '|', ('move_type', 'in', ('in_refund', 'out_refund')), ('debit_origin_id', '!=', False)],
                 }"/>
             </xpath>
             <xpath expr="//span/field[@name='move_type']" position="attributes">
