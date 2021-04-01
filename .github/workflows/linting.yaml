@@ -24,9 +24,9 @@ jobs:
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --exit-zero --select E9,F63,F7,F82 --ignore E123,E133,E226,E241,E242,F811,F601,W503,W504,E203 \
+        flake8 . --count --exit-zero --select E9,F63,F7,F82 --ignore E203,E501,W503 \
         --exclude __unported__,__init__.py,examples --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide  
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
 
   pylint:
@@ -34,7 +34,7 @@ jobs:
     continue-on-error: true
     steps:
     - uses: actions/checkout@v2
-    - run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/13.0/.devcontainer/.vscode/oca_pylint.cfg -o oca_pylint.cfg
+    - run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/14.0/.devcontainer/.vscode/oca_pylint.cfg -o oca_pylint.cfg
     - uses: actions/setup-python@v2
       with:
         python-version: 3.7
