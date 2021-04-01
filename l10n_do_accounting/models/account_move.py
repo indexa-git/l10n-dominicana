@@ -193,7 +193,7 @@ class AccountMove(models.Model):
             ecf_invoices = self.search(
                 [
                     ("is_ecf_invoice", "=", True),
-                    ("is_l10n_do_internal_sequence", "=", True),
+                    ("l10n_latam_manual_document_number", "=", False),
                 ],
                 limit=1,
             )
@@ -453,8 +453,12 @@ class AccountMove(models.Model):
             and inv.l10n_latam_use_documents
         )
 
-        # TODO: pending to set invoice ncf exp date
-        # invoice.l10n_do_ncf_expiration_date = ?
+        for invoice in l10n_do_invoices.filtered(
+            lambda inv: inv.l10n_latam_document_type_id
+        ):
+            invoice.l10n_do_ncf_expiration_date = (
+                invoice.l10n_latam_document_type_id.l10n_do_ncf_expiration_date
+            )
 
         non_payer_type_invoices = l10n_do_invoices.filtered(
             lambda inv: not inv.partner_id.l10n_do_dgii_tax_payer_type
@@ -587,7 +591,10 @@ class AccountMove(models.Model):
 
     @api.depends("posted_before", "state", "journal_id", "date")
     def _compute_name(self):
-        super(AccountMove, self)._compute_name()
+
+        super(AccountMove, self.with_context(
+            compute_manual_name=True))._compute_name()
+
         for move in self.filtered(
             lambda x: x.country_code == "DO"
             and x.l10n_latam_document_type_id

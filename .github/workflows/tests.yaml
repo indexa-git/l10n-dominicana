@@ -14,6 +14,8 @@ on:
   pull_request:
     branches:
       - '[0-9]+.0'
+env:
+  REQUIRED_MODULES: 'session_redis' # list of addional addons to install separated by comma
 
 jobs:
   dependencies:
@@ -58,6 +60,13 @@ jobs:
         repository: odoo/enterprise
         token: ${{ secrets.ACTIONS_PAT }}
         path: enterprise
+        ref: '14.0'
+  
+    - name: Redis
+      uses: actions/checkout@v2
+      with:
+        repository: camptocamp/odoo-cloud-platform
+        path: odoo-cloud-platform
         ref: '14.0'
 
     - name: Select Odoo modules to install
@@ -124,7 +133,7 @@ jobs:
         PIP_AUTO_INSTALL: '1'
         LOG_LEVEL: test
         WITHOUT_DEMO: 'False'
-        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
+        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
         ODOO_EXTRA_ADDONS: /github/workspace
 
   build-gcp:
@@ -192,7 +201,7 @@ jobs:
         ENV: dev
         GKE_LOCATION: ${{ secrets.GKE_PROJECT }}
         # Modules to Install
-        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
+        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
         # Image to Deploy
         PROJECT_ID: ${{ secrets.GKE_PROJECT }}
         REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
@@ -203,6 +212,13 @@ jobs:
         SHORT_SHA: ${{ env.GITHUB_SHA_SHORT }}
 
     - run: cat deployment.yaml
+
+    - name: Upload deployment
+      uses: actions/upload-artifact@v2
+      with:
+        name: deployment
+        path: deployment.yaml
+        retention-days: 10
 
     - name: Setup gcloud CLI
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master

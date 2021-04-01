@@ -1,0 +1,63 @@
+name: Clean Deployment
+
+on:
+  push:
+    branches:
+      - '[0-9]+.0'
+    paths:
+      - '**/src/**'
+      - '**/i18n/**'
+      - '**.py'
+      - '**.xml'
+  
+jobs:
+  deployment:
+    name: GKE clean Deploy
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+      GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
+      GKE_ZONE: ${{ secrets.GKE_ZONE }}
+
+    steps:
+    - name: Download Deployment.yaml
+      continue-on-error: true
+      uses: dawidd6/action-download-artifact@v2.11.0
+      with:
+        workflow: tests.yaml
+        workflow_conclusion: success
+        pr: ${{github.event.pull_request.number}}
+        name: deployment
+        path: deployment
+
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v2.x
+
+    - name: K8s Template
+      uses: actions/checkout@v2
+      with:
+        repository: indexa-git/gke-dev-cluster.git
+        path: gke-dev-cluster
+        token: ${{ secrets.ACTIONS_PAT }}
+        ref: master
+
+    - name: Setup gcloud CLI
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        version: '290.0.1'
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication
+    - name: Get Cluster & Docker credentials
+      run: |
+        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE" --project "$PROJECT_ID"
+        gcloud --quiet auth configure-docker
+
+    # Remove the Docker image from the GKE cluster
+    - name: Remove Deployment
+      continue-on-error: true
+      run: |
+        kubectl delete -f deployment/deployment.yaml

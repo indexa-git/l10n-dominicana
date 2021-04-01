@@ -75,9 +75,8 @@
                             <t t-if="o.is_ecf_invoice">Vencimiento e-NCF:</t>
                             <t t-else="">Válida hasta:</t>
                         </strong>
-                        <!--TODO: Pending ncf exp date-->
-                        <!--<span id="ecf_exp_date"
-                               t-field="o.l10n_do_ncf_expiration_date"/>-->
+                         <span id="ecf_exp_date"
+                               t-field="o.l10n_do_ncf_expiration_date"/>
                     </span>
                 </div>
             </div>
