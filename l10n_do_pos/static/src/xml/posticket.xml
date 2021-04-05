@@ -32,7 +32,7 @@
                             <strong>NCF:
                                 <t t-esc="order.l10n_latam_document_number"/>
                             </strong>
-                            <t t-if="order.is_return_order">
+                            <t t-if="order.l10n_do_is_return_order">
                                 <br/>
                                 <strong>NCF Modificado:
                                     <t t-esc="order.l10n_do_origin_ncf"/>
