@@ -30,7 +30,7 @@ odoo.define('l10n_do_pos.models', function (require) {
     var rpc = require('web.rpc');
 
     models.load_fields('res.partner', ['l10n_do_dgii_tax_payer_type']);
-    models.load_fields('pos.config', ['default_partner_id']);
+    models.load_fields('pos.config', ['l10n_do_default_partner_id']);
 
     models.load_fields('account.journal', [
         'l10n_latam_use_documents',
@@ -56,14 +56,14 @@ odoo.define('l10n_do_pos.models', function (require) {
     models.load_models([{
         model: 'pos.order',
         fields: ['id', 'name', 'date_order', 'partner_id', 'lines', 'pos_reference', 'account_move', 'amount_total',
-            'l10n_latam_document_number', 'payment_ids', 'return_order_id', 'is_return_order', 'return_status'],
+            'l10n_latam_document_number', 'payment_ids', 'l10n_do_return_order_id', 'l10n_do_is_return_order', 'l10n_do_return_status'],
         domain: function (self) {
             var domain_list = [];
 
-            if (self.config.order_loading_options === 'n_days') {
+            if (self.config.l10n_do_order_loading_options === 'n_days') {
                 var today = new Date();
                 var validation_date = new Date(today);
-                validation_date.setDate(today.getDate() - self.config.number_of_days);
+                validation_date.setDate(today.getDate() - self.config.l10n_do_number_of_days);
 
                 domain_list = [
                     ['account_move.invoice_date', '>', validation_date.toISOString()],
@@ -76,7 +76,7 @@ odoo.define('l10n_do_pos.models', function (require) {
                     ['state', 'not in', ['draft', 'cancel']],
                 ];
             }
-            domain_list.push(['is_return_order', '=', false]);
+            domain_list.push(['l10n_do_is_return_order', '=', false]);
             return domain_list;
         },
         loaded: function (self, orders) {
@@ -119,7 +119,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         domain: function (self) {
             var today = new Date();
             var validation_date = new Date(today);
-            validation_date.setDate(today.getDate() - self.config.credit_notes_number_of_days);
+            validation_date.setDate(today.getDate() - self.config.l10n_do_credit_notes_number_of_days);
             //TODO: try analize correct date
             return [
                 ['type', '=', 'out_refund'], ['state', '!=', 'paid'],
@@ -145,7 +145,7 @@ odoo.define('l10n_do_pos.models', function (require) {
     }, {
         model: 'pos.order.line',
         fields: ['product_id', 'order_id', 'qty', 'discount', 'price_unit', 'price_subtotal_incl',
-            'price_subtotal', 'line_qty_returned'],
+            'price_subtotal', 'l10n_do_line_qty_returned'],
         domain: function (self) {
             var orders = self.db.pos_all_orders;
             var order_lines = [];
@@ -252,10 +252,10 @@ odoo.define('l10n_do_pos.models', function (require) {
                 self.pos.get_latam_document_type_by_prefix();
             this.to_invoice_backend = false;
 
-            this.return_status = '-';
+            this.l10n_do_return_status = '-';
             this.l10n_do_origin_ncf = '';
-            this.is_return_order = false;
-            this.return_order_id = false;
+            this.l10n_do_is_return_order = false;
+            this.l10n_do_return_order_id = false;
             this.set_to_invoice(true);
             this.save_to_db();
         },
@@ -288,9 +288,9 @@ odoo.define('l10n_do_pos.models', function (require) {
         // init_from_JSON: function (json) {
         //     var self = this;
         //     _super_order.init_from_JSON.call(this, json);
-        //     this.return_status = json.return_status;
-        //     this.is_return_order = json.is_return_order;
-        //     this.return_order_id = json.return_order_id;
+        //     this.l10n_do_return_status = json.l10n_do_return_status;
+        //     this.l10n_do_is_return_order = json.l10n_do_is_return_order;
+        //     this.l10n_do_return_order_id = json.l10n_do_return_order_id;
         //     this.amount_total = json.amount_total;
         //     this.to_invoice = json.to_invoice;
         //     this.ncf = json.ncf;
@@ -316,10 +316,10 @@ odoo.define('l10n_do_pos.models', function (require) {
             this.l10n_latam_sequence_id = json.l10n_latam_sequence_id;
             this.l10n_latam_document_type_id = json.l10n_latam_document_type_id;
             this.to_invoice_backend = json.to_invoice_backend;
-            this.return_status = json.return_status;
+            this.l10n_do_return_status = json.l10n_do_return_status;
             this.l10n_do_origin_ncf = json.l10n_do_origin_ncf;
-            this.is_return_order = json.is_return_order;
-            this.return_order_id = json.return_order_id;
+            this.l10n_do_is_return_order = json.l10n_do_is_return_order;
+            this.l10n_do_return_order_id = json.l10n_do_return_order_id;
             this.set_latam_document_type(
                 this.pos.get_latam_document_type_by_id(
                     json.l10n_latam_document_type_id));
@@ -340,10 +340,10 @@ odoo.define('l10n_do_pos.models', function (require) {
                     current_order.l10n_latam_document_type_id;
                 loaded.to_invoice_backend = current_order.to_invoice_backend;
 
-                loaded.return_status = current_order.return_status;
+                loaded.l10n_do_return_status = current_order.l10n_do_return_status;
                 loaded.l10n_do_origin_ncf = current_order.l10n_do_origin_ncf;
-                loaded.is_return_order = current_order.is_return_order;
-                loaded.return_order_id = current_order.return_order_id;
+                loaded.l10n_do_is_return_order = current_order.l10n_do_is_return_order;
+                loaded.l10n_do_return_order_id = current_order.l10n_do_return_order_id;
             }
 
             return loaded;
@@ -399,21 +399,21 @@ odoo.define('l10n_do_pos.models', function (require) {
     var _super_orderline = models.Orderline.prototype;
     models.Orderline = models.Orderline.extend({
         initialize: function (attr, options) {
-            this.line_qty_returned = 0;
-            this.original_line_id = null;
+            this.l10n_do_line_qty_returned = 0;
+            this.l10n_do_original_line_id = null;
             _super_orderline.initialize.call(this, attr, options);
         },
         init_from_JSON: function (json) {
             _super_orderline.init_from_JSON.call(this, json);
-            this.line_qty_returned = json.line_qty_returned;
-            this.original_line_id = json.original_line_id;
+            this.l10n_do_line_qty_returned = json.l10n_do_line_qty_returned;
+            this.l10n_do_original_line_id = json.l10n_do_original_line_id;
         },
         export_as_JSON: function () {
             var json = _super_orderline.export_as_JSON.call(this);
 
             $.extend(json, {
-                line_qty_returned: this.line_qty_returned,
-                original_line_id: this.original_line_id,
+                l10n_do_line_qty_returned: this.l10n_do_line_qty_returned,
+                l10n_do_original_line_id: this.l10n_do_original_line_id,
             });
             return json;
         },
@@ -524,7 +524,7 @@ odoo.define('l10n_do_pos.models', function (require) {
         set_order: function (order) {
             _super_posmodel.set_order.call(this, order);
 
-            if (order && order.is_return_order === true) {
+            if (order && order.l10n_do_is_return_order === true) {
                 this.gui.show_screen('payment');
             }
         },
@@ -532,9 +532,9 @@ odoo.define('l10n_do_pos.models', function (require) {
         get_orders_from_server: function () {
             var self = this;
             var kwargs = {};
-            var loading_type = posmodel.config.order_loading_options;
+            var loading_type = posmodel.config.l10n_do_order_loading_options;
             if (loading_type === 'n_days') {
-                kwargs.day_limit = this.config.number_of_days || 0;
+                kwargs.day_limit = this.config.l10n_do_number_of_days || 0;
                 kwargs.config_id = this.config.id;
             } else if (loading_type === "current_session") {
                 kwargs.session_id = posmodel.pos_session.id;

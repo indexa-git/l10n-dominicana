@@ -167,7 +167,7 @@
                     <div class='client-detail'>
                         <span class='label' style="text-align: left;width: 27%;">NC/Devolución:</span>
                         <span class='detail client-id'>
-                            <t t-esc='order.return_status || ""'/>
+                            <t t-esc='order.l10n_do_return_status || ""'/>
                         </span>
                     </div>
                 </div>
@@ -197,11 +197,11 @@
                                     <t t-esc="line.qty"/>
                                 </td>
                                 <td>
-                                    <t t-if="line.line_qty_returned == 0">
+                                    <t t-if="line.l10n_do_line_qty_returned == 0">
                                         -
                                     </t>
-                                    <t t-if="line.line_qty_returned != 0">
-                                        <t t-esc="line.line_qty_returned"/>
+                                    <t t-if="line.l10n_do_line_qty_returned != 0">
+                                        <t t-esc="line.l10n_do_line_qty_returned"/>
                                     </t>
                                 </td>
                                 <td>
@@ -290,13 +290,13 @@
                                         <t t-esc="line.product_id[1]"/>
                                         (
                                         <b style="color:#2f6e75">
-                                            <t t-esc="line.qty - line.line_qty_returned"/>
+                                            <t t-esc="line.qty - line.l10n_do_line_qty_returned"/>
                                         </b>
                                         )
                                     </td>
                                     <td class="table_data_cells return_qty">
                                         <input type="number" t-att-line-id='line.id'
-                                               t-att-line-qty-remaining='line.qty - line.line_qty_returned'
+                                               t-att-line-qty-remaining='line.qty - line.l10n_do_line_qty_returned'
                                                t-att-value='line.current_return_qty || 0'/>
                                     </td>
                                 </tr>
@@ -381,7 +381,7 @@
                     </div>
                     <div class='label-text'>
                         <span class="font-bold">Tax ID</span>:
-                        <t t-esc="widget.pos.db.order_by_id[order.return_order_id].number"></t>
+                        <t t-esc="widget.pos.db.order_by_id[order.l10n_do_return_order_id].number"></t>
                     </div>
                 </div>
                 <div style="float:right;">
