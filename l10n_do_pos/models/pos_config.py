@@ -33,20 +33,20 @@ class PosConfig(models.Model):
     order_loading_options = fields.Selection(
         selection=[
             ("current_session", u"Cargar Órdenes de la Sesión actual"),
-            ("n_days", u"Cargar Órdenes de los Últimos 'n' Días")
+            ("n_days", u"Cargar Órdenes de los Últimos 'n' Días"),
         ],
-        default='current_session',
+        default="current_session",
         string="Opciones de Carga",
     )
     number_of_days = fields.Integer(
-        string=u'Cantidad de Días Anteriores',
+        string=u"Cantidad de Días Anteriores",
         default=10,
     )
     l10n_latam_use_documents = fields.Boolean(
         related="invoice_journal_id.l10n_latam_use_documents",
     )
     credit_notes_number_of_days = fields.Integer(
-        string=u'Cantidad de Días Anteriores',
+        string=u"Cantidad de Días Anteriores",
         default=10,
     )
 
@@ -56,16 +56,22 @@ class PosConfig(models.Model):
     #     string=u"Criterios de Búsqueda",
     # )
 
-    @api.constrains('number_of_days')
+    @api.constrains("number_of_days")
     def number_of_days_validation(self):
-        if self.order_loading_options == 'n_days' and (
-                not self.number_of_days or self.number_of_days < 0):
-            raise exceptions.ValidationError(_(
-                u"Favor proveer un valor válido para el campo"
-                "'Cantidad de Días Anteriores'!!!"))
+        if self.order_loading_options == "n_days" and (
+            not self.number_of_days or self.number_of_days < 0
+        ):
+            raise exceptions.ValidationError(
+                _(
+                    u"Favor proveer un valor válido para el campo"
+                    "'Cantidad de Días Anteriores'!!!"
+                )
+            )
 
     def get_l10n_do_fiscal_type_data(self):
         return {
-            'tax_payer_type_list': self.env['res.partner']._get_l10n_do_dgii_payer_types_selection(),
-            'ncf_types_data': self.env['account.journal']._get_l10n_do_ncf_types_data(),
+            "tax_payer_type_list": self.env[
+                "res.partner"
+            ]._get_l10n_do_dgii_payer_types_selection(),
+            "ncf_types_data": self.env["account.journal"]._get_l10n_do_ncf_types_data(),
         }
