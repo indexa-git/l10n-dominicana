@@ -107,7 +107,7 @@ class AccountInvoiceRefund(models.TransientModel):
 
                     if mode == "debit":
 
-                        vals.update({"is_nd": True})
+                        vals.update({"is_nd": True, "origin_out": origin_inv.reference})
 
                         if refund.type == "out_refund":
                             vals.update({"type": "out_invoice"})

@@ -111,6 +111,7 @@
 
             <field name="number" position="after">
                 <field name="is_company_currency" invisible="1"/>
+                <field name="is_nd" invisible="1"/>
             </field>
 
             <xpath expr="//field[@name='reference']" position="attributes">
@@ -126,7 +127,7 @@
             <field name="journal_id" position="replace"/>
             <field name="reference" position="after">
                 <field name="origin_out" groups="base.group_user" attrs="{
-                            'invisible': ['|', ('type', '!=', 'in_refund'), ('purchase_type', 'not in', ['normal', 'minor', 'informal', 'exterior'])],
+                            'invisible': ['|', '&amp;',('type', '!=', 'in_refund'), ('is_nd', '=', False), ('purchase_type', 'not in', ['normal', 'minor', 'informal', 'exterior'])],
                             'readonly': [('state', '!=', 'draft')],
                             'required': [('type', '=', 'in_refund'), ('purchase_type', 'in', ['normal', 'minor', 'informal', 'exterior'])]}"/>
                 <field name="name"/>
