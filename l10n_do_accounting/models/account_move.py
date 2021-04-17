@@ -353,32 +353,47 @@ class AccountMove(models.Model):
 
     def _reverse_move_vals(self, default_values, cancel=True):
 
-        ctx = self.env.context
-        amount = ctx.get("amount")
-        percentage = ctx.get("percentage")
-        refund_type = ctx.get("refund_type")
-        reason = ctx.get("reason")
-        l10n_do_ecf_modification_code = ctx.get("l10n_do_ecf_modification_code")
-
         res = super(AccountMove, self)._reverse_move_vals(
             default_values=default_values, cancel=cancel
         )
+        if self.l10n_latam_country_code != "DO":
+            return res
 
-        if self.l10n_latam_country_code == "DO":
-            res["l10n_do_origin_ncf"] = self.l10n_latam_document_number
-            res["l10n_do_ecf_modification_code"] = l10n_do_ecf_modification_code
-
-        if refund_type in ("percentage", "fixed_amount"):
-            price_unit = (
-                amount
-                if refund_type == "fixed_amount"
-                else self.amount_untaxed * (percentage / 100)
-            )
-            res["line_ids"] = False
-            res["invoice_line_ids"] = [
-                (0, 0, {"name": reason or _("Refund"), "price_unit": price_unit})
-            ]
+        res["l10n_do_origin_ncf"] = self.l10n_latam_document_number
+        res["l10n_do_ecf_modification_code"] = self.env.context.get(
+            "l10n_do_ecf_modification_code"
+        )
         return res
+
+    def _move_autocomplete_invoice_lines_create(self, vals_list):
+
+        ctx = self.env.context
+        refund_type = ctx.get("refund_type")
+        if refund_type and refund_type in ("percentage", "fixed_amount"):
+            for vals in vals_list:
+                del vals["line_ids"]
+                origin_invoice_id = self.browse(self.env.context.get("active_ids"))
+                price_unit = (
+                    ctx.get("amount")
+                    if refund_type == "fixed_amount"
+                    else origin_invoice_id.amount_untaxed
+                    * (ctx.get("percentage") / 100)
+                )
+                vals["invoice_line_ids"] = [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": ctx.get("reason") or _("Refund"),
+                            "price_unit": price_unit,
+                            "quantity": 1,
+                        },
+                    )
+                ]
+
+        return super(AccountMove, self)._move_autocomplete_invoice_lines_create(
+            vals_list
+        )
 
     @api.constrains("name", "partner_id", "company_id")
     def _check_unique_vendor_number(self):

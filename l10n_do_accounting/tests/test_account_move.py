@@ -38,17 +38,24 @@ class AccountMoveTest(TransactionCase):
 
         # Fiscal partner
         self.partner = self.env["res.partner"].create(
-            {"name": "Jimmy", "vat": "40229590076", "country_id": country_do}
+            {
+                "name": "Jimmy",
+                "vat": "40229590076",
+                "country_id": country_do,
+                "l10n_do_dgii_tax_payer_type": "taxpayer",
+            }
         )
 
         # Demo product
         self.product = self.env.ref("product.product_product_4")
 
-    def create_invoice(self, invoice_type):
+    def create_invoice(self, invoice_type, document_number="", expense_type=""):
         inv = self.env["account.move"].create(
             {
                 "type": invoice_type,
                 "partner_id": self.partner.id,
+                "l10n_latam_document_number": document_number,
+                "l10n_do_expense_type": expense_type,
                 "invoice_line_ids": [
                     (
                         0,
@@ -70,7 +77,7 @@ class AccountMoveTest(TransactionCase):
         Check fiscal invoices button cancel function returns an action dict
         """
 
-        in_invoice = self.create_invoice("in_invoice")
+        in_invoice = self.create_invoice("in_invoice", "B0100000001", "02")
         self.assertEqual(type(in_invoice.button_cancel()), type({}))
 
         out_invoice = self.create_invoice("out_invoice")
@@ -115,3 +122,55 @@ class AccountMoveTest(TransactionCase):
         )
 
         self.assertEqual(move.button_cancel(), None)
+
+    def test_003_custom_refund_type(self):
+        """
+        Check Refunds using refund type feature are created correctly
+        """
+
+        # Customer Credit Notes
+        out_invoice = self.create_invoice("out_invoice")
+        refund_wizard = (
+            self.env["account.move.reversal"]
+            .with_context(active_ids=out_invoice.ids, active_model=out_invoice._name)
+            .create({})
+        )
+        refund_wizard.write(
+            {"refund_type": "percentage", "reason": "test", "percentage": 10}
+        )
+        result_invoice = self.env["account.move"].browse(
+            refund_wizard.reverse_moves()["res_id"]
+        )
+        self.assertRecordValues(
+            result_invoice.line_ids,
+            [
+                {"name": "test", "price_unit": 11},
+                {"name": "", "price_unit": -11, "debit": 11, "credit": 0},
+            ],
+        )
+
+        # Supplier Credit Notes
+        in_invoice = self.create_invoice("in_invoice", "B0100000001", "02")
+        refund_wizard = (
+            self.env["account.move.reversal"]
+            .with_context(active_ids=in_invoice.ids, active_model=in_invoice._name)
+            .create({})
+        )
+        refund_wizard.write(
+            {
+                "refund_type": "percentage",
+                "reason": "test",
+                "percentage": 15,
+                "l10n_latam_document_number": "B0400000001",
+            }
+        )
+        result_invoice = self.env["account.move"].browse(
+            refund_wizard.reverse_moves()["res_id"]
+        )
+        self.assertRecordValues(
+            result_invoice.line_ids,
+            [
+                {"name": "test", "price_unit": 16.5},
+                {"name": "", "price_unit": -16.5, "debit": 16.5, "credit": 0},
+            ],
+        )
