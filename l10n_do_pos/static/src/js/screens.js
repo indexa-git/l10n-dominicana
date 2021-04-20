@@ -74,7 +74,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                                 var client = self.pos.get_client();
                                 if (!client){
                                     client = {
-                                        id: self.pos.config.default_partner_id[0]
+                                        id: self.pos.config.l10n_do_default_partner_id[0]
                                     }
                                 }
 
@@ -156,7 +156,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             var refundContents = this.$('.refund-confirm-content, .cancel, .confirm');
 
             this._super();
-            if (order && order.is_return_order) {
+            if (order && order.l10n_do_is_return_order) {
                 var refundConfirm = this.$('.refund-confirm-content');
 
                 paymentContents.addClass('oe_hidden');
@@ -192,7 +192,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     return false;
                 });
                 this.$('.button-custom.edit').click(function () {
-                    var original_order = self.pos.db.order_by_id[order.return_order_id];
+                    var original_order = self.pos.db.order_by_id[order.l10n_do_return_order_id];
                     var original_orderlines = [];
                     var return_product = {};
 
@@ -332,10 +332,17 @@ odoo.define('l10n_do_pos.screens', function (require) {
 
         click_set_latam_document_type: function () {
             var self = this;
+            var current_order = self.pos.get_order();
+            var client = self.pos.get_client();
+            var ncf_types_data = self.pos.ncf_types_data.issued['non_payer'];
+            if (client && client.l10n_do_dgii_tax_payer_type)
+                ncf_types_data = self.pos.ncf_types_data.issued[client.l10n_do_dgii_tax_payer_type];
+
             var latam_document_type_list =
                 _.map(self.pos.l10n_latam_document_types,
                     function (latam_document_type) {
-                        if (latam_document_type.internal_type === 'invoice') {
+                        if (latam_document_type.internal_type === 'invoice' &&
+                            ncf_types_data.includes(latam_document_type.l10n_do_ncf_type)) {
                             return {
                                 label: latam_document_type.name,
                                 item: latam_document_type,
@@ -348,8 +355,6 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 title: _t('Select document type'),
                 list: latam_document_type_list,
                 confirm: function (latam_document_type) {
-                    var current_order = self.pos.get_order();
-                    var client = self.pos.get_client();
                     current_order.set_latam_document_type(latam_document_type);
                     if (latam_document_type.is_vat_required && !client) {
                         self.open_vat_popup();
@@ -406,10 +411,10 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     return false;
                 }
 
-                if (!self.pos.config.default_partner_id) {
+                if (!self.pos.config.l10n_do_default_partner_id && !client) {
                     this.gui.show_popup('error', {
-                        'title': _t('Not default customer'),
-                        'body': _t('Please config default costumer in POS Configuration'),
+                        'title': _t('No customer'),
+                        'body': _t('Please select a customer or set one as default in the point of sale settings'),
                     });
                     current_order.to_invoice = true;
                     current_order.save_to_db();
@@ -484,33 +489,32 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     self.pos.get_l10n_latam_sequence_by_document_type_id(
                         current_order.l10n_latam_document_type.id
                     );
-                self.pos.loading_screen_on()
+                self.pos.loading_screen_on();
                 rpc.query({
                     model: 'ir.sequence',
-                    method: 'next_by_id',
+                    method: 'get_l10n_do_fiscal_info',
                     args: [latam_sequence.id],
                 }).then(function (res) {
                     self.pos.loading_screen_off();
-                    current_order.l10n_latam_document_number = res;
+                    current_order.l10n_latam_document_number = res.ncf;
+                    current_order.l10n_do_ncf_expiration_date = res.expiration_date;
                     current_order.l10n_latam_sequence_id = latam_sequence.id;
                     current_order.l10n_latam_document_type_id =
                         current_order.l10n_latam_document_type.id;
                     current_order.save_to_db();
                     console.log(res);
                     _super();
-                }, function (err, ev) {
+                }, function (err) {
                     self.pos.loading_screen_off();
                     current_order.to_invoice = true;
                     current_order.save_to_db();
-                    console.log(err);
-                    console.log(ev);
-                    ev.preventDefault();
+                    console.log('err', err);
+                    err.event.preventDefault();
                     var error_body =
                         _t('Your Internet connection is probably down.');
-                    if (err.data) {
-                        var except = err.data;
-                        error_body = except.arguments ||
-                            except.message || error_body;
+                    if (err.message.data) {
+                        var except = err.message.data;
+                        error_body = except.message || except.arguments || error_body;
                     }
                     self.gui.show_popup('error', {
                         'title': _t('Error: Could not Save Changes'),
@@ -651,12 +655,12 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 order.lines.forEach(function (line_id) {
                     var line = self.pos.db.line_by_id[line_id];
                     orderlines.push(line);
-                    sumQty += line.qty - line.line_qty_returned;
+                    sumQty += line.qty - line.l10n_do_line_qty_returned;
                 });
 
                 if (sumQty === 0) {
                     order.refunded = true;
-                    order.return_status = 'Fully-Returned';
+                    order.l10n_do_return_status = 'fully_returned';
                 }
                 contents.empty();
                 contents.append($(QWeb.render('OrderDetails',
@@ -690,12 +694,12 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     for (var n in orders) {
                         var _order = orders[n];
 
-                        if (_order.is_return_order && _order.return_order_id === order.id) {
+                        if (_order.l10n_do_is_return_order && _order.l10n_do_return_order_id === order.id) {
                             self.pos.set_order(_order);
                             return false;
                         }
                     }
-                    if (order.return_status === 'Fully-Returned') {
+                    if (order.l10n_do_return_status === 'fully_returned') {
                         message = 'No quedan items para devolver en esta orden!!';
                         allow_return = false;
                     }
@@ -707,7 +711,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                             if (product == null) {
                                 non_returnable_products = true;
                                 message = 'Algun(os) producto(s) de esta orden no esta(n) disponible(s) en el Punto de Venta, desea devolver los productos restantes?';
-                            } else if (line.qty - line.line_qty_returned > 0) {
+                            } else if (line.qty - line.l10n_do_line_qty_returned > 0) {
                                 original_orderlines.push(line);
                             }
                         });
@@ -870,8 +874,8 @@ odoo.define('l10n_do_pos.screens', function (require) {
                 self.gui.show_screen('products');
                 self.pos.add_new_order(); // Crea un nuevo objeto orden del lado del cliente
                 refund_order = self.pos.get_order();
-                refund_order.is_return_order = true;
-                refund_order.return_order_id = order.id;
+                refund_order.l10n_do_is_return_order = true;
+                refund_order.l10n_do_return_order_id = order.id;
                 refund_order.l10n_do_origin_ncf = order.l10n_latam_document_number;
                 refund_order.set_client(self.pos.db.get_partner_by_id(order.partner_id[0]));
                 refund_order.set_latam_document_type(
@@ -880,9 +884,9 @@ odoo.define('l10n_do_pos.screens', function (require) {
             refund_order.orderlineList = [];
             refund_order.amount_total = 0;
             if (self.options.is_partial_return) {
-                refund_order.return_status = 'Partially-Returned';
+                refund_order.l10n_do_return_status = 'partially_returned';
             } else {
-                refund_order.return_status = 'Fully-Returned';
+                refund_order.l10n_do_return_status = 'fully_returned';
             }
             Object.keys(return_lines).forEach(function (line_id) {
                 var return_line = return_lines[line_id];
@@ -895,7 +899,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
                     price: line.price_unit,
                     discount: line.discount,
                 });
-                refund_order.selected_orderline.original_line_id = line.id;
+                refund_order.selected_orderline.l10n_do_original_line_id = line.id;
                 var apply_discounts = function (price, discount) {
                     return price - (price * Math.max(Math.min(discount, 100), 0))/100;
                 };
