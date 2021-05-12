@@ -8,9 +8,9 @@
     <template id="l10n_do_report_invoice_document">
         <t t-call="web.external_layout">
             <t t-set="o" t-value="o.with_context(lang=lang)" />
-            <div class="page">
+            <div class="page" style="font-size:1.2rem">
 
-                <div class="row">
+                <div class="row" >
                     <div class="col-auto mr-auto">
                         <strong>
                             <span t-field="o.company_id.partner_id.name"/>
@@ -31,13 +31,13 @@
                             <span t-field="o.date_due"/>
                         </span>
                     </div>
-                    <div class="col-7 ml-auto">
-                        <div style="font-size: 20px">
+                    <div class="col-7 ml-auto mr-auto">
+                        <div>
                             <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
-                                <strong>
+                                <h3>
                                     Factura de
                                     <span t-field="o.fiscal_type_id.name"/>
-                                </strong>
+                                </h3>
                             </span>
                             <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
                             <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
