@@ -10,7 +10,7 @@
         <field name="requires_document" eval="True"/>
     </record>
     <record id="fiscal_type_consumo" model="account.fiscal.type">
-        <field name="name">Factura de consumo</field>
+        <field name="name">Consumo</field>
         <field name="prefix">B02</field>
         <field name="type">out_invoice</field>
         <field name="sequence">2</field>
