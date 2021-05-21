@@ -586,13 +586,6 @@ class DgiiReport(models.Model):
                         invoice_id.currency_id, invoice_id.date, payment['amount'])
             payments_dict['credit'] += self._convert_to_user_currency(
                 invoice_id.currency_id, invoice_id.date, invoice_id.residual)
-        else:
-            for payment in invoice_id._get_invoice_payment_widget():
-                payments_dict['swap'] += self._convert_to_user_currency(
-                    invoice_id.currency_id, invoice_id.date, payment['amount'])
-
-            payments_dict['credit'] += self._convert_to_user_currency(
-                invoice_id.currency_id, invoice_id.date, invoice_id.residual)
 
         return payments_dict
 
@@ -853,20 +846,13 @@ class DgiiReport(models.Model):
                     'invoice_partner_id': inv.partner_id.id,
                     'invoice_id': inv.id,
                     'credit_note': True if inv.type == 'out_refund' else False,
-                    'cash': payments.get('cash') * -1 if
-                        inv.type == 'out_refund' else payments.get('cash'),
-                    'bank': payments.get('bank') * -1 if
-                        inv.type == 'out_refund' else payments.get('bank'),
-                    'card': payments.get('card') * -1 if
-                        inv.type == 'out_refund' else payments.get('card'),
-                    'credit': payments.get('credit') * -1 if
-                        inv.type == 'out_refund' else payments.get('credit'),
-                    'swap': payments.get('swap') * -1 if
-                        inv.type == 'out_refund' else payments.get('swap'),
-                    'bond': payments.get('bond') * -1 if
-                        inv.type == 'out_refund' else payments.get('bond'),
-                    'others': payments.get('others') * -1 if
-                    inv.type == 'out_refund' else payments.get('others')
+                    'cash': payments.get('cash'),
+                    'bank': payments.get('bank'),
+                    'card': payments.get('card'),
+                    'credit': payments.get('credit'),
+                    'swap': payments.get('swap'),
+                    'bond': payments.get('bond'),
+                    'others': payments.get('others')
                 }
 
                 if str(values['fiscal_invoice_number'])[-10:-8] == '02':
