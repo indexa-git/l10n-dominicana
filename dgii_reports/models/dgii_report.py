@@ -562,6 +562,7 @@ class DgiiReport(models.Model):
     def _get_sale_payments_forms(self, invoice_id):
         payments_dict = self._get_payments_dict()
         Payment = self.env['account.payment']
+        Invoice = self.env['account.invoice']
 
         if invoice_id.type == 'out_invoice':
             for payment in invoice_id._get_invoice_payment_widget():
@@ -581,9 +582,13 @@ class DgiiReport(models.Model):
                                 invoice_id.date,
                                 payment['amount'],
                             )
-                else:
-                    payments_dict['swap'] += self._convert_to_user_currency(
-                        invoice_id.currency_id, invoice_id.date, payment['amount'])
+                elif payment.get("invoice_id", False):
+                    # Credit Notes payments are sent to "A Crédito" 607 payment form
+                    refund_id = Invoice.browse(payment["invoice_id"])
+                    payments_dict['credit'] += abs(
+                        refund_id.amount_total_company_signed
+                    )
+
             payments_dict['credit'] += self._convert_to_user_currency(
                 invoice_id.currency_id, invoice_id.date, invoice_id.residual)
 
