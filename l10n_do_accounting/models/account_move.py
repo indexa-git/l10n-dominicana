@@ -592,8 +592,7 @@ class AccountMove(models.Model):
     @api.depends("posted_before", "state", "journal_id", "date")
     def _compute_name(self):
 
-        super(AccountMove, self.with_context(
-            compute_manual_name=True))._compute_name()
+        super(AccountMove, self.with_context(compute_manual_name=True))._compute_name()
 
         for move in self.filtered(
             lambda x: x.country_code == "DO"

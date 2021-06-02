@@ -162,10 +162,10 @@ class AccountMoveTest(TransactionCase):
             [
                 {
                     "name": "%s/%04d/0001"
-                            % (
-                                invoice_2.journal_id.code,
-                                invoice_2.date.year,
-                            ),
+                    % (
+                        invoice_2.journal_id.code,
+                        invoice_2.date.year,
+                    ),
                     "l10n_latam_document_number": "B0100000005",
                 }
             ],

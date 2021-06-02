@@ -27,9 +27,7 @@ def update_document_types_vat_required(env):
     AND country_id = {country}
     """
     env.cr.execute(
-        query.format(
-            ncf_types=tuple(l10n_do_ncf_types), country=env.ref("base.do").id
-        )
+        query.format(ncf_types=tuple(l10n_do_ncf_types), country=env.ref("base.do").id)
     )
     _logger.info("All Document Types set is_vat_required = True")
 
