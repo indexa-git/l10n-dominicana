@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests.common import TransactionCase
 
 
@@ -8,6 +9,7 @@ class AccountMoveTest(TransactionCase):
         products,
         journal,
         partner=False,
+        invoice_date=fields.Date.today(),
         document_number=None,
     ):
         if not partner:
@@ -18,6 +20,7 @@ class AccountMoveTest(TransactionCase):
                 "move_type": move_type,
                 "l10n_latam_document_number": document_number,
                 "partner_id": partner,
+                "invoice_date": invoice_date,
                 "journal_id": journal.id,
                 "invoice_line_ids": [
                     (
