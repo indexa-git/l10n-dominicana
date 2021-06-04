@@ -1,53 +1,36 @@
-# © 2015-2018 Eneldo Serrata <eneldo@marcos.do>
-# © 2017-2018 Gustavo Valverde <gustavo@iterativo.do>
-# © 2017 Raúl Ovalle <rovalle@guavana.com>
-# © 2018 Jorge Hernández <jhernandez@gruponeotec.com>
-# © 2018 Kevin Jiménez <kevinjimenezlorenzo@gmail.com>
-# © 2018 Raul Ovalle <raulovallet@gmail.com>
-
-# This file is part of NCF Manager.
-
-# NCF Manager is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# NCF Manager is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
-
-from odoo import models, fields, api, exceptions, _
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 
 class PosConfig(models.Model):
     _inherit = "pos.config"
 
-    default_partner_id = fields.Many2one(
-        comodel_name="res.partner",
-        string=u"Default partner",
+    l10n_do_default_partner_id = fields.Many2one(
+        "res.partner",
+        string="Default partner",
     )
-    order_loading_options = fields.Selection(
-        selection=[
-            ("current_session", u"Cargar Órdenes de la Sesión actual"),
-            ("n_days", u"Cargar Órdenes de los Últimos 'n' Días")
+    l10n_do_order_loading_options = fields.Selection(
+        [
+            ("current_session", "Load current session orders"),
+            ("n_days", "Load last 'n' days orders"),
         ],
-        default='current_session',
-        string="Opciones de Carga",
+        default="current_session",
+        string="Loading options",
     )
-    number_of_days = fields.Integer(
-        string=u'Cantidad de Días Anteriores',
+    l10n_do_number_of_days = fields.Integer(
+        string="Last Days (invoices)",
         default=10,
     )
     l10n_latam_use_documents = fields.Boolean(
         related="invoice_journal_id.l10n_latam_use_documents",
     )
-    credit_notes_number_of_days = fields.Integer(
-        string=u'Cantidad de Días Anteriores',
+    l10n_do_credit_notes_number_of_days = fields.Integer(
+        string="Last Days (refunds)",
         default=10,
+    )
+    l10n_latam_country_code = fields.Char(
+        related="company_id.country_id.code",
+        help="Technical field used to hide/show fields regarding the localization",
     )
 
     # TODO: search criteria
@@ -56,10 +39,17 @@ class PosConfig(models.Model):
     #     string=u"Criterios de Búsqueda",
     # )
 
-    @api.constrains('number_of_days')
-    def number_of_days_validation(self):
-        if self.order_loading_options == 'n_days' and (
-                not self.number_of_days or self.number_of_days < 0):
-            raise exceptions.ValidationError(_(
-                u"Favor proveer un valor válido para el campo"
-                "'Cantidad de Días Anteriores'!!!"))
+    @api.constrains("l10n_do_number_of_days")
+    def l10n_do_number_of_days_validation(self):
+        if self.l10n_do_order_loading_options == "n_days" and (
+            not self.l10n_do_number_of_days or self.l10n_do_number_of_days < 0
+        ):
+            raise UserError(_("You have to set a number of days."))
+
+    def get_l10n_do_fiscal_type_data(self):
+        return {
+            "tax_payer_type_list": self.env[
+                "res.partner"
+            ]._get_l10n_do_dgii_payer_types_selection(),
+            "ncf_types_data": self.env["account.journal"]._get_l10n_do_ncf_types_data(),
+        }
