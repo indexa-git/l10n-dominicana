@@ -14,6 +14,8 @@ on:
   pull_request:
     branches:
       - '[0-9]+.0'
+env:
+  REQUIRED_MODULES: 'session_redis' # list of addional addons to install separated by comma
 
 jobs:
   dependencies:
@@ -25,25 +27,22 @@ jobs:
     outputs:
       get_modules: ${{ steps.get_modules.outputs.modules }}
       repo_name: ${{ steps.repo_slugs.outputs.repo_name }}
-      repo_branch: ${{ steps.repo_slugs.outputs.repo_branch }}
 
     steps:
-    - name: Extract repository name and branch
+    - name: Extract repository name
       id: repo_slugs
       shell: bash
       run: |
         REPO_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//")
         REPO_URL=${REPO_NAME//[[:punct:]]/-}
         echo ::set-output name=repo_name::$REPO_URL
-
-        REPO_BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-        BRANCH_URL=${REPO_BRANCH//[[:punct:]]/-}
-        echo ::set-output name=repo_branch::$BRANCH_URL
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v2.x
 
     - name: Checkout local
       uses: actions/checkout@v2
       with:
-        path: ${{ steps.repo_slugs.outputs.repo_name }}
+        path: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}
 
     - name: Check Flake8
       uses: TrueBrain/actions-flake8@master
@@ -55,20 +54,6 @@ jobs:
     - name: Download python addons script
       run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/12.0/resources/getaddons.py -o getaddons.py
 
-    - name: ITPP-Labs pos-addons
-      uses: actions/checkout@v2
-      with:
-        repository: itpp-labs/pos-addons
-        path: pos-addons
-        ref: '12.0'
-
-    - name: INDEXA external-services
-      uses: actions/checkout@v2
-      with:
-        repository: indexa-git/external_service_addons
-        path: external-service-addons
-        ref: '12.0'
-
     - name: Odoo Enterprise
       uses: actions/checkout@v2
       with:
@@ -76,11 +61,26 @@ jobs:
         token: ${{ secrets.ACTIONS_PAT }}
         path: enterprise
         ref: '12.0'
+  
+    - name: Redis
+      uses: actions/checkout@v2
+      with:
+        repository: camptocamp/odoo-cloud-platform
+        path: odoo-cloud-platform
+        ref: '12.0'
 
-    - name: python get_modules
+    
+    - name: INDEXA external-services
+      uses: actions/checkout@v2
+      with:
+        repository: indexa-git/external_service_addons
+        path: external-service-addons
+        ref: '12.0'
+
+    - name: Select Odoo modules to install
       id: get_modules
       run: |
-        output=$(python -c "from getaddons import get_modules; print(','.join(get_modules('$GITHUB_WORKSPACE/${{ steps.repo_slugs.outputs.repo_name }}', depth=3)))")
+        output=$(python -c "from getaddons import get_modules; print(','.join(get_modules('$GITHUB_WORKSPACE/${{ env.GITHUB_REPOSITORY_SLUG_URL }}', depth=3)))")
         echo "::set-output name=modules::$output"
 
     - name: Zip modules for upload
@@ -140,13 +140,14 @@ jobs:
         PIP_AUTO_INSTALL: '1'
         LOG_LEVEL: test
         WITHOUT_DEMO: 'False'
-        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
+        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
         ODOO_EXTRA_ADDONS: /github/workspace
 
-  build:
-    name: Build & Push Image
+  build-gcp:
+    name: Build & Push to GCR
     needs: ['dependencies', 'test']
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
 
     steps:
     - name: Download  repository results
@@ -155,42 +156,35 @@ jobs:
         name: modules
 
     - run: unzip modules.zip
-
-    - name: Push to GitHub Packages
-      uses: docker/build-push-action@v1
-      with:
-        dockerfile: ${{ needs.dependencies.outputs.repo_name }}/Dockerfile
-        cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ needs.dependencies.outputs.repo_branch }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        registry: docker.pkg.github.com
-        repository: ${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}
-        tag_with_ref: true
+      
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v2.x
 
     - name: Push to Google Cloud Registry
       uses: docker/build-push-action@v1
       with:
-        dockerfile: ${{ needs.dependencies.outputs.repo_name }}/Dockerfile
-        cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ needs.dependencies.outputs.repo_branch }}
+        dockerfile: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}/Dockerfile
+        cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ env.GITHUB_HEAD_REF_SLUG_URL }}
         username: _json_key
         password: ${{ secrets.GKE_SA_KEY }}
         registry: gcr.io
         repository: ${{ secrets.GKE_PROJECT }}/${{ needs.dependencies.outputs.repo_name }}
-        tag_with_ref: true
+        tags: ${{ env.GITHUB_SHA_SHORT }}
 
   deploy:
     name: GKE Deploy
-    needs: ['dependencies', 'build']
+    needs: ['dependencies', 'build-gcp']
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: ${{ secrets.GKE_PROJECT }}
       GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
       GKE_ZONE: ${{ secrets.GKE_ZONE }}
-      REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
-      REPO_BRANCH: ${{ needs.dependencies.outputs.repo_branch }} 
     if: ${{ github.event_name == 'pull_request' }}
 
     steps:
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v2.x
+
     - name: K8s Template
       uses: actions/checkout@v2
       with:
@@ -211,17 +205,27 @@ jobs:
         input: ./deployment.yaml.tmpl
         output: ./deployment.yaml
       env:
-        REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
-        REPO_URL: ${{ needs.dependencies.outputs.repo_name }}
-        BRANCH_NAME: ${{ needs.dependencies.outputs.repo_branch }}
-        BRANCH_URL: ${{ needs.dependencies.outputs.repo_branch }}
-        PROJECT_ID: ${{ secrets.GKE_PROJECT }}
         ENV: dev
-        SHORT_SHA: ${{ github.sha }}
-        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }}
         GKE_LOCATION: ${{ secrets.GKE_PROJECT }}
+        # Modules to Install
+        EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
+        # Image to Deploy
+        PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+        REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
+        BRANCH_NAME: ${{ env.GITHUB_SHA_SHORT }}
+        # URL to acccess
+        REPO_URL: ${{ needs.dependencies.outputs.repo_name }}
+        BRANCH_URL: ${{ env.GITHUB_HEAD_REF_SLUG_URL }}
+        SHORT_SHA: ${{ env.GITHUB_SHA_SHORT }}
 
     - run: cat deployment.yaml
+
+    - name: Upload deployment
+      uses: actions/upload-artifact@v2
+      with:
+        name: deployment
+        path: deployment.yaml
+        retention-days: 10
 
     - name: Setup gcloud CLI
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -236,22 +240,14 @@ jobs:
       run: |
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE" --project "$PROJECT_ID"
         gcloud --quiet auth configure-docker
-
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |
         kubectl apply -f deployment.yaml
-        kubectl get services -o wide
-
-    - name: Output deploy URL
-      id: url
-      run: |
-        output=$(echo "$REPO_NAME-$REPO_BRANCH.indexa.do")
-        echo "$output" > url.txt
-        echo "::set-output name=url::$output"
-
+        url=$(echo "${{ needs.dependencies.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do")
+        echo "$url" > url.txt
     - name: Upload repository results
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.url.outputs.url }}
+        name: ${{ needs.dependencies.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do
         path: url.txt
