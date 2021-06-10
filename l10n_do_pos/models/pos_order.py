@@ -167,6 +167,10 @@ class PosOrder(models.Model):
             ] = self.l10n_latam_document_type_id.id
 
             invoice_vals["l10n_do_origin_ncf"] = self.l10n_do_origin_ncf
+
+            # a POS sale invoice NCF is always an internal sequence
+            invoice_vals["is_l10n_do_internal_sequence"] = True
+
             if self.l10n_do_is_return_order:
                 invoice_vals["type"] = "out_refund"
 
