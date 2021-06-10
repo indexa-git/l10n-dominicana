@@ -22,6 +22,7 @@
 
     # always loaded
     'data': [
+        'data/ir_config_parameter_data.xml',
         'data/invoice_service_type_detail_data.xml',
         'security/ir.model.access.csv',
         'security/ir_rule.xml',

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+
+    <record id="dgii_reports_txt_space" model="ir.config_parameter">
+        <field name="key">dgii.reports.txt.space</field>
+        <field name="value">0</field>
+    </record>
+
+</odoo>
