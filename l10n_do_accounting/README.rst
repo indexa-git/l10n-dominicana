@@ -16,3 +16,5 @@ CREDITS.rst (optional)
 Content of this README will also be drawn from the addon manifest, from keys such as name, authors, maintainers, development_status, and license.
 
 A good, one sentence summary in the manifest is also highly recommended.
+
+:)
