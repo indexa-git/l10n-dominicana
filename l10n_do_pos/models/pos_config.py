@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class PosConfig(models.Model):
@@ -53,3 +53,10 @@ class PosConfig(models.Model):
             ]._get_l10n_do_dgii_payer_types_selection(),
             "ncf_types_data": self.env["account.journal"]._get_l10n_do_ncf_types_data(),
         }
+
+    @api.constrains('company_id', 'journal_id')
+    def _check_company_journal(self):
+        if self.journal_id and self.journal_id.l10n_latam_use_documents:
+            raise ValidationError(_("The Sales Journal cannot be fiscal! Please change the settings at the point of "
+                                    "sale, only the Invoice Journal can be fiscal."))
+        super(PosConfig, self)._check_company_journal()
