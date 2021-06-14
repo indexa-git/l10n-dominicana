@@ -983,3 +983,12 @@ msgstr "Su conexión de Internet está probablemente caída."
 #: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__pos_order_id
 msgid "order"
 msgstr "Orden"
+
+#. module: l10n_do_pos
+#: code:addons/l10n_do_pos/models/pos_config.py:0
+#, python-format
+msgid ""
+"The Sales Journal cannot be fiscal! Please change the settings at the point "
+"of sale, only the Invoice Journal can be fiscal."
+msgstr "El Diario de ventas no puede ser fiscal! Por favor cambie la configuración"
+"del punto de venta o quite el check es fiscal? del Diario de ventas, solo el Diario de factura puede ser fiscal"
