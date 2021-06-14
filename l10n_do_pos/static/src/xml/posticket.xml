@@ -4,6 +4,10 @@
         <t t-jquery=".pos-receipt" t-operation="replace">
             <div class="pos-receipt">
                 <div class="pos-receipt-center-align">
+                    <t t-if='receipt.company.logo'>
+                        <img class="pos-receipt-logo" t-att-src='receipt.company.logo' alt="Logo"/>
+                        <br/>
+                    </t>
                     <t t-if="widget.pos.company">
                         <t t-esc="order.pos.company.name"/>
                         <br/>
