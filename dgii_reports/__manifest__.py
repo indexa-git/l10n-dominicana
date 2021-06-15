@@ -15,13 +15,14 @@
               "iterativo SRL",
     'license': 'LGPL-3',
     'category': 'Accounting',
-    'version': '12.0.1.1.1',
+    'version': '12.0.1.2.1',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'ncf_manager'],
 
     # always loaded
     'data': [
+        'data/ir_config_parameter_data.xml',
         'data/invoice_service_type_detail_data.xml',
         'security/ir.model.access.csv',
         'security/ir_rule.xml',

@@ -434,6 +434,15 @@ class DgiiReport(models.Model):
 
     def _generate_606_txt(self, records, qty):
 
+        keep_txt_spaces = int(
+            self.env["ir.config_parameter"]
+                .sudo()
+                .get_param("dgii.reports.txt.space", 0)
+        )
+
+        if not bool(keep_txt_spaces):
+            records = records.replace(" ", "")
+
         company_vat = self.company_id.vat
         period = dt.strptime(self.name.replace('/', ''),
                              '%m%Y').strftime('%Y%m')
