@@ -95,7 +95,7 @@ class PosOrder(models.Model):
             for line in ui_order["lines"]:
                 line_dic = line[2]
                 original_line = self.env["pos.order.line"].browse(
-                    line_dic["l10n_do_original_line_id"]
+                    line_dic.get("l10n_do_original_line_id", False)
                 )
                 original_line.l10n_do_line_qty_returned += abs(line_dic.get("qty", 0))
 
@@ -178,7 +178,7 @@ class PosOrder(models.Model):
 
     @api.model
     def _process_order(self, order, draft, existing_order):
-        if order["data"]["to_invoice_backend"]:
+        if order["data"].get("to_invoice_backend", False):
             order["data"]["to_invoice"] = True
             order["to_invoice"] = True
             if not order["data"]["partner_id"]:
