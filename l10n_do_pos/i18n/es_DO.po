@@ -988,7 +988,5 @@ msgstr "Orden"
 #: code:addons/l10n_do_pos/models/pos_config.py:0
 #, python-format
 msgid ""
-"The Sales Journal cannot be fiscal! Please change the settings at the point "
-"of sale, only the Invoice Journal can be fiscal."
-msgstr "El Diario de ventas no puede ser fiscal! Por favor cambie la configuración"
-"del punto de venta o quite el check es fiscal? del Diario de ventas, solo el Diario de factura puede ser fiscal"
+"You cannot set a Fiscal Journal as Sales Journal. Please, select a non-fiscal journal."
+msgstr "No puede establecer un Diario Fiscal como diario de ventas. Por favor, seleccione un diario no fiscal."

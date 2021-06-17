@@ -56,11 +56,15 @@ class PosConfig(models.Model):
 
     @api.constrains("company_id", "journal_id")
     def _check_company_journal(self):
-        if self.journal_id and self.journal_id.l10n_latam_use_documents:
+        if (
+            self.journal_id
+            and self.journal_id.company_id.l10n_do_country_code == "DO"
+            and self.journal_id.l10n_latam_use_documents
+        ):
             raise ValidationError(
                 _(
-                    "The Sales Journal cannot be fiscal! Please change the settings at the point of "
-                    "sale, only the Invoice Journal can be fiscal."
+                    "You cannot set a Fiscal Journal as Sales Journal. "
+                    "Please, select a non-fiscal journal."
                 )
             )
         super(PosConfig, self)._check_company_journal()
