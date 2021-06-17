@@ -178,7 +178,7 @@ class PosOrder(models.Model):
 
     @api.model
     def _process_order(self, order, draft, existing_order):
-        if order["data"]["to_invoice_backend"]:
+        if order["data"].get('to_invoice_backend', False):
             order["data"]["to_invoice"] = True
             order["to_invoice"] = True
             if not order["data"]["partner_id"]:
