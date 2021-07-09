@@ -56,7 +56,7 @@ class Partner(models.Model):
 
     def _check_l10n_do_fiscal_fields(self, vals):
 
-        if self.parent_id:
+        if not self or self.parent_id:
             # Do not perform any check because child contacts
             # have readonly fiscal field. This also allows set
             # contacts parent, even if this changes any of its
