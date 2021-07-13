@@ -4,6 +4,7 @@ from werkzeug import urls
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError, AccessError
+from collections import defaultdict
 
 
 class AccountMove(models.Model):
@@ -531,9 +532,33 @@ class AccountMove(models.Model):
             record.l10n_do_sequence_number = int(matching.group(1) or 0)
 
     def _get_last_sequence(self, relaxed=False):
-
         if not self._context.get("is_l10n_do_seq", False):
-            return super(AccountMove, self)._get_last_sequence(relaxed=relaxed)
+            self.ensure_one()
+            if self._sequence_field not in self._fields or not self._fields[self._sequence_field].store:
+                raise ValidationError(_('%s is not a stored field', self._sequence_field))
+            where_string, param = self._get_last_sequence_domain(relaxed)
+            if self.id or self.id.origin:
+                where_string += " AND id != %(id)s "
+                param['id'] = self.id or self.id.origin
+
+            query = """
+                        UPDATE {table} SET write_date = write_date WHERE id = (
+                            SELECT id FROM {table}
+                            {where_string}
+                            AND sequence_prefix = (SELECT sequence_prefix FROM {table} {where_string} ORDER BY id DESC LIMIT 1)
+                            ORDER BY sequence_number DESC
+                            LIMIT 1
+                        )
+                        RETURNING {field};
+                    """.format(
+                table=self._table,
+                where_string=where_string,
+                field=self._sequence_field,
+            )
+
+            self.flush([self._sequence_field, 'sequence_number', 'sequence_prefix'])
+            self.env.cr.execute(query, param)
+            return (self.env.cr.fetchone() or [None])[0]
 
         self.ensure_one()
         if (
@@ -591,10 +616,90 @@ class AccountMove(models.Model):
 
     @api.depends("posted_before", "state", "journal_id", "date")
     def _compute_name(self):
+        #region l10n_latam_invoice_document
+        """ Change the way that the use_document moves name is computed:
 
-        super(AccountMove, self.with_context(
-            compute_manual_name=True))._compute_name()
+        * If move use document but does not have document type selected then name = '/' to do not show the name.
+        * If move use document and are numbered manually do not compute name at all (will be set manually)
+        * If move use document and is in draft state and has not been posted before we restart name to '/' (this is
+           when we change the document type) """
+        without_doc_type = self.filtered(lambda x: x.journal_id.l10n_latam_use_documents and not x.l10n_latam_document_type_id)
+        manual_documents = self.filtered(lambda x: x.journal_id.l10n_latam_use_documents and x.l10n_latam_manual_document_number)
+        (without_doc_type + manual_documents.filtered(lambda x: not x.name or x.name and x.state == 'draft' and not x.posted_before)).name = '/'
+        # if we change document or journal and we are in draft and not posted, we clean number so that is recomputed in super
+        self.filtered(
+            lambda x: x.journal_id.l10n_latam_use_documents and x.l10n_latam_document_type_id
+            and not x.l10n_latam_manual_document_number and x.state == 'draft' and not x.posted_before).name = '/'
 
+        # endregion
+        # region account
+        def journal_key(move):
+            return (move.journal_id, move.journal_id.refund_sequence and move.move_type)
+
+        def date_key(move):
+            return (move.date.year, move.date.month)
+
+        grouped = defaultdict(  # key: journal_id, move_type
+            lambda: defaultdict(  # key: first adjacent (date.year, date.month)
+                lambda: {
+                    'records': self.env['account.move'],
+                    'format': False,
+                    'format_values': False,
+                    'reset': False
+                }
+            )
+        )
+        self = self.sorted(lambda m: (m.date, m.ref or '', m.id))
+        highest_name = self[0]._get_last_sequence() if self else False
+        # Group the moves by journal and month
+        for move in self:
+            if not highest_name and move == self[0] and not move.posted_before:
+                # In the form view, we need to compute a default sequence so that the user can edit
+                # it. We only check the first move as an approximation (enough for new in form view)
+                pass
+            elif (move.name and move.name != '/') or move.state != 'posted':
+                try:
+                    if not move.posted_before:
+                        move._constrains_date_sequence()
+                    # Has already a name or is not posted, we don't add to a batch
+                    continue
+                except ValidationError:
+                    # Has never been posted and the name doesn't match the date: recompute it
+                    pass
+            group = grouped[journal_key(move)][date_key(move)]
+            if not group['records']:
+                # Compute all the values needed to sequence this whole group
+                move._set_next_sequence()
+                group['format'], group['format_values'] = move._get_sequence_format_param(move.name)
+                group['reset'] = move._deduce_sequence_number_reset(move.name)
+            group['records'] += move
+
+        # Fusion the groups depending on the sequence reset and the format used because `seq` is
+        # the same counter for multiple groups that might be spread in multiple months.
+        final_batches = []
+        for journal_group in grouped.values():
+            journal_group_changed = True
+            for date_group in journal_group.values():
+                if (journal_group_changed or final_batches[-1]['format'] != date_group['format'] or dict(final_batches[-1]['format_values'], seq=0) != dict(date_group['format_values'], seq=0)):
+                    final_batches += [date_group]
+                    journal_group_changed = False
+                elif date_group['reset'] == 'never':
+                    final_batches[-1]['records'] += date_group['records']
+                elif (date_group['reset'] == 'year' and final_batches[-1]['records'][0].date.year == date_group['records'][0].date.year):
+                    final_batches[-1]['records'] += date_group['records']
+                else:
+                    final_batches += [date_group]
+
+        # Give the name based on previously computed values
+        for batch in final_batches:
+            for move in batch['records']:
+                move.name = batch['format'].format(**batch['format_values'])
+                batch['format_values']['seq'] += 1
+            batch['records']._compute_split_sequence()
+
+        self.filtered(lambda m: not m.name).name = '/'
+        # endregion
+        #region l10n_do_accounting
         for move in self.filtered(
             lambda x: x.country_code == "DO"
             and x.l10n_latam_document_type_id
@@ -602,6 +707,7 @@ class AccountMove(models.Model):
             and not x.l10n_do_enable_first_sequence
         ):
             move.with_context(is_l10n_do_seq=True)._set_next_sequence()
+        #endregion
 
     def _get_sequence_format_param(self, previous):
 
@@ -624,26 +730,40 @@ class AccountMove(models.Model):
         self.ensure_one()
 
         if not self._context.get("is_l10n_do_seq", False):
-            return super(AccountMove, self)._set_next_sequence()
+            self.ensure_one()
+            last_sequence = self._get_last_sequence()
+            new = not last_sequence
+            if new:
+                last_sequence = self._get_last_sequence(relaxed=True) or self._get_starting_sequence()
 
-        last_sequence = self._get_last_sequence()
-        new = not last_sequence
-        if new:
-            last_sequence = (
-                self._get_last_sequence(relaxed=True) or self._get_starting_sequence()
+            format, format_values = self._get_sequence_format_param(last_sequence)
+            if new:
+                # format_values['seq'] = 0
+                format_values['year'] = self[self._sequence_date_field].year % (10 ** format_values['year_length'])
+                format_values['month'] = self[self._sequence_date_field].month
+            format_values['seq'] = format_values['seq'] + 1
+
+            self[self._sequence_field] = format.format(**format_values)
+            self._compute_split_sequence()
+        else:
+            last_sequence = self._get_last_sequence()
+            new = not last_sequence
+            if new:
+                last_sequence = (
+                    self._get_last_sequence(relaxed=True) or self._get_starting_sequence()
+                )
+
+            format, format_values = self._get_sequence_format_param(last_sequence)
+            # if new:
+            #     format_values["seq"] = 0
+            format_values["seq"] = format_values["seq"] + 1
+
+            self[
+                self._l10n_do_sequence_field
+            ] = self.l10n_latam_document_type_id._format_document_number(
+                format.format(**format_values)
             )
-
-        format, format_values = self._get_sequence_format_param(last_sequence)
-        if new:
-            format_values["seq"] = 0
-        format_values["seq"] = format_values["seq"] + 1
-
-        self[
-            self._l10n_do_sequence_field
-        ] = self.l10n_latam_document_type_id._format_document_number(
-            format.format(**format_values)
-        )
-        self._compute_split_sequence()
+            self._compute_split_sequence()
 
     def _get_name_invoice_report(self):
         self.ensure_one()
