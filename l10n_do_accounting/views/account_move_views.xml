@@ -134,7 +134,26 @@
             </xpath>
         </field>
     </record>
-
+    <record id="view_out_invoice_tree" model="ir.ui.view">
+        <field name="name">view.out.invoice.tree</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="l10n_latam_document_number"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_in_invoice_tree" model="ir.ui.view">
+        <field name="name">view.in.invoice.tree</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_in_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="l10n_latam_document_number"/>
+            </xpath>
+        </field>
+    </record>
     <!-- Exclude debit notes from actual vendor/customer invoices actions -->
     <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
         <field name="domain">[('move_type', '=', 'out_invoice'), ('debit_origin_id', '=', False)]</field>
