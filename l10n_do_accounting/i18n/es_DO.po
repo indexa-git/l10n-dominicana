@@ -615,12 +615,6 @@ msgid "Is Electronic Invoice"
 msgstr "Es Factura Electrónica"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_partner__is_fiscal_info_required
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_res_users__is_fiscal_info_required
-msgid "Is Fiscal Info Required"
-msgstr "Información Fiscal requerida"
-
-#. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_latam_document_type__is_vat_required
 msgid "Is Vat Required"
 msgstr "RNC/Cédula Requerido"
