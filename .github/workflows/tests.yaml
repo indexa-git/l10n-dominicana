@@ -16,7 +16,7 @@ on:
     types: [ opened, synchronize, reopened, labeled ]
 
 env:
-  REQUIRED_MODULES: "session_redis" # list of addional addons to install separated by comma
+  REQUIRED_MODULES: "session_redis,l10n_generic_coa" # list of addional addons to install separated by comma
   TEST_TAGS: "0"
 
 jobs:
