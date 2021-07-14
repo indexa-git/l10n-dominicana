@@ -6,7 +6,7 @@
         <xpath expr="//t[@t-set='o']" position="after">
             <!-- When is a e-CF representation, additional info is displayed -->
             <t t-set="ecf_representation" t-value="o.company_id.l10n_do_ecf_issuer"/>
-            <t t-set="is_l10n_do_invoice" t-value="o.l10n_latam_use_documents and o.company_id.country_id and o.company_id.l10n_do_country_code == 'DO'"/>
+            <t t-set="is_l10n_do_invoice" t-value="o.l10n_latam_use_documents and o.company_id.country_id and o.company_id.country_code == 'DO'"/>
         </xpath>
 
         <!-- Hide when l10n do invoice -->
