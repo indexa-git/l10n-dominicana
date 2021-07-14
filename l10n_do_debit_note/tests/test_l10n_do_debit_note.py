@@ -98,7 +98,7 @@ class AccountMoveTest(TransactionCase):
             result_invoice.line_ids,
             [
                 {"name": "test", "price_unit": 11.0},
-                {"name": "18% ITBIS Ventas", "price_unit": 1.98},
+                {"name": "18% ITBIS Ventas", "price_unit": 1.65},
                 {"name": "", "price_unit": -12.65},
             ],
         )
