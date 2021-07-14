@@ -99,7 +99,7 @@ class AccountMoveTest(TransactionCase):
             [
                 {"name": "test", "price_unit": 11.0},
                 {"name": "18% ITBIS Ventas", "price_unit": 1.98},
-                {"name": "", "price_unit": -12.98},
+                {"name": "", "price_unit": -12.65},
             ],
         )
 
