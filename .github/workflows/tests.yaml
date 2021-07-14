@@ -1,7 +1,7 @@
 name: Unit Tests
 
 on:
-  pull_request:
+  push:
     branches:
       - "[0-9]+.0"
     paths:
@@ -10,7 +10,10 @@ on:
       - "**/i18n/**"
       - "**.py"
       - "**.xml"
-    types: [opened, synchronize, reopened, labeled]
+  pull_request:
+    branches:
+      - "[0-9]+.0"
+    types: [ opened, synchronize, reopened, labeled ]
 
 env:
   REQUIRED_MODULES: "session_redis" # list of addional addons to install separated by comma
