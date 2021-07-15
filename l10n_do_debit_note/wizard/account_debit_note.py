@@ -113,7 +113,9 @@ class AccountDebitNote(models.TransientModel):
                 _("You cannot create Debit Notes from multiple documents at a time.")
             )
         else:
-            res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
+            res["is_ecf_invoice"] = (
+                move_ids_use_document and move_ids_use_document[0].is_ecf_invoice
+            )
 
         return res
 

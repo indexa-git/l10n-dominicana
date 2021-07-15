@@ -98,8 +98,8 @@ class AccountMoveTest(TransactionCase):
             result_invoice.line_ids,
             [
                 {"name": "test", "price_unit": 11.0},
-                {"name": "18% ITBIS Ventas", "price_unit": 1.98},
-                {"name": "", "price_unit": -12.98},
+                {"name": "Tax 15.00%", "price_unit": 1.65},
+                {"name": "", "price_unit": -12.65},
             ],
         )
 
@@ -126,11 +126,11 @@ class AccountMoveTest(TransactionCase):
             [
                 {"name": "test", "price_unit": 16.5, "debit": 16.5, "credit": 0.0},
                 {
-                    "name": "18% ITBIS sobre el 10% del Monto Total",
-                    "price_unit": 0.3,
-                    "debit": 0.3,
+                    "name": "Tax 15.00%",
+                    "price_unit": 2.48,
+                    "debit": 2.48,
                     "credit": 0.0,
                 },
-                {"name": "", "price_unit": -16.8, "debit": 0.0, "credit": 16.8},
+                {"name": "", "price_unit": -18.98, "debit": 0.0, "credit": 18.98},
             ],
         )
