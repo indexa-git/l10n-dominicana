@@ -27,6 +27,7 @@ class AccountMove(models.Model):
         if (
             debit_type
             and debit_type in ("percentage", "fixed_amount")
+            and origin_invoice_id
             and origin_invoice_id.l10n_latam_use_documents
             and origin_invoice_id.l10n_latam_country_code == "DO"
         ):
