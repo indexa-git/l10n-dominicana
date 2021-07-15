@@ -16,7 +16,7 @@ on:
     types: [ opened, synchronize, reopened, labeled ]
 
 env:
-  REQUIRED_MODULES: "session_redis,l10n_generic_coa,l10n_latam_invoice_document,l10n_do" # list of addional addons to install separated by comma
+  REQUIRED_MODULES: "session_redis,l10n_generic_coa,l10n_latam_invoice_document" # list of addional addons to install separated by comma
   TEST_TAGS: "0"
 
 jobs:
