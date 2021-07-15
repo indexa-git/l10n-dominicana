@@ -13,4 +13,5 @@
     "version": "13.0.1.0.0",
     # any module necessary for this one to work correctly
     "depends": ["l10n_do_accounting", "purchase"],
+    "installable": False,
 }
