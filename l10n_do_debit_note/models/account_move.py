@@ -23,10 +23,16 @@ class AccountMove(models.Model):
 
         ctx = self.env.context
         debit_type = ctx.get("l10n_do_debit_type")
-        if debit_type and debit_type in ("percentage", "fixed_amount"):
+        origin_invoice_id = self.browse(ctx.get("active_ids"))
+        if (
+            debit_type
+            and debit_type in ("percentage", "fixed_amount")
+            and origin_invoice_id
+            and origin_invoice_id.l10n_latam_use_documents
+            and origin_invoice_id.l10n_latam_country_code == "DO"
+        ):
             for vals in vals_list:
                 del vals["line_ids"]
-                origin_invoice_id = self.browse(self.env.context.get("active_ids"))
                 price_unit = (
                     ctx.get("amount")
                     if debit_type == "fixed_amount"
