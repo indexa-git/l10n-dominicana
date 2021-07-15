@@ -29,7 +29,7 @@
     ],
     # only loaded in demonstration mode
     "demo": [
-        "demo/res_partner_demo.xml",
+        # "demo/res_partner_demo.xml",
     ],
     "installable": False,
     "auto_install": False,
