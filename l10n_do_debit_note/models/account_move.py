@@ -23,7 +23,7 @@ class AccountMove(models.Model):
 
         ctx = self.env.context
         debit_type = ctx.get("l10n_do_debit_type")
-        origin_invoice_id = self.browse(self.env.context.get("active_ids"))
+        origin_invoice_id = self.browse(ctx.get("active_ids"))
         if (
             debit_type
             and debit_type in ("percentage", "fixed_amount")
