@@ -31,7 +31,7 @@
     "demo": [
         "demo/res_partner_demo.xml",
     ],
-    "installable": True,
+    "installable": False,
     "auto_install": False,
     "application": False,
     "post_init_hook": "post_init_hook",
