@@ -9,10 +9,11 @@ class DgiiReportRegenerateWizard(models.TransientModel):
     This wizard only objective is to show a warning when a dgii report
     is about to be regenerated.
     """
-    _name = 'dgii.report.regenerate.wizard'
+
+    _name = "dgii.report.regenerate.wizard"
     _description = "DGII Report Regenerate Wizard"
 
-    report_id = fields.Many2one('dgii.reports', 'Report')
+    report_id = fields.Many2one("dgii.reports", "Report")
 
     @api.multi
     def regenerate(self):

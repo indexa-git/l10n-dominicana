@@ -33,8 +33,8 @@ class AccountInvoiceRefund(models.TransientModel):
     _inherit = "account.invoice.refund"
 
     filter_refund = fields.Selection(
-        selection_add=[('discount', 'Descuento'), ('debit',
-                                                   u'Nota de Débito')])
+        selection_add=[("discount", "Descuento"), ("debit", u"Nota de Débito")]
+    )
 
     amount = fields.Float("Monto")
     account_id = fields.Many2one("account.account", string="Cuenta contable")
@@ -44,24 +44,25 @@ class AccountInvoiceRefund(models.TransientModel):
 
     @api.onchange("filter_refund")
     def onchange_filter_refund(self):
-        invoice_id = self.env.context.get('active_ids')
-        invoice = self.env['account.invoice'].browse(invoice_id[0])
+        invoice_id = self.env.context.get("active_ids")
+        invoice = self.env["account.invoice"].browse(invoice_id[0])
 
         self.journal_purchase_type = invoice.journal_id.purchase_type
         self.supplier_ncf = False
         self.account_id = False
 
     @api.multi
-    def compute_refund(self, mode='refund'):
+    def compute_refund(self, mode="refund"):
         # TODO sale_fiscal_type are missing on refund wizard
         ctx = dict(self._context)
         if self.supplier_ncf:
             ctx.update({"credit_note_supplier_ncf": self.supplier_ncf})
 
-        result = super(AccountInvoiceRefund,
-                       self.with_context(ctx)).compute_refund(mode)
+        result = super(AccountInvoiceRefund, self.with_context(ctx)).compute_refund(
+            mode
+        )
 
-        active_ids = self.env.context.get('active_ids')
+        active_ids = self.env.context.get("active_ids")
         if not active_ids:  # pragma: no cover
             return result
         # An example of result['domain'] computed by the parent wizard is:
@@ -70,40 +71,46 @@ class AccountInvoiceRefund(models.TransientModel):
         # ('id', 'in', ...) tupla
 
         created_inv = []
-        if mode != 'modify':
+        if mode != "modify":
             created_inv = [
-                x[2] for x in result['domain'] if x[0] == 'id' and x[1] == 'in'
+                x[2] for x in result["domain"] if x[0] == "id" and x[1] == "in"
             ][0]
         else:
-            inv_id = result.get('res_id', False)
+            inv_id = result.get("res_id", False)
             created_inv.append(inv_id)
 
         if created_inv:
             for idx, refund_id in enumerate(created_inv):
                 origin_inv_id = active_ids[idx]
-                origin_inv = self.env['account.invoice'].browse(origin_inv_id)
-                refund = self.env['account.invoice'].browse(refund_id)
+                origin_inv = self.env["account.invoice"].browse(origin_inv_id)
+                refund = self.env["account.invoice"].browse(refund_id)
 
-                if origin_inv.type == "out_invoice" and \
-                   origin_inv.journal_id.ncf_control:
+                if (
+                    origin_inv.type == "out_invoice"
+                    and origin_inv.journal_id.ncf_control
+                ):
                     refund.sale_fiscal_type = origin_inv.sale_fiscal_type
 
                 if mode != "debit" and origin_inv.residual < self.amount:
                     raise ValidationError(
-                        _("No puede hacer un descuento mayor al saldo "
-                          "de la factura."))
+                        _(
+                            "No puede hacer un descuento mayor al saldo "
+                            "de la factura."
+                        )
+                    )
 
                 vals = {}
                 if mode in ("debit", "discount"):
-                    new_line = refund.invoice_line_ids[0].copy({
-                        "product_id": False,
-                        "name": self.description,
-                        "account_id": self.account_id.id,
-                        "quantity": 1,
-                        "price_unit": self.amount
-                    })
-                    vals.update(
-                        {"invoice_line_ids": [(6, False, [new_line.id])]})
+                    new_line = refund.invoice_line_ids[0].copy(
+                        {
+                            "product_id": False,
+                            "name": self.description,
+                            "account_id": self.account_id.id,
+                            "quantity": 1,
+                            "price_unit": self.amount,
+                        }
+                    )
+                    vals.update({"invoice_line_ids": [(6, False, [new_line.id])]})
 
                     if mode == "debit":
 
@@ -112,20 +119,20 @@ class AccountInvoiceRefund(models.TransientModel):
                         if refund.type == "out_refund":
                             vals.update({"type": "out_invoice"})
                             if result.get("domain", False):
-                                result["domain"][0] = ('type', '=',
-                                                       'out_invoice')
+                                result["domain"][0] = ("type", "=", "out_invoice")
 
                         if refund.type == "in_refund":
-                            vals.update({
-                                "type": "in_invoice",
-                                "expense_type": origin_inv.expense_type
-                            })
+                            vals.update(
+                                {
+                                    "type": "in_invoice",
+                                    "expense_type": origin_inv.expense_type,
+                                }
+                            )
 
                             if self.supplier_ncf:
-                                vals.update({
-                                    "credit_note_supplier_ncf":
-                                        self.supplier_ncf
-                                })
+                                vals.update(
+                                    {"credit_note_supplier_ncf": self.supplier_ncf}
+                                )
 
                 refund.write(vals)
                 refund._onchange_invoice_line_ids()
@@ -138,46 +145,59 @@ class AccountInvoiceRefund(models.TransientModel):
         if active_id:
             invoice = self.env["account.invoice"].browse(active_id)
 
-            if self.filter_refund != 'debit' \
-                    and invoice.company_id.country_id.code == "DO" \
-                    and invoice.journal_id.ncf_control \
-                    and not self.env.user.has_group(
-                    "ncf_manager.group_l10n_do_fiscal_credit_note"):
+            if (
+                self.filter_refund != "debit"
+                and invoice.company_id.country_id.code == "DO"
+                and invoice.journal_id.ncf_control
+                and not self.env.user.has_group(
+                    "ncf_manager.group_l10n_do_fiscal_credit_note"
+                )
+            ):
                 raise AccessError("No tiene permitido emitir Notas de Crédito Fiscales")
-            elif self.filter_refund == 'debit' \
-                    and invoice.company_id.country_id.code == "DO" \
-                    and invoice.journal_id.ncf_control \
-                    and not self.env.user.has_group(
-                    "ncf_manager.group_l10n_do_debit_note"):
+            elif (
+                self.filter_refund == "debit"
+                and invoice.company_id.country_id.code == "DO"
+                and invoice.journal_id.ncf_control
+                and not self.env.user.has_group("ncf_manager.group_l10n_do_debit_note")
+            ):
                 raise AccessError("No tiene permitido emitir Notas de Débito")
 
             if self.supplier_ncf:
-                if self.filter_refund == 'debit' and (self.supplier_ncf[
-                        -10:-8] != '03' and self.supplier_ncf[1:3] != '33'):
+                if self.filter_refund == "debit" and (
+                    self.supplier_ncf[-10:-8] != "03" and self.supplier_ncf[1:3] != "33"
+                ):
                     raise ValidationError(
-                        _(u"Las Notas de Débito deben ser tipo 03 o 33, este NCF "
-                          "no es de este tipo."))
-                elif self.filter_refund != 'debit' and (self.supplier_ncf[
-                        -10:-8] != '04' and self.supplier_ncf[1:3] != '34'):
+                        _(
+                            u"Las Notas de Débito deben ser tipo 03 o 33, este NCF "
+                            "no es de este tipo."
+                        )
+                    )
+                elif self.filter_refund != "debit" and (
+                    self.supplier_ncf[-10:-8] != "04" and self.supplier_ncf[1:3] != "34"
+                ):
                     raise ValidationError(
-                        _(u"Las Notas de Crédito deben ser tipo 04 o 34, este NCF "
-                          "no es de este tipo."))
+                        _(
+                            u"Las Notas de Crédito deben ser tipo 04 o 34, este NCF "
+                            "no es de este tipo."
+                        )
+                    )
 
             if (
                 self.supplier_ncf
                 and invoice.journal_id.ncf_remote_validation
-                and len(self.supplier_ncf) == '9'
+                and len(self.supplier_ncf) == "9"
             ):
-                if not ncf.check_dgii(invoice.partner_id.vat,
-                                      self.supplier_ncf):
-                    raise UserError(_(
-                        u"NCF NO pasó validación en DGII\n\n"
-                        u"¡El número de comprobante *{}* del proveedor "
-                        u"*{}* no pasó la validación en "
-                        "DGII! Verifique que el NCF y el RNC del "
-                        u"proveedor estén correctamente "
-                        u"digitados, o si los números de ese NCF se "
-                        "le agotaron al proveedor")
-                        .format(self.supplier_ncf, invoice.partner_id.name))
+                if not ncf.check_dgii(invoice.partner_id.vat, self.supplier_ncf):
+                    raise UserError(
+                        _(
+                            u"NCF NO pasó validación en DGII\n\n"
+                            u"¡El número de comprobante *{}* del proveedor "
+                            u"*{}* no pasó la validación en "
+                            "DGII! Verifique que el NCF y el RNC del "
+                            u"proveedor estén correctamente "
+                            u"digitados, o si los números de ese NCF se "
+                            "le agotaron al proveedor"
+                        ).format(self.supplier_ncf, invoice.partner_id.name)
+                    )
 
         return super(AccountInvoiceRefund, self).invoice_refund()

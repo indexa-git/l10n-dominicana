@@ -31,30 +31,36 @@ class AccountInvoiceCancel(models.TransientModel):
     _description = "Cancel the Selected Invoices"
 
     anulation_type = fields.Selection(
-        [("01", "01 - Deterioro de Factura Pre-impresa"),
-         ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
-         ("03", u"03 - Impresión Defectuosa"),
-         ("04", u"04 - Corrección de la Información"),
-         ("05", "05 - Cambio de Productos"),
-         ("06", u"06 - Devolución de Productos"),
-         ("07", u"07 - Omisión de Productos"),
-         ("08", "08 - Errores en Secuencia de NCF"),
-         ("09", "09 - Por Cese de Operaciones"),
-         ("10", u"10 - Pérdida o Hurto de Talonarios")],
+        [
+            ("01", "01 - Deterioro de Factura Pre-impresa"),
+            ("02", "02 - Errores de Impresión (Factura Pre-impresa)"),
+            ("03", u"03 - Impresión Defectuosa"),
+            ("04", u"04 - Corrección de la Información"),
+            ("05", "05 - Cambio de Productos"),
+            ("06", u"06 - Devolución de Productos"),
+            ("07", u"07 - Omisión de Productos"),
+            ("08", "08 - Errores en Secuencia de NCF"),
+            ("09", "09 - Por Cese de Operaciones"),
+            ("10", u"10 - Pérdida o Hurto de Talonarios"),
+        ],
         string=u"Tipo de Anulación",
         required=True,
-        default=lambda self: self._context.get('anulation_type', '04'))
+        default=lambda self: self._context.get("anulation_type", "04"),
+    )
 
     @api.multi
     def invoice_cancel(self):
         context = dict(self._context or {})
-        active_ids = context.get('active_ids', []) or []
+        active_ids = context.get("active_ids", []) or []
 
-        for record in self.env['account.invoice'].browse(active_ids):
-            if record.state in ('cancel', 'paid'):
+        for record in self.env["account.invoice"].browse(active_ids):
+            if record.state in ("cancel", "paid"):
                 raise UserError(
-                    _("Selected invoice(s) cannot be cancelled as they are"
-                      " already in 'Cancelled' or 'Done' state."))
+                    _(
+                        "Selected invoice(s) cannot be cancelled as they are"
+                        " already in 'Cancelled' or 'Done' state."
+                    )
+                )
             record.anulation_type = self.anulation_type
             record.action_invoice_cancel()
-        return {'type': 'ir.actions.act_window_close'}
+        return {"type": "ir.actions.act_window_close"}

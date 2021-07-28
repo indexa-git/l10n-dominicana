@@ -34,8 +34,7 @@ except (ImportError, IOError) as err:
 
 
 class Odoojs(http.Controller):
-
-    @http.route('/dgii_ws', auth='public', cors="*")
+    @http.route("/dgii_ws", auth="public", cors="*")
     def index(self, **kwargs):
         """
         Look for clients in the web service of the DGII
@@ -44,9 +43,10 @@ class Odoojs(http.Controller):
             :param term string : the character of the client or his rnc /
         """
         term = kwargs.get("term", False)
-        query_dgii_wsmovil = request.env['ir.config_parameter'].sudo(
-        ).get_param('dgii.wsmovil')
-        if term and query_dgii_wsmovil == 'True':
+        query_dgii_wsmovil = (
+            request.env["ir.config_parameter"].sudo().get_param("dgii.wsmovil")
+        )
+        if term and query_dgii_wsmovil == "True":
             if term.isdigit() and len(term) in [9, 11]:
                 result = rnc.check_dgii(term)
             else:
@@ -62,7 +62,7 @@ class Odoojs(http.Controller):
                     d["label"] = u"{} - {}".format(d["rnc"], d["name"])
                 return json.dumps(result)
 
-    @http.route('/validate_rnc/', auth='public', cors="*")
+    @http.route("/validate_rnc/", auth="public", cors="*")
     def validate_rnc(self, **kwargs):
         """
         Check if the number provided is a valid RNC
@@ -72,8 +72,9 @@ class Odoojs(http.Controller):
         """
         num = kwargs.get("rnc", False)
         if num.isdigit():
-            if (len(num) == 9 and rnc.is_valid(num)) or (len(num) == 11 and
-                                                         cedula.is_valid(num)):
+            if (len(num) == 9 and rnc.is_valid(num)) or (
+                len(num) == 11 and cedula.is_valid(num)
+            ):
                 try:
                     info = rnc.check_dgii(num)
                 except Exception as err:
@@ -83,7 +84,8 @@ class Odoojs(http.Controller):
                 if info is not None:
                     # remove all duplicate white space from the name
                     info["name"] = " ".join(
-                        re.split(r"\s+", info["name"], flags=re.UNICODE))
+                        re.split(r"\s+", info["name"], flags=re.UNICODE)
+                    )
 
                 return json.dumps({"is_valid": True, "info": info})
 

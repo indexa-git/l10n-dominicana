@@ -21,10 +21,10 @@ from odoo import models, api
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    _inherit = "account.invoice.line"
 
     def _get_tax_group_name(self, tax):
-        tax_id = self.env['account.tax'].browse(tax)
+        tax_id = self.env["account.tax"].browse(tax)
         if tax_id.tax_group_id:
             return tax_id.tax_group_id.name
         else:
@@ -40,15 +40,18 @@ class AccountInvoiceLine(models.Model):
             currency,
             self.quantity,
             product=self.product_id,
-            partner=invoice_id.partner_id)
+            partner=invoice_id.partner_id,
+        )
         itbis_amount = 0
-        tax_lst = taxes['taxes']
+        tax_lst = taxes["taxes"]
         if tax_lst:
-            itbis_amount = sum([
-                tax['amount']
-                for tax in tax_lst
-                if str(self._get_tax_group_name(tax['id'])).startswith('ITBIS')
-                and tax['amount'] > 0
-            ])
+            itbis_amount = sum(
+                [
+                    tax["amount"]
+                    for tax in tax_lst
+                    if str(self._get_tax_group_name(tax["id"])).startswith("ITBIS")
+                    and tax["amount"] > 0
+                ]
+            )
 
         return itbis_amount
