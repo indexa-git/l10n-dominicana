@@ -18,16 +18,15 @@
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
 {
-    'name': "NCF Invoice Template",
-    'summary': """
+    "name": "NCF Invoice Template",
+    "summary": """
     Este modulo sobre escribe el formato de las facturas para adaptarlo a la
     Norma General 06-2018 de la DGII.
     """,
-    'author': "Yasmany Castillo, "
-              "iterativo SRL",
-    'license': 'LGPL-3',
-    'category': 'Localization',
-    'version': '12.0.2.2.0',
-    'depends': ['web', 'ncf_manager'],
-    'data': ['report/report_invoice.xml'],
+    "author": "Yasmany Castillo, " "iterativo SRL",
+    "license": "LGPL-3",
+    "category": "Localization",
+    "version": "12.0.2.2.0",
+    "depends": ["web", "ncf_manager"],
+    "data": ["report/report_invoice.xml"],
 }

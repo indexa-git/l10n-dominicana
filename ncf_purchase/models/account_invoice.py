@@ -21,27 +21,25 @@ from odoo import models, api
 class AccountInvoice(models.Model):
     _inherit = "account.invoice"
 
-    @api.onchange('partner_id')
+    @api.onchange("partner_id")
     def onchange_partnerid(self):
 
-        if self.partner_id and self.type == 'in_invoice':
+        if self.partner_id and self.type == "in_invoice":
             if self.partner_id.purchase_journal_id:
                 self.journal_id = self.partner_id.purchase_journal_id
 
-        elif self.type == 'in_invoice' and \
-                self.env.context.get('default_purchase_id'):
-            purchase_order = self.env['purchase.order']
-            po = purchase_order.browse(
-                self.env.context.get('default_purchase_id'))
+        elif self.type == "in_invoice" and self.env.context.get("default_purchase_id"):
+            purchase_order = self.env["purchase.order"]
+            po = purchase_order.browse(self.env.context.get("default_purchase_id"))
             supplier = po.partner_id
             if supplier.purchase_journal_id:
                 self.journal_id = supplier.purchase_journal_id
 
-    @api.onchange('purchase_id')
+    @api.onchange("purchase_id")
     def purchase_order_change(self):
         """This method is being overwritten as Odoo uses the purchase reference
-            and puts it into the invoice reference (our NCF), we change this
-            behaviour to use the invoice name (description)"""
+        and puts it into the invoice reference (our NCF), we change this
+        behaviour to use the invoice name (description)"""
         if not self.purchase_id:
             return {}
         if not self.partner_id:
@@ -50,12 +48,16 @@ class AccountInvoice(models.Model):
         vendor_ref = self.purchase_id.partner_ref
         if vendor_ref:
             # Here, l10n_dominicana changes self.reference to self.name
-            self.name = ", ".join([self.name, vendor_ref]) if (
-                self.name and vendor_ref not in self.name) else vendor_ref
+            self.name = (
+                ", ".join([self.name, vendor_ref])
+                if (self.name and vendor_ref not in self.name)
+                else vendor_ref
+            )
 
-        new_lines = self.env['account.invoice.line']
+        new_lines = self.env["account.invoice.line"]
         for line in self.purchase_id.order_line - self.invoice_line_ids.mapped(
-                'purchase_line_id'):
+            "purchase_line_id"
+        ):
             data = self._prepare_invoice_line_from_po_line(line)
             new_line = new_lines.new(data)
             new_line._set_additional_fields(self)
@@ -63,7 +65,6 @@ class AccountInvoice(models.Model):
 
         self.invoice_line_ids += new_lines
         self.payment_term_id = self.purchase_id.payment_term_id
-        self.env.context = dict(self.env.context,
-                                from_purchase_order_change=True)
+        self.env.context = dict(self.env.context, from_purchase_order_change=True)
         self.purchase_id = False
         return {}

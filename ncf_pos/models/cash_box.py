@@ -27,9 +27,7 @@ class PosBoxOut(PosBox):
     def default_get(self, fields):
         data = self._context
         res = super(PosBoxOut, self).default_get(fields)
-        pos_session = self.env[data['active_model']].browse(data['active_id'])
+        pos_session = self.env[data["active_model"]].browse(data["active_id"])
         date = pos_session.start_at
-        res.update({
-            'name': pos_session.config_id.name + ' ' + str(date)
-        })
+        res.update({"name": pos_session.config_id.name + " " + str(date)})
         return res

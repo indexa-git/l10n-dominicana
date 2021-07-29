@@ -50,7 +50,7 @@ jobs:
       - name: Check Flake8
         uses: TrueBrain/actions-flake8@master
         with:
-          ignore: E123,E133,E226,E241,E242,F811,F601,W503,W504,E203
+          ignore: E123,E133,E226,E241,E242,F811,F601,W503,W504,E203,F401
           max_line_length: 120
 
       - name: Download python addons script
@@ -235,7 +235,7 @@ jobs:
           retention-days: 2
 
       - name: Setup gcloud CLI
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@master
         with:
           version: "290.0.1"
           service_account_key: ${{ secrets.GKE_SA_KEY }}

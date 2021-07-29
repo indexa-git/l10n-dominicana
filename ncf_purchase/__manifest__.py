@@ -16,16 +16,15 @@
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
 {
-    'name': "NCF Purchase",
-    'version': '12.0.1.0.0',
-    'summary': """
+    "name": "NCF Purchase",
+    "version": "12.0.1.0.0",
+    "summary": """
     Add new field "Purchase Journal" in suppliers if this field is set
     the invoices generated for these suppliers take this journal by default.
     """,
-    'author': "iterativo SRL, "
-              "Manuel Marquez",
-    'license': 'LGPL-3',
-    'category': 'Localization',
-    'depends': ['ncf_manager', 'purchase'],
-    'data': ['views/res_partner_views.xml'],
+    "author": "iterativo SRL, " "Manuel Marquez",
+    "license": "LGPL-3",
+    "category": "Localization",
+    "depends": ["ncf_manager", "purchase"],
+    "data": ["views/res_partner_views.xml"],
 }

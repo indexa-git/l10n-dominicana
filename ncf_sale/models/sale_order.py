@@ -38,11 +38,10 @@ class SaleOrder(models.Model):
         sale_fiscal_type = partner_id.sale_fiscal_type
 
         if partner_id.parent_id and partner_id.parent_id.is_company:
-            invoice_vals[
-                'sale_fiscal_type'] = partner_id.parent_id.sale_fiscal_type
+            invoice_vals["sale_fiscal_type"] = partner_id.parent_id.sale_fiscal_type
         elif not sale_fiscal_type and partner_id.vat and partner_id.is_company:
-            invoice_vals['sale_fiscal_type'] = 'fiscal'
+            invoice_vals["sale_fiscal_type"] = "fiscal"
         else:
-            invoice_vals['sale_fiscal_type'] = sale_fiscal_type
+            invoice_vals["sale_fiscal_type"] = sale_fiscal_type
 
         return invoice_vals

@@ -22,30 +22,26 @@
 # along with NCF Manager.  If not, see <https://www.gnu.org/licenses/>.
 
 {
-    'name': "NCF POS",
-    'summary': """
+    "name": "NCF POS",
+    "summary": """
         Incorpora funcionalidades de facturación con NCF al POS
         """,
-    'author': "Marcos SRL, "
-              "iterativo SRL, "
-              "Grupo Neotec SRL",
-    'license': 'LGPL-3',
-    'category': 'Localization',
-    'version': '12.0.1.1.0',
-
+    "author": "Marcos SRL, " "iterativo SRL, " "Grupo Neotec SRL",
+    "license": "LGPL-3",
+    "category": "Localization",
+    "version": "12.0.1.1.0",
     # any module necessary for this one to work correctly
-    'depends': ['ncf_manager', 'point_of_sale'],
-
+    "depends": ["ncf_manager", "point_of_sale"],
     # always loaded
-    'data': [
-        'security/ir.model.access.csv',
-        'views/templates.xml',
-        'views/pos_config.xml',
-        'views/pos_view.xml',
-        'data/data.xml',
+    "data": [
+        "security/ir.model.access.csv",
+        "views/templates.xml",
+        "views/pos_config.xml",
+        "views/pos_view.xml",
+        "data/data.xml",
     ],
-    'qweb': [
-        'static/src/xml/pos.xml',
-        'static/src/xml/ncf_ticket.xml',
-    ]
+    "qweb": [
+        "static/src/xml/pos.xml",
+        "static/src/xml/ncf_ticket.xml",
+    ],
 }
