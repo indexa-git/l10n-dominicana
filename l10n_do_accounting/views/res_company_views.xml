@@ -15,9 +15,6 @@
                 <field name="l10n_do_default_client" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
                 <field name="l10n_do_dgii_start_date" attrs="{'invisible': [('l10n_do_country_code', '!=', 'DO')]}"/>
             </field>
-            <field name="street" position="attributes">
-                <attribute name="required">[('l10n_do_ecf_issuer', '=', True)]</attribute>
-            </field>
         </field>
     </record>
 </odoo>
