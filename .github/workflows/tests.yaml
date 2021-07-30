@@ -91,7 +91,7 @@ jobs:
 
     services:
       db:
-        image: postgres:11
+        image: postgres:11-alpine
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: odoo
@@ -221,9 +221,8 @@ jobs:
           retention-days: 10
 
       - name: Setup gcloud CLI
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@master
         with:
-          version: "290.0.1"
           service_account_key: ${{ secrets.GKE_SA_KEY }}
           project_id: ${{ secrets.GKE_PROJECT }}
 
