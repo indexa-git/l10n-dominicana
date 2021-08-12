@@ -126,8 +126,6 @@ class AccountJournal(models.Model):
 
     def _get_journal_codes(self):
         self.ensure_one()
-        if self.type != "sale":
-            return []
         return ["E"] if self.company_id.l10n_do_ecf_issuer else ["B"]
 
     @api.model
