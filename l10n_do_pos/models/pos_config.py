@@ -48,10 +48,9 @@ class PosConfig(models.Model):
 
     def get_l10n_do_fiscal_type_data(self):
         return {
-            "tax_payer_type_list": [
-                self.env["res.partner"]._get_l10n_do_dgii_payer_types_selection()[i]
-                for i in [1, 0, 2, 3, 4, 5]
-            ],
+            "tax_payer_type_list": self.env[
+                "res.partner"
+            ]._get_l10n_do_dgii_payer_types_selection(),
             "ncf_types_data": self.env["account.journal"]._get_l10n_do_ncf_types_data(),
         }
 
