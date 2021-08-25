@@ -198,6 +198,38 @@ class AccountMove(models.Model):
 
             invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
 
+    @api.constrains("name", "journal_id", "state", "ref")
+    def _check_unique_sequence_number(self):
+        l10n_do_invoices = self.filtered(
+            lambda inv: inv.l10n_latam_use_documents
+            and inv.l10n_latam_country_code == "DO"
+            and inv.is_sale_document()
+            and inv.state == "posted"
+        )
+        if l10n_do_invoices:
+            self.flush()
+            self._cr.execute(
+                """
+                SELECT move2.id
+                FROM account_move move
+                INNER JOIN account_move move2 ON
+                    move2.ref = move.ref
+                    AND move2.company_id = move.company_id
+                    AND move2.type = move.type
+                    AND move2.id != move.id
+                WHERE move.id IN %s AND move2.state = 'posted'
+            """,
+                [tuple(l10n_do_invoices.ids)],
+            )
+            res = self._cr.fetchone()
+            if res:
+                raise ValidationError(
+                    _("There is already a sale invoice with fiscal number %s")
+                    % self.ref
+                )
+
+        super(AccountMove, (self - l10n_do_invoices))._check_unique_sequence_number()
+
     def button_cancel(self):
 
         fiscal_invoice = self.filtered(
