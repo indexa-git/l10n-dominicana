@@ -156,11 +156,13 @@ class AccountMove(models.Model):
     @api.depends_context("l10n_do_ecf_service_env")
     def _compute_l10n_do_electronic_stamp(self):
 
-        for invoice in self.filtered(
+        l10n_do_ecf_invoice = self.filtered(
             lambda i: i.is_ecf_invoice
             and i.l10n_do_ecf_security_code
             and i.l10n_do_ecf_sign_date
-        ):
+        )
+
+        for invoice in l10n_do_ecf_invoice:
 
             ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "CerteCF")
             doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
@@ -197,6 +199,8 @@ class AccountMove(models.Model):
             qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code or ""
 
             invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
+
+        (self - l10n_do_ecf_invoice).l10n_do_electronic_stamp = False
 
     @api.constrains("name", "journal_id", "state", "ref")
     def _check_unique_sequence_number(self):
