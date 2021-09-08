@@ -162,7 +162,7 @@
             <attribute name="t-if">not is_l10n_do_invoice</attribute>
         </xpath>
 
-        <xpath expr="//div[@id='total']" position="after">
+        <xpath expr="//div[@id='total']/.." position="after">
             <div t-if="is_l10n_do_invoice" class="text-muted text-right">
                 <span>
                     <strong>Original:</strong>
@@ -196,49 +196,97 @@
         <xpath expr="//span[@id='line_tax_ids']" position="attributes">
             <attribute name="t-esc">', '.join(map(lambda x: (x.description or x.name), line.tax_ids)) if not ecf_representation else '%s %s' % (o.currency_id.symbol, '{0:,.2f}'.format(line.l10n_do_itbis_amount))</attribute>
         </xpath>
-        
-        <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
-               position="before">
-            <t t-set="total_amount_taxed" t-value="sum(g[2] for g in o.amount_by_group if g[-1] == o.env.ref('l10n_do.group_itbis').id)"/>
-            <t t-set="total_exempt_amount" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
 
-            <tr t-if="is_l10n_do_invoice and total_amount_taxed and ecf_representation">
-                <td><strong>Monto Gravado Total</strong></td>
-                <td class="text-right">
-                    <!-- MontoGravadoTotal consiste en la suma de la base imponible de todas las lineas gravadas con ITBIS -->
-                    <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
-                          t-esc="total_amount_taxed"/>
-                </td>
-            </tr>
-            <tr t-if="is_l10n_do_invoice and total_exempt_amount and ecf_representation">
-                <td><strong>Monto Exento</strong></td>
-                <td class="text-right">
-                    <!-- MontoExento consiste en la suma de la base imponible de todas las lineas exentas -->
-                    <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
-                          t-esc="total_exempt_amount"/>
-                </td>
-            </tr>
+        <!-- Reemplazamos el DIV de los totales por uno que permita ajustar el QR de
+        firma al lado izquierdo para aprovechar el espacio -->
+
+        <xpath expr="//div[@id='total']" position="attributes">
+            <attribute name="t-if">not ecf_representation</attribute>
         </xpath>
-        <xpath expr="//div[@id='qrcode']" position="after">
-            <div t-if="ecf_representation and o.l10n_do_electronic_stamp">
-                <div>
-                    <img
-                        t-att-src="'/report/barcode/?type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
+
+        <xpath expr="//div[@id='total']" position="after">
+            <div t-if="ecf_representation" class="mt16">
+                <div t-if="o.l10n_do_electronic_stamp" class="col-5" style="display: inline-block; float: left;">
+                    <div>
+                        <img t-att-src="'/report/barcode/?type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
+                    </div>
+                    <table t-if="o.l10n_do_ecf_security_code" style="font-size:11px;">
+                        <tr>
+                            <td>
+                                <strong>Código de Seguridad:</strong>
+                                <span t-esc="o.l10n_do_ecf_security_code"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Fecha Firma Digital:</strong>
+                                <span
+                                    t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
-                <table t-if="o.l10n_do_ecf_security_code" style="font-size:11px;">
-                    <tr>
-                        <td>
-                            <strong>Código de Seguridad:</strong>
-                            <span t-esc="o.l10n_do_ecf_security_code"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>Fecha Firma Digital:</strong>
-                            <span t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
-                        </td>
-                    </tr>
-                </table>
+                <div class="col-5" style="display: inline-block; float: right;">
+                    <table class="table table-sm">
+                        <tr class="border-black o_subtotal" style="">
+                            <td><strong>Subtotal</strong></td>
+                            <td class="text-right">
+                                <span t-field="o.amount_untaxed"/>
+                            </td>
+                        </tr>
+                        <t t-foreach="o.amount_by_group" t-as="amount_by_group">
+                            <tr style="">
+                                <t t-if="len(o.line_ids.filtered(lambda line: line.tax_line_id)) in [0, 1] and o.amount_untaxed == amount_by_group[2]">
+                                    <td><span class="text-nowrap" t-esc="amount_by_group[0]"/></td>
+                                    <td class="text-right o_price_total">
+                                        <span class="text-nowrap" t-esc="amount_by_group[3]" />
+                                    </td>
+                                </t>
+                                <t t-else="">
+                                    <td>
+                                        <span t-esc="amount_by_group[0]"/>
+                                        <span class="text-nowrap"> on
+                                            <t t-esc="amount_by_group[4]"/>
+                                        </span>
+                                    </td>
+                                    <td class="text-right o_price_total">
+                                        <span class="text-nowrap" t-esc="amount_by_group[3]"/>
+                                    </td>
+                                </t>
+                            </tr>
+                        </t>
+
+                        <t t-set="total_amount_taxed" t-value="sum(g[2] for g in o.amount_by_group if g[-1] == o.env.ref('l10n_do.group_itbis').id)"/>
+                        <t t-set="total_exempt_amount" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
+                        <tr t-if="is_l10n_do_invoice and total_amount_taxed and ecf_representation">
+                            <td><strong>Monto Gravado Total</strong></td>
+                            <td class="text-right">
+                                <!-- MontoGravadoTotal consiste en la suma de la base imponible de todas las lineas gravadas con ITBIS -->
+                                <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                      t-esc="total_amount_taxed"/>
+                            </td>
+                        </tr>
+                        <tr t-if="is_l10n_do_invoice and total_exempt_amount and ecf_representation">
+                            <td><strong>Monto Exento</strong></td>
+                            <td class="text-right">
+                                <!-- MontoExento consiste en la suma de la base imponible de todas las lineas exentas -->
+                                <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                      t-esc="total_exempt_amount"/>
+                            </td>
+                        </tr>
+                        <tr class="border-black o_total">
+                            <td>
+                                <strong>Total</strong>
+                            </td>
+                            <td class="text-right">
+                                <strong>
+                                    <span t-field="o.amount_total"/>
+                                </strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
             </div>
         </xpath>
 
