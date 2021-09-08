@@ -47,7 +47,7 @@
                 <span attrs="{'invisible': ['|', ('type', '!=', 'in_refund'), '|', ('state', '!=', 'cancel'), ('l10n_latam_country_code', '!=', 'DO')]}">Cancelled Refund</span>
             </xpath>
             <xpath expr="//h1/span/.." position="after">
-                <h4 attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
+                <h4 name="l10n_do_cancellation_reason" attrs="{'invisible':['|',('state','!=','cancel'),('l10n_latam_country_code', '!=', 'DO')]}">
                     Cancellation Reason:
                     <br/>
                     <field name="l10n_do_cancellation_type" readonly="1"/>
