@@ -400,6 +400,7 @@ class AccountMove(models.Model):
         res["l10n_do_ecf_modification_code"] = self.env.context.get(
             "l10n_do_ecf_modification_code"
         )
+        res["is_l10n_do_internal_sequence"] = self.is_sale_document()
         return res
 
     def _move_autocomplete_invoice_lines_create(self, vals_list):
