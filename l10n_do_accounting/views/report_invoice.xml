@@ -217,7 +217,7 @@
                                 <span t-esc="o.l10n_do_ecf_security_code"/>
                             </td>
                         </tr>
-                        <tr>
+                        <tr t-if="o.l10n_do_ecf_sign_date">
                             <td>
                                 <strong>Fecha Firma Digital:</strong>
                                 <span
