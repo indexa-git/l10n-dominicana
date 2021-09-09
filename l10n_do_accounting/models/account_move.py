@@ -159,7 +159,6 @@ class AccountMove(models.Model):
         l10n_do_ecf_invoice = self.filtered(
             lambda i: i.is_ecf_invoice
             and i.l10n_do_ecf_security_code
-            and i.l10n_do_ecf_sign_date
         )
 
         for invoice in l10n_do_ecf_invoice:
