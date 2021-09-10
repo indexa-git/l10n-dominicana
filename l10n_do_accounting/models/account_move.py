@@ -168,9 +168,10 @@ class AccountMove(models.Model):
                 doc_code_prefix == "E32" and invoice.amount_total_signed < 250000
             )
 
-            qr_string = "https://%s.dgii.gov.do/%s/ConsultaTimbre?" % (
+            qr_string = "https://%s.dgii.gov.do/%s/ConsultaTimbre%s?" % (
                 "fc" if is_rfc else "ecf",
                 ecf_service_env,
+                "FC" if is_rfc else "",
             )
             qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ""
             if not is_rfc:
