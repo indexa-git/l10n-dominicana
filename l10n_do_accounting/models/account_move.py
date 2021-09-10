@@ -157,36 +157,37 @@ class AccountMove(models.Model):
     def _compute_l10n_do_electronic_stamp(self):
 
         l10n_do_ecf_invoice = self.filtered(
-            lambda i: i.is_ecf_invoice
-            and i.l10n_do_ecf_security_code
+            lambda i: i.is_ecf_invoice and i.l10n_do_ecf_security_code
         )
 
         for invoice in l10n_do_ecf_invoice:
 
             ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "CerteCF")
             doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
-            has_sign_date = doc_code_prefix != "E32" or (
-                doc_code_prefix == "E32" and invoice.amount_total_signed >= 250000
+            is_rfc = (  # Es un Resumen Factura Consumo
+                doc_code_prefix == "E32" and invoice.amount_total_signed < 250000
             )
 
-            qr_string = "https://ecf.dgii.gov.do/%s/ConsultaTimbre?" % ecf_service_env
-            qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ""
-            qr_string += (
-                "RncComprador=%s&" % invoice.commercial_partner_id.vat
-                if invoice.l10n_latam_document_type_id.doc_code_prefix[1:] != "43"
-                else invoice.company_id.vat
+            qr_string = "https://%s.dgii.gov.do/%s/ConsultaTimbre?" % (
+                "fc" if is_rfc else "ecf",
+                ecf_service_env,
             )
+            qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ""
+            if not is_rfc:
+                qr_string += (
+                    "RncComprador=%s&" % invoice.commercial_partner_id.vat
+                    if invoice.l10n_latam_document_type_id.doc_code_prefix[1:] != "43"
+                    else invoice.company_id.vat
+                )
             qr_string += "ENCF=%s&" % invoice.ref or ""
-            qr_string += "FechaEmision=%s&" % (
-                invoice.invoice_date or fields.Date.today()
-            ).strftime("%d-%m-%Y")
+            if not is_rfc:
+                qr_string += "FechaEmision=%s&" % (
+                    invoice.invoice_date or fields.Date.today()
+                ).strftime("%d-%m-%Y")
             qr_string += "MontoTotal=%s&" % (
                 "%f" % abs(invoice.amount_total_signed)
             ).rstrip("0").rstrip(".")
-
-            # DGII doesn't want FechaFirma if Consumo Electronico and < 250K
-            # ¯\_(ツ)_/¯
-            if has_sign_date:
+            if not is_rfc:
                 qr_string += (
                     "FechaFirma=%s&"
                     % fields.Datetime.context_timestamp(
