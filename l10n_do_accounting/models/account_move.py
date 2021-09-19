@@ -189,12 +189,8 @@ class AccountMove(models.Model):
                 "%f" % abs(invoice.amount_total_signed)
             ).rstrip("0").rstrip(".")
             if not is_rfc:
-                qr_string += (
-                    "FechaFirma=%s&"
-                    % fields.Datetime.context_timestamp(
-                        self.with_context(tz="America/Santo_Domingo"),
-                        invoice.l10n_do_ecf_sign_date,
-                    ).strftime("%d-%m-%Y %H:%M:%S")
+                qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date.strftime(
+                    "%d-%m-%Y%%20%H:%M:%S"
                 )
 
             qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code or ""
