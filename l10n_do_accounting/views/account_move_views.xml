@@ -15,7 +15,8 @@
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
                      role="alert" style="margin-bottom:0px;"
-                     attrs="{'invisible': ['|', '|',
+                     attrs="{'invisible': ['|', '|', '|',
+                     ('type', '=', 'entry'),
                      ('l10n_latam_country_code', '!=', 'DO'),
                      ('l10n_do_company_in_contingency', '=', False),
                      ('state', '!=', 'draft')]}">
