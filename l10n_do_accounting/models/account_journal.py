@@ -61,7 +61,7 @@ class AccountJournal(models.Model):
                 "foreigner": ["export", "consumer"],
             },
             "received": {
-                "taxpayer": ["fiscal", "special", "governmental"],
+                "taxpayer": ["fiscal"],
                 "non_payer": ["informal", "minor"],
                 "nonprofit": ["special", "governmental"],
                 "special": ["fiscal", "special", "governmental"],
