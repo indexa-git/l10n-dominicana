@@ -34,20 +34,22 @@ class AccountJournal(models.Model):
         :return: types_list
         """
 
+        ecf_types = ["e-%s" % d for d in types_list if d not in ("unique", "import")]
+
+        if self._context.get("use_documents", False) or not invoice:
+            # When called from Journals return all ncf+ecf types to
+            # create fiscal sequences
+            return types_list + ecf_types
+
         if (
-            self.company_id.l10n_do_ecf_issuer
-            or self._context.get("use_documents", False)
-            or (
-                invoice
-                and not self.company_id.l10n_do_ecf_issuer
-                and invoice.partner_id.l10n_do_dgii_tax_payer_type
-                and invoice.partner_id.l10n_do_dgii_tax_payer_type != "non_payer"
-            )
+            invoice.is_purchase_document()
+            and invoice.partner_id.l10n_do_dgii_tax_payer_type
+            and invoice.partner_id.l10n_do_dgii_tax_payer_type == "non_payer"
         ):
-            types_list.extend(
-                ["e-%s" % d for d in types_list if d not in ("unique", "import")]
-            )
-        return types_list
+            # Return ncf/ecf types depending on company ECF issuing status
+            return ecf_types if self.company_id.l10n_do_ecf_issuer else types_list
+
+        return types_list + ecf_types
 
     @api.model
     def _get_l10n_do_ncf_types_data(self):
