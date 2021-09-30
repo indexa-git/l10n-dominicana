@@ -217,6 +217,7 @@ class AccountMove(models.Model):
                     move2.ref = move.ref
                     AND move2.company_id = move.company_id
                     AND move2.type = move.type
+                    AND extract(year from move2.date) = extract(year from move.date)
                     AND move2.id != move.id
                 WHERE move.id IN %s AND move2.state = 'posted'
             """,
