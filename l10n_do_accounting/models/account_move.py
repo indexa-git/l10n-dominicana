@@ -157,7 +157,9 @@ class AccountMove(models.Model):
     def _compute_l10n_do_electronic_stamp(self):
 
         l10n_do_ecf_invoice = self.filtered(
-            lambda i: i.is_ecf_invoice and i.l10n_do_ecf_security_code
+            lambda i: i.is_ecf_invoice
+            and i.is_l10n_do_internal_sequence
+            and i.l10n_do_ecf_security_code
         )
 
         for invoice in l10n_do_ecf_invoice:
