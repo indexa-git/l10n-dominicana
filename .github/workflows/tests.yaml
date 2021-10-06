@@ -54,11 +54,33 @@ jobs:
     - name: Download python addons script
       run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/14.0/resources/getaddons.py -o getaddons.py
 
+    - name: Odoo Enterprise
+      uses: actions/checkout@v2
+      with:
+        repository: odoo/enterprise
+        token: ${{ secrets.ACTIONS_PAT }}
+        path: enterprise
+        ref: '14.0'
+  
     - name: Redis
       uses: actions/checkout@v2
       with:
         repository: camptocamp/odoo-cloud-platform
         path: odoo-cloud-platform
+        ref: '14.0'
+
+    - name: l10n-dominicana
+      uses: actions/checkout@v2
+      with:
+        repository: indexa-git/l10n-dominicana
+        path: l10n-dominicana
+        ref: '14.0'
+    
+    - name: INDEXA external-services
+      uses: actions/checkout@v2
+      with:
+        repository: indexa-git/external_service_addons
+        path: external-service-addons
         ref: '14.0'
 
     - name: Select Odoo modules to install
@@ -213,7 +235,7 @@ jobs:
         retention-days: 10
 
     - name: Setup gcloud CLI
-      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      uses: google-github-actions/setup-gcloud@master
       with:
         version: '290.0.1'
         service_account_key: ${{ secrets.GKE_SA_KEY }}

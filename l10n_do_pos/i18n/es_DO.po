@@ -1,0 +1,992 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_do_pos
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-05 23:22+0000\n"
+"PO-Revision-Date: 2021-04-05 19:38-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: es_DO\n"
+"X-Generator: Poedit 2.4.2\n"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "$/Und."
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "% discount"
+msgstr "% descuento"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "(Unavailable In POS)"
+msgstr "(No disponible en PdV)"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "All Invoices"
+msgstr "Todas las facturas"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__amount
+#, python-format
+msgid "Amount"
+msgstr "Importe"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Are you sure you want to create this refund order?"
+msgstr "¿Está seguro que desea crear esta devolución?"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Back"
+msgstr "Atrás"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Cajero/a.:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Cambio:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Cant."
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Cant. devuelta."
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Cantidad"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Cliente"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Cliente..:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Cliente:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Completar Devolución"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_config__l10n_latam_country_code
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_latam_country_code
+msgid "Country Code"
+msgstr "Código País"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Create"
+msgstr "Crear"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__create_date
+msgid "Created on"
+msgstr "Creado en"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_do_payment_credit_note_ids
+msgid "Credit Note payments"
+msgstr "Notas de Crédito"
+
+#. module: l10n_do_pos
+#: model_terms:ir.ui.view,arch_db:l10n_do_pos.l10n_do_pos_view_pos_pos_form
+msgid "Credit Notes"
+msgstr "Notas de Crédito"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__account_move_id
+#: model:ir.model.fields.selection,name:l10n_do_pos.selection__pos_order__state__is_l10n_do_return_order
+msgid "Credit note"
+msgstr "Nota de Crédito"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Código..:"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model_terms:ir.ui.view,arch_db:l10n_do_pos.l10n_do_pos_pos_config_view_form
+msgid "Default customer"
+msgstr "Cliente predeterminado"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_config__l10n_do_default_partner_id
+msgid "Default partner"
+msgstr "Contacto predeterminado"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Descuento(%)"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Descuento:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Detalles de la Orden"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Devoluciones"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Devolver"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Devolver Productos"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_latam_document_type_id
+msgid "Document Type"
+msgstr "Tipo Comprobante"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Document type"
+msgstr "Tipo Comprobante"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Edit"
+msgstr "Editar"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "El balance de la Nota de Credito es 0."
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Error: Could not Save Changes"
+msgstr "Error: no se pueden guardar los cambios"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Estado"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Factura de"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Fecha Orden"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Fecha....:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Fecha:"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_latam_document_number
+msgid "Fiscal Number"
+msgstr "NCF"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_latam_sequence_id
+msgid "Fiscal Sequence"
+msgstr "Secuencia Fiscal"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/models.js:0
+#, python-format
+msgid "Fiscal document type not found"
+msgstr "Tipo de comprobante no encontrado"
+
+#. module: l10n_do_pos
+#: model_terms:ir.ui.view,arch_db:l10n_do_pos.l10n_do_pos_view_pos_pos_form
+msgid "Fiscal info"
+msgstr "Información fiscal"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid ""
+"For invoice fiscal type  it is necessary for the customer have RNC or Céd."
+msgstr "Para Factura Fiscal  es necesario RNC/Cédula en el cliente."
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid ""
+"For invoice fiscal type  its necessary customer, please select customer"
+msgstr ""
+"Para Factura Fiscal  es necesario un cliente. Por favor seleccione uno"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "For this sale it is necessary for the customer have ID"
+msgstr ""
+"Para este tipo de venta es necesario que el cliente tenga un RNC/Cédula"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields.selection,name:l10n_do_pos.selection__pos_order__l10n_do_return_status__fully_returned
+msgid "Fully returned"
+msgstr "Completamente devuelto"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "ITBIS"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,help:l10n_do_pos.field_pos_config__l10n_latam_use_documents
+msgid ""
+"If active: will be using for legal invoicing (invoices, debit/credit "
+"notes). If not set means that will be used to register accounting entries "
+"not related to invoicing legal documents. For Example: Receipts, Tax "
+"Payments, Register journal entries"
+msgstr ""
+"Si está activo: será usado para facturas fiscales, notas de débito y "
+"crédito. De lo contrario puede ser usado para registros contables no "
+"relacionados con facturas fiscales. Por ejemplo, recibos, pago de "
+"impuestos, asientos"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Impuesto"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_latam_use_documents
+msgid "L10N Latam Use Documents"
+msgstr "Es fiscal"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "La Nota de Crédito Pertenece a Otro Cliente"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "La nota de credito no existe."
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_config__l10n_do_number_of_days
+msgid "Last Days (invoices)"
+msgstr "Últimos ’n’ días (facturas)"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_config__l10n_do_credit_notes_number_of_days
+msgid "Last Days (refunds)"
+msgstr "Últimos ’n’ días (reembolsos)"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note____last_update
+msgid "Last Modified on"
+msgstr "Última modificación en"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__write_date
+msgid "Last Updated on"
+msgstr "Última actualización en"
+
+#. module: l10n_do_pos
+#: model_terms:ir.ui.view,arch_db:l10n_do_pos.l10n_do_pos_pos_config_view_form
+msgid "List Orders"
+msgstr "Listar ordenes"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields.selection,name:l10n_do_pos.selection__pos_config__l10n_do_order_loading_options__current_session
+msgid "Load current session orders"
+msgstr "Cargar ordenes de la sesión actual"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields.selection,name:l10n_do_pos.selection__pos_config__l10n_do_order_loading_options__n_days
+msgid "Load last 'n' days orders"
+msgstr "Cargar las ordenes de los últimos ’n’ días"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_config__l10n_do_order_loading_options
+msgid "Loading options"
+msgstr "Opciones de carga"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_do_origin_ncf
+msgid "Modified NCF"
+msgstr "NCF modificado"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_do_return_order_id
+msgid "Modifies"
+msgstr "Afecta a"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Monto"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Métodos de pago:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "N/A"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "NC/Devolución"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "NC/Devolución:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "NCF"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "NCF Modificado:"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_do_ncf_expiration_date
+msgid "NCF expiration date"
+msgstr "Fecha Expiración NCF"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "NCF:"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "No customer"
+msgstr "No cliente"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid ""
+"No quedan productos retornables en esta orden. Tal vez los productos son No "
+"Retornables o no estan disponibles en el Punto de Venta!!"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "No se puede devolver esta Orden!!!"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Nombre:"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields.selection,name:l10n_do_pos.selection__pos_order__l10n_do_return_status__non_returnable
+msgid "Non Returnable"
+msgstr "No reembolsable"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Not fiscal sequence"
+msgstr "No secuencia fiscal"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields.selection,name:l10n_do_pos.selection__pos_order__l10n_do_return_status__-
+msgid "Not returned"
+msgstr "No reembolsado"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Número de Pedido"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_line__l10n_do_original_line_id
+msgid "Original line"
+msgstr "Línea original"
+
+#. module: l10n_do_pos
+#: model:ir.model,name:l10n_do_pos.model_pos_order_payment_credit_note
+msgid "POS Credit Notes"
+msgstr "Notas de Crédito PdV"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields.selection,name:l10n_do_pos.selection__pos_order__l10n_do_return_status__partially_returned
+msgid "Partially Returned"
+msgstr "Parcialmente reembolsada"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Payment"
+msgstr "Pagos"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Please check if RNC or Cédula is correct"
+msgstr "Por favor marque si el RNC/Cédula es correcto"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Please configure correct fiscal sequence in invoice journal"
+msgstr ""
+"Por favor configure correctamente las secuencias fiscales en el diario de "
+"facturas"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid ""
+"Please select a customer or set one as default in the point of sale settings"
+msgstr ""
+"Por favor seleccione un cliente o coloque uno predeterminado en la "
+"configuración del Punto de Ventas"
+
+#. module: l10n_do_pos
+#: model:ir.model,name:l10n_do_pos.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Configuración del TPV"
+
+#. module: l10n_do_pos
+#: model:ir.model,name:l10n_do_pos.model_pos_order_line
+msgid "Point of Sale Order Lines"
+msgstr "Líneas de Orden de Punto de Venta"
+
+#. module: l10n_do_pos
+#: model:ir.model,name:l10n_do_pos.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "Pedidos del TPV"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Precio"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Precio Unitario"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Product"
+msgstr "Producto"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Producto"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Producto ("
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Quantity"
+msgstr "Cantidad"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "RNC/Céd..:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "RNC:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Refund Order"
+msgstr "Orden reembolso"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Refunded"
+msgstr "Reembolsado"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Required document (RNC/Céd.)"
+msgstr "Documento requerido (RNC/Céd.)"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_line__l10n_do_line_qty_returned
+msgid "Return line"
+msgstr "Línea reembolso"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_do_is_return_order
+msgid "Return order"
+msgstr "Orden reembolso"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__l10n_do_return_status
+msgid "Return status"
+msgstr "Estado reembolso"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Sale greater than RD$ 250,000.00"
+msgstr "Venta mayor a RD$250,000.00"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Sale in"
+msgstr "Venta en"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Search"
+msgstr "Búsqueda"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Search Invoices"
+msgstr "Buscar facturas"
+
+#. module: l10n_do_pos
+#: model_terms:ir.ui.view,arch_db:l10n_do_pos.l10n_do_pos_pos_config_view_form
+msgid "Select days before for Credit Notes"
+msgstr "Seleccione los días anterior a Nota de Crédito"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Select document type"
+msgstr "Seleccione Tipo de Comprobante"
+
+#. module: l10n_do_pos
+#: model_terms:ir.ui.view,arch_db:l10n_do_pos.l10n_do_pos_pos_config_view_form
+msgid "Select to load orders"
+msgstr "Seleccione para cargar ordenes"
+
+#. module: l10n_do_pos
+#: model:ir.model,name:l10n_do_pos.model_ir_sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order__state
+msgid "Status"
+msgstr "Estado"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "SubTotal:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Tax ID"
+msgstr "RNC/Cédula"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Taxes"
+msgstr "Impuestos"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Taxpayer Type"
+msgstr "Tipo Contribuyente"
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,help:l10n_do_pos.field_pos_config__l10n_latam_country_code
+#: model:ir.model.fields,help:l10n_do_pos.field_pos_order__l10n_latam_country_code
+msgid "Technical field used to hide/show fields regarding the localization"
+msgstr "Campo técnico para mostrar/ocultar campos dependiendo la localización"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Telefono.:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/models.js:0
+#, python-format
+msgid "This fiscal document type not exist."
+msgstr "Este documento no existe."
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "This not RNC or Cédula"
+msgstr "No es un RNC/Cédula"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "This order has no pending balance."
+msgstr "La orden no tiene balance pendiente."
+
+#. module: l10n_do_pos
+#: code:addons/l10n_do_pos/models/pos_order.py:0
+#, python-format
+msgid "This point of sale does not have a default customer."
+msgstr "Punto de Ventas no tiene cliente predeterminado."
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/pos.xml:0
+#, python-format
+msgid "Total"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Total:"
+msgstr ""
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_config__l10n_latam_use_documents
+msgid "Use Documents?"
+msgstr "Es fiscal?"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Valor"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Vendedor/a.:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "Válida hasta:"
+msgstr ""
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Warning !!!"
+msgstr "Advertencia!!!"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Warning!!!"
+msgstr "Advertencia!!"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/xml/posticket.xml:0
+#, python-format
+msgid "With a"
+msgstr "Con un"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "You cannot make sales in 0, please add a product with value"
+msgstr ""
+"No puede vender por monto cero (0). Por favor seleccione producto con valor"
+
+#. module: l10n_do_pos
+#: code:addons/l10n_do_pos/models/pos_config.py:0
+#, python-format
+msgid "You have to set a number of days."
+msgstr "Debe seleccionar un número de días"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid ""
+"You need to select a customer with RNC/Céd for this fiscal type, place "
+"writes RNC/Céd"
+msgstr ""
+"Debe seleccionar un cliente con RNC/Cédula para este Tipo de Comprobante. "
+"Coloque un RNC/Céd en el cliente"
+
+#. module: l10n_do_pos
+#. openerp-web
+#: code:addons/l10n_do_pos/static/src/js/screens.js:0
+#, python-format
+msgid "Your Internet connection is probably down."
+msgstr "Su conexión de Internet está probablemente caída."
+
+#. module: l10n_do_pos
+#: model:ir.model.fields,field_description:l10n_do_pos.field_pos_order_payment_credit_note__pos_order_id
+msgid "order"
+msgstr "Orden"
+
+#. module: l10n_do_pos
+#: code:addons/l10n_do_pos/models/pos_config.py:0
+#, python-format
+msgid ""
+"You cannot set a Fiscal Journal as Sales Journal. Please, select a non-fiscal journal."
+msgstr "No puede establecer un Diario Fiscal como diario de ventas. Por favor, seleccione un diario no fiscal."
