@@ -207,7 +207,7 @@ class AccountMove(models.Model):
 
         l10n_do_ecf_invoice = self.filtered(
             lambda i: i.is_ecf_invoice
-            and i.is_l10n_do_internal_sequence
+            and not i.l10n_latam_manual_document_number
             and i.l10n_do_ecf_security_code
         )
 
