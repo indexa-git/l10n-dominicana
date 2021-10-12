@@ -47,7 +47,6 @@ class Partner(models.Model):
         string="Cost & Expense Type",
         store=True,
     )
-    is_fiscal_info_required = fields.Boolean(compute="_compute_is_fiscal_info_required")
     country_id = fields.Many2one(
         default=lambda self: self.env.ref("base.do")
         if self.env.user.company_id.country_id == self.env.ref("base.do")
@@ -56,7 +55,7 @@ class Partner(models.Model):
 
     def _check_l10n_do_fiscal_fields(self, vals):
 
-        if self.parent_id:
+        if not self or self.parent_id:
             # Do not perform any check because child contacts
             # have readonly fiscal field. This also allows set
             # contacts parent, even if this changes any of its
@@ -99,14 +98,6 @@ class Partner(models.Model):
         self._check_l10n_do_fiscal_fields(vals)
 
         return res
-
-    @api.depends("l10n_do_dgii_tax_payer_type")
-    def _compute_is_fiscal_info_required(self):
-        for partner in self:
-            if partner.l10n_do_dgii_tax_payer_type != "non_payer":
-                partner.is_fiscal_info_required = True
-            else:
-                partner.is_fiscal_info_required = False
 
     @api.depends("vat", "country_id", "name")
     def _compute_l10n_do_dgii_payer_type(self):

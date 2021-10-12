@@ -14,7 +14,7 @@ class ReSequenceWizard(models.TransientModel):
                 .browse(ctx["active_ids"])
                 .filtered(
                     lambda inv: inv.l10n_latam_use_documents
-                    and inv.l10n_latam_country_code == "DO"
+                    and inv.country_code == "DO"
                 )
             )
 

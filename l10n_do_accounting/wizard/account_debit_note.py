@@ -110,24 +110,11 @@ class AccountDebitNote(models.TransientModel):
                 _("You cannot create Debit Notes from multiple documents at a time.")
             )
         else:
-            res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
+            res["is_ecf_invoice"] = (
+                move_ids_use_document and move_ids_use_document[0].is_ecf_invoice
+            )
 
         return res
-
-    def _get_line_tax(self):
-
-        if self.move_type == "out_invoice":
-            return (
-                self.move_ids[0].company_id.account_sale_tax_id
-                or self.env.ref("l10n_do.1_tax_18_sale")
-                if (self.date - self.move_ids[0].invoice_date).days <= 30
-                and self.move_ids[0].partner_id.l10n_do_dgii_tax_payer_type != "special"
-                else self.env.ref("l10n_do.1_tax_0_sale") or False
-            )
-        else:
-            return self.move_ids[0].company_id.account_purchase_tax_id or self.env.ref(
-                "l10n_do.1_tax_0_purch"
-            )
 
     def _prepare_default_values(self, move):
 
@@ -135,11 +122,6 @@ class AccountDebitNote(models.TransientModel):
 
         # Include additional info when l10n_do debit note
         if self.l10n_latam_country_code == "DO" and move.l10n_latam_use_documents:
-            price_unit = (
-                self.l10n_do_amount
-                if self.l10n_do_debit_type == "fixed_amount"
-                else move.amount_untaxed * (self.l10n_do_percentage / 100)
-            )
             res.update(
                 dict(
                     l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
@@ -150,18 +132,6 @@ class AccountDebitNote(models.TransientModel):
                     invoice_origin=move.name,
                     line_ids=[],
                     ref=move.name,
-                    invoice_line_ids=[
-                        (
-                            0,
-                            0,
-                            {
-                                "name": self.reason,
-                                "price_unit": price_unit,
-                                "account_id": self.l10n_do_account_id.id,
-                                "tax_ids": [(6, 0, [self._get_line_tax().id])],
-                            },
-                        )
-                    ],
                 )
             )
 
@@ -169,7 +139,15 @@ class AccountDebitNote(models.TransientModel):
 
     def create_debit(self):
 
-        action = super(AccountDebitNote, self).create_debit()
+        action = super(
+            AccountDebitNote,
+            self.with_context(
+                l10n_do_debit_type=self.l10n_do_debit_type,
+                amount=self.l10n_do_amount,
+                percentage=self.l10n_do_percentage,
+                reason=self.reason,
+            ),
+        ).create_debit()
         if (
             self.l10n_latam_country_code == "DO"
             and self.l10n_do_debit_action == "apply_debit"

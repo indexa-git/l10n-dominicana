@@ -5,8 +5,8 @@
 
         <xpath expr="//t[@t-set='o']" position="after">
             <!-- When is a e-CF representation, additional info is displayed -->
-            <t t-set="ecf_representation" t-value="o.company_id.l10n_do_ecf_issuer"/>
-            <t t-set="is_l10n_do_invoice" t-value="o.l10n_latam_use_documents and o.company_id.country_id and o.company_id.l10n_do_country_code == 'DO'"/>
+            <t t-set="ecf_representation" t-value="o.is_ecf_invoice"/>
+            <t t-set="is_l10n_do_invoice" t-value="o.l10n_latam_use_documents and o.company_id.country_id and o.country_code == 'DO'"/>
         </xpath>
 
         <!-- Hide when l10n do invoice -->
@@ -16,7 +16,7 @@
 
         <xpath expr="//div[@id='informations']" position="before">
             <!-- Show when l10n do invoice -->
-            <div id="informations" class="row mt36 mb32" t-if="is_l10n_do_invoice">
+            <div id="issuer_info" class="row mt36 mb32" t-if="is_l10n_do_invoice">
 
                 <!-- Company info -->
                 <div class="col-6">
@@ -80,6 +80,71 @@
                     </span>
                 </div>
             </div>
+            <br/>
+
+            <div id="receiver_info" class="row mt32 mb32">
+                <t t-set="vat_len" t-value="len(o.partner_id.vat) if o.partner_id.vat else 0"/>
+                <div class="col-auto col-7 mw-100 mb-2">
+                    <strong>
+                        <t t-if="vat_len == 9">RNC:</t>
+                        <t t-elif="vat_len == 11">Cédula:</t>
+                        <t t-else="">ID Cliente:</t>
+                    </strong>
+                    <span class="m-0" t-esc="o.partner_id.vat or ''"/>
+                    <br/>
+                    <strong>
+                        <t t-if="vat_len == 9">Razón Social:</t>
+                        <t t-else="">Nombre:</t>
+                    </strong>
+                    <t t-if="o.partner_id.is_company or not o.partner_id.parent_id">
+                        <span class="m-0" t-field="o.partner_id.name"/>
+                        <br/>
+                        <t t-if="o.partner_id.phone">
+                            <strong>Tel.:</strong>
+                            <span t-field="o.partner_id.phone"/>
+                            <t t-if="o.partner_id.mobile">
+                                <span> / </span>
+                            </t>
+                        </t>
+                        <t t-if="o.partner_id.mobile">
+                            <strong>Cel.:</strong>
+                            <span t-field="o.partner_id.mobile" widget="phone"/>
+                        </t>
+                    </t>
+                    <t t-else="">
+                        <t t-set="commercial_partner_id"
+                           t-value="o.partner_id.commercial_partner_id"/>
+                        <span class="m-0" t-field="commercial_partner_id.name"/>
+                        <br/>
+                        <strong>Contacto:</strong>
+                        <span t-field="o.partner_id.name"/>
+                        <br/>
+                        <t t-if="commercial_partner_id.phone">
+                            <strong>Tel.:</strong>
+                            <span t-field="commercial_partner_id.phone"/>
+                            <t t-if="commercial_partner_id.mobile">
+                                <span>/</span>
+                            </t>
+                        </t>
+                        <t t-if="commercial_partner_id.mobile">
+                            <strong>Cel.:</strong>
+                            <span t-field="commercial_partner_id.mobile"
+                                  widget="phone"/>
+                        </t>
+                    </t>
+                    <span t-if="o.partner_id.street" class="m-0" t-field="o.partner_id"
+                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                </div>
+                <div class="col-auto col-2 mw-100 mb-2" t-if="o.invoice_origin" name="origin">
+                    <strong>Origen:</strong>
+                    <p class="m-0" t-field="o.invoice_origin"/>
+                </div>
+                <div class="col-auto col-2 mw-100 mb-2" t-if="o.ref" name="reference">
+                    <strong>Referencia:</strong>
+                    <p class="m-0" t-esc="o.name if is_l10n_do_invoice else o.ref"/>
+                </div>
+            </div>
+
         </xpath>
 
         <xpath expr="//div[hasclass('page')]//div[@id='informations']/div[@name='reference']/p[1]" position="attributes">
@@ -88,67 +153,8 @@
         </xpath>
 
         <!-- Hide when l10n do invoice -->
-        <xpath expr="//div[hasclass('page')]//div[@id='informations']/div[@name='invoice_date']" position="attributes">
-            <attribute name="t-if">o.invoice_date and not is_l10n_do_invoice</attribute>
-        </xpath>
-        <xpath expr="//div[hasclass('page')]//div[@id='informations']/div[@name='due_date']" position="attributes">
-            <attribute name="t-if">o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted' and not is_l10n_do_invoice</attribute>
-        </xpath>
-
-        <xpath expr="//div[hasclass('page')]//div[@id='informations']/div[@name='invoice_date']" position="before">
-            <div class="col-auto mw-100 mb-2" t-if="is_l10n_do_invoice" name="invoice_partner_address">
-                <t t-set="vat_len" t-value="len(o.partner_id.vat) if o.partner_id.vat else 0"/>
-                <strong>
-                    <t t-if="vat_len == 9">RNC:</t>
-                    <t t-elif="vat_len == 11">Cédula:</t>
-                    <t t-else="">ID Cliente:</t>
-                </strong>
-                <span class="m-0" t-esc="o.partner_id.vat or ''"/>
-                <br/>
-
-                <strong>
-                    <t t-if="vat_len == 9">Razón Social:</t>
-                    <t t-else="">Nombre:</t>
-                </strong>
-                <t t-if="o.partner_id.is_company or not o.partner_id.parent_id">
-                    <span class="m-0" t-field="o.partner_id.name"/>
-                    <br/>
-                    <t t-if="o.partner_id.phone">
-                        <strong>Tel.:</strong>
-                        <span t-field="o.partner_id.phone"/>
-                        <t t-if="o.partner_id.mobile">
-                            <span> / </span>
-                        </t>
-                    </t>
-                    <t t-if="o.partner_id.mobile">
-                        <strong>Cel.:</strong>
-                        <span t-field="o.partner_id.mobile" widget="phone"/>
-                    </t>
-                </t>
-                <t t-else="">
-                    <t t-set="commercial_partner_id"
-                       t-value="o.partner_id.commercial_partner_id"/>
-                    <span class="m-0" t-field="commercial_partner_id.name"/>
-                    <br/>
-                    <strong>Contacto:</strong>
-                    <span t-field="o.partner_id.name"/>
-                    <br/>
-                    <t t-if="commercial_partner_id.phone">
-                        <strong>Tel.:</strong>
-                        <span t-field="commercial_partner_id.phone"/>
-                        <t t-if="commercial_partner_id.mobile">
-                            <span>/</span>
-                        </t>
-                    </t>
-                    <t t-if="commercial_partner_id.mobile">
-                        <strong>Cel.:</strong>
-                        <span t-field="commercial_partner_id.mobile"
-                              widget="phone"/>
-                    </t>
-                </t>
-                <span t-if="o.partner_id.street" class="m-0" t-field="o.partner_id"
-                      t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
-            </div>
+        <xpath expr="//div[@id='informations']" position="attributes">
+            <attribute name="t-if">not is_l10n_do_invoice</attribute>
         </xpath>
 
         <xpath expr="//table[hasclass('o_main_table')]/tbody//td[hasclass('o_price_total')]" position="inside">
@@ -162,20 +168,39 @@
             <attribute name="t-if">not is_l10n_do_invoice</attribute>
         </xpath>
 
-        <xpath expr="//div[@id='total']" position="after">
-            <div t-if="is_l10n_do_invoice" class="text-muted text-right">
-                <span>
-                    <strong>Original:</strong>
-                    Cliente
-                </span>
-                <br/>
-                <span>
-                    <strong>Copia:</strong>
-                    Vendedor
-                </span>
-                <br/>
-                <br/>
+        <xpath expr="//div[@id='total']/.." position="after">
+            <div class="row">
+                <div class="col-6" style="display: inline-block; float: left; font-size:11px;">
+                    <t t-if="o.l10n_do_electronic_stamp">
+                        <div>
+                            <img t-att-src="'/report/barcode/?type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
+                        </div>
+                        <t t-if="o.l10n_do_ecf_security_code">
+                            <strong>Código de Seguridad:</strong>
+                            <span t-esc="o.l10n_do_ecf_security_code"/>
+                        </t>
+                        <br/>
+                        <t t-if="o.l10n_do_ecf_sign_date">
+                            <strong>Fecha Firma Digital:</strong>
+                            <span t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
+                        </t>
+                    </t>
+                </div>
+                <div t-if="is_l10n_do_invoice" class="text-muted text-right col-6" style="float: right;">
+                    <span>
+                        <strong>Original:</strong>
+                        Cliente
+                    </span>
+                    <br/>
+                    <span>
+                        <strong>Copia:</strong>
+                        Vendedor
+                    </span>
+                    <br/>
+                    <br/>
+                </div>
             </div>
+            <br/>
         </xpath>
 
         <!-- Total monto descuento en líneas -->
@@ -196,50 +221,28 @@
         <xpath expr="//span[@id='line_tax_ids']" position="attributes">
             <attribute name="t-esc">', '.join(map(lambda x: (x.description or x.name), line.tax_ids)) if not ecf_representation else '%s %s' % (o.currency_id.symbol, '{0:,.2f}'.format(line.l10n_do_itbis_amount))</attribute>
         </xpath>
-        
+
         <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
                position="before">
-            <t t-set="total_amount_taxed" t-value="sum(g[2] for g in o.amount_by_group if g[-1] == o.env.ref('l10n_do.group_itbis').id)"/>
+            <t t-set="total_amount_taxed" t-value="sum(g[2] for g in o.amount_by_group if g[-1] == o.env.ref('l10n_do.group_itbis').id and any(True for tax in o.invoice_line_ids.mapped('tax_ids') if tax.amount != 0))"/>
             <t t-set="total_exempt_amount" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
 
-            <tr t-if="is_l10n_do_invoice and total_amount_taxed and ecf_representation">
-                <td><strong>Monto Gravado Total</strong></td>
-                <td class="text-right">
+            <tr t-if="is_l10n_do_invoice and ecf_representation">
+                <td>Monto Gravado</td>
+                <td class="text-right o_price_total">
                     <!-- MontoGravadoTotal consiste en la suma de la base imponible de todas las lineas gravadas con ITBIS -->
                     <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
                           t-esc="total_amount_taxed"/>
                 </td>
             </tr>
             <tr t-if="is_l10n_do_invoice and total_exempt_amount and ecf_representation">
-                <td><strong>Monto Exento</strong></td>
-                <td class="text-right">
+                <td>Monto Exento</td>
+                <td class="text-right o_price_total">
                     <!-- MontoExento consiste en la suma de la base imponible de todas las lineas exentas -->
                     <span class="text-nowrap" t-options='{"widget": "monetary", "display_currency": o.currency_id}'
                           t-esc="total_exempt_amount"/>
                 </td>
             </tr>
-        </xpath>
-        <xpath expr="//div[@id='qrcode']" position="after">
-            <div t-if="ecf_representation and o.l10n_do_electronic_stamp">
-                <div>
-                    <img
-                        t-att-src="'/report/barcode/?type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
-                </div>
-                <table t-if="o.l10n_do_ecf_security_code" style="font-size:11px;">
-                    <tr>
-                        <td>
-                            <strong>Código de Seguridad:</strong>
-                            <span t-esc="o.l10n_do_ecf_security_code"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <strong>Fecha Firma Digital:</strong>
-                            <span t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
-                        </td>
-                    </tr>
-                </table>
-            </div>
         </xpath>
 
     </template>

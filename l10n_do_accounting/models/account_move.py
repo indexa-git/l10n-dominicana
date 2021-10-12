@@ -205,47 +205,82 @@ class AccountMove(models.Model):
     @api.depends_context("l10n_do_ecf_service_env")
     def _compute_l10n_do_electronic_stamp(self):
 
-        for invoice in self.filtered(
+        l10n_do_ecf_invoice = self.filtered(
             lambda i: i.is_ecf_invoice
+            and not i.l10n_latam_manual_document_number
             and i.l10n_do_ecf_security_code
-            and i.l10n_do_ecf_sign_date
-        ):
+        )
+
+        for invoice in l10n_do_ecf_invoice:
 
             ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "CerteCF")
             doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
-            has_sign_date = doc_code_prefix != "E32" or (
-                doc_code_prefix == "E32" and invoice.amount_total_signed >= 250000
+            is_rfc = (  # Es un Resumen Factura Consumo
+                doc_code_prefix == "E32" and invoice.amount_total_signed < 250000
             )
 
-            qr_string = "https://ecf.dgii.gov.do/%s/ConsultaTimbre?" % ecf_service_env
-            qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ""
-            qr_string += (
-                "RncComprador=%s&" % invoice.commercial_partner_id.vat
-                if invoice.l10n_latam_document_type_id.doc_code_prefix[1:] != "43"
-                else invoice.company_id.vat
+            qr_string = "https://%s.dgii.gov.do/%s/ConsultaTimbre%s?" % (
+                "fc" if is_rfc else "ecf",
+                ecf_service_env,
+                "FC" if is_rfc else "",
             )
+            qr_string += "RncEmisor=%s&" % invoice.company_id.vat or ""
+            if not is_rfc:
+                qr_string += (
+                    "RncComprador=%s&" % invoice.commercial_partner_id.vat
+                    if invoice.l10n_latam_document_type_id.doc_code_prefix[1:] != "43"
+                    else invoice.company_id.vat
+                )
             qr_string += "ENCF=%s&" % invoice.ref or ""
-            qr_string += "FechaEmision=%s&" % (
-                invoice.invoice_date or fields.Date.today()
-            ).strftime("%d-%m-%Y")
+            if not is_rfc:
+                qr_string += "FechaEmision=%s&" % (
+                    invoice.invoice_date or fields.Date.today()
+                ).strftime("%d-%m-%Y")
             qr_string += "MontoTotal=%s&" % (
                 "%f" % abs(invoice.amount_total_signed)
             ).rstrip("0").rstrip(".")
-
-            # DGII doesn't want FechaFirma if Consumo Electronico and < 250K
-            # ¯\_(ツ)_/¯
-            if has_sign_date:
-                qr_string += (
-                    "FechaFirma=%s&"
-                    % fields.Datetime.context_timestamp(
-                        self.with_context(tz="America/Santo_Domingo"),
-                        invoice.l10n_do_ecf_sign_date,
-                    ).strftime("%d-%m-%Y %H:%M:%S")
+            if not is_rfc:
+                qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date.strftime(
+                    "%d-%m-%Y%%20%H:%M:%S"
                 )
 
             qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code or ""
 
             invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
+
+        (self - l10n_do_ecf_invoice).l10n_do_electronic_stamp = False
+
+    @api.constrains("name", "journal_id", "state", "ref")
+    def _check_unique_sequence_number(self):
+        l10n_do_invoices = self.filtered(
+            lambda inv: inv.l10n_latam_use_documents
+            and inv.country_code == "DO"
+            and inv.is_sale_document()
+            and inv.state == "posted"
+        )
+        if l10n_do_invoices:
+            self.flush()
+            self._cr.execute(
+                """
+                SELECT move2.id
+                FROM account_move move
+                INNER JOIN account_move move2 ON
+                    move2.ref = move.ref
+                    AND move2.company_id = move.company_id
+                    AND move2.move_type = move.move_type
+                    AND move2.id != move.id
+                WHERE move.id IN %s AND move2.state = 'posted'
+            """,
+                [tuple(l10n_do_invoices.ids)],
+            )
+            res = self._cr.fetchone()
+            if res:
+                raise ValidationError(
+                    _("There is already a sale invoice with fiscal number %s")
+                    % self.ref
+                )
+
+        super(AccountMove, (self - l10n_do_invoices))._check_unique_sequence_number()
 
     @api.depends("ref")
     def _compute_l10n_latam_document_number(self):
@@ -263,6 +298,7 @@ class AccountMove(models.Model):
             lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
             and inv.l10n_latam_use_documents
+            and not inv.is_ecf_invoice
         )
 
         if len(fiscal_invoice) > 1:
@@ -399,6 +435,8 @@ class AccountMove(models.Model):
         res = super(AccountMove, self)._reverse_move_vals(
             default_values=default_values, cancel=cancel
         )
+        if self.country_code != "DO":
+            return res
 
         if self.country_code == "DO":
             res["l10n_do_origin_ncf"] = self.l10n_latam_document_number
@@ -443,6 +481,36 @@ class AccountMove(models.Model):
             )
 
         return super(AccountMove, self)._is_manual_document_number(journal=journal)
+
+    def _move_autocomplete_invoice_lines_create(self, vals_list):
+
+        ctx = self.env.context
+        refund_type = ctx.get("refund_type")
+        if refund_type and refund_type in ("percentage", "fixed_amount"):
+            for vals in vals_list:
+                del vals["line_ids"]
+                origin_invoice_id = self.browse(self.env.context.get("active_ids"))
+                price_unit = (
+                    ctx.get("amount")
+                    if refund_type == "fixed_amount"
+                    else origin_invoice_id.amount_untaxed
+                    * (ctx.get("percentage") / 100)
+                )
+                vals["invoice_line_ids"] = [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": ctx.get("reason") or _("Refund"),
+                            "price_unit": price_unit,
+                            "quantity": 1,
+                        },
+                    )
+                ]
+
+        return super(AccountMove, self)._move_autocomplete_invoice_lines_create(
+            vals_list
+        )
 
     def _post(self, soft=True):
 
@@ -504,6 +572,11 @@ class AccountMove(models.Model):
         where_string, param = super(AccountMove, self)._get_last_sequence_domain(
             relaxed
         )
+
+        if self.l10n_latam_use_documents and self.country_code == "DO":
+            where_string = where_string.replace(
+                "AND sequence_prefix !~ %(anti_regex)s ", ""
+            )
         if self._context.get("is_l10n_do_seq", False):
             where_string = where_string.replace("journal_id = %(journal_id)s AND", "")
             where_string += (
@@ -637,11 +710,12 @@ class AccountMove(models.Model):
             format_values["seq"] = 0
         format_values["seq"] = format_values["seq"] + 1
 
-        self[
-            self._l10n_do_sequence_field
-        ] = self.l10n_latam_document_type_id._format_document_number(
-            format.format(**format_values)
-        )
+        if self.state != "draft":
+            self[
+                self._l10n_do_sequence_field
+            ] = self.l10n_latam_document_type_id._format_document_number(
+                format.format(**format_values)
+            )
         self._compute_split_sequence()
 
     def _get_name_invoice_report(self):
