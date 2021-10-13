@@ -662,19 +662,6 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self).new(values, origin, ref)
 
-    @api.depends("posted_before", "state", "journal_id", "date")
-    def _compute_name(self):
-
-        super(AccountMove, self.with_context(compute_manual_name=True))._compute_name()
-
-        for move in self.filtered(
-            lambda x: x.country_code == "DO"
-            and x.l10n_latam_document_type_id
-            and not x.l10n_latam_manual_document_number
-            and not x.l10n_do_enable_first_sequence
-        ):
-            move.with_context(is_l10n_do_seq=True)._set_next_sequence()
-
     def _get_sequence_format_param(self, previous):
 
         if not self._context.get("is_l10n_do_seq", False):
