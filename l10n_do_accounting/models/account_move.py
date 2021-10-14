@@ -191,12 +191,8 @@ class AccountMove(models.Model):
     def _compute_company_in_contingency(self):
         for invoice in self:
             ecf_invoices = self.search(
-                [
-                    ("is_ecf_invoice", "=", True),
-                    ("l10n_latam_manual_document_number", "=", False),
-                ],
-                limit=1,
-            )
+                [("is_ecf_invoice", "=", True)], limit=1
+            ).filtered(lambda i: not i.l10n_latam_manual_document_number)
             invoice.l10n_do_company_in_contingency = bool(
                 ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
             )
