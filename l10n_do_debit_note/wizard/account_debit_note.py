@@ -26,7 +26,7 @@ class AccountDebitNote(models.TransientModel):
         ]
 
     l10n_latam_country_code = fields.Char(
-        default=lambda self: self.env.user.company_id.country_id.code,
+        default=lambda self: self.env.company.country_id.code,
         help="Technical field used to hide/show fields regarding the localization",
     )
     l10n_do_debit_type = fields.Selection(
