@@ -124,10 +124,8 @@ class AccountDebitNote(models.TransientModel):
         if self.l10n_latam_country_code == "DO" and move.l10n_latam_use_documents:
             res.update(
                 dict(
+                    l10n_latam_document_type_id=move._l10n_do_get_debit_note_document_type(),
                     l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
-                    l10n_latam_document_type_id=self.env.ref(
-                        "l10n_do_accounting.ncf_debit_note_client"
-                    ).id,
                     l10n_latam_document_number=self.l10n_latam_document_number,
                     l10n_do_origin_ncf=move.l10n_latam_document_number,
                     l10n_do_expense_type=move.l10n_do_expense_type,

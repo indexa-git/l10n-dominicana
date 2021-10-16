@@ -532,6 +532,17 @@ class AccountMove(models.Model):
 
         return res
 
+    def _l10n_do_get_debit_note_document_type(self):
+        """
+        Returns the right Debit Note document type depending on
+        origin move is ECF or not
+        """
+        self.ensure_one()
+        xml_id = "l10n_do_accounting.%s_debit_note_client" % (
+            "ecf" if self.is_ecf_invoice else "ncf"
+        )
+        return self.env.ref(xml_id).id
+
     def _l10n_do_get_formatted_sequence(self):
         self.ensure_one()
         if not self._context.get("is_l10n_do_seq", False):
