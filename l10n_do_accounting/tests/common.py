@@ -56,14 +56,17 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                 "country_id": cls.env.ref("base.us").id,
             }
         )
-        cls.fiscal_sale_journal = cls.env["account.journal"].create(
-            {
-                "name": "Test - Fiscal Sales Journal",
-                "type": "sale",
-                "code": "FSJ",
-                "l10n_latam_use_documents": "True",
-            }
+        journals = cls.env["account.journal"].search(
+            [
+                ("type", "in", ("sale", "purchase")),
+                ("company_id", "=", cls.do_company.id),
+            ]
         )
+        journals.write({"l10n_latam_use_documents": True})
+        cls.fiscal_sale_journal = journals.filtered(lambda j: j.type == "sale")[0]
+        cls.fiscal_purchase_journal = journals.filtered(lambda j: j.type == "purchase")[
+            0
+        ]
         cls.product_itbis_18 = cls.env["product.product"].create(
             {
                 "name": "Product - Service",
@@ -110,6 +113,8 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                 invoice_form.l10n_latam_document_number = data.get("document_number")
             if data.get("currency"):
                 invoice_form.currency_id = data.get("currency")
+            if data.get("expense_type"):
+                invoice_form.l10n_do_expense_type = data.get("expense_type")
             for line in data.get("lines", [{}]):
                 with invoice_form.invoice_line_ids.new() as invoice_line_form:
                     invoice_line_form.product_id = line.get(
