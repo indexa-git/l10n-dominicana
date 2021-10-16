@@ -197,6 +197,6 @@ class AccountDebitNote(models.TransientModel):
         ):
             # Post Debit Note
             move_id = self.env["account.move"].browse(action.get("res_id", False))
-            move_id.post()
+            move_id._post()
 
         return action
