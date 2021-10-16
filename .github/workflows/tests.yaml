@@ -69,20 +69,6 @@ jobs:
         path: odoo-cloud-platform
         ref: '14.0'
 
-    - name: l10n-dominicana
-      uses: actions/checkout@v2
-      with:
-        repository: indexa-git/l10n-dominicana
-        path: l10n-dominicana
-        ref: '14.0'
-    
-    - name: INDEXA external-services
-      uses: actions/checkout@v2
-      with:
-        repository: indexa-git/external_service_addons
-        path: external-service-addons
-        ref: '14.0'
-
     - name: Select Odoo modules to install
       id: get_modules
       run: |
