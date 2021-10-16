@@ -255,14 +255,14 @@ class AccountMove(models.Model):
             and inv.state == "posted"
         )
         if l10n_do_invoices:
-            self.flush()
+            self.flush(["name", "journal_id", "move_type", "state", "ref"])
             self._cr.execute(
                 """
-                SELECT move2.id
+                SELECT move2.id, move2.ref
                 FROM account_move move
                 INNER JOIN account_move move2 ON
                     move2.ref = move.ref
-                    AND move2.company_id = move.company_id
+                    AND move2.journal_id = move.journal_id
                     AND move2.move_type = move.move_type
                     AND move2.id != move.id
                 WHERE move.id IN %s AND move2.state = 'posted'

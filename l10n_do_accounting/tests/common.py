@@ -107,6 +107,8 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
             invoice_form.partner_id = data.get("partner", self.fiscal_partner)
             if "in_" not in invoice_type:
                 invoice_form.journal_id = data.get("journal", self.fiscal_sale_journal)
+            if data.get("invoice_date"):
+                invoice_form.invoice_date = data.get("invoice_date")
             if data.get("document_type"):
                 invoice_form.l10n_latam_document_type_id = data.get("document_type")
             if data.get("document_number"):
