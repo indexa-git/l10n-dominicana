@@ -52,7 +52,7 @@ class AccountMoveTest(TransactionCase):
     def create_invoice(self, invoice_type, document_number="", expense_type=""):
         inv = self.env["account.move"].create(
             {
-                "type": invoice_type,
+                "move_type": invoice_type,
                 "partner_id": self.partner.id,
                 "l10n_latam_document_number": document_number,
                 "l10n_do_expense_type": expense_type,
