@@ -4,18 +4,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 13.0+e\n"
+"Project-Id-Version: Odoo Server 13.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-01 20:33+0000\n"
-"PO-Revision-Date: 2021-03-01 16:34-0400\n"
+"POT-Creation-Date: 2021-10-16 17:35+0000\n"
+"PO-Revision-Date: 2021-10-16 13:36-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
-"Language: es\n"
-"X-Generator: Poedit 2.4.2\n"
+"Language: es_DO\n"
+"X-Generator: Poedit 3.0\n"
 
 #. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_move_form_inherited
@@ -129,6 +129,12 @@ msgid "Create a debit note"
 msgstr "Crear una Nota de Débito"
 
 #. module: l10n_do_debit_note
+#: code:addons/l10n_do_debit_note/models/account_move.py:0
+#, python-format
+msgid "Debit"
+msgstr "Débito"
+
+#. module: l10n_do_debit_note
 #: model:ir.model.fields,help:l10n_do_debit_note.field_account_debit_note__l10n_do_amount
 msgid "Debit Note based fixed amount"
 msgstr "Nota de Débito basada en monto fijo"
@@ -158,6 +164,11 @@ msgstr "Tipo de Débito"
 #: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_latam_document_number
 msgid "Document Number"
 msgstr "Número de Documento"
+
+#. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_latam_document_type_id
+msgid "Document Type"
+msgstr "Tipo de Comprobante"
 
 #. module: l10n_do_debit_note
 #: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
@@ -219,6 +230,11 @@ msgstr ""
 "Campo técnico usado para mostrar/ocultar campos dependiendo la localización"
 
 #. module: l10n_do_debit_note
+#: model:ir.model.fields,field_description:l10n_do_debit_note.field_account_debit_note__l10n_latam_use_documents
+msgid "Use Documents"
+msgstr "Es fiscal"
+
+#. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_account_debit_note_inherited
 msgid ""
 "Use this option if you want to fully apply a debit note.\n"
@@ -255,7 +271,7 @@ msgstr "No puede crear Notas de Débito desde múltiples facturas a la vez."
 #: code:addons/l10n_do_debit_note/wizard/account_debit_note.py:0
 #, python-format
 msgid "You cannot issue Credit/Debit Notes for %s document type"
-msgstr "No puede emitir Notas de Crédito/Débito para comprobantes de %s"
+msgstr "No puede emitir Notas de Crédito/Débito para %s"
 
 #. module: l10n_do_debit_note
 #: model_terms:ir.ui.view,arch_db:l10n_do_debit_note.view_account_debit_note_inherited

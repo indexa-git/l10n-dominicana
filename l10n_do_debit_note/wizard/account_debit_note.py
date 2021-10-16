@@ -65,6 +65,10 @@ class AccountDebitNote(models.TransientModel):
     is_ecf_invoice = fields.Boolean(
         string="Is Electronic Invoice",
     )
+    l10n_latam_use_documents = fields.Boolean("Use Documents", readonly=True)
+    l10n_latam_document_type_id = fields.Many2one(
+        "l10n_latam.document.type", "Document Type", ondelete="cascade"
+    )
 
     @api.model
     def default_get(self, fields):
@@ -96,6 +100,8 @@ class AccountDebitNote(models.TransientModel):
         else:
             res["l10n_do_account_id"] = journal.default_debit_account_id.id
 
+        res["l10n_latam_use_documents"] = journal.l10n_latam_use_documents
+
         # Do not allow Debit Notes if Comprobante de Compra or Gastos Menores
         if move_ids[0].l10n_latam_document_type_id.l10n_do_ncf_type in (
             "informal",
@@ -119,6 +125,43 @@ class AccountDebitNote(models.TransientModel):
 
         return res
 
+    @api.onchange("move_ids")
+    def _onchange_move_id(self):
+        if (
+            self.move_ids
+            and self.move_ids[0].l10n_latam_use_documents
+            and self.l10n_latam_country_code == "DO"
+        ):
+            move_id = self.move_ids[0]
+            move = (
+                self.env["account.move"]
+                .with_context(internal_type="debit_note")
+                .new(
+                    {
+                        "partner_id": move_id.partner_id.id,
+                        "type": move_id.type,
+                        "journal_id": move_id.journal_id.id,
+                    }
+                )
+            )
+            domain_ids = (
+                self.env["l10n_latam.document.type"]
+                .search(move._get_l10n_latam_documents_domain())
+                .ids
+            )
+            self.l10n_latam_document_type_id = domain_ids[0]
+            return {
+                "domain": {
+                    "l10n_latam_document_type_id": [
+                        (
+                            "id",
+                            "in",
+                            domain_ids,
+                        )
+                    ]
+                }
+            }
+
     def _prepare_default_values(self, move):
 
         res = super(AccountDebitNote, self)._prepare_default_values(move)
@@ -128,6 +171,7 @@ class AccountDebitNote(models.TransientModel):
             res.update(
                 dict(
                     l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
+                    l10n_latam_document_type_id=self.l10n_latam_document_type_id.id,
                     l10n_latam_document_number=self.l10n_latam_document_number,
                     l10n_do_origin_ncf=move.l10n_latam_document_number,
                     l10n_do_expense_type=move.l10n_do_expense_type,
