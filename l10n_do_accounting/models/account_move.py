@@ -478,17 +478,48 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self)._is_manual_document_number(journal=journal)
 
+    def _get_debit_line_tax(self, debit_date):
+
+        if self.move_type == "out_invoice":
+            return (
+                self.company_id.account_sale_tax_id
+                or self.env.ref("l10n_do.tax_18_sale")
+                if (debit_date - self.invoice_date).days <= 30
+                and self.partner_id.l10n_do_dgii_tax_payer_type != "special"
+                else self.env.ref("l10n_do.tax_0_sale") or False
+            )
+        else:
+            return self.company_id.account_purchase_tax_id or self.env.ref(
+                "l10n_do.tax_0_purch"
+            )
+
     def _move_autocomplete_invoice_lines_create(self, vals_list):
 
         ctx = self.env.context
         refund_type = ctx.get("refund_type")
-        if refund_type and refund_type in ("percentage", "fixed_amount"):
+        refund_debit_type = ctx.get("l10n_do_debit_type", refund_type)
+        if refund_debit_type and refund_debit_type in ("percentage", "fixed_amount"):
             for vals in vals_list:
                 del vals["line_ids"]
                 origin_invoice_id = self.browse(self.env.context.get("active_ids"))
+                taxes = (
+                    [
+                        (
+                            6,
+                            0,
+                            [
+                                origin_invoice_id._get_debit_line_tax(
+                                    vals["invoice_date"]
+                                ).id
+                            ],
+                        )
+                    ]
+                    if ctx.get("l10n_do_debit_type", False)
+                    else [(5, 0)]
+                )
                 price_unit = (
                     ctx.get("amount")
-                    if refund_type == "fixed_amount"
+                    if refund_debit_type == "fixed_amount"
                     else origin_invoice_id.amount_untaxed
                     * (ctx.get("percentage") / 100)
                 )
@@ -500,6 +531,7 @@ class AccountMove(models.Model):
                             "name": ctx.get("reason") or _("Refund"),
                             "price_unit": price_unit,
                             "quantity": 1,
+                            "tax_ids": taxes,
                         },
                     )
                 ]
