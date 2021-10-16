@@ -13,7 +13,7 @@
             </field>
             <field name="l10n_latam_document_type_id" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': ['|', '&amp;', ('refund_method', '=', 'refund'), ('country_code', '!=', 'DO'), ('country_code', '=', 'DO')],
+                    'invisible': ['|', '&amp;', ('refund_method', '=', 'refund'), ('country_code', '!=', 'DO'), ('move_type', '=', 'out_invoice')],
                     'required': [('l10n_latam_use_documents', '=', True), ('refund_method', '!=', 'refund')],
                 }</attribute>
             </field>
