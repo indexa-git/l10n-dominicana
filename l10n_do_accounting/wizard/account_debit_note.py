@@ -182,19 +182,16 @@ class AccountDebitNote(models.TransientModel):
 
     def create_debit(self):
 
-        action = super(
-            AccountDebitNote,
-            self.with_context(
+        if self.l10n_latam_use_documents and self.l10n_latam_country_code:
+            self = self.with_context(
                 l10n_do_debit_type=self.l10n_do_debit_type,
                 amount=self.l10n_do_amount,
                 percentage=self.l10n_do_percentage,
                 reason=self.reason,
-            ),
-        ).create_debit()
-        if (
-            self.l10n_latam_country_code == "DO"
-            and self.l10n_do_debit_action == "apply_debit"
-        ):
+            )
+
+        action = super(AccountDebitNote, self).create_debit()
+        if self.l10n_do_debit_action == "apply_debit":
             # Post Debit Note
             move_id = self.env["account.move"].browse(action.get("res_id", False))
             move_id._post()
