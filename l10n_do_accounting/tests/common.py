@@ -72,7 +72,7 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                 "name": "Product - Service",
                 "lst_price": 100,
                 "type": "service",
-                "taxes_id": [(4, cls.env.ref("l10n_do.tax_18_sale").id)],
+                "taxes_id": [(4, cls.do_company.account_sale_tax_id.id)],
             }
         )
         cls.do_document_type = {
