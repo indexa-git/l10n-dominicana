@@ -9,7 +9,7 @@ from odoo.exceptions import ValidationError, UserError, AccessError
 class AccountMove(models.Model):
     _inherit = "account.move"
 
-    _l10n_do_sequence_field = "ref"
+    _l10n_do_sequence_field = "l10n_do_fiscal_number"
     _l10n_do_sequence_fixed_regex = r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})$"
 
     def _get_l10n_do_cancellation_type(self):
@@ -104,6 +104,12 @@ class AccountMove(models.Model):
         compute="_compute_l10n_do_enable_first_sequence",
         help="Technical field that compute if internal generated fiscal sequence "
         "is enabled to be set manually.",
+    )
+    l10n_do_fiscal_number = fields.Char(
+        "Fiscal Number",
+        index=True,
+        copy=False,
+        help="Stored field equivalent of l10n_latam_document number",
     )
 
     def init(self):
@@ -227,7 +233,7 @@ class AccountMove(models.Model):
                     if invoice.l10n_latam_document_type_id.doc_code_prefix[1:] != "43"
                     else invoice.company_id.vat
                 )
-            qr_string += "ENCF=%s&" % invoice.ref or ""
+            qr_string += "ENCF=%s&" % invoice.l10n_do_fiscal_number or ""
             if not is_rfc:
                 qr_string += "FechaEmision=%s&" % (
                     invoice.invoice_date or fields.Date.today()
@@ -246,7 +252,7 @@ class AccountMove(models.Model):
 
         (self - l10n_do_ecf_invoice).l10n_do_electronic_stamp = False
 
-    @api.constrains("name", "journal_id", "state", "ref")
+    @api.constrains("name", "journal_id", "state", "l10n_do_fiscal_number")
     def _check_unique_sequence_number(self):
         l10n_do_invoices = self.filtered(
             lambda inv: inv.l10n_latam_use_documents
@@ -255,13 +261,13 @@ class AccountMove(models.Model):
             and inv.state == "posted"
         )
         if l10n_do_invoices:
-            self.flush(["name", "journal_id", "move_type", "state", "ref"])
+            self.flush(["name", "journal_id", "move_type", "state", "l10n_do_fiscal_number"])
             self._cr.execute(
                 """
-                SELECT move2.id, move2.ref
+                SELECT move2.id, move2.l10n_do_fiscal_number
                 FROM account_move move
                 INNER JOIN account_move move2 ON
-                    move2.ref = move.ref
+                    move2.l10n_do_fiscal_number = move.l10n_do_fiscal_number
                     AND move2.journal_id = move.journal_id
                     AND move2.move_type = move.move_type
                     AND move2.id != move.id
@@ -273,18 +279,18 @@ class AccountMove(models.Model):
             if res:
                 raise ValidationError(
                     _("There is already a sale invoice with fiscal number %s")
-                    % self.ref
+                    % self.l10n_do_fiscal_number
                 )
 
         super(AccountMove, (self - l10n_do_invoices))._check_unique_sequence_number()
 
-    @api.depends("ref")
+    @api.depends("l10n_do_fiscal_number")
     def _compute_l10n_latam_document_number(self):
         l10n_do_recs = self.filtered(
             lambda x: x.country_code == "DO" and x.l10n_latam_use_documents
         )
         for rec in l10n_do_recs:
-            rec.l10n_latam_document_number = rec.ref
+            rec.l10n_latam_document_number = rec.l10n_do_fiscal_number
 
         super(AccountMove, self - l10n_do_recs)._compute_l10n_latam_document_number()
 
@@ -333,7 +339,7 @@ class AccountMove(models.Model):
     def _inverse_l10n_latam_document_number(self):
         for rec in self.filtered("l10n_latam_document_type_id"):
             if not rec.l10n_latam_document_number:
-                rec.ref = ""
+                rec.l10n_do_fiscal_number = ""
             else:
                 document_type_id = rec.l10n_latam_document_type_id
                 if document_type_id.l10n_do_ncf_type:
@@ -345,7 +351,7 @@ class AccountMove(models.Model):
 
                 if rec.l10n_latam_document_number != document_number:
                     rec.l10n_latam_document_number = document_number
-                rec.ref = document_number
+                rec.l10n_do_fiscal_number = document_number
         super(
             AccountMove, self.filtered(lambda m: m.country_code != "DO")
         )._inverse_l10n_latam_document_number()

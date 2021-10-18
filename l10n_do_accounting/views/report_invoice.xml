@@ -141,15 +141,10 @@
                 </div>
                 <div class="col-auto col-2 mw-100 mb-2" t-if="o.ref" name="reference">
                     <strong>Referencia:</strong>
-                    <p class="m-0" t-esc="o.name if is_l10n_do_invoice else o.ref"/>
+                    <p class="m-0" t-field="o.ref"/>
                 </div>
             </div>
 
-        </xpath>
-
-        <xpath expr="//div[hasclass('page')]//div[@id='informations']/div[@name='reference']/p[1]" position="attributes">
-            <attribute name="t-field"></attribute>
-            <attribute name="t-esc">o.name if is_l10n_do_invoice else o.ref</attribute>
         </xpath>
 
         <!-- Hide when l10n do invoice -->

@@ -86,9 +86,6 @@
                     'readonly': [('state','!=','draft')]
                 }"/>
             </xpath>
-            <xpath expr="//field[@name='ref']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
             <field name="journal_id" position="after">
                 <field name="l10n_do_ecf_security_code" attrs="{
                 'invisible': ['|', '|', '|', ('partner_id', '=', False), ('country_code', '!=', 'DO'), ('l10n_latam_manual_document_number', '=', False), ('is_ecf_invoice', '=', False)]}"/>
@@ -174,5 +171,33 @@
               parent="account.menu_finance_payables"
               groups="l10n_do_accounting.group_l10n_do_debit_note"
               sequence="10"/>
+
+    <record id="view_invoice_tree" model="ir.ui.view">
+        <field name="name">view.invoice.tree</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <field name="ref" position="after">
+                <field name="l10n_do_fiscal_number"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_account_move_filter" model="ir.ui.view">
+        <field name="name">view.account.move.filter</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_account_move_filter"/>
+        <field name="arch" type="xml">
+            <field name="name" position="attributes">
+                <attribute name="filter_domain">[
+                    '|', '|', '|',
+                    ('name', 'ilike', self),
+                    ('ref', 'ilike', self),
+                    ('partner_id', 'ilike', self),
+                    ('l10n_do_fiscal_number', 'ilike', self)
+                ]</attribute>
+            </field>
+        </field>
+    </record>
 
 </odoo>

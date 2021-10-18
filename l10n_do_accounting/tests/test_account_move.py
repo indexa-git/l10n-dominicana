@@ -626,7 +626,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
         invoice_2._post()
         with self.assertRaises(ValidationError):
-            invoice_2.write({"ref": "B0100000001"})
+            invoice_2.write({"l10n_do_fiscal_number": "B0100000001"})
 
     def test_008_check_sequence(self):
         """
@@ -640,12 +640,12 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
         sale_invoice_1_id._post()
         self.assertEqual(sale_invoice_1_id.name, "INV/2021/0001")
-        self.assertEqual(sale_invoice_1_id.ref, "B0100000001")
+        self.assertEqual(sale_invoice_1_id.l10n_do_fiscal_number, "B0100000001")
 
         sale_invoice_2_id = self._create_l10n_do_invoice()
         sale_invoice_2_id._post()
         self.assertEqual(sale_invoice_2_id.name, "INV/2021/0002")
-        self.assertEqual(sale_invoice_2_id.ref, "B0100000002")
+        self.assertEqual(sale_invoice_2_id.l10n_do_fiscal_number, "B0100000002")
 
         purchase_invoice_1_id = self._create_l10n_do_invoice(
             data={
@@ -656,7 +656,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
         purchase_invoice_1_id._post()
         self.assertEqual(purchase_invoice_1_id.name, "BILL/2021/0001")
-        self.assertEqual(purchase_invoice_1_id.ref, "B0100000001")
+        self.assertEqual(purchase_invoice_1_id.l10n_do_fiscal_number, "B0100000001")
 
         purchase_invoice_2_id = self._create_l10n_do_invoice(
             data={
@@ -668,4 +668,4 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
         purchase_invoice_2_id._post()
         self.assertEqual(purchase_invoice_2_id.name, "BILL/2021/0002")
-        self.assertEqual(purchase_invoice_2_id.ref, "B1100000001")
+        self.assertEqual(purchase_invoice_2_id.l10n_do_fiscal_number, "B1100000001")
