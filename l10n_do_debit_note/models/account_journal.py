@@ -14,11 +14,6 @@ class AccountJournal(models.Model):
             and invoice.debit_origin_id
             or self.env.context.get("internal_type") == "debit_note"
         ):
-            return (
-                ["e-debit_note"]
-                if self.company_id.l10n_do_ecf_issuer
-                and not invoice.l10n_do_company_in_contingency
-                else ["debit_note"]
-            )
+            return ["debit_note", "e-debit_note"]
 
         return ncf_types

@@ -7,7 +7,7 @@
     "category": "Localization",
     "license": "LGPL-3",
     "website": "https://github.com/odoo-dominicana",
-    "version": "13.0.1.2.1",
+    "version": "13.0.1.3.1",
     "depends": ["account_debit_note", "l10n_do_accounting"],
     "data": [
         "security/res_groups.xml",
