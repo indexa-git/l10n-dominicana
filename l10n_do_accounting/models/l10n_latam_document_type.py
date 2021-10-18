@@ -66,23 +66,6 @@ class L10nLatamDocumentType(models.Model):
         default=False,
     )
 
-    def _get_document_sequence_vals(self, journal):
-        """ Values to create the sequences """
-        values = super()._get_document_sequence_vals(journal)
-        if self.country_id != self.env.ref("base.do"):
-            return values
-
-        values.update(
-            {
-                "padding": 10 if str(self.l10n_do_ncf_type).startswith("e-") else 8,
-                "implementation": "no_gap",
-                "prefix": self.doc_code_prefix,
-                "l10n_latam_document_type_id": self.id,
-                "l10n_latam_journal_id": journal.id,
-            }
-        )
-        return values
-
     def _format_document_number(self, document_number):
         """Make validation of Import Dispatch Number
         * making validations on the document_number.

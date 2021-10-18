@@ -191,12 +191,8 @@ class AccountMove(models.Model):
     def _compute_company_in_contingency(self):
         for invoice in self:
             ecf_invoices = self.search(
-                [
-                    ("is_ecf_invoice", "=", True),
-                    ("l10n_latam_manual_document_number", "=", False),
-                ],
-                limit=1,
-            )
+                [("is_ecf_invoice", "=", True)], limit=1
+            ).filtered(lambda i: not i.l10n_latam_manual_document_number)
             invoice.l10n_do_company_in_contingency = bool(
                 ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
             )
@@ -259,14 +255,14 @@ class AccountMove(models.Model):
             and inv.state == "posted"
         )
         if l10n_do_invoices:
-            self.flush()
+            self.flush(["name", "journal_id", "move_type", "state", "ref"])
             self._cr.execute(
                 """
-                SELECT move2.id
+                SELECT move2.id, move2.ref
                 FROM account_move move
                 INNER JOIN account_move move2 ON
                     move2.ref = move.ref
-                    AND move2.company_id = move.company_id
+                    AND move2.journal_id = move.journal_id
                     AND move2.move_type = move.move_type
                     AND move2.id != move.id
                 WHERE move.id IN %s AND move2.state = 'posted'
@@ -482,17 +478,48 @@ class AccountMove(models.Model):
 
         return super(AccountMove, self)._is_manual_document_number(journal=journal)
 
+    def _get_debit_line_tax(self, debit_date):
+
+        if self.move_type == "out_invoice":
+            return (
+                self.company_id.account_sale_tax_id
+                or self.env.ref("l10n_do.tax_18_sale")
+                if (debit_date - self.invoice_date).days <= 30
+                and self.partner_id.l10n_do_dgii_tax_payer_type != "special"
+                else self.env.ref("l10n_do.tax_0_sale") or False
+            )
+        else:
+            return self.company_id.account_purchase_tax_id or self.env.ref(
+                "l10n_do.tax_0_purch"
+            )
+
     def _move_autocomplete_invoice_lines_create(self, vals_list):
 
         ctx = self.env.context
         refund_type = ctx.get("refund_type")
-        if refund_type and refund_type in ("percentage", "fixed_amount"):
+        refund_debit_type = ctx.get("l10n_do_debit_type", refund_type)
+        if refund_debit_type and refund_debit_type in ("percentage", "fixed_amount"):
             for vals in vals_list:
                 del vals["line_ids"]
                 origin_invoice_id = self.browse(self.env.context.get("active_ids"))
+                taxes = (
+                    [
+                        (
+                            6,
+                            0,
+                            [
+                                origin_invoice_id._get_debit_line_tax(
+                                    vals["invoice_date"]
+                                ).id
+                            ],
+                        )
+                    ]
+                    if ctx.get("l10n_do_debit_type", False)
+                    else [(5, 0)]
+                )
                 price_unit = (
                     ctx.get("amount")
-                    if refund_type == "fixed_amount"
+                    if refund_debit_type == "fixed_amount"
                     else origin_invoice_id.amount_untaxed
                     * (ctx.get("percentage") / 100)
                 )
@@ -504,6 +531,7 @@ class AccountMove(models.Model):
                             "name": ctx.get("reason") or _("Refund"),
                             "price_unit": price_unit,
                             "quantity": 1,
+                            "tax_ids": taxes,
                         },
                     )
                 ]
@@ -654,26 +682,13 @@ class AccountMove(models.Model):
         if (
             self.l10n_latam_use_documents
             and self.is_ecf_invoice
-            and values.get("type") in ("out_refund", "in_refund")
+            and values.get("move_type") in ("out_refund", "in_refund")
         ):
             values["l10n_latam_document_type_id"] = self.env.ref(
                 "l10n_do_accounting.ecf_credit_note_client"
             ).id
 
         return super(AccountMove, self).new(values, origin, ref)
-
-    @api.depends("posted_before", "state", "journal_id", "date")
-    def _compute_name(self):
-
-        super(AccountMove, self.with_context(compute_manual_name=True))._compute_name()
-
-        for move in self.filtered(
-            lambda x: x.country_code == "DO"
-            and x.l10n_latam_document_type_id
-            and not x.l10n_latam_manual_document_number
-            and not x.l10n_do_enable_first_sequence
-        ):
-            move.with_context(is_l10n_do_seq=True)._set_next_sequence()
 
     def _get_sequence_format_param(self, previous):
 

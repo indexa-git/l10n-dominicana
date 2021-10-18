@@ -97,18 +97,20 @@ class AccountJournal(models.Model):
                 ]
             )
         )
-        if not counterpart_partner:
-            ncf_notes = ["debit_note", "credit_note"]
-            ncf_external = ["fiscal", "special", "governmental"]
-
-            # When Journal fiscal sequence create, include ncf_notes if sale
-            # or exclude ncf_external if purchase
-            res = (
-                ncf_types + ncf_notes
-                if self.type == "sale"
-                else [ncf for ncf in ncf_types if ncf not in ncf_external]
-            )
-            return self._get_all_ncf_types(res)
+        # TODO: check if the following commented code is still necessary
+        #  considering journals don't create fiscal sequence in v14
+        # if not counterpart_partner:
+        #     ncf_notes = ["debit_note", "credit_note"]
+        #     ncf_external = ["fiscal", "special", "governmental"]
+        #
+        #     # When Journal fiscal sequence create, include ncf_notes if sale
+        #     # or exclude ncf_external if purchase
+        #     res = (
+        #         ncf_types + ncf_notes
+        #         if self.type == "sale"
+        #         else [ncf for ncf in ncf_types if ncf not in ncf_external]
+        #     )
+        #     return self._get_all_ncf_types(res)
         if counterpart_partner.l10n_do_dgii_tax_payer_type:
             counterpart_ncf_types = ncf_types_data[
                 "issued" if self.type == "sale" else "received"
@@ -127,12 +129,7 @@ class AccountJournal(models.Model):
             and invoice.debit_origin_id
             or self.env.context.get("internal_type") == "debit_note"
         ):
-            return (
-                ["e-debit_note"]
-                if self.company_id.l10n_do_ecf_issuer
-                and not invoice.l10n_do_company_in_contingency
-                else ["debit_note"]
-            )
+            return ["debit_note", "e-debit_note"]
 
         return self._get_all_ncf_types(ncf_types, invoice)
 
