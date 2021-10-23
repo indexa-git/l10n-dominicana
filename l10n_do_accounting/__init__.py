@@ -263,6 +263,7 @@ def migrate_fiscal_sequences(env):
                 "special": "14",
                 "fiscal": "01",
                 "informal": "11",
+                "export": "16",
             }
 
             env.cr.execute(
