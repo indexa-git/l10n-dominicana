@@ -46,9 +46,7 @@ class L10nLatamDocumentType(models.Model):
     l10n_do_ncf_expiration_date = fields.Date(
         string="NCF Expiration date",
         required=True,
-        default=fields.Date.end_of(
-            fields.Date.today().replace(year=fields.Date.today().year + 1), "year"
-        ),
+        default=fields.Date.end_of(fields.Date.today(), "year"),
     )
     internal_type = fields.Selection(
         selection_add=[
