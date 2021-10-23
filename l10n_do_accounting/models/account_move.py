@@ -181,13 +181,14 @@ class AccountMove(models.Model):
         (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
 
     @api.depends(
-        "country_code",
+        "company_id",
         "l10n_latam_document_type_id.l10n_do_ncf_type",
     )
     def _compute_is_ecf_invoice(self):
         for invoice in self:
             invoice.is_ecf_invoice = (
-                invoice.country_code == "DO"
+                invoice.company_id.country_id
+                and invoice.company_id.country_id.code == "DO"
                 and invoice.l10n_latam_document_type_id
                 and invoice.l10n_latam_document_type_id.l10n_do_ncf_type
                 and invoice.l10n_latam_document_type_id.l10n_do_ncf_type[:2] == "e-"
@@ -261,7 +262,9 @@ class AccountMove(models.Model):
             and inv.state == "posted"
         )
         if l10n_do_invoices:
-            self.flush(["name", "journal_id", "move_type", "state", "l10n_do_fiscal_number"])
+            self.flush(
+                ["name", "journal_id", "move_type", "state", "l10n_do_fiscal_number"]
+            )
             self._cr.execute(
                 """
                 SELECT move2.id, move2.l10n_do_fiscal_number
