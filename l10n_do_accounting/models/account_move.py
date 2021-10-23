@@ -459,33 +459,35 @@ class AccountMove(models.Model):
             ]
         return res
 
-    def _is_manual_document_number(self, journal):
-
-        active_domain = [
-            i
-            for i in self._context.get("active_domain", [])
-            if len(i) == 3 and i[0] == "move_type"
-        ]
-        if active_domain:
-            move_type = active_domain[0][2]
-        else:
-            move_type = self.move_type
-
-        if (
-            self.company_id.country_id == self.env.ref("base.do")
-            and self.l10n_latam_document_type_id
-        ):
-            return move_type in (
-                "in_invoice",
-                "in_refund",
-            ) and self.l10n_latam_document_type_id.l10n_do_ncf_type not in (
-                "minor",
-                "e-minor",
-                "informal",
-                "e-informal",
+    @api.depends("l10n_latam_document_type_id", "journal_id")
+    def _compute_l10n_latam_manual_document_number(self):
+        l10n_do_recs_with_journal_id = self.filtered(
+            lambda x: x.journal_id
+            and x.journal_id.l10n_latam_use_documents
+            and x.l10n_latam_document_type_id
+            and x.country_code == "DO"
+        )
+        for move in l10n_do_recs_with_journal_id:
+            move.l10n_latam_manual_document_number = (
+                move._is_l10n_do_manual_document_number()
             )
 
-        return super(AccountMove, self)._is_manual_document_number(journal=journal)
+        super(
+            AccountMove, self - l10n_do_recs_with_journal_id
+        )._compute_l10n_latam_manual_document_number()
+
+    def _is_l10n_do_manual_document_number(self):
+        self.ensure_one()
+
+        return self.move_type in (
+            "in_invoice",
+            "in_refund",
+        ) and self.l10n_latam_document_type_id.l10n_do_ncf_type not in (
+            "minor",
+            "e-minor",
+            "informal",
+            "e-informal",
+        )
 
     def _get_debit_line_tax(self, debit_date):
 
