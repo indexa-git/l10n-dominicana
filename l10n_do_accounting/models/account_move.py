@@ -487,6 +487,8 @@ class AccountMove(models.Model):
             "e-minor",
             "informal",
             "e-informal",
+            "exterior",
+            "e-exterior",
         )
 
     def _get_debit_line_tax(self, debit_date):
