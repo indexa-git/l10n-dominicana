@@ -39,7 +39,8 @@ class AccountJournal(models.Model):
         if (
             invoice.is_purchase_document()
             and invoice.partner_id.l10n_do_dgii_tax_payer_type
-            and invoice.partner_id.l10n_do_dgii_tax_payer_type == "non_payer"
+            and invoice.partner_id.l10n_do_dgii_tax_payer_type
+            in ("non_payer", "foreigner")
         ):
             # Return ncf/ecf types depending on company ECF issuing status
             return ecf_types if self.company_id.l10n_do_ecf_issuer else types_list
