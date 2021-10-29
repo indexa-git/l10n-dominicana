@@ -622,8 +622,9 @@ class AccountMove(models.Model):
             where_string = where_string.replace("journal_id = %(journal_id)s AND", "")
             where_string += (
                 " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND"
-                " company_id = %(company_id)s"
+                " move_type = %(move_type)s AND company_id = %(company_id)s"
             )
+            param["move_type"] = self.move_type
             param["company_id"] = self.company_id.id or False
             param["l10n_latam_document_type_id"] = (
                 self.l10n_latam_document_type_id.id or 0
@@ -641,7 +642,7 @@ class AccountMove(models.Model):
                 record._l10n_do_sequence_fixed_regex.replace(r"?P<seq>", ""),
             )
             matching = re.match(regex, sequence)
-            record.l10n_do_sequence_prefix = sequence[: matching.start(1)]
+            record.l10n_do_sequence_prefix = sequence[:3]
             record.l10n_do_sequence_number = int(matching.group(1) or 0)
 
     def _get_last_sequence(self, relaxed=False):
