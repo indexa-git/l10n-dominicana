@@ -602,7 +602,7 @@ class AccountMove(models.Model):
     def _get_starting_sequence(self):
         if (
             self.journal_id.l10n_latam_use_documents
-            and self.country_code == "DO"
+            and self.company_id.country_id.code == "DO"
             and self.l10n_latam_document_type_id
         ):
             return self._l10n_do_get_formatted_sequence()
