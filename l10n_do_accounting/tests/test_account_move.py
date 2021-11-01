@@ -669,3 +669,18 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         purchase_invoice_2_id._post()
         self.assertEqual(purchase_invoice_2_id.name, "BILL/2021/0002")
         self.assertEqual(purchase_invoice_2_id.l10n_do_fiscal_number, "B1100000001")
+
+    def test_009_invoice_sequence(self):
+        invoice_1 = self._create_l10n_do_invoice(
+            data={
+                "document_number": "B0100000001",
+            }
+        )
+        self.assertEqual(invoice_1.name, "INV/%s/0001" % invoice_1.date.year)
+        invoice_1._post()
+        self.assertEqual(invoice_1.l10n_do_fiscal_number, "B0100000001")
+
+        invoice_2 = self._create_l10n_do_invoice()
+        invoice_2._post()
+        self.assertEqual(invoice_2.name, "INV/%s/0002" % invoice_2.date.year)
+        self.assertEqual(invoice_2.l10n_do_fiscal_number, "B0100000002")
