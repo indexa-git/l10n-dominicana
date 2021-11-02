@@ -684,3 +684,16 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         invoice_2._post()
         self.assertEqual(invoice_2.name, "INV/%s/0002" % invoice_2.date.year)
         self.assertEqual(invoice_2.l10n_do_fiscal_number, "B0100000002")
+
+    def test_010_ncf_format(self):
+        with self.assertRaises(ValidationError):
+            self._create_l10n_do_invoice(
+                data={"document_number": "E0100000001"}
+            )
+
+        self.do_company.l10n_do_ecf_issuer = True
+
+        with self.assertRaises(ValidationError):
+            self._create_l10n_do_invoice(
+                data={"document_number": "B310000000001"}
+            )
