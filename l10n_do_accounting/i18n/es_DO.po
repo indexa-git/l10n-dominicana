@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 13.0\n"
+"Project-Id-Version: Odoo Server 13.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-23 19:24+0000\n"
-"PO-Revision-Date: 2021-08-23 15:25-0400\n"
+"POT-Creation-Date: 2021-11-08 19:55+0000\n"
+"PO-Revision-Date: 2021-11-08 15:56-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -234,16 +234,16 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
 msgid ""
 "<span>\n"
-"                    <strong>Original:</strong>\n"
-"                    Cliente\n"
-"                </span>\n"
-"                <br/>\n"
-"                <span>\n"
-"                    <strong>Copia:</strong>\n"
-"                    Vendedor\n"
-"                </span>\n"
-"                <br/>\n"
-"                <br/>"
+"                        <strong>Original:</strong>\n"
+"                        Cliente\n"
+"                    </span>\n"
+"                    <br/>\n"
+"                    <span>\n"
+"                        <strong>Copia:</strong>\n"
+"                        Vendedor\n"
+"                    </span>\n"
+"                    <br/>\n"
+"                    <br/>"
 msgstr ""
 
 #. module: l10n_do_accounting
@@ -269,16 +269,6 @@ msgstr ""
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
 msgid "<strong>Fecha Firma Digital:</strong>"
-msgstr ""
-
-#. module: l10n_do_accounting
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
-msgid "<strong>Monto Exento</strong>"
-msgstr ""
-
-#. module: l10n_do_accounting
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
-msgid "<strong>Monto Gravado Total</strong>"
 msgstr ""
 
 #. module: l10n_do_accounting
@@ -500,6 +490,16 @@ msgstr "Documento Fiscal"
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.res_config_settings_view_form
 msgid "Dominican Localization"
 msgstr "Localización dominicana"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_edi_file
+msgid "ECF XML File"
+msgstr "Archivo XML ECF"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_edi_file_name
+msgid "ECF XML File Name"
+msgstr "Nombre Archivo XML ECF"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_electronic_stamp

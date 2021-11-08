@@ -104,6 +104,10 @@ class AccountMove(models.Model):
         compute="_compute_l10n_latam_document_type",
         store=True,
     )
+    l10n_do_ecf_edi_file = fields.Binary("ECF XML File", copy=False, readonly=True)
+    l10n_do_ecf_edi_file_name = fields.Char(
+        "ECF XML File Name", copy=False, readonly=True
+    )
 
     @api.depends(
         "l10n_latam_country_code",
