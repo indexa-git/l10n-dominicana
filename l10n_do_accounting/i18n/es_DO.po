@@ -622,6 +622,17 @@ msgstr "Borrador"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_electronic_stamp
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_edi_file
+msgid "ECF XML File"
+msgstr "Archivo XML ECF"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_edi_file_name
+msgid "ECF XML File Name"
+msgstr "Nombre Archivo XML ECF"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_electronic_stamp
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_electronic_stamp
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_payment__l10n_do_electronic_stamp
 msgid "Electronic Stamp"
