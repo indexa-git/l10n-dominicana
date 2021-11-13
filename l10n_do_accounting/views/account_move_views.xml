@@ -82,8 +82,6 @@
             </xpath>
             <xpath expr="//div[@name='journal_div']" position="after">
                 <field name="l10n_do_ecf_security_code" attrs="{'invisible': ['|', '|', '|', ('partner_id', '=', False), ('country_code', '!=', 'DO'), ('l10n_latam_manual_document_number', '=', False), ('is_ecf_invoice', '=', False)]}"/>
-                <field name="l10n_do_ecf_sign_date" invisible="1"/>
-                <field name="l10n_do_electronic_stamp" invisible="1"/>
             </xpath>
 
             <!-- only computed when l10n_do ecf invoice -->
