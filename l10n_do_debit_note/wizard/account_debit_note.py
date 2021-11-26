@@ -172,6 +172,7 @@ class AccountDebitNote(models.TransientModel):
                 dict(
                     l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
                     l10n_latam_document_type_id=self.l10n_latam_document_type_id.id,
+                    is_l10n_do_internal_sequence=move.is_l10n_do_internal_sequence,
                     l10n_latam_document_number=self.l10n_latam_document_number,
                     l10n_do_origin_ncf=move.l10n_latam_document_number,
                     l10n_do_expense_type=move.l10n_do_expense_type,
