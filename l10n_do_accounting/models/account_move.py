@@ -310,22 +310,33 @@ class AccountMove(models.Model):
 
     def _get_l10n_latam_documents_domain(self):
         self.ensure_one()
-        domain = super()._get_l10n_latam_documents_domain()
-        if (
+        if not (
             self.journal_id.l10n_latam_use_documents
             and self.journal_id.company_id.country_id == self.env.ref("base.do")
         ):
-            ncf_types = self.journal_id._get_journal_ncf_types(
-                counterpart_partner=self.partner_id.commercial_partner_id, invoice=self
-            )
-            domain += [
-                "|",
-                ("l10n_do_ncf_type", "=", False),
-                ("l10n_do_ncf_type", "in", ncf_types),
-            ]
-            codes = self.journal_id._get_journal_codes()
-            if codes:
-                domain.append(("code", "in", codes))
+            return super()._get_l10n_latam_documents_domain()
+
+        internal_types = ["debit_note"]
+        if self.type in ["out_refund", "in_refund"]:
+            internal_types.append("credit_note")
+        else:
+            internal_types.append("invoice")
+
+        domain = [
+            ("internal_type", "in", internal_types),
+            ("country_id", "=", self.company_id.country_id.id),
+        ]
+        ncf_types = self.journal_id._get_journal_ncf_types(
+            counterpart_partner=self.partner_id.commercial_partner_id, invoice=self
+        )
+        domain += [
+            "|",
+            ("l10n_do_ncf_type", "=", False),
+            ("l10n_do_ncf_type", "in", ncf_types),
+        ]
+        codes = self.journal_id._get_journal_codes()
+        if codes:
+            domain.append(("code", "in", codes))
         return domain
 
     def _get_document_type_sequence(self):
