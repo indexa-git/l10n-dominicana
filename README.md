@@ -22,3 +22,4 @@ Antes de cualquier contribución deben leer la [guía de Contribución](https://
 ![Henca](https://drive.google.com/uc?id=1SZBArbKusae-Xk5m4k8hrhvprP7mJRAw)
 
 Conviértase en un sponsor de este proyecto. Haga click [aquí](https://github.com/sponsors/indexa-git).
+
