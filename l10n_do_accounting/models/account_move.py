@@ -769,3 +769,15 @@ class AccountMove(models.Model):
         return super()._get_name_invoice_report()
 
     # TODO: handle l10n_latam_invoice_document _compute_name() inheritance shit
+
+    def unlink(self):
+        if self.filtered(
+            lambda inv: inv.is_purchase_document()
+            and inv.country_code == "DO"
+            and inv.l10n_latam_use_documents
+            and inv.posted_before
+        ):
+            raise UserError(
+                _("You cannot delete fiscal invoice which have been posted before")
+            )
+        return super(AccountMove, self).unlink()
