@@ -517,3 +517,15 @@ class AccountMove(models.Model):
         )
         for invoice in cancelled_invoices:
             invoice.l10n_do_cancellation_type = invoice.cancellation_type
+
+    def unlink(self):
+        if self.filtered(
+            lambda inv: inv.is_purchase_document()
+            and inv.l10n_latam_country_code == "DO"
+            and inv.l10n_latam_use_documents
+            and inv.name != "/"  # have been posted before
+        ):
+            raise UserError(
+                _("You cannot delete fiscal invoice which have been posted before")
+            )
+        return super(AccountMove, self).unlink()
