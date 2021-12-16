@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-18 18:56+0000\n"
-"PO-Revision-Date: 2021-10-18 14:57-0400\n"
+"POT-Creation-Date: 2021-12-15 17:17+0000\n"
+"PO-Revision-Date: 2021-12-15 13:18-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -1202,6 +1202,13 @@ msgstr "No puede crear Notas de Débito desde múltiples facturas a la vez."
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/wizard/account_debit_note.py:0
+
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "You cannot delete fiscal invoice which have been posted before"
+msgstr "No puede eliminar una factura fiscal que ha sido validada anteriormente"
+
+#. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0
 #, python-format
 msgid "You cannot issue Credit/Debit Notes for %s document type"
