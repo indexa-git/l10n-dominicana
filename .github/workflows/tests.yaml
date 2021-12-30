@@ -56,6 +56,14 @@ jobs:
       - name: Download python addons script
         run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/13.0/resources/getaddons.py -o getaddons.py
 
+      - name: Odoo Enterprise
+        uses: actions/checkout@v2
+        with:
+          repository: odoo/enterprise
+          token: ${{ secrets.ACTIONS_PAT }}
+          path: enterprise
+          ref: "13.0"
+
       - name: Redis
         uses: actions/checkout@v2
         with:
