@@ -192,7 +192,7 @@ class AccountMove(models.Model):
                     invoice.invoice_date or fields.Date.today()
                 ).strftime("%d-%m-%Y")
             qr_string += "MontoTotal=%s&" % (
-                "%f" % abs(invoice.amount_total_signed)
+                "%f" % sum(invoice.line_ids.mapped("credit"))
             ).rstrip("0").rstrip(".")
             if not is_rfc:
                 qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date.strftime(
