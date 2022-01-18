@@ -351,6 +351,18 @@ class AccountMove(models.Model):
                 lambda x: x.l10n_latam_document_type_id
                 == self.l10n_latam_document_type_id
             )
+            if (
+                not res
+                and self.type == "in_refund"
+                and self.is_l10n_do_internal_sequence
+            ):
+                journal = self.with_context(
+                    default_type="out_invoice"
+                )._get_default_journal()
+                res = journal and journal.l10n_do_sequence_ids.filtered(
+                    lambda x: x.l10n_latam_document_type_id
+                    == self.l10n_latam_document_type_id
+                )
             return res
         return super()._get_document_type_sequence()
 
@@ -411,11 +423,12 @@ class AccountMove(models.Model):
         if self.l10n_latam_country_code != "DO":
             return res
 
+        ctx = self.env.context
         res["l10n_do_origin_ncf"] = self.l10n_latam_document_number
-        res["l10n_do_ecf_modification_code"] = self.env.context.get(
-            "l10n_do_ecf_modification_code"
+        res["l10n_do_ecf_modification_code"] = ctx.get("l10n_do_ecf_modification_code")
+        res["is_l10n_do_internal_sequence"] = (
+            ctx.get("is_internal_purchase_refund", False) or self.is_sale_document()
         )
-        res["is_l10n_do_internal_sequence"] = self.is_sale_document()
         return res
 
     def _move_autocomplete_invoice_lines_create(self, vals_list):
