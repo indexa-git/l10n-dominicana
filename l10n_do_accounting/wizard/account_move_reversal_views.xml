@@ -19,7 +19,10 @@
             </field>
             <field name="l10n_latam_document_number" position="replace">
                 <field name="l10n_latam_document_number"
-                       attrs="{'invisible': [('l10n_latam_manual_document_number', '=', False)], 'required': [('move_type', '=', 'in_invoice')]}"/>
+                       attrs="{
+                       'invisible': [('l10n_latam_manual_document_number', '=', False)],
+                       'required': [('move_type', '=', 'in_invoice'), ('l10n_latam_manual_document_number', '=', True)]
+                       }"/>
             </field>
             <xpath expr="//field[@name='refund_method']" position="before">
                 <field name="refund_type" options="{'horizontal': true}"
@@ -40,13 +43,11 @@
                        attrs="{'invisible': [('refund_type', '!=', 'fixed_amount')],
                        'required': [('refund_type', '=', 'fixed_amount')]}"/>
                 <field name="l10n_do_ecf_modification_code"
-                       attrs="{'invisible': ['|', '|',
-                       ('country_code', '!=', 'DO'),
-                       ('move_type', '!=', 'out_invoice'),
+                       attrs="{'invisible': ['|',
+                       ('l10n_latam_manual_document_number', '=', True),
                        ('is_ecf_invoice', '=', False),
                        ], 'required': [
-                       ('country_code', '=', 'DO'),
-                       ('move_type', '=', 'out_invoice'),
+                       ('l10n_latam_manual_document_number', '=', False),
                        ('is_ecf_invoice', '=', True),
                 ]}"/>
             </xpath>
