@@ -11,16 +11,17 @@
                 <field name="move_id" invisible="1"/>
                 <field name="l10n_latam_country_code" invisible="1"/>
                 <field name="is_ecf_invoice" invisible="1"/>
+                <field name="is_l10n_do_internal_sequence" invisible="1"/>
             </field>
             <field name="l10n_latam_document_type_id" position="attributes">
                 <attribute name="attrs">{
-                    'invisible': ['|', '&amp;', ('refund_method', '=', 'refund'), ('l10n_latam_country_code', '!=', 'DO'), ('move_type', '=', 'out_invoice')],
+                    'invisible': ['|', '|', '&amp;', ('refund_method', '=', 'refund'), ('l10n_latam_country_code', '!=', 'DO'), ('move_type', '=', 'out_invoice'), ('is_l10n_do_internal_sequence', '=', True)],
                     'required': [('l10n_latam_use_documents', '=', True), ('refund_method', '!=', 'refund')],
                 }</attribute>
             </field>
             <field name="l10n_latam_document_number" position="replace">
                 <field name="l10n_latam_document_number"
-                       attrs="{'invisible': [('l10n_latam_sequence_id', '!=', False)], 'required': [('move_type', '=', 'in_invoice')]}"/>
+                       attrs="{'invisible': ['|', ('l10n_latam_sequence_id', '!=', False), ('is_l10n_do_internal_sequence', '=', True)], 'required': [('move_type', '=', 'in_invoice'), ('is_l10n_do_internal_sequence', '=', False)]}"/>
             </field>
             <xpath expr="//field[@name='refund_method']" position="before">
                 <field name="refund_type" options="{'horizontal': true}"
@@ -41,15 +42,10 @@
                        attrs="{'invisible': [('refund_type', '!=', 'fixed_amount')],
                        'required': [('refund_type', '=', 'fixed_amount')]}"/>
                 <field name="l10n_do_ecf_modification_code"
-                       attrs="{'invisible': ['|', '|',
-                       ('l10n_latam_country_code', '!=', 'DO'),
-                       ('move_type', '!=', 'out_invoice'),
-                       ('is_ecf_invoice', '=', False),
-                       ], 'required': [
-                       ('l10n_latam_country_code', '=', 'DO'),
-                       ('move_type', '=', 'out_invoice'),
-                       ('is_ecf_invoice', '=', True),
-                ]}"/>
+                       attrs="{
+                       'invisible': ['|', ('is_l10n_do_internal_sequence', '=', False), ('is_ecf_invoice', '=', False)],
+                       'required': [('is_l10n_do_internal_sequence', '=', True), ('is_ecf_invoice', '=', True)]
+                }"/>
             </xpath>
             <xpath expr="//form/group/*[2]" position="attributes">
                 <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>

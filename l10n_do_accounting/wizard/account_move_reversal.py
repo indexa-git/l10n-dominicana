@@ -66,6 +66,7 @@ class AccountMoveReversal(models.TransientModel):
     is_ecf_invoice = fields.Boolean(
         string="Is Electronic Invoice",
     )
+    is_l10n_do_internal_sequence = fields.Boolean("Is internal sequence")
 
     @api.model
     def default_get(self, fields):
@@ -87,22 +88,11 @@ class AccountMoveReversal(models.TransientModel):
                     "documents at a time."
                 )
             )
-        if (
-            move_ids_use_document.l10n_latam_document_type_id
-            and move_ids_use_document.l10n_latam_document_type_id.l10n_do_ncf_type
-            in (
-                "informal",
-                "minor",
-                "e-informal",
-                "e-minor",
-            )
-        ):
-            raise UserError(
-                _("You cannot issue Credit/Debit Notes for %s document type")
-                % move_ids_use_document.l10n_latam_document_type_id.name
-            )
         if move_ids_use_document:
             res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
+            res["is_l10n_do_internal_sequence"] = move_ids_use_document[
+                0
+            ].is_l10n_do_internal_sequence
 
         return res
 
@@ -128,5 +118,6 @@ class AccountMoveReversal(models.TransientModel):
                 amount=self.amount,
                 reason=self.reason,
                 l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
+                is_internal_purchase_refund=self.is_l10n_do_internal_sequence,
             ),
         ).reverse_moves()
