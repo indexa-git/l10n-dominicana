@@ -67,6 +67,26 @@ class AccountMoveReversal(models.TransientModel):
         string="Is Electronic Invoice",
     )
 
+    @api.depends(
+        "l10n_latam_document_type_id", "country_code", "l10n_latam_use_documents"
+    )
+    def _compute_l10n_latam_manual_document_number(self):
+        self.l10n_latam_manual_document_number = False
+        l10n_do_recs = self.filtered(
+            lambda r: r.move_ids
+            and r.l10n_latam_use_documents
+            and r.country_code == "DO"
+        )
+        for rec in l10n_do_recs:
+            move = rec.move_ids[0]
+            rec.l10n_latam_manual_document_number = (
+                move.l10n_latam_manual_document_number
+            )
+
+        super(
+            AccountMoveReversal, self - l10n_do_recs
+        )._compute_l10n_latam_manual_document_number()
+
     @api.model
     def default_get(self, fields):
         res = super(AccountMoveReversal, self).default_get(fields)
@@ -86,20 +106,6 @@ class AccountMoveReversal(models.TransientModel):
                     "You cannot create Credit Notes from multiple "
                     "documents at a time."
                 )
-            )
-        if (
-            move_ids_use_document.l10n_latam_document_type_id
-            and move_ids_use_document.l10n_latam_document_type_id.l10n_do_ncf_type
-            in (
-                "informal",
-                "minor",
-                "e-informal",
-                "e-minor",
-            )
-        ):
-            raise UserError(
-                _("You cannot issue Credit/Debit Notes for %s document type")
-                % move_ids_use_document.l10n_latam_document_type_id.name
             )
         if move_ids_use_document:
             res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice

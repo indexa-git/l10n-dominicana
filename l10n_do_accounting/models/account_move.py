@@ -115,6 +115,7 @@ class AccountMove(models.Model):
     l10n_do_ecf_edi_file_name = fields.Char(
         "ECF XML File Name", copy=False, readonly=True
     )
+    l10n_latam_manual_document_number = fields.Boolean(store=True)
 
     def init(self):
 
@@ -170,7 +171,6 @@ class AccountMove(models.Model):
                 self.search_count(
                     [
                         ("company_id", "=", invoice.company_id.id),
-                        ("move_type", "=", invoice.move_type),
                         (
                             "l10n_latam_document_type_id",
                             "=",
@@ -494,6 +494,9 @@ class AccountMove(models.Model):
     def _is_l10n_do_manual_document_number(self):
         self.ensure_one()
 
+        if self.reversed_entry_id:
+            return self.reversed_entry_id.l10n_latam_manual_document_number
+
         return self.move_type in (
             "in_invoice",
             "in_refund",
@@ -637,9 +640,17 @@ class AccountMove(models.Model):
             where_string = where_string.replace("journal_id = %(journal_id)s AND", "")
             where_string += (
                 " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND"
-                " move_type = %(move_type)s AND company_id = %(company_id)s"
+                " company_id = %(company_id)s"
             )
-            param["move_type"] = self.move_type
+            if (
+                not self.l10n_latam_manual_document_number
+                and self.move_type != "in_refund"
+            ):
+                where_string += " AND move_type = %(move_type)s"
+                param["move_type"] = self.move_type
+            else:
+                where_string += " AND l10n_latam_manual_document_number = 'f'"
+
             param["company_id"] = self.company_id.id or False
             param["l10n_latam_document_type_id"] = (
                 self.l10n_latam_document_type_id.id or 0
