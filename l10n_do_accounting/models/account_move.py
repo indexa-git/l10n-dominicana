@@ -200,7 +200,14 @@ class AccountMove(models.Model):
                     "%d-%m-%Y%%20%H:%M:%S"
                 )
 
-            qr_string += "CodigoSeguridad=%s" % invoice.l10n_do_ecf_security_code or ""
+            special_chars = " !#$&'()*+,/:;=?@[]\"-.<>\\^_`"
+            security_code = "".join(
+                c.replace(c, "%" + c.encode("utf-8").hex()).upper()
+                if c in special_chars
+                else c
+                for c in invoice.l10n_do_ecf_security_code or ""
+            )
+            qr_string += "CodigoSeguridad=%s" % security_code
 
             invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
 
