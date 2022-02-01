@@ -227,7 +227,7 @@
                     <t>
                         <td><span class="text-nowrap" t-esc="tax_aml.tax_line_id.description"/></td>
                         <td class="text-right o_price_total">
-                            <span class="text-nowrap" t-esc="tax_aml.balance"
+                            <span class="text-nowrap" t-esc="tax_aml.debit or tax_aml.credit"
                                   t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                         </td>
                     </t>
@@ -237,7 +237,7 @@
 
         <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
                position="before">
-            <t t-set="total_amount_taxed" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if o.env.ref('l10n_do.group_itbis', False) in line.tax_ids.mapped('tax_group_id'))"/>
+            <t t-set="total_amount_taxed" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if o.env.ref('l10n_do.group_itbis', False) in line.tax_ids.mapped('tax_group_id') and line.price_total > line.price_subtotal)"/>
             <t t-set="total_exempt_amount" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
 
             <tr class="border-black o_total" t-if="is_l10n_do_invoice and ecf_representation">
@@ -276,7 +276,7 @@
                     <t>
                         <td><span class="text-nowrap" t-esc="tax_aml.tax_line_id.description"/></td>
                         <td class="text-right o_price_total">
-                            <span class="text-nowrap" t-esc="tax_aml.balance"
+                            <span class="text-nowrap" t-esc="tax_aml.debit or tax_aml.credit"
                                   t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                         </td>
                     </t>
