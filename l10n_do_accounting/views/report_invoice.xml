@@ -216,12 +216,31 @@
             <attribute name="t-esc">', '.join(map(lambda x: (x.description or x.name), line.tax_ids)) if not ecf_representation else '%s %s' % (o.currency_id.symbol, '{0:,.2f}'.format(line.l10n_do_itbis_amount))</attribute>
         </xpath>
 
+        <!-- Hide when l10n do invoice -->
+        <xpath expr="//t[@t-as='amount_by_group']" position="attributes">
+            <attribute name="t-if">not is_l10n_do_invoice</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-as='amount_by_group']" position="after">
+            <t t-if="is_l10n_do_invoice" t-foreach="o.l10n_latam_tax_ids" t-as="tax_aml">
+                <tr t-if="tax_aml.tax_line_id.amount > 0" style="">
+                    <t>
+                        <td><span class="text-nowrap" t-esc="tax_aml.tax_line_id.description"/></td>
+                        <td class="text-right o_price_total">
+                            <span class="text-nowrap" t-esc="tax_aml.balance"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                    </t>
+                </tr>
+            </t>
+        </xpath>
+
         <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
                position="before">
-            <t t-set="total_amount_taxed" t-value="sum(g[2] for g in o.amount_by_group if g[-1] == o.env.ref('l10n_do.group_itbis').id and any(True for tax in o.invoice_line_ids.mapped('tax_ids') if tax.amount != 0))"/>
+            <t t-set="total_amount_taxed" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if o.env.ref('l10n_do.group_itbis', False) in line.tax_ids.mapped('tax_group_id'))"/>
             <t t-set="total_exempt_amount" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
 
-            <tr t-if="is_l10n_do_invoice and ecf_representation">
+            <tr class="border-black o_total" t-if="is_l10n_do_invoice and ecf_representation">
                 <td>Monto Gravado</td>
                 <td class="text-right o_price_total">
                     <!-- MontoGravadoTotal consiste en la suma de la base imponible de todas las lineas gravadas con ITBIS -->
@@ -239,5 +258,30 @@
             </tr>
         </xpath>
 
+        <!-- Hide when l10n do invoice -->
+        <xpath expr="//span[@t-field='o.amount_total']" position="attributes">
+            <attribute name="t-if">not is_l10n_do_invoice</attribute>
+        </xpath>
+        <xpath expr="//span[@t-field='o.amount_total']" position="after">
+            <span t-if="is_l10n_do_invoice" class="text-nowrap" t-esc="sum(line.debit for line in o.line_ids)"
+                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+        </xpath>
+
+    </template>
+
+    <template id="report_invoice_document_with_payments" inherit_id="account.report_invoice_document_with_payments">
+        <xpath expr="//t[@t-set='payments_vals']" position="before">
+            <t t-if="is_l10n_do_invoice" t-foreach="o.l10n_latam_tax_ids" t-as="tax_aml">
+                <tr t-if="tax_aml.tax_line_id.amount &lt; 0" style="">
+                    <t>
+                        <td><span class="text-nowrap" t-esc="tax_aml.tax_line_id.description"/></td>
+                        <td class="text-right o_price_total">
+                            <span class="text-nowrap" t-esc="tax_aml.balance"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                    </t>
+                </tr>
+            </t>
+        </xpath>
     </template>
 </odoo>
