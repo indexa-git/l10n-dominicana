@@ -208,7 +208,7 @@
         <xpath expr="//td[@t-if='display_discount']" position="after">
             <td t-if="is_l10n_do_invoice and display_discount and ecf_representation" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                 <t t-set="price_unit_wo_discount" t-value="line.price_unit * (1 - (line.discount / 100.0))"/>
-                <t t-set="discount_amount" t-value="abs(round(price_unit_wo_discount - line.price_total, 2)) if line.discount else 0"/>
+                <t t-set="discount_amount" t-value="abs(price_unit_wo_discount) if line.discount else 0"/>
                 <span class="text-nowrap" t-esc="discount_amount"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
             </td>
@@ -224,11 +224,12 @@
 
         <xpath expr="//t[@t-as='amount_by_group']" position="after">
             <t t-if="is_l10n_do_invoice" t-foreach="o.l10n_latam_tax_ids" t-as="tax_aml">
+                <t t-set="l10n_do_tax_amount" t-value="abs(tax_aml.debit or tax_aml.credit if o.currency_id == o.company_id.currency_id else tax_aml.amount_currency)"/>
                 <tr t-if="tax_aml.tax_line_id.amount > 0" style="">
                     <t>
                         <td><span class="text-nowrap" t-esc="tax_aml.tax_line_id.description"/></td>
                         <td class="text-right o_price_total">
-                            <span class="text-nowrap" t-esc="tax_aml.debit or tax_aml.credit"
+                            <span class="text-nowrap" t-esc="l10n_do_tax_amount"
                                   t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                         </td>
                     </t>
@@ -264,17 +265,19 @@
             <attribute name="t-if">not is_l10n_do_invoice</attribute>
         </xpath>
         <xpath expr="//span[@t-field='o.amount_total']" position="after">
-            <span t-if="is_l10n_do_invoice" class="text-nowrap" t-esc="sum(line.debit for line in o.line_ids)"
+            <t t-set="l10n_do_amount_total" t-value="sum(line.debit for line in o.line_ids) if o.currency_id == o.company_id.currency_id else sum(abs(line.amount_currency) for line in o.line_ids if line.account_id.user_type_id.type in ('receivable', 'payable'))"/>
+            <span t-if="is_l10n_do_invoice" class="text-nowrap" t-esc="l10n_do_amount_total"
                   t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
         </xpath>
 
         <xpath expr="//t[@t-set='payments_vals']" position="before">
             <t t-if="is_l10n_do_invoice" t-foreach="o.l10n_latam_tax_ids" t-as="tax_aml">
+                <t t-set="l10n_do_wh_amount" t-value="tax_aml.debit or tax_aml.credit if o.currency_id == o.company_id.currency_id else tax_aml.amount_currency"/>
                 <tr t-if="tax_aml.tax_line_id.amount &lt; 0" style="">
                     <t>
                         <td><span class="text-nowrap" t-esc="tax_aml.tax_line_id.description"/></td>
                         <td class="text-right o_price_total">
-                            <span class="text-nowrap" t-esc="tax_aml.debit or tax_aml.credit"
+                            <span class="text-nowrap" t-esc="l10n_do_wh_amount"
                                   t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                         </td>
                     </t>
