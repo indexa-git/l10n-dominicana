@@ -8,7 +8,7 @@
 
 | Milestone             | Progress        |
 |-----------------------|-----------------|
-| 14.0                  | 90%             |
+| 14.0                  | 99%             |
 | Documentation         | [Sponsor Goal #1](https://github.com/sponsors/indexa-git) |
 | Video tutorials       | Sponsor Goal #2 |
 
@@ -18,7 +18,5 @@
 Antes de cualquier contribución deben leer la [guía de Contribución](https://github.com/indexa-git/l10n-dominicana/wiki/Contributing) del repositorio.
 
 ## Sponsors
-
-![Henca](https://drive.google.com/uc?id=1SZBArbKusae-Xk5m4k8hrhvprP7mJRAw)
 
 Conviértase en un sponsor de este proyecto. Haga click [aquí](https://github.com/sponsors/indexa-git).
