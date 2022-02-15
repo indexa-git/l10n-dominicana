@@ -171,6 +171,7 @@ class AccountMove(models.Model):
                 self.search_count(
                     [
                         ("company_id", "=", invoice.company_id.id),
+                        ('move_type', '=', invoice.move_type),
                         (
                             "l10n_latam_document_type_id",
                             "=",
