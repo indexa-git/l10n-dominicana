@@ -383,27 +383,20 @@ class AccountMove(models.Model):
         for rec in l10n_do_invoices:
             has_vat = bool(rec.partner_id.vat and bool(rec.partner_id.vat.strip()))
             l10n_latam_document_type = rec.l10n_latam_document_type_id
-            if not has_vat and l10n_latam_document_type.is_vat_required:
+            if not has_vat and (
+                rec.amount_untaxed_signed >= 250000
+                or (
+                    l10n_latam_document_type.is_vat_required
+                    and rec.commercial_partner_id.l10n_do_dgii_tax_payer_type
+                    != "non_payer"
+                )
+            ):
                 raise ValidationError(
                     _(
                         "A VAT is mandatory for this type of NCF. "
                         "Please set the current VAT of this client"
                     )
                 )
-
-            elif rec.type in ("out_invoice", "out_refund"):
-                if (
-                    rec.amount_untaxed_signed >= 250000
-                    and l10n_latam_document_type.l10n_do_ncf_type[-7:] != "special"
-                    and not has_vat
-                ):
-                    raise UserError(
-                        _(
-                            "If the invoice amount is greater than RD$250,000.00 "
-                            "the customer should have a VAT to validate the invoice"
-                        )
-                    )
-
         super(AccountMove, self - l10n_do_invoices)._check_invoice_type_document_type()
 
     @api.onchange("partner_id")
