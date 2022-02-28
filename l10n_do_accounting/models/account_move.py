@@ -461,7 +461,7 @@ class AccountMove(models.Model):
             vals_list
         )
 
-    @api.constrains("name", "partner_id", "company_id")
+    @api.constrains("name", "partner_id", "company_id") # <---- Here
     def _check_unique_vendor_number(self):
 
         l10n_do_invoice = self.filtered(

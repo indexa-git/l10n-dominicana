@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class Partner(models.Model):
@@ -157,3 +157,20 @@ class Partner(models.Model):
     def _inverse_l10n_do_dgii_tax_payer_type(self):
         for partner in self:
             partner.l10n_do_dgii_tax_payer_type = partner.l10n_do_dgii_tax_payer_type
+
+#   CONSTRAIN RES.PARTNER   Jorge
+    @api.constrains('vat','company_id')
+    def _check_unique_contact_nif(self):
+
+        if self.vat:
+
+            l10n_do_partner = self.env['res.partner'].search([['vat','=',self.vat]])
+
+            if l10n_do_partner:
+                for rec in l10n_do_partner:
+                    if rec.id != self.id and rec.company_id == self.company_id :
+                        raise ValidationError(
+                    _("A contact with this RNC already exists.")
+                )
+
+        
