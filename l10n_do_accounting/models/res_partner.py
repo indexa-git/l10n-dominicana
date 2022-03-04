@@ -170,7 +170,5 @@ class Partner(models.Model):
                 for rec in l10n_do_partner:
                     if rec.id != self.id and rec.company_id == self.company_id :
                         raise ValidationError(
-                    _("A contact with this RNC already exists.")
-                )
-
-        
+                    _("A contact with this RNC already exists. Please write another RNC")
+                        )
