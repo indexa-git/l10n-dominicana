@@ -161,14 +161,14 @@ class Partner(models.Model):
                 partner.l10n_do_dgii_tax_payer_type = (
                     partner.l10n_do_dgii_tax_payer_type
                 )
-    
+
     @api.onchange("vat")
     def _check_vat(self):
         """ To Validate Vat (RNC/CEDULA_ To Prevent a incorrect data"""
         for partner_rnc in self:
             is_dominican_partner = bool(partner_rnc.country_id == self.env.ref("base.do"))
             if (
-                partner_rnc.vat 
+                partner_rnc.vat
                 and is_dominican_partner
             ):
                 if (
@@ -179,7 +179,7 @@ class Partner(models.Model):
                             "Check Vat Format or should not have any Caracter like '-'"
                         )
                     )
-                
+
                 elif not rnc.is_valid(partner_rnc.vat):
                     raise UserError(
                         _(
