@@ -1,6 +1,11 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError
 
+try:
+    from stdnum.do import rnc
+except (ImportError, IOError) as err:
+    _logger.debug(str(err))
+
 
 class Partner(models.Model):
     _inherit = "res.partner"
@@ -153,6 +158,34 @@ class Partner(models.Model):
                 partner.l10n_do_dgii_tax_payer_type = (
                     partner.l10n_do_dgii_tax_payer_type
                 )
+    
+    @api.onchange("vat")
+    def _check_vat(self):
+        """ To Validate Vat (RNC/CEDULA_ To Prevent a incorrect data"""
+        for partner_rnc in self:
+            dgii_autocomplete = request.env['ir.config_parameter'].sudo(
+            ).get_param('l10n_do_accounting.dgii_autocomplete')
+
+            is_dominican_partner = bool(partner_rnc.country_id == self.env.ref("base.do"))
+            if (
+                partner_rnc.vat 
+                and is_dominican_partner
+            ):
+                if (
+                    len(partner_rnc.vat) not in [9, 11]
+                ):
+                    raise UserError(
+                        _(
+                            "Check Vat Format or should not have any Caracter like '-'"
+                        )
+                    )
+                
+                elif not rnc.is_valid(partner_rnc.vat):
+                    raise UserError(
+                        _(
+                            "Check Vat, Seems like it's not correct"
+                        )
+                    )
 
     def _inverse_l10n_do_dgii_tax_payer_type(self):
         for partner in self:
