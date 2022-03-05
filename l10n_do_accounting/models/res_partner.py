@@ -1,6 +1,9 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError
 
+import logging
+_logger = logging.getLogger(__name__)
+
 try:
     from stdnum.do import rnc
 except (ImportError, IOError) as err:
