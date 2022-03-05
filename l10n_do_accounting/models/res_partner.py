@@ -163,9 +163,6 @@ class Partner(models.Model):
     def _check_vat(self):
         """ To Validate Vat (RNC/CEDULA_ To Prevent a incorrect data"""
         for partner_rnc in self:
-            dgii_autocomplete = request.env['ir.config_parameter'].sudo(
-            ).get_param('l10n_do_accounting.dgii_autocomplete')
-
             is_dominican_partner = bool(partner_rnc.country_id == self.env.ref("base.do"))
             if (
                 partner_rnc.vat 
