@@ -622,7 +622,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
 
         invoice_2 = self._create_l10n_do_invoice(
             data={
-                "document_number": "B0100000001",
+                "document_number": "B0100000002",
             }
         )
         invoice_2._post()
