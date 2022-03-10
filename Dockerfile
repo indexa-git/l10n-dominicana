@@ -1,4 +1,4 @@
-FROM  gcr.io/iterativo/dockerdoo:14.0
+FROM  gcr.io/iterativo/dockerdoo:15.0
 ENV ODOO_EXTRA_ADDONS /mnt/extra-addons
 USER root
 RUN sudo mkdir -p ${ODOO_EXTRA_ADDONS}

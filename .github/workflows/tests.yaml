@@ -24,7 +24,7 @@ jobs:
     name: Dependencies
     runs-on: ubuntu-latest
     container:
-      image: gcr.io/iterativo/dockerdoo:14.0
+      image: gcr.io/iterativo/dockerdoo:15.0
       options: --user root
     outputs:
       get_modules: ${{ steps.get_modules.outputs.modules }}
@@ -54,14 +54,14 @@ jobs:
           max_line_length: 120
 
       - name: Download python addons script
-        run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/14.0/resources/getaddons.py -o getaddons.py
+        run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/15.0/resources/getaddons.py -o getaddons.py
 
       - name: Redis
         uses: actions/checkout@v2
         with:
           repository: camptocamp/odoo-cloud-platform
           path: odoo-cloud-platform
-          ref: "14.0"
+          ref: "15.0"
 
       - name: Select Odoo modules to install
         id: get_modules
@@ -84,7 +84,7 @@ jobs:
     needs: ["dependencies"]
     runs-on: ubuntu-latest
     container:
-      image: gcr.io/iterativo/dockerdoo:14.0
+      image: gcr.io/iterativo/dockerdoo:15.0
       options: -t --user root
       volumes:
         - ${{ github.workspace }}:/workspace
@@ -114,7 +114,7 @@ jobs:
       - run: unzip modules.zip
 
       - name: chown home for pypy
-        uses: docker://gcr.io/iterativo/dockerdoo:14.0
+        uses: docker://gcr.io/iterativo/dockerdoo:15.0
         with:
           args: sudo chown -R 1000:1000 /github/home
 
@@ -124,7 +124,7 @@ jobs:
           echo "TEST_TAGS=1" >> $GITHUB_ENV
 
       - name: Run odoo
-        uses: docker://gcr.io/iterativo/dockerdoo:14.0
+        uses: docker://gcr.io/iterativo/dockerdoo:15.0
         with:
           args: odoo
         env:
@@ -190,7 +190,7 @@ jobs:
         run: |
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
-          ./kustomize build gke-dev-cluster/deployments/odoo/14.0/dev -o deployment.yaml.tmpl
+          ./kustomize build gke-dev-cluster/deployments/odoo/15.0/dev -o deployment.yaml.tmpl
 
       - name: Render Deployment YAML
         uses: nowactions/envsubst@v1
