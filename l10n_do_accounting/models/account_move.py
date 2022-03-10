@@ -642,7 +642,8 @@ class AccountMove(models.Model):
             where_string = where_string.replace("journal_id = %(journal_id)s AND", "")
             where_string += (
                 " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND"
-                " company_id = %(company_id)s"
+                " company_id = %(company_id)s AND l10n_do_sequence_prefix != ''"
+                " AND l10n_do_sequence_prefix IS NOT NULL"
             )
             if (
                 not self.l10n_latam_manual_document_number
