@@ -2,6 +2,7 @@ from odoo import fields, models
 
 
 class ResCompany(models.Model):
+    
     _inherit = "res.company"
 
     l10n_do_dgii_start_date = fields.Date("Activities Start Date")
