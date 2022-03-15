@@ -158,7 +158,6 @@ class Partner(models.Model):
         for partner in self:
             partner.l10n_do_dgii_tax_payer_type = partner.l10n_do_dgii_tax_payer_type
 
-#   CONSTRAIN RES.PARTNER   Jorge
     @api.constrains('vat','company_id')
     def _check_unique_contact_nif(self):
 
@@ -168,7 +167,7 @@ class Partner(models.Model):
 
             if l10n_do_partner:
                 for rec in l10n_do_partner:
-                    if rec.id != self.id and rec.company_id == self.company_id :
+                    if rec.id != self.id and rec.company_id == self.company_id and rec.company_id == False:
                         raise ValidationError(
-                    _("A contact with this RNC already exists. Please write another RNC")
+                    _("A contact with this RNC already exists. Please write another NIF")
                         )
