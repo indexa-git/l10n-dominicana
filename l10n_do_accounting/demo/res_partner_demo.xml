@@ -38,7 +38,7 @@
         <field name="street">Rafael Augusto Sánchez 86</field>
         <field name="street2">Roble Corporate Center</field>
         <field name="city">Piantini</field>
-        <field name="vat">131793916</field>
+        <field name="vat">987654321</field>
         <field name="l10n_do_dgii_tax_payer_type">taxpayer</field>
         <field name="email">info@indexa.do</field>
         <field name="phone">829-939-3231</field>
