@@ -298,6 +298,12 @@ msgid "A VAT is mandatory for this type of NCF. Please set the current VAT of th
 msgstr "El RNC es obligatorio para este tipo de NCF. Por favor establezca un RNC para este cliente"
 
 #. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/res_partner.py:0
+#, python-format
+msgid "A partner named {} with same Tax ID already exists."
+msgstr "Ya existe un contacto llamado {} con el mismo número de identificación fiscal."
+
+#. module: l10n_do_accounting
 #: model:ir.model,name:l10n_do_accounting.model_account_move_reversal
 msgid "Account Move Reversal"
 msgstr "Revocación de movimiento en cuenta"
