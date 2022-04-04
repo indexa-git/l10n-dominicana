@@ -26,7 +26,7 @@ class AccountMoveTest(TransactionCase):
 
         # Company setup
         company = self.env.user.company_id
-        company.write({"vat": "131793916", "country_id": country_do})
+        company.write({"vat": "987654312", "country_id": country_do})
 
         # Accounting setup
         self.journal_obj = self.env["account.journal"]
@@ -40,7 +40,7 @@ class AccountMoveTest(TransactionCase):
         self.partner = self.env["res.partner"].create(
             {
                 "name": "Jimmy",
-                "vat": "40229590076",
+                "vat": "40229590075",
                 "country_id": country_do,
                 "l10n_do_dgii_tax_payer_type": "taxpayer",
             }
