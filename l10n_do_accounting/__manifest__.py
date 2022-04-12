@@ -8,7 +8,7 @@
     "category": "Localization",
     "license": "LGPL-3",
     "website": "https://github.com/odoo-dominicana",
-    "version": "14.0.1.7.10",
+    "version": "14.0.2.7.13",
     # any module necessary for this one to work correctly
     "depends": ["l10n_latam_invoice_document", "l10n_do"],
     # always loaded
@@ -19,7 +19,6 @@
         "wizard/account_move_reversal_views.xml",
         "wizard/account_move_cancel_views.xml",
         "wizard/account_debit_note_views.xml",
-        "wizard/account_expiration_date_update_wizard_views.xml",
         "views/res_config_settings_view.xml",
         "views/account_move_views.xml",
         "views/res_partner_views.xml",

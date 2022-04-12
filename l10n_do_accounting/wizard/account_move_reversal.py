@@ -108,7 +108,9 @@ class AccountMoveReversal(models.TransientModel):
                 )
             )
         if move_ids_use_document:
-            res["is_ecf_invoice"] = move_ids_use_document[0].is_ecf_invoice
+            res["is_ecf_invoice"] = move_ids_use_document[
+                0
+            ].company_id.l10n_do_ecf_issuer
 
         return res
 
