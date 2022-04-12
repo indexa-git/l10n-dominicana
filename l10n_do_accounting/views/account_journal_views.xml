@@ -11,6 +11,19 @@
                 'required': [('type','in',('cash','bank')), ('country_code', '!=', 'DO')]
                 }"/>
             </xpath>
+            <xpath expr="//page[@name='bank_account']/group" position="inside">
+                <group name="document_types" string="Document Types"
+                       attrs="{'invisible': ['|', ('l10n_latam_use_documents', '=', False), ('country_code', '!=', 'DO')]}">
+                    <field name="l10n_do_document_type_ids" nolabel="1" colspan="2">
+                        <tree create="false" delete="false" editable="top"
+                              default_order="l10n_latam_document_type_id">
+                            <field name="journal_id" invisible="1"/>
+                            <field name="l10n_latam_document_type_id"/>
+                            <field name="l10n_do_ncf_expiration_date"/>
+                        </tree>
+                    </field>
+                </group>
+            </xpath>
         </field>
     </record>
 </odoo>

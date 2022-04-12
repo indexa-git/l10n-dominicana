@@ -6,16 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-15 17:17+0000\n"
-"PO-Revision-Date: 2021-12-15 13:18-0400\n"
+"POT-Creation-Date: 2022-04-06 17:37+0000\n"
+"PO-Revision-Date: 2022-04-06 13:39-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: es_DO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
-"Language: es_DO\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 3.0.1\n"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_move.py:0
@@ -230,21 +230,6 @@ msgid ""
 msgstr ""
 
 #. module: l10n_do_accounting
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
-msgid ""
-"<span attrs=\"{'invisible': ['|', '|', ('move_type', '!=', 'in_invoice'), ('state', "
-"'in', ('draft', 'cancel')), ('debit_origin_id', '=', False)]}\">Vendor Debit Note</span>"
-msgstr ""
-
-#. module: l10n_do_accounting
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
-msgid ""
-"<span attrs=\"{'invisible': ['|', '|', ('move_type', '!=', 'out_invoice'), ('state', "
-"'in', ('draft', 'cancel')), ('debit_origin_id', '=', False)]}\">Customer Debit Note</"
-"span>"
-msgstr ""
-
-#. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
 msgid ""
 "<span>\n"
@@ -329,11 +314,6 @@ msgid "Account"
 msgstr "Cuenta"
 
 #. module: l10n_do_accounting
-#: model:ir.model,name:l10n_do_accounting.model_account_expiration_date_update_wizard
-msgid "Account Expiration Date Update Wizard"
-msgstr "Asistente Actualización Fecha Expiración"
-
-#. module: l10n_do_accounting
 #: model:ir.model,name:l10n_do_accounting.model_account_move_reversal
 msgid "Account Move Reversal"
 msgstr "Revocación de movimiento en cuenta"
@@ -406,7 +386,6 @@ msgid "Can modify partner fiscal fields"
 msgstr "Puede modificar campos fiscales de contactos"
 
 #. module: l10n_do_accounting
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_expiration_date_update_wizard_form
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_move_cancel_view
 msgid "Cancel"
 msgstr "Cancelar"
@@ -505,14 +484,14 @@ msgid "Create a debit note"
 msgstr "Crear una Nota de Débito"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__create_uid
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__create_uid
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__create_date
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__create_date
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -576,13 +555,13 @@ msgstr "Envío diferido"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_debit_note__display_name
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_journal__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_line__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_reversal__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_resequence_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_latam_document_type__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_company__display_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_partner__display_name
@@ -600,9 +579,19 @@ msgid "Document Type"
 msgstr "Tipo de Comprobante"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__document_type_id
+#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_journal_form
+msgid "Document Types"
+msgstr "Comprobantes Fiscales"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__l10n_latam_document_type_id
 msgid "Document type"
-msgstr "Tipo Comprobante"
+msgstr "Comprobante Fiscal"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_journal__l10n_do_document_type_ids
+msgid "Document types"
+msgstr "Comprobantes fiscales"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_document_type_filter
@@ -621,13 +610,16 @@ msgid "Draft debit"
 msgstr "Borrador"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_electronic_stamp
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_ecf_edi_file
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_edi_file
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_payment__l10n_do_ecf_edi_file
 msgid "ECF XML File"
 msgstr "Archivo XML ECF"
 
 #. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_ecf_edi_file_name
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_ecf_edi_file_name
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_payment__l10n_do_ecf_edi_file_name
 msgid "ECF XML File Name"
 msgstr "Nombre Archivo XML ECF"
 
@@ -644,6 +636,11 @@ msgstr "Sello Electrónico"
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_payment__l10n_do_enable_first_sequence
 msgid "Enable first fiscal sequence"
 msgstr "Habilitar primera secuencia fiscal"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__l10n_do_ncf_expiration_date
+msgid "Expiration date"
+msgstr "Fecha de Expiración"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields.selection,name:l10n_do_accounting.selection__res_company__l10n_do_default_client__non_payer
@@ -706,13 +703,13 @@ msgstr "Gubernamental"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_debit_note__id
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_journal__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_line__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_reversal__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_resequence_wizard__id
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_latam_document_type__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_company__id
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_partner__id
@@ -737,16 +734,6 @@ msgid ""
 msgstr ""
 "Identifica los contribuyentes que han sido previamente autorizados para tener ventas a "
 "través de dispositivos Offline, como Handheld, entre otros."
-
-#. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/models/account_move.py:0
-#, python-format
-msgid ""
-"If the invoice amount is greater than RD$250,000.00 the customer should have a VAT to "
-"validate the invoice"
-msgstr ""
-"Si el monto de la factura es mayor que RD$250,000.00 el cliente debe tener un RNC para "
-"validar la factura"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_income_type
@@ -785,8 +772,14 @@ msgstr "Es Emisor Electrónico"
 
 #. module: l10n_do_accounting
 #: model:ir.model,name:l10n_do_accounting.model_account_journal
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__journal_id
 msgid "Journal"
 msgstr "Diario"
+
+#. module: l10n_do_accounting
+#: model:ir.model,name:l10n_do_accounting.model_l10n_do_account_journal_document_type
+msgid "Journal Document Type"
+msgstr "Comprobantes Fiscales de Diario"
 
 #. module: l10n_do_accounting
 #: model:ir.model,name:l10n_do_accounting.model_account_move
@@ -819,13 +812,13 @@ msgstr "Código de País"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_debit_note____last_update
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_journal____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_line____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_reversal____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_resequence_wizard____last_update
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_latam_document_type____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_company____last_update
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_res_partner____last_update
@@ -833,14 +826,14 @@ msgid "Last Modified on"
 msgstr "Última modificación el"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__write_uid
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__write_uid
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización de"
 
 #. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__write_date
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move_cancel__write_date
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_l10n_do_account_journal_document_type__write_date
 msgid "Last Updated on"
 msgstr "Última actualización en"
 
@@ -848,6 +841,13 @@ msgstr "Última actualización en"
 #: model:ir.model,name:l10n_do_accounting.model_l10n_latam_document_type
 msgid "Latam Document Type"
 msgstr "Tipo de Comprobante"
+
+#. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_latam_manual_document_number
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_latam_manual_document_number
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_payment__l10n_latam_manual_document_number
+msgid "Manual Number"
+msgstr "Número Manual"
 
 #. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_origin_ncf
@@ -902,11 +902,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.report_invoice_document_inherited
 msgid "NCF:"
 msgstr ""
-
-#. module: l10n_do_accounting
-#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_expiration_date_update_wizard__l10n_do_ncf_expiration_date
-msgid "New Expiration date"
-msgstr "Nueva Fecha Expiración"
 
 #. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/wizard/account_debit_note.py:0
@@ -1090,17 +1085,6 @@ msgid "There is already a sale invoice with fiscal number %s"
 msgstr "Ya existe una factura de ventas con el NCF %s"
 
 #. module: l10n_do_accounting
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_expiration_date_update_wizard_form
-#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_document_type_form
-msgid "Update"
-msgstr "Actualizar"
-
-#. module: l10n_do_accounting
-#: model:ir.actions.act_window,name:l10n_do_accounting.action_l10n_do_exp_date_update_wizard
-msgid "Update NCF Expiration Date"
-msgstr "Actualizar Fecha Expiración NCF"
-
-#. module: l10n_do_accounting
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_debit_note__l10n_latam_use_documents
 msgid "Use Documents"
 msgstr "Es fiscal"
@@ -1201,24 +1185,16 @@ msgid "You cannot create Debit Notes from multiple documents at a time."
 msgstr "No puede crear Notas de Débito desde múltiples facturas a la vez."
 
 #. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/wizard/account_debit_note.py:0
-
 #: code:addons/l10n_do_accounting/models/account_move.py:0
 #, python-format
 msgid "You cannot delete fiscal invoice which have been posted before"
 msgstr "No puede eliminar una factura fiscal que ha sido validada anteriormente"
 
 #. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0
+#: code:addons/l10n_do_accounting/wizard/account_debit_note.py:0
 #, python-format
 msgid "You cannot issue Credit/Debit Notes for %s document type"
-msgstr "No puede emitir Notas de Crédito/Débito para %s"
-
-#. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/wizard/account_expiration_date_update_wizard.py:0
-#, python-format
-msgid "You must set a date later than the current one"
-msgstr "Debe colocar una fecha posterior a la actual"
+msgstr "No puede emitir Notas de Crédito/Débito para comprobantes de %s"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_debit_note_inherited

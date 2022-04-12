@@ -43,7 +43,7 @@ class L10nLatamDocumentType(models.Model):
         " operation type, the responsibility of both the issuer and the"
         " receptor of the document",
     )
-    l10n_do_ncf_expiration_date = fields.Date(
+    l10n_do_ncf_expiration_date = fields.Date(  # Deprecated. Do not forward port.
         string="NCF Expiration date",
         required=True,
         default=fields.Date.end_of(fields.Date.today(), "year"),

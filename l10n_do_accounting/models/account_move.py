@@ -108,6 +108,7 @@ class AccountMove(models.Model):
     l10n_do_fiscal_number = fields.Char(
         "Fiscal Number",
         index=True,
+        tracking=True,
         copy=False,
         help="Stored field equivalent of l10n_latam_document number",
     )
@@ -585,7 +586,10 @@ class AccountMove(models.Model):
             lambda inv: inv.l10n_latam_document_type_id
         ):
             invoice.l10n_do_ncf_expiration_date = (
-                invoice.l10n_latam_document_type_id.l10n_do_ncf_expiration_date
+                invoice.journal_id.l10n_do_document_type_ids.filtered(
+                    lambda doc: doc.l10n_latam_document_type_id
+                    == invoice.l10n_latam_document_type_id
+                ).l10n_do_ncf_expiration_date
             )
 
         non_payer_type_invoices = l10n_do_invoices.filtered(
@@ -641,7 +645,8 @@ class AccountMove(models.Model):
             where_string = where_string.replace("journal_id = %(journal_id)s AND", "")
             where_string += (
                 " AND l10n_latam_document_type_id = %(l10n_latam_document_type_id)s AND"
-                " company_id = %(company_id)s"
+                " company_id = %(company_id)s AND l10n_do_sequence_prefix != ''"
+                " AND l10n_do_sequence_prefix IS NOT NULL"
             )
             if (
                 not self.l10n_latam_manual_document_number
@@ -766,7 +771,7 @@ class AccountMove(models.Model):
             format_values["seq"] = 0
         format_values["seq"] = format_values["seq"] + 1
 
-        if self.state != "draft":
+        if self.state != "draft" and not self[self._l10n_do_sequence_field]:
             self[
                 self._l10n_do_sequence_field
             ] = self.l10n_latam_document_type_id._format_document_number(
