@@ -9,8 +9,8 @@
     </template>
 
     <!-- do not show partner address on document header when l10n do invoice -->
-    <template id="external_layout_clean_inherited" inherit_id="web.external_layout_clean">
-        <xpath expr="//div[hasclass('o_clean_header')]/div/div[@name='company_address']" position="attributes">
+    <template id="external_layout_striped_inherited" inherit_id="web.external_layout_striped">
+        <xpath expr="//div[hasclass('company_address')]" position="attributes">
             <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
         </xpath>
     </template>
@@ -19,8 +19,8 @@
             <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
         </xpath>
     </template>
-    <template id="external_layout_background_inherited" inherit_id="web.external_layout_background">
-        <xpath expr="//div[hasclass('company_address')]" position="attributes">
+    <template id="external_layout_bold_inherited" inherit_id="web.external_layout_bold">
+        <xpath expr="//div[@name='company_address']" position="attributes">
             <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
         </xpath>
     </template>
