@@ -586,7 +586,10 @@ class AccountMove(models.Model):
             lambda inv: inv.l10n_latam_document_type_id
         ):
             invoice.l10n_do_ncf_expiration_date = (
-                invoice.l10n_latam_document_type_id.l10n_do_ncf_expiration_date
+                invoice.journal_id.l10n_do_document_type_ids.filtered(
+                    lambda doc: doc.l10n_latam_document_type_id
+                    == invoice.l10n_latam_document_type_id
+                ).l10n_do_ncf_expiration_date
             )
 
         non_payer_type_invoices = l10n_do_invoices.filtered(
