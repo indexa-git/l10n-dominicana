@@ -7,17 +7,22 @@ class AccountMove(models.Model):
     def _get_debit_line_tax(self, debit_date):
 
         if self.type == "out_invoice":
+            domain = [
+                ('company_id', '=', self.company_id.id),
+                ('amount', '=', 0),
+                ('type_tax_use', '=', 'sale')
+            ]
             return (
                 self.company_id.account_sale_tax_id
-                or self.env.ref("l10n_do.tax_18_sale")
+                # or self.env.ref("l10n_do.tax_18_sale")
                 if (debit_date - self.invoice_date).days <= 30
                 and self.partner_id.l10n_do_dgii_tax_payer_type != "special"
-                else self.env.ref("l10n_do.tax_0_sale") or False
+                else self.env["account.tax"].search(
+                    domain, order="id", limit=1
+                ).filtered(lambda t: t.tax_group_id.name == "ITBIS") or False
             )
         else:
-            return self.company_id.account_purchase_tax_id or self.env.ref(
-                "l10n_do.1_tax_0_purch"
-            )
+            return self.company_id.account_purchase_tax_id or False
 
     def _move_autocomplete_invoice_lines_create(self, vals_list):
 
