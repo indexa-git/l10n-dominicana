@@ -26,7 +26,7 @@ class AccountMoveTest(TransactionCase):
 
         # Company setup
         company = self.env.user.company_id
-        company.write({"vat": "131793916", "country_id": country_do})
+        company.write({"vat": "123456789", "country_id": country_do})
 
         # Accounting setup
         self.journal_obj = self.env["account.journal"]
