@@ -90,7 +90,7 @@ jobs:
         run: |
           docker pull gcr.io/iterativo/dockerdoo:14.0
           docker run -e RUN_TESTS -e WITHOUT_TEST_TAGS -e PIP_AUTO_INSTALL -e LOG_LEVEL -e WITHOUT_DEMO -e EXTRA_MODULES -e ODOO_EXTRA_ADDONS -e PGHOST \
-          -v $GITHUB_WORKSPACE:/github/workspace
+          -v $GITHUB_WORKSPACE:/github/workspace \
           --network="host" --name odoo -t gcr.io/iterativo/dockerdoo:14.0
         env:
           RUN_TESTS: "1"
