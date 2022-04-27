@@ -13,7 +13,6 @@ on:
   pull_request:
     branches:
       - "[0-9]+.0"
-    types: [opened, synchronize, reopened, labeled]
 
 env:
   REQUIRED_MODULES: "session_redis,l10n_generic_coa" # list of addional addons to install separated by comma
@@ -45,7 +44,7 @@ jobs:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4.x
 
-      - name: Checkout local
+      - name: Checkout ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG_URL }}
         uses: actions/checkout@v3
         with:
           path: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}
@@ -53,7 +52,7 @@ jobs:
       - name: Download python addons script
         run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}/resources/getaddons.py -o getaddons.py
 
-      - name: Redis
+      - name: Checkout odoo-cloud-platform
         uses: actions/checkout@v3
         with:
           repository: camptocamp/odoo-cloud-platform
