@@ -51,14 +51,14 @@ jobs:
           path: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}
 
       - name: Download python addons script
-        run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/15.0/resources/getaddons.py -o getaddons.py
+        run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}/resources/getaddons.py -o getaddons.py
 
       - name: Redis
         uses: actions/checkout@v3
         with:
           repository: camptocamp/odoo-cloud-platform
           path: odoo-cloud-platform
-          ref: "15.0"
+          ref: "${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}"
 
       - name: Select Odoo modules to install
         id: get_modules
@@ -74,10 +74,10 @@ jobs:
 
       - name: Run Odoo tests
         run: |
-          docker pull gcr.io/iterativo/dockerdoo:15.0
+          docker pull gcr.io/iterativo/dockerdoo:${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}
           docker run -e RUN_TESTS -e WITHOUT_TEST_TAGS -e PIP_AUTO_INSTALL -e LOG_LEVEL -e WITHOUT_DEMO -e EXTRA_MODULES -e ODOO_EXTRA_ADDONS -e PGHOST \
           -v $GITHUB_WORKSPACE:/github/workspace \
-          --network="host" --name odoo -t gcr.io/iterativo/dockerdoo:15.0
+          --network="host" --name odoo -t gcr.io/iterativo/dockerdoo:${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}
         env:
           RUN_TESTS: "1"
           WITHOUT_TEST_TAGS: ${{ env.WITHOUT_TEST_TAGS }}
@@ -153,7 +153,7 @@ jobs:
         run: |
           curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
           chmod u+x ./kustomize
-          ./kustomize build gke-dev-cluster/deployments/odoo/15.0/dev -o deployment.yaml.tmpl
+          ./kustomize build gke-dev-cluster/deployments/odoo/${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}/dev -o deployment.yaml.tmpl
 
       - name: Render Deployment YAML
         uses: nowactions/envsubst@v1
