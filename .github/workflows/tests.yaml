@@ -3,20 +3,20 @@ name: Unit Tests
 on:
   push:
     branches:
-      - "[0-9]+.0"
+      - '[0-9]+.0'
     paths:
-      - "**/workflows/**"
-      - "**/src/**"
-      - "**/i18n/**"
-      - "**.py"
-      - "**.xml"
+      - '**/workflows/**'
+      - '**/src/**'
+      - '**/i18n/**'
+      - '**.py'
+      - '**.xml'
   pull_request:
     branches:
-      - "[0-9]+.0"
+      - '[0-9]+.0'
 
 env:
-  REQUIRED_MODULES: "session_redis,l10n_generic_coa" # list of addional addons to install separated by comma
-  TEST_TAGS: "0"
+  REQUIRED_MODULES: 'session_redis' # list of addional addons to install separated by comma
+  TEST_TAGS: '0'
 
 jobs:
   test:
@@ -44,7 +44,7 @@ jobs:
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4.x
 
-      - name: Checkout ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG_URL }}
+      - name: INDEXA ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG_URL }}
         uses: actions/checkout@v3
         with:
           path: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}
@@ -52,12 +52,12 @@ jobs:
       - name: Download python addons script
         run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}/resources/getaddons.py -o getaddons.py
 
-      - name: Checkout odoo-cloud-platform
+      - name: CamptoCamp odoo-cloud-platform
         uses: actions/checkout@v3
         with:
           repository: camptocamp/odoo-cloud-platform
           path: odoo-cloud-platform
-          ref: "${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}"
+          ref: '${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}'
 
       - name: Select Odoo modules to install
         id: get_modules
@@ -78,11 +78,11 @@ jobs:
           -v $GITHUB_WORKSPACE:/github/workspace \
           --network="host" --name odoo -t gcr.io/iterativo/dockerdoo:${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}
         env:
-          RUN_TESTS: "1"
+          RUN_TESTS: '1'
           WITHOUT_TEST_TAGS: ${{ env.WITHOUT_TEST_TAGS }}
-          PIP_AUTO_INSTALL: "1"
+          PIP_AUTO_INSTALL: '1'
           LOG_LEVEL: test
-          WITHOUT_DEMO: "False"
+          WITHOUT_DEMO: 'False'
           EXTRA_MODULES: ${{ steps.get_modules.outputs.modules }},${{ env.REQUIRED_MODULES }}
           ODOO_EXTRA_ADDONS: /github/workspace
           PGHOST: localhost
@@ -99,7 +99,7 @@ jobs:
 
   build-gcp:
     name: Build & Push to GCR
-    needs: ["test"]
+    needs: ['test']
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
 
@@ -127,7 +127,7 @@ jobs:
 
   deploy:
     name: GKE Deploy
-    needs: ["test", "build-gcp"]
+    needs: ['test', 'build-gcp']
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: ${{ secrets.GKE_PROJECT }}
