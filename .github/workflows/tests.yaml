@@ -64,6 +64,7 @@ jobs:
         id: get_modules
         run: |
           output=$(python -c "from getaddons import get_modules; print(','.join(get_modules('$GITHUB_WORKSPACE/${{ env.GITHUB_REPOSITORY_SLUG_URL }}', depth=3)))")
+          echo $output
           echo "::set-output name=modules::$output"
 
       - name: Set test all tag
@@ -83,7 +84,7 @@ jobs:
           PIP_AUTO_INSTALL: "1"
           LOG_LEVEL: test
           WITHOUT_DEMO: "False"
-          EXTRA_MODULES: ${{ steps.get_modules.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
+          EXTRA_MODULES: ${{ steps.get_modules.outputs.modules }},${{ env.REQUIRED_MODULES }}
           ODOO_EXTRA_ADDONS: /github/workspace
           PGHOST: localhost
 
