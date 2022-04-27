@@ -88,7 +88,6 @@ jobs:
 
       - name: Run Odoo tests
         run: |
-          sudo chown -R 1000:1000 /github/home
           docker pull gcr.io/iterativo/dockerdoo:14.0
           docker run -e RUN_TESTS -e WITHOUT_TEST_TAGS -e PIP_AUTO_INSTALL -e LOG_LEVEL -e WITHOUT_DEMO -e EXTRA_MODULES -e ODOO_EXTRA_ADDONS -e PGHOST \
           -v $GITHUB_WORKSPACE:/github/workspace
