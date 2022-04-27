@@ -20,15 +20,27 @@ env:
   TEST_TAGS: "0"
 
 jobs:
-  dependencies:
-    name: Dependencies
+  test:
+    name: Test Modules
     runs-on: ubuntu-latest
-    container:
-      image: gcr.io/iterativo/dockerdoo:15.0
-      options: --user root
     outputs:
       get_modules: ${{ steps.get_modules.outputs.modules }}
       repo_name: ${{ steps.repo_slugs.outputs.repo_name }}
+    services:
+      db:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+        # needed because the postgres container does not provide a healthcheck
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - name: Extract repository name
@@ -69,76 +81,31 @@ jobs:
           output=$(python -c "from getaddons import get_modules; print(','.join(get_modules('$GITHUB_WORKSPACE/${{ env.GITHUB_REPOSITORY_SLUG_URL }}', depth=3)))")
           echo "::set-output name=modules::$output"
 
-      - name: Zip modules for upload
-        run: sudo apt-get update && sudo apt-get install -y zip && zip -r modules.zip .
-
-      - name: Upload repository results
-        uses: actions/upload-artifact@v2
-        with:
-          name: modules
-          path: modules.zip
-          retention-days: 1
-
-  test:
-    name: Test Modules
-    needs: ["dependencies"]
-    runs-on: ubuntu-latest
-    container:
-      image: gcr.io/iterativo/dockerdoo:15.0
-      options: -t --user root
-      volumes:
-        - ${{ github.workspace }}:/workspace
-
-    services:
-      db:
-        image: postgres:11-alpine
-        env:
-          POSTGRES_DB: postgres
-          POSTGRES_USER: odoo
-          POSTGRES_PASSWORD: odoo
-        # needed because the postgres container does not provide a healthcheck
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-    steps:
-      - name: Download modules results
-        uses: actions/download-artifact@v2
-        with:
-          name: modules
-
-      - run: unzip modules.zip
-
-      - name: chown home for pypy
-        uses: docker://gcr.io/iterativo/dockerdoo:15.0
-        with:
-          args: sudo chown -R 1000:1000 /github/home
-
       - name: Set test tags
         if: ${{ github.event.label.name == 'test all' }}
         run: |
-          echo "TEST_TAGS=1" >> $GITHUB_ENV
+          echo "WITHOUT_TEST_TAGS=1" >> $GITHUB_ENV
 
-      - name: Run odoo
-        uses: docker://gcr.io/iterativo/dockerdoo:15.0
-        with:
-          args: odoo
+      - name: Run Odoo tests
+        run: |
+          sudo chown -R 1000:1000 /github/home
+          docker pull gcr.io/iterativo/dockerdoo:14.0
+          docker run -e RUN_TESTS -e WITHOUT_TEST_TAGS -e PIP_AUTO_INSTALL -e LOG_LEVEL -e WITHOUT_DEMO -e EXTRA_MODULES -e ODOO_EXTRA_ADDONS -e PGHOST \
+          -v $GITHUB_WORKSPACE:/github/workspace
+          --network="host" --name odoo -t gcr.io/iterativo/dockerdoo:14.0
         env:
           RUN_TESTS: "1"
-          WITHOUT_TEST_TAGS: ${{ env.TEST_TAGS }}
+          WITHOUT_TEST_TAGS: ${{ env.WITHOUT_TEST_TAGS }}
           PIP_AUTO_INSTALL: "1"
           LOG_LEVEL: test
           WITHOUT_DEMO: "False"
-          EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
+          EXTRA_MODULES: ${{ steps.get_modules.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
           ODOO_EXTRA_ADDONS: /github/workspace
+          PGHOST: localhost
 
   build-gcp:
     name: Build & Push to GCR
-    needs: ["dependencies", "test"]
+    needs: ["test"]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
 
@@ -157,22 +124,23 @@ jobs:
         uses: docker/build-push-action@v1
         with:
           dockerfile: ${{ env.GITHUB_REPOSITORY_SLUG_URL }}/Dockerfile
-          cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.dependencies.outputs.repo_name }}:${{ env.GITHUB_HEAD_REF_SLUG_URL }}
+          cache_froms: docker.pkg.github.com/${{ github.repository }}/${{ needs.test.outputs.repo_name }}:${{ env.GITHUB_HEAD_REF_SLUG_URL }}
           username: _json_key
           password: ${{ secrets.GKE_SA_KEY }}
           registry: gcr.io
-          repository: ${{ secrets.GKE_PROJECT }}/${{ needs.dependencies.outputs.repo_name }}
+          repository: ${{ secrets.GKE_PROJECT }}/${{ needs.test.outputs.repo_name }}
           tags: ${{ env.GITHUB_SHA_SHORT }}
 
   deploy:
     name: GKE Deploy
-    needs: ["dependencies", "build-gcp"]
+    needs: ["test", "build-gcp"]
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: ${{ secrets.GKE_PROJECT }}
       GKE_CLUSTER: ${{ secrets.GKE_CLUSTER }}
       GKE_ZONE: ${{ secrets.GKE_ZONE }}
     if: ${{ github.event_name == 'pull_request' }}
+    continue-on-error: true
 
     steps:
       - name: Inject slug/short variables
@@ -201,13 +169,13 @@ jobs:
           ENV: dev
           GKE_LOCATION: ${{ secrets.GKE_PROJECT }}
           # Modules to Install
-          EXTRA_MODULES: ${{ needs.dependencies.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
+          EXTRA_MODULES: ${{ needs.test.outputs.get_modules }},${{ env.REQUIRED_MODULES }}
           # Image to Deploy
           PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-          REPO_NAME: ${{ needs.dependencies.outputs.repo_name }}
+          REPO_NAME: ${{ needs.test.outputs.repo_name }}
           BRANCH_NAME: ${{ env.GITHUB_SHA_SHORT }}
           # URL to acccess
-          REPO_URL: ${{ needs.dependencies.outputs.repo_name }}
+          REPO_URL: ${{ needs.test.outputs.repo_name }}
           BRANCH_URL: ${{ env.GITHUB_HEAD_REF_SLUG_URL }}
           SHORT_SHA: ${{ env.GITHUB_SHA_SHORT }}
 
@@ -237,11 +205,11 @@ jobs:
       - name: Deploy
         run: |
           kubectl apply -f deployment.yaml
-          url=$(echo "${{ needs.dependencies.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do")
+          url=$(echo "${{ needs.test.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do")
           echo "$url" > url.txt
 
       - name: Upload repository results
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ needs.dependencies.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do
+          name: ${{ needs.test.outputs.repo_name }}-${{ env.GITHUB_HEAD_REF_SLUG_URL }}.indexa.do
           path: url.txt
