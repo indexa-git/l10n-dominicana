@@ -29,6 +29,12 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide  
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
 
+    - name: TrueBrain Flake8
+      uses: TrueBrain/actions-flake8@master
+      with:
+        ignore: E123,E133,E226,E241,E242,F811,F601,W503,W504,E203,F401
+        max_line_length: 120
+
   pylint:
     runs-on: ubuntu-latest
     continue-on-error: true
