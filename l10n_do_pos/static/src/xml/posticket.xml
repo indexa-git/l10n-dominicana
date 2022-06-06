@@ -1,8 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template">
+
+
+<!--    <t t-extends="OrderReceipt">-->
+<!--        <t t-jquery=".pos-receipt" t-operation='replace'>-->
+<!--            <div class="pos-receipt">-->
+<!--                <div class="pos-receipt-center-align">-->
+<!--                    <p>Hello</p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </t>-->
+<!--    </t>-->
+
+
+
+<!--    <t t-inherit="OrderReceipt" t-inherit-mode="extension">-->
+<!--        <xpath expr="div//t[2]//h2" position="inside">-->
+<!--            <p>This is the company test name</p>-->
+<!--        </xpath>-->
+<!--    </t>-->
+
+
+
+
     <t t-extend="OrderReceipt">
-        <t t-jquery=".pos-receipt" t-operation="replace">
-            <div class="pos-receipt">
+
+         <t t-jquery=".pos-receipt" t-operation="replace">
+
+            <div class="pos-receipt" style="text-transform: uppercase;">
+                <t t-if='receipt.header_html'>
+                    <t t-raw='receipt.header_html' />
+                </t>
+                <t t-if='!receipt.header_html and receipt.header'>
+                    <div><t t-esc='receipt.header' /></div>
+                </t>
                 <div class="pos-receipt-center-align">
                     <t t-if='receipt.company.logo'>
                         <img class="pos-receipt-logo" t-att-src='receipt.company.logo' alt="Logo"/>
@@ -12,20 +43,28 @@
                         <t t-esc="order.pos.company.name"/>
                         <br/>
                     </t>
+                    <t t-if="receipt.company.contact_address">
+                        <!--Address --> <t t-esc="receipt.company.contact_address"/>
+                        <br/>
+                    </t>
+                    <t t-if="widget.pos.company.vat">
+                        RNC:
+                        <t t-esc="widget.pos.company.vat"/>
+                        <br/>
+                    </t>
                     <t t-if="widget.pos.company.street">
-                        <t t-esc="widget.pos.company.street"/>,
+                        <t t-esc="widget.pos.company.street"/>
                     </t>
                     <t t-if="widget.pos.company.street2">
                         <t t-esc="widget.pos.company.street2"/>
                     </t>
-                    <t t-if="widget.pos.company.vat">
-                        <br/>
-                        <strong>RNC:</strong>
-                        <t t-esc="widget.pos.company.vat"/>
-                        <br/>
+                    <t t-if='receipt.company.email'>
+                        <t t-esc='receipt.company.email' />
                     </t>
-                    <br/>
-                    <t t-esc="order.name"/>
+                    <t t-if='receipt.company.website'>
+                        <t t-esc='receipt.company.website' />
+                    </t>
+
                     <br/>
                     <t t-if="order.l10n_latam_document_type and order.l10n_latam_document_number">
                         <div class="pos-receipt-center-align dotted_ticket_title">
@@ -33,41 +72,41 @@
                                 <t t-esc="order.l10n_latam_document_type.name"/>
                             </strong>
                             <br/>
-                            <strong>NCF:
-                                <t t-esc="order.l10n_latam_document_number"/>
-                            </strong>
+
                             <t t-if="order.l10n_do_is_return_order">
                                 <br/>
-                                <strong>NCF Modificado:
-                                    <t t-esc="order.l10n_do_origin_ncf"/>
-                                </strong>
+                                NCF Modificado:
+                                <t t-esc="order.l10n_do_origin_ncf"/>
                             </t>
-                            <t t-if="order.l10n_latam_document_type.doc_code_prefix != 'B02'">
-                                <br/>
-                                <strong>Válida hasta:
-                                    <t t-esc="order.l10n_do_ncf_expiration_date"/>
-                                </strong>
-                            </t>
+                            <!-- Fecha de expiracion -->
+<!--                            <t t-if="order.l10n_latam_document_type.doc_code_prefix != 'B02'">-->
+<!--                                <br/>-->
+<!--                                <strong>Válida hasta:-->
+<!--                                    <t t-esc="order.l10n_do_ncf_expiration_date"/>-->
+<!--                                </strong>-->
+<!--                            </t>-->
                         </div>
                     </t>
                 </div>
                 <br/>
                 <div class="receipt-phone">
-                    <strong>Fecha....:</strong>
-                    <t t-esc="order.formatted_validation_date"/>
-                    <br/>
                      <t t-set="client" t-value="widget.pos.get_client()"/>
+                    <span><t t-esc="order.formatted_validation_date"/></span>
+                    <br/>
+                    NCF:
+                    <t t-esc="order.l10n_latam_document_number"/>
+                    <br/>
                     <t t-if="client">
-                        <strong>Cliente..:</strong>
+                        Cliente:
                         <t t-esc="client.name || ''"/>
                         <br/>
                         <t t-if="client.vat">
-                            <strong>RNC/Céd..:</strong>
+                            RNC/Céd:
                             <t t-esc="client.vat"/>
                             <br/>
                         </t>
                         <t t-if="client.barcode">
-                            <strong>Código..:</strong>
+                            <strong>Código:</strong>
                             <t t-esc="client.barcode"/>
                             <br/>
                         </t>
@@ -76,12 +115,14 @@
                     <!--<strong>Sucursal.:</strong>-->
                     <!--<t t-esc="receipt.shop.name"/>-->
                     <!--<br/>-->
-                    <strong>Telefono.:</strong>
-                    <t t-esc="widget.pos.company.phone || ''"/>
-                    <br/>
+                    <t t-if="widget.pos.company.phone">
+                        Telefono:
+                        <t t-esc="widget.pos.company.phone || ''"/>
+                        <br/>
+                    </t>
                 </div>
                 <div class="receipt-phone">
-                    <strong>Cajero/a.:</strong>
+                    Atendido por:
                     <t t-esc="widget.pos.user.name"/>
                 </div>
                 <t t-if="widget.pos.config.seller_and_cashier_ticket">
@@ -100,30 +141,30 @@
                 <table class="receipt-orderlines">
                     <thead>
                         <tr>
-                            <th class="pos-receipt-center-align" width="13%">
-                                <strong>Cant.</strong>
+<!--                            <th class="pos-receipt-center-align" width="13%">-->
+<!--                                <strong>Cant.</strong>-->
+<!--                            </th>-->
+                            <th width="58%">
+                                <strong>Descripcion</strong>
                             </th>
-                            <th width="35%">
-                                <strong>Producto</strong>
-                            </th>
-                            <th width="16%">
-                                <strong>$/Und.</strong>
-                            </th>
-                            <th width="12%">
+<!--                            <th width="28%">-->
+<!--                                <strong>$/Und.</strong>-->
+<!--                            </th>-->
+                            <th width="10%">
                                 <strong>ITBIS</strong>
                             </th>
-                            <th class="pos-right-align" width="20%">
+                            <th class="pos-right-align" width="32%" >
                                 <strong>Valor</strong>
                             </th>
-                            <th width="4%">
-                                <strong></strong>
-                            </th>
+<!--                            <th width="4%">-->
+<!--                                <strong></strong>-->
+<!--                            </th>-->
                         </tr>
                     </thead>
                     <tr>
-                        <td>
-                            <div style="border-bottom: 1px solid black;"/>
-                        </td>
+<!--                        <td>-->
+<!--                            <div style="border-bottom: 1px solid black;"/>-->
+<!--                        </td>-->
                         <td>
                             <div style="border-bottom: 1px solid black;"/>
                         </td>
@@ -141,35 +182,50 @@
                         </td>
                     </tr>
                     <tr t-as="orderline" t-foreach="orderlines">
-                        <td class="pos-receipt-center-align" width="13%">
-                            <t t-esc="orderline.get_quantity_str_with_unit()"/>
-                        </td>
-                        <td width="35%">
-                            <t t-esc="orderline.get_product().display_name"/>
-                            <t t-if="widget.pos.config.on_product_line">
-                                <div class="pos-disc-font">
-                                    <t t-esc="orderline.get_order_line_comment()"/>
-                                </div>
+                        <td class="pos-receipt-left-align" width="58%">
+                            <t t-if="Math.round(orderline.get_quantity_str_with_unit()) > 1">
+         <!-- attention -->     <t t-esc="orderline.get_product().display_name"/> <br/>
+                                <t t-esc="Math.round(orderline.get_quantity_str_with_unit())"/> x <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>
+                                <br/>
+                                <br/>
                             </t>
-                            <t t-if="orderline.get_discount() &gt;0">
-                                <div class="pos-disc-font">With a<t t-esc="orderline.get_discount()"/>% discount
-                                </div>
+                            <t t-else="">
+                                <t t-esc="orderline.get_product().display_name"/> <br/>
+                                <br/>
                             </t>
+
+
                         </td>
-                        <td width="16%">
-                            <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>
-                        </td>
-                        <td width="12%">
+<!--                        <td width="35%">-->
+<!--                            <t t-esc="orderline.get_product().display_name"/>-->
+<!--                            <t t-if="widget.pos.config.on_product_line">-->
+<!--                                <div class="pos-disc-font">-->
+<!--                                    <t t-esc="orderline.get_order_line_comment()"/>-->
+<!--                                </div>-->
+<!--                            </t>-->
+<!--                            <t t-if="orderline.get_discount() &gt;0">-->
+<!--                                <div class="pos-disc-font">With a<t t-esc="orderline.get_discount()"/>% discount-->
+<!--                                </div>-->
+<!--                            </t>-->
+<!--                        </td>-->
+<!--                        <td width="28%">-->
+<!--                            <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>-->
+<!--                        </td>-->
+                        <td width="10%">
                             <t t-esc="widget.format_currency_no_symbol(orderline.get_tax())"/>
+                            <br/>
+                            <br/>
                         </td>
-                        <td class="pos-right-align" width="20%">
+                        <td class="pos-right-align" width="32%">
                             <t t-esc="widget.format_currency_no_symbol(orderline.get_display_price())"/>
+                            <br/>
+                            <br/>
                         </td>
-                        <td width="4%">
-                            <t t-if="orderline.get_tax() === 0">
-                                <strong>E</strong>
-                            </t>
-                        </td>
+<!--                        <td width="4%">-->
+<!--                            <t t-if="orderline.get_tax() === 0">-->
+<!--                                <strong></strong>-->
+<!--                            </t>-->
+<!--                        </td>-->
                     </tr>
                 </table>
                 <table>
@@ -216,7 +272,7 @@
                     </t>
                 </div>
                 <br/>
-                <div class="receipt-change">
+                <div class="receipt-change" >
                     <t t-if="order.get_change() > 0">
                         <div class="pos-receipt-right-align">
                             <strong>Cambio: </strong>
@@ -225,8 +281,12 @@
                         <br/>
                     </t>
                 </div>
+                <div style="border-bottom: 1px dashed black"/>
                 <br/>
                 <div class='before-footer' />
+                <br/>
+                <strong><t t-esc="order.name"/></strong>
+                    <br/>
                 <!-- Footer -->
                 <div t-if='receipt.footer_html'  class="pos-receipt-center-align">
                     <t t-raw='receipt.footer_html'/>
@@ -238,4 +298,12 @@
             </div>
         </t>
     </t>
+
+<!--    <t t-extend="OrderReceipt">-->
+<!--        <t t-if='!receipt.company.logo'>-->
+<!--        <t t-jquery=".pos-receipt .pos-receipt-contact" t-operation='replace'>-->
+<!--                <t t-esc="order.formatted_validation_date"/>-->
+<!--            </t>-->
+<!--    </t>-->
+
 </templates>
