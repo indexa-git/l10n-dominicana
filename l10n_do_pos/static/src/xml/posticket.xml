@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template">
 
-
-<!--    <t t-extends="OrderReceipt">-->
-<!--        <t t-jquery=".pos-receipt" t-operation='replace'>-->
-<!--            <div class="pos-receipt">-->
-<!--                <div class="pos-receipt-center-align">-->
-<!--                    <p>Hello</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </t>-->
-<!--    </t>-->
-
-
-
-<!--    <t t-inherit="OrderReceipt" t-inherit-mode="extension">-->
-<!--        <xpath expr="div//t[2]//h2" position="inside">-->
-<!--            <p>This is the company test name</p>-->
-<!--        </xpath>-->
-<!--    </t>-->
-
-
-
-
     <t t-extend="OrderReceipt">
 
          <t t-jquery=".pos-receipt" t-operation="replace">
@@ -78,13 +56,6 @@
                                 NCF Modificado:
                                 <t t-esc="order.l10n_do_origin_ncf"/>
                             </t>
-                            <!-- Fecha de expiracion -->
-<!--                            <t t-if="order.l10n_latam_document_type.doc_code_prefix != 'B02'">-->
-<!--                                <br/>-->
-<!--                                <strong>Válida hasta:-->
-<!--                                    <t t-esc="order.l10n_do_ncf_expiration_date"/>-->
-<!--                                </strong>-->
-<!--                            </t>-->
                         </div>
                     </t>
                 </div>
@@ -141,30 +112,18 @@
                 <table class="receipt-orderlines">
                     <thead>
                         <tr>
-<!--                            <th class="pos-receipt-center-align" width="13%">-->
-<!--                                <strong>Cant.</strong>-->
-<!--                            </th>-->
                             <th width="58%">
                                 <strong>Descripcion</strong>
                             </th>
-<!--                            <th width="28%">-->
-<!--                                <strong>$/Und.</strong>-->
-<!--                            </th>-->
                             <th width="10%">
                                 <strong>ITBIS</strong>
                             </th>
                             <th class="pos-right-align" width="32%" >
                                 <strong>Valor</strong>
                             </th>
-<!--                            <th width="4%">-->
-<!--                                <strong></strong>-->
-<!--                            </th>-->
                         </tr>
                     </thead>
                     <tr>
-<!--                        <td>-->
-<!--                            <div style="border-bottom: 1px solid black;"/>-->
-<!--                        </td>-->
                         <td>
                             <div style="border-bottom: 1px solid black;"/>
                         </td>
@@ -196,21 +155,6 @@
 
 
                         </td>
-<!--                        <td width="35%">-->
-<!--                            <t t-esc="orderline.get_product().display_name"/>-->
-<!--                            <t t-if="widget.pos.config.on_product_line">-->
-<!--                                <div class="pos-disc-font">-->
-<!--                                    <t t-esc="orderline.get_order_line_comment()"/>-->
-<!--                                </div>-->
-<!--                            </t>-->
-<!--                            <t t-if="orderline.get_discount() &gt;0">-->
-<!--                                <div class="pos-disc-font">With a<t t-esc="orderline.get_discount()"/>% discount-->
-<!--                                </div>-->
-<!--                            </t>-->
-<!--                        </td>-->
-<!--                        <td width="28%">-->
-<!--                            <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>-->
-<!--                        </td>-->
                         <td width="10%">
                             <t t-esc="widget.format_currency_no_symbol(orderline.get_tax())"/>
                             <br/>
@@ -221,11 +165,6 @@
                             <br/>
                             <br/>
                         </td>
-<!--                        <td width="4%">-->
-<!--                            <t t-if="orderline.get_tax() === 0">-->
-<!--                                <strong></strong>-->
-<!--                            </t>-->
-<!--                        </td>-->
                     </tr>
                 </table>
                 <table>
@@ -298,12 +237,5 @@
             </div>
         </t>
     </t>
-
-<!--    <t t-extend="OrderReceipt">-->
-<!--        <t t-if='!receipt.company.logo'>-->
-<!--        <t t-jquery=".pos-receipt .pos-receipt-contact" t-operation='replace'>-->
-<!--                <t t-esc="order.formatted_validation_date"/>-->
-<!--            </t>-->
-<!--    </t>-->
 
 </templates>
