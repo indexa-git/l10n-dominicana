@@ -123,15 +123,3 @@ class AccountMoveReversal(models.TransientModel):
                 is_internal_purchase_refund=self.is_l10n_do_internal_sequence,
             ),
         ).reverse_moves()
-
-    def _prepare_default_reversal(self, move):
-        res = super(AccountMoveReversal, self)._prepare_default_reversal(move)
-        if (
-            "l10n_latam_document_type_id" in res
-            and move.l10n_latam_use_documents
-            and move.l10n_latam_country_code == "DO"
-        ):
-            # do not get document type from Reversal wizard >:(
-            del res["l10n_latam_document_type_id"]
-
-        return res
