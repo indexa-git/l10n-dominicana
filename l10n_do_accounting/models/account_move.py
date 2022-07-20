@@ -507,19 +507,6 @@ class AccountMove(models.Model):
 
         return res
 
-    @api.model
-    def new(self, values={}, origin=None, ref=None):
-        if (
-            self.l10n_latam_use_documents
-            and self.is_ecf_invoice
-            and values.get("type") in ("out_refund", "in_refund")
-        ):
-            values["l10n_latam_document_type_id"] = self.env.ref(
-                "l10n_do_accounting.ecf_credit_note_client"
-            ).id
-
-        return super(AccountMove, self).new(values, origin, ref)
-
     def init(self):  # DO NOT FORWARD PORT
         cancelled_invoices = self.search(
             [
