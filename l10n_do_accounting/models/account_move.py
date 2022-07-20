@@ -723,19 +723,6 @@ class AccountMove(models.Model):
         self.env.cr.execute(query, param)
         return (self.env.cr.fetchone() or [None])[0]
 
-    @api.model
-    def new(self, values={}, origin=None, ref=None):
-        if (
-            self.l10n_latam_use_documents
-            and self.is_ecf_invoice
-            and values.get("move_type") in ("out_refund", "in_refund")
-        ):
-            values["l10n_latam_document_type_id"] = self.env.ref(
-                "l10n_do_accounting.ecf_credit_note_client"
-            ).id
-
-        return super(AccountMove, self).new(values, origin, ref)
-
     def _get_sequence_format_param(self, previous):
 
         if not self._context.get("is_l10n_do_seq", False):
