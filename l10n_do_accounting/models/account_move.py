@@ -677,10 +677,12 @@ class AccountMove(models.Model):
             record.l10n_do_sequence_prefix = sequence[:3]
             record.l10n_do_sequence_number = int(matching.group(1) or 0)
 
-    def _get_last_sequence(self, relaxed=False):
+    def _get_last_sequence(self, relaxed=False, with_prefix=None, lock=True):
 
         if not self._context.get("is_l10n_do_seq", False):
-            return super(AccountMove, self)._get_last_sequence(relaxed=relaxed)
+            return super(AccountMove, self)._get_last_sequence(
+                relaxed=relaxed, with_prefix=with_prefix, lock=lock
+            )
 
         self.ensure_one()
         if (
