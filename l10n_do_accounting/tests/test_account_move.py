@@ -45,6 +45,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 {
                     "refund_type": "percentage",
                     "percentage": "5",
+                    "journal_id": ncf_sale_credito_fiscal_invoice[0].journal_id.id,
                 }
             )
         )
@@ -188,6 +189,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                     "refund_type": "percentage",
                     "percentage": "5",
                     "l10n_latam_document_number": "B0400000001",
+                    "journal_id": ncf_purchase_credito_fiscal_invoice[0].journal_id.id,
                 }
             )
         )
@@ -292,6 +294,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 {
                     "refund_type": "percentage",
                     "percentage": "5",
+                    "journal_id": ecf_sale_credito_fiscal_invoice[0].journal_id.id,
                 }
             )
         )
@@ -435,6 +438,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                     "refund_type": "percentage",
                     "percentage": "5",
                     "l10n_latam_document_number": "B0400000001",
+                    "journal_id": ecf_purchase_credito_fiscal_invoice[0].journal_id.id,
                 }
             )
         )
