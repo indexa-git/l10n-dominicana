@@ -8,7 +8,7 @@
 
 | Milestone             | Progress        |
 |-----------------------|-----------------|
-| 15.0                  | 0%             |
+| 15.0                  | 80%             |
 | Documentation         | [Sponsor Goal #1](https://github.com/sponsors/indexa-git) |
 | Video tutorials       | Sponsor Goal #2 |
 

@@ -3,13 +3,15 @@ name: Linting
 on:
   push:
     branches:
-      - '**'
+      - '[0-9]+.0'
     paths:
       - '**.py'
 
   pull_request:
     branches:
       - '**'
+    paths:
+      - '**.py'
 
 jobs:
   flake8:
