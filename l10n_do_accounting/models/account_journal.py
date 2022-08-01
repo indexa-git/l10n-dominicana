@@ -123,7 +123,7 @@ class AccountJournal(models.Model):
         else:
             raise ValidationError(
                 _("Partner %s is needed to issue a fiscal invoice")
-                % self._fields["l10n_do_dgii_tax_payer_type"].string
+                % counterpart_partner._fields["l10n_do_dgii_tax_payer_type"].string
             )
         if invoice and invoice.type in ["out_refund", "in_refund"]:
             ncf_types = ["credit_note"]
