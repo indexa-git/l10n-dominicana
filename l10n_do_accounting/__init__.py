@@ -188,7 +188,7 @@ def migrate_invoice_fields(env):
 
         for company in (
             env["res.company"]
-            .search([])
+            .search([("chart_template_id", "!=", False)])
             .filtered(lambda c: c.partner_id.country_id == env.ref("base.do"))
         ):
 
