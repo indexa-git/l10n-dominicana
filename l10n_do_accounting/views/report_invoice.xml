@@ -7,6 +7,7 @@
             <!-- When is a e-CF representation, additional info is displayed -->
             <t t-set="ecf_representation" t-value="o.is_ecf_invoice"/>
             <t t-set="is_l10n_do_invoice" t-value="o.l10n_latam_use_documents and o.company_id.country_id and o.company_id.l10n_do_country_code == 'DO'"/>
+            <t t-set="l10n_do_amounts" t-value="o._get_l10n_do_amounts()"/>
         </xpath>
 
         <!-- Hide when l10n do invoice -->
@@ -238,8 +239,8 @@
 
         <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
                position="before">
-            <t t-set="total_amount_taxed" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if o.env.ref('l10n_do.group_itbis', False) in line.tax_ids.mapped('tax_group_id') and line.price_total > line.price_subtotal)"/>
-            <t t-set="total_exempt_amount" t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
+            <t t-set="total_amount_taxed" t-value="l10n_do_amounts['itbis_taxable_amount']"/>
+            <t t-set="total_exempt_amount" t-value="l10n_do_amounts['itbis_exempt_amount']"/>
 
             <tr class="border-black o_total" t-if="is_l10n_do_invoice and ecf_representation">
                 <td>Monto Gravado</td>
