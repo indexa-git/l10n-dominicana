@@ -182,10 +182,8 @@
             </tr>
         </t>
 
-        <t t-set="total_amount_taxed"
-           t-value="sum(line.price_subtotal for line in o.invoice_line_ids if o.env.ref('l10n_do.group_itbis', False) in line.tax_ids.mapped('tax_group_id') and line.price_total > line.price_subtotal)"/>
-        <t t-set="total_exempt_amount"
-           t-value="sum(line.price_subtotal for line in o.invoice_line_ids if any(True for tax in line.tax_ids if tax.amount == 0))"/>
+        <t t-set="total_amount_taxed" t-value="l10n_do_amounts['itbis_taxable_amount']"/>
+        <t t-set="total_exempt_amount" t-value="l10n_do_amounts['itbis_exempt_amount']"/>
 
         <tr class="border-black o_total" t-if="ecf_representation">
             <td>Monto Gravado</td>
