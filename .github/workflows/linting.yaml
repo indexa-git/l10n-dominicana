@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
@@ -28,7 +28,6 @@ jobs:
           --exclude __unported__,__init__.py,examples --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide  
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
-
       - name: Check Flake8
         uses: TrueBrain/actions-flake8@master
         with:
@@ -39,12 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4.x
 
-      - run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}/.devcontainer/.vscode/oca_pylint.cfg -o oca_pylint.cfg
+      - run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/master/.devcontainer/.vscode/oca_pylint.cfg -o oca_pylint.cfg
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
