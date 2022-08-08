@@ -109,6 +109,49 @@ class AccountMove(models.Model):
         "ECF XML File Name", copy=False, readonly=True
     )
 
+    def _get_l10n_do_amounts(self, company_currency=False):
+        """
+        Method used to to prepare dominican fiscal invoices amounts data. Widely used
+        on reports and electronic invoicing.
+
+        Returned values:
+
+        itbis_amount: Total ITBIS
+        itbis_taxable_amount: Monto Gravado Total (con ITBIS)
+        itbis_exempt_amount: Monto Exento
+        """
+        self.ensure_one()
+        amount_field = company_currency and "balance" or "price_subtotal"
+        sign = -1 if (company_currency and self.is_inbound()) else 1
+
+        itbis_tax_group = self.env.ref("l10n_do.group_itbis", False)
+
+        taxed_move_lines = self.line_ids.filtered("tax_line_id")
+        itbis_taxed_move_lines = taxed_move_lines.filtered(
+            lambda l: itbis_tax_group in l.tax_line_id.mapped("tax_group_id")
+            and l.tax_line_id.amount > 0
+        )
+
+        itbis_taxed_product_lines = self.invoice_line_ids.filtered(
+            lambda l: itbis_tax_group in l.tax_ids.mapped("tax_group_id")
+        )
+
+        return {
+            "itbis_amount": sign * sum(itbis_taxed_move_lines.mapped(amount_field)),
+            "itbis_taxable_amount": sign
+            * sum(
+                line[amount_field]
+                for line in itbis_taxed_product_lines
+                if line.price_total != line.price_subtotal
+            ),
+            "itbis_exempt_amount": sign
+            * sum(
+                line[amount_field]
+                for line in itbis_taxed_product_lines
+                if any(True for tax in line.tax_ids if tax.amount == 0)
+            ),
+        }
+
     @api.depends(
         "l10n_latam_country_code",
         "l10n_latam_document_type_id.l10n_do_ncf_type",
@@ -192,9 +235,16 @@ class AccountMove(models.Model):
                 qr_string += "FechaEmision=%s&" % (
                     invoice.invoice_date or fields.Date.today()
                 ).strftime("%d-%m-%Y")
-            qr_string += "MontoTotal=%s&" % (
-                "%f" % sum(invoice.line_ids.mapped("credit"))
-            ).rstrip("0").rstrip(".")
+
+            l10n_do_amounts = invoice._get_l10n_do_amounts(company_currency=True)
+            l10n_do_total = (
+                l10n_do_amounts["itbis_taxable_amount"]
+                + l10n_do_amounts["itbis_amount"]
+            )
+
+            qr_string += "MontoTotal=%s&" % ("%f" % l10n_do_total).rstrip("0").rstrip(
+                "."
+            )
             if not is_rfc:
                 qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date.strftime(
                     "%d-%m-%Y%%20%H:%M:%S"
