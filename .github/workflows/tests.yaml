@@ -58,25 +58,16 @@ jobs:
       - name: Download python addons script
         run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}/resources/getaddons.py -o getaddons.py
 
-      - name: CamptoCamp odoo-cloud-platform
-        uses: actions/checkout@v3
-        with:
-          repository: camptocamp/odoo-cloud-platform
-          path: odoo-cloud-platform
-          ref: '${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}'
-
       - name: Select Odoo modules to install
         id: get_modules
         run: |
           output=$(python -c "from getaddons import get_modules; print(','.join(get_modules('$GITHUB_WORKSPACE/${{ env.GITHUB_REPOSITORY_SLUG_URL }}', depth=3)))")
           echo $output
           echo "::set-output name=modules::$output"
-
       - name: Set test all tag
         if: ${{ github.event.label.name == 'test all' }}
         run: |
           echo "WITHOUT_TEST_TAGS=1" >> $GITHUB_ENV
-
       - name: Run Odoo tests
         run: |
           docker pull gcr.io/iterativo/dockerdoo:${{ env.GITHUB_BASE_REF_SLUG || env.GITHUB_REF_SLUG }}
