@@ -16,28 +16,37 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - run: pip install flake8
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --exit-zero --select E9,F63,F7,F82 --ignore E203,E501,W503 \
-        --exclude __unported__,__init__.py,examples --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide  
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - run: pip install flake8
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --exit-zero --select E9,F63,F7,F82 --ignore E203,E501,W503 \
+          --exclude __unported__,__init__.py,examples --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide  
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+      - name: Check Flake8
+        uses: TrueBrain/actions-flake8@master
+        with:
+          ignore: E123,E133,E226,E241,E242,F811,F601,W503,W504,E203,F401
+          max_line_length: 120
 
   pylint:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-    - uses: actions/checkout@v2
-    - run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/13.0/.devcontainer/.vscode/oca_pylint.cfg -o oca_pylint.cfg
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - run: pip install pylint_odoo
-    - run: |
-        pylint **/*.py --exit-zero --rcfile oca_pylint.cfg --load-plugins pylint_odoo
+      - uses: actions/checkout@v2
+
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v4.x
+
+      - run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/master/.devcontainer/.vscode/oca_pylint.cfg -o oca_pylint.cfg
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - run: pip install pylint_odoo
+      - run: |
+          pylint **/*.py --exit-zero --rcfile oca_pylint.cfg --load-plugins pylint_odoo
