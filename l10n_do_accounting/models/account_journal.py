@@ -209,3 +209,6 @@ class AccountJournalDocumentType(models.Model):
         required=True,
         default=fields.Date.end_of(fields.Date.today(), "year"),
     )
+    company_id = fields.Many2one(
+        string="Company", related="journal_id.company_id", readonly=True
+    )
