@@ -137,7 +137,7 @@ odoo.define('l10n_do_pos.screens', function (require) {
             for (var n in this.pos.payment_methods) {
                 var current_payment_method = this.pos.payment_methods[n];
 
-                if (current_payment_method.id == 10001) {
+                if (current_payment_method.id === 10001) {
                     // Set the popup options for the payment method Credit Note
                     current_payment_method.popup_options = popup_options;
                 }

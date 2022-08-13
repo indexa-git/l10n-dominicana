@@ -85,7 +85,6 @@ odoo.define('l10n_do_pos.models', function (require) {
             orders.forEach(function (order) {
                 order.number = order.ncf;
                 order.account_move = [order.account_move[0], order.ncf];
-                console.log('order', order);
                 self.db.order_by_id[order.id] = order;
             });
         },
