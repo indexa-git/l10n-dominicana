@@ -158,19 +158,14 @@ class PosOrder(models.Model):
     def _prepare_invoice_vals(self):
         invoice_vals = super(PosOrder, self)._prepare_invoice_vals()
         documents = self.config_id.invoice_journal_id.l10n_latam_use_documents
+
         if documents and self.to_invoice:
             invoice_vals["l10n_latam_sequence_id"] = self.l10n_latam_sequence_id.id
             invoice_vals["l10n_latam_document_number"] = self.l10n_latam_document_number
-            invoice_vals[
-                "l10n_latam_document_type_id"
-            ] = self.l10n_latam_document_type_id.id
-            if invoice_vals["type"] == "out_refund":
-                del invoice_vals["l10n_latam_sequence_id"]
-                invoice_vals["l10n_latam_document_number"] = False
-                del invoice_vals["l10n_latam_document_type_id"]
-            invoice_vals["ncf_expiration_date"] = self.l10n_do_ncf_expiration_date
+            invoice_vals["l10n_latam_document_type_id"] = self.l10n_latam_document_type_id.id
 
-            invoice_vals["l10n_do_origin_ncf"] = self.l10n_latam_document_number
+            invoice_vals["ncf_expiration_date"] = self.l10n_do_ncf_expiration_date
+            invoice_vals["l10n_do_origin_ncf"] = self.l10n_do_origin_ncf
 
             # a POS sale invoice NCF is always an internal sequence
             invoice_vals["is_l10n_do_internal_sequence"] = True
