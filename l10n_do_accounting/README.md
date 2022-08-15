@@ -57,9 +57,9 @@ Para la creación de facturas fiscales dominicanas, es requerida una correcta co
 
 Los de Comprobantes de Compras, Gastos Menores y Pagos al Exterior son documentos fiscales cuya secuencia de comprobante se genera internamente, por lo cual no puede ser digitada como en las Facturas de Compras comunes.
 
-**Comprobante de compras**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Cliente de Consumo
-**Gastos Menores**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Cliente de Consumo
-**Pagos al Exterior**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Extranjero
+- **Comprobante de compras**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Cliente de Consumo
+- **Gastos Menores**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Cliente de Consumo
+- **Pagos al Exterior**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Extranjero
 
 ## Dependencias
 
