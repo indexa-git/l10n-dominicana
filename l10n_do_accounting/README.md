@@ -39,13 +39,15 @@ Una vez configurado el plan contable correcto, Odoo nos crea de manera automáti
 
 ## Cómo usar
 
-#### Creación de contacto
+#### Contactos
 
-<insertar gif>
+Para la creación de facturas fiscales dominicanas, es requerida una correcta configuración de nuestros contactos. Debemos asegurar establecer al menos la razón social, el país, el NIF (número de identificación fiscal o RNC/Cédula) y el tipo de contribuyente. Este último determinará los tipos de comprobantes disponibles para este contacto.
+
+![Contactos](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/1e01f366e81bb16ee207a28710b2a6de5e70bc8b/l10n_do_accounting/static/img/contacto.png)
 
 #### Facturas de ventas
 
-<insertar gif>
+![Ventas](https://github.com/indexa-git/l10n-dominicana/blob/4c8e8bc586d16048f0223728183e84cc1681712c/l10n_do_accounting/static/img/factura_ventas.gif)
 
 #### Facturas de compras
 
