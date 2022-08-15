@@ -32,7 +32,7 @@ Para un correcto uso de la localización dominicana, debemos asegurarnos de conf
 
 #### Diarios
 
-Una vez configurado el plan contable correcto, Odoo nos crea de manera automática todo el catálogo de cuentas, impuestos y diarios. Debemos asegurar que configurar nuestros diarios fiscales de Ventas y Compras. Para esto nos dirigmos a Facturación > Configuración > Diarios. Es desde esta vista también que configurarémos nuestras secuencias de comprobantes.
+Una vez configurado el plan contable correcto, Odoo nos crea de manera automática todo el catálogo de cuentas, impuestos y diarios. Debemos asegurarnos de configurar nuestros diarios fiscales de Ventas y Compras. Para esto nos dirigmos a Facturación > Configuración > Diarios. Es desde esta vista también que configurarémos nuestras secuencias de comprobantes.
 
 <colocar captura de pantalla aqui (ventas y compras)>
 
