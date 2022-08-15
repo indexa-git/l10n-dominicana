@@ -26,16 +26,15 @@ El primer paso para la emisión de facturas fiscales dominicanas es configurar c
 
 #### Plan contable
 
-Para un correcto uso de la localización dominicana, debemos asegurarnos de configurar el Catálogo de Cuentas Dominicano (NIIF) en nuestra compañía. Para esto nos dirigimos a Facturación > Configuración > Configuración y colocampos el plan contable.
+Para un correcto uso de la localización dominicana, debemos asegurarnos de configurar el Catálogo de Cuentas Dominicano (NIIF) en nuestra compañía. Para esto nos dirigimos a Facturación > Configuración > Ajustes y establecemos el plan contable.
 
-<colocar captura de pantalla aqui>
+![Ajustes](https://github.com/indexa-git/l10n-dominicana/blob/69303ca63125d70091260f7784bbc9484ab3ae00/l10n_do_accounting/static/img/ajustes.png?raw=true)
 
 #### Diarios
 
 Una vez configurado el plan contable correcto, Odoo nos crea de manera automática todo el catálogo de cuentas, impuestos y diarios. Debemos asegurarnos de configurar nuestros diarios fiscales de Ventas y Compras. Para esto nos dirigmos a Facturación > Configuración > Diarios. Es desde esta vista también que configurarémos nuestras secuencias de comprobantes.
 
-<colocar captura de pantalla aqui (ventas y compras)>
-
+![Diarios](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/a0107da972e70e5cea107494baaa5bbe1908b7cd/l10n_do_accounting/static/img/diario.png)
 
 
 ## Cómo usar
@@ -55,6 +54,7 @@ Una vez configurado el plan contable correcto, Odoo nos crea de manera automáti
 ## Dependencias
 
 - **l10n_do** (Dominican Republic - Accounting) de Odoo
+
 ## Créditos
 
 ### Autores
