@@ -162,7 +162,9 @@ class PosOrder(models.Model):
         if documents and self.to_invoice:
             invoice_vals["l10n_latam_sequence_id"] = self.l10n_latam_sequence_id.id
             invoice_vals["l10n_latam_document_number"] = self.l10n_latam_document_number
-            invoice_vals["l10n_latam_document_type_id"] = self.l10n_latam_document_type_id.id
+            invoice_vals[
+                "l10n_latam_document_type_id"
+            ] = self.l10n_latam_document_type_id.id
 
             invoice_vals["ncf_expiration_date"] = self.l10n_do_ncf_expiration_date
             invoice_vals["l10n_do_origin_ncf"] = self.l10n_do_origin_ncf
@@ -276,7 +278,7 @@ class PosOrder(models.Model):
 
             # Reconcile Credit Notes
             invoice_rec_line = order.account_move.line_ids.filtered(
-                lambda l: l.debit > 0
+                lambda l: l.debit > 0 and l.account_id.user_type_id.type == "receivable"
             )
             for credit_note in order.l10n_do_payment_credit_note_ids:
                 credit_note_rec_line = credit_note.account_move_id.line_ids.filtered(
