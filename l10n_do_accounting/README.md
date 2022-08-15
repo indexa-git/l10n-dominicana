@@ -20,7 +20,7 @@ Este módulo implementa la gestión y emisión de comprobantes fiscales para el 
 
 #### Compañía
 
-El primer paso para la emisión de facturas fiscales dominicanas es configurar correctamente la compañía. Para esto debe editar o crear una compañía colocando todos los datos generales, principalmente el país y el RNC.
+El primer paso para la emisión de facturas fiscales dominicanas es configurar correctamente la compañía. Para esto debe editar o crear una compañía colocando todos los datos generales, principalmente la razón social, el país y el RNC.
 
 ![Company](https://github.com/indexa-git/l10n-dominicana/blob/930786dcadc742855446eeda5f937cd187f2a64c/l10n_do_accounting/static/img/company.png?raw=true)
 
