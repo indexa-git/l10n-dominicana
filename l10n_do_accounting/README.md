@@ -39,23 +39,27 @@ Una vez configurado el plan contable correcto, Odoo nos crea de manera automáti
 
 ## Cómo usar
 
-#### Contactos
+### Contactos
 
 Para la creación de facturas fiscales dominicanas, es requerida una correcta configuración de nuestros contactos. Debemos asegurar establecer al menos la razón social, el país, el NIF (número de identificación fiscal o RNC/Cédula) y el tipo de contribuyente. Este último determinará los tipos de comprobantes disponibles para este contacto.
 
 ![Contactos](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/1e01f366e81bb16ee207a28710b2a6de5e70bc8b/l10n_do_accounting/static/img/contacto.png)
 
-#### Facturas de ventas
+### Facturas de ventas
 
 ![Ventas](https://github.com/indexa-git/l10n-dominicana/blob/dd6bd5e2be661fd24a00e21b5b87a884897cec8b/l10n_do_accounting/static/img/factura_ventas.png)
 
-#### Facturas de compras
+### Facturas de compras
 
-<insertar gif>
+![Compras](https://github.com/indexa-git/l10n-dominicana/blob/552b2c761987e5de4932ebabad73dd02554dcf1f/l10n_do_accounting/static/img/factura_compras.png)
 
-#### Comprobantes de Compras, Gastos Menores y Pagos al Exterior
+### Comprobantes de Compras, Gastos Menores y Pagos al Exterior
 
-<insertar gif>
+Los de Comprobantes de Compras, Gastos Menores y Pagos al Exterior son documentos fiscales cuya secuencia de comprobante se genera internamente, por lo cual no puede ser digitada como en las Facturas de Compras comunes.
+
+**Comprobante de compras**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Cliente de Consumo
+**Gastos Menores**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Cliente de Consumo
+**Pagos al Exterior**: se debe colocar un proveedor cuyo Tipo de contribuyente sea Extranjero
 
 ## Dependencias
 
@@ -72,4 +76,4 @@ Para la creación de facturas fiscales dominicanas, es requerida una correcta co
 
 Este módulo es mantenido por INDEXA Inc.
 
-<insertar logo de indexa>
+![indexa logo](https://indexa.do/web/image/res.company/1/logo?unique=0d500cf)
