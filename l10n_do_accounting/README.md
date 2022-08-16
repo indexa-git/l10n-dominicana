@@ -48,6 +48,7 @@ Para la creación de facturas fiscales dominicanas, es requerida una correcta co
 ### Facturas de ventas
 
 ![Ventas](https://github.com/indexa-git/l10n-dominicana/blob/dd6bd5e2be661fd24a00e21b5b87a884897cec8b/l10n_do_accounting/static/img/factura_ventas.png)
+<img src="https://github.com/indexa-git/l10n-dominicana/blob/dd6bd5e2be661fd24a00e21b5b87a884897cec8b/l10n_do_accounting/static/img/factura_ventas.png" width="50" height="60">
 
 ### Facturas de compras
 
