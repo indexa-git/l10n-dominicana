@@ -76,4 +76,4 @@ Los de Comprobantes de Compras, Gastos Menores y Pagos al Exterior son documento
 
 Este módulo es mantenido por INDEXA Inc.
 
-![indexa logo](https://indexa.do/web/image/res.company/1/logo?unique=0d500cf =250x250)
+![indexa logo](https://indexa.do/web/image/res.company/1/logo?unique=0d500cf | =250x250)
