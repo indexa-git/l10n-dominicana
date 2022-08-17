@@ -78,6 +78,16 @@ jobs:
           EXTRA_MODULES: ${{ steps.get_modules.outputs.modules }},${{ env.REQUIRED_MODULES }}
           ODOO_EXTRA_ADDONS: /github/workspace
           PGHOST: localhost
+      
+      - name: Zip modules for upload
+        run: sudo apt-get update && sudo apt-get install -y zip && zip -r modules.zip .
+
+      - name: Upload repository results
+        uses: actions/upload-artifact@v2
+        with:
+          name: modules
+          path: modules.zip
+          retention-days: 1
 
   build-gcp:
     name: Build & Push to GCR
@@ -86,7 +96,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
 
     steps:
-      - name: Download  repository results
+      - name: Download repository results
         uses: actions/download-artifact@v2
         with:
           name: modules
