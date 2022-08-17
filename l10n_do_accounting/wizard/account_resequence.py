@@ -8,7 +8,11 @@ class ReSequenceWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         ctx = self.env.context
-        if ctx["active_model"] == "account.move" and "active_ids" in ctx:
+        if (
+            "active_model" in ctx
+            and ctx["active_model"] == "account.move"
+            and "active_ids" in ctx
+        ):
             l10n_do_move_ids = (
                 self.env["account.move"]
                 .browse(ctx["active_ids"])
