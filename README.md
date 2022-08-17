@@ -33,7 +33,7 @@ Vea la [documentación](https://github.com/indexa-git/l10n-dominicana/wiki/Contr
 
 - Indexa Inc y sus empresas relacionadas se reservan el derecho de emprender acciones legales ante cualquier infracción de los términos de licencia de este repositorio.
 
-- Indexa Inc, sus empresas o individuos relacionados en calidad de matenedores, contribuyentes o que haya tenido cualquier otro tipo de interacción directa o indirecta con el código fuente de este repositorio no adquieren compromisos, deudas y/o favores de ningún tipo por los aportes de tipo patrocinio, contribuciones en el código fuente, migraciones de versiones hechos en este repositorio.
+- Indexa Inc, sus empresas o individuos relacionados en calidad de mantenedores, contribuyentes o que haya tenido cualquier otro tipo de interacción directa o indirecta con el código fuente de este repositorio no adquieren compromisos, deudas y/o favores de ningún tipo por los aportes de tipo patrocinio, contribuciones en el código fuente, migraciones de versiones hechos en este repositorio.
 
 ## Sponsors
 
