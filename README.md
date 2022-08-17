@@ -11,7 +11,8 @@ Fue creado en [noviembre 2015](https://github.com/indexa-git/l10n-dominicana/com
 
 Actualmente, y desde la versión 12.0, este repositorio está siendo mantenido por [INDEXA Inc.](https://github.com/indexa-git), empresa de origen dominicano especializado en el framework de Odoo.
 
-El propósito de este repositorio es brindar las funcionalidades mínimas requeridas para la emisión de facturas fiscales dominicanas, utilizando las mejores prácticas y lineamientos de diseño del core; ofreciendo una herramienta fácil de extender y mantener.
+El propósito de este repositorio es brindar las funcionalidades mínimas requeridas para la emisión de facturas fiscales dominicanas, utilizando las mejores prácticas y lineamientos de diseño de Odoo; ofreciendo una herramienta fácil de extender y mantener.
+
 ## Documentación
 
 Acceda al README de cada módulo para ver la documentación
@@ -21,7 +22,6 @@ Acceda al README de cada módulo para ver la documentación
 
 Vea la [documentación](https://github.com/indexa-git/l10n-dominicana/wiki/Contributing) para contribuciones!
 
-
 ## Licencia
 
 [LGPL3](https://github.com/indexa-git/l10n-dominicana/blob/15.0/LICENSE)
@@ -29,7 +29,12 @@ Vea la [documentación](https://github.com/indexa-git/l10n-dominicana/wiki/Contr
 
 ## Términos de uso
 
-Elaborar borrador de las términos de uso
+- Ninguna empresa o individuo, en calidad de autor, mantenedor, contribuyente, patrocinador o que haya realizado cualquier otro tipo de interacción directa o indirecta con el código fuente contenido en este repositorio se hace responsable ante cualquier daño o perjuicio de ningún tipo causado por el mismo.
+
+- Indexa Inc y sus empresas relacionadas se reservan el derecho de emprender acciones legales ante cualquier infracción de los términos de licencia de este repositorio.
+
+- Indexa Inc, sus empresas o individuos relacionados en calidad de matenedores, contribuyentes o que haya tenido cualquier otro tipo de interacción directa o indirecta con el código fuente de este repositorio no adquieren compromisos, deudas y/o favores de ningún tipo por los aportes de tipo patrocinio, contribuciones en el código fuente, migraciones de versiones hechos en este repositorio.
+
 ## Sponsors
 
 Conviértase en sponsor de este proyecto [aquí](https://github.com/sponsors/indexa-git)!
