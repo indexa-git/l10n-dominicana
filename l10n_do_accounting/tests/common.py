@@ -124,6 +124,11 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                     )
                     invoice_line_form.quantity = line.get("quantity", 1)
                     invoice_line_form.price_unit = line.get("price_unit", 100)
+                    if (
+                        invoice_form.l10n_latam_document_type_id.l10n_do_ncf_type[-7:]
+                        == "special"
+                    ):
+                        invoice_line_form.tax_ids.clear()
             invoice_form.invoice_date = invoice_form.date
         invoice = invoice_form.save()
         return invoice
