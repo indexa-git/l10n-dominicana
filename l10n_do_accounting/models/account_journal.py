@@ -172,11 +172,15 @@ class AccountJournal(models.Model):
             lambda doc: doc.l10n_do_ncf_type
             not in document_types.l10n_latam_document_type_id.mapped("l10n_do_ncf_type")
         ):
-            document_types |= self.env["l10n_do.account.journal.document_type"].create(
-                {
-                    "journal_id": self.id,
-                    "l10n_latam_document_type_id": document.id,
-                }
+            document_types |= (
+                self.env["l10n_do.account.journal.document_type"]
+                .sudo()
+                .create(
+                    {
+                        "journal_id": self.id,
+                        "l10n_latam_document_type_id": document.id,
+                    }
+                )
             )
 
     @api.model
