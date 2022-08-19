@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+fiscal_invoice_cancel,fiscal_invoice_cancel,model_account_move_cancel,group_l10n_do_fiscal_invoice_cancel,1,1,1,1

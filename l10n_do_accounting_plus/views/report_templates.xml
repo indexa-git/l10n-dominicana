@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="web_address_layout_inherited" inherit_id="web.address_layout">
+        <!-- do not show company address on document header  -->
+        <xpath expr="//t[@t-if='address']/div" position="attributes">
+            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.company_id.l10n_do_country_code != "DO")</attribute>
+        </xpath>
+    </template>
+
+    <!-- do not show partner address on document header when l10n do invoice -->
+    <!-- <template id="external_layout_clean_inherited" inherit_id="web.external_layout_clean">
+        <xpath expr="//div[hasclass('o_clean_header')]/div/div[@name='company_address']" position="attributes">
+            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.company_id.l10n_do_country_code != "DO")</attribute>
+        </xpath>
+    </template> -->
+    <template id="external_layout_standard_inherited" inherit_id="web.external_layout_standard">
+        <xpath expr="//div[@name='company_address']" position="attributes">
+            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.company_id.l10n_do_country_code != "DO")</attribute>
+        </xpath>
+    </template>
+    <!-- <template id="external_layout_background_inherited" inherit_id="web.external_layout_background">
+        <xpath expr="//div[hasclass('company_address')]" position="attributes">
+            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.company_id.l10n_do_country_code != "DO")</attribute>
+        </xpath>
+    </template> -->
+    <template id="external_layout_boxed_inherited" inherit_id="web.external_layout_boxed">
+        <xpath expr="//div[@name='company_address']" position="attributes">
+            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.company_id.l10n_do_country_code != "DO")</attribute>
+        </xpath>
+    </template>
+
+</odoo>

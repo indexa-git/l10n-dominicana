@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu para la version comunitaria -->
+    <!-- <menuitem id="account_dgii_menu" name="DGII"
+              parent="account.menu_finance"
+              sequence="5"
+              groups="account.group_account_user"/> -->
+
+    <!-- Menu para version Enterprise -->
+    <menuitem id="account_dgii_menu" name="DGII"
+              parent="account.menu_finance_entries"
+              sequence="0"
+              groups="account.group_account_user"/>
+
+    <!-- <menuitem id="dgii_report_parent_menu" name="Data Sending"
+              parent="account_dgii_menu"
+              sequence="5"/> -->
+
+    <menuitem id="dgii_report_menu" action="dgii_report_action"
+              name="Data Sending"
+              parent="account_dgii_menu"
+              sequence="14"/>
+</odoo>

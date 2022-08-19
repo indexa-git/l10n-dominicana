@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+
+    <record id="sueldos_salarios" model="invoice.service.type.detail">
+        <field name="name">Sueldo y Salario</field>
+        <field name="code">11</field>
+        <field name="parent_code">01</field>
+    </record>
+
+    <record id="otros_gastos_personal" model="invoice.service.type.detail">
+        <field name="name">Otros Gastos de Personal</field>
+        <field name="code">12</field>
+        <field name="parent_code">01</field>
+    </record>
+
+    <record id="honorarios_seriviocs_profesionales_morales" model="invoice.service.type.detail">
+        <field name="name">Honorarios por Servicios Profesionales (Personas Morales)</field>
+        <field name="code">21</field>
+        <field name="parent_code">02</field>
+    </record>
+
+    <record id="honorarios_seriviocs_profesionales_fisicas" model="invoice.service.type.detail">
+        <field name="name">Honorarios por Servicios Profesionales (Personas Físicas)</field>
+        <field name="code">22</field>
+        <field name="parent_code">02</field>
+    </record>
+
+    <record id="seguridad_mensajeria_transporte_fisicas" model="invoice.service.type.detail">
+        <field name="name">Seguridad, Mensajería, Transporte y otros Servicios (Personas Físicas)</field>
+        <field name="code">23</field>
+        <field name="parent_code">02</field>
+    </record>
+
+    <record id="seguridad_mensajeria_transporte_morales" model="invoice.service.type.detail">
+        <field name="name">Seguridad, Mensajería, Transporte y otros Servicios (Personas Morales)</field>
+        <field name="code">24</field>
+        <field name="parent_code">02</field>
+    </record>
+
+    <record id="inmuebles_fisicas" model="invoice.service.type.detail">
+        <field name="name">De Inmuebles (A Personas Físicas)</field>
+        <field name="code">31</field>
+        <field name="parent_code">03</field>
+    </record>
+
+    <record id="inmuebles_morales" model="invoice.service.type.detail">
+        <field name="name">De Inmuebles (A Personas Morales)</field>
+        <field name="code">32</field>
+        <field name="parent_code">03</field>
+    </record>
+
+    <record id="otros_arrendamientos" model="invoice.service.type.detail">
+        <field name="name">Otros Arrendamientos</field>
+        <field name="code">33</field>
+        <field name="parent_code">03</field>
+    </record>
+
+    <record id="reparaciones" model="invoice.service.type.detail">
+        <field name="name">Reparación</field>
+        <field name="code">41</field>
+        <field name="parent_code">04</field>
+    </record>
+
+    <record id="mantenimiento" model="invoice.service.type.detail">
+        <field name="name">Mantenimiento</field>
+        <field name="code">42</field>
+        <field name="parent_code">04</field>
+    </record>
+
+    <record id="relaciones_publicas" model="invoice.service.type.detail">
+        <field name="name">Relaciones Públicas</field>
+        <field name="code">51</field>
+        <field name="parent_code">05</field>
+    </record>
+
+    <record id="publicidad_promocional" model="invoice.service.type.detail">
+        <field name="name">Publicidad Promocional</field>
+        <field name="code">52</field>
+        <field name="parent_code">05</field>
+    </record>
+
+    <record id="promocional" model="invoice.service.type.detail">
+        <field name="name">Promocional</field>
+        <field name="code">53</field>
+        <field name="parent_code">05</field>
+    </record>
+
+    <record id="otros_gastos_representacion" model="invoice.service.type.detail">
+        <field name="name">Otros Gastos de Representación</field>
+        <field name="code">54</field>
+        <field name="parent_code">05</field>
+    </record>
+
+    <record id="prestamos_bancos" model="invoice.service.type.detail">
+        <field name="name">Por Préstamos con Bancos</field>
+        <field name="code">61</field>
+        <field name="parent_code">06</field>
+    </record>
+
+    <record id="prestamo_financiamiento" model="invoice.service.type.detail">
+        <field name="name">Por Préstamos con Financiamiento</field>
+        <field name="code">62</field>
+        <field name="parent_code">06</field>
+    </record>
+
+    <record id="prestamo_persona_fisica" model="invoice.service.type.detail">
+        <field name="name">Por Préstamos con Personas Físicas</field>
+        <field name="code">63</field>
+        <field name="parent_code">06</field>
+    </record>
+
+    <record id="prestamo_organismo_internac" model="invoice.service.type.detail">
+        <field name="name">Por Préstamos con Organismos Internacionales</field>
+        <field name="code">64</field>
+        <field name="parent_code">06</field>
+    </record>
+
+    <record id="otros_gastos_financieros" model="invoice.service.type.detail">
+        <field name="name">Otros Gastos Financieros</field>
+        <field name="code">65</field>
+        <field name="parent_code">06</field>
+    </record>
+
+    <record id="gasto_seguro" model="invoice.service.type.detail">
+        <field name="name">Gastos de Seguro</field>
+        <field name="code">71</field>
+        <field name="parent_code">07</field>
+    </record>
+
+    <record id="cesion_uso_marca" model="invoice.service.type.detail">
+        <field name="name">Cesión / Uso Marca</field>
+        <field name="code">81</field>
+        <field name="parent_code">08</field>
+    </record>
+
+    <record id="transf_know_how" model="invoice.service.type.detail">
+        <field name="name">Transferencias de Know-How</field>
+        <field name="code">82</field>
+        <field name="parent_code">08</field>
+    </record>
+
+    <record id="cesion_uso_patente" model="invoice.service.type.detail">
+        <field name="name">Cesión / Uso de Patente</field>
+        <field name="code">83</field>
+        <field name="parent_code">08</field>
+    </record>
+
+    <record id="otras_regalias" model="invoice.service.type.detail">
+        <field name="name">Otras Regalías</field>
+        <field name="code">84</field>
+        <field name="parent_code">08</field>
+    </record>
+
+    <record id="action_run_norma_recompute" model="ir.actions.server">
+        <field name="name">Recalcular norma 07-2018</field>
+        <field name="model_id" ref="model_account_move"/>
+        <field name="binding_model_id" ref="model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">
+            model.norma_recompute()
+        </field>
+    </record>
+
+</odoo>

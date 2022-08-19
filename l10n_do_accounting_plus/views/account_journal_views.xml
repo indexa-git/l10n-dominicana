@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_journal_form" model="ir.ui.view">
+        <field name="model">account.journal</field>
+        <field name="name">account.journal.form</field>
+        <field name="inherit_id" ref="l10n_latam_invoice_document_plus.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']/.." position="inside">
+                <field name="l10n_do_sequence_ids" nolabel="1" colspan="2" attrs="{'invisible': [('l10n_latam_use_documents', '=', False)]}">
+                    <tree create="false" delete="false" editable="top" default_order="id">
+                        <field name="name" readonly="True" string="Sequence"/>
+                        <field name="number_next_actual" string="Next Number"/>
+                        <field name="expiration_date" string="Expiration Date"/>
+                        <field name="id" invisible="1"/>
+                    </tree>
+                </field>
+            </xpath>
+            <!-- <label for="sequence_number_next" position="attributes">
+                <attribute name="attrs">{'invisible': [('l10n_latam_use_documents', '=', True), ('l10n_latam_country_code', '=', 'DO')]}</attribute>
+            </label> -->
+            <field name="refund_sequence" position="attributes">
+                <attribute name="attrs">{'invisible': [('l10n_latam_use_documents', '=', True), ('l10n_latam_country_code', '=', 'DO')]}</attribute>
+            </field>
+            <!-- <xpath expr="//field[@name='sequence_number_next']/.." position="attributes">
+                <attribute name="attrs">{'invisible': [('l10n_latam_use_documents', '=', True), ('l10n_latam_country_code', '=', 'DO')]}</attribute>
+            </xpath> -->
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="l10n_do_payment_form" attrs="{
+                'invisible': ['|', ('type','not in',('cash','bank')), ('l10n_latam_country_code', '!=', 'DO')],
+                'required': [('type','in',('cash','bank')), ('l10n_latam_country_code', '=', 'DO')]
+                }"/>
+            </xpath>
+            <field name="refund_sequence" position="attributes">
+                <attribute name="attrs">{'invisible': [('l10n_latam_use_documents', '=', True)]}</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

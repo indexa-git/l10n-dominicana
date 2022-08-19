@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Fiscal Tax Payer -->
+
+    <record id="demo_partner_marcos" model="res.partner">
+        <field name="name">MARCOS ORGANIZADOR DE NEGOCIOS SRL</field>
+        <field name="is_company" eval="True"/>
+        <field name="street">Avenida de Los Próceres</field>
+        <field name="country_id" ref="base.do"/>
+        <field name="city">Santo Domingo</field>
+        <field name="vat">131098193</field>
+        <field name="l10n_do_dgii_tax_payer_type">taxpayer</field>
+        <field name="email">info@marcos.do</field>
+        <field name="phone">809-540-4253</field>
+        <field name="website">https://marcos.do/</field>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/demo/marcos_logo.png"/>
+    </record>
+    <record id="demo_partner_iterativo" model="res.partner">
+        <field name="name">ITERATIVO SRL</field>
+        <field name="is_company" eval="True"/>
+        <field name="street">Rafael Augusto Sánchez 86</field>
+        <field name="street2">Roble Corporate Center</field>
+        <field name="zip">10148</field>
+        <field name="country_id" ref="base.do"/>
+        <field name="city">Piantini</field>
+        <field name="vat">131566332</field>
+        <field name="l10n_do_dgii_tax_payer_type">taxpayer</field>
+        <field name="email">info@iterativo.do</field>
+        <field name="phone">829-956-5191</field>
+        <field name="website">https://iterativo.do/</field>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/demo/iterativo_logo.png"/>
+    </record>
+    <record id="demo_partner_indexa" model="res.partner">
+        <field name="name">INDEXA SRL</field>
+        <field name="is_company" eval="True"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="street">Rafael Augusto Sánchez 86</field>
+        <field name="street2">Roble Corporate Center</field>
+        <field name="city">Piantini</field>
+        <field name="vat">131793916</field>
+        <field name="l10n_do_dgii_tax_payer_type">taxpayer</field>
+        <field name="email">info@indexa.do</field>
+        <field name="phone">829-939-3231</field>
+        <field name="website">https://indexa.do/</field>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/demo/indexa_logo.png"/>
+    </record>
+    <record id="demo_partner_katana_labs" model="res.partner">
+        <field name="name">KATANA LABS SRL</field>
+        <field name="is_company" eval="True"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="street">José Reyes 48</field>
+        <field name="street2">2da Planta</field>
+        <field name="city">Zona Colonial</field>
+        <field name="vat">132116852</field>
+        <field name="l10n_do_dgii_tax_payer_type">taxpayer</field>
+        <field name="email">info@katanalabs.do</field>
+        <field name="phone">829-399-5150</field>
+        <field name="website">https://katanalabs.do/</field>
+        <field name="image_1920" type="base64" file="l10n_do_accounting/demo/katanalabs_logo.png"/>
+    </record>
+
+    <!-- Non Tax Payer -->
+
+    <record id="demo_partner_jose" model="res.partner">
+        <field name="name">JOSE LUIS LOPEZ GONZALEZ</field>
+        <field name="is_company" eval="False"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">22400559690</field>
+        <field name="l10n_do_dgii_tax_payer_type">non_payer</field>
+        <field name="email">joselopezg8@gmail.com</field>
+        <field name="phone">829-939-3231</field>
+    </record>
+    <record id="demo_partner_akevinieron" model="res.partner">
+        <field name="name">KEVIN JIMENEZ LORENZO</field>
+        <field name="is_company" eval="False"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">40222200327</field>
+        <field name="l10n_do_dgii_tax_payer_type">non_payer</field>
+        <field name="email">kevinjimenezlorenzo@gmail.com</field>
+    </record>
+
+    <!-- Exempt from Tax Paying -->
+
+    <record id="demo_partner_zf_americas" model="res.partner">
+        <field name="name">ZONA FRANCA INDUSTRIAL DE LAS AMERICAS S A</field>
+        <field name="is_company" eval="True"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">101168481</field>
+        <field name="l10n_do_dgii_tax_payer_type">special</field>
+        <field name="phone">809-549-2031</field>
+    </record>
+
+    <!-- Nonprofit Organization -->
+
+    <record id="demo_partner_ffh" model="res.partner">
+        <field name="name">FOOD FOR THE HUNGRY Y DOM</field>
+        <field name="is_company" eval="True"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">401051842</field>
+        <field name="l10n_do_dgii_tax_payer_type">nonprofit</field>
+        <field name="phone">800-248-6437</field>
+    </record>
+
+    <!-- Governmental -->
+
+    <record id="demo_partner_industria" model="res.partner">
+        <field name="name">MINISTERIO DE INDUSTRIA Y COMERCIO Y MIPYMES</field>
+        <field name="is_company" eval="True"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">401007355</field>
+        <field name="l10n_do_dgii_tax_payer_type">governmental</field>
+        <field name="email">info@micm.gob.do</field>
+        <field name="phone">809-567-7192</field>
+    </record>
+    <record id="demo_partner_educacion" model="res.partner">
+        <field name="name">MINISTERIO DE EDUCACION SUPERIOR CIENCIA Y TECNOLOGIA</field>
+        <field name="is_company" eval="True"/>
+        <field name="country_id" ref="base.do"/>
+        <field name="vat">401505657</field>
+        <field name="l10n_do_dgii_tax_payer_type">governmental</field>
+        <field name="phone">809-731-1100</field>
+    </record>
+
+    <!-- Foreigner: any contact created by odoo base
+         module would take this l10n_do_dgii_tax_payer_type -->
+
+</odoo>

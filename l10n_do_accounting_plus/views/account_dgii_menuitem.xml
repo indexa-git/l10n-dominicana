@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- This menu is meant to be inherited on external fiscal reports modules  -->
+    <menuitem id="menu_dgii_config" name="DGII" parent="account.menu_finance_configuration" sequence="25"/>
+</odoo>
