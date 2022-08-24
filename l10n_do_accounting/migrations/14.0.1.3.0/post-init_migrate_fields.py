@@ -11,12 +11,16 @@ def migrate_ref_field(env):
     ref field is used from sale and purchase modules and may
     raise an error if you send anything else than an NCF/ECF.
     So we implement a new field l10n_do_fiscal_number to store
-    fiscal number instead of using ref
+    fiscal number instead of using ref.
+
+    Also compute l10n_do_sequence_prefix and l10n_do_sequence_number fields
     """
 
     query = """
     UPDATE account_move
-    SET l10n_do_fiscal_number = ref
+    SET l10n_do_fiscal_number = ref,
+    l10n_do_sequence_prefix=SUBSTRING(ref FROM 1 FOR 3),
+    l10n_do_sequence_number=CAST(SUBSTRING(ref FROM 4 FOR 13) AS INTEGER)
     WHERE l10n_do_fiscal_number IS NULL
     AND LENGTH(ref) IN (11, 13)
     AND ref LIKE 'B%' OR ref LIKE 'E%'
