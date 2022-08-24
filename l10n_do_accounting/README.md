@@ -34,7 +34,15 @@ Para un correcto uso de la localización dominicana, debemos asegurarnos de conf
 
 Una vez configurado el plan contable correcto, Odoo nos crea de manera automática todo el catálogo de cuentas, impuestos y diarios. Debemos asegurarnos de configurar nuestros diarios fiscales de Ventas y Compras. Para esto nos dirigmos a Facturación > Configuración > Diarios. Es desde esta vista también que configurarémos nuestras secuencias de comprobantes.
 
+**Nota**: a partir de la versión 14.0 en los diarios no se coloca ni se gestiona la secuencia de comprobante a utilizar; esto debido a cambios implementados por Odoo en la manera en que se obtienen las secuencias en las facturas. Para más detalles técnicos consultar los siguientes commits de Odoo: 
+https://github.com/odoo/odoo/commit/dfd01b8c5c7e1177f37bf199790a0732a61eed78
+https://github.com/odoo/odoo/commit/e8286ce4d9e28c98436a4422621356c76c386d3f
+
 ![Diarios](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/a0107da972e70e5cea107494baaa5bbe1908b7cd/l10n_do_accounting/static/img/diario.png)
+
+Para colocar la **primera secuencia (y solo la primera)** de comprobante fiscal para cualquier tipo de documento debemos introducirlo manualmente en la factura:
+
+![Contactos](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/1e01f366e81bb16ee207a28710b2a6de5e70bc8b/l10n_do_accounting/static/img/primera_factura_ventas.png)
 
 
 ## Cómo usar
