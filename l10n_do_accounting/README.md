@@ -38,11 +38,11 @@ Una vez configurado el plan contable correcto, Odoo nos crea de manera automáti
 https://github.com/odoo/odoo/commit/dfd01b8c5c7e1177f37bf199790a0732a61eed78
 https://github.com/odoo/odoo/commit/e8286ce4d9e28c98436a4422621356c76c386d3f
 
-![Diarios](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/a0107da972e70e5cea107494baaa5bbe1908b7cd/l10n_do_accounting/static/img/diario.png)
+![Diarios](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/abb34dfa73ec3f0ab4904da7d64c292126cf4ec3/l10n_do_accounting/static/img/diario.png)
 
 Para colocar la **primera secuencia (y solo la primera)** de comprobante fiscal para cualquier tipo de documento debemos introducirlo manualmente en la factura:
 
-![Contactos](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/1e01f366e81bb16ee207a28710b2a6de5e70bc8b/l10n_do_accounting/static/img/primera_factura_ventas.png)
+![Contactos](https://raw.githubusercontent.com/indexa-git/l10n-dominicana/abb34dfa73ec3f0ab4904da7d64c292126cf4ec3/l10n_do_accounting/static/img/primera_factura_ventas.png)
 
 
 ## Cómo usar
