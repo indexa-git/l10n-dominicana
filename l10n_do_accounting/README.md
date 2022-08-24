@@ -64,6 +64,7 @@ Los de Comprobantes de Compras, Gastos Menores y Pagos al Exterior son documento
 ## Dependencias
 
 - **l10n_do** (Dominican Republic - Accounting) de Odoo
+- **l10n_latam_invoice_document** (LATAM Document) de Odoo
 
 ## Créditos
 
