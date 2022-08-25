@@ -149,6 +149,8 @@
 
     <template id="document_tax_totals">
 
+        <t t-set="l10n_do_amounts" t-value="o._get_l10n_do_amounts()"/>
+
         <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
             <tr class="border-black o_subtotal">
                 <td>
