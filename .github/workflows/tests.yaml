@@ -13,15 +13,10 @@ on:
   pull_request:
     branches:
       - '[0-9]+.0'
-    paths:
-      - '**/workflows/**'
-      - '**/src/**'
-      - '**/i18n/**'
-      - '**.py'
-      - '**.xml'
+    types: [ labeled ]
 
 env:
-  REQUIRED_MODULES: 'session_redis' # list of addional addons to install separated by comma
+  REQUIRED_MODULES: 'l10n_generic_coa' # list of addional addons to install separated by comma
   TEST_TAGS: '0'
 
 jobs:
@@ -84,16 +79,6 @@ jobs:
           ODOO_EXTRA_ADDONS: /github/workspace
           PGHOST: localhost
       
-      - name: Zip modules for upload
-        run: sudo apt-get update && sudo apt-get install -y zip && zip -r modules.zip .
-
-      - name: Upload repository results
-        uses: actions/upload-artifact@v2
-        with:
-          name: modules
-          path: modules.zip
-          retention-days: 1
-
       - name: Zip modules for upload
         run: sudo apt-get update && sudo apt-get install -y zip && zip -r modules.zip .
 
