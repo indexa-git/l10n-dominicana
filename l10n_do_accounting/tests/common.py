@@ -143,3 +143,13 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
             invoice_form.invoice_date = invoice_form.date
         invoice = invoice_form.save()
         return invoice
+
+    @classmethod
+    def setup_company_data(cls, company_name, chart_template=None, **kwargs):
+        # OVERRIDE prevent core tests errors if EUR is not active
+        eur = cls.env.ref("base.EUR")
+        if not eur.active:
+            eur.active = True
+        return super(L10nDOTestsCommon, cls).setup_company_data(
+            company_name, chart_template=chart_template, **kwargs
+        )
