@@ -9,7 +9,7 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
 
         cls.company_data["company"].write(
             {
-                "currency_id": cls.env.ref("base.DOP").id,
+                # "currency_id": cls.env.ref("base.DOP").id,
                 "name": "INDEXA SRL",
                 "vat": "131793916",
                 "country_id": cls.env.ref("base.do").id,
