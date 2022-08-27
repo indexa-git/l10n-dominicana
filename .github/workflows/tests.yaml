@@ -16,7 +16,7 @@ on:
     types: [ labeled ]
 
 env:
-  REQUIRED_MODULES: 'l10n_generic_coa' # list of addional addons to install separated by comma
+  REQUIRED_MODULES: # list of addional addons to install separated by comma
   TEST_TAGS: '0'
 
 jobs:
