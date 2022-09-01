@@ -154,6 +154,7 @@ class AccountJournal(models.Model):
             return
 
         document_types = self.l10n_do_document_type_ids
+        document_types.unlink()
         fiscal_types = self._get_journal_ncf_types()
 
         if self.type == "purchase":
