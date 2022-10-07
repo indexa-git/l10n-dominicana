@@ -39,10 +39,10 @@ class AccountMoveCancel(models.TransientModel):
                         "already in 'Paid' state."
                     )
                 )
-            invoice.write(
-                {
-                    "state": "cancel",
-                    "l10n_do_cancellation_type": self.l10n_do_cancellation_type,
-                }
-            )
+
+            # we call button_cancel() so dependency chain is
+            # not broken in other modules extending that function
+            invoice.with_context(skip_cancel_wizard=True).button_cancel()
+            invoice.l10n_do_cancellation_type = self.l10n_do_cancellation_type
+
         return {"type": "ir.actions.act_window_close"}
