@@ -3,6 +3,7 @@
         <t t-extend="OrderReceipt">
                 <!-- Information -->
                 <t t-jquery=".pos-receipt-contact" t-operation="after">
+                    <t t-if="pos.company.country_id == '61,República Dominicana'">
                         <div class="pos-receipt-contact">
                                 <div>RES-DGII: 23-2009 DEL 6/ABRIL/2009</div>
                                 <em> COMPROBANTE AUTORIZADO POR LA DGII</em>
@@ -36,15 +37,10 @@
                                 </strong>
                             </t>
                                              <hr/>
-                            <t t-if="order.l10n_latam_document_type.doc_code_prefix != 'B01'" style="tex">
-                                <strong> Factura Para Consumidor Final</strong>
-                                <br/>
+                            <t t-if="order.l10n_latam_document_type" style="tex">
+                                Factura de: <t t-esc="order.l10n_latam_document_type.name"/>
                             </t>
-                            <t t-else="">
-                                <strong>Factura Para Credito Fiscal</strong>
-                                <br/>
-                            </t>
-                                             <hr/>
+                         <hr/>
                         </div>
                     <div class="pos-receipt-left-padding" margin="20%">
                         <strong>DESCRIPCION</strong>
@@ -53,9 +49,9 @@
                     </div>
                     <hr/>
                 </t>
+            </t>
 
                 <!-- orderlines -->
-
                 <t t-jquery=".orderlines" t-operation="inner">
                     <table class="receipt-orderlines">
                     <tr t-foreach='receipt.orderlines' t-as='line'>
@@ -100,6 +96,6 @@
                     </tr>
                     </table>
                 </t>
-        </t>
+            </t>
 </templates>
 
