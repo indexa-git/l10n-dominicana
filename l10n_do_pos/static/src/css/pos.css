@@ -12,6 +12,33 @@
 }
 
 /* c) The receipt screen */
+.pos-receipt .pos-receipt-amount {
+    font-size: 19px;
+    padding-left: 3em;
+}
+.pos-receipt .pos-receipt-left-padding {
+    padding-left: 5%;
+}
+.pos-receipt-contact-before{
+    text-align: center;
+    font-size: 75%;
+}
+
+hr {
+  border: none;
+  border-top: 1px dotted;
+  height: 1px;
+  width: 103%;
+}
+
+.dotted_line {
+    border: 1px dashed black;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    padding: .5em 0;
+    margin: .9em 0 0 0;
+}
 
 .dotted_ticket_title {
     border: 1px dashed black;
