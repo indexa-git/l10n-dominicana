@@ -321,6 +321,9 @@ class AccountMove(models.Model):
             action["context"] = {"default_move_id": fiscal_invoice.id}
             return action
 
+        for move in self:
+            move.mapped('line_ids.analytic_line_ids').unlink()
+
         return super(AccountMove, self).button_cancel()
 
     def action_reverse(self):
