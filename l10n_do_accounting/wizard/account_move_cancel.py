@@ -42,6 +42,7 @@ class AccountMoveCancel(models.TransientModel):
 
             # we call button_cancel() so dependency chain is
             # not broken in other modules extending that function
+            invoice.mapped("line_ids.analytic_line_ids").unlink()
             invoice.with_context(skip_cancel_wizard=True).button_cancel()
             invoice.l10n_do_cancellation_type = self.l10n_do_cancellation_type
 
