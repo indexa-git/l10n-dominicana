@@ -810,7 +810,11 @@ class AccountMove(models.Model):
             format_values["seq"] = 0
         format_values["seq"] = format_values["seq"] + 1
 
-        if self.state != "draft" and not self[self._l10n_do_sequence_field]:
+        if (
+            self.env.context.get("prefetch_seq")
+            or self.state != "draft"
+            and not self[self._l10n_do_sequence_field]
+        ):
             self[
                 self._l10n_do_sequence_field
             ] = self.l10n_latam_document_type_id._format_document_number(
