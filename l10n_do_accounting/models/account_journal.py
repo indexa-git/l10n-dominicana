@@ -142,7 +142,9 @@ class AccountJournal(models.Model):
         self.ensure_one()
         if self.type == "purchase":
             return []
-        return ["E"] if self.company_id.l10n_do_ecf_issuer else ["B"]
+        elif self.type == "sale" and self.company_id.l10n_do_ecf_issuer:
+            return ["E"]
+        return ["B"]
 
     def _l10n_do_create_document_types(self):
         self.ensure_one()
