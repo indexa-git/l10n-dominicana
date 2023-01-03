@@ -240,6 +240,7 @@ class AccountMove(models.Model):
             l10n_do_total = (
                 l10n_do_amounts["itbis_taxable_amount"]
                 + l10n_do_amounts["itbis_amount"]
+                + l10n_do_amounts["itbis_exempt_amount"]
             )
 
             qr_string += "MontoTotal=%s&" % ("%f" % l10n_do_total).rstrip("0").rstrip(
