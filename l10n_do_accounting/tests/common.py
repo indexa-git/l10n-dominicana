@@ -13,6 +13,7 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
             "INDEXA SRL",
             chart_template=cls.env.ref(chart_template_ref),
             vat="131793916",
+            street="dummy address",
             country_id=cls.env.ref("base.do").id,
         )["company"]
         cls.fiscal_partner = cls.env["res.partner"].create(
