@@ -570,7 +570,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "document_number": "E310000000001",
             }
         )
-        sale_invoice_1_id._post()
+        sale_invoice_1_id.with_context(testing=True)._post()
 
         self.do_company.l10n_do_ecf_issuer = False
 
