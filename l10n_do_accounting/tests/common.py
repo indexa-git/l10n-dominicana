@@ -12,6 +12,7 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                 "currency_id": cls.env.ref("base.DOP").id,
                 "name": "INDEXA SRL",
                 "vat": "131793916",
+                "street": "dummy address",
                 "country_id": cls.env.ref("base.do").id,
             }
         )
