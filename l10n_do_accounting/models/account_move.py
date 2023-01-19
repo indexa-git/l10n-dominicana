@@ -254,7 +254,6 @@ class AccountMove(models.Model):
             )
 
     @api.depends("l10n_do_ecf_security_code", "l10n_do_ecf_sign_date", "invoice_date")
-    @api.depends_context("l10n_do_ecf_service_env")
     def _compute_l10n_do_electronic_stamp(self):
 
         l10n_do_ecf_invoice = self.filtered(
@@ -265,7 +264,11 @@ class AccountMove(models.Model):
 
         for invoice in l10n_do_ecf_invoice:
 
-            ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "CerteCF")
+            if hasattr(invoice.company_id, "l10n_do_ecf_service_env"):
+                ecf_service_env = invoice.company_id.l10n_do_ecf_service_env
+            else:
+                ecf_service_env = "TesteCF"
+
             doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
             is_rfc = (  # Es un Resumen Factura Consumo
                 doc_code_prefix == "E32" and invoice.amount_total_signed < 250000
