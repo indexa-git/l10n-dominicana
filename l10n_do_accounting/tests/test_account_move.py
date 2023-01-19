@@ -619,7 +619,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             }
         )
         self.assertEqual(sale_invoice_1_id.l10n_do_electronic_stamp, stamp)
-        sale_invoice_1_id._post()
+        sale_invoice_1_id.with_context(testing=True)._post()
 
     def test_007_unique_sequence_number(self):
         """
