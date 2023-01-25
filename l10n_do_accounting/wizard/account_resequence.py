@@ -12,6 +12,7 @@ class ReSequenceWizard(models.TransientModel):
             "active_model" in ctx
             and ctx["active_model"] == "account.move"
             and "active_ids" in ctx
+            and "skip_validation" not in ctx
         ):
             l10n_do_move_ids = (
                 self.env["account.move"]
