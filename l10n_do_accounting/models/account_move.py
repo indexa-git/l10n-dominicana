@@ -150,6 +150,17 @@ class AccountMove(models.Model):
                 for line in itbis_taxed_product_lines
                 if any(True for tax in line.tax_ids if tax.amount == 0)
             ),
+            "invoice_total": self.amount_untaxed
+            + sum(
+                (
+                    line.debit or line.credit
+                    if self.currency_id == self.company_id.currency_id
+                    else abs(line.amount_currency)
+                )
+                for line in self.line_ids.filtered(
+                    lambda l: l.tax_line_id and l.tax_line_id.amount > 0
+                )
+            ),
         }
 
     @api.depends(
@@ -236,12 +247,9 @@ class AccountMove(models.Model):
                     invoice.invoice_date or fields.Date.today()
                 ).strftime("%d-%m-%Y")
 
-            l10n_do_amounts = invoice._get_l10n_do_amounts(company_currency=True)
-            l10n_do_total = (
-                l10n_do_amounts["itbis_taxable_amount"]
-                + l10n_do_amounts["itbis_amount"]
-                + l10n_do_amounts["itbis_exempt_amount"]
-            )
+            l10n_do_total = invoice._get_l10n_do_amounts(company_currency=True)[
+                "invoice_total"
+            ]
 
             qr_string += "MontoTotal=%s&" % ("%f" % l10n_do_total).rstrip("0").rstrip(
                 "."
