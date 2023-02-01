@@ -265,7 +265,7 @@
             <attribute name="t-if">not is_l10n_do_invoice</attribute>
         </xpath>
         <xpath expr="//span[@t-field='o.amount_total']" position="after">
-            <t t-set="l10n_do_amount_total" t-value="o.amount_untaxed + sum((line.debit or line.credit if o.currency_id == o.company_id.currency_id else abs(line.amount_currency)) for line in o.line_ids.filtered(lambda l: l.tax_line_id and l.tax_line_id.amount > 0))"/>
+            <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts['invoice_total']"/>
             <span t-if="is_l10n_do_invoice" class="text-nowrap" t-esc="l10n_do_amount_total"
                   t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
         </xpath>
