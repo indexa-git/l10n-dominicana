@@ -227,7 +227,7 @@ class AccountMove(models.Model):
                 for line in itbis_taxed_product_lines
                 if any(True for tax in line.tax_ids if tax.amount == 0)
             ),
-            "invoice_total": self.amount_untaxed
+            "invoice_total": abs(self.amount_untaxed_signed)
             + sum(
                 (
                     line.debit or line.credit
