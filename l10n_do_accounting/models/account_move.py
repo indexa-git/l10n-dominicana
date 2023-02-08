@@ -150,7 +150,18 @@ class AccountMove(models.Model):
                 for line in itbis_taxed_product_lines
                 if any(True for tax in line.tax_ids if tax.amount == 0)
             ),
-            "invoice_total": abs(self.amount_untaxed_signed)
+            "company_invoice_total": abs(self.amount_untaxed_signed)
+            + sum(
+                (
+                    line.debit or line.credit
+                    if self.currency_id == self.company_id.currency_id
+                    else abs(line.amount_currency)
+                )
+                for line in self.line_ids.filtered(
+                    lambda l: l.tax_line_id and l.tax_line_id.amount > 0
+                )
+            ),
+            "invoice_total": abs(self.amount_untaxed)
             + sum(
                 (
                     line.debit or line.credit
@@ -248,7 +259,7 @@ class AccountMove(models.Model):
                 ).strftime("%d-%m-%Y")
 
             l10n_do_total = invoice._get_l10n_do_amounts(company_currency=True)[
-                "invoice_total"
+                "company_invoice_total"
             ]
 
             qr_string += "MontoTotal=%s&" % ("%f" % l10n_do_total).rstrip("0").rstrip(
