@@ -101,7 +101,7 @@ class Partner(models.Model):
 
     @api.depends("vat", "country_id", "name")
     def _compute_l10n_do_dgii_payer_type(self):
-        """Compute the type of partner depending on soft decisions"""
+        """ Compute the type of partner depending on soft decisions """
         company_id = self.env["res.company"].search(
             [("id", "=", self.env.user.company_id.id)]
         )

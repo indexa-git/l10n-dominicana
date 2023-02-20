@@ -14,7 +14,7 @@ class AccountMove(models.Model):
     _l10n_do_sequence_fixed_regex = r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})$"
 
     def _get_l10n_do_cancellation_type(self):
-        """Return the list of cancellation types required by DGII."""
+        """ Return the list of cancellation types required by DGII. """
         return [
             ("01", _("01 - Pre-printed Invoice Impairment")),
             ("02", _("02 - Printing Errors (Pre-printed Invoice)")),
@@ -29,7 +29,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_ecf_modification_code(self):
-        """Return the list of e-CF modification codes required by DGII."""
+        """ Return the list of e-CF modification codes required by DGII. """
         return [
             ("1", _("01 - Total Cancellation")),
             ("2", _("02 - Text Correction")),
@@ -39,7 +39,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_income_type(self):
-        """Return the list of income types required by DGII."""
+        """ Return the list of income types required by DGII. """
         return [
             ("01", _("01 - Operational Incomes")),
             ("02", _("02 - Financial Incomes")),
