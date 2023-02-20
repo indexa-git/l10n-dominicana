@@ -3,6 +3,7 @@ from psycopg2 import sql
 from werkzeug import urls
 
 from odoo import models, fields, api, _
+from odoo.osv import expression
 from odoo.exceptions import ValidationError, UserError, AccessError
 
 
@@ -149,6 +150,22 @@ class AccountMove(models.Model):
                         field=sql.Identifier(self._l10n_do_sequence_field),
                     )
                 )
+
+    @api.model
+    def _name_search(
+        self, name="", args=None, operator="ilike", limit=100, name_get_uid=None
+    ):
+        args = args or []
+        domain = []
+        if name:
+            domain = [
+                "|",
+                ("name", operator, name),
+                ("l10n_do_fiscal_number", operator, name),
+            ]
+        return self._search(
+            expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid
+        )
 
     @api.depends(
         "journal_id.l10n_latam_use_documents",
