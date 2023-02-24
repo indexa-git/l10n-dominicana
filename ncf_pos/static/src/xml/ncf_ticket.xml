@@ -48,7 +48,7 @@
                     </t>
                     <t t-if="sale_fiscal_type_client.ticket_label !== 'Consumo'">
                         <br/>
-                        <strong>Válida hasta: 31/12/2022</strong>
+                        <strong>Válida hasta: 31/12/2023</strong>
                     </t>
                 </div>
             </div>
