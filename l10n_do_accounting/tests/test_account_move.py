@@ -582,7 +582,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "document_number": "E310000000001",
             }
         )
-        sale_invoice_1_id._post()
+        sale_invoice_1_id.with_context(testing=True)._post()
 
         self.do_company.l10n_do_ecf_issuer = False
 
@@ -598,7 +598,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         Check invoice electronic stamp feature works properly
         """
         stamp = (
-            "https%3A%2F%2Fecf.dgii.gov.do%2FCerteCF%2FConsultaTimbre%3FRncEmisor"
+            "https%3A%2F%2Fecf.dgii.gov.do%2FTesteCF%2FConsultaTimbre%3FRncEmisor"
             "%3D131793916%26RncComprador%3D131566332%26ENCF%3DE310000000001%26Fec"
             "haEmision%3D16-10-2021%26MontoTotal%3D118%26FechaFirma%3D16-10-2021%"
             "252000%3A00%3A00%26CodigoSeguridad%3Du83ac1"
@@ -619,7 +619,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             }
         )
         self.assertEqual(sale_invoice_1_id.l10n_do_electronic_stamp, stamp)
-        sale_invoice_1_id._post()
+        sale_invoice_1_id.with_context(testing=True)._post()
 
     def test_007_unique_sequence_number(self):
         """
