@@ -108,7 +108,7 @@ class AccountMove(models.Model):
     )
     l10n_do_fiscal_number = fields.Char(
         "Fiscal Number",
-        index=True,
+        index="trigram",
         tracking=True,
         copy=False,
         help="Stored field equivalent of l10n_latam_document number",
@@ -349,7 +349,7 @@ class AccountMove(models.Model):
             and inv.state == "posted"
         )
         if l10n_do_invoices:
-            self.flush(
+            self.flush_model(
                 ["name", "journal_id", "move_type", "state", "l10n_do_fiscal_number"]
             )
             self._cr.execute(
@@ -789,7 +789,7 @@ class AccountMove(models.Model):
             field=self._l10n_do_sequence_field,
         )
 
-        self.flush(
+        self.flush_model(
             [
                 self._l10n_do_sequence_field,
                 "l10n_do_sequence_number",
