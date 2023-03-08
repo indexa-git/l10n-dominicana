@@ -429,6 +429,9 @@ class AccountMove(models.Model):
     def _inverse_l10n_latam_document_number(self):
         for rec in self.filtered("l10n_latam_document_type_id"):
             if not rec.l10n_latam_document_number:
+                import logging
+                _logger = logging.getLogger(__name__)
+                _logger.info("---------- aqui ----------")
                 rec.l10n_do_fiscal_number = ""
             else:
                 document_type_id = rec.l10n_latam_document_type_id
