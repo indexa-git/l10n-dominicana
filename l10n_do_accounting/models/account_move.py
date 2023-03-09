@@ -273,7 +273,7 @@ class AccountMove(models.Model):
         "l10n_latam_document_type_id.l10n_do_ncf_type",
     )
     def _compute_is_ecf_invoice(self):
-        for invoice in self:
+        for invoice in self.filtered(lambda inv: inv.state == "draft"):
             invoice.is_ecf_invoice = (
                 invoice.company_id.country_id
                 and invoice.company_id.country_id.code == "DO"
@@ -284,10 +284,13 @@ class AccountMove(models.Model):
 
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
     def _compute_company_in_contingency(self):
-        for invoice in self:
-            ecf_invoices = self.search(
-                [("is_ecf_invoice", "=", True)], limit=1
-            ).filtered(lambda i: not i.l10n_latam_manual_document_number)
+        ecf_invoices = self.search(
+            [
+                ("is_ecf_invoice", "=", True),
+            ],
+            limit=1,
+        ).filtered(lambda i: not i.l10n_latam_manual_document_number)
+        for invoice in self.filtered(lambda inv: inv.state == "draft"):
             invoice.l10n_do_company_in_contingency = bool(
                 ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
             )
@@ -299,6 +302,7 @@ class AccountMove(models.Model):
             lambda i: i.is_ecf_invoice
             and not i.l10n_latam_manual_document_number
             and i.l10n_do_ecf_security_code
+            and i.state == "posted"
         )
 
         for invoice in l10n_do_ecf_invoice:
