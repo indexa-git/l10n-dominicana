@@ -27,7 +27,7 @@ jobs:
       get_modules: ${{ steps.get_modules.outputs.modules }}
     services:
       db:
-        image: postgres:13-alpine
+        image: postgres:13
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: odoo
