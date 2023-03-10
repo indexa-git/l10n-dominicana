@@ -16,7 +16,7 @@ on:
     types: [ opened, synchronize, reopened, labeled ]
 
 env:
-  REQUIRED_MODULES: # list of addional addons to install separated by comma
+  REQUIRED_MODULES: 'l10n_do' # list of addional addons to install separated by comma
   TEST_TAGS: '0'
 
 jobs:
