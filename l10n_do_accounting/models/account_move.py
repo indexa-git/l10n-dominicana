@@ -508,6 +508,7 @@ class AccountMove(models.Model):
             lambda inv: inv.country_code == "DO"
             and inv.l10n_latam_use_documents
             and inv.l10n_latam_document_type_id
+            and inv.state == "posted"
         )
         for rec in l10n_do_invoices:
             has_vat = bool(rec.partner_id.vat and bool(rec.partner_id.vat.strip()))
