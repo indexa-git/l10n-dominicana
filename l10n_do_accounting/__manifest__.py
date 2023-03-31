@@ -8,7 +8,7 @@
     "category": "Localization",
     "license": "LGPL-3",
     "website": "https://github.com/odoo-dominicana",
-    "version": "14.0.2.16.6",
+    "version": "14.0.2.16.7",
     # any module necessary for this one to work correctly
     "depends": ["l10n_latam_invoice_document", "l10n_do"],
     # always loaded

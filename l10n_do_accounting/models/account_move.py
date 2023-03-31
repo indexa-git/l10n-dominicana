@@ -269,8 +269,8 @@ class AccountMove(models.Model):
         }
 
     @api.depends(
-        "company_id",
-        "l10n_latam_document_type_id.l10n_do_ncf_type",
+        "l10n_latam_country_code",
+        "l10n_latam_document_type_id",
     )
     def _compute_is_ecf_invoice(self):
         for invoice in self.filtered(lambda inv: inv.state == "draft"):
