@@ -269,7 +269,7 @@ class AccountMove(models.Model):
         }
 
     @api.depends(
-        "l10n_latam_country_code",
+        "company_id",
         "l10n_latam_document_type_id",
     )
     def _compute_is_ecf_invoice(self):
