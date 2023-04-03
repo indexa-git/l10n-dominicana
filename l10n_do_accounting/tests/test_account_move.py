@@ -606,8 +606,8 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "l10n_do_ecf_sign_date": sign_date,
             }
         )
-        self.assertEqual(sale_invoice_1_id.l10n_do_electronic_stamp, stamp)
         sale_invoice_1_id.with_context(testing=True)._post()
+        self.assertEqual(sale_invoice_1_id.l10n_do_electronic_stamp, stamp)
 
     def test_007_unique_sequence_number(self):
         """
