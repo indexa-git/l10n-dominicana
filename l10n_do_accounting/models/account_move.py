@@ -270,10 +270,10 @@ class AccountMove(models.Model):
 
     @api.depends(
         "company_id",
-        "l10n_latam_document_type_id.l10n_do_ncf_type",
+        "l10n_latam_document_type_id",
     )
     def _compute_is_ecf_invoice(self):
-        for invoice in self:
+        for invoice in self.filtered(lambda inv: inv.state == "draft"):
             invoice.is_ecf_invoice = (
                 invoice.company_id.country_id
                 and invoice.company_id.country_id.code == "DO"
@@ -284,10 +284,18 @@ class AccountMove(models.Model):
 
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
     def _compute_company_in_contingency(self):
-        for invoice in self:
-            ecf_invoices = self.search(
-                [("is_ecf_invoice", "=", True)], limit=1
-            ).filtered(lambda i: not i.l10n_latam_manual_document_number)
+        ecf_invoices = self.search(
+            [
+                ("is_ecf_invoice", "=", True),
+            ],
+            limit=1,
+        ).filtered(lambda i: not i.l10n_latam_manual_document_number)
+
+        # first set all invoices l10n_do_company_in_contingency = False
+        self.write({"l10n_do_company_in_contingency": False})
+
+        # then get draft invoices and do the thing
+        for invoice in self.filtered(lambda inv: inv.state == "draft"):
             invoice.l10n_do_company_in_contingency = bool(
                 ecf_invoices and not invoice.company_id.l10n_do_ecf_issuer
             )
@@ -299,6 +307,7 @@ class AccountMove(models.Model):
             lambda i: i.is_ecf_invoice
             and not i.l10n_latam_manual_document_number
             and i.l10n_do_ecf_security_code
+            and i.state == "posted"
         )
 
         for invoice in l10n_do_ecf_invoice:
@@ -499,6 +508,7 @@ class AccountMove(models.Model):
             lambda inv: inv.country_code == "DO"
             and inv.l10n_latam_use_documents
             and inv.l10n_latam_document_type_id
+            and inv.state == "posted"
         )
         for rec in l10n_do_invoices:
             has_vat = bool(rec.partner_id.vat and bool(rec.partner_id.vat.strip()))
