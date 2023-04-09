@@ -431,7 +431,7 @@ class AccountMove(models.Model):
         if fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
             action = self.env.ref(
                 "l10n_do_accounting.action_account_move_cancel"
-            ).read()[0]
+            ).sudo().read()[0]
             action["context"] = {"default_move_id": fiscal_invoice.id}
             return action
 
