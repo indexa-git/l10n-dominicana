@@ -194,7 +194,10 @@ class AccountMove(models.Model):
     def _compute_l10n_latam_document_type(self):
         super(AccountMove, self)._compute_l10n_latam_document_type()
 
-        for invoice in self.filtered(lambda inv: inv.state == "draft"):
+        draft_invoices = self.filtered(
+            lambda inv: inv.state == "draft" and inv.type != "entry"
+        )
+        for invoice in draft_invoices:
             invoice.is_l10n_do_internal_sequence = invoice.type in (
                 "out_invoice",
                 "out_refund",
@@ -206,6 +209,7 @@ class AccountMove(models.Model):
                 "e-informal",
                 "e-exterior",
             )
+        (self - draft_invoices).is_l10n_do_internal_sequence = False
 
     @api.depends("company_id", "company_id.l10n_do_ecf_issuer")
     def _compute_company_in_contingency(self):
