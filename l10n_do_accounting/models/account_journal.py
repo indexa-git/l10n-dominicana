@@ -188,11 +188,15 @@ class AccountJournal(models.Model):
                 )
             )
 
-    @api.model
-    def create(self, values):
-        res = super().create(values)
-        res._l10n_do_create_document_types()
-        return res
+    @api.model_create_multi
+    def create(self, vals_list):
+
+        journals = super(AccountJournal, self).create(vals_list)
+
+        for journal in journals:
+            journal._l10n_do_create_document_types()
+
+        return journals
 
     def write(self, values):
         to_check = {"type", "l10n_latam_use_documents"}
