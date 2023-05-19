@@ -239,8 +239,8 @@
 
         <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
                position="before">
-            <t t-set="total_amount_taxed" t-value="l10n_do_amounts['itbis_taxable_amount']"/>
-            <t t-set="total_exempt_amount" t-value="l10n_do_amounts['itbis_exempt_amount']"/>
+            <t t-set="total_amount_taxed" t-value="l10n_do_amounts['itbis_18_base_amount'] + l10n_do_amounts['itbis_16_base_amount'] + l10n_do_amounts['itbis_0_base_amount']"/>
+            <t t-set="total_exempt_amount" t-value="l10n_do_amounts['exempt_amount'] if o.currency_id == o.company_id.currency_id else l10n_do_amounts['exempt_amount_currency']"/>
 
             <tr class="border-black o_total" t-if="is_l10n_do_invoice and ecf_representation">
                 <td>Monto Gravado</td>
@@ -265,7 +265,7 @@
             <attribute name="t-if">not is_l10n_do_invoice</attribute>
         </xpath>
         <xpath expr="//span[@t-field='o.amount_total']" position="after">
-            <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts['invoice_total']"/>
+            <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts['l10n_do_invoice_total']"/>
             <span t-if="is_l10n_do_invoice" class="text-nowrap" t-esc="l10n_do_amount_total"
                   t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
         </xpath>
