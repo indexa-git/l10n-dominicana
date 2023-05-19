@@ -303,11 +303,12 @@ class AccountMove(models.Model):
                     invoice.invoice_date or fields.Date.today()
                 ).strftime("%d-%m-%Y")
 
-            l10n_do_total = invoice._get_l10n_do_amounts()["l10n_do_invoice_total"]
+            total_field = "l10n_do_invoice_total"
+            if invoice.currency_id != invoice.company_id.currency_id:
+                total_field += "_currency"
+            l10n_do_total = invoice._get_l10n_do_amounts()[total_field]
 
-            qr_string += "MontoTotal=%s&" % ("%f" % l10n_do_total).rstrip("0").rstrip(
-                "."
-            )
+            qr_string += "MontoTotal=%s&" % ("{:.2f}".format(l10n_do_total))
             if not is_rfc:
                 qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date.strftime(
                     "%d-%m-%Y% %H:%M:%S"
