@@ -203,70 +203,105 @@ class AccountMove(models.Model):
 
         (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
 
-    def _get_l10n_do_amounts(self, company_currency=False):
+    def _get_l10n_do_amounts(self):
         """
         Method used to to prepare dominican fiscal invoices amounts data. Widely used
         on reports and electronic invoicing.
-
-        Returned values:
-
-        itbis_amount: Total ITBIS
-        itbis_taxable_amount: Monto Gravado Total (con ITBIS)
-        itbis_exempt_amount: Monto Exento
         """
         self.ensure_one()
-        amount_field = company_currency and "balance" or "price_subtotal"
-        sign = -1 if (company_currency and self.is_inbound()) else 1
 
-        itbis_tax_group = self.env.ref("l10n_do.group_itbis", False)
-
-        taxed_move_lines = self.line_ids.filtered("tax_line_id")
-        itbis_taxed_move_lines = taxed_move_lines.filtered(
-            lambda l: itbis_tax_group in l.tax_line_id.mapped("tax_group_id")
-            and l.tax_line_id.amount > 0
+        tax_lines = self.line_ids.filtered(
+            lambda x: x.tax_group_id.id
+            in [
+                self.env.ref("l10n_do.group_itbis").id,
+                self.env.ref("l10n_do.group_isr").id,
+            ]
+        )
+        itbis_tax_lines = tax_lines.filtered(
+            lambda line: line.tax_group_id == self.env.ref("l10n_do.group_itbis")
+        )
+        isr_tax_lines = tax_lines.filtered(
+            lambda line: line.tax_group_id == self.env.ref("l10n_do.group_isr")
+        )
+        taxed_lines = self.invoice_line_ids.filtered(lambda x: x.tax_ids)
+        exempt_lines = self.invoice_line_ids.filtered(
+            lambda x: not x.tax_ids or any(tax for tax in x.tax_ids if not tax.amount)
+        )
+        itbis_taxed_lines = taxed_lines.filtered(
+            lambda line: self.env.ref("l10n_do.group_itbis")
+            in line.tax_ids.mapped("tax_group_id")
+        )
+        isr_taxed_lines = taxed_lines.filtered(
+            lambda line: self.env.ref("l10n_do.group_isr")
+            in line.tax_ids.mapped("tax_group_id")
         )
 
-        itbis_taxed_product_lines = self.invoice_line_ids.filtered(
-            lambda l: itbis_tax_group in l.tax_ids.mapped("tax_group_id")
-        )
-
-        return {
-            "itbis_amount": sign * sum(itbis_taxed_move_lines.mapped(amount_field)),
-            "itbis_taxable_amount": sign
-            * sum(
-                line[amount_field]
-                for line in itbis_taxed_product_lines
-                if line.price_total != line.price_subtotal
-            ),
-            "itbis_exempt_amount": sign
-            * sum(
-                line[amount_field]
-                for line in itbis_taxed_product_lines
-                if any(True for tax in line.tax_ids if tax.amount == 0)
-            ),
-            "company_invoice_total": abs(self.amount_untaxed_signed)
-            + sum(
-                (
-                    line.debit or line.credit
-                    if self.currency_id == self.company_id.currency_id
-                    else abs(line.amount_currency)
-                )
-                for line in self.line_ids.filtered(
-                    lambda l: l.tax_line_id and l.tax_line_id.amount > 0
+        result = {
+            "base_amount": sum(taxed_lines.mapped("price_subtotal")),
+            "exempt_amount": sum(exempt_lines.mapped("price_subtotal")),
+            "itbis_18_tax_amount": sum(
+                self.currency_id.round(line.price_subtotal)
+                for line in itbis_tax_lines.filtered(
+                    lambda tl: tl.tax_line_id.amount == 18
                 )
             ),
-            "invoice_total": abs(self.amount_untaxed)
-            + sum(
-                (
-                    line.debit or line.credit
-                    if self.currency_id == self.company_id.currency_id
-                    else abs(line.amount_currency)
+            "itbis_18_base_amount": sum(
+                itbis_taxed_lines.filtered(
+                    lambda line: any(tax for tax in line.tax_ids if tax.amount == 18)
+                ).mapped("price_subtotal")
+            ),
+            "itbis_16_tax_amount": sum(
+                self.currency_id.round(line.price_subtotal)
+                for line in itbis_tax_lines.filtered(
+                    lambda tl: tl.tax_line_id.amount == 16
                 )
-                for line in self.line_ids.filtered(
-                    lambda l: l.tax_line_id and l.tax_line_id.amount > 0
+            ),
+            "itbis_16_base_amount": sum(
+                itbis_taxed_lines.filtered(
+                    lambda line: any(tax for tax in line.tax_ids if tax.amount == 16)
+                ).mapped("price_subtotal")
+            ),
+            "itbis_0_tax_amount": 0,  # not supported
+            "itbis_0_base_amount": 0,  # not supported
+            "itbis_withholding_amount": sum(
+                self.currency_id.round(line.price_subtotal)
+                for line in itbis_tax_lines.filtered(
+                    lambda tl: tl.tax_line_id.amount < 0
                 )
+            ),
+            "itbis_withholding_base_amount": sum(
+                itbis_taxed_lines.filtered(
+                    lambda line: any(tax for tax in line.tax_ids if tax.amount < 0)
+                ).mapped("price_subtotal")
+            ),
+            "isr_withholding_amount": sum(
+                self.currency_id.round(line.price_subtotal)
+                for line in isr_tax_lines.filtered(lambda tl: tl.tax_line_id.amount < 0)
+            ),
+            "isr_withholding_base_amount": sum(
+                isr_taxed_lines.filtered(
+                    lambda line: any(tax for tax in line.tax_ids if tax.amount < 0)
+                ).mapped("price_subtotal")
             ),
         }
+
+        result["l10n_do_invoice_total"] = (
+            result["base_amount"]
+            + result["itbis_18_tax_amount"]
+            + result["itbis_16_tax_amount"]
+            + result["itbis_0_tax_amount"]
+        )
+
+        if self.currency_id != self.company_id.currency_id:
+            rate = (self.currency_id + self.company_id.currency_id)._get_rates(
+                self.company_id, self.date
+            ).get(self.currency_id.id) or 1
+            currency_vals = {}
+            for k, v in result.items():
+                currency_vals[k + "_currency"] = v / rate
+            result.update(currency_vals)
+
+        return result
 
     @api.depends(
         "company_id",
@@ -340,9 +375,10 @@ class AccountMove(models.Model):
                     invoice.invoice_date or fields.Date.today()
                 ).strftime("%d-%m-%Y")
 
-            l10n_do_total = invoice._get_l10n_do_amounts(company_currency=True)[
-                "company_invoice_total"
-            ]
+            total_field = "l10n_do_invoice_total"
+            if invoice.currency_id != invoice.company_id.currency_id:
+                total_field += "_currency"
+            l10n_do_total = invoice._get_l10n_do_amounts()[total_field]
 
             qr_string += "MontoTotal=%s&" % ("%f" % l10n_do_total).rstrip("0").rstrip(
                 "."
