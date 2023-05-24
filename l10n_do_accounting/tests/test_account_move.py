@@ -589,7 +589,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             "https%3A%2F%2Fecf.dgii.gov.do%2FTesteCF%2FConsultaTimbre%3FRncEmisor"
             "%3D131793916%26RncComprador%3D131566332%26ENCF%3DE310000000001%26Fec"
             "haEmision%3D16-10-2021%26MontoTotal%3D118%26FechaFirma%3D16-10-2021%"
-            "252000%3A00%3A00%26CodigoSeguridad%3Du83ac1"
+            "25+00%3A00%3A00%26CodigoSeguridad%3Du83ac1"
         )
 
         sign_date = "2021-10-16"
