@@ -183,8 +183,8 @@
             </tr>
         </t>
 
-        <t t-set="total_amount_taxed" t-value="l10n_do_amounts['itbis_taxable_amount']"/>
-        <t t-set="total_exempt_amount" t-value="l10n_do_amounts['itbis_exempt_amount']"/>
+        <t t-set="total_amount_taxed" t-value="l10n_do_amounts['itbis_18_base_amount'] + l10n_do_amounts['itbis_16_base_amount'] + l10n_do_amounts['itbis_0_base_amount']"/>
+        <t t-set="total_exempt_amount" t-value="l10n_do_amounts['exempt_amount'] if o.currency_id == o.company_id.currency_id else l10n_do_amounts['exempt_amount_currency']"/>
 
         <tr class="border-black o_total" t-if="ecf_representation">
             <td>Monto Gravado</td>
@@ -211,7 +211,7 @@
                 <strong>Total</strong>
             </td>
 
-            <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts['invoice_total']"/>
+            <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts['l10n_do_invoice_total']"/>
             <td class="text-right">
                 <span class="text-nowrap" t-esc="l10n_do_amount_total"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>

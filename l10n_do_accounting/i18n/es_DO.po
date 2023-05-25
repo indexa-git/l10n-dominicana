@@ -1090,6 +1090,12 @@ msgid "Use Documents"
 msgstr "Es fiscal"
 
 #. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "There is already a sale invoice with fiscal number %s"
+msgstr "Ya existe una factura de ventas con el NCF %s"
+
+#. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_move_reversal_inherited
 msgid ""
 "Use this option if you want to fully apply a credit note.\n"
