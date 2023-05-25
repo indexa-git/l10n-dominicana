@@ -1,6 +1,5 @@
 import re
 from psycopg2 import sql
-from werkzeug import urls
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError, AccessError
@@ -369,7 +368,7 @@ class AccountMove(models.Model):
             )
             if not is_rfc:
                 qr_string += "FechaFirma=%s&" % invoice.l10n_do_ecf_sign_date.strftime(
-                    "%d-%m-%Y% %H:%M:%S"
+                    "%d-%m-%Y %H:%M:%S"
                 )
 
             special_chars = " !#$&'()*+,/:;=?@[]\"-.<>\\^_`"
@@ -381,7 +380,7 @@ class AccountMove(models.Model):
             )
             qr_string += "CodigoSeguridad=%s" % security_code
 
-            invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string)
+            invoice.l10n_do_electronic_stamp = qr_string
 
         (self - l10n_do_ecf_invoice).l10n_do_electronic_stamp = False
 
