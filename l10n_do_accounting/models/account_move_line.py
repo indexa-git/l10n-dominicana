@@ -66,7 +66,9 @@ class AccountMoveLine(models.Model):
         isr_tax_lines = tax_lines.filtered(lambda line: line.tax_group_id == group_isr)
 
         invoice_line_ids = self.filtered(lambda x: x.display_type == "product")
-        taxed_lines = invoice_line_ids.filtered(lambda x: x.tax_ids)
+        taxed_lines = invoice_line_ids.filtered(
+            lambda x: x.tax_ids and any(tax for tax in x.tax_ids if tax.amount)
+        )
         exempt_lines = invoice_line_ids.filtered(
             lambda x: not x.tax_ids or any(tax for tax in x.tax_ids if not tax.amount)
         )
@@ -127,7 +129,7 @@ class AccountMoveLine(models.Model):
         }
 
         result["l10n_do_invoice_total"] = (
-            result["base_amount"]
+            sum(self.mapped("price_subtotal"))
             + result["itbis_18_tax_amount"]
             + result["itbis_16_tax_amount"]
             + result["itbis_0_tax_amount"]
