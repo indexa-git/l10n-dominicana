@@ -127,7 +127,9 @@ class AccountMove(models.Model):
         isr_tax_lines = tax_lines.filtered(
             lambda line: line.tax_group_id == self.env.ref("l10n_do.group_isr")
         )
-        taxed_lines = self.invoice_line_ids.filtered(lambda x: x.tax_ids)
+        taxed_lines = self.invoice_line_ids.filtered(
+            lambda x: x.tax_ids and any(tax for tax in x.tax_ids if tax.amount)
+        )
         exempt_lines = self.invoice_line_ids.filtered(
             lambda x: not x.tax_ids or any(tax for tax in x.tax_ids if not tax.amount)
         )
@@ -190,7 +192,7 @@ class AccountMove(models.Model):
         }
 
         result["l10n_do_invoice_total"] = (
-            result["base_amount"]
+            self.amount_untaxed
             + result["itbis_18_tax_amount"]
             + result["itbis_16_tax_amount"]
             + result["itbis_0_tax_amount"]
