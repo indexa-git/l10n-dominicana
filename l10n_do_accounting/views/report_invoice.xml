@@ -241,7 +241,7 @@
         <xpath expr="//div[@id='total']/div/table/tr[hasclass('o_total')]"
                position="before">
             <t t-set="total_amount_taxed" t-value="l10n_do_amounts['itbis_18_base_amount'] + l10n_do_amounts['itbis_16_base_amount'] + l10n_do_amounts['itbis_0_base_amount']"/>
-            <t t-set="total_exempt_amount" t-value="l10n_do_amounts['exempt_amount'] if o.currency_id == o.company_id.currency_id else l10n_do_amounts['exempt_amount_currency']"/>
+            <t t-set="total_exempt_amount" t-value="l10n_do_amounts['exempt_amount']"/>
 
             <tr class="border-black o_total" t-if="is_l10n_do_invoice and ecf_representation">
                 <td>Monto Gravado</td>
