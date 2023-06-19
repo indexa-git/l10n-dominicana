@@ -238,29 +238,42 @@ class AccountMove(models.Model):
             in line.tax_ids.mapped("tax_group_id")
         )
 
+        itbis_tax_amount_map = {
+            "18": (18, 1.8),
+            "16": (16, 1.6),
+        }
+
         result = {
             "base_amount": sum(taxed_lines.mapped("price_subtotal")),
             "exempt_amount": sum(exempt_lines.mapped("price_subtotal")),
             "itbis_18_tax_amount": sum(
                 self.currency_id.round(line.price_subtotal)
                 for line in itbis_tax_lines.filtered(
-                    lambda tl: tl.tax_line_id.amount == 18
+                    lambda tl: tl.tax_line_id.amount in itbis_tax_amount_map["18"]
                 )
             ),
             "itbis_18_base_amount": sum(
                 itbis_taxed_lines.filtered(
-                    lambda line: any(tax for tax in line.tax_ids if tax.amount == 18)
+                    lambda line: any(
+                        tax
+                        for tax in line.tax_ids
+                        if tax.amount in itbis_tax_amount_map["18"]
+                    )
                 ).mapped("price_subtotal")
             ),
             "itbis_16_tax_amount": sum(
                 self.currency_id.round(line.price_subtotal)
                 for line in itbis_tax_lines.filtered(
-                    lambda tl: tl.tax_line_id.amount == 16
+                    lambda tl: tl.tax_line_id.amount in itbis_tax_amount_map["16"]
                 )
             ),
             "itbis_16_base_amount": sum(
                 itbis_taxed_lines.filtered(
-                    lambda line: any(tax for tax in line.tax_ids if tax.amount == 16)
+                    lambda line: any(
+                        tax
+                        for tax in line.tax_ids
+                        if tax.amount in itbis_tax_amount_map["16"]
+                    )
                 ).mapped("price_subtotal")
             ),
             "itbis_0_tax_amount": 0,  # not supported
