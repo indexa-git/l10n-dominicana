@@ -88,7 +88,7 @@ class AccountMoveLine(models.Model):
             "base_amount": sum(taxed_lines.mapped("price_subtotal")),
             "exempt_amount": sum(exempt_lines.mapped("price_subtotal")),
             "itbis_18_tax_amount": sum(
-                self.currency_id.round(line.price_subtotal)
+                self.currency_id.round(line.amount_currency)
                 for line in itbis_tax_lines.filtered(
                     lambda tl: tl.tax_line_id.amount in itbis_tax_amount_map["18"]
                 )
@@ -100,10 +100,10 @@ class AccountMoveLine(models.Model):
                         for tax in line.tax_ids
                         if tax.amount in itbis_tax_amount_map["18"]
                     )
-                ).mapped("price_subtotal")
+                ).mapped("amount_currency")
             ),
             "itbis_16_tax_amount": sum(
-                self.currency_id.round(line.price_subtotal)
+                self.currency_id.round(line.amount_currency)
                 for line in itbis_tax_lines.filtered(
                     lambda tl: tl.tax_line_id.amount in itbis_tax_amount_map["16"]
                 )
@@ -115,12 +115,12 @@ class AccountMoveLine(models.Model):
                         for tax in line.tax_ids
                         if tax.amount in itbis_tax_amount_map["16"]
                     )
-                ).mapped("price_subtotal")
+                ).mapped("amount_currency")
             ),
             "itbis_0_tax_amount": 0,  # not supported
             "itbis_0_base_amount": 0,  # not supported
             "itbis_withholding_amount": sum(
-                self.currency_id.round(line.price_subtotal)
+                self.currency_id.round(line.amount_currency)
                 for line in itbis_tax_lines.filtered(
                     lambda tl: tl.tax_line_id.amount < 0
                 )
@@ -128,21 +128,25 @@ class AccountMoveLine(models.Model):
             "itbis_withholding_base_amount": sum(
                 itbis_taxed_lines.filtered(
                     lambda line: any(tax for tax in line.tax_ids if tax.amount < 0)
-                ).mapped("price_subtotal")
+                ).mapped("amount_currency")
             ),
             "isr_withholding_amount": sum(
-                self.currency_id.round(line.price_subtotal)
+                self.currency_id.round(line.amount_currency)
                 for line in isr_tax_lines.filtered(lambda tl: tl.tax_line_id.amount < 0)
             ),
             "isr_withholding_base_amount": sum(
                 isr_taxed_lines.filtered(
                     lambda line: any(tax for tax in line.tax_ids if tax.amount < 0)
-                ).mapped("price_subtotal")
+                ).mapped("amount_currency")
             ),
         }
 
+        # convert values to positives
+        for key, value in result.items():
+            result[key] = abs(value)
+
         result["l10n_do_invoice_total"] = (
-            sum(self.mapped("price_subtotal"))
+            self.move_id.amount_untaxed
             + result["itbis_18_tax_amount"]
             + result["itbis_16_tax_amount"]
             + result["itbis_0_tax_amount"]
