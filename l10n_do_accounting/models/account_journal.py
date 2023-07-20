@@ -42,11 +42,8 @@ class AccountJournal(models.Model):
             # create fiscal sequences
             return types_list + ecf_types
 
-        if (
-            invoice.is_purchase_document()
-            and invoice.partner_id.l10n_do_dgii_tax_payer_type
-            and invoice.partner_id.l10n_do_dgii_tax_payer_type
-            in ("non_payer", "foreigner")
+        if invoice.is_purchase_document() and any(
+            t in types_list for t in ("minor", "informal", "exterior")
         ):
             # Return ncf/ecf types depending on company ECF issuing status
             return ecf_types if self.company_id.l10n_do_ecf_issuer else types_list
@@ -117,10 +114,14 @@ class AccountJournal(models.Model):
             )
             return self._get_all_ncf_types(res)
         if counterpart_partner.l10n_do_dgii_tax_payer_type:
-            counterpart_ncf_types = ncf_types_data[
-                "issued" if self.type == "sale" else "received"
-            ][counterpart_partner.l10n_do_dgii_tax_payer_type]
-            ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
+
+            if counterpart_partner == self.company_id.partner_id:
+                ncf_types = ["minor"]
+            else:
+                counterpart_ncf_types = ncf_types_data[
+                    "issued" if self.type == "sale" else "received"
+                ][counterpart_partner.l10n_do_dgii_tax_payer_type]
+                ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         else:
             raise ValidationError(
                 _("Partner (%s) %s is needed to issue a fiscal invoice")
