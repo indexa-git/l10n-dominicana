@@ -558,53 +558,6 @@ class AccountMove(models.Model):
                 "l10n_do.%s_tax_0_purch" % self.company_id.id
             )
 
-    def _move_autocomplete_invoice_lines_create(self, vals_list):
-
-        ctx = self.env.context
-        refund_type = ctx.get("refund_type")
-        refund_debit_type = ctx.get("l10n_do_debit_type", refund_type)
-        if refund_debit_type and refund_debit_type in ("percentage", "fixed_amount"):
-            for vals in vals_list:
-                del vals["line_ids"]
-                origin_invoice_id = self.browse(self.env.context.get("active_ids"))
-                taxes = (
-                    [
-                        (
-                            6,
-                            0,
-                            [
-                                origin_invoice_id._get_debit_line_tax(
-                                    vals["invoice_date"]
-                                ).id
-                            ],
-                        )
-                    ]
-                    if ctx.get("l10n_do_debit_type", False)
-                    else [(5, 0)]
-                )
-                price_unit = (
-                    ctx.get("amount")
-                    if refund_debit_type == "fixed_amount"
-                    else origin_invoice_id.amount_untaxed
-                    * (ctx.get("percentage") / 100)
-                )
-                vals["invoice_line_ids"] = [
-                    (
-                        0,
-                        0,
-                        {
-                            "name": ctx.get("reason") or _("Refund"),
-                            "price_unit": price_unit,
-                            "quantity": 1,
-                            "tax_ids": taxes,
-                        },
-                    )
-                ]
-
-        return super(AccountMove, self)._move_autocomplete_invoice_lines_create(
-            vals_list
-        )
-
     def _post(self, soft=True):
 
         res = super()._post(soft)

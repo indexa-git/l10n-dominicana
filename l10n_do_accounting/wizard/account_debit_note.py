@@ -174,22 +174,46 @@ class AccountDebitNote(models.TransientModel):
                     l10n_do_expense_type=move.l10n_do_expense_type,
                     l10n_do_income_type=move.l10n_do_income_type,
                     invoice_origin=move.name,
-                    line_ids=[],
+                    line_ids=[(5, 0, 0)],
                     l10n_do_fiscal_number=move.name,
                 )
             )
 
+        origin_invoice_id = self.move_ids or self.env["account.move"].browse(
+            self.env.context.get("active_ids")
+        )
+        taxes = (
+            [
+                (
+                    6,
+                    0,
+                    [origin_invoice_id._get_debit_line_tax(res["invoice_date"]).id],
+                )
+            ]
+            if self.l10n_do_debit_type
+            else [(5, 0)]
+        )
+        price_unit = (
+            self.l10n_do_amount
+            if self.l10n_do_debit_type == "fixed_amount"
+            else origin_invoice_id.amount_untaxed * (self.l10n_do_percentage / 100)
+        )
+        res["invoice_line_ids"] = [
+            (
+                0,
+                0,
+                {
+                    "name": self.reason or _("Debit"),
+                    "price_unit": price_unit,
+                    "quantity": 1,
+                    "tax_ids": taxes,
+                },
+            )
+        ]
+
         return res
 
     def create_debit(self):
-
-        if self.l10n_latam_use_documents and self.l10n_latam_country_code:
-            self = self.with_context(
-                l10n_do_debit_type=self.l10n_do_debit_type,
-                amount=self.l10n_do_amount,
-                percentage=self.l10n_do_percentage,
-                reason=self.reason,
-            )
 
         action = super(AccountDebitNote, self).create_debit()
         if self.l10n_do_debit_action == "apply_debit":
