@@ -8,7 +8,7 @@
     "category": "Localization",
     "license": "LGPL-3",
     "website": "https://github.com/odoo-dominicana",
-    "version": "16.0.0.0.7",
+    "version": "16.0.0.0.8",
     # any module necessary for this one to work correctly
     "depends": ["l10n_latam_invoice_document", "l10n_do"],
     # always loaded
@@ -26,7 +26,7 @@
         "views/account_dgii_menuitem.xml",
         "views/account_journal_views.xml",
         "views/l10n_latam_document_type_views.xml",
-        # "views/report_templates.xml",
+        "views/report_templates.xml",
         "views/report_invoice.xml",
     ],
     # only loaded in demonstration mode
