@@ -25,23 +25,23 @@
                        }"/>
             </field>
             <xpath expr="//field[@name='refund_method']" position="before">
-                <field name="refund_type" options="{'horizontal': true}"
+                <field name="l10n_do_refund_type" options="{'horizontal': true}"
                        widget="radio"/>
             </xpath>
             <xpath expr="//field[@name='refund_method']" position="attributes">
-                <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
+                <attribute name="attrs">{'invisible': [('l10n_do_refund_type', '!=', 'full_refund')]}</attribute>
             </xpath>
             <xpath expr="//field[@name='refund_method']" position="after">
-                <field name="refund_action" widget="radio"
-                       attrs="{'invisible': [('refund_type','=','full_refund')]}"/>
+                <field name="l10n_do_refund_action" widget="radio"
+                       attrs="{'invisible': [('l10n_do_refund_type','=','full_refund')]}"/>
             </xpath>
             <xpath expr="//field[@name='reason']" position="after">
-                <field name="percentage"
-                       attrs="{'invisible': [('refund_type', '!=', 'percentage')],
-                       'required': [('refund_type', '=', 'percentage')]}"/>
-                <field name="amount"
-                       attrs="{'invisible': [('refund_type', '!=', 'fixed_amount')],
-                       'required': [('refund_type', '=', 'fixed_amount')]}"/>
+                <field name="l10n_do_percentage"
+                       attrs="{'invisible': [('l10n_do_refund_type', '!=', 'percentage')],
+                       'required': [('l10n_do_refund_type', '=', 'percentage')]}"/>
+                <field name="l10n_do_amount"
+                       attrs="{'invisible': [('l10n_do_refund_type', '!=', 'fixed_amount')],
+                       'required': [('l10n_do_refund_type', '=', 'fixed_amount')]}"/>
                 <field name="l10n_do_ecf_modification_code"
                        attrs="{'invisible': ['|',
                        ('l10n_latam_manual_document_number', '=', True),
@@ -52,15 +52,15 @@
                 ]}"/>
             </xpath>
             <xpath expr="//form/group/*[2]" position="attributes">
-                <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
+                <attribute name="attrs">{'invisible': [('l10n_do_refund_type', '!=', 'full_refund')]}</attribute>
             </xpath>
             <xpath expr="//form/group/*[2]" position="after">
-                <group attrs="{'invisible': [('refund_type','=','full_refund')]}">
-                    <div attrs="{'invisible':[('refund_action','!=','draft_refund')]}" class="oe_grey" colspan="4">
+                <group attrs="{'invisible': [('l10n_do_refund_type','=','full_refund')]}">
+                    <div attrs="{'invisible':[('l10n_do_refund_action','!=','draft_refund')]}" class="oe_grey" colspan="4">
                         You will be able to edit and validate this
                         credit note directly or keep it draft.
                      </div>
-                    <div attrs="{'invisible':[('refund_action','!=','apply_refund')]}" class="oe_grey" colspan="4">
+                    <div attrs="{'invisible':[('l10n_do_refund_action','!=','apply_refund')]}" class="oe_grey" colspan="4">
                         Use this option if you want to fully apply a credit note.
                         The credit note will be created, validated and reconciled
                         with the invoice. You will not be able to modify the credit note.
