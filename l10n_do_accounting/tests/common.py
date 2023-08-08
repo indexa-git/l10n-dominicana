@@ -1,9 +1,7 @@
-from odoo.tests import tagged
 from odoo.tests.common import Form
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
-@tagged("external_l10n", "post_install", "-at_install", "-standard", "external")
 class L10nDOTestsCommon(AccountTestInvoicingCommon):
     @classmethod
     def setUpClass(cls, chart_template_ref="l10n_do.do_chart_template"):
