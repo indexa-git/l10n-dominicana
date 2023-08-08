@@ -43,8 +43,8 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             )
             .create(
                 {
-                    "refund_type": "percentage",
-                    "percentage": "5",
+                    "l10n_do_refund_type": "percentage",
+                    "l10n_do_percentage": "5",
                     "journal_id": ncf_sale_credito_fiscal_invoice[0].journal_id.id,
                 }
             )
@@ -159,6 +159,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             data={
                 "document_number": "B0100000001",
                 "expense_type": "02",
+                "invoice_date": fields.Date.today(),
             },
             invoice_type="in_invoice",
         )
@@ -186,8 +187,8 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             )
             .create(
                 {
-                    "refund_type": "percentage",
-                    "percentage": "5",
+                    "l10n_do_refund_type": "percentage",
+                    "l10n_do_percentage": "5",
                     "l10n_latam_document_number": "B0400000001",
                     "journal_id": ncf_purchase_credito_fiscal_invoice[0].journal_id.id,
                 }
@@ -209,39 +210,35 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             "document type",
         )
 
-        # TODO: revisar estos test.
-        #  Está provocando error en
-        #  odoo//addons/l10n_latam_invoice_document/models/account_move.py#L224
-
         # Debit Note
-        # fiscal_purchase_debit_note_wizard = (
-        #     self.env["account.debit.note"]
-        #     .with_context(
-        #         active_ids=ncf_purchase_credito_fiscal_invoice.ids,
-        #         active_model="account.move",
-        #     )
-        #     .create(
-        #         {
-        #             "l10n_do_debit_type": "percentage",
-        #             "l10n_do_percentage": "5",
-        #             "l10n_latam_document_number": "B0300000001",
-        #         }
-        #     )
-        # )
-        # debit_move_id = self.env["account.move"].browse(
-        #     fiscal_purchase_debit_note_wizard.create_debit()["res_id"]
-        # )
-        # self.assertTrue(debit_move_id.l10n_latam_manual_document_number)
-        # self.assertEqual(
-        #     debit_move_id.l10n_latam_available_document_type_ids,
-        #     self.env["l10n_latam.document.type"].browse(
-        #         (
-        #             self.do_document_type["debit_note"]
-        #             + self.do_document_type["e-debit_note"]
-        #         ).ids
-        #     ),
-        #     "Tax Payer invoice must have Nota de Debito as available document type",
-        # )
+        fiscal_purchase_debit_note_wizard = (
+            self.env["account.debit.note"]
+            .with_context(
+                active_ids=ncf_purchase_credito_fiscal_invoice.ids,
+                active_model="account.move",
+            )
+            .create(
+                {
+                    "l10n_do_debit_type": "percentage",
+                    "l10n_do_percentage": "5",
+                    "l10n_latam_document_number": "B0300000001",
+                }
+            )
+        )
+        debit_move_id = self.env["account.move"].browse(
+            fiscal_purchase_debit_note_wizard.create_debit()["res_id"]
+        )
+        self.assertTrue(debit_move_id.l10n_latam_manual_document_number)
+        self.assertEqual(
+            debit_move_id.l10n_latam_available_document_type_ids,
+            self.env["l10n_latam.document.type"].browse(
+                (
+                    self.do_document_type["debit_note"]
+                    + self.do_document_type["e-debit_note"]
+                ).ids
+            ),
+            "Tax Payer invoice must have Nota de Debito as available document type",
+        )
 
         ncf_purchase_compra_invoice = self._create_l10n_do_invoice(
             data={
@@ -296,8 +293,8 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             )
             .create(
                 {
-                    "refund_type": "percentage",
-                    "percentage": "5",
+                    "l10n_do_refund_type": "percentage",
+                    "l10n_do_percentage": "5",
                     "journal_id": ecf_sale_credito_fiscal_invoice[0].journal_id.id,
                 }
             )
@@ -412,6 +409,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "document_number": "E310000000001",
                 "expense_type": "02",
                 "document_type": self.do_document_type["e-fiscal"],
+                "invoice_date": fields.Date.today(),
             },
             invoice_type="in_invoice",
         )
@@ -439,8 +437,8 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             )
             .create(
                 {
-                    "refund_type": "percentage",
-                    "percentage": "5",
+                    "l10n_do_refund_type": "percentage",
+                    "l10n_do_percentage": "5",
                     "l10n_latam_document_number": "B0400000001",
                     "journal_id": ecf_purchase_credito_fiscal_invoice[0].journal_id.id,
                 }
@@ -462,40 +460,36 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             "Electronica as available document type",
         )
 
-        # TODO: revisar estos test.
-        #  Está provocando error en
-        #  odoo//addons/l10n_latam_invoice_document/models/account_move.py#L224
-
         # Debit Note
-        # fiscal_purchase_debit_note_wizard = (
-        #     self.env["account.debit.note"]
-        #     .with_context(
-        #         active_ids=ecf_purchase_credito_fiscal_invoice.ids,
-        #         active_model="account.move",
-        #     )
-        #     .create(
-        #         {
-        #             "l10n_do_debit_type": "percentage",
-        #             "l10n_do_percentage": "5",
-        #             "l10n_latam_document_number": "B0300000001",
-        #         }
-        #     )
-        # )
-        # debit_move_id = self.env["account.move"].browse(
-        #     fiscal_purchase_debit_note_wizard.create_debit()["res_id"]
-        # )
-        # self.assertTrue(debit_move_id.l10n_latam_manual_document_number)
-        # self.assertEqual(
-        #     debit_move_id.l10n_latam_available_document_type_ids,
-        #     self.env["l10n_latam.document.type"].browse(
-        #         (
-        #             self.do_document_type["debit_note"]
-        #             + self.do_document_type["e-debit_note"]
-        #         ).ids
-        #     ),
-        #     "Tax Payer invoice must have Nota de Debito and Nota de Debito "
-        #     "Electronica as available document type",
-        # )
+        fiscal_purchase_debit_note_wizard = (
+            self.env["account.debit.note"]
+            .with_context(
+                active_ids=ecf_purchase_credito_fiscal_invoice.ids,
+                active_model="account.move",
+            )
+            .create(
+                {
+                    "l10n_do_debit_type": "percentage",
+                    "l10n_do_percentage": "5",
+                    "l10n_latam_document_number": "B0300000001",
+                }
+            )
+        )
+        debit_move_id = self.env["account.move"].browse(
+            fiscal_purchase_debit_note_wizard.create_debit()["res_id"]
+        )
+        self.assertTrue(debit_move_id.l10n_latam_manual_document_number)
+        self.assertEqual(
+            debit_move_id.l10n_latam_available_document_type_ids,
+            self.env["l10n_latam.document.type"].browse(
+                (
+                    self.do_document_type["debit_note"]
+                    + self.do_document_type["e-debit_note"]
+                ).ids
+            ),
+            "Tax Payer invoice must have Nota de Debito and Nota de Debito "
+            "Electronica as available document type",
+        )
 
         ecf_purchase_compra_invoice = self._create_l10n_do_invoice(
             data={
@@ -540,6 +534,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "partner": self.consumo_partner,
                 "document_number": "B1100000001",
                 "expense_type": "02",
+                "invoice_date": fields.Date.today(),
             },
             invoice_type="in_invoice",
         )
@@ -634,11 +629,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
         invoice_id._post()
 
-        invoice_2 = self._create_l10n_do_invoice(
-            data={
-                "document_number": "B0100000002",
-            }
-        )
+        invoice_2 = self._create_l10n_do_invoice()
         invoice_2._post()
         with self.assertRaises(ValidationError):
             invoice_2.write({"l10n_do_fiscal_number": "B0100000001"})
@@ -670,6 +661,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             data={
                 "document_number": "B0100000001",
                 "expense_type": "02",
+                "invoice_date": fields.Date.today(),
             },
             invoice_type="in_invoice",
         )
@@ -684,6 +676,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "partner": self.consumo_partner,
                 "document_number": "B1100000001",
                 "expense_type": "02",
+                "invoice_date": fields.Date.today(),
             },
             invoice_type="in_invoice",
         )

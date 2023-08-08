@@ -142,6 +142,5 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                         )
                         for tax in taxes:
                             invoice_line_form.tax_ids.add(tax)
-            invoice_form.invoice_date = invoice_form.date
         invoice = invoice_form.save()
         return invoice
