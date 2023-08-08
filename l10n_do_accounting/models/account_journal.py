@@ -6,7 +6,7 @@ class AccountJournal(models.Model):
     _inherit = "account.journal"
 
     def _get_l10n_do_payment_form(self):
-        """ Return the list of payment forms allowed by DGII. """
+        """Return the list of payment forms allowed by DGII."""
         return [
             ("cash", _("Cash")),
             ("bank", _("Check / Transfer")),
@@ -42,11 +42,8 @@ class AccountJournal(models.Model):
             # create fiscal sequences
             return types_list + ecf_types
 
-        if (
-            invoice.is_purchase_document()
-            and invoice.partner_id.l10n_do_dgii_tax_payer_type
-            and invoice.partner_id.l10n_do_dgii_tax_payer_type
-            in ("non_payer", "foreigner")
+        if invoice.is_purchase_document() and any(
+            t in types_list for t in ("minor", "informal", "exterior")
         ):
             # Return ncf/ecf types depending on company ECF issuing status
             return ecf_types if self.company_id.l10n_do_ecf_issuer else types_list
@@ -117,14 +114,20 @@ class AccountJournal(models.Model):
             )
             return self._get_all_ncf_types(res)
         if counterpart_partner.l10n_do_dgii_tax_payer_type:
-            counterpart_ncf_types = ncf_types_data[
-                "issued" if self.type == "sale" else "received"
-            ][counterpart_partner.l10n_do_dgii_tax_payer_type]
-            ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
+            if counterpart_partner == self.company_id.partner_id:
+                ncf_types = ["minor"]
+            else:
+                counterpart_ncf_types = ncf_types_data[
+                    "issued" if self.type == "sale" else "received"
+                ][counterpart_partner.l10n_do_dgii_tax_payer_type]
+                ncf_types = list(set(ncf_types) & set(counterpart_ncf_types))
         else:
             raise ValidationError(
-                _("Partner %s is needed to issue a fiscal invoice")
-                % counterpart_partner._fields["l10n_do_dgii_tax_payer_type"].string
+                _("Partner (%s) %s is needed to issue a fiscal invoice")
+                % (
+                    counterpart_partner.id,
+                    counterpart_partner._fields["l10n_do_dgii_tax_payer_type"].string,
+                )
             )
         if invoice and invoice.move_type in ["out_refund", "in_refund"]:
             ncf_types = ["credit_note"]
@@ -142,7 +145,9 @@ class AccountJournal(models.Model):
         self.ensure_one()
         if self.type == "purchase":
             return []
-        return ["E"] if self.company_id.l10n_do_ecf_issuer else ["B"]
+        elif self.type == "sale" and self.company_id.l10n_do_ecf_issuer:
+            return ["E"]
+        return ["B"]
 
     def _l10n_do_create_document_types(self):
         self.ensure_one()
@@ -183,11 +188,14 @@ class AccountJournal(models.Model):
                 )
             )
 
-    @api.model
-    def create(self, values):
-        res = super().create(values)
-        res._l10n_do_create_document_types()
-        return res
+    @api.model_create_multi
+    def create(self, vals_list):
+        journals = super(AccountJournal, self).create(vals_list)
+
+        for journal in journals:
+            journal._l10n_do_create_document_types()
+
+        return journals
 
     def write(self, values):
         to_check = {"type", "l10n_latam_use_documents"}

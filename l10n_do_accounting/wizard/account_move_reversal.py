@@ -6,7 +6,7 @@ class AccountMoveReversal(models.TransientModel):
     _inherit = "account.move.reversal"
 
     @api.model
-    def _get_refund_type_selection(self):
+    def _get_l10n_do_refund_type_selection(self):
         selection = [
             ("full_refund", _("Full Refund")),
             ("percentage", _("Percentage")),
@@ -16,12 +16,11 @@ class AccountMoveReversal(models.TransientModel):
         return selection
 
     @api.model
-    def _get_default_refund_type(self):
+    def _get_default_l10n_do_refund_type(self):
         return "full_refund"
 
     @api.model
     def _get_refund_action_selection(self):
-
         return [
             ("draft_refund", _("Partial Refund")),
             ("apply_refund", _("Full Refund")),
@@ -45,17 +44,17 @@ class AccountMoveReversal(models.TransientModel):
         related="company_id.country_code",
         help="Technical field used to hide/show fields regarding the localization",
     )
-    refund_type = fields.Selection(
-        selection=_get_refund_type_selection,
-        default=_get_default_refund_type,
+    l10n_do_refund_type = fields.Selection(
+        selection=_get_l10n_do_refund_type_selection,
+        default=_get_default_l10n_do_refund_type,
     )
-    refund_action = fields.Selection(
+    l10n_do_refund_action = fields.Selection(
         selection=_get_refund_action_selection,
         default="draft_refund",
         string="Refund Action",
     )
-    percentage = fields.Float()
-    amount = fields.Float()
+    l10n_do_percentage = fields.Float("Percentage")
+    l10n_do_amount = fields.Float("Amount")
     l10n_do_ecf_modification_code = fields.Selection(
         selection=lambda self: self.env[
             "account.move"
@@ -114,27 +113,56 @@ class AccountMoveReversal(models.TransientModel):
 
         return res
 
-    @api.onchange("refund_type")
-    def onchange_refund_type(self):
-        if self.refund_type != "full_refund":
+    @api.onchange("l10n_do_refund_type")
+    def onchange_l10n_do_refund_type(self):
+        if self.l10n_do_refund_type != "full_refund":
             self.refund_method = "refund"
 
-    @api.onchange("refund_action")
+    @api.onchange("l10n_do_refund_action")
     def onchange_refund_action(self):
-        if self.refund_action == "apply_refund":
+        if self.l10n_do_refund_action == "apply_refund":
             self.refund_method = "cancel"
         else:
             self.refund_method = "refund"
 
-    def reverse_moves(self):
+    def _prepare_default_reversal(self, move):
+        result = super(AccountMoveReversal, self)._prepare_default_reversal(move)
 
-        return super(
-            AccountMoveReversal,
-            self.with_context(
-                refund_type=self.refund_type,
-                percentage=self.percentage,
-                amount=self.amount,
-                reason=self.reason,
-                l10n_do_ecf_modification_code=self.l10n_do_ecf_modification_code,
-            ),
-        ).reverse_moves()
+        if self.country_code == "DO" and move.l10n_latam_use_documents:
+            result.update(
+                {
+                    "l10n_do_ecf_modification_code": self.l10n_do_ecf_modification_code,
+                    "l10n_latam_document_number": self.l10n_latam_document_number,
+                    "l10n_do_origin_ncf": move.l10n_latam_document_number,
+                    "l10n_do_expense_type": move.l10n_do_expense_type,
+                    "l10n_do_income_type": move.l10n_do_income_type,
+                    "invoice_origin": move.name,
+                }
+            )
+
+            if self.l10n_do_refund_type != "full_refund":
+                result.update(
+                    {
+                        "l10n_latam_document_type_id": self.l10n_latam_document_type_id.id,
+                        "line_ids": [(5, 0, 0)],
+                    }
+                )
+
+                price_unit = (
+                    self.l10n_do_amount
+                    if self.l10n_do_refund_type == "fixed_amount"
+                    else move.amount_untaxed * (self.l10n_do_percentage / 100)
+                )
+                result["invoice_line_ids"] = [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": self.reason or _("Credit"),
+                            "price_unit": price_unit,
+                            "quantity": 1,
+                        },
+                    )
+                ]
+
+        return result

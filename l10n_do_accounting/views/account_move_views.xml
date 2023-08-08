@@ -88,7 +88,7 @@
             <xpath expr="//page[@id='invoice_tab']/field[@name='invoice_line_ids']/tree/field[@name='tax_ids']" position="after">
                 <field name="l10n_do_itbis_amount" invisible="1" force_save="1"/>
             </xpath>
-            <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='payment_id']" position="after">
+            <xpath expr="//page[@id='aml_tab']/field[@name='line_ids']/tree/field[@name='account_type']" position="after">
                 <field name="l10n_do_itbis_amount" invisible="1" force_save="1"/>
             </xpath>
         </field>

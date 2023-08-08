@@ -1,9 +1,7 @@
-from odoo.tests import tagged
 from odoo.tests.common import Form
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 
-@tagged("external_l10n", "post_install", "-at_install", "-standard", "external")
 class L10nDOTestsCommon(AccountTestInvoicingCommon):
     @classmethod
     def setUpClass(cls, chart_template_ref="l10n_do.do_chart_template"):
@@ -13,6 +11,7 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
             "INDEXA SRL",
             chart_template=cls.env.ref(chart_template_ref),
             vat="131793916",
+            street="dummy address",
             country_id=cls.env.ref("base.do").id,
         )["company"]
         cls.fiscal_partner = cls.env["res.partner"].create(
@@ -141,6 +140,5 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                         )
                         for tax in taxes:
                             invoice_line_form.tax_ids.add(tax)
-            invoice_form.invoice_date = invoice_form.date
         invoice = invoice_form.save()
         return invoice
