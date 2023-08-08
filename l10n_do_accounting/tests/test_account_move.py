@@ -4,7 +4,7 @@ from odoo.tests import tagged
 from odoo.exceptions import ValidationError
 
 
-@tagged("post_install")
+@tagged("-at_install", "post_install")
 class AccountMoveTest(common.L10nDOTestsCommon):
     def test_001_invoice_ncf_types(self):
         """

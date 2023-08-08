@@ -21,7 +21,6 @@ class AccountMoveReversal(models.TransientModel):
 
     @api.model
     def _get_refund_action_selection(self):
-
         return [
             ("draft_refund", _("Partial Refund")),
             ("apply_refund", _("Full Refund")),
@@ -127,11 +126,9 @@ class AccountMoveReversal(models.TransientModel):
             self.refund_method = "refund"
 
     def _prepare_default_reversal(self, move):
-
         result = super(AccountMoveReversal, self)._prepare_default_reversal(move)
 
         if self.country_code == "DO" and move.l10n_latam_use_documents:
-
             result.update(
                 {
                     "l10n_do_ecf_modification_code": self.l10n_do_ecf_modification_code,
@@ -144,10 +141,12 @@ class AccountMoveReversal(models.TransientModel):
             )
 
             if self.l10n_do_refund_type != "full_refund":
-                result.update({
-                    "l10n_latam_document_type_id": self.l10n_latam_document_type_id.id,
-                    "line_ids": [(5, 0, 0)],
-                })
+                result.update(
+                    {
+                        "l10n_latam_document_type_id": self.l10n_latam_document_type_id.id,
+                        "line_ids": [(5, 0, 0)],
+                    }
+                )
 
                 price_unit = (
                     self.l10n_do_amount

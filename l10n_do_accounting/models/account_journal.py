@@ -6,7 +6,7 @@ class AccountJournal(models.Model):
     _inherit = "account.journal"
 
     def _get_l10n_do_payment_form(self):
-        """ Return the list of payment forms allowed by DGII. """
+        """Return the list of payment forms allowed by DGII."""
         return [
             ("cash", _("Cash")),
             ("bank", _("Check / Transfer")),
@@ -114,7 +114,6 @@ class AccountJournal(models.Model):
             )
             return self._get_all_ncf_types(res)
         if counterpart_partner.l10n_do_dgii_tax_payer_type:
-
             if counterpart_partner == self.company_id.partner_id:
                 ncf_types = ["minor"]
             else:
@@ -191,7 +190,6 @@ class AccountJournal(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-
         journals = super(AccountJournal, self).create(vals_list)
 
         for journal in journals:
