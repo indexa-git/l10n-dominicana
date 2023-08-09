@@ -3,6 +3,7 @@ from psycopg2 import sql
 from werkzeug import urls
 
 from odoo import models, fields, api, _
+from odoo.osv import expression
 from odoo.exceptions import ValidationError, UserError, AccessError
 
 
@@ -149,6 +150,22 @@ class AccountMove(models.Model):
                         field=sql.Identifier(self._l10n_do_sequence_field),
                     )
                 )
+
+    @api.model
+    def _name_search(
+        self, name="", args=None, operator="ilike", limit=100, name_get_uid=None
+    ):
+        args = args or []
+        domain = []
+        if name:
+            domain = [
+                "|",
+                ("name", operator, name),
+                ("l10n_do_fiscal_number", operator, name),
+            ]
+        return self._search(
+            expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid
+        )
 
     @api.depends(
         "journal_id.l10n_latam_use_documents",
@@ -347,6 +364,9 @@ class AccountMove(models.Model):
             raise ValidationError(
                 _("You cannot cancel multiple fiscal invoices at a time.")
             )
+
+        if not fiscal_invoice.posted_before and not fiscal_invoice.l10n_do_fiscal_number:
+            raise ValidationError(_("You cannot cancel a draft fiscal invoice without Fiscal Number"))
 
         if fiscal_invoice and not self.env.user.has_group(
             "l10n_do_accounting.group_l10n_do_fiscal_invoice_cancel"
