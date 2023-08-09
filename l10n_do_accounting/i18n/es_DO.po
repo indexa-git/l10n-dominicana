@@ -1334,10 +1334,3 @@ msgstr ""
 #, python-format
 msgid "special from Tax Paying"
 msgstr "Exento"
-
-#. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/models/account_move.py:0
-#, python-format
-msgid "You cannot cancel a draft fiscal invoice without Fiscal Number"
-msgstr "No puede cancelar una factura fiscal en borrador sin NCF"
-
