@@ -474,9 +474,6 @@ class AccountMove(models.Model):
                 _("You cannot cancel multiple fiscal invoices at a time.")
             )
 
-        if not fiscal_invoice.posted_before and not fiscal_invoice.l10n_do_fiscal_number:
-            raise ValidationError(_("You cannot cancel a draft fiscal invoice without Fiscal Number"))
-
         if fiscal_invoice and not self.env.user.has_group(
             "l10n_do_accounting.group_l10n_do_fiscal_invoice_cancel"
         ):
