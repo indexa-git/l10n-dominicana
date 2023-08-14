@@ -21,16 +21,6 @@
                     Notice. This company is in a transient state of contingency for Electronic Invoice issuing. NCF issuing has been enabled.
                 </div>
             </xpath>
-            <xpath expr="//button[@name='button_cancel']" position="attributes">
-                <attribute name="attrs">{
-                    'invisible': ['|', '|',
-                    ('id', '=', False),
-                    '&amp;', ('state', '!=', 'draft'),
-                    ('country_code', '!=', 'DO'),
-                    '&amp;', ('state', 'in', ('draft', 'cancel')),
-                    ('country_code', '=', 'DO')]
-                }</attribute>
-            </xpath>
             <xpath expr="//button[@name='button_draft']" position="attributes">
                 <attribute name="attrs">{
                     'invisible': ['|', '|',

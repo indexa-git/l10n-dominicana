@@ -1247,3 +1247,9 @@ msgstr ""
 #, python-format
 msgid "special from Tax Paying"
 msgstr "Exento"
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
+msgid "You cannot cancel a fiscal document that has not been posted before."
+msgstr "No puede cancelar un documento fiscal que no haya sido posteado anteriormente."
