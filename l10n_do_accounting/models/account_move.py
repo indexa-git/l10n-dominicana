@@ -357,7 +357,6 @@ class AccountMove(models.Model):
             lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
             and inv.l10n_latam_use_documents
-            and not inv.is_ecf_invoice
         )
 
         if len(fiscal_invoice) > 1:
@@ -369,6 +368,9 @@ class AccountMove(models.Model):
             "l10n_do_accounting.group_l10n_do_fiscal_invoice_cancel"
         ):
             raise AccessError(_("You are not allowed to cancel Fiscal Invoices"))
+
+        if fiscal_invoice and not fiscal_invoice.posted_before:
+            raise ValidationError(_("You cannot cancel a fiscal document that has not been posted before."))
 
         if fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
             action = self.env.ref(
