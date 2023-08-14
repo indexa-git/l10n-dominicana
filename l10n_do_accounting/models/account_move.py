@@ -466,7 +466,6 @@ class AccountMove(models.Model):
             lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
             and inv.l10n_latam_use_documents
-            and not inv.is_ecf_invoice
         )
 
         if len(fiscal_invoice) > 1:
