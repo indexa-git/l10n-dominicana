@@ -479,6 +479,9 @@ class AccountMove(models.Model):
         ):
             raise AccessError(_("You are not allowed to cancel Fiscal Invoices"))
 
+        if fiscal_invoice and not fiscal_invoice.posted_before:
+            raise ValidationError(_("You cannot cancel a fiscal document that has not been posted before."))
+
         if fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
             action = self.env.ref(
                 "l10n_do_accounting.action_account_move_cancel"
