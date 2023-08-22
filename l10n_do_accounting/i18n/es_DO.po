@@ -442,6 +442,7 @@ msgstr "Puede modificar campos fiscales de contactos"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.account_move_cancel_view
+#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
 msgid "Cancel"
 msgstr "Cancelar"
 
