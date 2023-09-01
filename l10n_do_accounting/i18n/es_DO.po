@@ -741,6 +741,12 @@ msgstr "Contribuyente"
 #. odoo-python
 #: code:addons/l10n_do_accounting/models/account_move.py:0
 #, python-format
+msgid "Fiscal invoice cannot be posted with amount zero."
+msgstr "Las facturas fiscales no pueden ser Confirmadas con monto cero."
+
+#. module: l10n_do_accounting
+#: code:addons/l10n_do_accounting/models/account_move.py:0
+#, python-format
 msgid "Fiscal invoices require partner fiscal type"
 msgstr "Las Facturas Fiscales requieren un Tipo de Contribuyente en el contacto"
 
