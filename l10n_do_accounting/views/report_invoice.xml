@@ -268,9 +268,8 @@
 
         <xpath expr="//div[@id='total']/.." position="after">
             <div class="row">
-                <div class="col-6"
-                     style="display: inline-block; float: left; font-size:11px;">
-                    <t t-if="o.l10n_do_electronic_stamp">
+                <div>
+                    <div t-if="o.l10n_do_electronic_stamp" class="col-6" style="display: inline-block">
                         <div>
                             <img alt="Barcode" t-att-src="'/report/barcode/?barcode_type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
                         </div>
@@ -281,24 +280,23 @@
                         <br/>
                         <t t-if="o.l10n_do_ecf_sign_date">
                             <strong>Fecha Firma Digital:</strong>
-                            <span
-                                t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
+                            <span t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
                         </t>
-                    </t>
-                </div>
-                <div t-if="is_l10n_do_invoice" class="text-muted text-right col-6"
-                     style="float: right;">
-                    <span>
-                        <strong>Original:</strong>
-                        Cliente
-                    </span>
-                    <br/>
-                    <span>
-                        <strong>Copia:</strong>
-                        Vendedor
-                    </span>
-                    <br/>
-                    <br/>
+                    </div>
+                    <div t-if="is_l10n_do_invoice" class="text-muted text-end col-4"
+                         style="float: right;">
+                        <span>
+                            <strong>Original:</strong>
+                            Cliente
+                        </span>
+                        <br/>
+                        <span>
+                            <strong>Copia:</strong>
+                            Vendedor
+                        </span>
+                        <br/>
+                        <br/>
+                    </div>
                 </div>
             </div>
             <br/>
