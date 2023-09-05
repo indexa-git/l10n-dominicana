@@ -272,7 +272,7 @@
                      style="display: inline-block; float: left; font-size:11px;">
                     <t t-if="o.l10n_do_electronic_stamp">
                         <div>
-                            <img t-att-src="'/report/barcode/?type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
+                            <img alt="Barcode" t-att-src="'/report/barcode/?barcode_type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
                         </div>
                         <t t-if="o.l10n_do_ecf_security_code">
                             <strong>Código de Seguridad:</strong>
