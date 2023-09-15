@@ -467,25 +467,28 @@ class AccountMove(models.Model):
             lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
             and inv.l10n_latam_use_documents
-            and not inv.is_ecf_invoice
         )
+        not_ecf_fiscal_invoice = fiscal_invoice.filtered(lambda i: not i.is_ecf_invoice)
 
         if len(fiscal_invoice) > 1:
             raise ValidationError(
                 _("You cannot cancel multiple fiscal invoices at a time.")
             )
 
-        if fiscal_invoice and not self.env.user.has_group(
+        if not_ecf_fiscal_invoice and not self.env.user.has_group(
             "l10n_do_accounting.group_l10n_do_fiscal_invoice_cancel"
         ):
             raise AccessError(_("You are not allowed to cancel Fiscal Invoices"))
 
-        if fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
+        if not_ecf_fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
             action = self.env.ref(
                 "l10n_do_accounting.action_account_move_cancel"
             ).sudo().read()[0]
             action["context"] = {"default_move_id": fiscal_invoice.id}
             return action
+
+        if fiscal_invoice:
+            fiscal_invoice.button_draft()
 
         return super(AccountMove, self).button_cancel()
 
