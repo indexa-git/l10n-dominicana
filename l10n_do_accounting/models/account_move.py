@@ -14,7 +14,7 @@ class AccountMove(models.Model):
     _l10n_do_sequence_fixed_regex = r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})$"
 
     def _get_l10n_do_cancellation_type(self):
-        """ Return the list of cancellation types required by DGII. """
+        """Return the list of cancellation types required by DGII."""
         return [
             ("01", _("01 - Pre-printed Invoice Impairment")),
             ("02", _("02 - Printing Errors (Pre-printed Invoice)")),
@@ -29,7 +29,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_ecf_modification_code(self):
-        """ Return the list of e-CF modification codes required by DGII. """
+        """Return the list of e-CF modification codes required by DGII."""
         return [
             ("1", _("01 - Total Cancellation")),
             ("2", _("02 - Text Correction")),
@@ -39,7 +39,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_income_type(self):
-        """ Return the list of income types required by DGII. """
+        """Return the list of income types required by DGII."""
         return [
             ("01", _("01 - Operational Incomes")),
             ("02", _("02 - Financial Incomes")),
@@ -120,7 +120,6 @@ class AccountMove(models.Model):
     l10n_latam_manual_document_number = fields.Boolean(store=True)
 
     def init(self):
-
         super(AccountMove, self).init()
 
         if not self._abstract and self._sequence_index:
@@ -352,7 +351,6 @@ class AccountMove(models.Model):
 
     @api.depends("l10n_do_ecf_security_code", "l10n_do_ecf_sign_date", "invoice_date")
     def _compute_l10n_do_electronic_stamp(self):
-
         l10n_do_ecf_invoice = self.filtered(
             lambda i: i.is_ecf_invoice
             and not i.l10n_latam_manual_document_number
@@ -361,7 +359,6 @@ class AccountMove(models.Model):
         )
 
         for invoice in l10n_do_ecf_invoice:
-
             if hasattr(invoice.company_id, "l10n_do_ecf_service_env"):
                 ecf_service_env = invoice.company_id.l10n_do_ecf_service_env
             else:
@@ -462,7 +459,6 @@ class AccountMove(models.Model):
         super(AccountMove, self - l10n_do_recs)._compute_l10n_latam_document_number()
 
     def button_cancel(self):
-
         fiscal_invoice = self.filtered(
             lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
@@ -480,10 +476,14 @@ class AccountMove(models.Model):
         ):
             raise AccessError(_("You are not allowed to cancel Fiscal Invoices"))
 
-        if not_ecf_fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
-            action = self.env.ref(
-                "l10n_do_accounting.action_account_move_cancel"
-            ).sudo().read()[0]
+        if not_ecf_fiscal_invoice and not self.env.context.get(
+            "skip_cancel_wizard", False
+        ):
+            action = (
+                self.env.ref("l10n_do_accounting.action_account_move_cancel")
+                .sudo()
+                .read()[0]
+            )
             action["context"] = {"default_move_id": fiscal_invoice.id}
             return action
 
@@ -493,7 +493,6 @@ class AccountMove(models.Model):
         return super(AccountMove, self).button_cancel()
 
     def action_reverse(self):
-
         fiscal_invoice = self.filtered(
             lambda inv: inv.country_code == "DO"
             and self.move_type[-6:] in ("nvoice", "refund")
@@ -601,7 +600,6 @@ class AccountMove(models.Model):
         return super(AccountMove, self)._onchange_partner_id()
 
     def _reverse_move_vals(self, default_values, cancel=True):
-
         ctx = self.env.context
         amount = ctx.get("amount")
         percentage = ctx.get("percentage")
@@ -667,7 +665,6 @@ class AccountMove(models.Model):
         )
 
     def _get_debit_line_tax(self, debit_date):
-
         if self.move_type == "out_invoice":
             return (
                 self.company_id.account_sale_tax_id
@@ -682,7 +679,6 @@ class AccountMove(models.Model):
             )
 
     def _move_autocomplete_invoice_lines_create(self, vals_list):
-
         ctx = self.env.context
         refund_type = ctx.get("refund_type")
         refund_debit_type = ctx.get("l10n_do_debit_type", refund_type)
@@ -729,7 +725,6 @@ class AccountMove(models.Model):
         )
 
     def _post(self, soft=True):
-
         res = super()._post(soft)
 
         l10n_do_invoices = self.filtered(
@@ -740,7 +735,6 @@ class AccountMove(models.Model):
         for invoice in l10n_do_invoices.filtered(
             lambda inv: inv.l10n_latam_document_type_id
         ):
-
             if not invoice.amount_total:
                 raise UserError(_("Fiscal invoice cannot be posted with amount zero."))
 
@@ -837,7 +831,6 @@ class AccountMove(models.Model):
             record.l10n_do_sequence_number = int(matching.group(1) or 0)
 
     def _get_last_sequence(self, relaxed=False, lock=True):
-
         if not self._context.get("is_l10n_do_seq", False):
             return super(AccountMove, self)._get_last_sequence(
                 relaxed=relaxed, lock=lock
@@ -885,7 +878,6 @@ class AccountMove(models.Model):
         return (self.env.cr.fetchone() or [None])[0]
 
     def _get_sequence_format_param(self, previous):
-
         if not self._context.get("is_l10n_do_seq", False):
             return super(AccountMove, self)._get_sequence_format_param(previous)
 

@@ -5,14 +5,12 @@ _logger = logging.getLogger(__name__)
 
 
 def migrate_ncf_expiration_date(env):
-
     companies = env["res.company"].search([("partner_id.country_id.code", "=", "DO")])
     for company in companies:
         fiscal_journals = env["account.journal"].search(
             [("l10n_latam_use_documents", "=", True), ("company_id", "=", company.id)]
         )
         for journal in fiscal_journals:
-
             # Create fiscal journal document types
             _logger.info("Creating %s journal document types" % journal.name)
             journal._l10n_do_create_document_types()
@@ -47,6 +45,5 @@ def migrate_ncf_expiration_date(env):
 
 
 def migrate(cr, version):
-
     env = api.Environment(cr, SUPERUSER_ID, {})
     migrate_ncf_expiration_date(env)

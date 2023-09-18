@@ -6,7 +6,7 @@ class AccountJournal(models.Model):
     _inherit = "account.journal"
 
     def _get_l10n_do_payment_form(self):
-        """ Return the list of payment forms allowed by DGII. """
+        """Return the list of payment forms allowed by DGII."""
         return [
             ("cash", _("Cash")),
             ("bank", _("Check / Transfer")),
