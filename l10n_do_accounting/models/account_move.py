@@ -372,12 +372,20 @@ class AccountMove(models.Model):
             raise AccessError(_("You are not allowed to cancel Fiscal Invoices"))
 
         if fiscal_invoice and not fiscal_invoice.posted_before:
-            raise ValidationError(_("You cannot cancel a fiscal document that has not been posted before."))
+            raise ValidationError(
+                _(
+                    "You cannot cancel a fiscal document that has not been posted before."
+                )
+            )
 
-        if not_ecf_fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
-            action = self.env.ref(
-                "l10n_do_accounting.action_account_move_cancel"
-            ).sudo().read()[0]
+        if not_ecf_fiscal_invoice and not self.env.context.get(
+            "skip_cancel_wizard", False
+        ):
+            action = (
+                self.env.ref("l10n_do_accounting.action_account_move_cancel")
+                .sudo()
+                .read()[0]
+            )
             action["context"] = {"default_move_id": fiscal_invoice.id}
             return action
 
@@ -583,7 +591,6 @@ class AccountMove(models.Model):
         for invoice in l10n_do_invoices.filtered(
             lambda inv: inv.l10n_latam_document_type_id
         ):
-
             if not invoice.amount_total:
                 raise UserError(_("Fiscal invoice cannot be posted with amount zero."))
 
