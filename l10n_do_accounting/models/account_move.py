@@ -448,6 +448,32 @@ class AccountMove(models.Model):
 
         super(AccountMove, (self - l10n_do_invoices))._check_unique_sequence_number()
 
+    @api.constrains(
+        "l10n_do_fiscal_number", "partner_id", "company_id", "posted_before"
+    )
+    def _l10n_do_check_unique_vendor_number(self):
+        for rec in self.filtered(
+            lambda inv: inv.l10n_do_fiscal_number
+            and inv.country_code == "DO"
+            and inv.l10n_latam_use_documents
+            and inv.is_purchase_document()
+            and inv.commercial_partner_id
+        ):
+            domain = [
+                ("move_type", "=", rec.move_type),
+                ("l10n_do_fiscal_number", "=", rec.l10n_do_fiscal_number),
+                ("company_id", "=", rec.company_id.id),
+                ("id", "!=", rec.id),
+                ("commercial_partner_id", "=", rec.commercial_partner_id.id),
+                ("state", "!=", "cancel"),
+            ]
+            if rec.search_count(domain):
+                raise ValidationError(
+                    _(
+                        "Vendor bill Fiscal Number must be unique per vendor and company."
+                    )
+                )
+
     @api.depends("l10n_do_fiscal_number")
     def _compute_l10n_latam_document_number(self):
         l10n_do_recs = self.filtered(
