@@ -19,7 +19,6 @@ class AccountDebitNote(models.TransientModel):
 
     @api.model
     def _get_l10n_do_debit_action_selection(self):
-
         return [
             ("draft_debit", _("Draft debit")),
             ("apply_debit", _("Apply debit")),
@@ -72,7 +71,6 @@ class AccountDebitNote(models.TransientModel):
 
     @api.model
     def default_get(self, fields):
-
         res = super(AccountDebitNote, self).default_get(fields)
 
         move_ids = (
@@ -160,7 +158,6 @@ class AccountDebitNote(models.TransientModel):
             }
 
     def _prepare_default_values(self, move):
-
         res = super(AccountDebitNote, self)._prepare_default_values(move)
 
         # Include additional info when l10n_do debit note
@@ -182,7 +179,6 @@ class AccountDebitNote(models.TransientModel):
         return res
 
     def create_debit(self):
-
         if self.l10n_latam_use_documents and self.l10n_latam_country_code:
             self = self.with_context(
                 l10n_do_debit_type=self.l10n_do_debit_type,

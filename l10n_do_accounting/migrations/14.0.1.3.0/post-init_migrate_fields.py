@@ -81,7 +81,6 @@ def drop_sequence_fields(env):
 
 
 def migrate(cr, version):
-
     env = api.Environment(cr, SUPERUSER_ID, {})
     migrate_ref_field(env)
     migrate_invoice_fields(env)
