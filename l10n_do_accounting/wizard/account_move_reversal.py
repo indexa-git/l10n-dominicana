@@ -21,7 +21,6 @@ class AccountMoveReversal(models.TransientModel):
 
     @api.model
     def _get_refund_action_selection(self):
-
         return [
             ("draft_refund", _("Partial Refund")),
             ("apply_refund", _("Full Refund")),
@@ -127,7 +126,6 @@ class AccountMoveReversal(models.TransientModel):
             self.refund_method = "refund"
 
     def reverse_moves(self):
-
         return super(
             AccountMoveReversal,
             self.with_context(

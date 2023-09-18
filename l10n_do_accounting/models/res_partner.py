@@ -54,7 +54,6 @@ class Partner(models.Model):
     )
 
     def _check_l10n_do_fiscal_fields(self, vals):
-
         if not self or self.parent_id:
             # Do not perform any check because child contacts
             # have readonly fiscal field. This also allows set
@@ -93,7 +92,6 @@ class Partner(models.Model):
             )
 
     def write(self, vals):
-
         res = super(Partner, self).write(vals)
         self._check_l10n_do_fiscal_fields(vals)
 
@@ -101,7 +99,7 @@ class Partner(models.Model):
 
     @api.depends("vat", "country_id", "name")
     def _compute_l10n_do_dgii_payer_type(self):
-        """ Compute the type of partner depending on soft decisions"""
+        """Compute the type of partner depending on soft decisions"""
         company_id = self.env["res.company"].search(
             [("id", "=", self.env.user.company_id.id)]
         )
