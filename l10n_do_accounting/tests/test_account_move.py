@@ -428,7 +428,9 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
 
         # Credit Note
-        ecf_purchase_credito_fiscal_invoice.with_context(l10n_do_active_test=True)._post()
+        ecf_purchase_credito_fiscal_invoice.with_context(
+            l10n_do_active_test=True
+        )._post()
         fiscal_purchase_credit_note_wizard = (
             self.env["account.move.reversal"]
             .with_context(
