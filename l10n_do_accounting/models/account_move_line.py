@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class AccountMoveLine(models.Model):
@@ -9,43 +9,27 @@ class AccountMoveLine(models.Model):
         store=True,
         readonly=True,
         currency_field="currency_id",
+        compute="_compute_totals",
     )
 
-    def _get_price_total_and_subtotal(
-        self,
-        price_unit=None,
-        quantity=None,
-        discount=None,
-        currency=None,
-        product=None,
-        partner=None,
-        taxes=None,
-        move_type=None,
-    ):
-        self.ensure_one()
-        res = super(AccountMoveLine, self)._get_price_total_and_subtotal(
-            price_unit=price_unit,
-            quantity=quantity,
-            discount=discount,
-            currency=currency,
-            product=product,
-            partner=partner,
-            taxes=taxes,
-            move_type=move_type,
-        )
+    @api.depends("quantity", "discount", "price_unit", "tax_ids", "currency_id")
+    def _compute_totals(self):
+        super()._compute_totals()
+        for line in self:
+            if line.display_type != "product":
+                line.l10n_do_itbis_amount = False
 
-        if self.move_id.is_ecf_invoice:
-            line_itbis_taxes = self.tax_ids.filtered(
-                lambda t: t.tax_group_id == self.env.ref("l10n_do.group_itbis")
-            )
-            itbis_taxes_data = line_itbis_taxes.compute_all(
-                price_unit=self.price_unit,
-                quantity=self.quantity,
-            )
-            res["l10n_do_itbis_amount"] = sum(
-                [t["amount"] for t in itbis_taxes_data["taxes"]]
-            )
-        return res
+            if line.move_id.is_ecf_invoice:
+                line_itbis_taxes = line.tax_ids.filtered(
+                    lambda t: t.tax_group_id == self.env.ref("l10n_do.group_itbis")
+                )
+                itbis_taxes_data = line_itbis_taxes.compute_all(
+                    price_unit=line.price_unit,
+                    quantity=line.quantity,
+                )
+                line.l10n_do_itbis_amount = sum(
+                    [t["amount"] for t in itbis_taxes_data["taxes"]]
+                )
 
     def _get_l10n_do_line_amounts(self):
         group_itbis = self.env.ref("l10n_do.group_itbis")
