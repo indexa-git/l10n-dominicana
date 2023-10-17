@@ -8,7 +8,7 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     def _get_l10n_do_cancellation_type(self):
-        """ Return the list of cancellation types required by DGII. """
+        """Return the list of cancellation types required by DGII."""
         return [
             ("01", _("01 - Pre-printed Invoice Impairment")),
             ("02", _("02 - Printing Errors (Pre-printed Invoice)")),
@@ -23,7 +23,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_ecf_modification_code(self):
-        """ Return the list of e-CF modification codes required by DGII. """
+        """Return the list of e-CF modification codes required by DGII."""
         return [
             ("1", _("01 - Total Cancellation")),
             ("2", _("02 - Text Correction")),
@@ -33,7 +33,7 @@ class AccountMove(models.Model):
         ]
 
     def _get_l10n_do_income_type(self):
-        """ Return the list of income types required by DGII. """
+        """Return the list of income types required by DGII."""
         return [
             ("01", _("01 - Operational Incomes")),
             ("02", _("02 - Financial Incomes")),
@@ -107,6 +107,13 @@ class AccountMove(models.Model):
     l10n_do_ecf_edi_file = fields.Binary("ECF XML File", copy=False, readonly=True)
     l10n_do_ecf_edi_file_name = fields.Char(
         "ECF XML File Name", copy=False, readonly=True
+    )
+    l10n_do_refund_reconciled_amount = fields.Monetary(
+        "Refund Reconciled Amount",
+        store=True,
+        readonly=True,
+        compute="_compute_amount",
+        currency_field="company_currency_id",
     )
 
     def _get_l10n_do_amounts(self):
@@ -225,6 +232,28 @@ class AccountMove(models.Model):
         return result
 
     @api.depends(
+        "line_ids.debit",
+        "line_ids.credit",
+        "line_ids.currency_id",
+        "line_ids.amount_currency",
+        "line_ids.amount_residual",
+        "line_ids.amount_residual_currency",
+        "line_ids.payment_id.state",
+    )
+    def _compute_amount(self):
+        super(AccountMove, self)._compute_amount()
+
+        l10n_do_ecf_invoices = self.filtered(
+            lambda inv: inv.l10n_latam_use_documents
+            and inv.l10n_latam_country_code == "DO"
+            and inv.is_ecf_invoice
+        )
+        for invoice in l10n_do_ecf_invoices:
+            pass
+
+        (self - l10n_do_ecf_invoices).l10n_do_refund_reconciled_amount = False
+
+    @api.depends(
         "l10n_latam_country_code",
         "l10n_latam_document_type_id",
     )
@@ -283,7 +312,6 @@ class AccountMove(models.Model):
     @api.depends("l10n_do_ecf_security_code", "l10n_do_ecf_sign_date", "invoice_date")
     @api.depends_context("l10n_do_ecf_service_env")
     def _compute_l10n_do_electronic_stamp(self):
-
         l10n_do_ecf_invoice = self.filtered(
             lambda i: i.is_ecf_invoice
             and i.is_l10n_do_internal_sequence
@@ -292,7 +320,6 @@ class AccountMove(models.Model):
         )
 
         for invoice in l10n_do_ecf_invoice:
-
             ecf_service_env = self.env.context.get("l10n_do_ecf_service_env", "CerteCF")
             doc_code_prefix = invoice.l10n_latam_document_type_id.doc_code_prefix
             is_rfc = (  # Es un Resumen Factura Consumo
@@ -375,7 +402,6 @@ class AccountMove(models.Model):
         super(AccountMove, (self - l10n_do_invoices))._check_unique_sequence_number()
 
     def button_cancel(self):
-
         fiscal_invoice = self.filtered(
             lambda inv: inv.l10n_latam_country_code == "DO"
             and self.type[-6:] in ("nvoice", "refund")
@@ -393,7 +419,9 @@ class AccountMove(models.Model):
         ):
             raise AccessError(_("You are not allowed to cancel Fiscal Invoices"))
 
-        if not_ecf_fiscal_invoice and not self.env.context.get("skip_cancel_wizard", False):
+        if not_ecf_fiscal_invoice and not self.env.context.get(
+            "skip_cancel_wizard", False
+        ):
             action = self.env.ref(
                 "l10n_do_accounting.action_account_move_cancel"
             ).read()[0]
@@ -406,7 +434,6 @@ class AccountMove(models.Model):
         return super(AccountMove, self).button_cancel()
 
     def action_reverse(self):
-
         fiscal_invoice = self.filtered(
             lambda inv: inv.l10n_latam_country_code == "DO"
             and self.type[-6:] in ("nvoice", "refund")
@@ -480,7 +507,7 @@ class AccountMove(models.Model):
         return domain
 
     def _get_document_type_sequence(self):
-        """ Return the match sequences for the given journal and invoice """
+        """Return the match sequences for the given journal and invoice"""
         self.ensure_one()
         if (
             self.journal_id.l10n_latam_use_documents
@@ -549,7 +576,6 @@ class AccountMove(models.Model):
         return super(AccountMove, self)._onchange_partner_id()
 
     def _reverse_move_vals(self, default_values, cancel=True):
-
         res = super(AccountMove, self)._reverse_move_vals(
             default_values=default_values, cancel=cancel
         )
@@ -565,7 +591,6 @@ class AccountMove(models.Model):
         return res
 
     def _move_autocomplete_invoice_lines_create(self, vals_list):
-
         ctx = self.env.context
         refund_type = ctx.get("refund_type")
         if refund_type and refund_type in ("percentage", "fixed_amount"):
@@ -596,7 +621,6 @@ class AccountMove(models.Model):
 
     @api.constrains("name", "partner_id", "company_id")
     def _check_unique_vendor_number(self):
-
         l10n_do_invoice = self.filtered(
             lambda inv: inv.l10n_latam_country_code == "DO"
             and inv.l10n_latam_use_documents
@@ -619,7 +643,6 @@ class AccountMove(models.Model):
         return super(AccountMove, self - l10n_do_invoice)._check_unique_vendor_number()
 
     def post(self):
-
         res = super(AccountMove, self).post()
 
         l10n_do_invoices = self.filtered(
