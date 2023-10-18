@@ -114,6 +114,7 @@ class AccountMove(models.Model):
         readonly=True,
         compute="_compute_amount",
         currency_field="company_currency_id",
+        help="Credit Notes amount reconciled with this document in company currency",
     )
 
     def _get_l10n_do_amounts(self):
@@ -243,13 +244,32 @@ class AccountMove(models.Model):
     def _compute_amount(self):
         super(AccountMove, self)._compute_amount()
 
+        # write docstring
+
         l10n_do_ecf_invoices = self.filtered(
             lambda inv: inv.l10n_latam_use_documents
+            and inv.is_l10n_do_internal_sequence
             and inv.l10n_latam_country_code == "DO"
             and inv.is_ecf_invoice
         )
         for invoice in l10n_do_ecf_invoices:
-            pass
+            refund_reconciled_amount = 0
+            for move_line in invoice.line_ids.filtered(
+                lambda line: line.account_id.user_type_id.type
+                in ("receivable", "payable")
+            ):
+                amount = abs(move_line.debit - move_line.credit)
+                sign = 1 if (move_line.debit - move_line.credit) > 0 else -1
+                for partial_line in (
+                    move_line.matched_debit_ids + move_line.matched_credit_ids
+                ).filtered(lambda pl: pl.credit_move_id == move_line):
+                    amount += sign * partial_line.amount
+                    # nos quedamos aqui. estamos tratando de computar el monto de
+                    # nota de credito conciliado con la factura
+
+                    refund_reconciled_amount += move_line.amount_residual
+
+            invoice.l10n_do_refund_reconciled_amount = refund_reconciled_amount
 
         (self - l10n_do_ecf_invoices).l10n_do_refund_reconciled_amount = False
 
