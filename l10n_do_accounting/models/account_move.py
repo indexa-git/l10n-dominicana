@@ -244,30 +244,29 @@ class AccountMove(models.Model):
     def _compute_amount(self):
         super(AccountMove, self)._compute_amount()
 
-        # write docstring
+        # TODO: write docstring
 
         l10n_do_ecf_invoices = self.filtered(
             lambda inv: inv.l10n_latam_use_documents
-            and inv.is_l10n_do_internal_sequence
+            and inv.type not in ("out_refund", "in_refund")
             and inv.l10n_latam_country_code == "DO"
+            and inv.is_l10n_do_internal_sequence
             and inv.is_ecf_invoice
         )
         for invoice in l10n_do_ecf_invoices:
             refund_reconciled_amount = 0
+            partial_line_field = "credit_move_id" if invoice.is_sale_document() else "debit_move_id"
+            refund_type = "out_refund" if partial_line_field == "credit_move_id" else "in_refund"
             for move_line in invoice.line_ids.filtered(
                 lambda line: line.account_id.user_type_id.type
                 in ("receivable", "payable")
             ):
-                amount = abs(move_line.debit - move_line.credit)
+
                 sign = 1 if (move_line.debit - move_line.credit) > 0 else -1
                 for partial_line in (
                     move_line.matched_debit_ids + move_line.matched_credit_ids
-                ).filtered(lambda pl: pl.credit_move_id == move_line):
-                    amount += sign * partial_line.amount
-                    # nos quedamos aqui. estamos tratando de computar el monto de
-                    # nota de credito conciliado con la factura
-
-                    refund_reconciled_amount += move_line.amount_residual
+                ).filtered(lambda pl: pl[partial_line_field].move_id.type == refund_type):
+                    refund_reconciled_amount += sign * partial_line.amount
 
             invoice.l10n_do_refund_reconciled_amount = refund_reconciled_amount
 

@@ -12,6 +12,9 @@
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
                 <field name="is_l10n_do_internal_sequence" invisible="1" force_save="1"/>
             </field>
+            <field name="amount_residual" position="after">
+                <field name="l10n_do_refund_reconciled_amount"/>
+            </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
                      role="alert" style="margin-bottom:0px;"
