@@ -40,7 +40,7 @@ class AccountMoveLine(models.Model):
             )
             price_unit = self.price_unit
             if self.discount:
-                price_unit = self.price_unit - (self.price_unit * (self.discount / 100))
+                price_unit = price_unit - (price_unit * (self.discount / 100))
             itbis_taxes_data = line_itbis_taxes.compute_all(
                 price_unit=price_unit,
                 quantity=self.quantity,
