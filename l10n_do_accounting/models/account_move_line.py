@@ -23,8 +23,11 @@ class AccountMoveLine(models.Model):
                 line_itbis_taxes = line.tax_ids.filtered(
                     lambda t: t.tax_group_id == self.env.ref("l10n_do.group_itbis")
                 )
+                price_unit = line.price_unit
+                if line.discount:
+                    price_unit = price_unit - (price_unit * (line.discount / 100))
                 itbis_taxes_data = line_itbis_taxes.compute_all(
-                    price_unit=line.price_unit,
+                    price_unit=price_unit,
                     quantity=line.quantity,
                 )
                 line.l10n_do_itbis_amount = sum(
