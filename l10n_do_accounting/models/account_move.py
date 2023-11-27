@@ -647,7 +647,7 @@ class AccountMove(models.Model):
             return res
 
         if self.country_code == "DO":
-            res["l10n_do_origin_ncf"] = self.l10n_latam_document_number
+            res["l10n_do_origin_ncf"] = self.l10n_do_fiscal_number or self.ref
             res["l10n_do_ecf_modification_code"] = l10n_do_ecf_modification_code
 
         if refund_type in ("percentage", "fixed_amount"):
