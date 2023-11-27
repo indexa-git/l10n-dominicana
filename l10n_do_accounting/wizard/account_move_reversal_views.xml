@@ -29,7 +29,7 @@
                        widget="radio"/>
             </xpath>
             <xpath expr="//field[@name='refund_method']" position="attributes">
-                <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
+                <attribute name="attrs">{'invisible': ['|',('refund_type', '!=', 'full_refund'),('residual', '=', 0)],'readonly': [('residual', '=', 0)]}</attribute>
             </xpath>
             <xpath expr="//field[@name='refund_method']" position="after">
                 <field name="refund_action" widget="radio"
@@ -50,6 +50,9 @@
                        ('l10n_latam_manual_document_number', '=', False),
                        ('is_ecf_invoice', '=', True),
                 ]}"/>
+            </xpath>
+            <xpath expr="//form/group/group" position="attributes">
+                <attribute name="attrs">{'invisible': [('move_type', 'not in', ('out_invoice', 'in_invoice'))]}</attribute>
             </xpath>
             <xpath expr="//form/group/*[2]" position="attributes">
                 <attribute name="attrs">{'invisible': [('refund_type', '!=', 'full_refund')]}</attribute>
