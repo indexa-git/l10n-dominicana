@@ -128,12 +128,12 @@ class AccountMoveReversal(models.TransientModel):
     def _prepare_default_reversal(self, move):
         result = super(AccountMoveReversal, self)._prepare_default_reversal(move)
 
-        if self.country_code == "DO" and move.l10n_latam_use_documents:
+        if self.country_code == "DO":
             result.update(
                 {
                     "l10n_do_ecf_modification_code": self.l10n_do_ecf_modification_code,
                     "l10n_latam_document_number": self.l10n_latam_document_number,
-                    "l10n_do_origin_ncf": move.l10n_latam_document_number,
+                    "l10n_do_origin_ncf": move.l10n_do_fiscal_number or move.ref,
                     "l10n_do_expense_type": move.l10n_do_expense_type,
                     "l10n_do_income_type": move.l10n_do_income_type,
                     "invoice_origin": move.name,
@@ -166,3 +166,64 @@ class AccountMoveReversal(models.TransientModel):
                 ]
 
         return result
+
+    @api.depends("move_ids", "journal_id")
+    def _compute_document_type(self):
+        self.l10n_latam_available_document_type_ids = False
+        self.l10n_latam_document_type_id = False
+        self.l10n_latam_use_documents = False
+        do_wizard = self.filtered(
+            lambda w: w.journal_id
+            and w.journal_id.l10n_latam_use_documents
+            and w.country_code == "DO"
+        )
+        for record in do_wizard:
+            if len(record.move_ids) > 1:
+                move_ids_use_document = record.move_ids._origin.filtered(
+                    lambda move: move.l10n_latam_use_documents
+                )
+                if move_ids_use_document:
+                    raise UserError(
+                        _(
+                            "You can only reverse documents with legal invoicing documents from Latin America "
+                            "one at a time.\nProblematic documents: %s"
+                        )
+                        % ", ".join(move_ids_use_document.mapped("name"))
+                    )
+            else:
+                record.l10n_latam_use_documents = (
+                    record.journal_id.l10n_latam_use_documents
+                )
+
+            if record.l10n_latam_use_documents:
+                refund = record.env["account.move"].new(
+                    {
+                        "move_type": record._reverse_type_map(
+                            record.move_ids.move_type
+                        ),
+                        "journal_id": record.journal_id.id,
+                        "partner_id": record.move_ids.partner_id.id,
+                        "company_id": record.move_ids.company_id.id,
+                    }
+                )
+                record.l10n_latam_document_type_id = refund.l10n_latam_document_type_id
+                record.l10n_latam_available_document_type_ids = (
+                    refund.l10n_latam_available_document_type_ids
+                )
+        super(AccountMoveReversal, self - do_wizard)._compute_document_type()
+
+    @api.depends("l10n_latam_document_type_id")
+    def _compute_l10n_latam_manual_document_number(self):
+        self.l10n_latam_manual_document_number = False
+        do_wizard = self.filtered(
+            lambda w: w.journal_id
+            and w.journal_id.l10n_latam_use_documents
+            and w.country_code == "DO"
+            and w.move_ids
+        )
+        for rec in do_wizard:
+            if rec.journal_id and rec.journal_id.l10n_latam_use_documents:
+                rec.l10n_latam_manual_document_number = True if rec.journal_id.type == 'purchase' else False
+        super(
+            AccountMoveReversal, self - do_wizard
+        )._compute_l10n_latam_manual_document_number()
