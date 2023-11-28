@@ -33,7 +33,7 @@
             </xpath>
             <xpath expr="//field[@name='refund_method']" position="after">
                 <field name="refund_action" widget="radio"
-                       attrs="{'invisible': [('refund_type','=','full_refund')]}"/>
+                       attrs="{'invisible': ['|',('refund_type', '!=', 'full_refund'),('residual', '=', 0)]}"/>
             </xpath>
             <xpath expr="//field[@name='reason']" position="after">
                 <field name="percentage"
