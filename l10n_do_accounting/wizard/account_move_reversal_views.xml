@@ -29,11 +29,11 @@
                        widget="radio"/>
             </xpath>
             <xpath expr="//field[@name='refund_method']" position="attributes">
-                <attribute name="attrs">{'invisible': ['|',('refund_type', '!=', 'full_refund'),('residual', '=', 0)],'readonly': [('residual', '=', 0)]}</attribute>
+                <attribute name="attrs">{'invisible': ['|',('l10n_do_refund_type', '!=', 'full_refund'),('residual', '=', 0)],'readonly': [('residual', '=', 0)]}</attribute>
             </xpath>
             <xpath expr="//field[@name='refund_method']" position="after">
                 <field name="l10n_do_refund_action" widget="radio"
-                       attrs="{'invisible': ['|',('l10n_do_refund_type', '!=', 'full_refund'),('residual', '=', 0)]}"/>
+                       attrs="{'invisible': ['|',('l10n_do_refund_type', '=', 'full_refund'),('residual', '=', 0)]}"/>
             </xpath>
             <xpath expr="//field[@name='reason']" position="after">
                 <field name="l10n_do_percentage"
