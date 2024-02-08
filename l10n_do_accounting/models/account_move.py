@@ -119,6 +119,12 @@ class AccountMove(models.Model):
         "ECF XML File Name", copy=False, readonly=True
     )
     l10n_latam_manual_document_number = fields.Boolean(store=True)
+    l10n_do_show_expiration_date_msg = fields.Boolean(
+        "Show Expiration Date Message",
+        compute="_compute_l10n_do_show_expiration_date_msg",
+        help="Technical field to hide/show message on invoice header that indicate fiscal number must be input "
+        "manually because a new expiration date was set on journal",
+    )
 
     def init(self):
         super(AccountMove, self).init()
@@ -167,6 +173,43 @@ class AccountMove(models.Model):
             expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid
         )
 
+    def _l10n_do_is_new_expiration_date(self):
+        self.ensure_one()
+        last_invoice = self.search(
+            [
+                ("company_id", "=", self.company_id.id),
+                ("move_type", "=", self.move_type),
+                (
+                    "l10n_latam_document_type_id",
+                    "=",
+                    self.l10n_latam_document_type_id.id,
+                ),
+                ("posted_before", "=", True),
+                ("id", "!=", self.id or self._origin.id),
+            ],
+            order="invoice_date, id desc",
+            limit=1,
+        )
+        if not last_invoice:
+            return False
+
+        return (
+            last_invoice.l10n_do_ncf_expiration_date < self.l10n_do_ncf_expiration_date
+        )
+
+    @api.depends("l10n_do_ncf_expiration_date", "journal_id")
+    def _compute_l10n_do_show_expiration_date_msg(self):
+        l10n_do_internal_invoices = self.filtered(
+            lambda inv: inv.l10n_latam_use_documents
+            and inv.l10n_latam_document_type_id
+            and inv.country_code == "DO"
+            and not inv.l10n_latam_manual_document_number
+        )
+        for invoice in l10n_do_internal_invoices:
+            invoice.l10n_do_show_expiration_date_msg = invoice._l10n_do_is_new_expiration_date()
+
+        (self - l10n_do_internal_invoices).l10n_do_show_expiration_date_msg = False
+
     @api.depends(
         "journal_id.l10n_latam_use_documents",
         "l10n_latam_manual_document_number",
@@ -199,7 +242,7 @@ class AccountMove(models.Model):
                         ("id", "!=", invoice.id or invoice._origin.id),
                     ],
                 )
-            )
+            ) or invoice.l10n_do_show_expiration_date_msg
 
         (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
 
@@ -570,6 +613,13 @@ class AccountMove(models.Model):
                 move._is_l10n_do_manual_document_number()
             )
 
+            move.l10n_do_ncf_expiration_date = (
+                move.journal_id.l10n_do_document_type_ids.filtered(
+                    lambda doc: doc.l10n_latam_document_type_id
+                    == move.l10n_latam_document_type_id
+                ).l10n_do_ncf_expiration_date
+            )
+
         super(
             AccountMove, self - l10n_do_recs_with_journal_id
         )._compute_l10n_latam_manual_document_number()
@@ -619,13 +669,6 @@ class AccountMove(models.Model):
         ):
             if not invoice.amount_total:
                 raise UserError(_("Fiscal invoice cannot be posted with amount zero."))
-
-            invoice.l10n_do_ncf_expiration_date = (
-                invoice.journal_id.l10n_do_document_type_ids.filtered(
-                    lambda doc: doc.l10n_latam_document_type_id
-                    == invoice.l10n_latam_document_type_id
-                ).l10n_do_ncf_expiration_date
-            )
 
         non_payer_type_invoices = l10n_do_invoices.filtered(
             lambda inv: not inv.partner_id.l10n_do_dgii_tax_payer_type

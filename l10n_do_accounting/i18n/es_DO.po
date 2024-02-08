@@ -6,16 +6,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-18 15:55+0000\n"
-"PO-Revision-Date: 2023-09-18 11:56-0400\n"
+"POT-Creation-Date: 2024-02-06 14:49+0000\n"
+"PO-Revision-Date: 2024-02-06 10:53-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: es\n"
+"Language: es_DO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. module: l10n_do_accounting
 #. odoo-python
@@ -1018,6 +1018,15 @@ msgstr ""
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
 msgid ""
+"Notice. Document Number field enabled because a new Fiscal Number Expiration date was "
+"set on journal"
+msgstr ""
+"Aviso. Se ha activado el campo Número de Comprobante porque se ha establecido una nueva "
+"fecha de expiración del NCF en el diario"
+
+#. module: l10n_do_accounting
+#: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_move_form
+msgid ""
 "Notice. This company is in a transient state of contingency for Electronic Invoice "
 "issuing. NCF issuing has been enabled."
 msgstr ""
@@ -1110,6 +1119,13 @@ msgstr ""
 "Las facturas seleccionadas no pueden cancelarse ya que se encuentran en estado Pagadas."
 
 #. module: l10n_do_accounting
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_bank_statement_line__l10n_do_show_expiration_date_msg
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_move__l10n_do_show_expiration_date_msg
+#: model:ir.model.fields,field_description:l10n_do_accounting.field_account_payment__l10n_do_show_expiration_date_msg
+msgid "Show Expiration Date Message"
+msgstr "Mostrar Mensaje Fecha Expiración"
+
+#. module: l10n_do_accounting
 #: model:ir.model.fields,help:l10n_do_accounting.field_account_bank_statement_line__l10n_do_fiscal_number
 #: model:ir.model.fields,help:l10n_do_accounting.field_account_move__l10n_do_fiscal_number
 #: model:ir.model.fields,help:l10n_do_accounting.field_account_payment__l10n_do_fiscal_number
@@ -1156,6 +1172,18 @@ msgstr ""
 "colocar manualmente."
 
 #. module: l10n_do_accounting
+#: model:ir.model.fields,help:l10n_do_accounting.field_account_bank_statement_line__l10n_do_show_expiration_date_msg
+#: model:ir.model.fields,help:l10n_do_accounting.field_account_move__l10n_do_show_expiration_date_msg
+#: model:ir.model.fields,help:l10n_do_accounting.field_account_payment__l10n_do_show_expiration_date_msg
+msgid ""
+"Technical field to hide/show message on invoice header that indicate fiscal number must "
+"be input manually because a new expiration date was set on journal"
+msgstr ""
+"Campo técnico para ocultar/mostrar un mensaje en el encabezado de las facturas para "
+"indicar que el NCF debe ser digital manualmente porque se colocó una nueva fecha de "
+"expiración en el diario"
+
+#. module: l10n_do_accounting
 #: model:ir.model.fields,help:l10n_do_accounting.field_account_debit_note__l10n_latam_country_code
 #: model:ir.model.fields,help:l10n_do_accounting.field_account_move_reversal__country_code
 msgid "Technical field used to hide/show fields regarding the localization"
@@ -1172,12 +1200,6 @@ msgstr "Ya existe una factura de ventas con el NCF %s"
 #: model:ir.model.fields,field_description:l10n_do_accounting.field_account_debit_note__l10n_latam_use_documents
 msgid "Use Documents"
 msgstr "Es fiscal"
-
-#. module: l10n_do_accounting
-#: code:addons/l10n_do_accounting/models/account_move.py:0
-#, python-format
-msgid "There is already a sale invoice with fiscal number %s"
-msgstr "Ya existe una factura de ventas con el NCF %s"
 
 #. module: l10n_do_accounting
 #: model_terms:ir.ui.view,arch_db:l10n_do_accounting.view_account_move_reversal_inherited
@@ -1268,7 +1290,17 @@ msgstr ""
 "de este contacto"
 
 #. module: l10n_do_accounting
-#. odoo-python
+#: code:addons/l10n_do_accounting/wizard/account_move_reversal.py:0
+#, python-format
+msgid ""
+"You can only reverse documents with legal invoicing documents from Latin America one at "
+"a time.\n"
+"Problematic documents: %s"
+msgstr ""
+"Solo puede aplicar Notas de Crédito a una factura a la vez.\n"
+"Documentos señalados: %s"
+
+#. module: l10n_do_accounting
 #: code:addons/l10n_do_accounting/models/account_move.py:0
 #, python-format
 msgid "You cannot cancel multiple fiscal invoices at a time."
