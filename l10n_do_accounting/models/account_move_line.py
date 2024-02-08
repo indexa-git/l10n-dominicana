@@ -14,7 +14,7 @@ class AccountMoveLine(models.Model):
 
     @api.depends("quantity", "discount", "price_unit", "tax_ids", "currency_id")
     def _compute_totals(self):
-        super()._compute_totals()
+        super(AccountMoveLine, self)._compute_totals()
         for line in self:
             if line.display_type != "product":
                 line.l10n_do_itbis_amount = False

@@ -199,7 +199,7 @@ class AccountJournal(models.Model):
 
     def write(self, values):
         to_check = {"type", "l10n_latam_use_documents"}
-        res = super().write(values)
+        res = super(AccountJournal, self).write(values)
         if to_check.intersection(set(values.keys())):
             for rec in self:
                 rec._l10n_do_create_document_types()

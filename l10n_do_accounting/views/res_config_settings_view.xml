@@ -7,10 +7,10 @@
         <field name="inherit_id" ref="account.res_config_settings_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@id='invoicing_settings']" position="after">
-                <div id="l10n_do_title" attrs="{'invisible': True}">
+                <div id="l10n_do_title" invisible="True">
                     <h2>Dominican Localization</h2>
                 </div>
-                <div id="l10n_do_section" class="row mt16 o_settings_container"
+                <div id="l10n_do_section" class="row mt16 block"
                      groups="account.group_account_manager"/>
             </xpath>
         </field>

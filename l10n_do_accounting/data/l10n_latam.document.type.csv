@@ -1,23 +1,23 @@
-id,sequence,code,name,report_name,internal_type,l10n_do_ncf_type,doc_code_prefix,country_id/id,is_vat_required,active
-ncf_fiscal_client,10,B,Crédito Fiscal,Factura de Crédito Fiscal,invoice,01,B01,base.do,True,TRUE
-ncf_consumer_supplier,30,B,Consumo,Factura de Consumo,invoice,02,B02,base.do,False,TRUE
-ncf_debit_note_client,40,B,Nota de Débito,Nota de Débito,debit_note,03,B03,base.do,True,TRUE
-ncf_credit_note_client,60,B,Nota de Crédito,Nota de Crédito,credit_note,04,B04,base.do,False,TRUE
-ncf_informal_supplier,80,B,Comprobante de Compra,Factura de Compra,invoice,11,B11,base.do,True,TRUE
-ncf_unique_client,90,B,Único Ingreso,Factura de Único Ingreso,invoice,12,B12,base.do,False,TRUE
-ncf_minor_supplier,100,B,Gasto Menor,Gasto Menor,invoice,13,B13,base.do,False,TRUE
-ncf_special_client,110,B,Régimen Especial,Factura de Régimen Especial,invoice,14,B14,base.do,True,TRUE
-ncf_gov_client,120,B,Factura Gubernamental,Factura Gubernamental,invoice,15,B15,base.do,True,TRUE
-ncf_export_client,130,B,Exportación,Factura de Exportación,invoice,16,B16,base.do,True,TRUE
-ncf_exterior_supplier,140,B,Pago al Exterior,Factura de Pago al Exterior,invoice,17,B17,base.do,False,TRUE
-non_fiscal_import_supplier,150,N,Importación,Factura de Importación,invoice,,IMP,base.do,False,FALSE
-ecf_fiscal_client,160,E,Crédito Fiscal Electrónica,Factura de Crédito Fiscal Electrónica,invoice,31,E31,base.do,True,TRUE
-ecf_consumer_supplier,170,E,Consumo Electrónica,Factura de Consumo Electrónica,invoice,32,E32,base.do,False,TRUE
-ecf_debit_note_client,180,E,Nota de Débito Electrónica,Nota de Débito Electrónica,debit_note,33,E33,base.do,True,TRUE
-ecf_credit_note_client,190,E,Nota de Crédito Electrónica,Nota de Crédito Electrónica,credit_note,34,E34,base.do,True,TRUE
-ecf_informal_supplier,200,E,Compras Electrónica,Factura de Compra Electrónica,invoice,41,E41,base.do,True,TRUE
-ecf_minor_supplier,220,E,Gasto Menor Electrónica,Factura Gasto Menor Electrónica,invoice,43,E43,base.do,False,TRUE
-ecf_special_client,230,E,Régimen Especial Electrónica,Factura de Régimen Especial Electrónica,invoice,44,E44,base.do,True,TRUE
-ecf_gov_client,240,E,Factura Gubernamental Electrónica,Factura Gubernamental Electrónica,invoice,45,E45,base.do,True,TRUE
-ecf_export_client,250,E,Exportación Electrónica,Factura de Exportación Electrónica,invoice,46,E46,base.do,True,TRUE
-ecf_exterior_supplier,260,E,Pago al Exterior Electrónica,Factura de Pago al Exterior Electrónica,invoice,47,E47,base.do,False,TRUE
+id,sequence,code,name@es,name,report_name,internal_type,l10n_do_ncf_type,doc_code_prefix,country_id/id,is_vat_required,active
+ncf_fiscal_client,10,B,Crédito Fiscal,Fiscal Credit,Factura de Crédito Fiscal,invoice,1,B01,base.do,TRUE,TRUE
+ncf_consumer_supplier,30,B,Consumo,Consumer,Factura de Consumo,invoice,2,B02,base.do,FALSE,TRUE
+ncf_debit_note_client,40,B,Nota de Débito,Debit Note,Nota de Débito,debit_note,3,B03,base.do,TRUE,TRUE
+ncf_credit_note_client,60,B,Nota de Crédito,Credit Note,Nota de Crédito,credit_note,4,B04,base.do,FALSE,TRUE
+ncf_informal_supplier,80,B,Comprobante de Compra,Purchase receipt,Factura de Compra,invoice,11,B11,base.do,TRUE,TRUE
+ncf_unique_client,90,B,Único Ingreso,Single Income,Factura de Único Ingreso,invoice,12,B12,base.do,FALSE,TRUE
+ncf_minor_supplier,100,B,Gasto Menor,Minor Expense,Gasto Menor,invoice,13,B13,base.do,FALSE,TRUE
+ncf_special_client,110,B,Régimen Especial,Special Regime,Factura de Régimen Especial,invoice,14,B14,base.do,TRUE,TRUE
+ncf_gov_client,120,B,Factura Gubernamental,Government Invoice,Factura Gubernamental,invoice,15,B15,base.do,TRUE,TRUE
+ncf_export_client,130,B,Exportación,Export,Factura de Exportación,invoice,16,B16,base.do,TRUE,TRUE
+ncf_exterior_supplier,140,B,Pago al Exterior,Foreign Payment,Factura de Pago al Exterior,invoice,17,B17,base.do,FALSE,TRUE
+non_fiscal_import_supplier,150,N,Importación,Import,Factura de Importación,invoice,,IMP,base.do,FALSE,FALSE
+ecf_fiscal_client,160,E,Crédito Fiscal Electrónica,Electronic Fiscal Credit,Factura de Crédito Fiscal Electrónica,invoice,31,E31,base.do,TRUE,TRUE
+ecf_consumer_supplier,170,E,Consumo Electrónica,Electronic Consumer,Factura de Consumo Electrónica,invoice,32,E32,base.do,FALSE,TRUE
+ecf_debit_note_client,180,E,Nota de Débito Electrónica,Electronic Debit Note,Nota de Débito Electrónica,debit_note,33,E33,base.do,TRUE,TRUE
+ecf_credit_note_client,190,E,Nota de Crédito Electrónica,Electronic Credit Note,Nota de Crédito Electrónica,credit_note,34,E34,base.do,TRUE,TRUE
+ecf_informal_supplier,200,E,Compras Electrónica,Electronic Purchase,Factura de Compra Electrónica,invoice,41,E41,base.do,TRUE,TRUE
+ecf_minor_supplier,220,E,Gasto Menor Electrónica,Electronic Minor Expense,Factura Gasto Menor Electrónica,invoice,43,E43,base.do,FALSE,TRUE
+ecf_special_client,230,E,Régimen Especial Electrónica,Electronic Special Regime,Factura de Régimen Especial Electrónica,invoice,44,E44,base.do,TRUE,TRUE
+ecf_gov_client,240,E,Factura Gubernamental Electrónica,Electronic Government Invoice,Factura Gubernamental Electrónica,invoice,45,E45,base.do,TRUE,TRUE
+ecf_export_client,250,E,Exportación Electrónica,Electronic Export,Factura de Exportación Electrónica,invoice,46,E46,base.do,TRUE,TRUE
+ecf_exterior_supplier,260,E,Pago al Exterior Electrónica,Electronic Foreign Payment,Factura de Pago al Exterior Electrónica,invoice,47,E47,base.do,FALSE,TRUE
