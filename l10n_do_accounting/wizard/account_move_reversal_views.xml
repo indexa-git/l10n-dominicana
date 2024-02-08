@@ -51,6 +51,9 @@
                        ('is_ecf_invoice', '=', True),
                 ]}"/>
             </xpath>
+            <xpath expr="//form/group/group" position="attributes">
+                <attribute name="attrs">{'invisible': [('move_type', 'not in', ('out_invoice', 'in_invoice'))]}</attribute>
+            </xpath>
             <xpath expr="//form/group/*[2]" position="attributes">
                 <attribute name="attrs">{'invisible': [('l10n_do_refund_type', '!=', 'full_refund')]}</attribute>
             </xpath>
