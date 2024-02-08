@@ -33,7 +33,7 @@
     "demo": [
         "demo/res_partner_demo.xml",
     ],
-    "installable": True,
+    "installable": False,
     "auto_install": False,
     "application": False,
 }
