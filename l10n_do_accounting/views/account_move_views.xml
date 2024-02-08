@@ -69,10 +69,11 @@
                     'required': ['|', '&amp;', ('move_type', 'in', ('in_refund', 'out_refund')), ('l10n_latam_use_documents', '=', True), ('debit_origin_id', '!=', False)],
                     'readonly': [('state','!=','draft')]
                 }"/>
-                <field name="l10n_do_ecf_modification_code" attrs="{
-                    'invisible': ['|', '|', '|', '&amp;', ('move_type', 'not in', ('in_refund', 'out_refund')), ('debit_origin_id', '=', False), '&amp;', ('move_type', 'in', ('in_refund', 'out_refund')), ('is_ecf_invoice', '=', False), '&amp;', ('debit_origin_id', '!=', False), ('is_ecf_invoice', '=', False), ('country_code', '!=', 'DO')],
-                    'required': ['&amp;', ('is_ecf_invoice', '=', True), '|', ('move_type', 'in', ('in_refund', 'out_refund')), ('debit_origin_id', '!=', False)],
-                }"/>
+                <field name="l10n_do_ecf_modification_code"
+                       invisible="(move_type not in ('in_refund', 'out_refund') and not debit_origin_id) or (move_type in ('in_refund', 'out_refund') and not is_ecf_invoice) or (debit_origin_id and not is_ecf_invoice) or country_code != 'DO'"
+                       required="is_ecf_invoice and (move_type in ('in_refund', 'out_refund') or debit_origin_id)"
+                       readonly="state != 'draft'"
+                />
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="after">
                 <field name="l10n_do_income_type" attrs="{

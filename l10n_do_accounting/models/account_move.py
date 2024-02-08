@@ -83,8 +83,6 @@ class AccountMove(models.Model):
         selection="_get_l10n_do_ecf_modification_code",
         string="e-CF Modification Code",
         copy=False,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     l10n_do_ecf_security_code = fields.Char(string="e-CF Security Code", copy=False)
     l10n_do_ecf_sign_date = fields.Datetime(string="e-CF Sign Date", copy=False)
