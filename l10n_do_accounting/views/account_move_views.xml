@@ -9,6 +9,7 @@
                 <field name="is_ecf_invoice" invisible="1"/>
                 <field name="l10n_do_company_in_contingency" invisible="1"/>
                 <field name="l10n_do_enable_first_sequence" invisible="1" force_save="1"/>
+                <field name="l10n_do_show_expiration_date_msg" invisible="1"/>
             </field>
             <xpath expr="//field[@name='tax_lock_date_message']/.." position="after">
                 <div class="alert alert-warning"
@@ -19,6 +20,15 @@
                      ('l10n_do_company_in_contingency', '=', False),
                      ('state', '!=', 'draft')]}">
                     Notice. This company is in a transient state of contingency for Electronic Invoice issuing. NCF issuing has been enabled.
+                </div>
+                <div class="alert alert-warning"
+                     role="alert" style="margin-bottom:0px;"
+                     attrs="{'invisible': ['|', '|', '|',
+                     ('move_type', '=', 'entry'),
+                     ('country_code', '!=', 'DO'),
+                     ('l10n_do_show_expiration_date_msg', '=', False),
+                     ('state', '!=', 'draft')]}">
+                    Notice. Document Number field enabled because a new Fiscal Number Expiration date was set on journal
                 </div>
             </xpath>
             <xpath expr="//button[@name='button_cancel']" position="after">
