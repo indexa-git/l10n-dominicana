@@ -174,9 +174,17 @@ class AccountMove(models.Model):
     #             )
 
     def _auto_init(self):
-        if not index_exists(self.env.cr, "account_move_unique_l10n_do_fiscal_number_sales"):
-            drop_index(self.env.cr, "unique_l10n_do_fiscal_number_purchase_manual", self._table)
-            drop_index(self.env.cr, "unique_l10n_do_fiscal_number_purchase_internal", self._table)
+        if not index_exists(
+            self.env.cr, "account_move_unique_l10n_do_fiscal_number_sales"
+        ):
+            drop_index(
+                self.env.cr, "unique_l10n_do_fiscal_number_purchase_manual", self._table
+            )
+            drop_index(
+                self.env.cr,
+                "unique_l10n_do_fiscal_number_purchase_internal",
+                self._table,
+            )
             self.env.cr.execute(
                 """
                 CREATE UNIQUE INDEX account_move_unique_l10n_do_fiscal_number_sales

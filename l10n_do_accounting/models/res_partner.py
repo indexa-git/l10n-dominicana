@@ -99,7 +99,6 @@ class Partner(models.Model):
 
     @api.depends("vat", "country_id", "name")
     def _compute_l10n_do_dgii_payer_type(self):
-
         """Compute the type of partner depending on soft decisions"""
         for partner in self:
             vat = partner.vat or partner.name
@@ -120,7 +119,7 @@ class Partner(models.Model):
                     elif "ZONA FRANCA" in upper_name:
                         partner.l10n_do_dgii_tax_payer_type = "special"
                     elif ("IGLESIA" in upper_name) or (
-                            "MINISTERIO" in upper_name and startswith_4
+                        "MINISTERIO" in upper_name and startswith_4
                     ):
                         partner.l10n_do_dgii_tax_payer_type = "special"
                     elif not startswith_4:

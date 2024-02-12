@@ -223,7 +223,9 @@ class AccountMoveReversal(models.TransientModel):
         )
         for rec in do_wizard:
             if rec.journal_id and rec.journal_id.l10n_latam_use_documents:
-                rec.l10n_latam_manual_document_number = True if rec.journal_id.type == 'purchase' else False
+                rec.l10n_latam_manual_document_number = (
+                    True if rec.journal_id.type == "purchase" else False
+                )
         super(
             AccountMoveReversal, self - do_wizard
         )._compute_l10n_latam_manual_document_number()

@@ -8,7 +8,6 @@ class AccountMove(models.Model):
         "posted_before", "state", "journal_id", "date", "move_type", "payment_id"
     )
     def _compute_name(self):
-
         super(AccountMove, self)._compute_name()
 
         for move in self.filtered(
