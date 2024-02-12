@@ -303,7 +303,7 @@
         </xpath>
 
         <!-- Total monto descuento en líneas -->
-        <xpath expr="//th[@name='th_price_unit']" position="after">
+        <xpath expr="//th[@name='th_discount']" position="after">
             <th t-if="is_l10n_do_invoice and display_discount and ecf_representation"
                 t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                 <span>Monto descuento</span>
@@ -340,7 +340,7 @@
 
     <template id="report_invoice_with_payments"
               inherit_id="account.report_invoice_with_payments">
-        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
+        <xpath expr='//t[@t-set="print_with_payments"]' position="after">
             <t t-if="o._get_name_invoice_report() == 'l10n_do_accounting.report_invoice_document_inherited'"
                t-call="l10n_do_accounting.report_invoice_document_inherited"
                t-lang="lang"/>

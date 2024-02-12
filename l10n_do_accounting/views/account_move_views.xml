@@ -33,9 +33,7 @@
                         invisible="state in ('draft', 'cancel') or country_code != 'DO'"/>
             </xpath>
             <xpath expr="//button[@name='button_draft']" position="attributes">
-                <attribute name="invisible">restrict_mode_hash_table
-                                            or (state not in ('posted', 'cancel') and country_code != 'DO')
-                                            or (state != 'cancel' and country_code == 'DO')</attribute>
+                <attribute name="invisible">restrict_mode_hash_table == True or (state not in ('posted', 'cancel') and country_code != 'DO') or (state != 'cancel' and country_code == 'DO')</attribute>
             </xpath>
             <xpath expr="//h1/span/.." position="after">
                 <h4 invisible="state != 'cancel' or country_code != 'DO'">
@@ -46,21 +44,16 @@
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="attributes">
                 <attribute name="required">l10n_do_enable_first_sequence or l10n_latam_manual_document_number and (l10n_latam_use_documents and country_code == 'DO')</attribute>
-                <attribute name="invisible">
-                    (not l10n_latam_use_documents and country_code == 'DO')
-                    or (not l10n_do_enable_first_sequence and not l10n_latam_manual_document_number and state == 'draft')
-                    or (not l10n_do_enable_first_sequence and l10n_latam_manual_document_number and state == 'draft')
-                    and (move_type in ('out_invoice', 'out_refund', 'in_refund') and country_code == 'DO')
-                </attribute>
+                <attribute name="invisible">(not l10n_latam_use_documents and country_code == 'DO') or (not l10n_do_enable_first_sequence and not l10n_latam_manual_document_number and state == 'draft') or (not l10n_do_enable_first_sequence and l10n_latam_manual_document_number and state == 'draft') and (move_type in ('out_invoice', 'out_refund', 'in_refund') and country_code == 'DO')</attribute>
                 <attribute name="readonly">(state != 'draft' and country_code == 'DO') or (posted_before and country_code == 'DO')</attribute>
             </xpath>
             <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='partner_id']" position="after">
                 <xpath expr="//field[@name='l10n_latam_document_type_id']" position="move"/>
                 <xpath expr="//field[@name='l10n_latam_document_number']" position="move"/>
                 <field name="l10n_do_origin_ncf"
-                       invisible="(move_type not in ('in_refund', 'out_refund') and not debit_origin_id) or (move_type not in ('in_refund', 'out_refund') and (not l10n_latam_use_documents or country_code != 'DO')"
+                       invisible="(move_type not in ('in_refund', 'out_refund') and not debit_origin_id) or (move_type not in ('in_refund', 'out_refund') and not l10n_latam_use_documents or country_code != 'DO')"
                        required="(move_type in ('in_refund', 'out_refund') and l10n_latam_use_documents) or debit_origin_id"
-                       readonly="state != draft"/>
+                       readonly="state != 'draft'"/>
                 <field name="l10n_do_ecf_modification_code"
                        invisible="(move_type not in ('in_refund', 'out_refund') and not debit_origin_id) or (move_type in ('in_refund', 'out_refund') and not is_ecf_invoice) or (debit_origin_id and not is_ecf_invoice) or country_code != 'DO'"
                        required="is_ecf_invoice and (move_type in ('in_refund', 'out_refund') or debit_origin_id)"
@@ -69,12 +62,12 @@
             </xpath>
             <xpath expr="//field[@name='l10n_latam_document_number']" position="after">
                 <field name="l10n_do_income_type"
-                       invisible="not l10n_latam_use_documents or (move_type != 'out_invoice or country_code != 'DO')"
-                       required="l10n_latam_use_documents and move_type = 'out_invoice'"
+                       invisible="not l10n_latam_use_documents or (move_type != 'out_invoice' or country_code != 'DO')"
+                       required="l10n_latam_use_documents and move_type == 'out_invoice'"
                        readonly="state != 'draft'"/>
                 <field name="l10n_do_expense_type"
                        invisible="not l10n_latam_use_documents or (move_type != 'in_invoice' or country_code != 'DO')"
-                       required="l10n_latam_use_documents and move_type = 'in_invoice'"
+                       required="l10n_latam_use_documents and move_type == 'in_invoice'"
                        readonly="state != 'draft'"/>
             </xpath>
             <xpath expr="//div[@name='journal_div']" position="after">
