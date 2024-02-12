@@ -7,7 +7,7 @@
         <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='vat']" position="after">
-                <field name="l10n_do_dgii_tax_payer_type" attrs="{'readonly': [['parent_id','!=',False]], 'required': []}"/>
+                <field name="l10n_do_dgii_tax_payer_type" readonly="parent_id" required="[]"/>
             </xpath>
             <xpath expr="//field[@name='property_supplier_payment_term_id']" position="after">
                 <field name="l10n_do_expense_type"/>
