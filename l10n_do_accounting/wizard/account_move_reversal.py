@@ -48,11 +48,6 @@ class AccountMoveReversal(models.TransientModel):
         selection=_get_l10n_do_refund_type_selection,
         default=_get_default_l10n_do_refund_type,
     )
-    l10n_do_refund_action = fields.Selection(
-        selection=_get_refund_action_selection,
-        default="draft_refund",
-        string="Refund Action",
-    )
     l10n_do_percentage = fields.Float("Percentage")
     l10n_do_amount = fields.Float("Amount")
     l10n_do_ecf_modification_code = fields.Selection(
@@ -113,17 +108,17 @@ class AccountMoveReversal(models.TransientModel):
 
         return res
 
-    @api.onchange("l10n_do_refund_type")
-    def onchange_l10n_do_refund_type(self):
-        if self.l10n_do_refund_type != "full_refund":
-            self.refund_method = "refund"
+    # @api.onchange("l10n_do_refund_type")
+    # def onchange_l10n_do_refund_type(self):
+    #     if self.l10n_do_refund_type != "full_refund":
+    #         self.refund_method = "refund"
 
-    @api.onchange("l10n_do_refund_action")
-    def onchange_refund_action(self):
-        if self.l10n_do_refund_action == "apply_refund":
-            self.refund_method = "cancel"
-        else:
-            self.refund_method = "refund"
+    # @api.onchange("l10n_do_refund_action")
+    # def onchange_refund_action(self):
+    #     if self.l10n_do_refund_action == "apply_refund":
+    #         self.refund_method = "cancel"
+    #     else:
+    #         self.refund_method = "refund"
 
     def _prepare_default_reversal(self, move):
         result = super(AccountMoveReversal, self)._prepare_default_reversal(move)
