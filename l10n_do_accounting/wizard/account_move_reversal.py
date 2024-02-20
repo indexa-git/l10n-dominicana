@@ -65,6 +65,51 @@ class AccountMoveReversal(models.TransientModel):
     is_ecf_invoice = fields.Boolean(
         string="Is Electronic Invoice",
     )
+    l10n_do_enable_first_sequence = fields.Boolean(
+        string="Enable first fiscal sequence",
+        compute="_compute_l10n_do_enable_first_sequence",
+        help="Technical field that compute if internal generated fiscal sequence "
+        "is enabled to be set manually.",
+    )
+
+    @api.depends(
+        "journal_id.l10n_latam_use_documents",
+        "l10n_latam_manual_document_number",
+        "l10n_latam_document_type_id",
+        "company_id",
+    )
+    def _compute_l10n_do_enable_first_sequence(self):
+        """
+        Enable first fiscal sequence manual input on internal generated documents
+        if no invoice of same document type was posted before
+        """
+        l10n_do_internal_invoices = self.filtered(
+            lambda wizard: wizard.l10n_latam_use_documents
+            and wizard.l10n_latam_document_type_id
+            and wizard.country_code == "DO"
+            and not wizard.l10n_latam_manual_document_number
+        )
+        for invoice in l10n_do_internal_invoices:
+            invoice.l10n_do_enable_first_sequence = (
+                not bool(
+                    self.search_count(
+                        [
+                            ("company_id", "=", invoice.company_id.id),
+                            ("move_type", "=", invoice.move_type),
+                            (
+                                "l10n_latam_document_type_id",
+                                "=",
+                                invoice.l10n_latam_document_type_id.id,
+                            ),
+                            ("posted_before", "=", True),
+                            ("id", "!=", invoice.id or invoice._origin.id),
+                        ],
+                    )
+                )
+                or invoice.l10n_do_show_expiration_date_msg
+            )
+
+        (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
 
     @api.depends(
         "l10n_latam_document_type_id", "country_code", "l10n_latam_use_documents"
