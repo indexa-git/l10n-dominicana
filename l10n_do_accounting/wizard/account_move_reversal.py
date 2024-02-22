@@ -92,21 +92,18 @@ class AccountMoveReversal(models.TransientModel):
         for invoice in l10n_do_internal_invoices:
             invoice.l10n_do_enable_first_sequence = (
                 not bool(
-                    self.search_count(
+                    self.env['account.move'].search_count(
                         [
                             ("company_id", "=", invoice.company_id.id),
-                            ("move_type", "=", invoice.move_type),
                             (
                                 "l10n_latam_document_type_id",
                                 "=",
                                 invoice.l10n_latam_document_type_id.id,
                             ),
                             ("posted_before", "=", True),
-                            ("id", "!=", invoice.id or invoice._origin.id),
                         ],
                     )
                 )
-                or invoice.l10n_do_show_expiration_date_msg
             )
 
         (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
