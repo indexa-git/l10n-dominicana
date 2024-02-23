@@ -231,7 +231,6 @@ class AccountMove(models.Model):
                 self.search_count(
                     [
                         ("company_id", "=", invoice.company_id.id),
-                        ("move_type", "=", invoice.move_type),
                         (
                             "l10n_latam_document_type_id",
                             "=",
@@ -239,6 +238,7 @@ class AccountMove(models.Model):
                         ),
                         ("posted_before", "=", True),
                         ("id", "!=", invoice.id or invoice._origin.id),
+                        ("l10n_latam_manual_document_number", "=", False),
                     ],
                 )
             ) or invoice.l10n_do_show_expiration_date_msg
@@ -869,14 +869,7 @@ class AccountMove(models.Model):
                 " company_id = %(company_id)s AND l10n_do_sequence_prefix != ''"
                 " AND l10n_do_sequence_prefix IS NOT NULL"
             )
-            if (
-                not self.l10n_latam_manual_document_number
-                and self.move_type != "in_refund"
-            ):
-                where_string += " AND move_type = %(move_type)s"
-                param["move_type"] = self.move_type
-            else:
-                where_string += " AND l10n_latam_manual_document_number = 'f'"
+            where_string += " AND l10n_latam_manual_document_number = 'f'"
 
             param["company_id"] = self.company_id.id or False
             param["l10n_latam_document_type_id"] = (
