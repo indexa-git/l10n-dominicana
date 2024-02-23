@@ -90,20 +90,18 @@ class AccountMoveReversal(models.TransientModel):
             and not wizard.l10n_latam_manual_document_number
         )
         for invoice in l10n_do_internal_invoices:
-            invoice.l10n_do_enable_first_sequence = (
-                not bool(
-                    self.env['account.move'].search_count(
-                        [
-                            ("company_id", "=", invoice.company_id.id),
-                            (
-                                "l10n_latam_document_type_id",
-                                "=",
-                                invoice.l10n_latam_document_type_id.id,
-                            ),
-                            ("posted_before", "=", True),
-                            ("l10n_latam_manual_document_number", "=", False)
-                        ],
-                    )
+            invoice.l10n_do_enable_first_sequence = not bool(
+                self.env["account.move"].search_count(
+                    [
+                        ("company_id", "=", invoice.company_id.id),
+                        (
+                            "l10n_latam_document_type_id",
+                            "=",
+                            invoice.l10n_latam_document_type_id.id,
+                        ),
+                        ("posted_before", "=", True),
+                        ("l10n_latam_manual_document_number", "=", False),
+                    ],
                 )
             )
 

@@ -205,7 +205,9 @@ class AccountMove(models.Model):
             and not inv.l10n_latam_manual_document_number
         )
         for invoice in l10n_do_internal_invoices:
-            invoice.l10n_do_show_expiration_date_msg = invoice._l10n_do_is_new_expiration_date()
+            invoice.l10n_do_show_expiration_date_msg = (
+                invoice._l10n_do_is_new_expiration_date()
+            )
 
         (self - l10n_do_internal_invoices).l10n_do_show_expiration_date_msg = False
 
@@ -227,21 +229,24 @@ class AccountMove(models.Model):
             and not inv.l10n_latam_manual_document_number
         )
         for invoice in l10n_do_internal_invoices:
-            invoice.l10n_do_enable_first_sequence = not bool(
-                self.search_count(
-                    [
-                        ("company_id", "=", invoice.company_id.id),
-                        (
-                            "l10n_latam_document_type_id",
-                            "=",
-                            invoice.l10n_latam_document_type_id.id,
-                        ),
-                        ("posted_before", "=", True),
-                        ("id", "!=", invoice.id or invoice._origin.id),
-                        ("l10n_latam_manual_document_number", "=", False),
-                    ],
+            invoice.l10n_do_enable_first_sequence = (
+                not bool(
+                    self.search_count(
+                        [
+                            ("company_id", "=", invoice.company_id.id),
+                            (
+                                "l10n_latam_document_type_id",
+                                "=",
+                                invoice.l10n_latam_document_type_id.id,
+                            ),
+                            ("posted_before", "=", True),
+                            ("id", "!=", invoice.id or invoice._origin.id),
+                            ("l10n_latam_manual_document_number", "=", False),
+                        ],
+                    )
                 )
-            ) or invoice.l10n_do_show_expiration_date_msg
+                or invoice.l10n_do_show_expiration_date_msg
+            )
 
         (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
 
