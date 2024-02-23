@@ -224,21 +224,21 @@ class AccountMoveReversal(models.TransientModel):
                     refund.l10n_latam_available_document_type_ids
                 )
         super(AccountMoveReversal, self - do_wizard)._compute_document_type()
-    #
-    # @api.depends("l10n_latam_document_type_id")
-    # def _compute_l10n_latam_manual_document_number(self):
-    #     self.l10n_latam_manual_document_number = False
-    #     do_wizard = self.filtered(
-    #         lambda w: w.journal_id
-    #         and w.journal_id.l10n_latam_use_documents
-    #         and w.country_code == "DO"
-    #         and w.move_ids
-    #     )
-    #     for rec in do_wizard:
-    #         if rec.journal_id and rec.journal_id.l10n_latam_use_documents:
-    #             rec.l10n_latam_manual_document_number = self.env[
-    #                 "account.move"
-    #             ]._is_manual_document_number(rec.journal_id)
-    #     super(
-    #         AccountMoveReversal, self - do_wizard
-    #     )._compute_l10n_latam_manual_document_number()
+
+    @api.depends("l10n_latam_document_type_id")
+    def _compute_l10n_latam_manual_document_number(self):
+        self.l10n_latam_manual_document_number = False
+        do_wizard = self.filtered(
+            lambda w: w.journal_id
+            and w.journal_id.l10n_latam_use_documents
+            and w.country_code == "DO"
+            and w.move_ids
+        )
+        for rec in do_wizard:
+            if rec.journal_id and rec.journal_id.l10n_latam_use_documents:
+                rec.l10n_latam_manual_document_number = self.env[
+                    "account.move"
+                ]._is_manual_document_number(rec.journal_id)
+        super(
+            AccountMoveReversal, self - do_wizard
+        )._compute_l10n_latam_manual_document_number()
