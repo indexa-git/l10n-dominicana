@@ -205,7 +205,9 @@ class AccountMove(models.Model):
             and not inv.l10n_latam_manual_document_number
         )
         for invoice in l10n_do_internal_invoices:
-            invoice.l10n_do_show_expiration_date_msg = invoice._l10n_do_is_new_expiration_date()
+            invoice.l10n_do_show_expiration_date_msg = (
+                invoice._l10n_do_is_new_expiration_date()
+            )
 
         (self - l10n_do_internal_invoices).l10n_do_show_expiration_date_msg = False
 
@@ -227,21 +229,24 @@ class AccountMove(models.Model):
             and not inv.l10n_latam_manual_document_number
         )
         for invoice in l10n_do_internal_invoices:
-            invoice.l10n_do_enable_first_sequence = not bool(
-                self.search_count(
-                    [
-                        ("company_id", "=", invoice.company_id.id),
-                        ("move_type", "=", invoice.move_type),
-                        (
-                            "l10n_latam_document_type_id",
-                            "=",
-                            invoice.l10n_latam_document_type_id.id,
-                        ),
-                        ("posted_before", "=", True),
-                        ("id", "!=", invoice.id or invoice._origin.id),
-                    ],
+            invoice.l10n_do_enable_first_sequence = (
+                not bool(
+                    self.search_count(
+                        [
+                            ("company_id", "=", invoice.company_id.id),
+                            (
+                                "l10n_latam_document_type_id",
+                                "=",
+                                invoice.l10n_latam_document_type_id.id,
+                            ),
+                            ("posted_before", "=", True),
+                            ("id", "!=", invoice.id or invoice._origin.id),
+                            ("l10n_latam_manual_document_number", "=", False),
+                        ],
+                    )
                 )
-            ) or invoice.l10n_do_show_expiration_date_msg
+                or invoice.l10n_do_show_expiration_date_msg
+            )
 
         (self - l10n_do_internal_invoices).l10n_do_enable_first_sequence = False
 
@@ -682,9 +687,8 @@ class AccountMove(models.Model):
         if self.country_code != "DO":
             return res
 
-        if self.country_code == "DO":
-            res["l10n_do_origin_ncf"] = self.ref
-            res["l10n_do_ecf_modification_code"] = l10n_do_ecf_modification_code
+        res["l10n_do_origin_ncf"] = self.l10n_do_fiscal_number or self.ref
+        res["l10n_do_ecf_modification_code"] = l10n_do_ecf_modification_code
 
         if refund_type in ("percentage", "fixed_amount"):
             price_unit = (
@@ -870,14 +874,7 @@ class AccountMove(models.Model):
                 " company_id = %(company_id)s AND l10n_do_sequence_prefix != ''"
                 " AND l10n_do_sequence_prefix IS NOT NULL"
             )
-            if (
-                not self.l10n_latam_manual_document_number
-                and self.move_type != "in_refund"
-            ):
-                where_string += " AND move_type = %(move_type)s"
-                param["move_type"] = self.move_type
-            else:
-                where_string += " AND l10n_latam_manual_document_number = 'f'"
+            where_string += " AND l10n_latam_manual_document_number = 'f'"
 
             param["company_id"] = self.company_id.id or False
             param["l10n_latam_document_type_id"] = (
