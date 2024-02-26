@@ -185,8 +185,9 @@ class AccountMove(models.Model):
                 ),
                 ("posted_before", "=", True),
                 ("id", "!=", self.id or self._origin.id),
+                ("l10n_do_ncf_expiration_date", "!=", False),
             ],
-            order="invoice_date, id desc",
+            order="invoice_date desc, id desc",
             limit=1,
         )
         if not last_invoice:
@@ -203,6 +204,7 @@ class AccountMove(models.Model):
             and inv.l10n_latam_document_type_id
             and inv.country_code == "DO"
             and not inv.l10n_latam_manual_document_number
+            and inv.l10n_do_ncf_expiration_date
         )
         for invoice in l10n_do_internal_invoices:
             invoice.l10n_do_show_expiration_date_msg = invoice._l10n_do_is_new_expiration_date()
