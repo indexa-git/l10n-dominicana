@@ -219,7 +219,10 @@ class AccountJournalDocumentType(models.Model):
     l10n_do_ncf_expiration_date = fields.Date(
         string="Expiration date",
         required=True,
-        default=fields.Date.end_of(fields.Date.today(), "year"),
+        default=fields.Date.end_of(
+            fields.Date.today().replace(month=12, year=fields.Date.today().year + 1),
+            "year",
+        ),
     )
     company_id = fields.Many2one(
         string="Company", related="journal_id.company_id", readonly=True
