@@ -267,6 +267,7 @@ class AccountMove(models.Model):
             [
                 ("is_ecf_invoice", "=", True),
                 ("is_l10n_do_internal_sequence", "=", True),
+                ("company_id", "=", self.env.user.company_id.id),
             ],
             limit=1,
         )
