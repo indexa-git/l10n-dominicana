@@ -5,12 +5,6 @@ class ResCompany(models.Model):
     _inherit = "res.company"
 
     l10n_do_dgii_start_date = fields.Date("Activities Start Date")
-
-    l10n_do_default_client = fields.Selection(
-        selection=[("non_payer", "Final Consumer"), ("taxpayer", "Fiscal Consumer")],
-        default=lambda self: self._context.get("l10n_do_default_client", "non_payer"),
-        string="Default Customer",
-    )
     l10n_do_ecf_issuer = fields.Boolean(
         "Is e-CF issuer",
         help="When activating this field, NCF issuance is disabled.",

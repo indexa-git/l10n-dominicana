@@ -6,9 +6,8 @@
         <field name="model">res.company</field>
         <field name="arch" type="xml">
             <field name="vat" position="after">
-                <field name="l10n_do_ecf_issuer" attrs="{'invisible': [('country_code', '!=', 'DO')]}"/>
+                <field name="l10n_do_ecf_issuer" invisible="country_code != 'DO'"/>
                 <field name="l10n_do_ecf_deferred_submissions" groups="base.group_no_one" invisible="1"/>
-                <field name="l10n_do_default_client" invisible="1"/>
                 <field name="l10n_do_dgii_start_date" invisible="1"/>
             </field>
         </field>

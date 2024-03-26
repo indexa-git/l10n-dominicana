@@ -8,14 +8,15 @@
     "category": "Localization",
     "license": "LGPL-3",
     "website": "https://github.com/odoo-dominicana",
-    "version": "16.0.1.4.0",
+    "version": "17.0.1.0.0",
+    "countries": ["do"],
     # any module necessary for this one to work correctly
     "depends": ["l10n_latam_invoice_document", "l10n_do"],
     # always loaded
     "data": [
         "security/ir.model.access.csv",
         "security/res_groups.xml",
-        "data/l10n_latam.document.type.csv",
+        # "data/l10n_latam.document.type.csv",
         "wizard/account_move_reversal_views.xml",
         "wizard/account_move_cancel_views.xml",
         "wizard/account_debit_note_views.xml",
@@ -33,7 +34,7 @@
     "demo": [
         "demo/res_partner_demo.xml",
     ],
-    "installable": False,
+    "installable": True,
     "auto_install": False,
     "application": False,
 }
