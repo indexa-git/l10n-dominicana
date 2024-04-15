@@ -73,7 +73,7 @@ class AccountMoveLine(models.Model):
             "base_amount": sum(taxed_lines.mapped("price_subtotal")),
             "exempt_amount": sum(exempt_lines.mapped("price_subtotal")),
             "itbis_18_tax_amount": sum(
-                self.currency_id.round(line.amount_currency)
+                line.currency_id.round(line.amount_currency)
                 for line in itbis_tax_lines.filtered(
                     lambda tl: tl.tax_line_id.amount in itbis_tax_amount_map["18"]
                 )
