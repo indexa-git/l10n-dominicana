@@ -14,6 +14,17 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
             street="dummy address",
             country_id=cls.env.ref("base.do").id,
         )["company"]
+
+        # multi-currency variables
+        cls.usd_currency = cls.env.ref("base.USD")
+        cls.env["res.currency.rate"].create(
+            {
+                "currency_id": cls.usd_currency.id,
+                "rate": 0.01694915254,
+                "company_id": cls.do_company.id,
+            }
+        )
+
         cls.fiscal_partner = cls.env["res.partner"].create(
             {
                 "name": "ITERATIVO SRL",

@@ -711,3 +711,95 @@ class AccountMoveTest(common.L10nDOTestsCommon):
 
         with self.assertRaises(ValidationError):
             self._create_l10n_do_invoice(data={"document_number": "B310000000001"})
+
+    def test_011_get_l10n_do_line_amounts(self):
+        invoice_1 = self._create_l10n_do_invoice(
+            data={
+                "document_number": "B0100000001",
+            }
+        )
+        self.assertDictEqual(
+            invoice_1._get_l10n_do_amounts(),
+            {
+                "base_amount": 100.0,
+                "exempt_amount": 0,
+                "isr_withholding_amount": 0,
+                "isr_withholding_base_amount": 0,
+                "itbis_0_base_amount": 0,
+                "itbis_0_tax_amount": 0,
+                "itbis_16_base_amount": 0,
+                "itbis_16_tax_amount": 0,
+                "itbis_18_base_amount": 100.0,
+                "itbis_18_tax_amount": 18.0,
+                "itbis_withholding_amount": 0,
+                "itbis_withholding_base_amount": 0,
+                "l10n_do_invoice_total": 118.0,
+            },
+        )
+
+        invoice_2 = self._create_l10n_do_invoice(
+            data={
+                "partner": self.consumo_partner,
+                "document_number": "B1100000001",
+                "expense_type": "02",
+            },
+            invoice_type="in_invoice",
+        )
+
+        self.assertDictEqual(
+            invoice_2._get_l10n_do_amounts(),
+            {
+                "base_amount": 100.0,
+                "exempt_amount": 0,
+                "isr_withholding_amount": 10.0,
+                "isr_withholding_base_amount": 100.0,
+                "itbis_0_base_amount": 0,
+                "itbis_0_tax_amount": 0,
+                "itbis_16_base_amount": 0,
+                "itbis_16_tax_amount": 0,
+                "itbis_18_base_amount": 100.0,
+                "itbis_18_tax_amount": 18.0,
+                "itbis_withholding_amount": 18.0,
+                "itbis_withholding_base_amount": 100.0,
+                "l10n_do_invoice_total": 118.0,
+            },
+        )
+
+        invoice_3 = self._create_l10n_do_invoice(
+            data={
+                "document_number": "B0100000002",
+                "currency": self.usd_currency,
+            }
+        )
+
+        self.assertDictEqual(
+            invoice_3._get_l10n_do_amounts(),
+            {
+                "base_amount": 100.0,
+                "base_amount_currency": 5900.000000825999,
+                "exempt_amount": 0,
+                "exempt_amount_currency": 0.0,
+                "isr_withholding_amount": 0,
+                "isr_withholding_amount_currency": 0.0,
+                "isr_withholding_base_amount": 0,
+                "isr_withholding_base_amount_currency": 0.0,
+                "itbis_0_base_amount": 0,
+                "itbis_0_base_amount_currency": 0.0,
+                "itbis_0_tax_amount": 0,
+                "itbis_0_tax_amount_currency": 0.0,
+                "itbis_16_base_amount": 0,
+                "itbis_16_base_amount_currency": 0.0,
+                "itbis_16_tax_amount": 0,
+                "itbis_16_tax_amount_currency": 0.0,
+                "itbis_18_base_amount": 100.0,
+                "itbis_18_base_amount_currency": 5900.000000825999,
+                "itbis_18_tax_amount": 18.0,
+                "itbis_18_tax_amount_currency": 1062.0000001486799,
+                "itbis_withholding_amount": 0,
+                "itbis_withholding_amount_currency": 0.0,
+                "itbis_withholding_base_amount": 0,
+                "itbis_withholding_base_amount_currency": 0.0,
+                "l10n_do_invoice_total": 118.0,
+                "l10n_do_invoice_total_currency": 6962.000000974679,
+            },
+        )
