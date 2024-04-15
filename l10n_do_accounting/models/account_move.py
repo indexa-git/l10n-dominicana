@@ -255,7 +255,9 @@ class AccountMove(models.Model):
         """
         self.ensure_one()
 
-        return self.line_ids._get_l10n_do_line_amounts()
+        return self.line_ids.filtered(
+            lambda line: line.currency_id == self.currency_id
+        )._get_l10n_do_line_amounts()
 
     @api.depends(
         "company_id",
