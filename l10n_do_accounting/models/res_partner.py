@@ -121,7 +121,9 @@ class Partner(models.Model):
                     partner.l10n_do_dgii_tax_payer_type = "governmental"
                 elif "ZONA FRANCA" in upper_name:
                     partner.l10n_do_dgii_tax_payer_type = "special"
-                elif "IGLESIA" in upper_name or ("MINISTERIO" in upper_name and vat.startswith("4")):
+                elif "IGLESIA" in upper_name or (
+                    "MINISTERIO" in upper_name and vat.startswith("4")
+                ):
                     partner.l10n_do_dgii_tax_payer_type = "special"
                 elif not vat.startswith("4"):
                     partner.l10n_do_dgii_tax_payer_type = "taxpayer"
@@ -129,7 +131,6 @@ class Partner(models.Model):
                     partner.l10n_do_dgii_tax_payer_type = "nonprofit"
             else:
                 partner.l10n_do_dgii_tax_payer_type = "non_payer"
-
 
     def _inverse_l10n_do_dgii_tax_payer_type(self):
         for partner in self:

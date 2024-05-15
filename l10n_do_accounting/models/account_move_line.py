@@ -21,7 +21,8 @@ class AccountMoveLine(models.Model):
 
             if line.move_id.is_ecf_invoice:
                 line_itbis_taxes = line.tax_ids.filtered(
-                    lambda t: t.tax_group_id == self.env.ref("l10n_do.group_itbis")
+                    lambda t: t.tax_group_id
+                    == self.env.ref("account.%s_tax_group_itbis" % line.company_id.id)
                 )
                 price_unit = line.price_unit
                 if line.discount:
