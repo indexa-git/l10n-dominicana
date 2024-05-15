@@ -16,7 +16,7 @@
     "data": [
         "security/ir.model.access.csv",
         "security/res_groups.xml",
-        # "data/l10n_latam.document.type.csv",
+        "data/l10n_latam.document.type.csv",
         "wizard/account_move_reversal_views.xml",
         "wizard/account_move_cancel_views.xml",
         "wizard/account_debit_note_views.xml",
