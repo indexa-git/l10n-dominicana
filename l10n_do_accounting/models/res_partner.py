@@ -103,34 +103,33 @@ class Partner(models.Model):
         for partner in self:
             vat = partner.vat or partner.name
             vat_len = len(vat)
-            startswith_4 = vat.startswith("4")
-            is_dominican_partner = partner.country_code == "DO"
             upper_name = partner.name.upper()
+            is_dominican_partner = partner.country_code == "DO"
 
             if not is_dominican_partner:
                 partner.l10n_do_dgii_tax_payer_type = "foreigner"
+                continue
 
-            elif is_dominican_partner and vat.isdigit():
-                if vat_len in (9, 11):
-                    if vat_len == 11:
-                        partner.l10n_do_dgii_tax_payer_type = "non_payer"
-                    elif "MINISTERIO" in upper_name and not startswith_4:
-                        partner.l10n_do_dgii_tax_payer_type = "governmental"
-                    elif "ZONA FRANCA" in upper_name:
-                        partner.l10n_do_dgii_tax_payer_type = "special"
-                    elif ("IGLESIA" in upper_name) or (
-                        "MINISTERIO" in upper_name and startswith_4
-                    ):
-                        partner.l10n_do_dgii_tax_payer_type = "special"
-                    elif not startswith_4:
-                        partner.l10n_do_dgii_tax_payer_type = "taxpayer"
-                    else:
-                        partner.l10n_do_dgii_tax_payer_type = "nonprofit"
+            if not vat.isdigit():
+                partner.l10n_do_dgii_tax_payer_type = "non_payer"
+                continue
 
+            if vat_len == 11:
+                partner.l10n_do_dgii_tax_payer_type = "non_payer"
+            elif vat_len == 9:
+                if "MINISTERIO" in upper_name and not vat.startswith("4"):
+                    partner.l10n_do_dgii_tax_payer_type = "governmental"
+                elif "ZONA FRANCA" in upper_name:
+                    partner.l10n_do_dgii_tax_payer_type = "special"
+                elif "IGLESIA" in upper_name or ("MINISTERIO" in upper_name and vat.startswith("4")):
+                    partner.l10n_do_dgii_tax_payer_type = "special"
+                elif not vat.startswith("4"):
+                    partner.l10n_do_dgii_tax_payer_type = "taxpayer"
                 else:
-                    partner.l10n_do_dgii_tax_payer_type = "non_payer"
+                    partner.l10n_do_dgii_tax_payer_type = "nonprofit"
             else:
                 partner.l10n_do_dgii_tax_payer_type = "non_payer"
+
 
     def _inverse_l10n_do_dgii_tax_payer_type(self):
         for partner in self:
