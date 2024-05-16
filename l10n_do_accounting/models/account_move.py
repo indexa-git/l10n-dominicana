@@ -156,6 +156,16 @@ class AccountMove(models.Model):
                 "account_move_unique_l10n_do_fiscal_number_purchase_internal",
                 self._table,
             )
+
+            if not column_exists(self.env.cr, "account_move", "l10n_do_fiscal_number"):
+                create_column(
+                    self.env.cr, "account_move", "l10n_do_fiscal_number", "varchar"
+                )
+            if not column_exists(self.env.cr, "account_move", "l10n_latam_manual_document_number"):
+                create_column(
+                    self.env.cr, "account_move", "l10n_latam_manual_document_number", "varchar"
+                )
+
             self.env.cr.execute(
                 """
                 CREATE UNIQUE INDEX account_move_unique_l10n_do_fiscal_number_sales
@@ -379,40 +389,6 @@ class AccountMove(models.Model):
             invoice.l10n_do_electronic_stamp = urls.url_quote_plus(qr_string, safe="%")
 
         (self - l10n_do_ecf_invoice).l10n_do_electronic_stamp = False
-
-    # @api.constrains("name", "journal_id", "state", "l10n_do_fiscal_number")
-    # def _check_unique_sequence_number(self):
-    #     l10n_do_invoices = self.filtered(
-    #         lambda inv: inv.l10n_latam_use_documents
-    #         and inv.country_code == "DO"
-    #         and inv.is_sale_document()
-    #         and inv.state == "posted"
-    #     )
-    #     if l10n_do_invoices:
-    #         self.flush_model(
-    #             ["name", "journal_id", "move_type", "state", "l10n_do_fiscal_number"]
-    #         )
-    #         self._cr.execute(
-    #             """
-    #             SELECT move2.id, move2.l10n_do_fiscal_number
-    #             FROM account_move move
-    #             INNER JOIN account_move move2 ON
-    #                 move2.l10n_do_fiscal_number = move.l10n_do_fiscal_number
-    #                 AND move2.journal_id = move.journal_id
-    #                 AND move2.move_type = move.move_type
-    #                 AND move2.id != move.id
-    #             WHERE move.id IN %s AND move2.state = 'posted'
-    #         """,
-    #             [tuple(l10n_do_invoices.ids)],
-    #         )
-    #         res = self._cr.fetchone()
-    #         if res:
-    #             raise ValidationError(
-    #                 _("There is already a sale invoice with fiscal number %s")
-    #                 % self.l10n_do_fiscal_number
-    #             )
-    #
-    #     super(AccountMove, (self - l10n_do_invoices))._check_unique_sequence_number()
 
     @api.constrains(
         "l10n_do_fiscal_number", "partner_id", "company_id", "posted_before"
