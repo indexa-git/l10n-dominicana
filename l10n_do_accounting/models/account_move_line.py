@@ -36,8 +36,8 @@ class AccountMoveLine(models.Model):
                 )
 
     def _get_l10n_do_line_amounts(self):
-        group_itbis = self.env.ref("l10n_do.group_itbis")
-        group_isr = self.env.ref("l10n_do.group_isr")
+        group_itbis = self.env.ref("account.%s_tax_group_itbis" % self.company_id.id)
+        group_isr = self.env.ref("account.%s_tax_group_isr" % self.company_id.id)
 
         tax_lines = self.filtered(
             lambda x: x.tax_group_id.id

@@ -4,12 +4,12 @@ from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
 class L10nDOTestsCommon(AccountTestInvoicingCommon):
     @classmethod
-    def setUpClass(cls, chart_template_ref="l10n_do.do_chart_template"):
+    def setUpClass(cls, chart_template_ref="do"):
         super(L10nDOTestsCommon, cls).setUpClass(chart_template_ref=chart_template_ref)
 
         cls.do_company = cls.setup_company_data(
             "INDEXA SRL",
-            chart_template=cls.env.ref(chart_template_ref),
+            chart_template=chart_template_ref,
             vat="131793916",
             street="dummy address",
             country_id=cls.env.ref("base.do").id,
@@ -140,7 +140,7 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                     if ncf_type and ncf_type[-7:] == "special":
                         invoice_line_form.tax_ids.clear()
                     elif ncf_type and ncf_type[-8:] == "informal":
-                        company_tax_prefix = "l10n_do.%s_" % invoice_form.company_id.id
+                        company_tax_prefix = "account.%s_" % invoice_form.company_id.id
                         invoice_line_form.tax_ids.clear()
                         taxes = self.env["account.tax"].browse(
                             [

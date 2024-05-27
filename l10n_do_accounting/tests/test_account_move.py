@@ -2,6 +2,7 @@ from . import common
 from odoo import fields
 from odoo.tests import tagged
 from odoo.exceptions import ValidationError
+import psycopg2
 
 
 @tagged("-at_install", "post_install")
@@ -133,6 +134,8 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
 
         # Foreigner
+        # you cannot have multiple draft invoices with the same ncf
+        ncf_sale_consumo_invoice.unlink()
         ncf_sale_foreigner_invoice = self._create_l10n_do_invoice(
             data={
                 "partner": self.foreigner_partner,
@@ -381,6 +384,8 @@ class AccountMoveTest(common.L10nDOTestsCommon):
         )
 
         # Foreigner
+        # you cannot have multiple draft invoices with the same ncf
+        ecf_sale_consumo_invoice.unlink()
         ecf_sale_foreigner_invoice = self._create_l10n_do_invoice(
             data={
                 "partner": self.foreigner_partner,
@@ -633,7 +638,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
 
         invoice_2 = self._create_l10n_do_invoice()
         invoice_2._post()
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(psycopg2.errors.UniqueViolation):
             invoice_2.write({"l10n_do_fiscal_number": "B0100000001"})
 
     def test_008_check_sequence(self):
