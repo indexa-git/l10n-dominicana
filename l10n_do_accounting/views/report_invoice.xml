@@ -338,13 +338,4 @@
         </xpath>
     </template>
 
-    <!--<template id="report_invoice_with_payments"
-              inherit_id="account.report_invoice_with_payments">
-        <xpath expr='//t[@t-set="print_with_payments"]' position="after">
-            <t t-if="o._get_name_invoice_report() == 'l10n_do_accounting.report_invoice_document_inherited'"
-               t-call="l10n_do_accounting.report_invoice_document_inherited"
-               t-lang="lang"/>
-        </xpath>
-    </template>-->
-
 </odoo>
