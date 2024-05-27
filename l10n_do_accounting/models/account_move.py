@@ -171,17 +171,20 @@ class AccountMove(models.Model):
                 CREATE UNIQUE INDEX account_move_unique_l10n_do_fiscal_number_sales
                 ON account_move(l10n_do_fiscal_number, company_id)
                 WHERE (l10n_latam_document_type_id IS NOT NULL
-                AND move_type NOT IN ('in_invoice', 'in_refund'));
+                AND move_type NOT IN ('in_invoice', 'in_refund'))
+                AND l10n_do_fiscal_number <> '';
                 
                 CREATE UNIQUE INDEX account_move_unique_l10n_do_fiscal_number_purchase_manual
                 ON account_move(l10n_do_fiscal_number, commercial_partner_id, company_id)
                 WHERE (l10n_latam_document_type_id IS NOT NULL AND move_type IN ('in_invoice', 'in_refund')
-                AND l10n_latam_manual_document_number = 't');
+                AND l10n_latam_manual_document_number = 't')
+                AND l10n_do_fiscal_number <> '';
                 
                 CREATE UNIQUE INDEX account_move_unique_l10n_do_fiscal_number_purchase_internal
                 ON account_move(l10n_do_fiscal_number, company_id)
                 WHERE (l10n_latam_document_type_id IS NOT NULL AND move_type IN ('in_invoice', 'in_refund', 'in_receipt')
-                AND l10n_latam_manual_document_number = 'f');
+                AND l10n_latam_manual_document_number = 'f')
+                AND l10n_do_fiscal_number <> '';
             """
             )
         return super()._auto_init()
