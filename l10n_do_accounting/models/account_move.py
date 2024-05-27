@@ -301,7 +301,7 @@ class AccountMove(models.Model):
         for invoice in self.filtered(lambda inv: inv.state == "draft"):
             invoice.is_ecf_invoice = (
                 invoice.company_id.country_id
-                and invoice.company_id.country_id.code == "DO"
+                and invoice.country_code == "DO"
                 and invoice.l10n_latam_document_type_id
                 and invoice.l10n_latam_document_type_id.l10n_do_ncf_type
                 and invoice.l10n_latam_document_type_id.l10n_do_ncf_type[:2] == "e-"
@@ -707,8 +707,7 @@ class AccountMove(models.Model):
     def _get_starting_sequence(self):
         if (
             self.journal_id.l10n_latam_use_documents
-            and self.company_id.country_id.code == "DO"
-            and self.l10n_latam_document_type_id
+            and self.country_code == "DO"
         ):
             return self._l10n_do_get_formatted_sequence()
 
