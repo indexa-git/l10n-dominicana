@@ -156,7 +156,7 @@
                     <strong t-out="subtotal['name']"/>
                 </td>
 
-                <td class="text-right">
+                <td class="text-end">
                     <span
                         t-att-class="oe_subtotal_footer_separator"
                         t-out="subtotal['formatted_amount']"
@@ -173,9 +173,9 @@
                 <t>
                     <td>
                         <span class="text-nowrap"
-                              t-out="tax_aml.tax_line_id.description"/>
+                              t-out="tax_aml.tax_line_id.name"/>
                     </td>
-                    <td class="text-right o_price_total">
+                    <td class="text-end o_price_total">
                         <span class="text-nowrap" t-out="l10n_do_tax_amount"
                               t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                     </td>
@@ -188,7 +188,7 @@
 
         <tr class="border-black o_total" t-if="ecf_representation">
             <td>Monto Gravado</td>
-            <td class="text-right o_price_total">
+            <td class="text-end o_price_total">
                 <!-- MontoGravadoTotal consiste en la suma de la base imponible de todas las lineas gravadas con ITBIS -->
                 <span class="text-nowrap"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'
@@ -197,7 +197,7 @@
         </tr>
         <tr t-if="ecf_representation">
             <td>Monto Exento</td>
-            <td class="text-right o_price_total">
+            <td class="text-end o_price_total">
                 <!-- MontoExento consiste en la suma de la base imponible de todas las lineas exentas -->
                 <span class="text-nowrap"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'
@@ -212,7 +212,7 @@
             </td>
 
             <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts['l10n_do_invoice_total']"/>
-            <td class="text-right">
+            <td class="text-end">
                 <span class="text-nowrap" t-out="l10n_do_amount_total"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
             </td>
@@ -226,9 +226,9 @@
                 <t>
                     <td>
                         <span class="text-nowrap"
-                              t-out="tax_aml.tax_line_id.description"/>
+                              t-out="tax_aml.tax_line_id.name"/>
                     </td>
-                    <td class="text-right o_price_total">
+                    <td class="text-end o_price_total">
                         <span class="text-nowrap" t-out="l10n_do_wh_amount"
                               t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                     </td>
@@ -266,7 +266,7 @@
             </t>
         </xpath>
 
-        <xpath expr="//div[@id='total']/.." position="after">
+        <xpath expr="//div[@id='right-elements']/.." position="after">
             <div class="row">
                 <div>
                     <div t-if="o.l10n_do_electronic_stamp" class="col-6" style="display: inline-block">
