@@ -100,57 +100,37 @@ class Partner(models.Model):
     @api.depends("vat", "country_id", "name")
     def _compute_l10n_do_dgii_payer_type(self):
         """Compute the type of partner depending on soft decisions"""
-        company_id = self.env["res.company"].search(
-            [("id", "=", self.env.user.company_id.id)]
-        )
         for partner in self:
-            vat = str(partner.vat if partner.vat else partner.name)
-            is_dominican_partner = bool(partner.country_id == self.env.ref("base.do"))
+            vat = partner.vat or partner.name or ""
+            vat_len = len(vat) if vat else 0
+            upper_name = partner.name.upper() if partner.name else ""
+            is_dominican_partner = partner.country_code == "DO"
 
-            if partner.country_id and not is_dominican_partner:
+            if not is_dominican_partner:
                 partner.l10n_do_dgii_tax_payer_type = "foreigner"
+                continue
 
-            elif vat and (
-                not partner.l10n_do_dgii_tax_payer_type
-                or partner.l10n_do_dgii_tax_payer_type == "non_payer"
-            ):
-                if partner.country_id and is_dominican_partner:
-                    if vat.isdigit() and len(vat) == 9:
-                        if not partner.vat:
-                            partner.vat = vat
-                        if partner.name and "MINISTERIO" in partner.name:
-                            partner.l10n_do_dgii_tax_payer_type = "governmental"
-                        elif partner.name and any(
-                            [n for n in ("IGLESIA", "ZONA FRANCA") if n in partner.name]
-                        ):
-                            partner.l10n_do_dgii_tax_payer_type = "special"
-                        elif vat.startswith("1"):
-                            partner.l10n_do_dgii_tax_payer_type = "taxpayer"
-                        elif vat.startswith("4"):
-                            partner.l10n_do_dgii_tax_payer_type = "nonprofit"
-                        else:
-                            partner.l10n_do_dgii_tax_payer_type = "taxpayer"
-
-                    elif len(vat) == 11:
-                        if vat.isdigit():
-                            if not partner.vat:
-                                partner.vat = vat
-                            payer_type = (
-                                "taxpayer"
-                                if company_id.l10n_do_default_client == "fiscal"
-                                else "non_payer"
-                            )
-                            partner.l10n_do_dgii_tax_payer_type = payer_type
-                        else:
-                            partner.l10n_do_dgii_tax_payer_type = "non_payer"
-                    else:
-                        partner.l10n_do_dgii_tax_payer_type = "non_payer"
-            elif not partner.l10n_do_dgii_tax_payer_type:
+            if not vat.isdigit():
                 partner.l10n_do_dgii_tax_payer_type = "non_payer"
+                continue
+
+            if vat_len == 11:
+                partner.l10n_do_dgii_tax_payer_type = "non_payer"
+            elif vat_len == 9:
+                if "MINISTERIO" in upper_name and not vat.startswith("4"):
+                    partner.l10n_do_dgii_tax_payer_type = "governmental"
+                elif "ZONA FRANCA" in upper_name:
+                    partner.l10n_do_dgii_tax_payer_type = "special"
+                elif "IGLESIA" in upper_name or (
+                    "MINISTERIO" in upper_name and vat.startswith("4")
+                ):
+                    partner.l10n_do_dgii_tax_payer_type = "special"
+                elif not vat.startswith("4"):
+                    partner.l10n_do_dgii_tax_payer_type = "taxpayer"
+                else:
+                    partner.l10n_do_dgii_tax_payer_type = "nonprofit"
             else:
-                partner.l10n_do_dgii_tax_payer_type = (
-                    partner.l10n_do_dgii_tax_payer_type
-                )
+                partner.l10n_do_dgii_tax_payer_type = "non_payer"
 
     def _inverse_l10n_do_dgii_tax_payer_type(self):
         for partner in self:

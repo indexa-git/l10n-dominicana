@@ -3,7 +3,7 @@
 
     <template id="web_address_layout_inherited" inherit_id="web.address_layout">
         <!-- do not show company address on document header  -->
-        <xpath expr="//t[@t-if='address']/div" position="attributes">
+        <xpath expr="//div[@t-if='address']/div" position="attributes">
             <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
         </xpath>
     </template>

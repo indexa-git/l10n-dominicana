@@ -88,7 +88,7 @@
                     <t t-elif="vat_len == 11">Cédula:</t>
                     <t t-else="">ID Cliente:</t>
                 </strong>
-                <span class="m-0" t-esc="o.commercial_partner_id.vat or ''"/>
+                <span class="m-0" t-out="o.commercial_partner_id.vat or ''"/>
                 <br/>
                 <strong>
                     <t t-if="vat_len == 9">Razón Social:</t>
@@ -153,13 +153,13 @@
         <t t-foreach="tax_totals['subtotals']" t-as="subtotal">
             <tr class="border-black o_subtotal">
                 <td>
-                    <strong t-esc="subtotal['name']"/>
+                    <strong t-out="subtotal['name']"/>
                 </td>
 
-                <td class="text-right">
+                <td class="text-end">
                     <span
                         t-att-class="oe_subtotal_footer_separator"
-                        t-esc="subtotal['formatted_amount']"
+                        t-out="subtotal['formatted_amount']"
                     />
                 </td>
             </tr>
@@ -173,10 +173,10 @@
                 <t>
                     <td>
                         <span class="text-nowrap"
-                              t-esc="tax_aml.tax_line_id.description"/>
+                              t-out="tax_aml.tax_line_id.name"/>
                     </td>
-                    <td class="text-right o_price_total">
-                        <span class="text-nowrap" t-esc="l10n_do_tax_amount"
+                    <td class="text-end o_price_total">
+                        <span class="text-nowrap" t-out="l10n_do_tax_amount"
                               t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                     </td>
                 </t>
@@ -188,20 +188,20 @@
 
         <tr class="border-black o_total" t-if="ecf_representation">
             <td>Monto Gravado</td>
-            <td class="text-right o_price_total">
+            <td class="text-end o_price_total">
                 <!-- MontoGravadoTotal consiste en la suma de la base imponible de todas las lineas gravadas con ITBIS -->
                 <span class="text-nowrap"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'
-                      t-esc="total_amount_taxed"/>
+                      t-out="total_amount_taxed"/>
             </td>
         </tr>
         <tr t-if="ecf_representation">
             <td>Monto Exento</td>
-            <td class="text-right o_price_total">
+            <td class="text-end o_price_total">
                 <!-- MontoExento consiste en la suma de la base imponible de todas las lineas exentas -->
                 <span class="text-nowrap"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'
-                      t-esc="total_exempt_amount"/>
+                      t-out="total_exempt_amount"/>
             </td>
         </tr>
 
@@ -212,8 +212,8 @@
             </td>
 
             <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts['l10n_do_invoice_total']"/>
-            <td class="text-right">
-                <span class="text-nowrap" t-esc="l10n_do_amount_total"
+            <td class="text-end">
+                <span class="text-nowrap" t-out="l10n_do_amount_total"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
             </td>
         </tr>
@@ -226,10 +226,10 @@
                 <t>
                     <td>
                         <span class="text-nowrap"
-                              t-esc="tax_aml.tax_line_id.description"/>
+                              t-out="tax_aml.tax_line_id.name"/>
                     </td>
-                    <td class="text-right o_price_total">
-                        <span class="text-nowrap" t-esc="l10n_do_wh_amount"
+                    <td class="text-end o_price_total">
+                        <span class="text-nowrap" t-out="l10n_do_wh_amount"
                               t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                     </td>
                 </t>
@@ -266,7 +266,7 @@
             </t>
         </xpath>
 
-        <xpath expr="//div[@id='total']/.." position="after">
+        <xpath expr="//div[@id='right-elements']/.." position="after">
             <div class="row">
                 <div>
                     <div t-if="o.l10n_do_electronic_stamp" class="col-6" style="display: inline-block">
@@ -275,12 +275,12 @@
                         </div>
                         <t t-if="o.l10n_do_ecf_security_code">
                             <strong>Código de Seguridad:</strong>
-                            <span t-esc="o.l10n_do_ecf_security_code"/>
+                            <span t-out="o.l10n_do_ecf_security_code"/>
                         </t>
                         <br/>
                         <t t-if="o.l10n_do_ecf_sign_date">
                             <strong>Fecha Firma Digital:</strong>
-                            <span t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
+                            <span t-out="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
                         </t>
                     </div>
                     <div t-if="is_l10n_do_invoice" class="text-muted text-end col-4"
@@ -303,7 +303,7 @@
         </xpath>
 
         <!-- Total monto descuento en líneas -->
-        <xpath expr="//th[@name='th_price_unit']" position="after">
+        <xpath expr="//th[@name='th_discount']" position="after">
             <th t-if="is_l10n_do_invoice and display_discount and ecf_representation"
                 t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                 <span>Monto descuento</span>
@@ -313,12 +313,12 @@
             <td t-if="is_l10n_do_invoice and display_discount and ecf_representation"
                 t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
                 <t t-set="discount_amount" t-value="line.price_unit * line.quantity * line.discount / 100"/>
-                <span class="text-nowrap" t-esc="discount_amount"
+                <span class="text-nowrap" t-out="discount_amount"
                       t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
             </td>
         </xpath>
         <xpath expr="//span[@id='line_tax_ids']" position="attributes">
-            <attribute name="t-esc">
+            <attribute name="t-out">
                 ', '.join(map(lambda x: (x.description or x.name), line.tax_ids)) if not ecf_representation else '%s %s' % (o.currency_id.symbol, '{0:,.2f}'.format(line.l10n_do_itbis_amount))
             </attribute>
         </xpath>
@@ -331,15 +331,6 @@
     </template>
 
     <template id="report_invoice" inherit_id="account.report_invoice">
-        <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
-            <t t-if="o._get_name_invoice_report() == 'l10n_do_accounting.report_invoice_document_inherited'"
-               t-call="l10n_do_accounting.report_invoice_document_inherited"
-               t-lang="lang"/>
-        </xpath>
-    </template>
-
-    <template id="report_invoice_with_payments"
-              inherit_id="account.report_invoice_with_payments">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
             <t t-if="o._get_name_invoice_report() == 'l10n_do_accounting.report_invoice_document_inherited'"
                t-call="l10n_do_accounting.report_invoice_document_inherited"

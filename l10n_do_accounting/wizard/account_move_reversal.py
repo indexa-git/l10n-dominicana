@@ -48,11 +48,6 @@ class AccountMoveReversal(models.TransientModel):
         selection=_get_l10n_do_refund_type_selection,
         default=_get_default_l10n_do_refund_type,
     )
-    l10n_do_refund_action = fields.Selection(
-        selection=_get_refund_action_selection,
-        default="draft_refund",
-        string="Refund Action",
-    )
     l10n_do_percentage = fields.Float("Percentage")
     l10n_do_amount = fields.Float("Amount")
     l10n_do_ecf_modification_code = fields.Selection(
@@ -86,44 +81,17 @@ class AccountMoveReversal(models.TransientModel):
             AccountMoveReversal, self - l10n_do_recs
         )._compute_l10n_latam_manual_document_number()
 
-    @api.model
-    def default_get(self, fields):
-        res = super(AccountMoveReversal, self).default_get(fields)
-        move_ids = (
-            self.env["account.move"].browse(self.env.context["active_ids"])
-            if self.env.context.get("active_model") == "account.move"
-            else self.env["account.move"]
-        )
-        move_ids_use_document = move_ids.filtered(
-            lambda move: move.l10n_latam_use_documents
-            and move.company_id.country_code == "DO"
-        )
+    # @api.onchange("l10n_do_refund_type")
+    # def onchange_l10n_do_refund_type(self):
+    #     if self.l10n_do_refund_type != "full_refund":
+    #         self.refund_method = "refund"
 
-        if len(move_ids_use_document) > 1:
-            raise UserError(
-                _(
-                    "You cannot create Credit Notes from multiple "
-                    "documents at a time."
-                )
-            )
-        if move_ids_use_document:
-            res["is_ecf_invoice"] = move_ids_use_document[
-                0
-            ].company_id.l10n_do_ecf_issuer
-
-        return res
-
-    @api.onchange("l10n_do_refund_type")
-    def onchange_l10n_do_refund_type(self):
-        if self.l10n_do_refund_type != "full_refund":
-            self.refund_method = "refund"
-
-    @api.onchange("l10n_do_refund_action")
-    def onchange_refund_action(self):
-        if self.l10n_do_refund_action == "apply_refund":
-            self.refund_method = "cancel"
-        else:
-            self.refund_method = "refund"
+    # @api.onchange("l10n_do_refund_action")
+    # def onchange_refund_action(self):
+    #     if self.l10n_do_refund_action == "apply_refund":
+    #         self.refund_method = "cancel"
+    #     else:
+    #         self.refund_method = "refund"
 
     def _prepare_default_reversal(self, move):
         result = super(AccountMoveReversal, self)._prepare_default_reversal(move)
@@ -191,8 +159,11 @@ class AccountMoveReversal(models.TransientModel):
                         % ", ".join(move_ids_use_document.mapped("name"))
                     )
             else:
-                record.l10n_latam_use_documents = (
-                    record.journal_id.l10n_latam_use_documents
+                record.write(
+                    {
+                        "l10n_latam_use_documents": record.journal_id.l10n_latam_use_documents,
+                        "is_ecf_invoice": record.company_id.l10n_do_ecf_issuer,
+                    }
                 )
 
             if record.l10n_latam_use_documents:
@@ -211,19 +182,3 @@ class AccountMoveReversal(models.TransientModel):
                     refund.l10n_latam_available_document_type_ids
                 )
         super(AccountMoveReversal, self - do_wizard)._compute_document_type()
-
-    @api.depends("l10n_latam_document_type_id")
-    def _compute_l10n_latam_manual_document_number(self):
-        self.l10n_latam_manual_document_number = False
-        do_wizard = self.filtered(
-            lambda w: w.journal_id
-            and w.journal_id.l10n_latam_use_documents
-            and w.country_code == "DO"
-            and w.move_ids
-        )
-        for rec in do_wizard:
-            if rec.journal_id and rec.journal_id.l10n_latam_use_documents:
-                rec.l10n_latam_manual_document_number = True if rec.journal_id.type == 'purchase' else False
-        super(
-            AccountMoveReversal, self - do_wizard
-        )._compute_l10n_latam_manual_document_number()
