@@ -176,37 +176,37 @@ class AccountDebitNote(models.TransientModel):
                 )
             )
 
-        origin_invoice_id = self.move_ids or self.env["account.move"].browse(
-            self.env.context.get("active_ids")
-        )
-        taxes = (
-            [
+            origin_invoice_id = self.move_ids or self.env["account.move"].browse(
+                self.env.context.get("active_ids")
+            )
+            taxes = (
+                [
+                    (
+                        6,
+                        0,
+                        [origin_invoice_id._get_debit_line_tax(res["invoice_date"]).id],
+                    )
+                ]
+                if self.l10n_do_debit_type
+                else [(5, 0)]
+            )
+            price_unit = (
+                self.l10n_do_amount
+                if self.l10n_do_debit_type == "fixed_amount"
+                else origin_invoice_id.amount_untaxed * (self.l10n_do_percentage / 100)
+            )
+            res["invoice_line_ids"] = [
                 (
-                    6,
                     0,
-                    [origin_invoice_id._get_debit_line_tax(res["invoice_date"]).id],
+                    0,
+                    {
+                        "name": self.reason or _("Debit"),
+                        "price_unit": price_unit,
+                        "quantity": 1,
+                        "tax_ids": taxes,
+                    },
                 )
             ]
-            if self.l10n_do_debit_type
-            else [(5, 0)]
-        )
-        price_unit = (
-            self.l10n_do_amount
-            if self.l10n_do_debit_type == "fixed_amount"
-            else origin_invoice_id.amount_untaxed * (self.l10n_do_percentage / 100)
-        )
-        res["invoice_line_ids"] = [
-            (
-                0,
-                0,
-                {
-                    "name": self.reason or _("Debit"),
-                    "price_unit": price_unit,
-                    "quantity": 1,
-                    "tax_ids": taxes,
-                },
-            )
-        ]
 
         return res
 

@@ -653,14 +653,14 @@ class AccountMove(models.Model):
         if self.move_type == "out_invoice":
             return (
                 self.company_id.account_sale_tax_id
-                or self.env.ref("l10n_do.%s_tax_18_sale" % self.company_id.id)
+                or self.env.ref("account.%s_tax_18_sale" % self.company_id.id)
                 if (debit_date - self.invoice_date).days <= 30
                 and self.partner_id.l10n_do_dgii_tax_payer_type != "special"
-                else self.env.ref("l10n_do.%s_tax_0_sale" % self.company_id.id) or False
+                else self.env.ref("account.%s_tax_0_sale" % self.company_id.id) or False
             )
         else:
             return self.company_id.account_purchase_tax_id or self.env.ref(
-                "l10n_do.%s_tax_0_purch" % self.company_id.id
+                "account.%s_tax_0_purch" % self.company_id.id
             )
 
     def _post(self, soft=True):
