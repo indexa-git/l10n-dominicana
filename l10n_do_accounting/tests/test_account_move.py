@@ -616,6 +616,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
             }
         )
         sale_invoice_1_id.with_context(l10n_do_active_test=True)._post()
+        self.maxDiff = None
         self.assertEqual(sale_invoice_1_id.l10n_do_electronic_stamp, stamp)
 
     def test_007_unique_sequence_number(self):
@@ -718,6 +719,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "document_number": "B0100000001",
             }
         )
+        self.maxDiff = None
         self.assertDictEqual(
             invoice_1._get_l10n_do_amounts(),
             {
