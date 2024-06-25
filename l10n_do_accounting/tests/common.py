@@ -155,5 +155,11 @@ class L10nDOTestsCommon(AccountTestInvoicingCommon):
                         )
                         for tax in taxes:
                             invoice_line_form.tax_ids.add(tax)
+                    elif line.get("taxes"):
+                        invoice_line_form.tax_ids.clear()
+                        for tax in line.get("taxes", []):
+                            tax_id = self.env['account.tax'].browse(tax[1])
+                            invoice_line_form.tax_ids.add(tax_id)
+
         invoice = invoice_form.save()
         return invoice
