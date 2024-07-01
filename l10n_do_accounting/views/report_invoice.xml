@@ -282,7 +282,7 @@
                         <t t-if="o.l10n_do_ecf_sign_date">
                             <strong>Fecha Firma Digital:</strong>
                             <span
-                                t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
+                                t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y %H:%M:%S')"/>
                         </t>
                     </t>
                 </div>
