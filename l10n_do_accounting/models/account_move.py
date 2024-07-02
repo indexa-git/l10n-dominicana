@@ -897,7 +897,10 @@ class AccountMove(models.Model):
     @api.depends(lambda self: [self._l10n_do_sequence_field])
     def _compute_split_sequence(self):
         super(AccountMove, self)._compute_split_sequence()
-        for record in self:
+        l10n_do_invoices = self.filtered(
+            lambda inv: inv.l10n_latam_use_documents and inv.country_code == "DO"
+        )
+        for record in l10n_do_invoices:
             sequence = record[record._l10n_do_sequence_field] or ""
             regex = re.sub(
                 r"\?P<\w+>",
@@ -907,6 +910,9 @@ class AccountMove(models.Model):
             matching = re.match(regex, sequence)
             record.l10n_do_sequence_prefix = sequence[:3]
             record.l10n_do_sequence_number = int(matching.group(1) or 0)
+        (self - l10n_do_invoices).write(
+            {"l10n_do_sequence_prefix": False, "l10n_do_sequence_number": False}
+        )
 
     def _get_last_sequence(self, relaxed=False, with_prefix=None, lock=True):
         if not self._context.get("is_l10n_do_seq", False):
