@@ -1020,3 +1020,20 @@ class AccountMove(models.Model):
                 _("You cannot delete fiscal invoice which have been posted before")
             )
         return super(AccountMove, self).unlink()
+
+    # Extension of the _deduce_sequence_number_reset function to compute the `name` field according to the invoice
+    # date and prevent the `l10n_latam_document_number` field from being reset
+    @api.model
+    def _deduce_sequence_number_reset(self, name):
+        if (
+            self.l10n_latam_use_documents
+            and self.company_id.country_id.code == "DO"
+            and self.posted_before
+            and not self._context.get("is_l10n_do_seq", False)
+        ):
+            return "year"
+        elif self._context.get("is_l10n_do_seq", False):
+            return "never"
+        else:
+            "never"
+        return super(AccountMove, self)._deduce_sequence_number_reset(name)
