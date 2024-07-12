@@ -101,3 +101,27 @@ class AccountMove(models.Model):
             and not x.l10n_do_fiscal_number
         ):
             move.with_context(is_l10n_do_seq=True)._set_next_sequence()
+
+    def _set_next_sequence(self):
+        self.ensure_one()
+
+        super(AccountMove, self)._set_next_sequence()
+
+        if not self._context.get("is_l10n_do_seq", False):
+            last_sequence = self._get_last_sequence()
+
+            if last_sequence != None:
+
+                new_seq_year = not "/" + str(self.date.year) + "/" in last_sequence
+                if new_seq_year:
+                    last_sequence = self._get_last_sequence(relaxed=True) or self._get_starting_sequence()
+
+                format, format_values = self._get_sequence_format_param(last_sequence)
+                if new_seq_year:
+                    format_values['seq'] = 0
+                    format_values['year'] = self[self._sequence_date_field].year % (10 ** format_values['year_length'])
+                    format_values['month'] = self[self._sequence_date_field].month
+                    format_values['seq'] = format_values['seq'] + 1
+
+                self[self._sequence_field] = format.format(**format_values)
+                self._compute_split_sequence()
