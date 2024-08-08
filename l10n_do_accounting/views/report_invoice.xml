@@ -267,7 +267,7 @@
         </xpath>
 
         <xpath expr="//div[@id='total']/.." position="after">
-            <div class="row">
+            <div class="row" style="page-break-inside: avoid;">
                 <div class="col-6"
                      style="display: inline-block; float: left; font-size:11px;">
                     <t t-if="o.l10n_do_electronic_stamp">
@@ -275,12 +275,12 @@
                             <img t-att-src="'/report/barcode/?type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
                         </div>
                         <t t-if="o.l10n_do_ecf_security_code">
-                            <strong>Código de Seguridad:</strong>
+                            <strong>Código de Seguridad: </strong>
                             <span t-esc="o.l10n_do_ecf_security_code"/>
                         </t>
                         <br/>
                         <t t-if="o.l10n_do_ecf_sign_date">
-                            <strong>Fecha Firma Digital:</strong>
+                            <strong>Fecha Firma Digital: </strong>
                             <span
                                 t-esc="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
                         </t>
