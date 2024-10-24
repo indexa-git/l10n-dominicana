@@ -190,20 +190,14 @@ class AccountMove(models.Model):
         return super()._auto_init()
 
     @api.model
-    def _name_search(
-        self, name="", args=None, operator="ilike", limit=100, name_get_uid=None
-    ):
-        args = args or []
-        domain = []
+    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
         if name:
-            domain = [
+            domain = expression.AND([[
                 "|",
                 ("name", operator, name),
                 ("l10n_do_fiscal_number", operator, name),
-            ]
-        return self._search(
-            expression.AND([domain, args]), limit=limit, access_rights_uid=name_get_uid
-        )
+            ], domain])
+        return super()._name_search(name, domain, operator, limit, order)
 
     def _l10n_do_is_new_expiration_date(self):
         self.ensure_one()

@@ -97,7 +97,7 @@ jobs:
 
     steps:
       - name: Download repository results
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: modules
 
