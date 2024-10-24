@@ -47,7 +47,7 @@
                 <attribute name="invisible">(not l10n_latam_use_documents and country_code == 'DO') or (not l10n_do_enable_first_sequence and not l10n_latam_manual_document_number and state == 'draft') or (not l10n_do_enable_first_sequence and l10n_latam_manual_document_number and state == 'draft') and (move_type in ('out_invoice', 'out_refund', 'in_refund') and country_code == 'DO')</attribute>
                 <attribute name="readonly">(state != 'draft' and country_code == 'DO') or (posted_before and country_code == 'DO')</attribute>
             </xpath>
-            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/div/field[@name='partner_id']" position="after">
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/div" position="after">
                 <xpath expr="//field[@name='l10n_latam_document_type_id']" position="move"/>
                 <xpath expr="//field[@name='l10n_latam_document_number']" position="move"/>
                 <field name="l10n_do_origin_ncf"
