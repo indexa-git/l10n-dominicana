@@ -83,7 +83,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y zip && zip -r modules.zip .
 
       - name: Upload repository results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: modules
           path: modules.zip
