@@ -54,6 +54,13 @@ class AccountMoveLine(models.Model):
         taxed_lines = invoice_line_ids.filtered(
             lambda x: x.tax_ids and any(tax for tax in x.tax_ids if tax.amount)
         )
+        other_taxes_lines = self.filtered(
+            lambda x: x.tax_line_id and x.tax_line_id.tax_group_id not in [group_itbis, group_isr]
+        )
+        other_taxes_amount = sum(
+            abs(self.currency_id.round(line.amount_currency)) for line in other_taxes_lines
+        )
+
         exempt_lines = invoice_line_ids.filtered(
             lambda x: not x.tax_ids or any(tax for tax in x.tax_ids if not tax.amount)
         )
@@ -135,6 +142,7 @@ class AccountMoveLine(models.Model):
             + result["itbis_18_tax_amount"]
             + result["itbis_16_tax_amount"]
             + result["itbis_0_tax_amount"]
+            + other_taxes_amount
         )
 
         if self.currency_id != self.company_id.currency_id:
