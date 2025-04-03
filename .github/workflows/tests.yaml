@@ -30,7 +30,7 @@ jobs:
       get_modules: ${{ steps.get_modules.outputs.modules }}
     services:
       db:
-        image: postgres:13-alpine
+        image: postgres:14-alpine
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: odoo
@@ -46,7 +46,7 @@ jobs:
 
     steps:
       - name: Inject slug/short variables
-        uses: rlespinasse/github-slug-action@v4.x
+        uses: rlespinasse/github-slug-action@v5.x
 
       - name: INDEXA ${{ env.GITHUB_REPOSITORY_NAME_PART_SLUG_URL }}
         uses: actions/checkout@v4
