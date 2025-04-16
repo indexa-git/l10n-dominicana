@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.10.16
       - run: pip install flake8
       - name: Lint with flake8
         run: |
@@ -38,15 +38,15 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Inject slug/short variables
         uses: rlespinasse/github-slug-action@v4.x
 
       - run: curl https://raw.githubusercontent.com/iterativo-git/dockerdoo/master/.devcontainer/.vscode/oca_pylint.cfg -o oca_pylint.cfg
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.10.16
       - run: pip install pylint_odoo
       - run: |
           pylint **/*.py --exit-zero --rcfile oca_pylint.cfg --load-plugins pylint_odoo
