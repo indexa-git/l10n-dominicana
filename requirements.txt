@@ -1,0 +1,2 @@
+pycountry>=19.8.18
+reportlab==3.5.59
