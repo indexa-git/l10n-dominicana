@@ -11,7 +11,6 @@ class AccountInvoice(models.Model):
     l10n_do_ecf_sign_date = fields.Datetime(string="e-CF Sign Date", copy=False)
     l10n_do_electronic_stamp = fields.Char(
         string="Electronic Stamp",
-        compute="_compute_l10n_do_electronic_stamp",
         store=True,
     )
     l10n_do_ecf_edi_file = fields.Binary("ECF XML File", copy=False, readonly=True)
