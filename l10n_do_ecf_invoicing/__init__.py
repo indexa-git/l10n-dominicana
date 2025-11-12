@@ -35,5 +35,14 @@ def post_init_hook(cr, registry):
     )
 
     cr.execute(
+        """UPDATE account_invoice ai
+            SET l10n_do_ecf_edi_file = ed.xml_file
+            FROM ecf_document ed
+            WHERE ai.ecf_document = ed.id
+            AND ai.l10n_do_ecf_edi_file IS NULL
+            AND ed.xml_file IS NOT NULL;"""
+    )
+
+    cr.execute(
         "UPDATE account_invoice SET l10n_do_ecf_edi_file_name = dgii_document_number;"
     )

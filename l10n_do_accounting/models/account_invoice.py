@@ -7,3 +7,6 @@ class AccountInvoice(models.Model):
     l10n_do_fiscal_number = fields.Char(
         "Fiscal Number",
     )
+    l10n_do_origin_ncf = fields.Char(
+        string="Modifies",
+    )
