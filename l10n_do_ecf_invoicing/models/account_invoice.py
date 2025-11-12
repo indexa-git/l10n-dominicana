@@ -13,8 +13,3 @@ class AccountInvoice(models.Model):
         string="Electronic Stamp",
         store=True,
     )
-    l10n_do_ecf_edi_file = fields.Binary("ECF XML File", copy=False, readonly=True)
-
-    l10n_do_ecf_edi_file_name = fields.Char(
-        "ECF XML File Name", copy=False, readonly=True
-    )
