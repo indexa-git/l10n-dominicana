@@ -12,3 +12,6 @@ def post_init_hook(cr, registry):
     cr.execute(
         "UPDATE account_journal SET l10n_latam_use_documents = TRUE WHERE type IN ('sale', 'purchase');"
     )
+    cr.execute(
+        "UPDATE account_journal SET l10n_do_payment_form = payment_form;"
+    )
