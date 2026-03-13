@@ -13,3 +13,6 @@ class AccountInvoice(models.Model):
         string="Electronic Stamp",
         store=True,
     )
+    l10n_do_ncf_expiration_date = fields.Date(
+        string="Valid until",
+    )

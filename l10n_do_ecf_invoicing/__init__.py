@@ -10,6 +10,9 @@ def post_init_hook(cr, registry):
         "UPDATE account_invoice SET is_ecf_invoice = is_ecf;"
     )
     cr.execute(
+        "UPDATE account_invoice SET l10n_do_ncf_expiration_date = ncf_expiration_date;"
+    )
+    cr.execute(
         """UPDATE account_invoice ai
             SET l10n_do_ecf_security_code = ed.e_security_code
             FROM ecf_document ed
