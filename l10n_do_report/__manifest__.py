@@ -9,6 +9,7 @@
     "countries": ["do"],
     "depends": ["l10n_do_accounting"],
     "data": [
+        "views/report_templates.xml",
         "views/report_invoice.xml",
     ],
     "installable": True,

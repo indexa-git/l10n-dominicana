@@ -2,50 +2,60 @@
 <odoo>
 
     <!--
-        Mejora 1: Header — la columna derecha (col-4 vacía) ahora muestra
-        el tipo de documento, NCF y fecha de vencimiento.
-        El logo se reduce a col-7 para dar espacio al bloque fiscal.
+        Mejora 1: custom_header
+        Antes: solo logo en col-8, derecha (col-4) vacía.
+        Ahora: logo + tagline (col-8) | tipo de documento en español + nombre de factura (col-4).
     -->
     <template id="custom_header" inherit_id="l10n_do_accounting.custom_header">
+
+        <!-- Actualizar clases del row contenedor -->
+        <xpath expr="//div[@class='row']" position="attributes">
+            <attribute name="class">row m-0 p-0 align-items-start mb-0</attribute>
+        </xpath>
+
+        <!-- Reemplazar columna izquierda y agregar columna derecha con info del documento -->
         <xpath expr="//div[@name='left-upper-side']" position="replace">
-            <div name="left-upper-side" class="col-7">
+            <div name="left-side" class="col-8 m-0 p-0">
                 <img t-if="o.company_id.logo"
                      t-att-src="image_data_uri(o.company_id.logo)"
-                     style="max-height: 100px;" alt="Logo"/>
+                     style="max-height: 80px; max-width: 400px;" alt="Logo"/>
+                <div t-if="o.company_id.report_header"
+                     t-field="o.company_id.report_header"
+                     class="o_company_tagline fw-bold mt-1"
+                     style="padding-left: 5rem"/>
             </div>
-            <div name="right-upper-side" class="col-5 text-end"
-                 t-if="o.l10n_do_fiscal_number and o.l10n_latam_document_type_id">
-                <h2 class="mb-1">
-                    <span t-field="o.l10n_latam_document_type_id.report_name"/>
-                </h2>
-                <strong>
-                    <t t-if="o.is_ecf_invoice">e-NCF:</t>
-                    <t t-else="">NCF:</t>
-                </strong>
-                <span t-field="o.l10n_do_fiscal_number"/>
-                <t t-if="o.l10n_latam_use_documents
-                           and o.state == 'posted'
-                           and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34', '02', '04')">
-                    <br/>
-                    <strong>
-                        <t t-if="o.is_ecf_invoice">Vencimiento e-NCF:</t>
-                        <t t-else="">Válida hasta:</t>
-                    </strong>
-                    <span t-field="o.l10n_do_ncf_expiration_date"/>
-                </t>
+            <div name="right-side" class="col-4 m-0 p-0 text-end">
+                <h4 class="mb-0">
+                    <t t-set="layout_document_title">
+                        <span t-if="proforma and o.state != 'posted'">PROFORMA</span>
+                        <span t-elif="o.move_type == 'out_invoice' and o.state == 'posted'">Factura</span>
+                        <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'">Factura Borrador</span>
+                        <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'">Factura Cancelada</span>
+                        <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'">Nota de Crédito</span>
+                        <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'">Nota de Crédito Borrador</span>
+                        <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'">Nota de Crédito Cancelada</span>
+                        <span t-elif="o.move_type == 'in_refund'">Nota de Débito</span>
+                        <span t-elif="o.move_type == 'in_invoice'">Factura de Proveedor</span>
+                        <div t-if="o.name and o.name != '/'" class="fw-bold mt-1" t-field="o.name"/>
+                    </t>
+                    <t t-out="layout_document_title"/>
+                </h4>
             </div>
         </xpath>
+
     </template>
 
     <!--
-        Mejora 2: Plantilla informations rediseñada.
-        - Columna izquierda: empresa (igual que antes) + NCF modificado si aplica.
-        - Columna derecha: datos del cliente (antes era una sección separada
-          con mt32 mb32 que generaba espacios en blanco).
-        - Se eliminan los <br/> y div#receiver_info redundantes.
+        Mejora 2: informations (plantilla independiente)
+        - Usa <div> en lugar de <span>+<br/> → markup más limpio
+        - font-size: 12px en todos los bloques
+        - margin-top: 0 (elimina el espacio excesivo del mt36 original)
+        - receiver_info con "row p-1" en lugar de "row mt32 mb32"
+        - Teléfono/móvil en d-inline (sin salto de línea forzado)
+        - "Cotización:" en lugar de "Origen:" para invoice_origin
     -->
     <template id="informations">
-        <div id="informations" class="row mt-3 mb-2">
+        <div id="informations" class="row" style="margin-top: 0px; font-size: 12px">
 
             <!-- Empresa -->
             <div class="col-6">
@@ -54,123 +64,245 @@
                 </div>
                 <span t-field="o.company_id.partner_id" class="text-muted"
                       t-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
-                <span>
+                <div>
                     <strong>RNC:</strong>
                     <span t-if="o.company_id.vat" t-field="o.company_id.vat"/>
-                </span>
-                <br/>
-                <span>
+                </div>
+                <div>
                     <strong>Fecha Emisión:</strong>
                     <span t-field="o.invoice_date"/>
-                </span>
-                <t t-if="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted' and not ecf_representation">
-                    <br/>
-                    <span>
-                        <strong>Vence:</strong>
-                        <span t-field="o.invoice_date_due"/>
-                    </span>
-                </t>
-                <t t-if="(o.move_type in ('out_refund', 'in_refund') or o.debit_origin_id) and o.l10n_do_origin_ncf">
-                    <br/>
-                    <span>
-                        <strong>NCF modificado:</strong>
-                        <span t-field="o.l10n_do_origin_ncf"/>
-                    </span>
-                    <t t-if="ecf_representation">
-                        <br/>
-                        <span>
-                            <strong>Código Modificación:</strong>
-                            <span t-field="o.l10n_do_ecf_modification_code"/>
-                        </span>
-                    </t>
-                </t>
+                </div>
+                <div t-if="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted' and not ecf_representation">
+                    <strong>Vence:</strong>
+                    <span t-field="o.invoice_date_due"/>
+                </div>
             </div>
 
-            <!-- Cliente (fusionado desde receiver_info) -->
+            <!-- Info fiscal (tipo doc, NCF, vencimiento) -->
             <div class="col-6">
-                <t t-set="vat_len"
-                   t-value="len(o.commercial_partner_id.vat) if o.commercial_partner_id.vat else 0"/>
-                <span>
+                <h4 class="mb-0">
+                    <span t-field="o.l10n_latam_document_type_id.report_name"/>
+                </h4>
+                <div class="mt-1">
+                    <strong t-if="o.l10n_do_fiscal_number">
+                        <t t-if="ecf_representation">e-NCF:</t>
+                        <t t-else="">NCF:</t>
+                    </strong>
+                    <span t-field="o.l10n_do_fiscal_number"/>
+                </div>
+                <div t-if="(o.move_type == 'out_refund' or o.move_type == 'in_refund' or o.debit_origin_id) and o.l10n_do_origin_ncf">
+                    <strong>NCF modificado:</strong>
+                    <span t-field="o.l10n_do_origin_ncf"/>
+                    <t t-if="ecf_representation">
+                        <br/>
+                        <strong>Código Modificación:</strong>
+                        <span t-field="o.l10n_do_ecf_modification_code"/>
+                    </t>
+                </div>
+                <div id="fiscal_exp_date"
+                     t-if="o.l10n_latam_use_documents
+                           and o.state == 'posted'
+                           and o.l10n_do_fiscal_number
+                           and o.l10n_latam_document_type_id
+                           and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34', '02', '04')">
+                    <strong>
+                        <t t-if="ecf_representation">Vencimiento e-NCF:</t>
+                        <t t-else="">Válida hasta:</t>
+                    </strong>
+                    <span id="ecf_exp_date" t-field="o.l10n_do_ncf_expiration_date"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cliente: padding reducido (p-1 vs mt32 mb32 del original) -->
+        <div id="receiver_info" class="row p-1" style="font-size: 12px">
+            <t t-set="vat_len"
+               t-value="len(o.commercial_partner_id.vat) if o.commercial_partner_id.vat else 0"/>
+            <div class="col-7 mw-100">
+                <div>
                     <strong>
                         <t t-if="vat_len == 9">RNC:</t>
                         <t t-elif="vat_len == 11">Cédula:</t>
                         <t t-else="">ID Cliente:</t>
                     </strong>
                     <span class="m-0" t-out="o.commercial_partner_id.vat or ''"/>
-                </span>
-                <br/>
-                <span>
+                </div>
+                <div>
                     <strong>
                         <t t-if="vat_len == 9">Razón Social:</t>
                         <t t-else="">Nombre:</t>
                     </strong>
-                </span>
-                <t t-if="o.partner_id.is_company or not o.partner_id.parent_id">
-                    <span class="m-0" t-field="o.partner_id.name"/>
-                    <br/>
-                    <t t-if="o.partner_id.phone">
-                        <strong>Tel.:</strong>
-                        <span t-field="o.partner_id.phone"/>
-                        <t t-if="o.partner_id.mobile"><span>/</span></t>
+                    <t t-if="o.partner_id.is_company or not o.partner_id.parent_id">
+                        <span class="m-0" t-field="o.partner_id.name"/>
+                        <div class="d-inline" t-if="o.partner_id.phone or o.partner_id.mobile">
+                            <t t-if="o.partner_id.phone">
+                                <strong>Tel.:</strong>
+                                <span t-field="o.partner_id.phone"/>
+                                <t t-if="o.partner_id.mobile"><span>/</span></t>
+                            </t>
+                            <t t-if="o.partner_id.mobile">
+                                <strong>Cel.:</strong>
+                                <span t-field="o.partner_id.mobile" widget="phone"/>
+                            </t>
+                        </div>
                     </t>
-                    <t t-if="o.partner_id.mobile">
-                        <strong>Cel.:</strong>
-                        <span t-field="o.partner_id.mobile" widget="phone"/>
+                    <t t-else="">
+                        <t t-set="commercial_partner_id"
+                           t-value="o.partner_id.commercial_partner_id"/>
+                        <span class="m-0" t-field="commercial_partner_id.name"/>
+                        <div>
+                            <strong>Contacto:</strong>
+                            <span t-field="o.partner_id.name"/>
+                        </div>
+                        <div class="d-inline" t-if="commercial_partner_id.phone or commercial_partner_id.mobile">
+                            <t t-if="commercial_partner_id.phone">
+                                <strong>Tel.:</strong>
+                                <span t-field="commercial_partner_id.phone"/>
+                                <t t-if="commercial_partner_id.mobile"><span>/</span></t>
+                            </t>
+                            <t t-if="commercial_partner_id.mobile">
+                                <strong>Cel.:</strong>
+                                <span t-field="commercial_partner_id.mobile" widget="phone"/>
+                            </t>
+                        </div>
                     </t>
-                </t>
-                <t t-else="">
-                    <t t-set="commercial_partner_id"
-                       t-value="o.partner_id.commercial_partner_id"/>
-                    <span class="m-0" t-field="commercial_partner_id.name"/>
-                    <br/>
-                    <strong>Contacto:</strong>
-                    <span t-field="o.partner_id.name"/>
-                    <br/>
-                    <t t-if="commercial_partner_id.phone">
-                        <strong>Tel.:</strong>
-                        <span t-field="commercial_partner_id.phone"/>
-                        <t t-if="commercial_partner_id.mobile"><span>/</span></t>
-                    </t>
-                    <t t-if="commercial_partner_id.mobile">
-                        <strong>Cel.:</strong>
-                        <span t-field="commercial_partner_id.mobile" widget="phone"/>
-                    </t>
-                </t>
-                <span t-if="o.partner_id.street" class="m-0" t-field="o.partner_id"
-                      t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
-                <t t-if="o.invoice_origin">
-                    <br/>
-                    <strong>Origen:</strong>
-                    <span class="m-0" t-field="o.invoice_origin"/>
-                </t>
-                <t t-if="o.ref">
-                    <br/>
-                    <strong>Referencia:</strong>
-                    <span class="m-0" t-field="o.ref"/>
-                </t>
+                    <span t-if="o.partner_id.street" class="m-0" t-field="o.partner_id"
+                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                </div>
             </div>
+            <div class="col-2 mw-100" t-if="o.invoice_origin" name="origin">
+                <strong>Cotización:</strong>
+                <p class="m-0" t-field="o.invoice_origin"/>
+            </div>
+            <div class="col-2 mw-100" t-if="o.ref" name="reference">
+                <strong>Referencia:</strong>
+                <p class="m-0" t-field="o.ref"/>
+            </div>
+        </div>
+    </template>
+
+    <!--
+        Mejora 3: document_tax_totals (plantilla independiente)
+        - Wrapper con font-size: 12px !important
+        - Subtotal muestra o.amount_untaxed directamente (no itera subtotals del dict)
+        - Usa .get() con fallback en todos los accesos a l10n_do_amounts
+    -->
+    <template id="document_tax_totals">
+        <div style="font-size: 12px !important;">
+
+            <t t-set="l10n_do_amounts" t-value="o._get_l10n_do_amounts()"/>
+
+            <tr class="border-black o_subtotal">
+                <td><strong>Subtotal</strong></td>
+                <td class="text-end">
+                    <span t-out="o.amount_untaxed"
+                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                </td>
+            </tr>
+
+            <t t-foreach="o.line_ids.filtered(lambda l: l.tax_line_id)" t-as="tax_aml">
+                <t t-set="l10n_do_tax_amount"
+                   t-value="abs(tax_aml.debit or tax_aml.credit if o.currency_id == o.company_id.currency_id else tax_aml.amount_currency)"/>
+                <tr t-if="tax_aml.tax_line_id.amount > 0">
+                    <td>
+                        <span class="text-nowrap" t-out="tax_aml.tax_line_id.name"/>
+                    </td>
+                    <td class="text-end o_price_total">
+                        <span class="text-nowrap" t-out="l10n_do_tax_amount"
+                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
+            </t>
+
+            <t t-set="total_amount_taxed"
+               t-value="l10n_do_amounts.get('itbis_18_base_amount', 0) + l10n_do_amounts.get('itbis_16_base_amount', 0) + l10n_do_amounts.get('itbis_0_base_amount', 0)"/>
+            <t t-set="total_exempt_amount"
+               t-value="l10n_do_amounts.get('exempt_amount', 0)"/>
+
+            <tr class="border-black o_total" t-if="ecf_representation">
+                <td>Monto Gravado</td>
+                <td class="text-end o_price_total">
+                    <span class="text-nowrap" t-out="total_amount_taxed"
+                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                </td>
+            </tr>
+            <tr t-if="ecf_representation">
+                <td>Monto Exento</td>
+                <td class="text-end o_price_total">
+                    <span class="text-nowrap" t-out="total_exempt_amount"
+                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                </td>
+            </tr>
+
+            <tr class="border-black o_total">
+                <td><strong>Total</strong></td>
+                <t t-set="l10n_do_amount_total"
+                   t-value="l10n_do_amounts.get('l10n_do_invoice_total', o.amount_total)"/>
+                <td class="text-end">
+                    <span class="text-nowrap" t-out="l10n_do_amount_total"
+                          t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                </td>
+            </tr>
+
+            <t t-foreach="o.line_ids.filtered(lambda l: l.tax_line_id)" t-as="tax_aml">
+                <t t-set="l10n_do_wh_amount"
+                   t-value="tax_aml.debit or tax_aml.credit if o.currency_id == o.company_id.currency_id else tax_aml.amount_currency"/>
+                <tr t-if="tax_aml.tax_line_id.amount &lt; 0">
+                    <td>
+                        <span class="text-nowrap" t-out="tax_aml.tax_line_id.name"/>
+                    </td>
+                    <td class="text-end o_price_total">
+                        <span class="text-nowrap" t-out="l10n_do_wh_amount"
+                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </td>
+                </tr>
+            </t>
 
         </div>
     </template>
 
     <!--
-        Mejora 3: Parche sobre report_invoice_document_inherited.
-        - Redirige el t-call de informations a nuestra versión mejorada.
-        - Corrige la sección QR/pie: reemplaza el div interno con float:right
-          por un Bootstrap row con flexbox (col-6 + col-6).
+        Mejora 4: parche sobre report_invoice_document_inherited
+        - font-size 12px en filas de líneas y encabezados de tabla
+        - Elimina layout_document_title por defecto (custom_header ya lo muestra)
+        - Elimina divs oe_structure vacíos
+        - Redirige t-call de informations y document_tax_totals a nuestras versiones
+        - Corrige QR/pie: reemplaza float:right con Bootstrap flexbox (col-6 + col-6)
     -->
     <template id="report_invoice_document_patch"
               inherit_id="l10n_do_accounting.report_invoice_document_inherited">
 
-        <!-- Redirigir a nuestra plantilla informations mejorada -->
+        <!-- Font-size 12px en las filas de líneas -->
+        <xpath expr="//tbody[hasclass('invoice_tbody')]" position="attributes">
+            <attribute name="style">font-size: 12px;</attribute>
+        </xpath>
+
+        <!-- Font-size 12px en el contenedor de encabezados de tabla -->
+        <xpath expr="//div[hasclass('page')]//div[hasclass('overflow-hidden')]" position="attributes">
+            <attribute name="style">font-size: 12px;</attribute>
+        </xpath>
+
+        <!-- Eliminar el título de layout por defecto de Odoo -->
+        <xpath expr="//t[@t-set='layout_document_title']" position="replace"/>
+
+        <!-- Eliminar secciones oe_structure (zonas de edición web vacías) -->
+        <xpath expr="//div[hasclass('oe_structure')]" position="replace"/>
+
+        <!-- Redirigir informations a nuestra versión mejorada -->
         <xpath expr="//t[@t-call='l10n_do_accounting.informations']" position="attributes">
             <attribute name="t-call">l10n_do_report.informations</attribute>
         </xpath>
 
+        <!-- Redirigir document_tax_totals a nuestra versión (con .get() y font-size) -->
+        <xpath expr="//t[@t-call='l10n_do_accounting.document_tax_totals']" position="replace">
+            <t t-set="tax_totals" t-value="o.tax_totals"/>
+            <t t-call="l10n_do_report.document_tax_totals"/>
+        </xpath>
+
         <!--
-            Reemplazar el contenedor interno del bloque QR + Original/Copia.
-            Antes: div sin clase con dos hijos usando display:inline-block y float:right.
-            Ahora: row Bootstrap alineado al fondo con col-6 cada uno.
+            Corregir layout QR / Original-Copia:
+            Antes: contenedor sin clase con hijos usando display:inline-block y float:right.
+            Ahora: row Bootstrap con col-6 + col-6, alineados al fondo.
         -->
         <xpath expr="//div[@style='float: right;']/.." position="replace">
             <div class="row align-items-end mt-2">
