@@ -87,7 +87,7 @@
                 </div>
             </div>
         </div>
-        <div id="receiver_info" class="row px-1 my-0" style="font-size: 14px; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+        <div id="receiver_info" class="row pt-1 pb-1 px-1 my-0" style="font-size: 14px; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
             <t t-set="vat_len" t-value="len(o.commercial_partner_id.vat) if o.commercial_partner_id.vat else 0"/>
             <div class="col-7 mw-100">
                 <div>
