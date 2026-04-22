@@ -235,10 +235,6 @@
             <attribute name="style">font-size: 12px;</attribute>
         </xpath>
 
-        <xpath expr="//div[hasclass('page')]//div[hasclass('overflow-hidden')]" position="attributes">
-            <attribute name="style">font-size: 12px;</attribute>
-        </xpath>
-
         <xpath expr="//t[@t-set='layout_document_title']" position="replace"/>
             
         <xpath expr="//div[hasclass('oe_structure')]" position="replace"/>
