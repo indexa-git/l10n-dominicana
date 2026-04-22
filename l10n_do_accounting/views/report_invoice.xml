@@ -34,7 +34,7 @@
     </template>
 
     <template id="informations">
-        <div id="informations" class="row mb-0" style="margin-top: 0px; font-size: 12px">
+        <div id="informations" class="row mb-0" style="margin-top: 0px; font-size: 14px">
             <div class="col-6">
                 <div>
                     <strong t-field="o.company_id.partner_id.name"/>
@@ -87,7 +87,7 @@
                 </div>
             </div>
         </div>
-        <div id="receiver_info" class="row px-1 my-0" style="font-size: 12px; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
+        <div id="receiver_info" class="row px-1 my-0" style="font-size: 14px; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
             <t t-set="vat_len" t-value="len(o.commercial_partner_id.vat) if o.commercial_partner_id.vat else 0"/>
             <div class="col-7 mw-100">
                 <div>
@@ -155,7 +155,7 @@
     </template>
 
     <template id="document_tax_totals">
-        <div style="font-size: 12px !important;">
+        <div style="font-size: 14px !important;">
 
             <t t-set="l10n_do_amounts" t-value="o._get_l10n_do_amounts()"/>
 
@@ -232,7 +232,7 @@
         </t>
 
         <xpath expr="//tbody[hasclass('invoice_tbody')]" position="attributes">
-            <attribute name="style">font-size: 12px;</attribute>
+            <attribute name="style">font-size: 14px;</attribute>
         </xpath>
             
         <xpath expr="//div[hasclass('oe_structure')]" position="replace"/>
