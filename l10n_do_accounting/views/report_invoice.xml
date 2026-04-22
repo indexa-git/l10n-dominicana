@@ -34,7 +34,7 @@
     </template>
 
     <template id="informations">
-        <div id="informations" class="row mb-0" style="margin-top: 0; margin-bottom: 0; font-size: 12px">
+        <div id="informations" class="row mb-0" style="margin-top: 0px; font-size: 12px">
             <div class="col-6">
                 <div>
                     <strong t-field="o.company_id.partner_id.name"/>
@@ -53,7 +53,6 @@
                     <span t-field="o.invoice_date_due"/>
                 </div>
             </div>
-
             <div class="col-6">
                 <h4 class="mb-0">
                     <span t-field="o.l10n_latam_document_type_id.report_name"/>
@@ -236,8 +235,12 @@
             <attribute name="style">font-size: 12px;</attribute>
         </xpath>
 
-<xpath expr="//t[@t-set='layout_document_title']" position="replace"/>
+        <xpath expr="//div[hasclass('page')]//div[hasclass('overflow-hidden')]" position="attributes">
+            <attribute name="style">font-size: 12px;</attribute>
+        </xpath>
 
+        <xpath expr="//t[@t-set='layout_document_title']" position="replace"/>
+            
         <xpath expr="//div[hasclass('oe_structure')]" position="replace"/>
 
         <!-- Ocultar dirección por defecto si existe -->
@@ -249,6 +252,9 @@
         <xpath expr="//div[@id='informations']" position="replace">
             <t t-call="l10n_do_accounting.informations"/>
         </xpath>
+
+        <!-- El estándar deja otro div#receiver_info (row mt32 mb32) como hermano; ya lo incluimos en informations -->
+        <xpath expr="//div[@id='receiver_info'][hasclass('mt32')]" position="replace"/>
 
         <!-- Marcar líneas exentas con 'E' -->
         <xpath expr="//table[hasclass('o_main_table')]//tbody//td[hasclass('o_price_total')]" position="inside">
