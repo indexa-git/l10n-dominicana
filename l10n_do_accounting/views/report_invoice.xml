@@ -34,7 +34,7 @@
     </template>
 
     <template id="informations">
-        <div id="informations" class="row" style="margin-top: 0px; font-size: 12px">
+        <div id="informations" class="row mb-0" style="margin-top: 0; margin-bottom: 0; font-size: 12px">
             <div class="col-6">
                 <div>
                     <strong t-field="o.company_id.partner_id.name"/>
@@ -88,7 +88,7 @@
                 </div>
             </div>
         </div>
-        <div id="receiver_info" class="row p-1" style="font-size: 12px">
+        <div id="receiver_info" class="row px-1 my-0" style="font-size: 12px; margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;">
             <t t-set="vat_len" t-value="len(o.commercial_partner_id.vat) if o.commercial_partner_id.vat else 0"/>
             <div class="col-7 mw-100">
                 <div>
