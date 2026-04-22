@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!--
+        Mejora 1: Header — la columna derecha (col-4 vacía) ahora muestra
+        el tipo de documento, NCF y fecha de vencimiento.
+        El logo se reduce a col-7 para dar espacio al bloque fiscal.
+    -->
+    <template id="custom_header" inherit_id="l10n_do_accounting.custom_header">
+        <xpath expr="//div[@name='left-upper-side']" position="replace">
+            <div name="left-upper-side" class="col-7">
+                <img t-if="o.company_id.logo"
+                     t-att-src="image_data_uri(o.company_id.logo)"
+                     style="max-height: 100px;" alt="Logo"/>
+            </div>
+            <div name="right-upper-side" class="col-5 text-end"
+                 t-if="o.l10n_do_fiscal_number and o.l10n_latam_document_type_id">
+                <h2 class="mb-1">
+                    <span t-field="o.l10n_latam_document_type_id.report_name"/>
+                </h2>
+                <strong>
+                    <t t-if="o.is_ecf_invoice">e-NCF:</t>
+                    <t t-else="">NCF:</t>
+                </strong>
+                <span t-field="o.l10n_do_fiscal_number"/>
+                <t t-if="o.l10n_latam_use_documents
+                           and o.state == 'posted'
+                           and o.l10n_latam_document_type_id.doc_code_prefix[1:] not in ('32', '34', '02', '04')">
+                    <br/>
+                    <strong>
+                        <t t-if="o.is_ecf_invoice">Vencimiento e-NCF:</t>
+                        <t t-else="">Válida hasta:</t>
+                    </strong>
+                    <span t-field="o.l10n_do_ncf_expiration_date"/>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <!--
+        Mejora 2: Plantilla informations rediseñada.
+        - Columna izquierda: empresa (igual que antes) + NCF modificado si aplica.
+        - Columna derecha: datos del cliente (antes era una sección separada
+          con mt32 mb32 que generaba espacios en blanco).
+        - Se eliminan los <br/> y div#receiver_info redundantes.
+    -->
+    <template id="informations">
+        <div id="informations" class="row mt-3 mb-2">
+
+            <!-- Empresa -->
+            <div class="col-6">
+                <div>
+                    <strong t-field="o.company_id.partner_id.name"/>
+                </div>
+                <span t-field="o.company_id.partner_id" class="text-muted"
+                      t-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
+                <span>
+                    <strong>RNC:</strong>
+                    <span t-if="o.company_id.vat" t-field="o.company_id.vat"/>
+                </span>
+                <br/>
+                <span>
+                    <strong>Fecha Emisión:</strong>
+                    <span t-field="o.invoice_date"/>
+                </span>
+                <t t-if="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted' and not ecf_representation">
+                    <br/>
+                    <span>
+                        <strong>Vence:</strong>
+                        <span t-field="o.invoice_date_due"/>
+                    </span>
+                </t>
+                <t t-if="(o.move_type in ('out_refund', 'in_refund') or o.debit_origin_id) and o.l10n_do_origin_ncf">
+                    <br/>
+                    <span>
+                        <strong>NCF modificado:</strong>
+                        <span t-field="o.l10n_do_origin_ncf"/>
+                    </span>
+                    <t t-if="ecf_representation">
+                        <br/>
+                        <span>
+                            <strong>Código Modificación:</strong>
+                            <span t-field="o.l10n_do_ecf_modification_code"/>
+                        </span>
+                    </t>
+                </t>
+            </div>
+
+            <!-- Cliente (fusionado desde receiver_info) -->
+            <div class="col-6">
+                <t t-set="vat_len"
+                   t-value="len(o.commercial_partner_id.vat) if o.commercial_partner_id.vat else 0"/>
+                <span>
+                    <strong>
+                        <t t-if="vat_len == 9">RNC:</t>
+                        <t t-elif="vat_len == 11">Cédula:</t>
+                        <t t-else="">ID Cliente:</t>
+                    </strong>
+                    <span class="m-0" t-out="o.commercial_partner_id.vat or ''"/>
+                </span>
+                <br/>
+                <span>
+                    <strong>
+                        <t t-if="vat_len == 9">Razón Social:</t>
+                        <t t-else="">Nombre:</t>
+                    </strong>
+                </span>
+                <t t-if="o.partner_id.is_company or not o.partner_id.parent_id">
+                    <span class="m-0" t-field="o.partner_id.name"/>
+                    <br/>
+                    <t t-if="o.partner_id.phone">
+                        <strong>Tel.:</strong>
+                        <span t-field="o.partner_id.phone"/>
+                        <t t-if="o.partner_id.mobile"><span>/</span></t>
+                    </t>
+                    <t t-if="o.partner_id.mobile">
+                        <strong>Cel.:</strong>
+                        <span t-field="o.partner_id.mobile" widget="phone"/>
+                    </t>
+                </t>
+                <t t-else="">
+                    <t t-set="commercial_partner_id"
+                       t-value="o.partner_id.commercial_partner_id"/>
+                    <span class="m-0" t-field="commercial_partner_id.name"/>
+                    <br/>
+                    <strong>Contacto:</strong>
+                    <span t-field="o.partner_id.name"/>
+                    <br/>
+                    <t t-if="commercial_partner_id.phone">
+                        <strong>Tel.:</strong>
+                        <span t-field="commercial_partner_id.phone"/>
+                        <t t-if="commercial_partner_id.mobile"><span>/</span></t>
+                    </t>
+                    <t t-if="commercial_partner_id.mobile">
+                        <strong>Cel.:</strong>
+                        <span t-field="commercial_partner_id.mobile" widget="phone"/>
+                    </t>
+                </t>
+                <span t-if="o.partner_id.street" class="m-0" t-field="o.partner_id"
+                      t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                <t t-if="o.invoice_origin">
+                    <br/>
+                    <strong>Origen:</strong>
+                    <span class="m-0" t-field="o.invoice_origin"/>
+                </t>
+                <t t-if="o.ref">
+                    <br/>
+                    <strong>Referencia:</strong>
+                    <span class="m-0" t-field="o.ref"/>
+                </t>
+            </div>
+
+        </div>
+    </template>
+
+    <!--
+        Mejora 3: Parche sobre report_invoice_document_inherited.
+        - Redirige el t-call de informations a nuestra versión mejorada.
+        - Corrige la sección QR/pie: reemplaza el div interno con float:right
+          por un Bootstrap row con flexbox (col-6 + col-6).
+    -->
+    <template id="report_invoice_document_patch"
+              inherit_id="l10n_do_accounting.report_invoice_document_inherited">
+
+        <!-- Redirigir a nuestra plantilla informations mejorada -->
+        <xpath expr="//t[@t-call='l10n_do_accounting.informations']" position="attributes">
+            <attribute name="t-call">l10n_do_report.informations</attribute>
+        </xpath>
+
+        <!--
+            Reemplazar el contenedor interno del bloque QR + Original/Copia.
+            Antes: div sin clase con dos hijos usando display:inline-block y float:right.
+            Ahora: row Bootstrap alineado al fondo con col-6 cada uno.
+        -->
+        <xpath expr="//div[@style='float: right;']/.." position="replace">
+            <div class="row align-items-end mt-2">
+                <div t-if="o.l10n_do_electronic_stamp" class="col-6">
+                    <div>
+                        <img alt="Barcode"
+                             t-att-src="'/report/barcode/?barcode_type=QR&amp;width=100&amp;height=100&amp;value=' + o.l10n_do_electronic_stamp if o.l10n_do_electronic_stamp else ''"/>
+                    </div>
+                    <t t-if="o.l10n_do_ecf_security_code">
+                        <strong>Código de Seguridad:</strong>
+                        <span t-out="o.l10n_do_ecf_security_code"/>
+                    </t>
+                    <br/>
+                    <t t-if="o.l10n_do_ecf_sign_date">
+                        <strong>Fecha Firma Digital:</strong>
+                        <span t-out="context_timestamp(o.l10n_do_ecf_sign_date).strftime('%d-%m-%Y')"/>
+                    </t>
+                </div>
+                <div t-if="is_l10n_do_invoice" class="col-6 text-end text-muted">
+                    <span><strong>Original:</strong> Cliente</span>
+                    <br/>
+                    <span><strong>Copia:</strong> Vendedor</span>
+                </div>
+            </div>
+        </xpath>
+
+    </template>
+
+</odoo>
