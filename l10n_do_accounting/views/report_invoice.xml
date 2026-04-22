@@ -247,8 +247,6 @@
             <t t-call="l10n_do_accounting.informations"/>
         </xpath>
 
-        <!-- El estándar deja otro div#receiver_info (row mt32 mb32) como hermano; ya lo incluimos en informations -->
-        <xpath expr="//div[@id='receiver_info'][hasclass('mt32')]" position="replace"/>
 
         <!-- Marcar líneas exentas con 'E' -->
         <xpath expr="//table[hasclass('o_main_table')]//tbody//td[hasclass('o_price_total')]" position="inside">
