@@ -235,17 +235,19 @@
             <attribute name="style">font-size: 14px;</attribute>
         </xpath>
 
-        <xpath expr="//t[@t-set='layout_document_title']" position="replace"/>
-            
         <xpath expr="//div[hasclass('oe_structure')]" position="replace"/>
+
+        <!-- Oculta el título original del documento en el body;
+             el título se renderiza desde custom_header -->
+        <xpath expr="//h2[.//span[@t-field='o.name']]" position="replace"/>
 
         <!-- Ocultar dirección por defecto si existe -->
         <xpath expr="//t[@t-set='address']" position="replace">
             <t t-set="address" t-value="False"/>
         </xpath>
 
-        <!-- Reemplazar la sección de información -->
-        <xpath expr="//div[@id='informations']" position="replace">
+        <!-- Reemplaza el bloque superior original (address + informations) -->
+        <xpath expr="//div[@id='informations']/ancestor::div[1]" position="replace">
             <t t-call="l10n_do_accounting.informations"/>
         </xpath>
 
