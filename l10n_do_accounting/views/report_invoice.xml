@@ -196,18 +196,6 @@
                 </td>
             </tr>
 
-            <!-- Total -->
-            <tr class="border-black o_total">
-                <td>
-                    <strong>Total</strong>
-                </td>
-
-                <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts.get('l10n_do_invoice_total', o.amount_total)"/>
-                <td class="text-end">
-                    <span class="text-nowrap" t-out="l10n_do_amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
-                </td>
-            </tr>
-
             <!-- Desglose de retenciones -->
             <t t-foreach="o.line_ids.filtered(lambda l: l.tax_line_id)" t-as="tax_aml">
                 <t t-set="l10n_do_wh_amount" t-value="tax_aml.debit or tax_aml.credit if o.currency_id == o.company_id.currency_id else tax_aml.amount_currency"/>
@@ -220,6 +208,18 @@
                     </td>
                 </tr>
             </t>
+
+            <!-- Total = subtotal + impuestos - retenciones -->
+            <tr class="border-black o_total">
+                <td>
+                    <strong>Total</strong>
+                </td>
+
+                <t t-set="l10n_do_amount_total" t-value="l10n_do_amounts.get('l10n_do_invoice_total', o.amount_total)"/>
+                <td class="text-end">
+                    <span class="text-nowrap" t-out="l10n_do_amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                </td>
+            </tr>
         </div>
     </template>
 
