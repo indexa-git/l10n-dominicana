@@ -65,6 +65,19 @@ def create_law_30_26_taxes(env):
             )
             if not source:
                 continue
+            # On versions where taxes and tax groups carry a country,
+            # country_id is a stored computed field: the copy recomputes
+            # it from the company fiscal country while the tax group is
+            # copied from the source. Legacy data can hold a mismatched
+            # pair that would trip the tax group country constraint on
+            # the new record, so make the pair explicit.
+            if (
+                "country_id" in source._fields
+                and "country_id" in source.tax_group_id._fields
+            ):
+                country = source.tax_group_id.country_id or source.country_id
+                if country:
+                    values = dict(values, country_id=country.id)
             tax = env["account.tax"].search(
                 [
                     ("name", "=", values["name"]),
