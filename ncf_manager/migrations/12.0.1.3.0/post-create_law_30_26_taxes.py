@@ -51,6 +51,41 @@ TECH_ACCOUNT_CODE = "21030310"
 TECH_ACCOUNT_NAME = "ISR Retenido por Servicios Tecnológicos del Exterior"
 
 
+def _column_exists(cr, table, column):
+    cr.execute(
+        """
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = %s
+          AND column_name = %s
+        """,
+        (table, column),
+    )
+    return bool(cr.fetchone())
+
+
+def _flag_withholding_account(env, account):
+    # l10n_do_withholding_certification adds these columns on the account;
+    # it may not be installed and in any case loads after this module, so
+    # its fields are unknown to the registry while this script runs and
+    # must be set at SQL level.
+    cr = env.cr
+    if _column_exists(cr, "account_account", "is_l10n_do_withholding_account"):
+        cr.execute(
+            "UPDATE account_account"
+            " SET is_l10n_do_withholding_account = TRUE"
+            " WHERE id = %s",
+            (account.id,),
+        )
+    if _column_exists(cr, "account_account", "l10n_do_legal_base"):
+        cr.execute(
+            "UPDATE account_account"
+            " SET l10n_do_legal_base = %s"
+            " WHERE id = %s",
+            ("L30-26", account.id),
+        )
+
+
 def _get_tax_account(tax):
     if "invoice_repartition_line_ids" in tax._fields:
         line = tax.invoice_repartition_line_ids.filtered(
@@ -104,6 +139,7 @@ def _get_tech_account(env, company, source):
     account = old_account.copy(
         default={"code": code, "name": TECH_ACCOUNT_NAME}
     )
+    _flag_withholding_account(env, account)
     if code == TECH_ACCOUNT_CODE:
         # Same external id pattern the chart template generator uses, so
         # the script stays idempotent and consistent with the template.
