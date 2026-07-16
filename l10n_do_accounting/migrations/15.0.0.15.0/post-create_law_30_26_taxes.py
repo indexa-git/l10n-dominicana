@@ -20,7 +20,7 @@ LAW_30_26_TAXES = [
         "ret_15_income_person",
         "ret_10_income_person",
         {
-            "name": "Retención 15% ISR Honorarios a Físicas",
+            "name": "Retención 15% ISR Honorarios a Físicas (L30-26)",
             "description": "-15% ISR Honorarios",
             "amount": -15.0,
         },
@@ -29,7 +29,7 @@ LAW_30_26_TAXES = [
         "ret_15_income_rent",
         "ret_10_income_rent",
         {
-            "name": "Retención 15% ISR Alquileres a Físicas",
+            "name": "Retención 15% ISR Alquileres a Físicas (L30-26)",
             "description": "-15% ISR Alquileres",
             "amount": -15.0,
         },
@@ -38,8 +38,8 @@ LAW_30_26_TAXES = [
         "ret_15_income_remittance_tech",
         "ret_27_income_remittance",
         {
-            "name": "Retención 15% ISR Servicios Tecnológicos del Exterior",
-            "description": "-15% ISR Serv. Tecnológicos",
+            "name": "Retención 15% ISR por Remesas al Exterior (L30-26)",
+            "description": "-15% ISR Remesas",
             "amount": -15.0,
         },
     ),
@@ -48,7 +48,7 @@ LAW_30_26_TAXES = [
 TECH_TAX = "ret_15_income_remittance_tech"
 TECH_ACCOUNT_XMLID = "do_niif_21030310"
 TECH_ACCOUNT_CODE = "21030310"
-TECH_ACCOUNT_NAME = "ISR Retenido por Servicios Tecnológicos del Exterior"
+TECH_ACCOUNT_NAME = "ISR Retenido por Remesas al Exterior (L30-26)"
 
 
 def _column_exists(cr, table, column):
