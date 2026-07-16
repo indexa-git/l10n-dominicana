@@ -77,29 +77,53 @@ def _get_tech_account(env, company, source):
     )
     if account:
         return account
-    account = env["account.account"].search(
-        [
-            ("code", "=", TECH_ACCOUNT_CODE),
-            ("company_id", "=", company.id),
-        ],
-        limit=1,
-    )
-    if not account:
-        old_account = _get_tax_account(source)
-        if not old_account:
-            return account
-        account = old_account.copy(
-            default={"code": TECH_ACCOUNT_CODE, "name": TECH_ACCOUNT_NAME}
+    Account = env["account.account"]
+    # The chart of accounts is the client's to extend: the canonical code
+    # 21030310 (the one the upstream template introduces) may already be
+    # taken by an unrelated account, so never adopt an existing account by
+    # code - create a new one on the first free code from there on.
+    code = None
+    for offset in range(90):
+        candidate = str(21030310 + offset)
+        if not Account.search(
+            [("code", "=", candidate), ("company_id", "=", company.id)],
+            limit=1,
+        ):
+            code = candidate
+            break
+    if not code:
+        _logger.warning(
+            "Company %s: no free code found for the tech withholding "
+            "account, keeping the source tax account",
+            company.name,
         )
-    env["ir.model.data"].create(
-        {
-            "module": "l10n_do",
-            "name": "%s_%s" % (company.id, TECH_ACCOUNT_XMLID),
-            "model": "account.account",
-            "res_id": account.id,
-            "noupdate": True,
-        }
+        return Account.browse()
+    old_account = _get_tax_account(source)
+    if not old_account:
+        return Account.browse()
+    account = old_account.copy(
+        default={"code": code, "name": TECH_ACCOUNT_NAME}
     )
+    if code == TECH_ACCOUNT_CODE:
+        # Same external id pattern the chart template generator uses, so
+        # the script stays idempotent and consistent with the template.
+        env["ir.model.data"].create(
+            {
+                "module": "l10n_do",
+                "name": "%s_%s" % (company.id, TECH_ACCOUNT_XMLID),
+                "model": "account.account",
+                "res_id": account.id,
+                "noupdate": True,
+            }
+        )
+    else:
+        _logger.warning(
+            "Company %s: code %s was taken, tech withholding account "
+            "created with code %s",
+            company.name,
+            TECH_ACCOUNT_CODE,
+            code,
+        )
     return account
 
 
