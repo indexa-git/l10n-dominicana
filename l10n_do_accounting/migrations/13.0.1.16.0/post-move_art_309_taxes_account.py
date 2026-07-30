@@ -28,6 +28,67 @@ def _column_exists(cr, table, column):
     return bool(cr.fetchone())
 
 
+def _unknown_required_columns(env, model_name, table):
+    # Modules loading after this one add columns to the table (asset
+    # management, withholding on payment, ...). Their fields are unknown
+    # to the registry while this script runs, so copy() cannot fill them
+    # and a required column would break the INSERT.
+    known = set(["id"])
+    for name, field in env[model_name]._fields.items():
+        if field.store:
+            known.add(name)
+    env.cr.execute(
+        """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = %s
+          AND is_nullable = 'NO'
+          AND column_default IS NULL
+        """,
+        (table,),
+    )
+    return [c for (c,) in env.cr.fetchall() if c not in known]
+
+
+def _drop_required(env, table, columns):
+    for column in columns:
+        env.cr.execute(
+            'ALTER TABLE "%s" ALTER COLUMN "%s" DROP NOT NULL'
+            % (table, column)
+        )
+
+
+def _restore_required(env, table, columns, copied_ids):
+    # Give every new record the values of the record it was copied from,
+    # then put the constraints back. A rollback restores them anyway,
+    # since PostgreSQL keeps DDL transactional.
+    if not columns:
+        return
+    assignments = ", ".join(
+        '"%s" = src."%s"' % (column, column) for column in columns
+    )
+    for new_id, source_id in copied_ids:
+        env.cr.execute(
+            'UPDATE "%s" AS dst SET %s FROM "%s" AS src'
+            " WHERE dst.id = %%s AND src.id = %%s"
+            % (table, assignments, table),
+            (new_id, source_id),
+        )
+    for column in columns:
+        try:
+            with env.cr.savepoint():
+                env.cr.execute(
+                    'ALTER TABLE "%s" ALTER COLUMN "%s" SET NOT NULL'
+                    % (table, column)
+                )
+        except Exception:
+            _logger.warning(
+                "Could not restore the NOT NULL constraint of %s.%s",
+                table,
+                column,
+            )
+
+
 def _flag_withholding_account(env, account):
     # The withholding certification module adds these columns on the
     # account; it may not be installed and in any case loads after this
@@ -69,7 +130,7 @@ def _set_tax_account(tax, account):
         tax.write({"account_id": account.id, "refund_account_id": account.id})
 
 
-def _get_l30_26_other_account(env, company, source_account):
+def _get_l30_26_other_account(env, company, source_account, copied_accounts):
     account = env.ref(
         "l10n_do.%s_%s" % (company.id, ACCOUNT_XMLID),
         raise_if_not_found=False,
@@ -77,6 +138,15 @@ def _get_l30_26_other_account(env, company, source_account):
     if account:
         return account
     Account = env["account.account"]
+    # A previous run, or a manual fix, may have created the account
+    # already without the external id: adopt it instead of adding a
+    # second one under the next free code.
+    account = Account.search(
+        [("name", "=", ACCOUNT_NAME), ("company_id", "=", company.id)],
+        limit=1,
+    )
+    if account:
+        return account
     # The chart of accounts is the client's to extend: the canonical code
     # may already be taken by an unrelated account, so never adopt an
     # existing account by code - create a new one on the first free code.
@@ -99,6 +169,7 @@ def _get_l30_26_other_account(env, company, source_account):
     account = source_account.copy(
         default={"code": code, "name": ACCOUNT_NAME}
     )
+    copied_accounts.append((account.id, source_account.id))
     _flag_withholding_account(env, account)
     if code == ACCOUNT_CODE:
         env["ir.model.data"].create(
@@ -122,6 +193,11 @@ def _get_l30_26_other_account(env, company, source_account):
 
 
 def move_art_309_taxes_account(env):
+    account_columns = _unknown_required_columns(
+        env, "account.account", "account_account"
+    )
+    _drop_required(env, "account_account", account_columns)
+    copied_accounts = []
     for company in env["res.company"].search([]):
         taxes = env["account.tax"]
         for tax_name in ART_309_TAXES:
@@ -136,7 +212,9 @@ def move_art_309_taxes_account(env):
         source_account = _get_tax_account(taxes[0])
         if not source_account:
             continue
-        account = _get_l30_26_other_account(env, company, source_account)
+        account = _get_l30_26_other_account(
+            env, company, source_account, copied_accounts
+        )
         if not account:
             continue
         for tax in taxes:
@@ -146,6 +224,7 @@ def move_art_309_taxes_account(env):
             company.name,
             account.code,
         )
+    _restore_required(env, "account_account", account_columns, copied_accounts)
 
 
 def migrate(cr, version):
