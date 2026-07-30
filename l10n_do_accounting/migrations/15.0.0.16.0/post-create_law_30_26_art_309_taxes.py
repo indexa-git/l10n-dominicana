@@ -35,8 +35,72 @@ LAW_30_26_309_TAXES = [
 ]
 
 
+def _unknown_required_columns(env, model_name, table):
+    # Modules loading after this one add columns to the table (asset
+    # management, withholding on payment, ...). Their fields are unknown
+    # to the registry while this script runs, so copy() cannot fill them
+    # and a required column would break the INSERT.
+    known = set(["id"])
+    for name, field in env[model_name]._fields.items():
+        if field.store:
+            known.add(name)
+    env.cr.execute(
+        """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = %s
+          AND is_nullable = 'NO'
+          AND column_default IS NULL
+        """,
+        (table,),
+    )
+    return [c for (c,) in env.cr.fetchall() if c not in known]
+
+
+def _drop_required(env, table, columns):
+    for column in columns:
+        env.cr.execute(
+            'ALTER TABLE "%s" ALTER COLUMN "%s" DROP NOT NULL'
+            % (table, column)
+        )
+
+
+def _restore_required(env, table, columns, copied_ids):
+    # Give every new record the values of the record it was copied from,
+    # then put the constraints back. A rollback restores them anyway,
+    # since PostgreSQL keeps DDL transactional.
+    if not columns:
+        return
+    assignments = ", ".join(
+        '"%s" = src."%s"' % (column, column) for column in columns
+    )
+    for new_id, source_id in copied_ids:
+        env.cr.execute(
+            'UPDATE "%s" AS dst SET %s FROM "%s" AS src'
+            " WHERE dst.id = %%s AND src.id = %%s"
+            % (table, assignments, table),
+            (new_id, source_id),
+        )
+    for column in columns:
+        try:
+            with env.cr.savepoint():
+                env.cr.execute(
+                    'ALTER TABLE "%s" ALTER COLUMN "%s" SET NOT NULL'
+                    % (table, column)
+                )
+        except Exception:
+            _logger.warning(
+                "Could not restore the NOT NULL constraint of %s.%s",
+                table,
+                column,
+            )
+
+
 def create_law_30_26_art_309_taxes(env):
     ir_model_data = env["ir.model.data"]
+    tax_columns = _unknown_required_columns(env, "account.tax", "account_tax")
+    _drop_required(env, "account_tax", tax_columns)
+    copied_taxes = []
     for company in env["res.company"].search([]):
         for new_name, source_name, values in LAW_30_26_309_TAXES:
             source = env.ref(
@@ -73,6 +137,7 @@ def create_law_30_26_art_309_taxes(env):
             )
             if not tax:
                 tax = source.copy(default=values)
+                copied_taxes.append((tax.id, source.id))
             ir_model_data.create(
                 {
                     "module": "l10n_do",
@@ -85,6 +150,7 @@ def create_law_30_26_art_309_taxes(env):
             _logger.info(
                 "Company %s: created Law 30-26 tax %s", company.name, tax.name
             )
+    _restore_required(env, "account_tax", tax_columns, copied_taxes)
 
 
 def migrate(cr, version):
