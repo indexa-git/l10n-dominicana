@@ -151,6 +151,10 @@
                 <strong>Referencia:</strong>
                 <p class="m-0" t-field="o.ref"/>
             </div>
+            <div class="col-2 mw-100" t-if="o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted'" name="invoice_payment_term_date">
+                <strong>Fecha de vencimiento</strong>
+                <p class="m-0" t-field="o.invoice_date_due"/>
+            </div>
         </div>
     </template>
 
