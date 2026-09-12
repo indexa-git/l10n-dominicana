@@ -1,6 +1,10 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError
 
+# Xml id, without company prefix, of the "Regimenes Especiales" fiscal position
+# created by the Dominican chart of accounts on every company.
+SPECIAL_FISCAL_POSITION_XMLID = "position_especial"
+
 
 class Partner(models.Model):
     _inherit = "res.partner"
@@ -91,9 +95,62 @@ class Partner(models.Model):
                 % (", ".join(self._fields[f].string for f in fiscal_fields))
             )
 
+    @api.model
+    def _l10n_do_get_special_fiscal_position(self):
+        """Get the "Regimenes Especiales" fiscal position of the active company.
+
+        The Dominican chart of accounts creates one fiscal position per company,
+        so it is looked up through its company prefixed xml id. Databases coming
+        from previous versions keep that record under the ``l10n_do`` module.
+
+        Returns:
+            account.fiscal.position: the fiscal position, empty recordset if the
+                Dominican chart of accounts is not installed on the company.
+        """
+        fiscal_position = self.env["account.chart.template"].ref(
+            SPECIAL_FISCAL_POSITION_XMLID, raise_if_not_found=False
+        ) or self.env.ref(
+            f"l10n_do.{self.env.company.id}_{SPECIAL_FISCAL_POSITION_XMLID}",
+            raise_if_not_found=False,
+        )
+
+        return fiscal_position or self.env["account.fiscal.position"]
+
+    def _l10n_do_set_special_fiscal_position(self):
+        """Set the "Regimenes Especiales" fiscal position on exempt partners.
+
+        Partners which already have a fiscal position are left untouched so
+        manually chosen fiscal positions are never overwritten.
+        """
+        partners = self.filtered(
+            lambda p: p.l10n_do_dgii_tax_payer_type == "special"
+            and not p.property_account_position_id
+        )
+        if not partners:
+            return
+
+        fiscal_position = self._l10n_do_get_special_fiscal_position()
+        if fiscal_position:
+            partners.property_account_position_id = fiscal_position
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        partners = super(Partner, self).create(vals_list)
+        partners.browse(
+            [
+                partner.id
+                for partner, vals in zip(partners, vals_list)
+                if "property_account_position_id" not in vals
+            ]
+        )._l10n_do_set_special_fiscal_position()
+
+        return partners
+
     def write(self, vals):
         res = super(Partner, self).write(vals)
         self._check_l10n_do_fiscal_fields(vals)
+        if "property_account_position_id" not in vals:
+            self._l10n_do_set_special_fiscal_position()
 
         return res
 

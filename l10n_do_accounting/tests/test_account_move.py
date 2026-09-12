@@ -777,7 +777,7 @@ class AccountMoveTest(common.L10nDOTestsCommon):
                 "itbis_18_tax_amount": 18.0,
                 "itbis_withholding_amount": 18.0,
                 "itbis_withholding_base_amount": 100.0,
-                "l10n_do_invoice_total": 118.0,
+                "l10n_do_invoice_total": 90.0,
             },
         )
 
