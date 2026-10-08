@@ -2,30 +2,33 @@
 <odoo>
 
     <template id="web_address_layout_inherited" inherit_id="web.address_layout">
-        <!-- do not show company address on document header  -->
+        <!-- Hide the recipient address only on fiscal invoices: those are
+             rendered by report_invoice_document_inherited, which draws its
+             own receiver_info block. Invoices from journals without
+             documents keep the standard Odoo address block. -->
         <xpath expr="//div[@t-if='address']/div" position="attributes">
-            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
+            <attribute name="t-if">doc_model != "account.move" or o.country_code != "DO" or not o.l10n_latam_use_documents</attribute>
         </xpath>
     </template>
 
     <template id="external_layout_striped_inherited" inherit_id="web.external_layout_striped">
         <xpath expr="//div[hasclass('company_address')]" position="attributes">
-            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
+            <attribute name="t-if">doc_model != "account.move" or o.country_code != "DO" or not o.l10n_latam_use_documents</attribute>
         </xpath>
     </template>
     <template id="external_layout_boxed_inherited" inherit_id="web.external_layout_boxed">
         <xpath expr="//div[@name='company_address']" position="attributes">
-            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
+            <attribute name="t-if">doc_model != "account.move" or o.country_code != "DO" or not o.l10n_latam_use_documents</attribute>
         </xpath>
     </template>
     <template id="external_layout_bold_inherited" inherit_id="web.external_layout_bold">
         <xpath expr="//div[@name='company_address']" position="attributes">
-            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
+            <attribute name="t-if">doc_model != "account.move" or o.country_code != "DO" or not o.l10n_latam_use_documents</attribute>
         </xpath>
     </template>
     <template id="external_layout_standard_inherited" inherit_id="web.external_layout_standard">
         <xpath expr="//div[@name='company_address']" position="attributes">
-            <attribute name="t-if">doc_model != "account.move" or (doc_model == "account.move" and o.country_code != "DO")</attribute>
+            <attribute name="t-if">doc_model != "account.move" or o.country_code != "DO" or not o.l10n_latam_use_documents</attribute>
         </xpath>
     </template>
 

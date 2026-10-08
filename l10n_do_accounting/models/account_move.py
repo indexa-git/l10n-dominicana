@@ -2,14 +2,13 @@ import re
 from werkzeug import urls
 
 from odoo import models, fields, api, _
-from odoo.osv import expression
 from odoo.exceptions import ValidationError, UserError, AccessError
 from odoo.tools.sql import column_exists, create_column, drop_index, index_exists
 
 
 class AccountMove(models.Model):
     _inherit = "account.move"
-    _rec_names_search = ["l10n_do_fiscal_number"]
+    _rec_names_search = ["name", "partner_id.name", "ref", "l10n_do_fiscal_number"]
 
     _l10n_do_sequence_field = "l10n_do_fiscal_number"
     _l10n_do_sequence_fixed_regex = r"^(?P<prefix1>.*?)(?P<seq>\d{0,8})$"
@@ -188,16 +187,6 @@ class AccountMove(models.Model):
             """
             )
         return super()._auto_init()
-
-    @api.model
-    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
-        if name:
-            domain = expression.AND([[
-                "|",
-                ("name", operator, name),
-                ("l10n_do_fiscal_number", operator, name),
-            ], domain])
-        return super()._name_search(name, domain, operator, limit, order)
 
     def _l10n_do_is_new_expiration_date(self):
         self.ensure_one()
@@ -858,7 +847,7 @@ class AccountMove(models.Model):
 
     def unlink(self):
         if self.filtered(
-            lambda inv: inv.is_purchase_document()
+            lambda inv: inv.is_invoice()
             and inv.country_code == "DO"
             and inv.l10n_latam_use_documents
             and inv.posted_before

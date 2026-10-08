@@ -5,35 +5,35 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     @api.depends(
-        "posted_before", "state", "journal_id", "date", "move_type", "payment_id"
+        "posted_before",
+        "state",
+        "journal_id",
+        "date",
+        "move_type",
+        "payment_id",
     )
     def _compute_name(self):
-        self = self.sorted(lambda m: (m.date, m.ref or "", m._origin.id))
+        # Keep the standard (and l10n_latam_invoice_document) name computation for
+        # every company; only Dominican fiscal documents get the extra logic below.
+        super()._compute_name()
 
-        for move in self:
-            if move.state == "cancel":
-                continue
+        # ``l10n_latam_invoice_document._compute_name`` blanks the ``name`` of
+        # manually numbered purchase documents (vendor bills/refunds). In the
+        # Dominican localization those documents must keep an internal move
+        # sequence (e.g. ``COMP/2026/0001``); the fiscal NCF is stored
+        # separately in ``l10n_do_fiscal_number``. Re-assign the internal
+        # sequence for any posted DO fiscal document left without a name.
+        for move in self.filtered(
+            lambda x: x.country_code == "DO"
+            and x.l10n_latam_use_documents
+            and x.state == "posted"
+            and x.date
+            and (not x.name or x.name == "/")
+        ):
+            move._set_next_sequence()
 
-            move_has_name = move.name and move.name != "/"
-            if move_has_name or move.state != "posted":
-                if not move.posted_before and not move._sequence_matches_date():
-                    if move._get_last_sequence():
-                        move.name = False
-                        continue
-                else:
-                    if (
-                        move_has_name
-                        and move.posted_before
-                        or not move_has_name
-                        and move._get_last_sequence()
-                    ):
-                        continue
-            if move.date and (not move_has_name or not move._sequence_matches_date()):
-                move._set_next_sequence()
-
-        self.filtered(lambda m: not m.name and not move.quick_edit_mode).name = "/"
-        self._inverse_name()
-
+        # Assign the Dominican fiscal number (NCF) on internally generated
+        # fiscal documents once posted.
         for move in self.filtered(
             lambda x: x.country_code == "DO"
             and x.l10n_latam_document_type_id
