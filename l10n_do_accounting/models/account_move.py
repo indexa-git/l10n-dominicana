@@ -671,6 +671,9 @@ class AccountMove(models.Model):
             if not invoice.amount_total:
                 raise UserError(_("Fiscal invoice cannot be posted with amount zero."))
 
+            if not invoice.partner_id.vat and invoice.l10n_latam_document_type_id.is_vat_required:
+                raise ValidationError("Necesita colocar un RNC/Cedula al Contacto.")
+
         non_payer_type_invoices = l10n_do_invoices.filtered(
             lambda inv: not inv.partner_id.l10n_do_dgii_tax_payer_type
         )
