@@ -54,7 +54,7 @@ class AccountJournal(models.Model):
     def _get_l10n_do_ncf_types_data(self):
         return {
             "issued": {
-                "taxpayer": ["fiscal"],
+                "taxpayer": ["fiscal", "consumer"],
                 "non_payer": ["consumer", "unique"],
                 "nonprofit": ["fiscal"],
                 "special": ["special"],
